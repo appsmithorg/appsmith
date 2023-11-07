@@ -7,13 +7,13 @@ import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type {
   AuthenticationStatus,
   Datasource,
+  DatasourceStructureContext,
   FilePickerActionStatus,
   MockDatasource,
 } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
 import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
@@ -60,19 +60,19 @@ export const updateDatasource = (
   };
 };
 
-export type UpdateDatasourceSuccessAction = {
+export interface UpdateDatasourceSuccessAction {
   type: string;
   payload: Datasource;
   redirect: boolean;
   queryParams?: Record<string, string>;
-};
+}
 
-export type CreateDatasourceSuccessAction = {
+export interface CreateDatasourceSuccessAction {
   type: string;
   payload: Datasource;
   isDBCreated: boolean;
   redirect: boolean;
-};
+}
 
 export const updateDatasourceSuccess = (
   payload: Datasource,
@@ -336,7 +336,7 @@ export const getOAuthAccessToken = (datasourceId: string) => {
   };
 };
 
-export type executeDatasourceQuerySuccessPayload<T> = {
+export interface executeDatasourceQuerySuccessPayload<T> {
   responseMeta: ResponseMeta;
   data: {
     body: T;
@@ -345,7 +345,7 @@ export type executeDatasourceQuerySuccessPayload<T> = {
     statusCode: string;
     isExecutionSuccess: boolean;
   };
-};
+}
 type errorPayload = string;
 
 export interface executeDatasourceReduxActionPayload {

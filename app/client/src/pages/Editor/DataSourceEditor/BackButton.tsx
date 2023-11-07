@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { builderURL, generateTemplateFormURL } from "RouteBuilder";
+import { builderURL, generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -38,7 +38,6 @@ function BackButton() {
       className="t--back-button"
       onClick={goBack}
       startIcon="arrow-left-line"
-      target="_self"
     >
       Back
     </Back>

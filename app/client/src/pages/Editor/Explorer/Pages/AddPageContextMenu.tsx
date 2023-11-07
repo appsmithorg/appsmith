@@ -3,9 +3,9 @@ import { AddButtonWrapper, EntityClassNames } from "../Entity";
 import EntityAddButton from "../Entity/AddButton";
 import styled from "styled-components";
 import history from "utils/history";
-import { generateTemplateFormURL } from "RouteBuilder";
+import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import { useParams } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { showTemplatesModal } from "actions/templateActions";
 import {
@@ -25,9 +25,12 @@ import {
   Tooltip,
   Text,
 } from "design-system";
-import { getIsAutoLayout } from "selectors/editorSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
+import {
+  LayoutSystemFeatures,
+  useLayoutSystemFeatures,
+} from "layoutSystems/common/useLayoutSystemFeatures";
 
 const Wrapper = styled.div`
   .title {
@@ -37,12 +40,12 @@ const Wrapper = styled.div`
   }
 `;
 
-type SubMenuProps = {
+interface SubMenuProps {
   className: string;
   openMenu: boolean;
   onMenuClose: () => void;
   createPageCallback: () => void;
-};
+}
 
 function AddPageContextMenu({
   className,
@@ -53,8 +56,12 @@ function AddPageContextMenu({
   const [show, setShow] = useState(openMenu);
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
-  const isAutoLayout = useSelector(getIsAutoLayout);
   const isAirgappedInstance = isAirgapped();
+
+  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
+  const [enableForkingFromTemplates] = checkLayoutSystemFeatures([
+    LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
+  ]);
 
   const ContextMenuItems = useMemo(() => {
     const items = [
@@ -74,7 +81,7 @@ function AddPageContextMenu({
       },
     ];
 
-    if (!isAutoLayout && !isAirgappedInstance) {
+    if (enableForkingFromTemplates && !isAirgappedInstance) {
       items.push({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
         icon: "layout-2-line",

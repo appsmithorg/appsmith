@@ -9,17 +9,20 @@ import { get } from "lodash";
 import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { MinimumPopupRows } from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { klona as clone } from "klona/full";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -192,6 +195,25 @@ class ButtonGroupWidget extends BaseWidget<
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: (props: ButtonGroupWidgetProps) => {
+        let minWidth = 120;
+        const buttonLength = Object.keys(props.groupButtons).length;
+        if (props.orientation === "horizontal") {
+          // 120 is the width of the button, 8 is widget padding, 1 is the gap between buttons
+          minWidth = 120 * buttonLength + 8 + (buttonLength - 1) * 1;
+        }
+        return {
+          maxHeight: {},
+          maxWidth: {},
+          minHeight: { base: "40px" },
+          minWidth: { base: `${minWidth}px` },
+        };
       },
     };
   }
@@ -769,9 +791,11 @@ class ButtonGroupWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
-    const { componentWidth } = this.getComponentDimensions();
-    const minPopoverWidth = MinimumPopupRows * this.props.parentColumnSpace;
+  getWidgetView() {
+    const { componentWidth } = this.props;
+    const minPopoverWidth =
+      (MinimumPopupWidthInPercentage / 100) *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
 
     return (
       <ButtonGroupComponent

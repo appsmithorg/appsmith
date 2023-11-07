@@ -9,11 +9,9 @@ import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { PluginType } from "entities/Action";
-import { Button, Callout } from "design-system";
+import { Callout } from "design-system";
 import {
   createDatasourceFromForm,
-  redirectAuthorizationCode,
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
@@ -40,8 +38,10 @@ import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Form } from "./DBForm";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -75,6 +75,7 @@ interface DatasourceRestApiEditorProps {
   triggerSave?: boolean;
   datasourceDeleteTrigger: () => void;
   viewMode: boolean;
+  isFeatureEnabled: boolean;
 }
 
 type Props = DatasourceRestApiEditorProps &
@@ -191,9 +192,10 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   validate = (): boolean => {
-    const { datasource, datasourceId, formData } = this.props;
+    const { datasource, datasourceId, formData, isFeatureEnabled } = this.props;
     const createMode = datasourceId === TEMP_DATASOURCE_ID;
-    const canManageDatasource = hasManageDatasourcePermission(
+    const canManageDatasource = getHasManageDatasourcePermission(
+      isFeatureEnabled,
       datasource?.userPermissions || [],
     );
     if (!formData) return true;
@@ -267,16 +269,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   };
 
   renderEditor = () => {
-    const { datasource, datasourceId, formData, isSaving, messages, pageId } =
-      this.props;
-    const isAuthorized = _.get(
-      datasource,
-      "datasourceConfiguration.authentication.isAuthorized",
-      false,
-    );
+    const { formData, messages } = this.props;
     if (!formData) return;
-
-    const { authentication } = formData;
 
     return (
       <>
@@ -288,29 +282,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           ))}
         {this.renderGeneralSettings()}
         {this.renderOauth2AdvancedSettings()}
-        {formData.authType &&
-          formData.authType === AuthType.OAuth2 &&
-          _.get(authentication, "grantType") ===
-            GrantType.AuthorizationCode && (
-            <FormInputContainer>
-              <Button
-                className="t--save-and-authorize-datasource"
-                isDisabled={this.validate()}
-                isLoading={isSaving}
-                onClick={() =>
-                  this.save(
-                    redirectAuthorizationCode(
-                      pageId,
-                      datasourceId,
-                      PluginType.API,
-                    ),
-                  )
-                }
-              >
-                {isAuthorized ? "Save and Re-Authorize" : "Save and Authorize"}
-              </Button>
-            </FormInputContainer>
-          )}
       </>
     );
   };
@@ -1039,11 +1010,17 @@ const mapStateToProps = (state: AppState, props: any) => {
   const { currentEnvironment, datasource, formName } = props;
   const hintMessages = datasource && datasource.messages;
 
+  const isFeatureEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.license_gac_enabled,
+  );
+
   return {
     initialValues: datasourceToFormValues(datasource, currentEnvironment),
     formMeta: getFormMeta(formName)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
+    isFeatureEnabled,
   };
 };
 

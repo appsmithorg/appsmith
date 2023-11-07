@@ -1,15 +1,18 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { LayoutDirection, Positioning } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  LayoutDirection,
+  Positioning,
+} from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { find } from "lodash";
 import React from "react";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
@@ -21,8 +24,11 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
@@ -33,6 +39,7 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 export function selectedTabValidation(
   value: unknown,
@@ -81,6 +88,7 @@ class TabsWidget extends BaseWidget<
 
   static getDefaults() {
     return {
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       rows: WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS + 5,
@@ -218,6 +226,23 @@ class TabsWidget extends BaseWidget<
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      defaultTab: ["tabsObj", "tabs"],
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -310,7 +335,6 @@ class TabsWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
-              dependentPaths: ["tabsObj", "tabs"],
             },
             dependencies: ["tabsObj", "tabs"],
           },
@@ -517,18 +541,17 @@ class TabsWidget extends BaseWidget<
     return {};
   }
 
-  getPageView() {
-    const { leftColumn, parentColumnSpace, rightColumn } = this.props;
-
+  getWidgetView() {
+    const { componentWidth } = this.props;
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
-      width:
-        (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
+      width: componentWidth - WIDGET_PADDING * 2,
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
       !isAutoHeightEnabledForWidgetWithLimits(this.props);
+
     return (
       <TabsComponent
         {...tabsComponentProps}
@@ -543,7 +566,7 @@ class TabsWidget extends BaseWidget<
         selectedTabWidgetId={this.getSelectedTabWidgetId()}
         shouldScrollContents={
           this.props.shouldScrollContents &&
-          this.props.appPositioningType !== AppPositioningTypes.AUTO
+          this.props.layoutSystemType === LayoutSystemTypes.FIXED
         }
       >
         {this.renderComponent()}
@@ -563,7 +586,7 @@ class TabsWidget extends BaseWidget<
     }
 
     childWidgetData.canExtend = this.props.shouldScrollContents;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     childWidgetData.rightColumn = componentWidth;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.bottomRow = this.props.shouldScrollContents
@@ -575,7 +598,7 @@ class TabsWidget extends BaseWidget<
       (item) => item.widgetId === selectedTabWidgetId,
     )[0];
     const positioning: Positioning =
-      this.props.appPositioningType == AppPositioningTypes.AUTO
+      this.props.layoutSystemType == LayoutSystemTypes.AUTO
         ? Positioning.Vertical
         : Positioning.Fixed;
     childWidgetData.positioning = positioning;
@@ -586,16 +609,15 @@ class TabsWidget extends BaseWidget<
         : LayoutDirection.Horizontal;
     childWidgetData.alignment = selectedTabProps?.alignment;
     childWidgetData.spacing = selectedTabProps?.spacing;
-
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 
   private getSelectedTabWidgetId() {
     let selectedTabWidgetId = this.props.selectedTabWidgetId;
     if (this.props.children) {
       selectedTabWidgetId =
-        this.props.children.find((tab) =>
-          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
+        this.props.children.find(
+          (tab) => this.props.selectedWidgetAncestry?.includes(tab.widgetId),
         )?.widgetId ?? this.props.selectedTabWidgetId;
     }
     return selectedTabWidgetId;

@@ -7,7 +7,10 @@ import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActi
 import type { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
 import evalActionBindings from "./evalActionBindings";
 import evalExpression from "./evalExpression";
-import evalTree, { clearCache } from "./evalTree";
+import evalTree, {
+  clearCache,
+  evalTreeTransmissionErrorHandler,
+} from "./evalTree";
 import evalTrigger from "./evalTrigger";
 import initFormEval from "./initFormEval";
 import { installLibrary, loadLibraries, uninstallLibrary } from "./jsLibrary";
@@ -16,6 +19,8 @@ import setupEvaluationEnvironment, {
   setEvaluationVersion,
 } from "./setupEvalEnv";
 import validateProperty from "./validateProperty";
+import updateActionData from "./updateActionData";
+import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
 
 const syncHandlerMap: Record<
   EVAL_WORKER_SYNC_ACTION,
@@ -33,6 +38,7 @@ const syncHandlerMap: Record<
   [EVAL_WORKER_ACTIONS.CLEAR_CACHE]: clearCache,
   [EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION]: setEvaluationVersion,
   [EVAL_WORKER_ACTIONS.INIT_FORM_EVAL]: initFormEval,
+  [EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA]: updateActionData,
 };
 
 const asyncHandlerMap: Record<
@@ -45,4 +51,13 @@ const asyncHandlerMap: Record<
   [EVAL_WORKER_ACTIONS.INSTALL_LIBRARY]: installLibrary,
 };
 
-export { syncHandlerMap, asyncHandlerMap };
+const transmissionErrorHandlerMap: Partial<
+  Record<
+    EVAL_WORKER_SYNC_ACTION | EVAL_WORKER_ASYNC_ACTION,
+    TransmissionErrorHandler
+  >
+> = {
+  [EVAL_WORKER_ACTIONS.EVAL_TREE]: evalTreeTransmissionErrorHandler,
+};
+
+export { syncHandlerMap, asyncHandlerMap, transmissionErrorHandlerMap };

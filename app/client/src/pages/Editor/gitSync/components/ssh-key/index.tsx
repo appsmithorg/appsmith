@@ -31,13 +31,13 @@ import {
   MenuGroupName,
 } from "design-system";
 
-type KeysProps = {
+interface KeysProps {
   copyToClipboard: () => void;
   deployKeyDocUrl: string;
   showCopied: boolean;
   SSHKeyPair: string;
   isImport?: boolean;
-};
+}
 
 const defaultKeyTypes: SSHKeyType[] = [
   {
@@ -63,12 +63,10 @@ function Keys(props: KeysProps) {
   const exactKeyType = keyType.startsWith("ecdsa") ? "ECDSA" : "RSA";
   const supportedKeys = supportedKeyTypeList(defaultKeyTypes, exactKeyType);
   const keyText = `${keyVal} ${keyName}`;
-  const learnMoreClickHandler = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const learnMoreClickHandler = () => {
     AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
       source: "SSH_KEY_ON_GIT_CONNECTION_TAB",
     });
-    window.open(deployKeyDocUrl, "_blank");
   };
   const regenerateKey = useCallback(() => {
     AnalyticsUtil.logEvent("GS_REGENERATE_SSH_KEY_CONFIRM_CLICK", {
@@ -162,6 +160,7 @@ function Keys(props: KeysProps) {
       </FlexRow>
       {showKeyGeneratedMessage &&
         getNotificationBanner(
+          deployKeyDocUrl,
           learnMoreClickHandler,
           setShowKeyGeneratedMessage,
         )}

@@ -5,6 +5,7 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {
+    "lint": "yarn g:lint",
     "storybook": "storybook dev -p 6006",
     "build": "storybook build",
     "chromatic": "CHROMATIC=1 storybook dev -p 6006"
@@ -20,7 +21,6 @@
     "@storybook/addon-viewport": "^7.3.1",
     "@storybook/blocks": "^7.3.1",
     "@storybook/builder-vite": "^7.3.1",
-    "@storybook/client-api": "^7.4.0",
     "@storybook/components": "^7.3.1",
     "@storybook/manager-api": "^7.3.1",
     "@storybook/preset-create-react-app": "^7.3.1",
@@ -28,6 +28,12 @@
     "@storybook/theming": "^7.3.1",
     "babel-loader": "9.1.2",
     "chromatic": "^6.20.0",
+    "postcss": "*",
+    "postcss-at-rules-variables": "*",
+    "postcss-each": "*",
+    "postcss-import": "*",
+    "postcss-loader": "*",
+    "postcss-modules-values": "*",
     "react-docgen-typescript": "^2.2.2",
     "storybook": "^7.3.1",
     "vite": "^4.4.9",

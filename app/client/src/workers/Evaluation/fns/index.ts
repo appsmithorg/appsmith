@@ -46,7 +46,8 @@ import {
   isAction,
   isAppsmithEntity,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type {
   TGetGeoLocationActionType,
   TGetGeoLocationDescription,
@@ -61,11 +62,8 @@ import {
   watchGeoLocation,
 } from "./geolocationFns";
 import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
-import type { ActionEntity } from "entities/DataTree/types";
 
-// cloudHosting -> to use in EE
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getPlatformFunctions = (cloudHosting: boolean) => {
+export const getPlatformFunctions = () => {
   return platformFns;
 };
 
@@ -121,10 +119,11 @@ export const entityFns = [
     name: "run",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
     fn: (entity: DataTreeEntity, entityName: string) => {
+      const actionEntity = entity as ActionEntity;
       // @ts-expect-error: name is not defined on ActionEntity
-      entity.name = entityName;
+      actionEntity.name = entityName;
       return getFnWithGuards(
-        run.bind(entity as ActionEntity),
+        run.bind(actionEntity as ActionEntity),
         `${entityName}.run`,
         [isAsyncGuard],
       );
@@ -187,11 +186,7 @@ export type ActionTriggerKeys =
   | TWatchGeoLocationActionType
   | TStopWatchGeoLocationActionType;
 
-export const getActionTriggerFunctionNames = (
-  // cloudHosting -> to use in ee
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  cloudHosting: boolean,
-): Record<string, string> => {
+export const getActionTriggerFunctionNames = (): Record<string, string> => {
   return ActionTriggerFunctionNames;
 };
 

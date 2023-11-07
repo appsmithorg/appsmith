@@ -1,0 +1,262 @@
+import { Icon } from "@design-system/headless";
+import { TextInput } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
+
+<Meta
+  title="Design-system/widgets/TextInput"
+  component={TextInput}
+  args={{
+    label: "Label",
+    placeholder: "Placeholder",
+  }}
+/>
+
+export const Template = (args) => <TextInput {...args} />;
+
+# TextInput
+
+TextInput is a component that allows users to input text.
+
+<Canvas>
+  <Story name="TextInput">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable of={TextInput} story="TextInput" />
+
+## Default Value
+
+<Story
+  name="Default Value"
+  args={{
+    placeholder: "Default Value",
+    defaultValue: "Default Value",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Description
+
+<Story
+  name="Description"
+  args={{
+    placeholder: "Description",
+    description: "This is a description",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Password Text Input
+
+<Story
+  name="Password Text Input"
+  args={{
+    label: "Password",
+    placeholder: "Password Text Input",
+    type: "password",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Prefix and Suffix
+
+<Story
+  name="Prefix"
+  args={{
+    placeholder: "Start Visual",
+    startIcon: "$",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Suffix"
+  args={{
+    placeholder: "End Visual",
+    endIcon: "minutes",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Disabled
+
+<Story
+  name="Disabled"
+  args={{
+    placeholder: "Disabled",
+    isDisabled: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Loading
+
+<Story
+  name="Loading - No Icon"
+  args={{
+    placeholder: "No Icon",
+    isLoading: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Loading - Start Icon"
+  args={{
+    placeholder: "Only Start Icon",
+    isLoading: true,
+    startIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Loading - End Icon"
+  args={{
+    placeholder: "Only End Icon",
+    isLoading: true,
+    endIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Loading - Both Icons"
+  args={{
+    placeholder: "Both Start + End Icon",
+    isLoading: true,
+    endIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+    startIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Loading - Both Icons + Position Overriden"
+  args={{
+    placeholder: "Loading - Both Icons + Position Overriden",
+    isLoading: true,
+    endIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+    startIcon: (
+      <Icon>
+        <EmotionHappyLineIcon />
+      </Icon>
+    ),
+    loaderPosition: "end",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Validation
+
+<Story
+  name="Validation"
+  args={{
+    placeholder: "Validation",
+    validationState: "invalid",
+    errorMessage: "This field is required",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Required and Optional
+
+<Story
+  name="Required - Icon"
+  args={{
+    placeholder: "Required - Icon Indicator",
+    isRequired: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Required - Label"
+  args={{
+    placeholder: "Required - Label Indicator",
+    isRequired: true,
+    necessityIndicator: "label",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Optional - Label"
+  args={{
+    placeholder: "Required - Label Indicator",
+    isRequired: false,
+    necessityIndicator: "label",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Contextual Help Text
+
+<Story
+  name="Contextual Help Text"
+  args={{
+    placeholder: "Contextual Help Text",
+    contextualHelp: "This is a contextual help text",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## On Value Change
+
+<Story
+  name="On Change"
+  args={{
+    placeholder: "On Value Change",
+    onChange: (value) => console.log(value),
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## On Focus Change
+
+<Story
+  name="On Focus Change"
+  args={{
+    placeholder: "On Focus Change",
+    onFocusChange: (value) => console.log(value),
+  }}
+>
+  {Template.bind({})}
+</Story>

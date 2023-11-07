@@ -11,8 +11,11 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { Colors } from "constants/Colors";
 import IconSVG from "../icon.svg";
 import type {
@@ -169,6 +172,23 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
       disableResizeHandles: {
         horizontal: true,
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: (props: RateWidgetProps) => {
+        let maxCount = props.maxCount;
+        if (typeof maxCount !== "number")
+          maxCount = parseInt(props.maxCount as any, 10);
+
+        return {
+          maxHeight: {},
+          maxWidth: {},
+          minHeight: { base: "40px" },
+          minWidth: { base: `${maxCount * 21 + (maxCount + 1) * 5}px` },
+        };
       },
     };
   }
@@ -440,26 +460,22 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent
           activeColor={this.props.activeColor}
-          bottomRow={this.props.bottomRow}
           inactiveColor={this.props.inactiveColor}
           isAllowHalf={this.props.isAllowHalf}
           isDisabled={this.props.isDisabled}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          leftColumn={this.props.leftColumn}
           maxCount={this.props.maxCount}
           minHeight={this.props.minHeight}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isReadOnly}
-          rightColumn={this.props.rightColumn}
           size={this.props.size}
           tooltips={this.props.tooltips}
-          topRow={this.props.topRow}
           value={this.props.rate}
           widgetId={this.props.widgetId}
         />

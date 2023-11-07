@@ -222,18 +222,13 @@ export interface TextComponentProps extends ComponentProps {
   borderColor?: Color;
   borderWidth?: number;
   overflow: OverflowTypes;
-  // helpers to detect and re-calculate content width
-  bottomRow?: number;
-  leftColumn?: number;
-  rightColumn?: number;
-  topRow?: number;
   minHeight?: number;
 }
 
-type State = {
+interface State {
   isTruncated: boolean;
   showModal: boolean;
-};
+}
 
 type TextRef = React.Ref<Text> | undefined;
 

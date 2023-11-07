@@ -20,6 +20,7 @@ import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   WidgetCallout,
 } from "WidgetProvider/constants";
@@ -27,28 +28,21 @@ import { ChartErrorComponent } from "../component/ChartErrorComponent";
 import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { EmptyChartData } from "../component/EmptyChartData";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import type { ChartType } from "../constants";
 import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
-const ChartComponent = lazy(() =>
-  retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
+const ChartComponent = lazy(async () =>
+  retryPromise(
+    async () => import(/* webpackChunkName: "charts" */ "../component"),
+  ),
 );
-
-export const isBasicEChart = (type: ChartType) => {
-  const types: ChartType[] = [
-    "AREA_CHART",
-    "PIE_CHART",
-    "LINE_CHART",
-    "BAR_CHART",
-    "COLUMN_CHART",
-  ];
-  return types.includes(type);
-};
 
 export const emptyChartData = (props: ChartWidgetProps) => {
   if (props.chartType == "CUSTOM_FUSION_CHART") {
@@ -56,12 +50,9 @@ export const emptyChartData = (props: ChartWidgetProps) => {
   } else if (props.chartType == "CUSTOM_ECHART") {
     return Object.keys(props.customEChartConfig).length == 0;
   } else {
-    const seriesData = EChartsDatasetBuilder.chartData(
-      props.chartType,
-      props.chartData,
-    );
+    const builder = new EChartsDatasetBuilder(props.chartType, props.chartData);
 
-    for (const seriesID in seriesData) {
+    for (const seriesID in builder.filteredChartData) {
       if (Object.keys(props.chartData[seriesID].data).length > 0) {
         return false;
       }
@@ -94,6 +85,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       version: 1,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       minWidth: FILL_WIDGET_MIN_WIDTH,
       showDataPointLabel: false,
       customEChartConfig: `{{\n${JSON.stringify(
@@ -134,6 +126,17 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getMethods() {
     return {
       getEditorCallouts(props: WidgetProps): WidgetCallout[] {
@@ -146,7 +149,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             message: messages.customFusionChartDeprecationMessage,
             links: [
               {
-                text: "Learn More",
+                text: "Learn more",
                 url: "https://docs.appsmith.com",
               },
             ],
@@ -217,7 +220,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const errors = syntaxErrorsFromProps(this.props);
 
     if (errors.length == 0) {
@@ -229,27 +232,23 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             <ChartComponent
               allowScroll={this.props.allowScroll}
               borderRadius={this.props.borderRadius}
-              bottomRow={this.props.bottomRow}
               boxShadow={this.props.boxShadow}
               chartData={this.props.chartData}
               chartName={this.props.chartName}
               chartType={this.props.chartType}
               customEChartConfig={this.props.customEChartConfig}
               customFusionChartConfig={this.props.customFusionChartConfig}
-              dimensions={this.getComponentDimensions()}
+              dimensions={this.props}
               fontFamily={this.props.fontFamily ?? "Nunito Sans"}
               hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
               isLoading={this.props.isLoading}
               isVisible={this.props.isVisible}
               key={this.props.widgetId}
               labelOrientation={this.props.labelOrientation}
-              leftColumn={this.props.leftColumn}
               onDataPointClick={this.onDataPointClick}
               primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
-              rightColumn={this.props.rightColumn}
               setAdaptiveYMin={this.props.setAdaptiveYMin}
               showDataPointLabel={this.props.showDataPointLabel}
-              topRow={this.props.topRow}
               widgetId={this.props.widgetId}
               xAxisName={this.props.xAxisName}
               yAxisName={this.props.yAxisName}

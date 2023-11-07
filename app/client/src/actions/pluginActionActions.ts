@@ -29,9 +29,9 @@ export const createActionSuccess = (payload: Action) => {
   };
 };
 
-export type FetchActionsPayload = {
+export interface FetchActionsPayload {
   applicationId: string;
-};
+}
 
 export const fetchActions = (
   { applicationId }: { applicationId: string },
@@ -258,12 +258,12 @@ export const saveActionName = (payload: { id: string; name: string }) => ({
   payload: payload,
 });
 
-export type SetActionPropertyPayload = {
+export interface SetActionPropertyPayload {
   actionId: string;
   propertyName: string;
   value: any;
   skipSave?: boolean;
-};
+}
 
 export const setActionProperty = (
   payload: SetActionPropertyPayload,
@@ -274,11 +274,11 @@ export const setActionProperty = (
   postEvalActions,
 });
 
-export type UpdateActionPropertyActionPayload = {
+export interface UpdateActionPropertyActionPayload {
   id: string;
   field: string;
   value: any;
-};
+}
 
 export const updateActionProperty = (
   payload: UpdateActionPropertyActionPayload,
@@ -337,6 +337,25 @@ export const bindDataOnCanvas = (payload: {
   return {
     type: ReduxActionTypes.BIND_DATA_ON_CANVAS,
     payload,
+  };
+};
+
+export const updateActionData = ({
+  data,
+  dataPath,
+  entityName,
+}: {
+  entityName: string;
+  dataPath: string;
+  data: unknown;
+}) => {
+  return {
+    type: ReduxActionTypes.UPDATE_ACTION_DATA,
+    payload: {
+      entityName,
+      dataPath,
+      data,
+    },
   };
 };
 

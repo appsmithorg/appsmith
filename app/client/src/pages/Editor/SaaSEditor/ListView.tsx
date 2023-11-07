@@ -5,7 +5,7 @@ import type { Plugin } from "api/PluginApi";
 import {
   getDatasourcesByPluginId,
   getPluginByPackageName,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import NotFound from "pages/common/NotFound";
 import type { AppState } from "@appsmith/reducers";
 import { createDatasourceFromForm } from "actions/datasourceActions";
@@ -13,7 +13,7 @@ import type { SaaSAction } from "entities/Action";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { Datasource } from "entities/Datasource";
 import { createNewApiName } from "utils/AppsmithUtils";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 // Design
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -26,7 +26,7 @@ import {
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import { INTEGRATION_TABS } from "constants/routes";
-import { integrationEditorURL } from "RouteBuilder";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;

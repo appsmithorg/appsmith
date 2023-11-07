@@ -12,6 +12,12 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static java.lang.Boolean.TRUE;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -23,12 +29,22 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final InstanceConfigHelper instanceConfigHelper;
 
+    private static final String WWW_PATH = System.getenv("NGINX_WWW_PATH");
+
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+        if (WWW_PATH != null) {
+            try {
+                // Delete the loading.html file if it exists.
+                Files.deleteIfExists(Path.of(WWW_PATH + "/loading.html"));
+            } catch (IOException e) {
+                log.error("Error deleting loading.html file: {}", e.getMessage());
+            }
+        }
 
         Mono<Void> registrationAndRtsCheckMono = configService
                 .getByName(Appsmith.APPSMITH_REGISTERED)
-                .filter(config -> Boolean.TRUE.equals(config.getConfig().get("value")))
+                .filter(config -> TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(Mono.defer(() -> instanceConfigHelper.registerInstance()))
                 .onErrorResume(errorSignal -> {
                     log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
@@ -44,7 +60,18 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
                 // Add cold publisher as we have dependency on the instance registration
-                .then(Mono.defer(instanceConfigHelper::isLicenseValid));
+                // TODO Update implementation to fetch license status for all the tenants once multi-tenancy is
+                //  introduced
+                .then(Mono.defer(instanceConfigHelper::isLicenseValid)
+                        // Ensure that the tenant feature flags are refreshed with the latest values after completing
+                        // the
+                        // license verification process.
+                        .flatMap(isValid -> {
+                            log.debug(
+                                    "License verification completed with status: {}",
+                                    TRUE.equals(isValid) ? "valid" : "invalid");
+                            return instanceConfigHelper.updateCacheForTenantFeatureFlags();
+                        }));
 
         try {
             startupProcess.block();

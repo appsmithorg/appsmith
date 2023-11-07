@@ -110,20 +110,20 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
 });
 
-type DraggingGroupCenter = {
+export interface DraggingGroupCenter {
   widgetId?: string;
   top?: number;
   left?: number;
-};
-export type DragDetails = {
+}
+export interface DragDetails {
   dragGroupActualParent?: string;
   draggingGroupCenter?: DraggingGroupCenter;
   newWidget?: any;
   draggedOn?: string;
   dragOffset?: any;
-};
+}
 
-export type WidgetDragResizeState = {
+export interface WidgetDragResizeState {
   isDraggingDisabled: boolean;
   isDragging: boolean;
   dragDetails: DragDetails;
@@ -135,6 +135,6 @@ export type WidgetDragResizeState = {
   entityExplorerAncestry: string[];
   selectedWidgets: string[];
   isAutoCanvasResizing: boolean;
-};
+}
 
 export default widgetDraggingReducer;

@@ -10,6 +10,7 @@ export class AppSettings {
     _generalSettingsHeader: "#t--general-settings-header",
     _embedSettingsHeader: "#t--share-embed-settings",
     _navigationSettingsTab: "#t--navigation-settings-header",
+    _importHeader: "#t--update-via-import",
     _navigationSettings: {
       _showNavbar: "#t--navigation-settings-show-navbar",
       _showSignIn: "#t--navigation-settings-show-sign-in",
@@ -87,6 +88,10 @@ export class AppSettings {
     this.agHelper.GetNClick(this.locators._embedSettingsHeader);
   }
 
+  public GoToImport() {
+    this.agHelper.GetNClick(this.locators._importHeader);
+  }
+
   public GoToPageSettings(pageName: string) {
     this.agHelper.GetNClick(this.locators._getPageSettingsHeader(pageName));
   }
@@ -116,6 +121,7 @@ export class AppSettings {
     customSlug?: string,
     editMode = true,
   ) {
+    appName = appName.replace(/\s+/g, "-");
     this.agHelper.AssertElementAbsence(this.locators._updateStatus, 10000);
     cy.location("pathname").then((pathname) => {
       if (customSlug && customSlug.length > 0) {

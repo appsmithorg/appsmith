@@ -7,6 +7,7 @@ import {
   onboarding,
   draggableWidgets,
   debuggerHelper,
+  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
@@ -118,7 +119,7 @@ describe("FirstTimeUserOnboarding", function () {
       cy.get(OnboardingLocator.checklistDatasourceBtn).click();
       cy.get(OnboardingLocator.datasourcePage).should("be.visible");
       cy.get(datasource.MongoDB).click();
-      cy.fillMongoDatasourceForm();
+      dataSources.FillMongoDSForm();
       cy.generateUUID().then((uid) => {
         datasourceName = `Mongo CRUD ds ${uid}`;
         cy.renameDatasource(datasourceName);
@@ -216,7 +217,7 @@ describe("FirstTimeUserOnboarding", function () {
       false,
     );
     agHelper.Sleep(500);
-    agHelper.GetNClick(debuggerHelper.locators._helpButton);
+    agHelper.GetNClick(debuggerHelper.locators._helpButton, 0, true);
     agHelper.AssertElementVisibility(OnboardingLocator.checklistDatasourceBtn);
   });
 

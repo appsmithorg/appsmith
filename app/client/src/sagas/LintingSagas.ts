@@ -3,8 +3,8 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put, select, takeEvery } from "redux-saga/effects";
-import { getAppMode } from "selectors/entitiesSelector";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type { AppState } from "@appsmith/reducers";
@@ -22,13 +22,14 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { Linter } from "plugins/Linting/Linter";
 import log from "loglevel";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
+import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
 export const lintWorker = new Linter();
 
 function* updateLintGlobals(
-  action: ReduxAction<{ add?: boolean; libs: TJSLibrary[] }>,
+  action: ReduxAction<{ add?: boolean; libs: JSLibrary[] }>,
 ) {
   const appMode: APP_MODE = yield select(getAppMode);
   const isEditorMode = appMode === APP_MODE.EDIT;
@@ -124,4 +125,10 @@ export function* initiateLinting(
 
 export default function* lintTreeSagaWatcher() {
   yield takeEvery(ReduxActionTypes.UPDATE_LINT_GLOBALS, updateLintGlobals);
+  yield takeEvery(ReduxActionTypes.START_EVALUATION, setupSaga);
+}
+
+export function* setupSaga(): any {
+  const featureFlags = yield select(selectFeatureFlags);
+  yield call(lintWorker.setup, featureFlags);
 }

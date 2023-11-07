@@ -27,10 +27,7 @@ describe(
       agHelper.AssertElementExist(template.templateDialogBox);
       agHelper.AssertElementVisibility(templates.locators._templateCard);
       agHelper.Sleep(4000);
-      cy.xpath("//h1[text()='Meeting Scheduler']/parent::div")
-        .scrollIntoView()
-        .wait(500)
-        .click();
+      agHelper.GetNClick(template.vehicleMaintenenceApp);
       agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       agHelper.Sleep();
       agHelper.CheckForErrorToast(
@@ -52,9 +49,14 @@ describe(
     it("2. Add selected page of template from page section", () => {
       entityExplorer.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(template.templateDialogBox);
-      agHelper.Sleep(4000);
-      cy.xpath("//h1[text()='Meeting Scheduler']").click();
-      agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
+      agHelper.AssertElementVisibility(
+        templates.locators._templateCard,
+        true,
+        0,
+        30000,
+      );
+      agHelper.GetNClick(template.vehicleMaintenenceApp);
+      //agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       cy.wait("@getTemplatePages").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -80,6 +82,12 @@ describe(
       //agHelper.RefreshPage();
 
       entityExplorer.AddNewPage("Add page from template");
+      agHelper.AssertElementVisibility(
+        templates.locators._templateCard,
+        true,
+        0,
+        30000,
+      );
       agHelper.GetNClick(templates.locators._templateCard);
       agHelper.Sleep(2000);
       agHelper.AssertElementVisibility(template.templateViewForkButton);

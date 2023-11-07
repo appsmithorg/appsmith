@@ -49,15 +49,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer(collectionName),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, collectionName);
+
     //Add data into this newly created collection
     let curlDataAdd =
       `curl --request POST --url http://` +
@@ -300,7 +293,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
     entityExplorer.NavigateToSwitcher("Explorer");
     entityExplorer.SelectEntityByName("Query6");
-    dataSources.FilterAndVerifyDatasourceSchemaBySearch(collectionName);
+    //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
+    dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
     dataSources.RunQuery();
     dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");

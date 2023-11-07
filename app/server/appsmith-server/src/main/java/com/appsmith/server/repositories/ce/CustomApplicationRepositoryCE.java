@@ -79,8 +79,16 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
             String branchNamePath,
             AclPermission permission);
 
-    Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
+    Mono<Long> countByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 
     Flux<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
             String workspaceId, AclPermission permission, String permissionGroupId);
+
+    Mono<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
+            AclPermission permission, String permissionGroupId);
+
+    Mono<UpdateResult> unprotectAllBranches(String applicationId, AclPermission permission);
+
+    Mono<UpdateResult> protectBranchedApplications(
+            String applicationId, List<String> branchNames, AclPermission permission);
 }

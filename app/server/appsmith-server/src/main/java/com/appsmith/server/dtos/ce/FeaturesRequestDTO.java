@@ -9,4 +9,5 @@ public class FeaturesRequestDTO {
     private String instanceId;
     private String tenantId;
     private String appsmithVersion;
+    private Boolean isCloudHosting;
 }

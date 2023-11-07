@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
@@ -10,24 +11,17 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
-import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
-import com.appsmith.server.dtos.RefactorActionNameDTO;
-import com.appsmith.server.dtos.RefactorActionNameInCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.NewActionService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
-import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +48,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
-    private final RefactoringSolution refactoringSolution;
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
@@ -259,84 +252,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     return createCollection(collection);
                 })
                 .map(responseUtils::updateCollectionDTOWithDefaultResources);
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorCollectionName(
-            RefactorActionCollectionNameDTO refactorActionCollectionNameDTO, String branchName) {
-        String pageId = refactorActionCollectionNameDTO.getPageId();
-        String layoutId = refactorActionCollectionNameDTO.getLayoutId();
-        String oldName = refactorActionCollectionNameDTO.getOldName();
-        String newName = refactorActionCollectionNameDTO.getNewName();
-        String actionCollectionId = refactorActionCollectionNameDTO.getActionCollectionId();
-
-        Mono<String> branchedPageIdMono = StringUtils.isEmpty(branchName)
-                ? Mono.just(pageId)
-                : newPageService
-                        .findByBranchNameAndDefaultPageId(branchName, pageId, pagePermission.getReadPermission())
-                        .map(NewPage::getId)
-                        .cache();
-
-        Mono<String> branchedActionCollectionIdMono = StringUtils.isEmpty(branchName)
-                ? Mono.just(actionCollectionId)
-                : actionCollectionService
-                        .findByBranchNameAndDefaultCollectionId(
-                                branchName, actionCollectionId, actionPermission.getEditPermission())
-                        .map(ActionCollection::getId);
-
-        return branchedPageIdMono
-                .flatMap(branchedPageId -> layoutActionService
-                        .isNameAllowed(branchedPageId, layoutId, newName)
-                        .flatMap(isNameAllowed -> {
-                            // If the name is allowed, return list of actionDTOs for further processing
-                            if (Boolean.TRUE.equals(isNameAllowed)) {
-                                return branchedActionCollectionIdMono.flatMap(
-                                        collectionId -> actionCollectionService.findActionCollectionDTObyIdAndViewMode(
-                                                collectionId, false, actionPermission.getEditPermission()));
-                            }
-                            // Throw an error since the new action collection's name matches an existing action, widget
-                            // or collection name.
-                            return Mono.error(new AppsmithException(
-                                    AppsmithError.DUPLICATE_KEY_USER_ERROR, newName, FieldName.NAME));
-                        }))
-                .flatMap(branchedActionCollection -> {
-                    final HashMap<String, String> actionIds = new HashMap<>();
-                    if (branchedActionCollection.getDefaultToBranchedActionIdsMap() != null) {
-                        actionIds.putAll(branchedActionCollection.getDefaultToBranchedActionIdsMap());
-                    }
-                    if (branchedActionCollection.getDefaultToBranchedArchivedActionIdsMap() != null) {
-                        actionIds.putAll(branchedActionCollection.getDefaultToBranchedArchivedActionIdsMap());
-                    }
-
-                    Flux<ActionDTO> actionUpdatesFlux = Flux.fromIterable(actionIds.values())
-                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(
-                                    actionId, false, actionPermission.getEditPermission()))
-                            .flatMap(actionDTO -> {
-                                actionDTO.setFullyQualifiedName(newName + "." + actionDTO.getName());
-                                return newActionService
-                                        .updateUnpublishedAction(actionDTO.getId(), actionDTO)
-                                        .onErrorResume(throwable -> {
-                                            log.debug(
-                                                    "Failed to update collection name for action {} for collection with id: {}",
-                                                    actionDTO.getName(),
-                                                    actionDTO.getCollectionId());
-                                            log.error(throwable.getMessage());
-                                            return Mono.empty();
-                                        });
-                            });
-                    branchedActionCollection.setName(newName);
-                    return actionUpdatesFlux
-                            .then(actionCollectionService.update(
-                                    branchedActionCollection.getId(), branchedActionCollection))
-                            .then(branchedPageIdMono)
-                            .flatMap(branchedPageId -> refactoringSolution.refactorActionCollectionName(
-                                    branchedActionCollection.getApplicationId(),
-                                    branchedPageId,
-                                    layoutId,
-                                    oldName,
-                                    newName));
-                })
-                .map(layoutDTO -> responseUtils.updateLayoutDTOWithDefaultResources(layoutDTO));
     }
 
     @Override
@@ -680,97 +595,5 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
                             return branchedActionCollection;
                         });
-    }
-
-    @Override
-    public Mono<LayoutDTO> refactorAction(RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO) {
-        // First perform refactor of the action itself
-        final Mono<LayoutDTO> layoutDTOMono = refactoringSolution
-                .refactorActionName(refactorActionNameInCollectionDTO.getRefactorAction())
-                .cache();
-
-        final ActionCollectionDTO actionCollectionDTO = refactorActionNameInCollectionDTO.getActionCollection();
-        Mono<ActionCollection> actionCollectionMono = actionCollectionService
-                .findById(actionCollectionDTO.getId(), actionPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND,
-                        FieldName.ACTION_COLLECTION,
-                        actionCollectionDTO.getId())));
-
-        return layoutDTOMono
-                .then(actionCollectionMono)
-                .map(dbActionCollection -> {
-                    // Make sure that the action related fields and name are not edited
-                    actionCollectionDTO.setName(
-                            dbActionCollection.getUnpublishedCollection().getName());
-                    actionCollectionDTO.setDefaultToBranchedActionIdsMap(
-                            dbActionCollection.getUnpublishedCollection().getDefaultToBranchedActionIdsMap());
-                    actionCollectionDTO.setDefaultToBranchedArchivedActionIdsMap(
-                            dbActionCollection.getUnpublishedCollection().getDefaultToBranchedArchivedActionIdsMap());
-                    copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
-                    return dbActionCollection;
-                })
-                .flatMap(actionCollection ->
-                        actionCollectionService.update(actionCollectionDTO.getId(), actionCollection))
-                .then(layoutDTOMono);
-    }
-
-    public Mono<LayoutDTO> refactorAction(
-            RefactorActionNameInCollectionDTO refactorActionNameInCollectionDTO, String branchName) {
-
-        RefactorActionNameDTO refactorActionNameDTO = refactorActionNameInCollectionDTO.getRefactorAction();
-        ActionCollectionDTO defaultActionCollection = refactorActionNameInCollectionDTO.getActionCollection();
-        Map<String, String> defaultToBranchedActionIdMap = new HashMap<>();
-        // Fetch branched action as client only knows about the default action IDs
-        Mono<RefactorActionNameDTO> refactorBranchedActionMono = newActionService
-                .findByBranchNameAndDefaultActionId(
-                        branchName, refactorActionNameDTO.getActionId(), actionPermission.getEditPermission())
-                .map(branchedAction -> {
-                    refactorActionNameDTO.setActionId(branchedAction.getId());
-                    refactorActionNameDTO.setPageId(
-                            branchedAction.getUnpublishedAction().getPageId());
-                    defaultActionCollection.setPageId(
-                            branchedAction.getUnpublishedAction().getPageId());
-                    defaultActionCollection.setApplicationId(branchedAction.getApplicationId());
-                    return refactorActionNameDTO;
-                });
-
-        Mono<String> branchedCollectionIdMono = StringUtils.isEmpty(branchName)
-                ? Mono.just(defaultActionCollection.getId())
-                : actionCollectionService
-                        .findByBranchNameAndDefaultCollectionId(
-                                branchName, defaultActionCollection.getId(), actionPermission.getEditPermission())
-                        .map(actionCollection -> {
-                            defaultToBranchedActionIdMap.putAll(
-                                    actionCollection.getUnpublishedCollection().getDefaultToBranchedActionIdsMap());
-                            defaultToBranchedActionIdMap.putAll(actionCollection
-                                    .getUnpublishedCollection()
-                                    .getDefaultToBranchedArchivedActionIdsMap());
-                            return actionCollection.getId();
-                        });
-
-        return Mono.zip(refactorBranchedActionMono, branchedCollectionIdMono)
-                .flatMap(tuple -> {
-                    refactorActionNameInCollectionDTO.setRefactorAction(tuple.getT1());
-                    defaultActionCollection.setId(tuple.getT2());
-                    // As client is not aware of branch specific action IDs, replace default action IDs within
-                    // actionCollection with the branch specific action IDs
-                    defaultActionCollection.getActions().forEach(actionDTO -> {
-                        actionDTO.setPageId(defaultActionCollection.getPageId());
-                        actionDTO.setApplicationId(defaultActionCollection.getApplicationId());
-                        actionDTO.setCollectionId(defaultActionCollection.getId());
-                        actionDTO.setId(defaultToBranchedActionIdMap.get(actionDTO.getId()));
-                    });
-                    if (!CollectionUtils.isNullOrEmpty(defaultActionCollection.getArchivedActions())) {
-                        defaultActionCollection.getArchivedActions().forEach(actionDTO -> {
-                            actionDTO.setPageId(defaultActionCollection.getPageId());
-                            actionDTO.setApplicationId(defaultActionCollection.getApplicationId());
-                            actionDTO.setCollectionId(defaultActionCollection.getId());
-                            actionDTO.setId(defaultToBranchedActionIdMap.get(actionDTO.getId()));
-                        });
-                    }
-                    return refactorAction(refactorActionNameInCollectionDTO);
-                })
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
 }

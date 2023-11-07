@@ -1,6 +1,5 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 const formControls = require("../../../../locators/FormControl.json");
 
 import {
@@ -10,6 +9,7 @@ import {
   dataSources,
   entityItems,
   assertHelper,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -27,18 +27,14 @@ describe("Validate Mongo query commands", function () {
   // });
 
   before("Creates a new Mongo datasource", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.MongoDB).click();
-    cy.fillMongoDatasourceForm();
-    cy.generateUUID().then((uid) => {
-      datasourceName = `Mongo CRUD ds ${uid}`;
-      cy.renameDatasource(datasourceName);
+    dataSources.CreateDataSource("Mongo");
+    dataSources.CreateQueryAfterDSSaved();
+    cy.get("@dsName").then(($dsName) => {
+      datasourceName = $dsName;
     });
-    cy.testSaveDatasource();
   });
 
   it("1. Validate Raw query command, run and then delete the query", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
     // cy.get("@getPluginForm").should(
     //   "have.nested.property",
     //   "response.body.responseMeta.status",
@@ -50,11 +46,7 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Raw",
     );
-    cy.get(queryLocators.templateMenu).click();
-    cy.typeValueNValidate(
-      '{"find": "listingAndReviews","limit": 10}',
-      formControls.rawBody,
-    );
+    agHelper.GetNClick(dataSources._templateMenu);
 
     // cy.get(".CodeMirror textarea")
     //   .first()
@@ -64,7 +56,9 @@ describe("Validate Mongo query commands", function () {
     //   });
     // cy.EvaluateCurrentValue(`{"find": "listingAndReviews","limit": 10}`);
 
-    cy.runQuery();
+    dataSources.EnterQuery(`{"find": "listingAndReviews","limit": 10}`);
+    agHelper.FocusElement(locators._codeMirrorTextArea);
+    dataSources.RunQuery();
     dataSources.CheckResponseRecordsCount(10);
     cy.deleteQueryUsingContext();
   });
@@ -293,12 +287,7 @@ describe("Validate Mongo query commands", function () {
 
   it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
     let id;
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(`${datasourceName}`);
-    cy.get("[data-testid='t--entity-item-listingAndReviews']")
-      .find(".t--template-menu-trigger")
-      .click({ force: true });
-
+    dataSources.AssertTableInVirtuosoList(datasourceName, "listingAndReviews");
     entityExplorer.ActionTemplateMenuByEntityName("listingAndReviews", "Find");
 
     cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
@@ -376,7 +365,7 @@ describe("Validate Mongo query commands", function () {
 
   it("9. Delete the datasource after NewPage deletion is success", () => {
     cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
+    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200, 409]);
   });
 
   it("10. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {

@@ -14,11 +14,13 @@ import {
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { Link, Text } from "design-system";
 import { importSvg } from "design-system-old";
 
-const CloudyIcon = importSvg(() => import("assets/icons/ads/cloudy-line.svg"));
+const CloudyIcon = importSvg(
+  async () => import("assets/icons/ads/cloudy-line.svg"),
+);
 
 const Container = styled.div`
   display: flex;
@@ -35,8 +37,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
   const pageId = useSelector(getCurrentPageId) as string;
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
 
-  const showDeployPreview = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const showDeployPreview = () => {
     AnalyticsUtil.logEvent("GS_LAST_DEPLOYED_PREVIEW_LINK_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });

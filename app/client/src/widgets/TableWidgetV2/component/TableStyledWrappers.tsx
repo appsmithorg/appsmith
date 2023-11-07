@@ -341,10 +341,6 @@ export const TableWrapper = styled.div<{
     line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
     padding: 0 5px;
   }
-
-  &.blur {
-    filter: blur(1px);
-  }
 `;
 
 export const DropDownWrapper = styled.div`

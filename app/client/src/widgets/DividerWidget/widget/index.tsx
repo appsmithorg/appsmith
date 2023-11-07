@@ -4,12 +4,15 @@ import BaseWidget from "widgets/BaseWidget";
 import DividerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 
 import { WIDGET_TAGS } from "constants/WidgetConstants";
@@ -60,6 +63,17 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "280px" },
       },
     };
   }
@@ -278,7 +292,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
     ];
   }
 
-  getPageView() {
+  getWidgetView() {
     return (
       <DividerComponent
         capSide={this.props.capSide}

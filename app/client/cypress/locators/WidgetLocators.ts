@@ -45,6 +45,8 @@ export const WIDGET = {
   JSONFORM: "jsonformwidget",
   MENUBUTTON: "menubuttonwidget",
   DATEPICKER: "datepickerwidget2",
+  MAP: "mapwidget",
+  MAPCHART: "mapchartwidget",
 } as const;
 
 // property pane element selector are maintained here
@@ -102,6 +104,11 @@ export const WIDGETSKIT = {
     "//*[contains(@class, 'bp3-icon-chevron-up')]//parent::button",
   inputWidgetStepDown:
     "//*[contains(@class, 'bp3-icon-chevron-down')]//parent::button",
+  radioWidgetContainer: "[data-testid='radiogroup-container']",
+  radioBtn: ".bp3-radio",
+  radioWidgetLabel: ".radiogroup-label",
+  radioWidgetLabelContainer:
+    "[data-testid='radiogroup-container'] .label-container",
 };
 type ValueOf<T> = T[keyof T];
 
@@ -129,7 +136,6 @@ export const switchlocators = {
 };
 
 export const checkboxlocators = {
-  // read Blue here
   checkBoxLabel: (value: string) =>
     `//*[contains(@class,'t--checkbox-widget-label') and text()='${value}']`,
 };
@@ -155,6 +161,7 @@ export const datePickerlocators = {
   date: (dateToSelect: string) =>
     `//*[contains(@class,'datepicker__day--${dateToSelect}')]`,
 };
+
 export const buttongroupwidgetlocators = {
   buttongroup: ".t--buttongroup-widget",
   buttonSettingInPropPane: ".t--property-control-buttons .t--edit-column-btn",

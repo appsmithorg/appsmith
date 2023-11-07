@@ -7,13 +7,14 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
-import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -115,10 +116,11 @@ public class ActionControllerCE {
     @JsonView(Views.Public.class)
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionName(
-            @RequestBody RefactorActionNameDTO refactorActionNameDTO,
+            @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        refactorEntityNameDTO.setEntityType(EntityType.ACTION);
         return refactoringSolution
-                .refactorActionName(refactorActionNameDTO, branchName)
+                .refactorEntityName(refactorEntityNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 

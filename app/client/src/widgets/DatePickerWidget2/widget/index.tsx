@@ -12,23 +12,25 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import type { DatePickerType } from "../constants";
 import { TimePrecision } from "../constants";
 import { DateFormatOptions } from "./constants";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import moment from "moment";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
-
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -147,6 +149,17 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "120px" },
       },
     };
   }
@@ -649,7 +662,9 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     }
   }
 
-  getPageView() {
+  getWidgetView() {
+    const { componentHeight } = this.props;
+
     return (
       <DatePickerComponent
         accentColor={this.props.accentColor}
@@ -657,13 +672,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         closeOnSelection={this.props.closeOnSelection}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         dateFormat={this.props.dateFormat}
         datePickerType="DATE_PICKER"
         firstDayOfWeek={this.props.firstDayOfWeek}
@@ -678,7 +687,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
         onBlur={this.onBlur}
@@ -758,6 +767,7 @@ export interface DatePickerWidget2Props extends WidgetProps {
   timePrecision: TimePrecision;
   onFocus?: string;
   onBlur?: string;
+  labelComponentWidth?: number;
 }
 
 export default DatePickerWidget;

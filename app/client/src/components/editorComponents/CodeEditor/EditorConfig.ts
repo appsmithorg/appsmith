@@ -1,6 +1,6 @@
 import type CodeMirror from "codemirror";
-import type { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import type { ExpectedValueExample } from "utils/validation/common";
@@ -37,7 +37,7 @@ export enum EditorSize {
   COMPACT_RETAIN_FORMATTING = "COMPACT_RETAIN_FORMATTING",
 }
 
-export type EditorConfig = {
+export interface EditorConfig {
   theme: EditorTheme;
   mode: TEditorModes;
   tabBehaviour: TabBehaviour;
@@ -45,32 +45,32 @@ export type EditorConfig = {
   hinting?: Array<HintHelper>;
   marking?: Array<MarkHelper>;
   folding?: boolean;
-};
+}
 
 export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.LIGHT]: "duotone-light",
   [EditorTheme.DARK]: "duotone-dark",
 };
 
-export type FieldEntityInformation = {
+export interface FieldEntityInformation {
   entityName?: string;
   expectedType?: AutocompleteDataType;
   entityType?: ENTITY_TYPE;
   entityId?: string;
   propertyPath?: string;
+  isTriggerPath?: boolean;
   blockCompletions?: Array<{ parentPath: string; subPath: string }>;
   example?: ExpectedValueExample;
   mode?: TEditorModes;
   token?: CodeMirror.Token;
   widgetType?: WidgetType;
-};
+}
 
 export type HintHelper = (
   editor: CodeMirror.Editor,
-  data: DataTree,
-  customDataTree?: AdditionalDynamicDataTree,
+  entitiesForNavigation: EntityNavigationData,
 ) => Hinter;
-export type Hinter = {
+export interface Hinter {
   showHint: (
     editor: CodeMirror.Editor,
     entityInformation: FieldEntityInformation,
@@ -78,7 +78,7 @@ export type Hinter = {
   ) => boolean;
   update?: (data: DataTree) => void;
   fireOnFocus?: boolean;
-};
+}
 
 export type MarkHelper = (
   editor: CodeMirror.Editor,
@@ -94,16 +94,16 @@ export enum CodeEditorBorder {
 }
 
 export enum AUTOCOMPLETE_CLOSE_KEY {
-  Enter,
-  Escape,
-  Comma,
-  Semicolon,
-  Space,
-  Delete,
-  "Ctrl+Backspace",
-  OSLeft,
-  "(",
-  ")",
+  Enter = "Enter",
+  Escape = "Escape",
+  Comma = "Comma",
+  Semicolon = "Semicolon",
+  Space = "Space",
+  Delete = "Delete",
+  "Ctrl+Backspace" = "Ctrl+Backspace",
+  OSLeft = "OSLeft",
+  "(" = "(",
+  ")" = ")",
 }
 
 export const isCloseKey = (key: any): key is AUTOCOMPLETE_CLOSE_KEY => {
@@ -111,10 +111,10 @@ export const isCloseKey = (key: any): key is AUTOCOMPLETE_CLOSE_KEY => {
 };
 
 export enum MODIFIER {
-  Control,
-  Meta,
-  Alt,
-  Shift,
+  Control = "Ctrl",
+  Meta = "Meta",
+  Alt = "Alt",
+  Shift = "Shift",
 }
 
 export const isModifierKey = (key: any): key is MODIFIER => {

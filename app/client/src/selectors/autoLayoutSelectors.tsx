@@ -5,11 +5,13 @@ import { getCanvasAndMetaWidgets } from "sagas/selectors";
 import type {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
+} from "layoutSystems/autolayout/utils/types";
+import { getAlignmentColumnInfo } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
+import type {
   FlexLayer,
   LayerChild,
-} from "utils/autoLayout/autoLayoutTypes";
-import { getAlignmentColumnInfo } from "utils/autoLayout/AutoLayoutUtils";
-import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
+} from "layoutSystems/autolayout/utils/types";
 
 export const getIsCurrentlyConvertingLayout = (state: AppState) =>
   state.ui.layoutConversion.isConverting;

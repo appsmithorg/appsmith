@@ -14,10 +14,7 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import {
-  GRID_DENSITY_MIGRATION_V1,
-  ICON_NAMES,
-} from "WidgetProvider/constants";
+import { ICON_NAMES } from "WidgetProvider/constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
@@ -33,12 +30,15 @@ import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "../icon.svg";
@@ -48,6 +48,8 @@ import type {
   PropertyUpdates,
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export function defaultValueValidation(
   value: any,
@@ -359,6 +361,18 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       }),
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "70px" },
+        minWidth: { base: "120px" },
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     const definitions: AutocompletionDefinitions = {
       "!doc":
@@ -523,7 +537,23 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           ],
         },
       ],
-      super.getPropertyPaneContentConfig(),
+      super.getPropertyPaneContentConfig([
+        {
+          propertyName: "rtl",
+          label: "Enable RTL",
+          helpText: "Enables right to left text direction",
+          controlType: "SWITCH",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.BOOLEAN },
+          hidden: () => {
+            return !super.getFeatureFlag(
+              FEATURE_FLAG.license_widget_rtl_support_enabled,
+            );
+          },
+        },
+      ]),
     );
   }
 
@@ -722,7 +752,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     );
   };
 
-  getPageView() {
+  getWidgetView() {
     const value = this.props.inputText ?? "";
     let isInvalid = false;
     if (this.props.isDirty) {
@@ -798,11 +828,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     } else {
       conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
+
+    const { componentHeight } = this.props;
+
     const autoFillProps =
       !this.props.shouldAllowAutofill &&
       isInputTypeEmailOrPassword(this.props.inputType)
         ? { autoComplete: "off" }
         : {};
+
     return (
       <InputComponent
         accentColor={this.props.accentColor}
@@ -811,13 +845,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
         disabled={this.props.isDisabled}
@@ -833,12 +861,13 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         labelStyle={this.props.labelStyle}
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         multiline={this.props.inputType === InputTypes.MULTI_LINE_TEXT}
         onFocusChange={this.handleFocusChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        rtl={this.props.rtl}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
@@ -858,6 +887,7 @@ export interface InputWidgetProps extends BaseInputWidgetProps {
   maxNum?: number;
   minNum?: number;
   inputText: string;
+  rtl?: boolean;
 }
 
 export default InputWidget;

@@ -3,6 +3,7 @@ import signupPageLocators from "../../../../locators/SignupPage.json";
 import loginPageLocators from "../../../../locators/LoginPage.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import homepagelocators from "../../../../locators/HomePage";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   appSettings,
   entityExplorer,
@@ -25,7 +26,7 @@ describe("Fork application across workspaces", function () {
   });
 
   it("1. Check if the forked application has the same dsl as the original", function () {
-    const appname = localStorage.getItem("AppName");
+    const appname = localStorage.getItem("workspaceName");
     entityExplorer.SelectEntityByName("Input1");
 
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
@@ -117,8 +118,10 @@ describe("Fork application across workspaces", function () {
     });
   });
 
-  it("Mark application as forkable", () => {
+  it("3. Mark application as forkable", () => {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     homePage.CreateNewApplication();
     appSettings.OpenAppSettings();
     appSettings.GoToEmbedSettings();

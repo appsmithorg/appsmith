@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -12,14 +13,16 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +88,12 @@ public class LayoutServiceTest {
     @Autowired
     NewPageService newPageService;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -98,7 +107,6 @@ public class LayoutServiceTest {
     AstService astService;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         purgeAllPages();
         User apiUser = userService.findByEmail("api_user").block();
@@ -117,6 +125,16 @@ public class LayoutServiceTest {
         installedJsPlugin =
                 pluginRepository.findByPackageName("installed-js-plugin").block();
         datasource.setPluginId(installedPlugin.getId());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private void purgeAllPages() {
@@ -884,22 +902,22 @@ public class LayoutServiceTest {
                             "Collection.aSyncCollectionActionWithoutCall");
 
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(secondSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(2).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(thirdSetPageLoadActions);
-                    Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
-                    for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
+                    Set<DslExecutableDTO> flatOnLoadActions = new HashSet<>();
+                    for (Set<DslExecutableDTO> actions : layout.getLayoutOnLoadActions()) {
                         flatOnLoadActions.addAll(actions);
                     }
-                    for (DslActionDTO action : flatOnLoadActions) {
+                    for (DslExecutableDTO action : flatOnLoadActions) {
                         assertThat(action.getId()).isNotBlank();
                         assertThat(action.getName()).isNotBlank();
                         assertThat(action.getTimeoutInMillisecond()).isNotZero();
@@ -1043,26 +1061,26 @@ public class LayoutServiceTest {
                             "Collection.anAsyncCollectionActionWithoutCall",
                             "Collection.aSyncCollectionActionWithoutCall");
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(secondSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(2).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(thirdSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(3).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(fourthSetPageLoadActions);
-                    Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
-                    for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
+                    Set<DslExecutableDTO> flatOnLoadActions = new HashSet<>();
+                    for (Set<DslExecutableDTO> actions : layout.getLayoutOnLoadActions()) {
                         flatOnLoadActions.addAll(actions);
                     }
-                    for (DslActionDTO action : flatOnLoadActions) {
+                    for (DslExecutableDTO action : flatOnLoadActions) {
                         assertThat(action.getId()).isNotBlank();
                         assertThat(action.getName()).isNotBlank();
                         assertThat(action.getTimeoutInMillisecond()).isNotZero();
@@ -1147,22 +1165,22 @@ public class LayoutServiceTest {
                             "Collection.anAsyncCollectionActionWithoutCall",
                             "Collection.aSyncCollectionActionWithoutCall");
                     assertThat(layout.getLayoutOnLoadActions().get(0).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(1).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(secondSetPageLoadActions);
                     assertThat(layout.getLayoutOnLoadActions().get(2).stream()
-                                    .map(DslActionDTO::getName)
+                                    .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(thirdSetPageLoadActions);
-                    Set<DslActionDTO> flatOnLoadActions = new HashSet<>();
-                    for (Set<DslActionDTO> actions : layout.getLayoutOnLoadActions()) {
+                    Set<DslExecutableDTO> flatOnLoadActions = new HashSet<>();
+                    for (Set<DslExecutableDTO> actions : layout.getLayoutOnLoadActions()) {
                         flatOnLoadActions.addAll(actions);
                     }
-                    for (DslActionDTO action : flatOnLoadActions) {
+                    for (DslExecutableDTO action : flatOnLoadActions) {
                         assertThat(action.getId()).isNotBlank();
                         assertThat(action.getName()).isNotBlank();
                         assertThat(action.getTimeoutInMillisecond()).isNotZero();

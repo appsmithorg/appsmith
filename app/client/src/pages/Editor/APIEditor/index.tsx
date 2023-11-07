@@ -1,318 +1,129 @@
-import React from "react";
-import { connect } from "react-redux";
-import { submit } from "redux-form";
-import RestApiEditorForm from "./RestAPIForm";
-import RapidApiEditorForm from "./RapidApiEditorForm";
-import { deleteAction, runAction } from "actions/pluginActionActions";
-import type { PaginationField } from "api/ActionAPI";
-import type { AppState } from "@appsmith/reducers";
+import React, { useCallback, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
-import type {
-  ActionData,
-  ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
-import _ from "lodash";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+
 import {
-  getActionById,
-  getCurrentApplicationId,
-  getCurrentPageName,
-  getIsEditorInitialized,
-} from "selectors/editorSelectors";
-import type { Plugin } from "api/PluginApi";
-import type { Action, PaginationType, RapidApiAction } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
-import { getApiName } from "selectors/formSelectors";
-import Spinner from "components/editorComponents/Spinner";
-import type { CSSProperties } from "styled-components";
-import styled from "styled-components";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { changeApi } from "actions/apiPaneActions";
+  getPageList,
+  getPluginSettingConfigs,
+  getPlugins,
+} from "@appsmith/selectors/entitiesSelector";
+import { deleteAction, runAction } from "actions/pluginActionActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import Editor from "./Editor";
+import BackToCanvas from "components/common/BackToCanvas";
+import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
+import { getIsEditorInitialized } from "selectors/editorSelectors";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
+import type { APIEditorRouteParams } from "constants/routes";
+import {
+  getHasDeleteActionPermission,
+  getHasManageActionPermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { ApiEditorContextProvider } from "./ApiEditorContext";
+import type { PaginationField } from "api/ActionAPI";
+import { get } from "lodash";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import * as Sentry from "@sentry/react";
-import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import {
-  getPageList,
-  getPlugins,
-  getPluginSettingConfigs,
-} from "selectors/entitiesSelector";
-import history from "utils/history";
-import { saasEditorApiIdURL } from "RouteBuilder";
-import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
-`;
-
-interface ReduxStateProps {
-  actions: ActionDataState;
-  isRunning: boolean;
-  isDeleting: boolean;
-  isCreating: boolean;
-  apiName: string;
-  currentApplication?: ApplicationPayload;
-  currentPageName: string | undefined;
-  pages: any;
-  plugins: Plugin[];
-  pluginId: any;
-  settingsConfig: any;
-  apiAction: Action | ActionData | RapidApiAction | undefined;
-  paginationType: PaginationType;
-  isEditorInitialized: boolean;
-  applicationId: string;
-}
-interface ReduxActionProps {
-  submitForm: (name: string) => void;
-  runAction: (id: string, paginationField?: PaginationField) => void;
-  deleteAction: (id: string, name: string) => void;
-  changeAPIPage: (apiId: string, isSaas: boolean) => void;
-}
+type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
 function getPageName(pages: any, pageId: string) {
   const page = pages.find((page: any) => page.pageId === pageId);
   return page ? page.pageName : "";
 }
 
-function getPackageNameFromPluginId(pluginId: string, plugins: Plugin[]) {
-  const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
-  return plugin?.packageName;
-}
+function ApiEditorWrapper(props: ApiEditorWrapperProps) {
+  const { apiId = "", pageId } = props.match.params;
+  const dispatch = useDispatch();
+  const isEditorInitialized = useSelector(getIsEditorInitialized);
+  const action = useSelector((state) => getAction(state, apiId));
+  const apiName = action?.name || "";
+  const pluginId = get(action, "pluginId", "");
+  const datasourceId = action?.datasource.id || "";
+  const plugins = useSelector(getPlugins);
+  const pages = useSelector(getPageList);
+  const pageName = getPageName(pages, pageId);
+  const settingsConfig = useSelector((state) =>
+    getPluginSettingConfigs(state, pluginId),
+  );
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-type Props = ReduxActionProps &
-  ReduxStateProps &
-  RouteComponentProps<{ apiId: string; pageId: string }>;
+  const isChangePermitted = getHasManageActionPermission(
+    isFeatureEnabled,
+    action?.userPermissions,
+  );
+  const isDeletePermitted = getHasDeleteActionPermission(
+    isFeatureEnabled,
+    action?.userPermissions,
+  );
 
-class ApiEditor extends React.Component<Props> {
-  componentDidMount() {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
-      actionType: "API",
-    });
-    const type = this.getFormName();
-    this.props.changeAPIPage(this.props.match.params.apiId, type === "SAAS");
-  }
-  handleDeleteClick = () => {
-    const pageName = getPageName(
-      this.props.pages,
-      this.props.match.params.pageId,
-    );
-    AnalyticsUtil.logEvent("DELETE_API_CLICK", {
-      apiName: this.props.apiName,
-      apiID: this.props.match.params.apiId,
-      pageName: pageName,
-    });
-    this.props.deleteAction(this.props.match.params.apiId, this.props.apiName);
-  };
+  const moreActionsMenu = useMemo(
+    () => (
+      <MoreActionsMenu
+        className="t--more-action-menu"
+        id={action ? action.id : ""}
+        isChangePermitted={isChangePermitted}
+        isDeletePermitted={isDeletePermitted}
+        name={action ? action.name : ""}
+        pageId={pageId}
+      />
+    ),
+    [action?.id, action?.name, isChangePermitted, isDeletePermitted, pageId],
+  );
 
-  getFormName = () => {
-    const plugins = this.props.plugins;
-    const pluginId = this.props.pluginId;
-    const plugin =
-      plugins &&
-      plugins.find((plug) => {
-        if (plug.id === pluginId) return plug;
-      });
-    return plugin && plugin.type;
-  };
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.isRunning && !this.props.isRunning) {
-      PerformanceTracker.stopTracking(PerformanceTransactionName.RUN_API_CLICK);
-    }
-    if (prevProps.match.params.apiId !== this.props.match.params.apiId) {
-      const type = this.getFormName();
-      this.props.changeAPIPage(this.props.match.params.apiId, type === "SAAS");
-    }
-  }
-
-  handleRunClick = (paginationField?: PaginationField) => {
-    const pageName = getPageName(
-      this.props.pages,
-      this.props.match.params.pageId,
-    );
-    const pluginName = this.props.plugins.find(
-      (plugin) => plugin.id === this.props.pluginId,
-    )?.name;
-    PerformanceTracker.startTracking(PerformanceTransactionName.RUN_API_CLICK, {
-      apiId: this.props.match.params.apiId,
-    });
-    AnalyticsUtil.logEvent("RUN_API_CLICK", {
-      apiName: this.props.apiName,
-      apiID: this.props.match.params.apiId,
-      pageName: pageName,
-      datasourceId: (this.props?.apiAction as any)?.datasource?.id,
-      pluginName: pluginName,
-      isMock: false, // as mock db exists only for postgres and mongo plugins
-    });
-    this.props.runAction(this.props.match.params.apiId, paginationField);
-  };
-
-  getPluginUiComponentOfId = (
-    id: string,
-    plugins: Plugin[],
-  ): string | undefined => {
-    const plugin = plugins.find((plugin) => plugin.id === id);
-    if (!plugin) return undefined;
-    return plugin.uiComponent;
-  };
-
-  getPluginUiComponentOfName = (plugins: Plugin[]): string | undefined => {
-    const plugin = plugins.find(
-      (plugin) => plugin.packageName === PluginPackageName.REST_API,
-    );
-    if (!plugin) return undefined;
-    return plugin.uiComponent;
-  };
-
-  render() {
-    const {
-      isCreating,
-      isDeleting,
-      isEditorInitialized,
-      isRunning,
-      match: {
-        params: { apiId },
-      },
-      paginationType,
-      pluginId,
-      plugins,
-    } = this.props;
-    if (!pluginId && apiId) {
-      return <EntityNotFoundPane />;
-    }
-    if (isCreating || !isEditorInitialized) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
+  const handleRunClick = useCallback(
+    (paginationField?: PaginationField) => {
+      const pluginName = plugins.find((plugin) => plugin.id === pluginId)?.name;
+      PerformanceTracker.startTracking(
+        PerformanceTransactionName.RUN_API_CLICK,
+        {
+          apiId,
+        },
       );
-    }
+      AnalyticsUtil.logEvent("RUN_API_CLICK", {
+        apiName,
+        apiID: apiId,
+        pageName: pageName,
+        datasourceId,
+        pluginName: pluginName,
+        isMock: false, // as mock db exists only for postgres and mongo plugins
+      });
+      dispatch(runAction(apiId, paginationField));
+    },
+    [apiId, apiName, pageName, getPageName, plugins, pluginId, datasourceId],
+  );
 
-    let formUiComponent: string | undefined;
-    if (apiId) {
-      if (pluginId) {
-        formUiComponent = this.getPluginUiComponentOfId(pluginId, plugins);
-      } else {
-        formUiComponent = this.getPluginUiComponentOfName(plugins);
-      }
-    }
+  const actionRightPaneBackLink = useMemo(() => {
+    return <BackToCanvas pageId={pageId} />;
+  }, [pageId]);
 
-    return (
-      <div style={formStyles}>
-        {formUiComponent === "ApiEditorForm" && (
-          <RestApiEditorForm
-            apiName={this.props.apiName}
-            appName={
-              this.props.currentApplication
-                ? this.props.currentApplication.name
-                : ""
-            }
-            isDeleting={isDeleting}
-            isRunning={isRunning}
-            onDeleteClick={this.handleDeleteClick}
-            onRunClick={this.handleRunClick}
-            paginationType={paginationType}
-            pluginId={pluginId}
-            settingsConfig={this.props.settingsConfig}
-          />
-        )}
-        {formUiComponent === "GraphQLEditorForm" && (
-          <GraphQLEditorForm
-            apiName={this.props.apiName}
-            appName={
-              this.props.currentApplication
-                ? this.props.currentApplication.name
-                : ""
-            }
-            isDeleting={isDeleting}
-            isRunning={isRunning}
-            match={this.props.match}
-            onDeleteClick={this.handleDeleteClick}
-            onRunClick={this.handleRunClick}
-            paginationType={paginationType}
-            pluginId={pluginId}
-            settingsConfig={this.props.settingsConfig}
-          />
-        )}
-        {formUiComponent === "RapidApiEditorForm" && (
-          <RapidApiEditorForm
-            apiId={this.props.match.params.apiId}
-            apiName={this.props.apiName}
-            appName={
-              this.props.currentApplication
-                ? this.props.currentApplication.name
-                : ""
-            }
-            isDeleting={isDeleting}
-            isRunning={isRunning}
-            location={this.props.location}
-            onDeleteClick={this.handleDeleteClick}
-            onRunClick={this.handleRunClick}
-            paginationType={paginationType}
-          />
-        )}
-        {formUiComponent === "SaaSEditorForm" &&
-          history.push(
-            saasEditorApiIdURL({
-              pageId: this.props.match.params.pageId,
-              pluginPackageName:
-                getPackageNameFromPluginId(
-                  this.props.pluginId,
-                  this.props.plugins,
-                ) ?? "",
-              apiId: this.props.match.params.apiId,
-            }),
-          )}
-      </div>
-    );
-  }
+  const handleDeleteClick = useCallback(() => {
+    AnalyticsUtil.logEvent("DELETE_API_CLICK", {
+      apiName,
+      apiID: apiId,
+      pageName,
+    });
+    dispatch(deleteAction({ id: apiId, name: apiName }));
+  }, [getPageName, pages, pageId, apiName]);
+
+  const closeEditorLink = useMemo(() => <CloseEditor />, []);
+
+  return (
+    <ApiEditorContextProvider
+      actionRightPaneBackLink={actionRightPaneBackLink}
+      closeEditorLink={closeEditorLink}
+      handleDeleteClick={handleDeleteClick}
+      handleRunClick={handleRunClick}
+      moreActionsMenu={moreActionsMenu}
+      settingsConfig={settingsConfig}
+    >
+      <Editor {...props} isEditorInitialized={isEditorInitialized} />
+    </ApiEditorContextProvider>
+  );
 }
 
-const formStyles: CSSProperties = {
-  position: "relative",
-  height: "100%",
-  display: "flex",
-  flexDirection: "column",
-};
-
-const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
-  const apiAction = getActionById(state, props);
-  const apiName = getApiName(state, props.match.params.apiId);
-  const { isCreating, isDeleting, isRunning } = state.ui.apiPane;
-  const pluginId = _.get(apiAction, "pluginId", "");
-  const settingsConfig = getPluginSettingConfigs(state, pluginId);
-  return {
-    actions: state.entities.actions,
-    currentApplication: getCurrentApplication(state),
-    currentPageName: getCurrentPageName(state),
-    pages: getPageList(state),
-    apiName: apiName || "",
-    plugins: getPlugins(state),
-    pluginId,
-    settingsConfig,
-    paginationType: _.get(apiAction, "actionConfiguration.paginationType"),
-    apiAction,
-    isRunning: isRunning[props.match.params.apiId],
-    isDeleting: isDeleting[props.match.params.apiId],
-    isCreating: isCreating,
-    isEditorInitialized: getIsEditorInitialized(state),
-    applicationId: getCurrentApplicationId(state),
-  };
-};
-
-const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
-  submitForm: (name: string) => dispatch(submit(name)),
-  runAction: (id: string, paginationField?: PaginationField) =>
-    dispatch(runAction(id, paginationField)),
-  deleteAction: (id: string, name: string) =>
-    dispatch(deleteAction({ id, name })),
-  changeAPIPage: (actionId: string, isSaas: boolean) =>
-    dispatch(changeApi(actionId, isSaas)),
-});
-
-export default Sentry.withProfiler(
-  connect(mapStateToProps, mapDispatchToProps)(ApiEditor),
-);
+export default ApiEditorWrapper;

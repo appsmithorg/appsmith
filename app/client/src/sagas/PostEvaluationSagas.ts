@@ -5,11 +5,16 @@ import {
   Severity,
 } from "entities/AppsmithConsole";
 import type {
+  ActionEntity,
+  JSActionEntity,
+  WidgetEntity,
+  WidgetEntityConfig,
+} from "@appsmith/entities/DataTree/types";
+import type {
   ConfigTree,
   DataTree,
   UnEvalTree,
-  WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
@@ -44,7 +49,7 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import { toast } from "design-system";
-import type { ActionEntityConfig } from "entities/DataTree/types";
+import type { ActionEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import { logActionExecutionError } from "./ActionExecution/errorUtils";
@@ -75,7 +80,10 @@ function logLatestEvalPropertyErrors(
   for (const evaluatedPath of evalAndValidationOrder) {
     const { entityName, propertyPath } =
       getEntityNameAndPropertyPath(evaluatedPath);
-    const entity = dataTree[entityName];
+    const entity = dataTree[entityName] as
+      | WidgetEntity
+      | ActionEntity
+      | JSActionEntity;
     const entityConfig = configTree[entityName] as any;
 
     if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
@@ -217,24 +225,18 @@ export function* evalErrorHandler(
   errors: EvalError[],
   dataTree?: DataTree,
   evaluationOrder?: Array<string>,
-  reValidatedPaths?: Array<string>,
   configTree?: ConfigTree,
   removedPaths?: Array<{ entityId: string; fullpath: string }>,
 ) {
-  if (dataTree && evaluationOrder && configTree && reValidatedPaths) {
-    const currentDebuggerErrors: Record<string, Log> = yield select(
-      getDebuggerErrors,
-    );
+  if (dataTree && evaluationOrder && configTree) {
+    const currentDebuggerErrors: Record<string, Log> =
+      yield select(getDebuggerErrors);
 
-    const evalAndValidationOrder = new Set([
-      ...reValidatedPaths,
-      ...evaluationOrder,
-    ]);
     // Update latest errors to the debugger
     logLatestEvalPropertyErrors(
       currentDebuggerErrors,
       dataTree,
-      [...evalAndValidationOrder],
+      evaluationOrder,
       configTree,
       removedPaths,
     );
@@ -491,7 +493,10 @@ export function* updateTernDefinitions(
       );
       const entity = dataTree[entityName];
       if (!entity || !isWidget(entity)) return false;
-      return isWidgetPropertyNamePath(entity, update.payload.propertyPath);
+      return isWidgetPropertyNamePath(
+        entity as WidgetEntity,
+        update.payload.propertyPath,
+      );
     });
 
   if (!shouldUpdate) return;
@@ -551,7 +556,7 @@ export function* handleJSFunctionExecutionErrorLog(
             }),
             source: {
               id: action.collectionId ? action.collectionId : action.id,
-              name: `${collectionName}.${action.name}`,
+              name: collectionName,
               type: ENTITY_TYPE.JSACTION,
               propertyPath: `${action.name}`,
             },

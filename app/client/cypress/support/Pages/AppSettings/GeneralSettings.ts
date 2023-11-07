@@ -26,8 +26,7 @@ export class GeneralSettings {
           (currentAppName as string).length,
           newAppName,
         );
-        this.agHelper.PressEnter();
-        this.agHelper.Sleep();
+        this.agHelper.PressEnter(1000);
         this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
         this.appSettings.CheckUrl(appNameToBeVerified, pageName);
         if (reset) {
@@ -36,7 +35,7 @@ export class GeneralSettings {
             newAppName.length,
             currentAppName as string,
           );
-          this.agHelper.PressEnter();
+          this.agHelper.PressEnter(1000);
           this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
           this.appSettings.CheckUrl(currentAppName as string, pageName);
         }

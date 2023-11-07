@@ -1,13 +1,19 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Appsmith;
+import com.appsmith.server.constants.ce.FieldNameCE;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.NetworkUtils;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import joptsimple.internal.Strings;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +28,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +46,14 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
     private final ApplicationContext applicationContext;
 
-    private boolean isRtsAccessible = false;
-
     private final ReactiveMongoTemplate reactiveMongoTemplate;
+
+    private final FeatureFlagService featureFlagService;
+    private final AnalyticsService analyticsService;
+    private final NetworkUtils networkUtils;
+    private final ReleaseNotesService releaseNotesService;
+
+    private boolean isRtsAccessible = false;
 
     @Override
     public Mono<? extends Config> registerInstance() {
@@ -51,9 +63,9 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
             return Mono.error(new AppsmithException(
                     AppsmithError.INSTANCE_REGISTRATION_FAILURE, "Unable to find cloud services base URL"));
         }
+        Mono<String> instanceIdMono = configService.getInstanceId().cache();
 
-        return configService
-                .getInstanceId()
+        return instanceIdMono
                 .flatMap(instanceId -> {
                     log.debug("Triggering registration of this instance...");
 
@@ -77,10 +89,41 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                                     .getError()
                                     .getMessage()));
                 })
-                .flatMap(instanceId -> {
+                .flatMap(registeredInstanceId -> {
                     log.debug("Registration successful, updating state ...");
-                    return configService.save(Appsmith.APPSMITH_REGISTERED, Map.of("value", true));
+                    return instanceIdMono.flatMap(instanceId -> configService
+                            .getByName(Appsmith.APPSMITH_REGISTERED)
+                            .switchIfEmpty(Mono.defer(() -> {
+                                sendServerSetupEvent(instanceId);
+                                return Mono.just(new Config());
+                            }))
+                            .flatMap(config -> {
+                                // if instance isn't already marked registered
+                                if (config.getConfig() != null
+                                        && !(Boolean) config.getConfig().get("value")) {
+                                    sendServerSetupEvent(instanceId);
+                                }
+                                return configService.save(Appsmith.APPSMITH_REGISTERED, Map.of("value", true));
+                            }));
                 });
+    }
+
+    private void sendServerSetupEvent(String instanceId) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put(FieldNameCE.INSTANCE_ID, instanceId);
+        networkUtils
+                .getExternalAddress()
+                .flatMap(ipAddress -> {
+                    analyticsProperties.put(FieldNameCE.IP_ADDRESS, ipAddress);
+                    analyticsProperties.put(FieldNameCE.VERSION, releaseNotesService.getRunningVersion());
+                    return analyticsService.sendEvent(
+                            AnalyticsEvents.SERVER_SETUP_COMPLETE.getEventName(),
+                            instanceId,
+                            analyticsProperties,
+                            false);
+                })
+                .subscribeOn(commonConfig.scheduler())
+                .subscribe();
     }
 
     @Override
@@ -193,5 +236,10 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                             error);
                     return Mono.just(Strings.EMPTY);
                 });
+    }
+
+    @Override
+    public Mono<Void> updateCacheForTenantFeatureFlags() {
+        return featureFlagService.getTenantFeatures().then();
     }
 }

@@ -32,7 +32,7 @@ import {
   genericSetter,
 } from "../utils";
 import store from "store";
-import { getPageList } from "selectors/entitiesSelector";
+import { getPageList } from "@appsmith/selectors/entitiesSelector";
 import type { TreeDropdownOption } from "design-system-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import { getFunctionName, checkIfArgumentExistAtPosition } from "@shared/ast";
@@ -539,23 +539,47 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return textGetter(value, 2);
     },
     setter: (value, currentValue) => {
+      const isMessageFieldSet = textGetter(currentValue, 0);
+      if (!isMessageFieldSet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
+      const isSourceFieldSet = enumTypeGetter(currentValue, 1);
+      if (!isSourceFieldSet) {
+        currentValue = enumTypeSetter("'window'", currentValue, 1);
+      }
       return textSetter(value, currentValue, 2);
     },
     view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.SOURCE_FIELD]: {
-    label: () => "Target iframe",
-    defaultText: "",
-    options: () => null,
+    label: () => "Target",
+    defaultText: "Window",
+    options: (props: FieldProps) => {
+      const { widgetOptionTree } = props;
+      const defaultOption = { label: "Window", value: "'window'" };
+      return [
+        defaultOption,
+        ...widgetOptionTree
+          .filter((option) => option.type === "IFRAME_WIDGET")
+          .map((w) => ({
+            label: w.label,
+            value: w.value,
+          })),
+      ];
+    },
     exampleText: "postWindowMessage('hi', 'window', '*')",
     toolTip: "Specifies the target iframe widget name or parent window",
-    getter: (value: string) => {
-      return textGetter(value, 1);
+    getter: (value: any) => {
+      return enumTypeGetter(value, 1);
     },
-    setter: (value, currentValue) => {
-      return textSetter(value, currentValue, 1);
+    setter: (option: any, currentValue: string) => {
+      const isMessageFieldSet = textGetter(currentValue, 0);
+      if (!isMessageFieldSet) {
+        currentValue = enumTypeSetter("''", currentValue, 0);
+      }
+      return enumTypeSetter(option.value, currentValue, 1);
     },
-    view: ViewTypes.TEXT_VIEW,
+    view: ViewTypes.SELECTOR_VIEW,
   },
   [FieldType.API_AND_QUERY_SUCCESS_FAILURE_TAB_FIELD]: {
     label: () => "",

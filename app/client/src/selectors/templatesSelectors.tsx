@@ -3,7 +3,7 @@ import Fuse from "fuse.js";
 import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getWorkspaceCreateApplication } from "@appsmith/selectors/applicationSelectors";
-import { getDefaultPlugins } from "./entitiesSelector";
+import { getDefaultPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { Filter } from "pages/Templates/Filters";
 
 const fuzzySearchOptions = {
@@ -20,6 +20,12 @@ export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
 export const isImportingTemplateToAppSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplateToApp;
+export const isImportingStarterBuildingBlockToAppSelector = (state: AppState) =>
+  state.ui.templates.isImportingStarterBuildingBlockToApp;
+export const starterBuildingBlockDatasourcePromptSelector = (state: AppState) =>
+  state.ui.templates.starterBuildingBlockDatasourcePrompt;
+export const buildingBlocksSourcePageIdSelector = (state: AppState) =>
+  state.ui.templates.buildingBlockSourcePageId;
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.templateNotificationSeen;
 

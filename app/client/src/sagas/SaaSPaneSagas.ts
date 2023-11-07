@@ -5,7 +5,7 @@ import history from "utils/history";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugin,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -13,7 +13,7 @@ import {
   generateTemplateFormURL,
   saasEditorApiIdURL,
   saasEditorDatasourceIdURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";

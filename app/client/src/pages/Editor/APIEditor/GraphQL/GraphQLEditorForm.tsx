@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useContext, useRef } from "react";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { change, formValueSelector, reduxForm } from "redux-form";
@@ -13,10 +13,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
 import type { Datasource } from "entities/Datasource";
-import {
-  getAction,
-  getActionData,
-} from "../../../../selectors/entitiesSelector";
+import { getAction, getActionData } from "@appsmith/selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";
@@ -24,6 +21,7 @@ import QueryEditor from "./QueryEditor";
 import { tailwindLayers } from "constants/Layers";
 import VariableEditor from "./VariableEditor";
 import Pagination from "./Pagination";
+import { ApiEditorContext } from "../ApiEditorContext";
 
 const ResizeableDiv = styled.div`
   display: flex;
@@ -84,6 +82,8 @@ function GraphQLEditorForm(props: Props) {
     DEFAULT_GRAPHQL_VARIABLE_WIDTH,
   );
 
+  const { closeEditorLink } = useContext(ApiEditorContext);
+
   /**
    * Variable Editor's resizeable handler for the changing of width
    */
@@ -134,6 +134,7 @@ function GraphQLEditorForm(props: Props) {
           </ResizeableDiv>
         </BodyWrapper>
       }
+      closeEditorLink={closeEditorLink}
       defaultTabSelected={2}
       formName={API_EDITOR_FORM_NAME}
       paginationUIComponent={
@@ -151,9 +152,9 @@ function GraphQLEditorForm(props: Props) {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-type ReduxDispatchProps = {
+interface ReduxDispatchProps {
   updateDatasource: (datasource: Datasource) => void;
-};
+}
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) => {

@@ -1,36 +1,46 @@
 import React from "react";
-import { createGlobalStyle } from "styled-components";
-
+import {
+  createGlobalFontStack,
+  createTypographyStringMap,
+} from "../../typography";
+import { css, injectGlobal } from "@emotion/css";
+import { cssRule } from "../../utils/cssRule";
 import { ThemeContext } from "./ThemeContext";
-import { StyledProvider } from "./index.styled";
-import { createGlobalFontStack } from "../../typography";
+import clsx from "clsx";
 
-import type { ThemeProviderProps } from "./types";
+import type { FontFamily } from "../../typography";
+import type { Theme, ThemeProviderProps } from "./types";
 
 const { fontFaces } = createGlobalFontStack();
-const GlobalStyles = createGlobalStyle`${fontFaces}`;
+injectGlobal(fontFaces);
+
+const fontFamilyCss = (fontFamily?: FontFamily) => {
+  const fontFamilyCss =
+    fontFamily && fontFamily !== "System Default"
+      ? `${fontFamily}, sans-serif`
+      : "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu'";
+
+  return `font-family: ${fontFamilyCss}; --font-family: ${fontFamilyCss}`;
+};
+
+const providerCss = ({ fontFamily, typography, ...theme }: Theme) => css`
+  ${fontFamilyCss(fontFamily)};
+  ${createTypographyStringMap(typography, fontFamily)};
+  ${cssRule(theme)};
+`;
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
   const { children, className, style, theme } = props;
-  const { fontFamily, typography, ...rest } = theme;
 
   return (
-    <ThemeContext.Provider
-      value={{
-        ...rest,
-      }}
-    >
-      <GlobalStyles />
-      <StyledProvider
-        $fontFamily={fontFamily}
-        $typography={typography}
-        className={className}
+    <ThemeContext.Provider value={theme}>
+      <div
+        className={clsx(className, providerCss(theme))}
         data-theme-provider=""
         style={style}
-        theme={rest}
       >
         {children}
-      </StyledProvider>
+      </div>
     </ThemeContext.Provider>
   );
 };

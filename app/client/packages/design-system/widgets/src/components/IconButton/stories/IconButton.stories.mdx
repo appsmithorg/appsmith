@@ -1,0 +1,105 @@
+import { IconButton } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/blocks";
+import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
+
+<Meta
+  title="Design-system/Widgets/IconButton"
+  component={IconButton}
+  args={{
+    icon: EmotionHappyLineIcon,
+  }}
+/>
+
+export const Template = (args) => <IconButton {...args} />;
+
+# IconButton
+
+Icon Button is a button component that only contains an icon.
+
+<Canvas>
+  <Story name="IconButton">{Template.bind({})}</Story>
+</Canvas>
+
+<ArgsTable story="IconButton" of={IconButton} />
+
+## Variants
+
+Just like Button component, There are 3 variants of the icon button component.
+
+<Story name="Filled">{Template.bind({})}</Story>
+
+<Story
+  name="Outlined"
+  args={{
+    variant: "outlined",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Ghost"
+  args={{
+    variant: "ghost",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Semantic
+
+`IconButton` component has 3 visual style variants and 5 semantic color options, similar to `Button` component.
+
+<Story name="Semantic">
+  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+    {["filled", "outlined", "ghost"].map((variant) =>
+      ["accent", "neutral", "positive", "negative", "warning"].map((color) => (
+        <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
+          <IconButton
+            variant={variant}
+            color={color}
+            icon={EmotionHappyLineIcon}
+          />
+        </div>
+      )),
+    )}
+  </div>
+</Story>
+
+## Size
+
+`IconButton` component has 3 size options. `small`, `medium`, `large`.
+
+<Story name="Size">
+  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+    {["small", "medium", "large"].map((size) => (
+      <div key={size} style={{ marginBottom: 10 }}>
+        <IconButton size={size} icon={EmotionHappyLineIcon} />
+      </div>
+    ))}
+  </div>
+</Story>
+
+## Disabled
+
+<Story
+  name="Disabled State"
+  args={{
+    isDisabled: true,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Loading
+
+<Story
+  name="Loading State"
+  args={{
+    isLoading: true,
+    icon: EmotionHappyLineIcon,
+    onPress: () => alert("on pressed"),
+  }}
+>
+  {Template.bind({})}
+</Story>

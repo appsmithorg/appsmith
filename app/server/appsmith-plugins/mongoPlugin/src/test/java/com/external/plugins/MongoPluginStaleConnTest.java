@@ -134,7 +134,7 @@ public class MongoPluginStaleConnTest {
         doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).listCollectionNames();
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig, null, null);
         StepVerifier.create(structureMono)
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
                 .verify();
@@ -150,7 +150,7 @@ public class MongoPluginStaleConnTest {
                 .listCollectionNames();
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig, null, null);
         StepVerifier.create(structureMono)
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
                 .verify();

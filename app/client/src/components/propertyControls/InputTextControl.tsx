@@ -14,6 +14,9 @@ import {
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
 export function InputText(props: {
   label: string;
@@ -28,9 +31,11 @@ export function InputText(props: {
   additionalAutocomplete?: AdditionalDynamicDataTree;
   theme?: EditorTheme;
   hideEvaluatedValue?: boolean;
+  enableAI?: boolean;
 }) {
   const {
     dataTreePath,
+    enableAI = true,
     evaluatedValue,
     expected,
     hideEvaluatedValue,
@@ -48,7 +53,7 @@ export function InputText(props: {
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
-        AIAssisted
+        AIAssisted={enableAI}
         additionalDynamicData={props.additionalAutocomplete}
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}
@@ -56,6 +61,11 @@ export function InputText(props: {
         evaluatedValue={evaluatedValue}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
+        hinting={[
+          bindingHintHelper,
+          assistiveBindingHinter,
+          slashCommandHintHelper,
+        ]}
         hoverInteraction
         input={{
           value: value,
@@ -66,6 +76,7 @@ export function InputText(props: {
         onEditorBlur={onBlur}
         onEditorFocus={onFocus}
         placeholder={placeholder}
+        positionCursorInsideBinding
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={props.theme || EditorTheme.LIGHT}

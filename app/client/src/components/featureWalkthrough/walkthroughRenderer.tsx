@@ -70,7 +70,7 @@ const InstructionsHeaderWrapper = styled.div`
   }
 `;
 
-type RefRectParams = {
+interface RefRectParams {
   // body params
   bh: number;
   bw: number;
@@ -79,7 +79,7 @@ type RefRectParams = {
   tw: number;
   tx: number;
   ty: number;
-};
+}
 
 /*
  * Clip Path Polygon for single target with bounding rect :
@@ -122,12 +122,12 @@ type BoundingRectTargets = Record<string, RefRectParams>;
 
 const WalkthroughRenderer = ({
   details,
-  offset,
-  targetId,
+  dismissOnOverlayClick,
   eventParams = {},
   multipleHighlights,
+  offset,
   overlayColor,
-  dismissOnOverlayClick,
+  targetId,
 }: FeatureParams) => {
   const [boundingRects, setBoundingRects] =
     useState<BoundingRectTargets | null>(null);
@@ -216,14 +216,18 @@ const WalkthroughRenderer = ({
                     0 ${targetBounds.bh}, 
                     ${multipleHighlightsIds.reduce((acc, id) => {
                       const boundingRect = boundingRects[id];
-                      acc = `${acc} ${boundingRect.tx} ${boundingRect.bh}, 
-                      ${boundingRect.tx} ${boundingRect.ty}, 
-                      ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty},
-                      ${boundingRect.tx + boundingRect.tw} ${
-                        boundingRect.ty + boundingRect.th
-                      }, 
-                      ${boundingRect.tx} ${boundingRect.ty + boundingRect.th}, 
-                      ${boundingRect.tx} ${boundingRect.bh},`;
+                      if (boundingRect) {
+                        acc = `${acc} ${boundingRect.tx} ${boundingRect.bh}, 
+                        ${boundingRect.tx} ${boundingRect.ty}, 
+                        ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty},
+                        ${boundingRect.tx + boundingRect.tw} ${
+                          boundingRect.ty + boundingRect.th
+                        }, 
+                        ${boundingRect.tx} ${
+                          boundingRect.ty + boundingRect.th
+                        }, 
+                        ${boundingRect.tx} ${boundingRect.bh},`;
+                      }
                       return acc;
                     }, "")}
                     ${targetBounds.bw} ${targetBounds.bh}, 
@@ -277,7 +281,13 @@ const InstructionsComponent = ({
         <Text kind="heading-s" renderAs="p">
           {details.title}
         </Text>
-        <Icon color="black" name="close" onClick={onClose} size="md" />
+        <Icon
+          className="t--walkthrough-close"
+          color="black"
+          name="close"
+          onClick={onClose}
+          size="md"
+        />
       </InstructionsHeaderWrapper>
       <Text>{details.description}</Text>
       {details.imageURL && (

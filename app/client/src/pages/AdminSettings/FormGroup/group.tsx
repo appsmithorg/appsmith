@@ -21,13 +21,13 @@ import Radio from "./Radio";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import classNames from "classnames";
 
-type GroupProps = {
+interface GroupProps {
   name?: string;
   settings?: Setting[];
   isHidden?: boolean;
   category?: string;
   subCategory?: string;
-};
+}
 
 const GroupWrapper = styled.div`
   position: relative;
@@ -190,9 +190,8 @@ export default function Group({
                                 children: createMessage(LEARN_MORE),
                                 ...(setting.url && { to: setting.url }),
                                 ...(setting.action && {
-                                  onClick: (e: any) => {
+                                  onClick: () => {
                                     if (setting.action) {
-                                      e.preventDefault();
                                       setting.action(
                                         calloutDispatch,
                                       ) as unknown as React.MouseEventHandler<HTMLElement>;

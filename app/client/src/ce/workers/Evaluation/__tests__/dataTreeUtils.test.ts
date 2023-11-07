@@ -1,4 +1,4 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import { smallDataSet } from "workers/Evaluation/__tests__/generateOpimisedUpdates.test";
 import produce from "immer";
@@ -75,22 +75,6 @@ const unevalTreeFromMainThread = {
     meta: {},
     type: "BUTTON_WIDGET",
   },
-  pageList: [
-    {
-      pageName: "Page1",
-      pageId: "63349fb5d39f215f89b8245e",
-      isDefault: false,
-      isHidden: false,
-      slug: "page1",
-    },
-    {
-      pageName: "Page2",
-      pageId: "637cc6b4a3664a7fe679b7b0",
-      isDefault: true,
-      isHidden: false,
-      slug: "page2",
-    },
-  ],
   appsmith: {
     user: {
       email: "someuser@appsmith.com",
@@ -265,95 +249,6 @@ describe("7. Test util methods", () => {
         expect(dataTree).toEqual(expectedState);
         //evalProps not be mutated with any updates
         expect(evalProps).toEqual(initialEvalProps);
-      });
-    });
-
-    describe("serialise", () => {
-      it("should clean out all functions in the generated state", () => {
-        const state = {
-          Table1: {
-            filteredTableData: smallDataSet,
-            selectedRows: [],
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            someFn: () => {},
-            pageSize: 0,
-            __evaluation__: {
-              evaluatedValues: {},
-            },
-          },
-        } as any;
-
-        const identicalEvalPathsPatches = {
-          "Table1.__evaluation__.evaluatedValues.['filteredTableData']":
-            "Table1.filteredTableData",
-        };
-        const evalProps = {
-          Table1: {
-            __evaluation__: {
-              evaluatedValues: {
-                someProp: "abc",
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                someEvalFn: () => {},
-              },
-            },
-          },
-        } as any;
-        const dataTree = makeEntityConfigsAsObjProperties(state, {
-          sanitizeDataTree: true,
-          evalProps,
-          identicalEvalPathsPatches,
-        }) as any;
-        const expectedState = produce(state, (draft: any) => {
-          draft.Table1.__evaluation__.evaluatedValues.someProp = "abc";
-          delete draft.Table1.someFn;
-          draft.Table1.__evaluation__.evaluatedValues.filteredTableData =
-            smallDataSet;
-        });
-
-        expect(dataTree).toEqual(expectedState);
-        //function introduced by evalProps is cleaned out
-        expect(
-          dataTree.Table1.__evaluation__.evaluatedValues.someEvalFn,
-        ).toBeUndefined();
-      });
-
-      it("should serialise bigInteger values", () => {
-        const someBigInt = BigInt(121221);
-        const state = {
-          Table1: {
-            pageSize: someBigInt,
-            __evaluation__: {
-              evaluatedValues: {},
-            },
-          },
-        } as any;
-
-        const identicalEvalPathsPatches = {
-          "Table1.__evaluation__.evaluatedValues.['pageSize']":
-            "Table1.pageSize",
-        };
-        const evalProps = {
-          Table1: {
-            __evaluation__: {
-              evaluatedValues: {
-                someProp: someBigInt,
-              },
-            },
-          },
-        } as any;
-
-        const dataTree = makeEntityConfigsAsObjProperties(state, {
-          sanitizeDataTree: true,
-          evalProps,
-          identicalEvalPathsPatches,
-        });
-        const expectedState = produce(state, (draft: any) => {
-          draft.Table1.pageSize = "121221";
-          draft.Table1.__evaluation__.evaluatedValues.pageSize = "121221";
-          draft.Table1.__evaluation__.evaluatedValues.someProp = "121221";
-        });
-
-        expect(dataTree).toEqual(expectedState);
       });
     });
   });

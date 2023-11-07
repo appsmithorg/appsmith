@@ -58,7 +58,7 @@ const StyledBannerBody = styled.div`
   margin-right: 9rem;
   width: 100%;
   text-align: center;
-  color: var(--ads-v2-color-fg);
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 const StyledImageBanner = styled.div`

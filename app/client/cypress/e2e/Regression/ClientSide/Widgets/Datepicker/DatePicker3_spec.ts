@@ -24,7 +24,7 @@ describe("Date picker widget testcases", () => {
     agHelper.GetNClick(propPane._selectPropDropdown("Date format"));
     agHelper
       .GetAttribute(datePickerlocators.options, "label", 7)
-      .then((dateFormatToSet) => {
+      .then((dateFormatToSet: any) => {
         agHelper.GetNClick(propPane._dropDownValue(dateFormatToSet), 0, true);
         agHelper
           .GetAttribute(datePickerlocators.input, "value")
@@ -45,7 +45,7 @@ describe("Date picker widget testcases", () => {
 
     agHelper
       .GetAttribute(datePickerlocators.dayPick, "aria-label")
-      .then((dateValueSet) => {
+      .then((dateValueSet: any) => {
         agHelper.GetNClick(datePickerlocators.dayPick);
         agHelper.GetNClick(datePickerlocators.input);
         agHelper
@@ -53,7 +53,7 @@ describe("Date picker widget testcases", () => {
           .then((labelValue) => {
             const formattedDate = format(
               new Date(dateValueSet),
-              "dd MMMM, yyyy",
+              "d MMMM, yyyy",
             );
             expect(labelValue).to.contain(formattedDate);
           });
@@ -66,7 +66,7 @@ describe("Date picker widget testcases", () => {
     agHelper.GetNClick(propPane._selectPropDropdown("Date format"));
     agHelper
       .GetAttribute(datePickerlocators.options, "label", 0)
-      .then((dateFormatToSet) => {
+      .then((dateFormatToSet: any) => {
         agHelper.GetNClick(propPane._dropDownValue(dateFormatToSet), 0, true);
       });
     propPane.SelectPropertiesDropDown("Time precision", "None");
@@ -86,8 +86,11 @@ describe("Date picker widget testcases", () => {
     deployMode.DeployApp();
     agHelper.GetNClick(datePickerlocators.input);
     agHelper.ClearNType(datePickerlocators.inputHour, "12", 0, true);
+    agHelper.Sleep(500); // wait for the input to be updated for CI runs
     agHelper.ClearNType(datePickerlocators.inputMinute, "58", 0, true);
+    agHelper.Sleep(500); // wait for the input to be updated for CI runs
     agHelper.ClearNType(datePickerlocators.inputSecond, "59", 0, true);
+    agHelper.Sleep(500); // wait for the input to be updated for CI runs
     agHelper.PressEnter();
     agHelper
       .GetAttribute(datePickerlocators.input, "value")
@@ -100,7 +103,7 @@ describe("Date picker widget testcases", () => {
     agHelper.GetNClick(propPane._selectPropDropdown("Date format"));
     agHelper
       .GetAttribute(datePickerlocators.options, "label", 15)
-      .then((dateFormatToSet) => {
+      .then((dateFormatToSet: any) => {
         agHelper.GetNClick(propPane._dropDownValue(dateFormatToSet), 0, true);
       });
     propPane.SelectPropertiesDropDown("Time precision", "Second");

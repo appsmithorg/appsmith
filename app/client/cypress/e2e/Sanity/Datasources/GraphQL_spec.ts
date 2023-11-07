@@ -8,7 +8,6 @@ import {
   propPane,
 } from "../../../support/Objects/ObjectsCore";
 
-let appName = "";
 let datasourceName = "GraphQL_DS";
 let tokenToAuthorizeGraphQl = "";
 let authoemail = "";
@@ -48,7 +47,6 @@ const GRAPHQL_LIMIT_DATA = [
 
 describe("GraphQL Datasource Implementation", function () {
   before(() => {
-    appName = localStorage.getItem("AppName") || "";
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       //apiName = `${apiName}${uid}`;
@@ -266,7 +264,7 @@ describe("GraphQL Datasource Implementation", function () {
 
     apiPage.RunAPI(false);
     apiPage.ResponseStatusCheck("PE-ARG-5000");
-    agHelper.Sleep(2000);
+    agHelper.Sleep(3500);
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.isExecutionSuccess).to.eq(false);
       expect(interception.response.body.data.body).to.contains(

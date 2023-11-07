@@ -16,8 +16,8 @@ describe("Property Pane Suggestions", () => {
     entityExplorer.SelectEntityByName("Button1", "Widgets");
     propPane.TypeTextIntoField("Label", "/");
     agHelper.Sleep(500);
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "New binding");
-    agHelper.GetNClickByContains(locators._hints, "New binding");
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "Add a binding");
+    agHelper.GetNClickByContains(locators._hints, "Add a binding");
     propPane.ValidatePropertyFieldValue("Label", "{{}}");
 
     //typing {{}}
@@ -46,6 +46,6 @@ describe("Property Pane Suggestions", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     cy.get("body").tab();
-    propPane.ValidatePropertyFieldValue("Label", "{{appsmith}}");
+    propPane.ValidatePropertyFieldValue("Label", "{{JSObject1}}");
   });
 });

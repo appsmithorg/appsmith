@@ -37,30 +37,30 @@ import {
 } from "WidgetProvider/constants";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { toast } from "design-system";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
-import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   getCanvasWidth,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { isFunction } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
-type GeneratedWidgetPayload = {
+interface GeneratedWidgetPayload {
   widgetId: string;
   widgets: { [widgetId: string]: FlattenedWidgetProps };
-};
+}
 
-type WidgetAddTabChild = {
+interface WidgetAddTabChild {
   tabs: any;
   widgetId: string;
-};
+}
 
 function* getEntityNames() {
   const evalTree: DataTree = yield select(getDataTree);
@@ -73,6 +73,7 @@ function* getChildWidgetProps(
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
   const { leftColumn, newWidgetId, topRow, type } = params;
+
   let { columns, parentColumnSpace, parentRowSpace, props, rows, widgetName } =
     params;
   let minHeight = undefined;

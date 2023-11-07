@@ -1,4 +1,4 @@
-import { ENTITY_TYPE } from "entities/DataTree/types";
+import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export const configTree = {
@@ -14,7 +14,7 @@ export const configTree = {
     reactivePaths: {},
     triggerPaths: {},
     validationPaths: {},
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     privateWidgets: {},
     bindingPaths: {},
     dynamicTriggerPathList: [],
@@ -26,7 +26,7 @@ export const configTree = {
     defaultProps: {},
     defaultMetaProps: ["recaptchaToken"],
     logBlackList: {},
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     privateWidgets: {},
     widgetName: "Button1",
     propertyOverrideDependency: {},
@@ -99,7 +99,7 @@ export const configTree = {
     type: "BUTTON_WIDGET",
     dynamicTriggerPathList: [],
     privateWidgets: {},
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     propertyOverrideDependency: {},
     overridingPropertyPaths: {},
     defaultProps: {},
@@ -315,7 +315,6 @@ export const unEvalTreeWidgetSelectWidgetConfig = {
           fnString:
             'function defaultOptionValueValidation(value, props, _) {\n  var isValid;\n  var parsed;\n  var message = "";\n  var isServerSideFiltered = props.serverSideFiltering; // TODO: validation of defaultOption is dependent on serverSideFiltering and options, this property should reValidated once the dependencies change\n  //this issue is been tracked here https://github.com/appsmithorg/appsmith/issues/15303\n\n  var options = props.options;\n  /*\n   * Function to check if the object has `label` and `value`\n   */\n\n  var hasLabelValue = function hasLabelValue(obj) {\n    return _.isPlainObject(value) && obj.hasOwnProperty("label") && obj.hasOwnProperty("value") && _.isString(obj.label) && (_.isString(obj.value) || _.isFinite(obj.value));\n  };\n  /*\n   * When value is "{label: \'green\', value: \'green\'}"\n   */\n\n\n  if (typeof value === "string") {\n    try {\n      var parsedValue = JSON.parse(value);\n\n      if (_.isObject(parsedValue)) {\n        value = parsedValue;\n      }\n    } catch (e) {}\n  }\n\n  if (_.isString(value) || _.isFinite(value) || hasLabelValue(value)) {\n    /*\n     * When value is "", "green", 444, {label: "green", value: "green"}\n     */\n    isValid = true;\n    parsed = value;\n  } else {\n    isValid = false;\n    parsed = undefined;\n    message = \'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }\';\n  }\n\n  if (isValid && !_.isNil(parsed) && parsed !== "") {\n    if (!Array.isArray(options) && typeof options === "string") {\n      try {\n        var parsedOptions = JSON.parse(options);\n\n        if (Array.isArray(parsedOptions)) {\n          options = parsedOptions;\n        } else {\n          options = [];\n        }\n      } catch (e) {\n        options = [];\n      }\n    }\n\n    var _parsedValue = parsed.hasOwnProperty("value") ? parsed.value : parsed;\n\n    var valueIndex = _.findIndex(options, function (option) {\n      return option.value === _parsedValue;\n    });\n\n    if (valueIndex === -1) {\n      if (!isServerSideFiltered) {\n        isValid = false;\n        message = "Default value is missing in options. Please update the value.";\n      } else {\n        if (!hasLabelValue(parsed)) {\n          isValid = false;\n          message = "Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.";\n        }\n      }\n    }\n  }\n\n  return {\n    isValid: isValid,\n    parsed: parsed,\n    messages: [message]\n  };\n}',
         },
-        dependentPaths: ["serverSideFiltering", "options"],
       },
       labelText: {
         type: "TEXT",
@@ -366,7 +365,7 @@ export const unEvalTreeWidgetSelectWidgetConfig = {
         type: "TEXT",
       },
     },
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     privateWidgets: {},
   },
 };

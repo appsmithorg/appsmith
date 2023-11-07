@@ -13,7 +13,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
       // validates all autocomplete commands on entering / in label field
       cy.get(`${dynamicInputLocators.hints} li`)
         .eq(0)
-        .should("have.text", "New binding");
+        .should("have.text", "Add a binding");
       cy.get(`${dynamicInputLocators.hints} li`)
         .last()
         .should("have.text", "New datasource");
@@ -39,13 +39,16 @@ describe("Autocomplete using slash command and mustache tests", function () {
     cy.get(".t--property-control-onclick .CodeMirror textarea")
       .last()
       .focus()
+      .type("{uparrow}", { parseSpecialCharSequences: true })
+      .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
+      .type("{backspace}", { parseSpecialCharSequences: true })
       .type("/")
       .then(() => {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in onClick field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(0)
-          .should("have.text", "New binding");
+          .should("have.text", "Add a binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
@@ -59,16 +62,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
       .type("{shift}{{}{shift}{{}")
       .then(() => {
         cy.get(dynamicInputLocators.hints).should("exist");
-        // validates all autocomplete functions on entering {{}} in onClick field
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(7)
-          .should("have.text", "storeValue()");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(8)
-          .should("have.text", "showAlert()");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(9)
-          .should("have.text", "navigateTo()");
+        _.agHelper.AssertContains("storeValue");
+        _.agHelper.AssertContains("showAlert");
       });
   });
 
@@ -83,7 +78,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(0)
-          .should("have.text", "New binding");
+          .should("have.text", "Add a binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
@@ -98,13 +93,8 @@ describe("Autocomplete using slash command and mustache tests", function () {
           cy.get(dynamicInputLocators.input)
             .first()
             .type("{shift}{{}{shift}{{}");
-          // validates autocomplete binding on entering {{}} in text field
-          cy.get(`${dynamicInputLocators.hints} li`)
-            .eq(1)
-            .should("have.text", "Button1.text");
-          cy.get(`${dynamicInputLocators.hints} li`)
-            .eq(2)
-            .should("have.text", "Button1.recaptchaToken");
+          _.agHelper.AssertContains("Button1.text");
+          _.agHelper.AssertContains("Button1.recaptchaToken");
         });
     },
   );
@@ -120,7 +110,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
         // validates all autocomplete commands on entering / in text field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(0)
-          .should("have.text", "New binding");
+          .should("have.text", "Add a binding");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
           .should("have.text", "New datasource");
@@ -144,83 +134,32 @@ describe("Autocomplete using slash command and mustache tests", function () {
   );
 
   it("Bug 9003: Autocomplete not working for Appsmith specific JS APIs", function () {
-    cy.openPropertyPane("buttonwidget");
-    cy.get(".t--property-control-onclick")
-      .find(".t--js-toggle")
-      .click({ force: true });
-    cy.EnableAllCodeEditors();
-    cy.get(".CodeMirror textarea")
-      .last()
-      .focus()
-      .clear()
-      .type("{{re")
-      .then(() => {
-        cy.get(dynamicInputLocators.hints).should("exist");
-        // validates autocomplete suggestion for resetWidget() in onClick field
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(0)
-          .should("have.text", "removeValue()");
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(1)
-          .should("have.text", "resetWidget()");
-      });
-    cy.EnableAllCodeEditors();
-    cy.get(".CodeMirror textarea")
-      .last()
-      .focus()
-      // clearing the onClick field
-      .type("{ctrl}{shift}{uparrow}", { parseSpecialCharSequences: true })
-      .type("{backspace}", { parseSpecialCharSequences: true })
-      .type("{rightarrow}{rightarrow}", { parseSpecialCharSequences: true })
-      .type("{ctrl}{shift}{uparrow}", { parseSpecialCharSequences: true })
-      .type("{backspace}", { parseSpecialCharSequences: true })
-      .type("{{s")
-      .then(() => {
-        cy.get(dynamicInputLocators.hints).should("exist");
-        // validates autocomplete function suggestions on entering '{{s' in onClick field
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .should("contain.text", "storeValue()")
-          .and("contain.text", "showModal()")
-          .and("contain.text", "setInterval()")
-          .and("contain.text", "showAlert()");
-      });
-    cy.EnableAllCodeEditors();
-    cy.get(".CodeMirror textarea")
-      .last()
-      .focus()
-      // clearing the onClick field
-      .type("{ctrl}{shift}{uparrow}", { parseSpecialCharSequences: true })
-      .type("{backspace}", { parseSpecialCharSequences: true })
-      .type("{rightarrow}{rightarrow}", { parseSpecialCharSequences: true })
-      .type("{ctrl}{shift}{uparrow}", { parseSpecialCharSequences: true })
-      .type("{backspace}", { parseSpecialCharSequences: true })
-      .type("{{c")
-      .then(() => {
-        cy.get(dynamicInputLocators.hints).should("exist");
-        // validates autocomplete function suggestions on entering '{{c' in onClick field
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .should("contain.text", "closeModal()")
-          .and("contain.text", "copyToClipboard()")
-          .and("contain.text", "clearInterval()")
-          .and("contain.text", "clearStore()");
-      });
-    cy.EnableAllCodeEditors();
-    cy.get(".CodeMirror textarea")
-      .last()
-      .focus()
-      .type("{ctrl}{shift}{uparrow}", { parseSpecialCharSequences: true })
-      .type("{backspace}", { parseSpecialCharSequences: true })
-      .type("{rightarrow}{rightarrow}", { parseSpecialCharSequences: true })
-      .type("{ctrl}{shift}{uparrow}", { parseSpecialCharSequences: true })
-      .type("{backspace}", { parseSpecialCharSequences: true })
-      .type("{{n")
-      .then(() => {
-        cy.get(dynamicInputLocators.hints).should("exist");
-        // validates autocomplete suggestions on entering '{{n' in onClick field
-        cy.get(`${dynamicInputLocators.hints} li`).should(
-          "contain.text",
-          "navigateTo()",
-        );
-      });
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    _.propPane.ToggleJSMode("onClick", true);
+    _.propPane.TypeTextIntoField("onClick", "{{storeValue", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "storeValue");
+    _.propPane.TypeTextIntoField("onClick", "{{removeValue", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "removeValue");
+    _.propPane.TypeTextIntoField("onClick", "{{showAlert", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "showAlert");
+    _.propPane.TypeTextIntoField("onClick", "{{setInterval", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "setInterval");
+    _.propPane.TypeTextIntoField("onClick", "{{setTimeout", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "setTimeout");
+    _.propPane.TypeTextIntoField("onClick", "{{resetWidget", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "resetWidget");
+    _.propPane.TypeTextIntoField("onClick", "{{showModal", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "showModal");
+    _.propPane.TypeTextIntoField("onClick", "{{copyToClipboard", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "copyToClipboard");
+    _.propPane.TypeTextIntoField("onClick", "{{closeModal", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "closeModal");
+    _.propPane.TypeTextIntoField("onClick", "{{Text1.setDisabled", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "setDisabled");
+
+    _.propPane.TypeTextIntoField("Label", "{{storeValue", true);
+    _.agHelper.AssertElementAbsence(_.locators._hints);
+    _.propPane.TypeTextIntoField("Label", "{{Text1.setDisabled", true);
+    _.agHelper.AssertElementAbsence(_.locators._hints);
   });
 });

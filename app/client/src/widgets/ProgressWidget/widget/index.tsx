@@ -10,10 +10,13 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static type = "PROGRESS_WIDGET";
@@ -65,6 +68,17 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "40px" },
+        minWidth: { base: "120px" },
       },
     };
   }
@@ -258,7 +272,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const {
       borderRadius,
       counterClockwise,
@@ -269,7 +283,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
       showResult,
       steps,
     } = this.props;
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight, componentWidth } = this.props;
     const isScaleY = componentHeight > componentWidth;
 
     return (

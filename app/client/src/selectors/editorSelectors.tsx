@@ -25,13 +25,11 @@ import {
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import type {
-  DataTree,
-  ConfigTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { find, sortBy } from "lodash";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getDataTree,
   getLoadingEntities,
@@ -43,11 +41,10 @@ import {
   getActions,
   getCanvasWidgets,
   getJSCollections,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import {
   buildChildWidgetTree,
-  buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
@@ -63,6 +60,9 @@ import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
+import { protectedModeSelector } from "./gitSyncSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -185,11 +185,14 @@ export const getCurrentPageDescription = createSelector(
 );
 
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
-  pages.reduce((acc, page: Page) => {
-    // Comeback
-    acc[page.pageId] = page.slug || "";
-    return acc;
-  }, {} as Record<string, string>),
+  pages.reduce(
+    (acc, page: Page) => {
+      // Comeback
+      acc[page.pageId] = page.slug || "";
+      return acc;
+    },
+    {} as Record<string, string>,
+  ),
 );
 
 export const getCurrentApplication = (state: AppState) =>
@@ -218,7 +221,9 @@ export const selectURLSlugs = createSelector(
   getCurrentPageId,
   (application, pages, pageId) => {
     const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
-    const currentPage = pages.find((page) => page.pageId === pageId);
+    const currentPage: Page | undefined = pages.find(
+      (page) => page.pageId === pageId,
+    );
     const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
     const customSlug = currentPage?.customSlug;
     return { applicationSlug, pageSlug, customSlug };
@@ -258,36 +263,21 @@ const defaultLayout: AppLayoutConfig = {
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
 
-export const getAppPositioningType = (state: AppState) => {
-  if (
-    state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
-      ?.type
-  ) {
-    return AppPositioningTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type
-    ];
-  }
-  return AppPositioningTypes.FIXED;
-};
-
-export const getCurrentAppPositioningType = createSelector(
-  getAppPositioningType,
-  (appPositionType: AppPositioningTypes): AppPositioningTypes => {
-    return appPositionType || AppPositioningTypes.FIXED;
-  },
+export const getIsMobileCanvasLayout = createSelector(
+  getAppLayout,
+  (appLayout: AppLayoutConfig) => appLayout.type === "MOBILE",
 );
 
 export const getIsAutoLayout = createSelector(
-  getCurrentAppPositioningType,
-  (positioningType) => positioningType === AppPositioningTypes.AUTO,
+  getLayoutSystemType,
+  (layoutSystemType) => layoutSystemType === LayoutSystemTypes.AUTO,
 );
 
 export const getCurrentApplicationLayout = createSelector(
   getAppLayout,
-  getCurrentAppPositioningType,
-  (appLayout: AppLayoutConfig, appPositionType) => {
-    return appPositionType === AppPositioningTypes.FIXED
+  getLayoutSystemType,
+  (appLayout: AppLayoutConfig, layoutSystemType) => {
+    return layoutSystemType === LayoutSystemTypes.FIXED
       ? appLayout
       : defaultLayout;
   },
@@ -555,14 +545,6 @@ export const getChildWidgets = createSelector(
   buildChildWidgetTree,
 );
 
-export const getFlattenedChildCanvasWidgets = createSelector(
-  [
-    getCanvasWidgets,
-    (_state: AppState, parentWidgetId: string) => parentWidgetId,
-  ],
-  buildFlattenedChildCanvasWidgets,
-);
-
 const getOccupiedSpacesForContainer = (
   containerWidgetId: string,
   widgets: FlattenedWidgetProps[],
@@ -622,11 +604,11 @@ const generateOccupiedSpacesMap = (
   widgets: CanvasWidgetsReduxState,
   fetchNow = true,
   dimensionMap = DefaultDimensionMap,
-): { [containerWidgetId: string]: WidgetSpace[] } | undefined => {
+): { [containerWidgetId: string]: WidgetSpace[] } => {
   const occupiedSpaces: {
     [containerWidgetId: string]: WidgetSpace[];
   } = {};
-  if (!fetchNow) return;
+  if (!fetchNow) return {};
   // Get all widgets with type "CONTAINER_WIDGET" and has children
   const containerWidgets: FlattenedWidgetProps[] = Object.values(
     widgets,
@@ -653,7 +635,7 @@ const generateOccupiedSpacesMap = (
     });
   }
   // Return undefined if there are no occupiedSpaces.
-  return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : undefined;
+  return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : {};
 };
 
 // returns occupied spaces
@@ -1014,3 +996,9 @@ export const getGsheetToken = (state: AppState) =>
 
 export const getGsheetProjectID = (state: AppState) =>
   state.entities.datasources.gsheetProjectID;
+
+export const combinedPreviewModeSelector = createSelector(
+  previewModeSelector,
+  protectedModeSelector,
+  (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
+);

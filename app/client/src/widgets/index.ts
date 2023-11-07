@@ -57,8 +57,15 @@ import RangeSliderWidget from "./RangeSliderWidget";
 import CategorySliderWidget from "./CategorySliderWidget";
 import CodeScannerWidget from "./CodeScannerWidget";
 import ListWidgetV2 from "./ListWidgetV2";
-import { ButtonWidget as ButtonWidgetV2 } from "./ButtonWidgetV2";
+import { WDSButtonWidget } from "./wds/WDSButtonWidget";
+import { WDSInputWidget } from "./wds/WDSInputWidget";
+import { WDSCheckboxWidget } from "./wds/WDSCheckboxWidget";
+import { WDSIconButtonWidget } from "./wds/WDSIconButtonWidget";
+import { WDSTextWidget } from "./wds/WDSTextWidget";
 import type BaseWidget from "./BaseWidget";
+import { WDSTableWidget } from "./wds/WDSTableWidget";
+import { WDSButtonGroupWidget } from "./wds/WDSButtonGroupWidget";
+import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
 
 const Widgets = [
   CanvasWidget,
@@ -110,7 +117,14 @@ const Widgets = [
   CategorySliderWidget,
   CodeScannerWidget,
   ListWidgetV2,
-  ButtonWidgetV2,
+  WDSButtonWidget,
+  WDSInputWidget,
+  WDSCheckboxWidget,
+  WDSIconButtonWidget,
+  WDSTextWidget,
+  WDSTableWidget,
+  WDSButtonGroupWidget,
+  WDSCheckboxGroupWidget,
 
   //Deprecated Widgets
   InputWidget,

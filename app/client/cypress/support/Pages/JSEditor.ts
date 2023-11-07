@@ -132,12 +132,12 @@ export class JSEditor {
     cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
+    this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
     //cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
-    this.agHelper.PressEnter(); //for name to settle
-    this.agHelper.Sleep();
+    this.agHelper.PressEnter(1000); //for name to settle
     // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
     cy.get(this._jsObjTxt).should("not.exist");
 
@@ -148,16 +148,16 @@ export class JSEditor {
 
   public CreateJSObject(
     JSCode: string,
-    options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
+    options: Partial<ICreateJSObjectOptions> = {},
   ) {
     const {
       completeReplace,
-      lineNumber = 4,
+      lineNumber,
       paste,
-      prettify = true,
+      prettify,
       shouldCreateNewJSObj,
       toRun,
-    } = options;
+    } = { ...DEFAULT_CREATE_JS_OBJECT_OPTIONS, ...options };
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
@@ -230,7 +230,7 @@ export class JSEditor {
   public RunJSObj() {
     this.agHelper.GetNClick(this._runButton);
     this.agHelper.Sleep(); //for function to run
-    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000);
+    this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 15000);
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
   }
 

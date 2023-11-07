@@ -20,14 +20,14 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
-  getActionsForCurrentPage,
+  getCurrentActions,
   getJSCollectionFromName,
-  getJSCollectionsForCurrentPage,
-} from "selectors/entitiesSelector";
+  getCurrentJSCollections,
+} from "@appsmith/selectors/entitiesSelector";
 import {
   getModalDropdownList,
   getNextModalName,
@@ -60,7 +60,7 @@ import {
   isAction,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntity } from "../../../entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
 const actionList: {
   label: string;
@@ -430,7 +430,8 @@ function getApiAndQueryOptions(
     (action) =>
       action.config.pluginType === PluginType.API ||
       action.config.pluginType === PluginType.SAAS ||
-      action.config.pluginType === PluginType.REMOTE,
+      action.config.pluginType === PluginType.REMOTE ||
+      action.config.pluginType === PluginType.AI,
   );
 
   const queryOptions = actionList.find(
@@ -543,8 +544,8 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
     return state.entities.plugins.list;
   });
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const actions = useSelector(getActionsForCurrentPage);
-  const jsActions = useSelector(getJSCollectionsForCurrentPage);
+  const actions = useSelector(getCurrentActions);
+  const jsActions = useSelector(getCurrentJSCollections);
 
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(

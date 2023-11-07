@@ -1,29 +1,36 @@
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
-
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { Positioning } from "utils/autoLayout/constants";
+import {
+  FlexVerticalAlignment,
+  Positioning,
+} from "layoutSystems/common/utils/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
-} from "utils/autoLayout/constants";
+} from "layoutSystems/common/utils/constants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "../icon.svg";
-
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { statBoxPreset } from "layoutSystems/anvil/layoutComponents/presets/StatboxPreset";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 class StatboxWidget extends ContainerWidget {
   static type = "STATBOX_WIDGET";
@@ -77,6 +84,7 @@ class StatboxWidget extends ContainerWidget {
       children: [],
       positioning: Positioning.Fixed,
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
       blueprint: {
         view: [
           {
@@ -167,10 +175,11 @@ class StatboxWidget extends ContainerWidget {
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
               parent: FlattenedWidgetProps,
-              isAutoLayout: boolean,
+              layoutSystemType: LayoutSystemTypes,
             ) => {
-              if (!isAutoLayout) return [];
-
+              if (layoutSystemType === LayoutSystemTypes.FIXED) {
+                return [];
+              }
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
@@ -227,6 +236,13 @@ class StatboxWidget extends ContainerWidget {
                 },
               ];
 
+              const layout: LayoutProps[] = statBoxPreset(
+                textWidgets[0].widgetId,
+                textWidgets[1].widgetId,
+                textWidgets[2].widgetId,
+                iconWidget.widgetId,
+              );
+
               //create properties to be updated
               return getWidgetBluePrintUpdates({
                 [widget.widgetId]: {
@@ -236,6 +252,7 @@ class StatboxWidget extends ContainerWidget {
                   flexLayers,
                   useAutoLayout: true,
                   positioning: Positioning.Vertical,
+                  layout,
                 },
                 [textWidgets[0].widgetId]: {
                   responsiveBehavior: ResponsiveBehavior.Fill,
@@ -286,6 +303,18 @@ class StatboxWidget extends ContainerWidget {
       },
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "50px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {

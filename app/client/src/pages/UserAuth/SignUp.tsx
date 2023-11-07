@@ -20,6 +20,7 @@ import {
   ALREADY_HAVE_AN_ACCOUNT,
   createMessage,
   SIGNUP_PAGE_SUBTITLE,
+  GOOGLE_RECAPTCHA_KEY_ERROR,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
@@ -45,12 +46,14 @@ import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
 import {
   getIsFormLoginEnabled,
+  getTenantConfig,
   getThirdPartyAuths,
 } from "@appsmith/selectors/tenantSelectors";
 import Helmet from "react-helmet";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHTMLPageTitle } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
+import log from "loglevel";
 
 declare global {
   interface Window {
@@ -104,8 +107,9 @@ export function SignUp(props: SignUpFormProps) {
   const isBrandingEnabled = useFeatureFlag(
     FEATURE_FLAG.license_branding_enabled,
   );
-  const pageTitle = getHTMLPageTitle(isBrandingEnabled);
-  const htmlPageTitle = pageTitle();
+  const tentantConfig = useSelector(getTenantConfig);
+  const { instanceName } = tentantConfig;
+  const htmlPageTitle = getHTMLPageTitle(isBrandingEnabled, instanceName);
 
   const recaptchaStatus = useScript(
     `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
@@ -143,17 +147,24 @@ export function SignUp(props: SignUpFormProps) {
       googleRecaptchaSiteKey.enabled &&
       recaptchaStatus === ScriptStatus.READY
     ) {
-      window.grecaptcha
-        .execute(googleRecaptchaSiteKey.apiKey, {
-          action: "submit",
-        })
-        .then(function (token: any) {
-          if (formElement) {
-            signupURL.searchParams.append("recaptchaToken", token);
-            formElement.setAttribute("action", signupURL.toString());
-            formElement.submit();
-          }
-        });
+      try {
+        window.grecaptcha
+          .execute(googleRecaptchaSiteKey.apiKey, {
+            action: "submit",
+          })
+          .then(function (token: any) {
+            if (formElement) {
+              signupURL.searchParams.append("recaptchaToken", token);
+              formElement.setAttribute("action", signupURL.toString());
+              formElement.submit();
+            }
+          })
+          .catch(() => {
+            log.error(createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
+          });
+      } catch (e) {
+        log.error(e);
+      }
     } else {
       formElement && formElement.submit();
     }

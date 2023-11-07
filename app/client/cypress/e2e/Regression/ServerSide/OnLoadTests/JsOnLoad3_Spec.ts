@@ -10,6 +10,7 @@ import {
   apiPage,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
+
 let dsName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
@@ -36,14 +37,14 @@ describe("JSObjects OnLoad Actions tests", function () {
         "Quotes",
         30000,
       );
-      apiPage.ToggleConfirmBeforeRunningApi(true);
+      apiPage.ToggleConfirmBeforeRunning(true);
 
       apiPage.CreateAndFillApi(
         datasourceFormData["randomTrumpApi"],
         "WhatTrumpThinks",
         30000,
       );
-      apiPage.ToggleConfirmBeforeRunningApi(true);
+      apiPage.ToggleConfirmBeforeRunning(true);
     });
     jsEditor.CreateJSObject(
       `export default {
@@ -197,7 +198,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       apiPage.CreateAndFillApi(datasourceFormData.randomCatfactUrl, "CatFacts");
     });
     apiPage.ToggleOnPageLoadRun(true);
-    apiPage.ToggleConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunning(true);
 
     entityExplorer.SelectEntityByName("Image1", "Widgets");
     propPane.EnterJSContext(
@@ -240,7 +241,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       30000,
     );
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
-    apiPage.ToggleConfirmBeforeRunningApi(true);
+    apiPage.ToggleConfirmBeforeRunning(true);
 
     dataSources.CreateQueryFromOverlay(
       dsName,
@@ -341,7 +342,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       ); //callBooks confirmation also does not appear due to 13646
 
       entityExplorer.SelectEntityByName("JSONForm1");
-      propPane.UpdatePropertyFieldValue("Source data", "{{getBooks.data}}");
+      propPane.EnterJSContext("sourcedata", "{{getBooks.data}}", true, false);
       //this toast is not coming due to existing JSON date errors but its made true at API
       //agHelper.ValidateToastMessage("[getBooks] will be executed automatically on page load");
     });

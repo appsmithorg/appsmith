@@ -21,6 +21,8 @@ public class UserSignupRequestDTO {
 
     private String role;
 
+    private String proficiency;
+
     private String useCase;
 
     private boolean allowCollectingAnonymousData;

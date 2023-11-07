@@ -4,6 +4,7 @@ import {
   agHelper,
   entityExplorer,
   propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table widget v2 edge case scenario testing", function () {
@@ -53,11 +54,12 @@ describe("Table widget v2 edge case scenario testing", function () {
 
     //Check the value present in the textfield which is selectedRowIndices is []
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should("have.text", "[]");
+    cy.wait(1000);
 
     //Select the 1st, 2nd and 3rd row
-    cy.isSelectRow("0");
-    cy.isSelectRow("1");
-    cy.isSelectRow("2");
+    table.SelectTableRow(0, 0, true, "v2");
+    table.SelectTableRow(1, 0, true, "v2");
+    table.SelectTableRow(2, 0, true, "v2");
 
     //Check the value present in the textfield which is selectedRowIndices is [0,1,2]
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(

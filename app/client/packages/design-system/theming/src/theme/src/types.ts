@@ -2,17 +2,12 @@ import type { CSSProperties } from "react";
 import type { ReactNode } from "react";
 
 import type { ColorMode } from "../../color";
-import type { FontFamily } from "../../typography";
-import type { RootUnit, ThemeToken } from "../../token";
+import type { FontFamily, Typography } from "../../typography";
+import type { ThemeToken } from "../../token";
 
 export type Theme = ThemeToken & {
-  typography?: string;
-  fontFamily?: string;
-  rootUnit?: RootUnit;
-};
-
-export type ThemeContextType = ThemeToken & {
-  rootUnit?: RootUnit;
+  typography?: Typography;
+  fontFamily?: FontFamily;
 };
 
 export interface ThemeProviderProps {
@@ -22,10 +17,11 @@ export interface ThemeProviderProps {
   style?: CSSProperties;
 }
 
-export type UseThemeProps = {
+export interface UseThemeProps {
   seedColor?: string;
   colorMode?: ColorMode;
   borderRadius?: string;
   fontFamily?: FontFamily;
-  rootUnitRatio?: number;
-};
+  userDensity?: number;
+  userSizing?: number;
+}

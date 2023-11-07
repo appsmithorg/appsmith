@@ -31,19 +31,12 @@ describe("MySQL Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
     dataSources.RunQuery();
 
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer(inputData.tableName),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
 
     //Creating SELECT query
     entityExplorer.ActionTemplateMenuByEntityName(
       inputData.tableName,
-      "SELECT",
+      "Select",
     );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
@@ -55,7 +48,7 @@ describe("MySQL Datatype tests", function () {
     query = inputData.query.insertRecord;
     entityExplorer.ActionTemplateMenuByEntityName(
       inputData.tableName,
-      "INSERT",
+      "Insert",
     );
     agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
@@ -63,7 +56,7 @@ describe("MySQL Datatype tests", function () {
     query = inputData.query.dropTable;
     entityExplorer.ActionTemplateMenuByEntityName(
       inputData.tableName,
-      "DELETE",
+      "Delete",
     );
     agHelper.RenameWithInPane("dropTable");
     dataSources.EnterQuery(query);
@@ -83,10 +76,11 @@ describe("MySQL Datatype tests", function () {
       });
       i % 2 && agHelper.ToggleSwitch("Bool_column");
       agHelper.ClickButton("insertRecord");
+      agHelper.Sleep(2000); //for the modal to close after entering all values & value to reflect in table
       agHelper.AssertElementVisibility(
         locators._buttonByText("Run InsertQuery"),
       );
-      agHelper.Sleep(2000);
+      agHelper.Sleep(3000);
     });
   });
 
@@ -146,7 +140,7 @@ describe("MySQL Datatype tests", function () {
       entityExplorer.ExpandCollapseEntity("Datasources", false);
 
       //DS deletion
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
         (type) => {
@@ -160,7 +154,7 @@ describe("MySQL Datatype tests", function () {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
-      dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );
 });

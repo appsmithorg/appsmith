@@ -1,4 +1,3 @@
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   agHelper,
@@ -63,16 +62,6 @@ describe("Entity explorer tests related to widgets and validation", function () 
     // Remove map widget in case of airgap
     WIDGETS_CATALOG.Content = ["Progress", "Rating", "Text"];
   }
-
-  before(() => {
-    featureFlagIntercept(
-      {
-        release_widgetdiscovery_enabled: true,
-      },
-      false,
-    );
-    agHelper.RefreshPage();
-  });
 
   const getTotalNumberOfWidgets = () => {
     return Object.values(WIDGETS_CATALOG).reduce(

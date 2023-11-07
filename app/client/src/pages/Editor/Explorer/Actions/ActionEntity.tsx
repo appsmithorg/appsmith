@@ -12,30 +12,32 @@ import {
   getAction,
   getDatasource,
   getPlugins,
-} from "selectors/entitiesSelector";
+} from "@appsmith/selectors/entitiesSelector";
 import type { Action, StoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
-import {
-  hasDeleteActionPermission,
-  hasManageActionPermission,
-} from "@appsmith/utils/permissionHelpers";
 import type { Datasource } from "entities/Datasource";
+import {
+  getHasDeleteActionPermission,
+  getHasManageActionPermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
 };
 
-type ExplorerActionEntityProps = {
+interface ExplorerActionEntityProps {
   step: number;
   searchKeyword?: string;
   id: string;
   type: PluginType;
   isActive: boolean;
-};
+}
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const pageId = useSelector(getCurrentPageId);
@@ -78,9 +80,17 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
 
   const actionPermissions = action.userPermissions || [];
 
-  const canDeleteAction = hasDeleteActionPermission(actionPermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canManageAction = hasManageActionPermission(actionPermissions);
+  const canDeleteAction = getHasDeleteActionPermission(
+    isFeatureEnabled,
+    actionPermissions,
+  );
+
+  const canManageAction = getHasManageActionPermission(
+    isFeatureEnabled,
+    actionPermissions,
+  );
 
   const contextMenu = (
     <ActionEntityContextMenu

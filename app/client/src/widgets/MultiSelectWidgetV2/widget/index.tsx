@@ -10,20 +10,21 @@ import { isArray, isFinite, isString, xorWith } from "lodash";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  GRID_DENSITY_MIGRATION_V1,
-  MinimumPopupRows,
-} from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isCompactMode,
 } from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import {
   defaultValueExpressionPrefix,
   getDefaultValueExpressionSuffix,
@@ -42,10 +43,11 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "utils/autoLayout/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -131,6 +133,17 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: {},
+        minWidth: { base: "160px" },
+      },
+    };
+  }
+
   static getMethods() {
     return {
       getQueryGenerationConfig(widget: WidgetProps) {
@@ -192,6 +205,13 @@ class MultiSelectWidget extends BaseWidget<
       isValid: "bool",
       isDirty: "bool",
       options: "[$__dropdownOption__$]",
+    };
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      optionValue: ["sourceData"],
+      defaultOptionValue: ["serverSideFiltering", "options"],
     };
   }
 
@@ -308,7 +328,6 @@ class MultiSelectWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
-              dependentPaths: ["sourceData"],
             },
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
           },
@@ -336,7 +355,6 @@ class MultiSelectWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
-              dependentPaths: ["serverSideFiltering", "options"],
             },
             dependencies: ["serverSideFiltering", "options"],
           },
@@ -533,6 +551,21 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "rtl",
+            label: "Enable RTL",
+            helpText: "Enables right to left text direction",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: () => {
+              return !super.getFeatureFlag(
+                FEATURE_FLAG.license_widget_rtl_support_enabled,
+              );
+            },
           },
         ],
       },
@@ -779,26 +812,23 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
-  getPageView() {
+  getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
-    const { componentWidth } = this.getComponentDimensions();
+    const minDropDownWidth =
+      (MinimumPopupWidthInPercentage / 100) *
+      (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
+    const { componentHeight, componentWidth } = this.props;
     const values = this.mergeLabelAndValue();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+
     return (
       <MultiSelectComponent
         accentColor={this.props.accentColor}
         allowSelectAll={this.props.allowSelectAll}
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
-        compactMode={
-          !(
-            (this.props.bottomRow - this.props.topRow) /
-              GRID_DENSITY_MIGRATION_V1 >
-            1
-          )
-        }
+        compactMode={isCompactMode(componentHeight)}
         disabled={this.props.isDisabled ?? false}
         dropDownWidth={minDropDownWidth}
         dropdownStyle={{
@@ -815,7 +845,7 @@ class MultiSelectWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelTooltip={this.props.labelTooltip}
-        labelWidth={this.getLabelWidth()}
+        labelWidth={this.props.labelComponentWidth}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         onDropdownClose={this.onDropdownClose}
@@ -824,6 +854,7 @@ class MultiSelectWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
+        rtl={this.props.rtl}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}
@@ -930,6 +961,8 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   labelAlignment?: Alignment;
   labelWidth?: number;
   isDirty?: boolean;
+  labelComponentWidth?: number;
+  rtl?: boolean;
 }
 
 export default MultiSelectWidget;

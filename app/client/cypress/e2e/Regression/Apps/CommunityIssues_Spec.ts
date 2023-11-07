@@ -31,12 +31,15 @@ describe("AForce - Community Issues page validations", function () {
     homePage.ImportApp("CommunityIssuesExport.json");
     assertHelper
       .WaitForNetworkCall("importNewApplication")
-      .then((interception: any) => {
+      .then((response: any) => {
         agHelper.Sleep();
-        const { isPartialImport } = interception.response.body.data;
+        const { isPartialImport } = response.body.data;
         if (isPartialImport) {
           // should reconnect modal
-          dataSources.ReconnectSingleDSNAssert("AForceDB", "PostgreSQL");
+          dataSources.ReconnectSingleDSNAssert(
+            String.raw`AForceDB`,
+            "PostgreSQL",
+          );
           homePage.AssertNCloseImport();
         } else {
           homePage.AssertImportToast();
@@ -345,6 +348,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.Sleep(2000);
     table.SelectTableRow(0, 1, true, "v2");
     agHelper.AssertElementVisibility(locators._widgetInDeployed("tabswidget"));
+    agHelper.Sleep(2000);
     agHelper
       .GetNClick(locators._inputWidgetv1InDeployed, 0, true, 0)
       .type("-updating title");

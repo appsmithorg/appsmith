@@ -15,8 +15,6 @@ import { Classes, Collapse } from "@blueprintjs/core";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import copy from "copy-to-clipboard";
 
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
@@ -26,11 +24,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
-import { showDebugger } from "actions/debuggerActions";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { getJSFunctionNavigationUrl } from "selectors/navigationSelectors";
+import { getPathNavigationUrl } from "selectors/navigationSelectors";
 import { Button, Icon, Link, toast, Tooltip } from "design-system";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -271,10 +271,10 @@ const PreparedStatementParameter = styled.span`
   color: #333;
 `;
 
-type PreparedStatementValue = {
+interface PreparedStatementValue {
   value: string;
   parameters: Record<string, number | string>;
-};
+}
 export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {
@@ -478,19 +478,10 @@ function PopoverContent(props: PopoverContentProps) {
   const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
     props;
   const { entityName } = getEntityNameAndPropertyPath(props.dataTreePath || "");
-  const JSFunctionInvocationError = errors.find(
-    ({ kind }) =>
-      kind &&
-      kind.category ===
-        PropertyEvaluationErrorCategory.INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD &&
-      kind.rootcause,
-  );
+  const errorWithSource = errors.find(({ kind }) => kind && kind.rootcause);
+
   const errorNavigationUrl = useSelector((state: AppState) =>
-    getJSFunctionNavigationUrl(
-      state,
-      entityName,
-      JSFunctionInvocationError?.kind?.rootcause,
-    ),
+    getPathNavigationUrl(state, entityName, errorWithSource?.kind?.rootcause),
   );
   const toggleExpectedDataType = () =>
     setOpenExpectedDataType(!openExpectedDataType);
@@ -501,9 +492,9 @@ function PopoverContent(props: PopoverContentProps) {
   if (hasError) {
     error = errors[0];
   }
-  const openDebugger = (event: React.MouseEvent) => {
-    event.preventDefault();
+  const openDebugger = () => {
     dispatch(showDebugger());
+    dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   };
 
   useEffect(() => {
@@ -545,14 +536,7 @@ function PopoverContent(props: PopoverContentProps) {
 
           {errorNavigationUrl ? (
             <AsyncFunctionErrorView>
-              <Link
-                onClick={(e: React.MouseEvent) => {
-                  e.preventDefault();
-                  openDebugger(e);
-                }}
-              >
-                {`See error (${modText()} D)`}
-              </Link>
+              <Link onClick={openDebugger}>{`See error (${modText()} D)`}</Link>
               <Link target={"_self"} to={errorNavigationUrl}>
                 View source
               </Link>

@@ -1,14 +1,18 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +24,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
 
 import java.util.List;
 import java.util.Map;
@@ -51,11 +54,55 @@ public class UserWorkspaceServiceUnitTest {
     @Autowired
     UserWorkspaceService userWorkspaceService;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    ApplicationPageService applicationPageService;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
     ModelMapper modelMapper;
+
+    Workspace workspace;
 
     @BeforeEach
     public void setUp() {
         modelMapper = new ModelMapper();
+
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Do not proceed with further setup, because user context doesn't exist.
+            return;
+        }
+
+        // create a workspace object
+        Workspace testWorkspace = new Workspace();
+        testWorkspace.setName("Get All Members For Workspace Test");
+        testWorkspace.setDomain("test.com");
+        testWorkspace.setWebsite("https://test.com");
+
+        workspace = workspaceService.create(testWorkspace).block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (null == currentUser) {
+            // Do not proceed with cleanup, because user context doesn't exist.
+            return;
+        }
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(workspace.getId()).block();
     }
 
     @Test
@@ -73,29 +120,16 @@ public class UserWorkspaceServiceUnitTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getWorkspaceMembers_WhenRoleIsNull_ReturnsEmptyList() {
-        // create a workspace object
-        Workspace testWorkspace = new Workspace();
-        testWorkspace.setName("Get All Members For Workspace Test");
-        testWorkspace.setDomain("test.com");
-        testWorkspace.setWebsite("https://test.com");
-        testWorkspace.setId("test-org-id");
-
-        /**
-         * Removing the Default Workspace ID from auto-created permission groups
-         * so that while fetching the Users and Groups, we should get empty list.
-         */
-        Workspace createdWorkspace = workspaceService.create(testWorkspace).block();
         List<PermissionGroup> autoCreatedPermissionGroups = permissionGroupRepository
-                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
+                .findByDefaultDomainIdAndDefaultDomainType(workspace.getId(), Workspace.class.getSimpleName())
                 .flatMap(permissionGroup -> {
                     permissionGroup.setDefaultDomainId(null);
-                    permissionGroup.setDefaultDomainType(null);
                     return permissionGroupRepository.save(permissionGroup);
                 })
                 .collectList()
                 .block();
 
-        Mono<List<MemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
+        Mono<List<MemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(workspace.getId());
         StepVerifier.create(workspaceMembers)
                 .assertNext(userAndGroupDTOs -> {
                     assertEquals(0, userAndGroupDTOs.size());
@@ -104,6 +138,7 @@ public class UserWorkspaceServiceUnitTest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void getWorkspaceMembers_WhenNoOrgFound_ThrowsException() {
         String sampleWorkspaceId = "test-org-id";
         Mono<List<MemberInfoDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
@@ -115,19 +150,13 @@ public class UserWorkspaceServiceUnitTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getWorkspaceMembers_WhenUserHasProfilePhotoForOneWorkspace_ProfilePhotoIncluded() {
-        // create workspace
-        Workspace workspace = new Workspace();
-        workspace.setName("workspace_" + UUID.randomUUID());
-        Mono<Workspace> workspaceMono = workspaceService.create(workspace);
-
         Mono<List<MemberInfoDTO>> listMono = userDataService
                 .getForCurrentUser()
                 .flatMap(userData -> {
                     userData.setProfilePhotoAssetId("sample-photo-id");
                     return userDataRepository.save(userData);
                 })
-                .then(workspaceMono)
-                .flatMap(createdWorkspace -> userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId()));
+                .then(userWorkspaceService.getWorkspaceMembers(workspace.getId()));
 
         StepVerifier.create(listMono)
                 .assertNext(workspaceMemberInfoDTOS -> {
@@ -140,15 +169,12 @@ public class UserWorkspaceServiceUnitTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getWorkspaceMembers_WhenUserHasProfilePhotoForMultipleWorkspace_ProfilePhotoIncluded() {
-        // create workspace
-        Workspace firstWorkspace = new Workspace();
-        firstWorkspace.setName("first-workspace-" + UUID.randomUUID());
-
+        // create additional workspace
         Workspace secondWorkspace = new Workspace();
         secondWorkspace.setName("second-workspace-" + UUID.randomUUID());
 
-        Mono<Tuple2<Workspace, Workspace>> createWorkspacesMono =
-                Mono.zip(workspaceService.create(firstWorkspace), workspaceService.create(secondWorkspace));
+        Mono<Workspace> createSecondWorkspaceMono =
+                workspaceService.create(secondWorkspace).cache();
 
         Mono<Map<String, List<MemberInfoDTO>>> mapMono = userDataService
                 .getForCurrentUser()
@@ -156,11 +182,11 @@ public class UserWorkspaceServiceUnitTest {
                     userData.setProfilePhotoAssetId("sample-photo-id");
                     return userDataRepository.save(userData);
                 })
-                .then(createWorkspacesMono)
-                .flatMap(workspaces -> {
+                .then(createSecondWorkspaceMono)
+                .flatMap(createdSecondWorkspace -> {
                     Set<String> createdIds = Set.of(
-                            Objects.requireNonNull(workspaces.getT1().getId()),
-                            Objects.requireNonNull(workspaces.getT2().getId()));
+                            Objects.requireNonNull(createdSecondWorkspace.getId()),
+                            Objects.requireNonNull(workspace.getId()));
                     return userWorkspaceService.getWorkspaceMembers(createdIds);
                 });
 
@@ -176,5 +202,10 @@ public class UserWorkspaceServiceUnitTest {
                     });
                 })
                 .verifyComplete();
+
+        // delete second workspace
+        Workspace deletedSecondWorkspace = createSecondWorkspaceMono
+                .flatMap(createdSecondWorkspace -> workspaceService.archiveById(createdSecondWorkspace.getId()))
+                .block();
     }
 }

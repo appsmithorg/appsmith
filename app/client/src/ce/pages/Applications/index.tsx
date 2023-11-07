@@ -20,6 +20,7 @@ import {
   getApplicationList,
   getApplicationSearchKeyword,
   getCreateApplicationError,
+  getDeletingMultipleApps,
   getIsCreatingApplication,
   getIsDeletingApplication,
   getIsFetchingApplications,
@@ -31,7 +32,7 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
@@ -54,6 +55,7 @@ import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   deleteWorkspace,
+  resetCurrentWorkspace,
   saveWorkspace,
 } from "@appsmith/actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
@@ -79,12 +81,11 @@ import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
-  hasCreateWorkspacePermission,
   hasDeleteWorkspacePermission,
   isPermitted,
   PERMISSION_TYPE,
@@ -92,11 +93,15 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import WorkspaceMenu from "./WorkspaceMenu";
-import ApplicationCardList from "./ApplicationCardList";
+import WorkspaceMenu from "@appsmith/pages/Applications/WorkspaceMenu";
+import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardList";
 import { usePackage } from "@appsmith/pages/Applications/helpers";
 import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
 import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
+import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -111,8 +116,6 @@ export const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   ${({ isMobile }) =>
     isMobile &&
     `
-    position: sticky;
-    top: 0;
     background-color: #fff;
     z-index: ${Indices.Layer8};
   `}
@@ -158,9 +161,10 @@ export const ItemWrapper = styled.div`
 export const StyledIcon = styled(Icon)`
   margin-right: 11px;
 `;
-export const WorkspaceShareUsers = styled.div`
+export const WorkspaceShareUsers = styled.div<{ isHidden?: boolean }>`
   display: flex;
   align-items: center;
+  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
 
   & .t--options-icon {
     margin-left: 8px;
@@ -302,9 +306,9 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
   return result;
 };
 
-export type LeftPaneProps = {
+export interface LeftPaneProps {
   isBannerVisible?: boolean;
-};
+}
 
 export function LeftPane(props: LeftPaneProps) {
   const { isBannerVisible = false } = props;
@@ -312,6 +316,7 @@ export function LeftPane(props: LeftPaneProps) {
   const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   let userWorkspaces;
   if (!isFetchingApplications) {
@@ -321,7 +326,10 @@ export function LeftPane(props: LeftPaneProps) {
   }
 
   const tenantPermissions = useSelector(getTenantPermissions);
-  const canCreateWorkspace = hasCreateWorkspacePermission(tenantPermissions);
+  const canCreateWorkspace = getHasCreateWorkspacePermission(
+    isFeatureEnabled,
+    tenantPermissions,
+  );
 
   const location = useLocation();
   const urlHash = location.hash.slice(1);
@@ -341,7 +349,7 @@ export function LeftPane(props: LeftPaneProps) {
               color="var(--ads-v2-color-fg-emphasis)"
               data-testid="t--workspace-new-workspace-auto-create"
               icon="plus"
-              onSelect={() =>
+              onSelect={async () =>
                 submitCreateWorkspaceForm(
                   {
                     name: getNextEntityName(
@@ -417,7 +425,11 @@ export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
   margin-left: ${(props) => props.theme.homePage.leftPane.width}px;
   width: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   scroll-behavior: smooth;
-  padding: ${CONTAINER_WRAPPER_PADDING} 0;
+  ${({ isMobile }) =>
+    isMobile
+      ? `padding: ${CONTAINER_WRAPPER_PADDING} 0;`
+      : `padding:  0 0 ${CONTAINER_WRAPPER_PADDING};`}
+
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -438,6 +450,9 @@ export function ApplicationsSection(props: any) {
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
+  const deleteMultipleApplicationObject = useSelector(getDeletingMultipleApps);
+  const isEnabledMultipleSelection =
+    !!deleteMultipleApplicationObject.list?.length;
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -460,6 +475,7 @@ export function ApplicationsSection(props: any) {
     dispatch(updateApplication(id, data));
   };
   const isLoadingResources = isFetchingApplications || isFetchingPackages;
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   useEffect(() => {
     // Clears URL params cache
@@ -647,14 +663,14 @@ export function ApplicationsSection(props: any) {
                   />
                 )}
                 {!isLoadingResources && (
-                  <WorkspaceShareUsers>
+                  <WorkspaceShareUsers isHidden={isEnabledMultipleSelection}>
                     <SharedUserList workspaceId={workspace.id} />
                     {canInviteToWorkspace && !isMobile && (
                       <FormDialogComponent
                         Form={WorkspaceInviteUsersForm}
                         placeholder={createMessage(
                           INVITE_USERS_PLACEHOLDER,
-                          cloudHosting,
+                          !isGACEnabled,
                         )}
                         workspace={workspace}
                       />
@@ -703,20 +719,28 @@ export function ApplicationsSection(props: any) {
                   </WorkspaceShareUsers>
                 )}
               </WorkspaceDropDown>
-              <ApplicationCardList
-                applications={applications}
-                canInviteToWorkspace={canInviteToWorkspace}
-                deleteApplication={deleteApplication}
-                enableImportExport={enableImportExport}
-                hasCreateNewApplicationPermission={
-                  hasCreateNewApplicationPermission
-                }
-                hasManageWorkspacePermissions={hasManageWorkspacePermissions}
-                isMobile={isMobile}
-                onClickAddNewButton={onClickAddNewAppButton}
-                updateApplicationDispatch={updateApplicationDispatch}
-                workspaceId={workspace.id}
-              />
+              {isLoadingResources && (
+                <ResourceListLoader
+                  isMobile={isMobile}
+                  resources={applications}
+                />
+              )}
+              {!isLoadingResources && (
+                <ApplicationCardList
+                  applications={applications}
+                  canInviteToWorkspace={canInviteToWorkspace}
+                  deleteApplication={deleteApplication}
+                  enableImportExport={enableImportExport}
+                  hasCreateNewApplicationPermission={
+                    hasCreateNewApplicationPermission
+                  }
+                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                  isMobile={isMobile}
+                  onClickAddNewButton={onClickAddNewAppButton}
+                  updateApplicationDispatch={updateApplicationDispatch}
+                  workspaceId={workspace.id}
+                />
+              )}
               {!isLoadingResources && (
                 <PackageCardList
                   isMobile={isMobile}
@@ -765,6 +789,7 @@ export interface ApplicationProps {
   ) => void;
   resetEditor: () => void;
   queryModuleFeatureFlagEnabled: boolean;
+  resetCurrentWorkspace: () => void;
 }
 
 export interface ApplicationState {
@@ -790,6 +815,10 @@ export class Applications<
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     this.props.getAllApplication();
     this.props.setHeaderMetaData(true, true);
+
+    // Whenever we go back to home page from application page,
+    // we should reset current workspace, as this workspace is not in context anymore
+    this.props.resetCurrentWorkspace();
   }
 
   componentWillUnmount() {
@@ -821,7 +850,7 @@ export class Applications<
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
+export const mapStateToProps = (state: AppState) => ({
   applicationList: getApplicationList(state),
   isFetchingApplications: getIsFetchingApplications(state),
   isCreatingApplication: getIsCreatingApplication(state),
@@ -832,7 +861,7 @@ const mapStateToProps = (state: AppState) => ({
   searchKeyword: getApplicationSearchKeyword(state),
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
+export const mapDispatchToProps = (dispatch: any) => ({
   getAllApplication: () => {
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
   },
@@ -853,6 +882,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   ) => {
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
+  resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);

@@ -55,13 +55,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.AccessControlConstants.UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -125,43 +124,6 @@ public class UserServiceTest {
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
     }
-
-    // Test if email params are updating correctly
-    @Test
-    public void checkEmailParamsForExistingUser() {
-        Workspace workspace = new Workspace();
-        workspace.setName("UserServiceTest Update Org");
-        workspace.setId(UUID.randomUUID().toString());
-
-        User inviter = new User();
-        inviter.setName("inviterUserToApplication");
-
-        String inviteUrl = "http://localhost:8080";
-        String expectedUrl = inviteUrl + "/applications#" + workspace.getId();
-
-        Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, false);
-        assertEquals(expectedUrl, params.get("primaryLinkUrl"));
-        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
-        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
-    }
-
-    @Test
-    public void checkEmailParamsForNewUser() {
-        Workspace workspace = new Workspace();
-        workspace.setId(UUID.randomUUID().toString());
-        workspace.setName("UserServiceTest Update Org");
-
-        User inviter = new User();
-        inviter.setName("inviterUserToApplication");
-
-        String inviteUrl = "http://localhost:8080";
-
-        Map<String, String> params = userService.getEmailParams(workspace, inviter, inviteUrl, true);
-        assertEquals(inviteUrl, params.get("primaryLinkUrl"));
-        assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
-        assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
-    }
-
     // Test the update workspace flow.
     @Test
     public void updateInvalidUserWithAnything() {
@@ -388,9 +350,7 @@ public class UserServiceTest {
         signUpUser.setEmail(newUserEmail);
         signUpUser.setPassword("123456");
 
-        Mono<User> invitedUserSignUpMono = userService
-                .createUserAndSendEmail(signUpUser, "http://localhost:8080")
-                .map(UserSignupDTO::getUser);
+        Mono<User> invitedUserSignUpMono = userService.createUser(signUpUser).map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {
@@ -398,6 +358,10 @@ public class UserServiceTest {
                     assertTrue(passwordEncoder.matches("123456", user.getPassword()));
                 })
                 .verifyComplete();
+
+        Workspace deletedWorkspace = workspaceMono
+                .flatMap(workspace1 -> workspaceService.archiveById(workspace1.getId()))
+                .block();
     }
 
     @Test
@@ -536,6 +500,14 @@ public class UserServiceTest {
                 .assertNext(userProfileDTO -> {
                     assertNotNull(userProfileDTO);
                     assertThat(userProfileDTO.isIntercomConsentGiven()).isTrue();
+                    assertEquals(
+                            List.of(
+                                    UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC),
+                            userProfileDTO.getGroups());
+                    assertEquals(
+                            List.of(
+                                    UPGRADE_TO_BUSINESS_EDITION_TO_ACCESS_ROLES_AND_GROUPS_FOR_CONDITIONAL_BUSINESS_LOGIC),
+                            userProfileDTO.getRoles());
                 })
                 .verifyComplete();
     }
@@ -561,24 +533,6 @@ public class UserServiceTest {
                     assertEquals("New use case", userData.getUseCase());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void createUserAndSendEmail_WhenUserExistsWithEmailInOtherCase_ThrowsException() {
-        User existingUser = new User();
-        existingUser.setEmail("abcd@gmail.com");
-        userRepository.save(existingUser).block();
-
-        User newUser = new User();
-        newUser.setEmail("abCd@gmail.com"); // same as above except c in uppercase
-        newUser.setSource(LoginSource.FORM);
-        newUser.setPassword("abcdefgh");
-        Mono<User> userAndSendEmail =
-                userService.createUserAndSendEmail(newUser, null).map(UserSignupDTO::getUser);
-
-        StepVerifier.create(userAndSendEmail)
-                .expectErrorMessage(AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail()))
-                .verify();
     }
 
     @Test
@@ -789,5 +743,28 @@ public class UserServiceTest {
         StepVerifier.create(resultMono)
                 .expectErrorMessage(AppsmithError.USER_ALREADY_VERIFIED.getMessage())
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateNameProficiencyAndUseCaseOfUser() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setName("New name of user here");
+        updateUser.setProficiency("Proficiency level");
+        updateUser.setUseCase("New use case");
+        final Mono<Tuple2<User, UserData>> resultMono = userService
+                .updateCurrentUser(updateUser, null)
+                .flatMap(user -> Mono.zip(Mono.just(user), userDataService.getForUserEmail("api_user")));
+        StepVerifier.create(resultMono)
+                .assertNext(tuple -> {
+                    final User user = tuple.getT1();
+                    final UserData userData = tuple.getT2();
+                    assertNotNull(user);
+                    assertNotNull(userData);
+                    assertEquals("New name of user here", user.getName());
+                    assertThat(userData.getProficiency()).isEqualTo("Proficiency level");
+                    assertEquals("New use case", userData.getUseCase());
+                })
+                .verifyComplete();
     }
 }

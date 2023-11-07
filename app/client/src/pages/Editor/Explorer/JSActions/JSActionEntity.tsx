@@ -5,26 +5,28 @@ import JSCollectionEntityContextMenu from "./JSActionContextMenu";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getJSCollection } from "selectors/entitiesSelector";
+import { getJSCollection } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import type { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
 import type { PluginType } from "entities/Action";
-import { jsCollectionIdURL } from "RouteBuilder";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import {
-  hasDeleteActionPermission,
-  hasManageActionPermission,
-} from "@appsmith/utils/permissionHelpers";
+  getHasDeleteActionPermission,
+  getHasManageActionPermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
-type ExplorerJSCollectionEntityProps = {
+interface ExplorerJSCollectionEntityProps {
   step: number;
   searchKeyword?: string;
   id: string;
   isActive: boolean;
   type: PluginType;
-};
+}
 
 const getUpdateJSObjectName = (id: string, name: string) => {
   return saveJSObjectName({ id, name });
@@ -58,9 +60,17 @@ export const ExplorerJSCollectionEntity = memo(
 
     const jsActionPermissions = jsAction.userPermissions || [];
 
-    const canDeleteJSAction = hasDeleteActionPermission(jsActionPermissions);
+    const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-    const canManageJSAction = hasManageActionPermission(jsActionPermissions);
+    const canDeleteJSAction = getHasDeleteActionPermission(
+      isFeatureEnabled,
+      jsActionPermissions,
+    );
+
+    const canManageJSAction = getHasManageActionPermission(
+      isFeatureEnabled,
+      jsActionPermissions,
+    );
 
     const contextMenu = (
       <JSCollectionEntityContextMenu

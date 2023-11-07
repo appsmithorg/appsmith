@@ -19,13 +19,34 @@ import {
   ONBOARDING_STATUS_GET_STARTED,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
-import type { SetupFormProps } from "./SetupForm";
+import type { FormErrors, InjectedFormProps } from "redux-form";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import { FormGroup } from "design-system-old";
 import { Button, Checkbox } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
+
+export interface DetailsFormValues {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  verifyPassword?: string;
+  role?: string;
+  useCase?: string;
+  custom_useCase?: string;
+  role_name?: string;
+}
+
+export type SetupFormProps = DetailsFormValues & {
+  formSyncErrors?: FormErrors<string, string>;
+} & InjectedFormProps<
+    DetailsFormValues,
+    {
+      formSyncErrors?: FormErrors<string, string>;
+    }
+  >;
 
 const DetailsFormWrapper = styled.div`
   width: 100%;

@@ -11,6 +11,7 @@ import {
   deployMode,
   locators,
   draggableWidgets,
+  appSettings,
 } from "../../support/Objects/ObjectsCore";
 
 const workspaceName = "gsheet apps";
@@ -45,6 +46,7 @@ describe("GSheet Miscellaneous Tests", function () {
       JSON.stringify(GSHEET_DATA),
     );
     cy.get("@postExecute").then((interception: any) => {
+      agHelper.Sleep();
       expect(
         interception.response.body.data.body.properties.title,
       ).to.deep.equal(spreadSheetName);
@@ -212,8 +214,62 @@ describe("GSheet Miscellaneous Tests", function () {
     table.WaitUntilTableLoad();
   });
 
+  it("6. Bug: 16391 - Verify placeholder texts for insert one/many queries", function () {
+    // Verify place holder text for Insert one query
+    let placeholderText =
+      '{\n  "name": {{nameInput.text}},\n  "dob": {{dobPicker.formattedDate}},\n  "gender": {{genderSelect.selectedOptionValue}} \n}';
+    gsheetHelper.EnterBasicQueryValues(
+      "Insert One",
+      dataSourceName,
+      spreadSheetName,
+      false,
+    );
+    agHelper.AssertText(
+      dataSources._gSheetQueryPlaceholder,
+      "text",
+      placeholderText,
+    );
+
+    // Verify place holder text for Insert many query
+    placeholderText =
+      '[{\n  "name": {{nameInput.text}},\n  "dob": {{dobPicker.formattedDate}},\n  "gender": {{genderSelect.selectedOptionValue}} \n}]';
+
+    gsheetHelper.EnterBasicQueryValues(
+      "Insert Many",
+      dataSourceName,
+      spreadSheetName,
+      false,
+    );
+    agHelper.AssertText(
+      dataSources._gSheetQueryPlaceholder,
+      "text",
+      placeholderText,
+    );
+  });
+
+  // This test is commented since we can't use Cypress to go to the Google authorization screen. We will uncomment it whenever we figure out how to do it.
+  // it("7. Bug#26024 App level import of gsheet app", function () {
+  //   homePage.NavigateToHome();
+  //   homePage.CreateNewWorkspace("AppLevelImport");
+  //   homePage.CreateAppInWorkspace("AppLevelImport", "AppLevelImportCheck");
+  //   appSettings.OpenAppSettings();
+  //   appSettings.GoToImport();
+  //   agHelper.ClickButton("Import");
+  //   homePage.ImportApp("ImportAppAllAccess.json", "", true);
+  //   cy.wait("@importNewApplication").then(() => {
+  //     agHelper.Sleep();
+  //     agHelper.ClickButton("Save & Authorize");
+  //   });
+  //   cy.url().should("contain", "accounts.google.com");
+  //   homePage.NavigateToHome();
+  //   homePage.DeleteApplication("AppLevelImportCheck");
+  //   homePage.DeleteWorkspace("AppLevelImport");
+  // });
+
   after("Delete spreadsheet and app", function () {
     // Delete spreadsheet and app
+    homePage.NavigateToHome();
+    homePage.SearchAndOpenApp(appName);
     gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
