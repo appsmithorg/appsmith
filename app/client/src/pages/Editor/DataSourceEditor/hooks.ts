@@ -2,6 +2,7 @@ import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { QueryTemplate } from "entities/Datasource";
 import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface FetchPreviewData {
   datasourceId: string;
@@ -38,13 +39,19 @@ export const useDatasourceQuery = ({
       } else {
         // if the response from the server is anything but an array of data, set the error flag
         setFailedFetchingPreviewData(true);
+        AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", {
+          error: payload.data?.pluginErrorDetails,
+        });
       }
     }
   }, []);
 
-  const onFetchPreviewDataFailure = useCallback(() => {
+  const onFetchPreviewDataFailure = useCallback((error: any) => {
     setIsLoading(false);
     setFailedFetchingPreviewData(true);
+    AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", {
+      error: error,
+    });
   }, []);
 
   const fetchPreviewData = useCallback(
