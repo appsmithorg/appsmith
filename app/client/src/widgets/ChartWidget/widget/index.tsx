@@ -20,6 +20,7 @@ import { Colors } from "constants/Colors";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   WidgetCallout,
 } from "WidgetProvider/constants";
@@ -37,8 +38,10 @@ import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
-const ChartComponent = lazy(() =>
-  retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
+const ChartComponent = lazy(async () =>
+  retryPromise(
+    async () => import(/* webpackChunkName: "charts" */ "../component"),
+  ),
 );
 
 export const emptyChartData = (props: ChartWidgetProps) => {
@@ -123,6 +126,17 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getMethods() {
     return {
       getEditorCallouts(props: WidgetProps): WidgetCallout[] {
@@ -135,7 +149,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             message: messages.customFusionChartDeprecationMessage,
             links: [
               {
-                text: "Learn More",
+                text: "Learn more",
                 url: "https://docs.appsmith.com",
               },
             ],

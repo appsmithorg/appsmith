@@ -36,7 +36,7 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getInitials } from "utils/AppsmithUtils";
-import { CustomRolesRamp } from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import { CustomRolesRamp } from "@appsmith/pages/workspace/InviteUsersForm";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -57,7 +57,6 @@ export const MembersWrapper = styled.div<{
       table-layout: fixed;
 
       thead {
-        z-index: 1;
         tr {
           border-bottom: 1px solid var(--ads-v2-color-border);
           th {

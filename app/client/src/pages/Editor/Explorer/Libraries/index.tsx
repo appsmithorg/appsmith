@@ -33,7 +33,7 @@ import {
   uninstallLibraryInit,
 } from "actions/JSLibraryActions";
 import EntityAddButton from "../Entity/AddButton";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import {
   getCurrentPageId,
   getPagePermissions,
@@ -46,10 +46,13 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
-const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
-  acc[lib.url] = lib.docsURL;
-  return acc;
-}, {} as Record<string, string>);
+const docsURLMap = recommendedLibraries.reduce(
+  (acc, lib) => {
+    acc[lib.url] = lib.docsURL;
+    return acc;
+  },
+  {} as Record<string, string>,
+);
 
 const Library = styled.li`
   list-style: none;
@@ -174,7 +177,7 @@ const Version = styled.div<{ version?: string }>`
   margin: ${(props) => (props.version ? "0 8px" : "0")};
 `;
 
-const PrimaryCTA = function ({ lib }: { lib: TJSLibrary }) {
+const PrimaryCTA = function ({ lib }: { lib: JSLibrary }) {
   const installationStatus = useSelector(selectInstallationStatus);
   const dispatch = useDispatch();
 
@@ -212,7 +215,7 @@ const PrimaryCTA = function ({ lib }: { lib: TJSLibrary }) {
   return null;
 };
 
-function LibraryEntity({ lib }: { lib: TJSLibrary }) {
+export function LibraryEntity({ lib }: { lib: JSLibrary }) {
   const openDocs = useCallback(
     (url?: string) => (e: React.MouseEvent) => {
       e?.stopPropagation();

@@ -15,7 +15,7 @@ const renderComponent = (
 
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
-type SelectFieldProps = {
+interface SelectFieldProps {
   allowDeselection?: boolean;
   isMultiSelect?: boolean;
   name: string;
@@ -32,7 +32,7 @@ type SelectFieldProps = {
   disabled?: boolean;
   dropdownMaxHeight?: string;
   enableSearch?: boolean;
-};
+}
 
 export function SelectField(props: SelectFieldProps) {
   return (

@@ -8,7 +8,8 @@ export type ThemeToken = {
 export type TokenType =
   | "sizing"
   | "color"
-  | "spacing"
+  | "outerSpacing"
+  | "innerSpacing"
   | "borderRadius"
   | "boxShadow"
   | "borderWidth"
@@ -20,10 +21,7 @@ export interface Token {
   type: TokenType;
 }
 
-export type RootUnit = number | string;
-
 export interface TokenSource {
-  rootUnit?: RootUnit;
   typography?: Typography;
   seedColor?: ColorTypes;
   colorMode?: ColorMode;
@@ -34,7 +32,10 @@ export interface TokenSource {
   fontFamily?: FontFamily;
   zIndex?: TokenObj;
   sizing?: TokenObj;
-  spacing?: TokenObj;
+  outerSpacing?: TokenObj;
+  innerSpacing?: TokenObj;
 }
 
-export type TokenObj = { [key: string]: string | number };
+export interface TokenObj {
+  [key: string]: string | number;
+}

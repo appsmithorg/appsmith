@@ -1,29 +1,25 @@
 import type {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
-  ModuleInput,
-  DataTreeEntity,
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
-  ConfigTree,
-  UnEvalTree,
-  DataTreeEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
 import {
   isAction,
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-
-type SetOverridingPropertyParams = {
+import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+interface SetOverridingPropertyParams {
   key: string;
   value: string;
   propertyOverrideDependency: PropertyOverrideDependency;
   overridingPropertyPaths: OverridingPropertyPaths;
   type: OverridingPropertyType;
-};
+}
 
 export const setOverridingProperty = ({
   key: propertyName,
@@ -70,21 +66,17 @@ export const setOverridingProperty = ({
 };
 
 export const generateDataTreeModuleInputs = (
-  dataTree: UnEvalTree,
-  configTree: ConfigTree,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   moduleInputs: Record<string, ModuleInput>,
 ) => {
   return {
-    dataTree,
-    configTree,
+    unEvalEntity: null,
+    configEntity: null,
   };
 };
 
 export function isWidgetActionOrJsObject(
   entity: DataTreeEntity,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  entityConfig: DataTreeEntityConfig,
 ): entity is ActionEntity | WidgetEntity | JSActionEntity {
   return isWidget(entity) || isAction(entity) || isJSAction(entity);
 }

@@ -18,7 +18,7 @@ import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 import {
@@ -37,12 +37,12 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-type TabProp = {
+interface TabProp {
   key: string;
   title: string;
   count?: number;
   panelComponent?: JSX.Element;
-};
+}
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;

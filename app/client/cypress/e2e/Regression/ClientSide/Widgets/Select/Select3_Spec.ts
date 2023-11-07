@@ -62,11 +62,13 @@ describe("Select widget tests", function () {
     agHelper.Sleep(3000); //Wait for widget to settle
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.SELECT));
     agHelper.TypeText(widgetLocators.selectWidgetFilter, "Ulf");
+    agHelper.Sleep(3000); //Wait for widget filter to settle for CI runs
     agHelper.AssertElementVisibility(
       locators._selectOptionValue("Ulf Merbold"),
       true,
     );
     agHelper.GetNClick(locators._selectOptionValue("Ulf Merbold"), 0, true);
+    agHelper.Sleep(); //for the new value to be set
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
       expect($selectedValue).to.eq("Ulf Merbold");
     });

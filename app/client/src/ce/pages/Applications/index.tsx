@@ -32,7 +32,7 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
@@ -81,7 +81,7 @@ import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
 import { resetEditorRequest } from "actions/initActions";
 import {
@@ -306,9 +306,9 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
   return result;
 };
 
-export type LeftPaneProps = {
+export interface LeftPaneProps {
   isBannerVisible?: boolean;
-};
+}
 
 export function LeftPane(props: LeftPaneProps) {
   const { isBannerVisible = false } = props;
@@ -349,7 +349,7 @@ export function LeftPane(props: LeftPaneProps) {
               color="var(--ads-v2-color-fg-emphasis)"
               data-testid="t--workspace-new-workspace-auto-create"
               icon="plus"
-              onSelect={() =>
+              onSelect={async () =>
                 submitCreateWorkspaceForm(
                   {
                     name: getNextEntityName(

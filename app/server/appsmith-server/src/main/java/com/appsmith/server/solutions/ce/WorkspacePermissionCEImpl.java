@@ -1,7 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import org.springframework.stereotype.Component;
 
+@Component
 public class WorkspacePermissionCEImpl implements WorkspacePermissionCE, DomainPermissionCE {
     @Override
     public AclPermission getEditPermission() {
@@ -11,6 +13,11 @@ public class WorkspacePermissionCEImpl implements WorkspacePermissionCE, DomainP
     @Override
     public AclPermission getReadPermission() {
         return AclPermission.READ_WORKSPACES;
+    }
+
+    @Override
+    public AclPermission getExportPermission(boolean isGitSync, boolean exportWithConfiguration) {
+        return null;
     }
 
     @Override

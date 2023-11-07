@@ -11,9 +11,9 @@ import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 
-type State = {
+interface State {
   focusedIndex: number | null;
-};
+}
 
 class ButtonListControl extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
@@ -166,16 +166,30 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
         id: newGroupButtonId,
         index: groupButtonsArray.length,
         label: newGroupButtonLabel,
-        menuItems: {},
-        buttonType: "SIMPLE",
-        placement: ButtonPlacementTypes.CENTER,
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
-        buttonColor:
-          this.props.widgetProperties.childStylesheet.button.buttonColor,
       },
     };
+
+    if (this.props.widgetProperties.type === "BUTTON_GROUP_WIDGET") {
+      /**
+       * These properties are required for "BUTTON_GROUP_WIDGET" but not for
+       * "WDS_BUTTON_GROUP_WIDGET"
+       */
+      const optionalButtonGroupItemProperties = {
+        menuItems: {},
+        buttonType: "SIMPLE",
+        placement: ButtonPlacementTypes.CENTER,
+        buttonColor:
+          this.props.widgetProperties.childStylesheet.button.buttonColor,
+      };
+
+      groupButtons[newGroupButtonId] = {
+        ...groupButtons[newGroupButtonId],
+        ...optionalButtonGroupItemProperties,
+      };
+    }
 
     this.updateProperty(this.props.propertyName, groupButtons);
   };

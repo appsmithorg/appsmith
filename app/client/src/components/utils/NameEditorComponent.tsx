@@ -1,32 +1,27 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
-
 import { isNameValid } from "utils/helpers";
 import type { AppState } from "@appsmith/reducers";
-
 import log from "loglevel";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
-import {
-  getUsedActionNames,
-  getSavingStatusForActionName,
-  getSavingStatusForJSObjectName,
-} from "selectors/actionSelectors";
+import { getUsedActionNames } from "selectors/actionSelectors";
 import {
   ACTION_INVALID_NAME_ERROR,
   ACTION_NAME_CONFLICT_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { PluginType } from "entities/Action";
 
-type NameEditorProps = {
+interface NameEditorProps {
   checkForGuidedTour?: boolean;
   children: (params: any) => JSX.Element;
-  currentActionConfig: { id: string; name: string } | undefined;
+  id?: string;
+  name?: string;
   dispatchAction: (a: any) => any;
   suffixErrorMessage?: (params?: any) => string;
-  pluginType?: PluginType;
-};
+  idUndefinedErrorMessage: string;
+  saveStatus: { isSaving: boolean; error: boolean };
+}
 
 /**
  * It is wrapper component using render props method.
@@ -38,37 +33,24 @@ type NameEditorProps = {
 function NameEditor(props: NameEditorProps) {
   const {
     checkForGuidedTour,
-    currentActionConfig,
     dispatchAction,
+    id: entityId,
+    idUndefinedErrorMessage,
+    name: entityName,
+    saveStatus,
     suffixErrorMessage = ACTION_NAME_CONFLICT_ERROR,
   } = props;
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
-  if (!currentActionConfig?.id) {
-    log.error(
-      `No correct ${
-        props.pluginType === PluginType.JS
-          ? "JSObject Id"
-          : "API id or Query id"
-      } found in the url.`,
-    );
+  if (!entityId) {
+    log.error(idUndefinedErrorMessage);
   }
   const guidedTourEnabled = useSelector(inGuidedTour);
 
-  const saveStatus: {
-    isSaving: boolean;
-    error: boolean;
-  } = useSelector((state: AppState) =>
-    props.pluginType === PluginType.JS
-      ? getSavingStatusForJSObjectName(state, currentActionConfig?.id || "")
-      : getSavingStatusForActionName(state, currentActionConfig?.id || ""),
-  );
-
   const conflictingNames = useSelector(
-    (state: AppState) =>
-      getUsedActionNames(state, currentActionConfig?.id || ""),
+    (state: AppState) => getUsedActionNames(state, entityId || ""),
     shallowEqual,
   );
 
@@ -81,33 +63,26 @@ function NameEditor(props: NameEditorProps) {
     (name: string): string | boolean => {
       if (!name || name.trim().length === 0) {
         return createMessage(ACTION_INVALID_NAME_ERROR);
-      } else if (
-        name !== currentActionConfig?.name &&
-        hasActionNameConflict(name)
-      ) {
+      } else if (name !== entityName && hasActionNameConflict(name)) {
         return createMessage(suffixErrorMessage, name);
       }
       return false;
     },
-    [currentActionConfig, hasActionNameConflict],
+    [hasActionNameConflict, entityName],
   );
 
   const handleNameChange = useCallback(
     (name: string) => {
-      if (
-        currentActionConfig &&
-        name !== currentActionConfig.name &&
-        !isInvalidNameForEntity(name)
-      ) {
+      if (name !== entityName && !isInvalidNameForEntity(name)) {
         if (checkForGuidedTour && guidedTourEnabled) {
           dispatch(toggleShowDeviationDialog(true));
           return;
         }
 
-        dispatch(dispatchAction({ id: currentActionConfig.id, name }));
+        dispatch(dispatchAction({ id: entityId, name }));
       }
     },
-    [dispatch, isInvalidNameForEntity, currentActionConfig, guidedTourEnabled],
+    [dispatch, isInvalidNameForEntity, guidedTourEnabled, entityId, entityName],
   );
 
   useEffect(() => {

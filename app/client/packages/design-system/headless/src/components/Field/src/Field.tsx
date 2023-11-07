@@ -24,19 +24,19 @@ export type FieldRef = Ref<HTMLDivElement>;
 const _Field = (props: FieldProps, ref: FieldRef) => {
   const {
     children,
+    contextualHelp,
+    description,
+    descriptionProps,
     elementType,
     errorMessage,
     errorMessageProps = {},
+    fieldType = "field",
     isDisabled = false,
     label,
     labelProps,
     validationState,
     wrapperClassName,
-    description,
-    descriptionProps,
     wrapperProps = {},
-    contextualHelp,
-    fieldType = "field",
   } = props;
   const hasHelpText =
     Boolean(description) ||
@@ -55,14 +55,14 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     );
   };
 
-  const labelAndContextualHelp = (
+  const isLabelVisible = Boolean(label) || Boolean(contextualHelp);
+
+  const labelAndContextualHelp = isLabelVisible && (
     <div data-field-label-wrapper="">
-      {Boolean(label) && (
-        <Label {...labelProps} elementType={elementType}>
-          {label}
-        </Label>
-      )}
-      {Boolean(label) && contextualHelp}
+      <Label {...labelProps} elementType={elementType}>
+        {label}
+      </Label>
+      {contextualHelp}
     </div>
   );
 

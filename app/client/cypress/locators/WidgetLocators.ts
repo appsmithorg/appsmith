@@ -45,6 +45,8 @@ export const WIDGET = {
   JSONFORM: "jsonformwidget",
   MENUBUTTON: "menubuttonwidget",
   DATEPICKER: "datepickerwidget2",
+  MAP: "mapwidget",
+  MAPCHART: "mapchartwidget",
 } as const;
 
 // property pane element selector are maintained here

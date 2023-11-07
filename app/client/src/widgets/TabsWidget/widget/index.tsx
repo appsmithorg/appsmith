@@ -24,7 +24,10 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
   DefaultAutocompleteDefinitions,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -223,6 +226,23 @@ class TabsWidget extends BaseWidget<
     };
   }
 
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      defaultTab: ["tabsObj", "tabs"],
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -315,7 +335,6 @@ class TabsWidget extends BaseWidget<
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
-              dependentPaths: ["tabsObj", "tabs"],
             },
             dependencies: ["tabsObj", "tabs"],
           },
@@ -597,8 +616,8 @@ class TabsWidget extends BaseWidget<
     let selectedTabWidgetId = this.props.selectedTabWidgetId;
     if (this.props.children) {
       selectedTabWidgetId =
-        this.props.children.find((tab) =>
-          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
+        this.props.children.find(
+          (tab) => this.props.selectedWidgetAncestry?.includes(tab.widgetId),
         )?.widgetId ?? this.props.selectedTabWidgetId;
     }
     return selectedTabWidgetId;

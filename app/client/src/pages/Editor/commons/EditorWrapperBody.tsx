@@ -1,13 +1,13 @@
 import React from "react";
 
-type EditorWrapperBodyProps = {
+interface EditorWrapperBodyProps {
   children: React.ReactNode;
   id: string;
-};
+}
 
 function EditorWrapperBody({ children, id }: EditorWrapperBodyProps) {
   return (
-    <div className="relative flex flex-col w-full overflow-auto" id={id}>
+    <div className="relative flex flex-col flex-1 overflow-auto" id={id}>
       {children}
     </div>
   );

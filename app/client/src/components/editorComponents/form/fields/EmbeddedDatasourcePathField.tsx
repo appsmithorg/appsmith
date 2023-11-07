@@ -34,7 +34,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { DataTree } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { KeyValuePair } from "entities/Action";
@@ -61,7 +61,7 @@ import {
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
-type ReduxStateProps = {
+interface ReduxStateProps {
   workspaceId: string;
   currentEnvironment: string;
   datasource: EmbeddedRestDatasource;
@@ -73,11 +73,11 @@ type ReduxStateProps = {
   formName: string;
   userWorkspacePermissions: string[];
   isFeatureEnabled: boolean;
-};
+}
 
-type ReduxDispatchProps = {
+interface ReduxDispatchProps {
   updateDatasource: (datasource: EmbeddedRestDatasource) => void;
-};
+}
 
 type Props = EditorProps &
   ReduxStateProps &
@@ -147,7 +147,8 @@ const StyledTooltip = styled.span<{ width?: number }>`
   text-align: left;
   background-color: var(--ads-v2-color-bg-emphasis-max);
   border-radius: var(--ads-v2-border-radius);
-  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
+  box-shadow:
+    0 2px 4px -2px rgba(0, 0, 0, 0.06),
     0 4px 8px -2px rgba(0, 0, 0, 0.1);
   color: var(--ads-v2-color-fg-on-emphasis-max);
   font-family: var(--ads-v2-font-family);

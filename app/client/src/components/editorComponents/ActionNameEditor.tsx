@@ -8,19 +8,20 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import { removeSpecialChars } from "utils/helpers";
 import type { AppState } from "@appsmith/reducers";
-import type { Action } from "entities/Action";
 
 import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "design-system";
 import { Classes } from "@blueprintjs/core";
 import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
+  ACTION_ID_NOT_FOUND_IN_URL,
   ACTION_NAME_PLACEHOLDER,
   createMessage,
 } from "@appsmith/constants/messages";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getSavingStatusForActionName } from "selectors/actionSelectors";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -58,7 +59,12 @@ const ApiIconBox = styled.div`
   margin-right: 8px;
   flex-shrink: 0;
 `;
-type ActionNameEditorProps = {
+
+interface SaveActionNameParams {
+  id: string;
+  name: string;
+}
+interface ActionNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
     So, that we can toggle between ads editable-text component and existing editable-text component
@@ -67,24 +73,40 @@ type ActionNameEditorProps = {
   */
   page?: string;
   disabled?: boolean;
-};
+  saveActionName?: (
+    params: SaveActionNameParams,
+  ) => ReduxAction<SaveActionNameParams>;
+}
 
 function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
-  const currentActionConfig: Action | undefined = useSelector(
-    (state: AppState) => getAction(state, params.apiId || params.queryId || ""),
+  const currentActionConfig = useSelector((state: AppState) =>
+    getAction(state, params.apiId || params.queryId || ""),
   );
 
-  const currentPlugin: Plugin | undefined = useSelector((state: AppState) =>
+  const currentPlugin = useSelector((state: AppState) =>
     getPlugin(state, currentActionConfig?.pluginId || ""),
+  );
+
+  const saveStatus = useSelector((state) =>
+    getSavingStatusForActionName(state, currentActionConfig?.id || ""),
   );
 
   return (
     <NameEditorComponent
       checkForGuidedTour
-      currentActionConfig={currentActionConfig}
-      dispatchAction={saveActionName}
+      /**
+       * This component is used by module editor in EE which uses a different
+       * action to save the name of an action. The current callers of this component
+       * pass the existing saveAction action but as fallback the saveActionName is used here
+       * as a guard.
+       */
+      dispatchAction={props.saveActionName || saveActionName}
+      id={currentActionConfig?.id}
+      idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
+      name={currentActionConfig?.name}
+      saveStatus={saveStatus}
     >
       {({
         forceUpdate,

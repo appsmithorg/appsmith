@@ -25,11 +25,10 @@ import {
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import type {
-  DataTree,
-  ConfigTree,
   WidgetEntity,
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { find, sortBy } from "lodash";
 import {
   getDataTree,
@@ -63,6 +62,7 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
+import { protectedModeSelector } from "./gitSyncSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -185,11 +185,14 @@ export const getCurrentPageDescription = createSelector(
 );
 
 export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
-  pages.reduce((acc, page: Page) => {
-    // Comeback
-    acc[page.pageId] = page.slug || "";
-    return acc;
-  }, {} as Record<string, string>),
+  pages.reduce(
+    (acc, page: Page) => {
+      // Comeback
+      acc[page.pageId] = page.slug || "";
+      return acc;
+    },
+    {} as Record<string, string>,
+  ),
 );
 
 export const getCurrentApplication = (state: AppState) =>
@@ -259,6 +262,11 @@ const defaultLayout: AppLayoutConfig = {
 
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
+
+export const getIsMobileCanvasLayout = createSelector(
+  getAppLayout,
+  (appLayout: AppLayoutConfig) => appLayout.type === "MOBILE",
+);
 
 export const getIsAutoLayout = createSelector(
   getLayoutSystemType,
@@ -988,3 +996,9 @@ export const getGsheetToken = (state: AppState) =>
 
 export const getGsheetProjectID = (state: AppState) =>
   state.entities.datasources.gsheetProjectID;
+
+export const combinedPreviewModeSelector = createSelector(
+  previewModeSelector,
+  protectedModeSelector,
+  (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
+);

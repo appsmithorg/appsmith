@@ -60,7 +60,7 @@ import {
   isAction,
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
 const actionList: {
   label: string;
@@ -430,7 +430,8 @@ function getApiAndQueryOptions(
     (action) =>
       action.config.pluginType === PluginType.API ||
       action.config.pluginType === PluginType.SAAS ||
-      action.config.pluginType === PluginType.REMOTE,
+      action.config.pluginType === PluginType.REMOTE ||
+      action.config.pluginType === PluginType.AI,
   );
 
   const queryOptions = actionList.find(

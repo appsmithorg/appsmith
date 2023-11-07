@@ -66,6 +66,7 @@ public enum AppsmithErrorCode {
     PLUGIN_EXECUTION_TIMEOUT("AE-APP-5040", "Plugin execution timeout"),
     MARKETPLACE_TIMEOUT("AE-APP-5041", "Marketplace timeout"),
     GOOGLE_RECAPTCHA_TIMEOUT("AE-APP-5042", "Google recaptcha timeout"),
+    MIGRATION_FAILED("AE-APP-5043", "Migration failed"),
     INVALID_PROPERTIES_CONFIGURATION("AE-APP-5044", "Property configuration is wrong or malformed"),
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR("AE-AST-4009", "Name clash not allowed in refactor"),
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
@@ -114,6 +115,7 @@ public enum AppsmithErrorCode {
     ROLES_FROM_SAME_WORKSPACE("AE-RSW-4041", "Roles from same workspace"),
     SIGNUP_DISABLED("AE-SGN-4033", "Signup disabled"),
     TOO_MANY_REQUESTS("AE-TMR-4029", "Too many requests"),
+    TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS("AE-TMR-4030", "Too many failed datasource connectoin requests"),
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
     CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
     UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
@@ -130,7 +132,8 @@ public enum AppsmithErrorCode {
 
     INVALID_METHOD_LEVEL_ANNOTATION_USAGE("AE-APP-4094", "Invalid usage for custom annotation"),
     FEATURE_FLAG_MIGRATION_FAILURE("AE-APP-5045", "Feature flag based migration error"),
-    ;
+    DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
+            "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed");
     private final String code;
     private final String description;
 

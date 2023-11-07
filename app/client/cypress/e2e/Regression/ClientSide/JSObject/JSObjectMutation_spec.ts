@@ -90,4 +90,52 @@ describe("JSObject testing", () => {
         expect($label).contains("[]");
       });
   });
+
+  it("6. Bug 27978 Check assignment should not get overridden by evaluation", () => {
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 400, 400);
+    _.propPane.TypeTextIntoField(
+      "Text",
+      `{{JSObject1.data.length ? 'id-' + JSObject1.data[0].id : 'Not Set' }}`,
+      true,
+      false,
+    );
+    _.entityExplorer.NavigateToSwitcher("Explorer");
+    _.apiPage.CreateAndFillApi(
+      _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
+    );
+    const JS_OBJECT_BODY = `export default {
+      data: [],
+      async getData() {
+        await Api1.run()
+        return Api1.data
+      },
+      async myFun1() {
+        this.data = await this.getData();
+        console.log(this.data);
+      },
+      async myFun2() {
+        const data = await this.getData();
+        data.push({ name: "test123" })
+        this.data = data;
+        console.log(this.data);
+      },
+    }`;
+    _.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    _.jsEditor.SelectFunctionDropdown("myFun1");
+    _.jsEditor.RunJSObj();
+    _.entityExplorer.SelectEntityByName("Text2", "Widgets");
+    _.agHelper.AssertContains("id-1");
+    _.agHelper.RefreshPage();
+    _.agHelper.AssertContains("Not Set");
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    _.jsEditor.SelectFunctionDropdown("myFun2");
+    _.jsEditor.RunJSObj();
+    _.entityExplorer.SelectEntityByName("Text2", "Widgets");
+    _.agHelper.AssertContains("id-1");
+  });
 });

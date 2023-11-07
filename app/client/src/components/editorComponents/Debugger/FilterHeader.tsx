@@ -42,7 +42,7 @@ const OptionLabel = styled(Text)`
   margin-top: 2px;
 `;
 
-type FilterHeaderProps = {
+interface FilterHeaderProps {
   options: DropdownOption[];
   selected: DropdownOption;
   onChange: (value: string) => void;
@@ -50,7 +50,7 @@ type FilterHeaderProps = {
   defaultValue: string;
   value: string;
   searchQuery: string;
-};
+}
 
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();

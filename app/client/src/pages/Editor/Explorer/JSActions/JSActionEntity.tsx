@@ -10,7 +10,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
 import type { PluginType } from "entities/Action";
-import { jsCollectionIdURL } from "RouteBuilder";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import {
@@ -20,13 +20,13 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
-type ExplorerJSCollectionEntityProps = {
+interface ExplorerJSCollectionEntityProps {
   step: number;
   searchKeyword?: string;
   id: string;
   isActive: boolean;
   type: PluginType;
-};
+}
 
 const getUpdateJSObjectName = (id: string, name: string) => {
   return saveJSObjectName({ id, name });

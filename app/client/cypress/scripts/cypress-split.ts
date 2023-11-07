@@ -74,7 +74,8 @@ export class cypressSplit {
       );
 
       const specsToRun = await this.getSpecsWithTime(specFilePaths, attemptId);
-      return specsToRun === undefined
+      console.log("SPECS TO RUN ----------> :", specsToRun);
+      return specsToRun === undefined || specsToRun.length === 0
         ? []
         : specsToRun[0].map((spec) => spec.name);
     } catch (err) {
@@ -285,7 +286,7 @@ export class cypressSplit {
     }
   }
 
-  private sleep(ms: number): Promise<void> {
+  private async sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 

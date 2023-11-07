@@ -19,6 +19,7 @@ import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type {
+  AnvilConfig,
   AutocompletionDefinitions,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
@@ -45,9 +46,9 @@ import type {
 } from "widgets/TabsWidget/constants";
 import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
@@ -81,16 +82,16 @@ export type MetaWidget<TProps = void> = TProps extends void
   ? BaseMetaWidget
   : TProps & BaseMetaWidget;
 
-export type LevelData = {
+export interface LevelData {
   [level: string]: {
     currentIndex: number;
     currentItem: string;
     currentRowCache: LevelDataRowCache;
     autocomplete: Record<string, unknown>;
   };
-};
+}
 
-export type MetaWidgetCacheProps = {
+export interface MetaWidgetCacheProps {
   entityDefinition: string;
   metaWidgetId: string;
   metaWidgetName: string;
@@ -103,7 +104,7 @@ export type MetaWidgetCacheProps = {
   type: string;
   viewIndex: number;
   prevViewIndex?: number;
-};
+}
 
 type LevelDataMetaWidgetCacheProps = Omit<
   MetaWidgetCacheProps,
@@ -114,9 +115,9 @@ export type MetaWidgetRowCache = Record<string, MetaWidgetCacheProps>;
 
 type LevelDataRowCache = Record<string, LevelDataMetaWidgetCacheProps>;
 
-export type MetaWidgetCache = {
+export interface MetaWidgetCache {
   [key: string]: MetaWidgetRowCache | undefined;
-};
+}
 
 type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   canExtend?: boolean;
@@ -124,12 +125,12 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   isListWidgetCanvas?: boolean;
 };
 
-type RenderChildrenOption = {
+interface RenderChildrenOption {
   componentWidth: number;
   parentColumnSpace: number;
   selectedItemKey?: string | null;
   startIndex: number;
-};
+}
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 const EMPTY_BINDING = "{{{}}}";
@@ -201,6 +202,17 @@ class ListWidget extends BaseWidget<
           },
         },
       ],
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
     };
   }
 

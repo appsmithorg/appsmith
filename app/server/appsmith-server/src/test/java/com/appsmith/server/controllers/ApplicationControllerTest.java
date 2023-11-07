@@ -5,18 +5,21 @@ import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
+import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationFetcher;
-import com.appsmith.server.solutions.ImportExportApplicationService;
+import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -52,7 +55,10 @@ public class ApplicationControllerTest {
     ApplicationForkingService applicationForkingService;
 
     @MockBean
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @MockBean
+    ExportApplicationService exportApplicationService;
 
     @MockBean
     ApplicationSnapshotService applicationSnapshotService;
@@ -74,6 +80,12 @@ public class ApplicationControllerTest {
 
     @MockBean
     SessionUserService sessionUserService;
+
+    @MockBean
+    PartialExportService partialExportService;
+
+    @MockBean
+    PartialImportService partialImportService;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();
@@ -102,7 +114,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithLongHeader_thenVerifyErrorStatus() throws IOException {
 
-        Mockito.when(importExportApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
+        Mockito.when(importApplicationService.extractFileAndSaveApplication(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ApplicationImportDTO()));
 
         final String fileName = getFileName(130 * 1024);
@@ -133,7 +145,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
-        Mockito.when(importExportApplicationService.extractFileAndSaveApplication(
+        Mockito.when(importApplicationService.extractFileAndSaveApplication(
                         Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(new ApplicationImportDTO()));
 

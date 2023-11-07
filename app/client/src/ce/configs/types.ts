@@ -1,15 +1,15 @@
 import type { LogLevelDesc } from "loglevel";
 
-export type SentryConfig = {
+export interface SentryConfig {
   dsn: string;
   environment: string;
-};
+}
 
-export type AppVersionData = {
+export interface AppVersionData {
   id: string;
   releaseDate: string;
   edition: string;
-};
+}
 
 export interface AppsmithUIConfigs {
   sentry: {
@@ -24,6 +24,13 @@ export interface AppsmithUIConfigs {
   smartLook: {
     enabled: boolean;
     id: string;
+  };
+  newRelic: {
+    enableNewRelic: boolean;
+    accountId: string;
+    applicationId: string;
+    browserAgentlicenseKey: string;
+    otlpLicenseKey: string;
   };
   segment: {
     enabled: boolean;
@@ -60,8 +67,16 @@ export interface AppsmithUIConfigs {
     apiKey: string;
   };
   appsmithSupportEmail: string;
-  hideWatermark: boolean;
   disableIframeWidgetSandbox: boolean;
   pricingUrl: string;
   customerPortalUrl: string;
+}
+
+// Type for one environment
+export interface EnvironmentType {
+  id: string;
+  name: string;
+  workspaceId: string;
+  isDefault?: boolean;
+  userPermissions?: string[];
 }

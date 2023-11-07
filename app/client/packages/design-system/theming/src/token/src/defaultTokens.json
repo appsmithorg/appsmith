@@ -3,35 +3,53 @@
   "fluid": {
     "minVw": 360,
     "maxVw": 1920,
-    "rootUnit": {
-      "minV": 4,
-      "maxV": 5,
+    "sizing": {
+      "minV": 2,
+      "maxV": 3,
       "minR": 1,
       "maxR": 1,
       "minN": 1,
       "maxN": 1,
       "stepsUp": 1,
-      "stepsDown": 0
+      "stepsDown": 0,
+      "userSizingRatio": 1.4,
+      "userDensityRatio": 0.2
     },
-    "spacing": {
-      "minV": 4,
-      "maxV": 6,
+    "outerSpacing": {
+      "minV": 2,
+      "maxV": 4,
       "minR": 2,
       "maxR": 3,
-      "minN": 3,
+      "minN": 2,
       "maxN": 3,
       "stepsUp": 8,
-      "stepsDown": 0
+      "stepsDown": 0,
+      "userSizingRatio": 0.8,
+      "userDensityRatio": 1.5
+    },
+    "innerSpacing": {
+      "minV": 2.25,
+      "maxV": 3,
+      "minR": 2,
+      "maxR": 3,
+      "minN": 2,
+      "maxN": 3,
+      "stepsUp": 8,
+      "stepsDown": 0,
+      "userSizingRatio": 0.25,
+      "userDensityRatio": 2.5
     },
     "typography": {
-      "minV": 10,
-      "maxV": 12,
+      "minV": 6,
+      "maxV": 8,
       "minR": 2,
       "maxR": 4,
       "minN": 3,
       "maxN": 5,
       "stepsUp": 5,
-      "stepsDown": 1
+      "stepsDown": 1,
+      "userSizingRatio": 1.6,
+      "userDensityRatio": 0
     }
   },
   "colorMode": "light",

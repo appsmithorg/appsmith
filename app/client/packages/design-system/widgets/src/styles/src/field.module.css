@@ -3,7 +3,7 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3);
+  gap: var(--inner-spacing-2);
 
   /**
   * ----------------------------------------------------------------------------
@@ -13,14 +13,14 @@
   & [data-field-label-wrapper] {
     display: flex;
     align-items: center;
-    gap: var(--spacing-1);
+    gap: var(--inner-spacing-1);
     height: var(--sizing-3);
   }
 
   & [data-field-label] {
     display: flex;
     align-items: center;
-    gap: var(--spacing-1);
+    gap: var(--inner-spacing-1);
     height: fit-content;
     color: var(--color-fg);
   }
@@ -31,8 +31,8 @@
   *-----------------------------------------------------------------------------
   */
   & [data-field-necessity-indicator-icon] {
-    width: var(--spacing-2);
-    height: var(--spacing-2);
+    width: var(--inner-spacing-2);
+    height: var(--inner-spacing-2);
     color: var(--color-fg-negative);
   }
 
@@ -54,7 +54,7 @@
   *-----------------------------------------------------------------------------
   */
   & [data-field-group] {
-    gap: var(--spacing-2);
+    gap: var(--inner-spacing-2);
     display: flex;
     flex-direction: column;
   }
@@ -64,7 +64,7 @@
   }
 
   & [data-field-group][data-orientation="horizontal"] {
-    gap: var(--spacing-4);
+    gap: var(--inner-spacing-4);
     flex-direction: row;
   }
 
@@ -74,7 +74,7 @@
   *-----------------------------------------------------------------------------
   */
   & [data-field-input-wrapper] {
-    gap: var(--spacing-2);
+    gap: var(--inner-spacing-2);
     display: flex;
     flex-direction: column;
   }

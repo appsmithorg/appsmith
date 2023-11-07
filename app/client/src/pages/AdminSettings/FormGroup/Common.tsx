@@ -3,13 +3,15 @@ import React from "react";
 import styled from "styled-components";
 import { Icon, Tooltip, Text } from "design-system";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import EnterpriseTag from "components/EnterpriseTag";
+import BusinessTag from "components/BusinessTag";
 
-type FieldHelperProps = {
+interface FieldHelperProps {
   setting: Setting;
   children: React.ReactNode;
   className?: string;
   isToggle?: boolean;
-};
+}
 
 export const StyledFormGroup = styled.div`
   width: 40rem;
@@ -28,6 +30,8 @@ export const StyledFormGroup = styled.div`
 
 export const StyledLabel = styled.div`
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
 `;
 
 export const StyledSubtext = styled(Text)`
@@ -48,7 +52,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       className={`${className}`}
       data-testid="admin-settings-form-group"
     >
-      <StyledLabel>
+      <StyledLabel className="styled-label">
         {setting.label && (
           <Text
             className="admin-settings-form-group-label"
@@ -73,6 +77,14 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
             />
           </Tooltip>
         )}
+        <div className="ml-2">
+          {setting.isFeatureEnabled === false &&
+            (setting.isEnterprise === true ? (
+              <EnterpriseTag />
+            ) : (
+              <BusinessTag />
+            ))}
+        </div>
       </StyledLabel>
       {children}
       {setting.subText && (
@@ -87,6 +99,6 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
   );
 }
 
-export type SettingComponentProps = {
+export interface SettingComponentProps {
   setting: Setting;
-};
+}
