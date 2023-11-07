@@ -60,7 +60,11 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   // Create a ref so that this DOM node can be
   // observed by the observer for changes in size
   const ref = React.useRef<HTMLDivElement>(null);
-  usePositionObserver("widget", { widgetId: props.widgetId }, ref);
+  usePositionObserver(
+    "widget",
+    { widgetId: props.widgetId, layoutId: props.layoutId },
+    ref,
+  );
   /** EO POSITIONS OBSERVER LOGIC */
 
   const [isFillWidget, setIsFillWidget] = useState<boolean>(false);

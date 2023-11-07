@@ -43,7 +43,7 @@ export function usePositionObserver(
         case "widget":
           if (ids.widgetId === undefined)
             throw Error("Failed to observe widget: widgetId is undefined");
-          positionObserver.observeWidget(ids.widgetId, ref);
+          positionObserver.observeWidget(ids.widgetId, ids.layoutId || "", ref);
           break;
         case "layout":
           if (ids.layoutId === undefined)

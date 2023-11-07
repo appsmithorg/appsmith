@@ -81,12 +81,17 @@ function* readAndUpdateLayoutElementPositions() {
         top: rect.top - top,
         height: rect.height,
         width: rect.width,
+        // layouts also will have parents so adding these offset placeholders for future use cases
+        offsetLeft: 0,
+        offsetTop: 0,
       };
     }
   }
 
   // Do the above for widgets
   for (const anvilWidgetDOMId of Object.keys(registeredWidgets)) {
+    const { layoutId } = registeredWidgets[anvilWidgetDOMId];
+    const parentDropTargetPositions = positions[layoutId];
     const element: HTMLElement | null =
       document.getElementById(anvilWidgetDOMId);
     const widgetId = extractWidgetIdFromAnvilWidgetDOMId(anvilWidgetDOMId);
@@ -97,6 +102,15 @@ function* readAndUpdateLayoutElementPositions() {
         top: rect.top - top,
         height: rect.height,
         width: rect.width,
+        ...(parentDropTargetPositions
+          ? {
+              offsetLeft: rect.left - (parentDropTargetPositions.left + left),
+              offsetTop: rect.top - (parentDropTargetPositions.top + top),
+            }
+          : {
+              offsetLeft: 0,
+              offsetTop: 0,
+            }),
       };
     }
   }

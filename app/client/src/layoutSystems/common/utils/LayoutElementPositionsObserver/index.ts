@@ -25,7 +25,11 @@ import ResizeObserver from "resize-observer-polyfill";
 class LayoutElementPositionObserver {
   // Objects to store registered elements
   private registeredWidgets: {
-    [widgetDOMId: string]: { ref: RefObject<HTMLDivElement>; id: string };
+    [widgetDOMId: string]: {
+      ref: RefObject<HTMLDivElement>;
+      id: string;
+      layoutId: string;
+    };
   } = {};
 
   private registeredLayouts: {
@@ -75,11 +79,15 @@ class LayoutElementPositionObserver {
   );
 
   //Method to register widgets for resize observer changes
-  public observeWidget(widgetId: string, ref: RefObject<HTMLDivElement>) {
+  public observeWidget(
+    widgetId: string,
+    layoutId: string,
+    ref: RefObject<HTMLDivElement>,
+  ) {
     if (ref.current) {
       if (!this.registeredWidgets.hasOwnProperty(widgetId)) {
         const widgetDOMId = getAnvilWidgetDOMId(widgetId);
-        this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
+        this.registeredWidgets[widgetDOMId] = { ref, id: widgetId, layoutId };
         this.resizeObserver.observe(ref.current);
         this.mutationObserver.observe(ref.current, this.mutationOptions);
       }

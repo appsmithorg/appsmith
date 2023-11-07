@@ -6,6 +6,8 @@ export interface LayoutElementPosition {
   top: number;
   height: number;
   width: number;
+  offsetLeft: number;
+  offsetTop: number;
 }
 
 export interface LayoutElementPositions {
