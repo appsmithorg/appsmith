@@ -34,12 +34,9 @@ import type {
 import {
   fetchGitRemoteStatusInit,
   fetchGitProtectedBranchesInit,
-  fetchGitProtectedBranchesSuccess,
-  fetchGitProtectedBranchesError,
-  fetchGitRemoteStatusSuccess,
-  updateGitProtectedBranchesError,
-  updateGitProtectedBranchesSuccess,
   updateGitProtectedBranchesInit,
+  fetchGitRemoteStatusSuccess,
+  clearCommitSuccessfulState,
 } from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
@@ -90,6 +87,7 @@ import {
   ERROR_GIT_AUTH_FAIL,
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
+  PROTECT_BRANCH_SUCCESS,
 } from "@appsmith/constants/messages";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 
@@ -255,6 +253,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
       /* commit effect START */
       yield put(commitToRepoSuccess());
+      yield put(clearCommitSuccessfulState());
       const curApplication: ApplicationPayload = yield select(
         getCurrentApplication,
       );
@@ -1081,14 +1080,24 @@ function* fetchGitProtectedBranchesSaga() {
     );
     if (isValidResponse) {
       const protectedBranches: string[] = response?.data;
-      yield put(fetchGitProtectedBranchesSuccess(protectedBranches));
+      yield put({
+        type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_SUCCESS,
+        payload: { protectedBranches },
+      });
     } else {
-      yield put(
-        fetchGitProtectedBranchesError(response?.responseMeta?.error?.message),
-      );
+      yield put({
+        type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
     }
   } catch (error) {
-    yield put(fetchGitProtectedBranchesError(error));
+    yield put({
+      type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR,
+      payload: { error, show: true },
+    });
   }
 }
 
@@ -1103,16 +1112,40 @@ function* updateGitProtectedBranchesSaga({
   }
   const { protectedBranches } = payload;
   const applicationId: string = yield select(getCurrentApplicationId);
+  let response: ApiResponse<string[]>;
   try {
-    yield call(
+    response = yield call(
       GitSyncAPI.updateProtectedBranches,
       applicationId,
       protectedBranches,
     );
-    yield put(updateGitProtectedBranchesSuccess());
-    yield put(fetchGitProtectedBranchesInit());
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_SUCCESS,
+      });
+      yield put(fetchGitProtectedBranchesInit());
+      toast.show(createMessage(PROTECT_BRANCH_SUCCESS), {
+        kind: "success",
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
+    }
   } catch (error) {
-    yield put(updateGitProtectedBranchesError(error));
+    yield put({
+      type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR,
+      payload: { error, show: true },
+    });
   }
 }
 
