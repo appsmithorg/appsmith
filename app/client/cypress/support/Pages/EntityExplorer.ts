@@ -464,9 +464,11 @@ export class EntityExplorer {
         action: "Edit name",
       });
     else cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
-    cy.xpath(this.locator._entityNameEditing(entityName)).type(
-      renameVal + "{enter}",
-    );
+    cy.xpath(this.locator._entityNameEditing(entityName))
+      .type(renameVal)
+      .wait(500)
+      .type("{enter}")
+      .wait(300);
     this.AssertEntityPresenceInExplorer(renameVal);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }

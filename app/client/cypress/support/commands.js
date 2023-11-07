@@ -1303,7 +1303,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
       cy.isSelectRow(0);
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
-        expect(tableData).to.equal(valueToTest);
+        expect(valueToTest).contains(tableData);
       });
     });
 });

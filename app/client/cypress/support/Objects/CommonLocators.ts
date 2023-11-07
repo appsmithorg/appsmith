@@ -201,6 +201,7 @@ export class CommonLocators {
     `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`;
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
+  _argHintFnName = ".CodeMirror-Tern-tooltip .CodeMirror-Tern-fname";
   _cancelActionExecution = ".t--cancel-action-button";
   _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-testid="slider-thumb"]';
@@ -222,6 +223,7 @@ export class CommonLocators {
   _editorBackButton = ".t--close-editor";
   _dialogCloseButton = ".ads-v2-modal__content-header-close-button";
   _evaluateMsg = ".t--evaluatedPopup-error";
+  _evalValuePopover = ".t--CodeEditor-evaluatedValue";
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-testid='edit-mode']";
   _exitPreviewMode = "[data-testid='preview-mode']";
