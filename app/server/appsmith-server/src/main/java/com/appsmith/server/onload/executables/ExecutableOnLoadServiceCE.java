@@ -1,14 +1,15 @@
-package com.appsmith.server.onpageload.executables;
+package com.appsmith.server.onload.executables;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Executable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface ExecutableOnPageLoadServiceCE<T extends Executable> {
+public interface ExecutableOnLoadServiceCE<T extends BaseDomain> {
 
-    Flux<Executable> getAllExecutablesByPageIdFlux(String pageId);
+    Flux<Executable> getAllExecutablesByCreatorIdFlux(String pageId);
 
-    Mono<Executable> fillSelfReferencingPaths(T executable);
+    Mono<Executable> fillSelfReferencingPaths(Executable executable);
 
     Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(String pageId);
 

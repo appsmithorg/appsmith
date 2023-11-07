@@ -1,7 +1,7 @@
-package com.appsmith.server.onpageload.internal;
+package com.appsmith.server.onload.internal;
 
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.server.onpageload.executables.ExecutableOnPageLoadService;
+import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class PageLoadExecutablesUtilImpl extends PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtil {
+public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtil {
 
-    public PageLoadExecutablesUtilImpl(
+    public OnLoadExecutablesUtilImpl(
             AstService astService,
             ObjectMapper objectMapper,
-            ExecutableOnPageLoadService<ActionDTO> actionExecutableOnPageLoadService) {
+            ExecutableOnLoadService<ActionDTO> actionExecutableOnPageLoadService) {
         super(astService, objectMapper, actionExecutableOnPageLoadService);
     }
 }

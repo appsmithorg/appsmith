@@ -9,6 +9,7 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Executable;
@@ -34,7 +35,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.onpageload.internal.PageLoadExecutablesUtil;
+import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CollectionService;
@@ -81,7 +82,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final AnalyticsService analyticsService;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
-    private final PageLoadExecutablesUtil pageLoadActionsUtil;
+    private final OnLoadExecutablesUtil pageLoadActionsUtil;
     private final SessionUserService sessionUserService;
     private final ActionCollectionService actionCollectionService;
     private final CollectionService collectionService;
@@ -730,7 +731,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         edges,
                         widgetDynamicBindingsMap,
                         flatmapPageLoadExecutables,
-                        executablesUsedInDSL)
+                        executablesUsedInDSL,
+                        CreatorContextType.PAGE)
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
                     validOnPageLoadExecutables.set(FALSE);
@@ -756,7 +758,11 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     // setting for this
                     return pageLoadActionsUtil
                             .updateExecutablesExecuteOnLoad(
-                                    flatmapPageLoadExecutables, pageId, executableUpdatesRef, messagesRef)
+                                    flatmapPageLoadExecutables,
+                                    pageId,
+                                    executableUpdatesRef,
+                                    messagesRef,
+                                    CreatorContextType.PAGE)
                             .thenReturn(allOnLoadExecutables);
                 })
                 .zipWith(newPageService

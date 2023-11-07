@@ -1,9 +1,10 @@
-package com.appsmith.server.newactions.onpageload;
+package com.appsmith.server.newpages.onload;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Executable;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.onpageload.executables.ExecutableOnPageLoadServiceCE;
+import com.appsmith.server.onload.executables.ExecutableOnLoadServiceCE;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,13 +13,14 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @RequiredArgsConstructor
-public class ActionOnPageLoadServiceCEImpl implements ExecutableOnPageLoadServiceCE<ActionDTO> {
+@Service
+public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServiceCE<NewPage> {
 
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
 
     @Override
-    public Flux<Executable> getAllExecutablesByPageIdFlux(String pageId) {
+    public Flux<Executable> getAllExecutablesByCreatorIdFlux(String pageId) {
         return newActionService
                 .findByPageIdAndViewMode(pageId, false, actionPermission.getEditPermission())
                 .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
@@ -27,8 +29,10 @@ public class ActionOnPageLoadServiceCEImpl implements ExecutableOnPageLoadServic
     }
 
     @Override
-    public Mono<Executable> fillSelfReferencingPaths(ActionDTO executable) {
-        return newActionService.fillSelfReferencingDataPaths(executable).map(actionDTO -> actionDTO);
+    public Mono<Executable> fillSelfReferencingPaths(Executable executable) {
+        return newActionService
+                .fillSelfReferencingDataPaths((ActionDTO) executable)
+                .map(actionDTO -> actionDTO);
     }
 
     @Override
