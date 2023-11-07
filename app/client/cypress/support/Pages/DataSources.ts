@@ -1760,7 +1760,7 @@ export class DataSources {
         break;
       case Widgets.WDSTable:
         this.agHelper.GetNClick(
-          this._suggestedWidget("WDS_TABLE_WIDGET", parentClass),
+          this._suggestedWidget("TABLE_WIDGET_V2", parentClass),
           index,
           force,
         );
