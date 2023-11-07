@@ -91,10 +91,6 @@ export const getTextWidth = (text: string, font: string) => {
   }
 };
 
-export const getCustomEChartOptions = (props: ChartComponentProps) => {
-  return props.customEChartConfig;
-};
-
 export const getBasicEChartOptions = (props: ChartComponentProps) => {
   const datasetBuilder = new EChartsDatasetBuilder(
     props.chartType,
@@ -121,7 +117,7 @@ export const chartOptions = (
   props: ChartComponentProps,
 ) => {
   if (isCustomEChart(chartType)) {
-    return getCustomEChartOptions(props);
+    return props.customEChartConfig;
   } else if (isBasicEChart(chartType)) {
     return getBasicEChartOptions(props);
   } else {

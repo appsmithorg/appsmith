@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import * as echarts from "echarts";
-import("echarts-gl");
 import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type {
@@ -379,6 +378,9 @@ class ChartComponent extends React.Component<
   }
 }
 
+/**
+ * TODO: Balaji to refactor code to move out selected widget details to platform
+ */
 export const mapStateToProps = (
   state: AppState,
   ownProps: ChartComponentProps,

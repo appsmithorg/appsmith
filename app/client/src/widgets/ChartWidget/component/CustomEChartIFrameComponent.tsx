@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import type { ChartComponentConnectedProps } from ".";
 import { chartOptions, dataClickCallbackHelper } from "./helpers";
@@ -7,6 +7,12 @@ import usePrevious from "utils/hooks/usePrevious";
 import equal from "fast-deep-equal/es6";
 
 import type * as echarts from "echarts";
+import type {
+  CustomEChartClickEventData,
+  CustomEChartErrorData,
+  CustomEChartIFrameMessage,
+  CustomEChartIFrameMessageData,
+} from "../constants";
 
 export const IframeContainer = styled.iframe`
   position: relative;
@@ -22,61 +28,58 @@ const OverlayDiv = styled.div`
   height: 100%;
 `;
 
-interface MessageProps {
-  props: ChartComponentConnectedProps;
-  shouldUpdateOptions: boolean;
-  shouldResize: boolean;
-  shouldDispose: boolean;
-}
-
+/**
+ * TODO : Rajat to move src doc function into typescript file
+ *  and a webpack plugin to convert it into srcdoc
+ */
 export function CustomEChartIFrameComponent(
   props: ChartComponentConnectedProps,
 ) {
   const [errorMsg, setErrorMsg] = useState<string | undefined>(undefined);
   const [errorStack, setErrorStack] = useState<string | undefined>(undefined);
   const prevProps = usePrevious(props);
-  const iframeID = props.widgetId + "-chartiframe";
+  const iFrameRef = useRef<HTMLIFrameElement>(null);
 
-  const postMessageFn = (data: MessageProps) => {
-    const iFrameWindow = (
-      document.getElementById(iframeID) as HTMLIFrameElement
-    )?.contentWindow;
-    iFrameWindow?.postMessage(
-      {
-        options: JSON.stringify(chartOptions("CUSTOM_ECHART", data.props)),
-        shouldResize: data.shouldResize,
-        shouldUpdateOptions: data.shouldUpdateOptions,
-        shouldDispose: data.shouldDispose,
-        width: data.props.dimensions.componentWidth,
-        height: data.props.dimensions.componentHeight,
-      },
-      "*",
-    );
+  const postMessageFn = (data: CustomEChartIFrameMessageData) => {
+    const iFrameWindow = iFrameRef.current?.contentWindow;
+    iFrameWindow?.postMessage(data, "*");
   };
 
   const onMessage = (event: MessageEvent) => {
-    const iFrameWindow = (
-      document.getElementById(iframeID) as HTMLIFrameElement
-    )?.contentWindow;
+    const iFrameWindow = iFrameRef.current?.contentWindow;
 
-    if (event.source != iFrameWindow) {
+    if (!iFrameWindow || event.source != iFrameWindow) {
       return;
     }
 
-    const data = JSON.parse(event.data);
-
-    if (data.type == "click-event") {
-      dataClickCallbackHelper(data.event.data, props, "CUSTOM_ECHART");
-    } else if (data.type == "loadcomplete") {
-      postMessageFn({
-        props: props,
-        shouldResize: false,
-        shouldDispose: false,
-        shouldUpdateOptions: true,
-      });
-    } else if (data.type == "error") {
-      setErrorMsg(data.message);
-      setErrorStack(data.stack);
+    const message: CustomEChartIFrameMessage = event.data;
+    switch (message.type) {
+      case "click-event": {
+        const messageData: CustomEChartClickEventData =
+          message.data as CustomEChartClickEventData;
+        dataClickCallbackHelper(messageData.event, props, "CUSTOM_ECHART");
+        break;
+      }
+      case "load-complete": {
+        postMessageFn({
+          options: chartOptions("CUSTOM_ECHART", props),
+          shouldUpdateOptions: true,
+          shouldResize: false,
+          width: props.dimensions.componentWidth,
+          height: props.dimensions.componentHeight,
+        });
+        break;
+      }
+      case "error": {
+        const errorMessage: CustomEChartErrorData =
+          message.data as CustomEChartErrorData;
+        setErrorMsg(errorMessage.message);
+        setErrorStack(errorMessage.stack);
+        break;
+      }
+      default: {
+        return;
+      }
     }
   };
 
@@ -97,11 +100,9 @@ export function CustomEChartIFrameComponent(
     _: any,
     echarts: any,
   ) {
-    const config = e.data;
-    const options = config.options;
+    const config: CustomEChartIFrameMessageData = e.data;
 
-    const parsedOptions = JSON.parse(options);
-    const newOptions = parseConfigurationForCallbackFns(parsedOptions, _);
+    const newOptions = parseConfigurationForCallbackFns(config.options, _);
 
     try {
       if (!echartsInstance || echartsInstance.isDisposed()) {
@@ -120,29 +121,41 @@ export function CustomEChartIFrameComponent(
       }
     } catch (error) {
       echartsInstance.dispose();
-      parent.postMessage(
-        JSON.stringify({
-          type: "error",
-          message: (error as Error).message,
-          stack: (error as Error).stack,
-        }),
-        "*",
-      );
+
+      const data: CustomEChartErrorData = {
+        message: (error as Error).message,
+        stack: (error as Error).stack || "",
+      };
+
+      const message: CustomEChartIFrameMessage = {
+        type: "error",
+        data: data,
+      };
+
+      parent.postMessage(message, "*");
     }
 
     echartsInstance.off("click");
 
     echartsInstance.on("click", (event: echarts.ECElementEvent) => {
-      const newEvent = _.omit(_.cloneDeep(event), "event");
-      parent.postMessage(
-        JSON.stringify({ type: "click-event", event: newEvent }),
-        "*",
-      );
+      const data: CustomEChartClickEventData = {
+        event: _.omit(_.cloneDeep(event), "event"),
+      };
+
+      const message: CustomEChartIFrameMessage = {
+        type: "click-event",
+        data: data,
+      };
+
+      parent.postMessage(message, "*");
     });
   }
 
-  function parseConfigurationForCallbackFns(chartConfig: string, _: any) {
-    const config = JSON.parse(JSON.stringify(chartConfig));
+  function parseConfigurationForCallbackFns(
+    chartConfig: Record<string, unknown>,
+    _: any,
+  ) {
+    const config: Record<string, unknown> = _.cloneDeep(chartConfig);
 
     const fnKeys = (config["__fn_keys__"] as string[]) ?? [];
 
@@ -170,7 +183,12 @@ export function CustomEChartIFrameComponent(
   }
 
   function onLoadCallback() {
-    parent.postMessage(JSON.stringify({ type: "loadcomplete" }), "*");
+    const message: CustomEChartIFrameMessage = {
+      type: "load-complete",
+      data: {},
+    };
+
+    parent.postMessage(message, "*");
   }
 
   const defaultHTMLSrcDoc = `
@@ -181,15 +199,16 @@ export function CustomEChartIFrameComponent(
                 }
             </style>
             
-            <script src="/libraries/echarts.min.js"></script>
-            <script src="/libraries/echarts-gl.min.js"></script>
-            <script src="/libraries/lodash.min.js"></script>
+            <script src="/libraries/echarts@5.4.3.js"></script>
+            <script src="/libraries/echarts-gl@2.0.9.js"></script>
+            <script src="/libraries/lodash@4.17.21.js"></script>
         </head>
 
         <body>
             <div id="chartdiv" style="position:absolute; height: 100%; width: 100%;"></div>
     
             <script>
+                console.log("*******", "hey script is loading")
                 ${stringifyFns([
                   parseConfigurationForCallbackFns,
                   initializeECharts,
@@ -218,10 +237,12 @@ export function CustomEChartIFrameComponent(
 
   useEffect(() => {
     let shouldUpdateOptions = true;
+
     const propsEqual = equal(
       prevProps?.customEChartConfig,
       props.customEChartConfig,
     );
+
     if (errorMsg) {
       if (propsEqual) {
         shouldUpdateOptions = false;
@@ -236,10 +257,11 @@ export function CustomEChartIFrameComponent(
     }
 
     postMessageFn({
-      props: props,
-      shouldResize: true,
-      shouldDispose: true,
+      options: chartOptions("CUSTOM_ECHART", props),
       shouldUpdateOptions: shouldUpdateOptions,
+      shouldResize: true,
+      width: props.dimensions.componentWidth,
+      height: props.dimensions.componentHeight,
     });
   });
 
@@ -251,7 +273,7 @@ export function CustomEChartIFrameComponent(
       {!errorMsg && (
         <>
           <IframeContainer
-            id={iframeID}
+            ref={iFrameRef}
             sandbox="allow-scripts"
             scrolling="no"
             srcDoc={defaultHTMLSrcDoc}
