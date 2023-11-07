@@ -258,7 +258,7 @@ export function EditorHeader() {
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
           >
             <RealtimeAppEditors applicationId={applicationId} />
-            {!isProtectedMode && <ToggleModeButton />}
+            <ToggleModeButton />
             {applicationId && <EditorShareButton setShowModal={setShowModal} />}
             <Modal
               onOpenChange={(isOpen) => setShowModal(isOpen)}
