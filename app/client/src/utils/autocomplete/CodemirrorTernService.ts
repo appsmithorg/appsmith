@@ -586,7 +586,6 @@ class CodeMirrorTernService {
             }
           },
         );
-        // }
       },
     );
     resolve(obj);

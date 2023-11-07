@@ -212,65 +212,51 @@ export const getPropsForJSActionEntity = ({
 
 export const ternDocsInfo: Record<string, any> = {
   showAlert: {
-    content: "Show a temporary notification style message to the user",
     exampleArgs: [
       "'This is a success message', 'success'",
       "'This is an error message', 'error'",
     ],
   },
   showModal: {
-    content: "Open a modal",
     exampleArgs: ["'Modal1'"],
   },
   closeModal: {
-    content: "Close a modal",
     exampleArgs: ["'Modal1'"],
   },
   navigateTo: {
-    content: "Action to navigate the user to another page or url",
     exampleArgs: [
       "'Page1', { id: 1 }",
       "'https://appsmith.com', {}, 'NEW_WINDOW'",
     ],
   },
   copyToClipboard: {
-    content: "Copy text to clipboard",
     exampleArgs: ["'Hello'"],
   },
   download: {
-    content: "Download anything as a file",
     exampleArgs: [
       "'Hello World', 'hello.txt', 'text/plain'",
       "FilePicker1.files[0].data, 'data.json'",
     ],
   },
   storeValue: {
-    content: "Store key value data locally",
     exampleArgs: ["'key', 'value'"],
   },
   removeValue: {
-    content: "Remove key value data locally",
     exampleArgs: ["'key'"],
   },
   clearStore: {
-    content: "Clear all key value data locally",
     exampleArgs: [""],
   },
   resetWidget: {
-    content: "Reset widget values",
     exampleArgs: ["'Table1', false"],
   },
   setInterval: {
-    content: "Calls a function at a given interval",
     exampleArgs: ["() => showAlert('Hello'), 1000, 'id'"],
   },
   clearInterval: {
-    content: "Stop executing a setInterval with id",
     exampleArgs: ["'id'"],
   },
   postWindowMessage: {
-    content:
-      "Establish cross-origin communication between Window objects/page and iframes",
     exampleArgs: ["message, 'Iframe1', '*'"],
   },
 };

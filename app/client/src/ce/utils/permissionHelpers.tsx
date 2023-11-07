@@ -101,3 +101,7 @@ export const hasDeleteActionPermission = (_permissions?: string[]) => true;
 export const hasExecuteActionPermission = (_permissions?: string[]) => true;
 
 export const hasAuditLogsReadPermission = (_permissions?: string[]) => true;
+
+export const hasManageWorkspaceEnvironmentPermission = (
+  _permissions?: string[],
+) => false;

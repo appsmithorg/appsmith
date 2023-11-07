@@ -25,6 +25,14 @@ export const getCurrentWorkspaceId = (state: AppState) =>
 export const getWorkspaces = (state: AppState) => {
   return state.ui.applications.userWorkspaces;
 };
+export const getWorkspaceFromId = (state: AppState, workspaceId: string) => {
+  const filteredWorkspaces = state.ui.applications.userWorkspaces.filter(
+    (el) => el.workspace.id === workspaceId,
+  );
+  return !!filteredWorkspaces && filteredWorkspaces.length > 0
+    ? filteredWorkspaces[0].workspace
+    : undefined;
+};
 export const getCurrentWorkspace = (state: AppState) => {
   return state.ui.applications.userWorkspaces.map((el) => el.workspace);
 };
