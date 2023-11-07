@@ -89,6 +89,8 @@ public class GlobalExceptionHandler {
             if (baseError.getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
                 Sentry.configureScope(scope -> {
                     baseError.getContextMap().forEach(scope::setTag);
+                    scope.setExtra("downstreamErrorMessage", baseError.getDownstreamErrorMessage());
+                    scope.setExtra("downstreamErrorCode", baseError.getDownstreamErrorCode());
                 });
                 final User user = new User();
                 user.setEmail(baseError.getContextMap().getOrDefault(MDCFilter.USER_EMAIL, "unknownUser"));
