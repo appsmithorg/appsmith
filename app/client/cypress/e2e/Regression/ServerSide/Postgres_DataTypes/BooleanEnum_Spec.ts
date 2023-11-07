@@ -39,7 +39,7 @@ describe("Boolean & Enum Datatype tests", function () {
     dataSources.AssertTableInVirtuosoList(dsName, "public.boolenumtypes");
 
     //Select query:
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "public.boolenumtypes",
       "Select",
     );

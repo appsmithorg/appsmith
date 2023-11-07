@@ -42,7 +42,7 @@ describe("Array Datatype tests", function () {
     dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes");
 
     //Creating SELECT query - arraytypes + Bug 14493
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "public.arraytypes",
       "Select",
     );

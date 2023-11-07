@@ -38,7 +38,7 @@ describe("Numeric Datatype tests", function () {
   });
 
   it("2. Creating SELECT query - numerictypes + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "public.numerictypes",
       "Select",
     );
@@ -52,7 +52,7 @@ describe("Numeric Datatype tests", function () {
   it("3. Creating all queries - numerictypes", () => {
     query = `INSERT INTO public."numerictypes" ("bigintid", "decimalid", "numericid")
     VALUES ({{Insertbigint.text}}, {{Insertdecimal.text}}, {{Insertnumeric.text}})`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "public.numerictypes",
       "Insert",
     );
@@ -64,7 +64,7 @@ describe("Numeric Datatype tests", function () {
     "decimalid" = {{Updatedecimal.text}},
     "numericid" = {{Updatenumeric.text}}
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "public.numerictypes",
       "Update",
     );
@@ -72,7 +72,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("updateRecord");
 
     query = `DELETE FROM public."numerictypes"`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "public.numerictypes",
       "Delete",
     );
@@ -80,7 +80,7 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."numerictypes"`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "public.numerictypes",
       "Delete",
     );
@@ -89,7 +89,7 @@ describe("Numeric Datatype tests", function () {
 
     query = `DELETE FROM public."numerictypes"
     WHERE serialId ={{Table1.selectedRow.serialid}}`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "public.numerictypes",
       "Delete",
     );

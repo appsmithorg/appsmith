@@ -296,6 +296,8 @@ export class DataSources {
     `.t--datasource-tab-container ${this._entityExplorerID(tableName)}`;
   _dsPageTableTriggermenuTarget = (tableName: string) =>
     `${this._dsPageTabContainerTableName(tableName)} .t--template-menu-trigger`;
+  _queryPageTableTriggerMenuTarget = (tableName: string) =>
+    `${this._entityExplorerID(tableName)} .t--template-menu-trigger`;
   _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
   _dsNameInExplorer = (dsName: string) =>
     `div.t--entity-name:contains('${dsName}')`;
@@ -925,16 +927,9 @@ export class DataSources {
     toNavigateToActive = true,
   ) {
     if (toNavigateToActive) EditorNavigation.sidebar(SidebarButton.Data);
-    cy.get(this._datasourceCard, { withinSubject: null })
-      .find(this._activeDS)
-      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
-      .scrollIntoView()
-      .should("be.visible")
-      .closest(this._datasourceCard)
-      .scrollIntoView()
-      .within(() => {
-        this.agHelper.GetNClick(this._createQuery, 0, true);
-      });
+
+    this.navigateToDatasource(datasourceName);
+    this.agHelper.GetNClick(this._createQuery, 0, true);
     this.agHelper.Sleep(2000); //for the CreateQuery
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
     this.AssertRunButtonVisibility();
@@ -1427,6 +1422,26 @@ export class DataSources {
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(1000); //for search result to load
     this.VerifyTableSchemaOnQueryEditor(expectedTableName);
+  }
+
+  public updateQueryWithDatasourceSchemaTemplate(
+    tableName: string,
+    templateName: string,
+  ) {
+    this.agHelper.GetNClick(this._datasourceSchemaRefreshBtn);
+    this.VerifyTableSchemaOnQueryEditor(tableName);
+    cy.get(this._datasourceTableSchemaInQueryEditor(tableName))
+      .realHover()
+      .parent()
+      .siblings()
+      .find(this._queryPageTableTriggerMenuTarget(tableName))
+      .click();
+    this.agHelper.GetNClick(
+      this.entityExplorer.locator._contextMenuItem(templateName),
+      0,
+      true,
+    );
+    this.agHelper.Sleep(500);
   }
 
   public AssertDSDialogVisibility(isVisible = true) {

@@ -291,7 +291,10 @@ describe("Validate Mongo query commands", function () {
   it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
     let id;
     dataSources.AssertTableInVirtuosoList(datasourceName, "listingAndReviews");
-    entityExplorer.ActionTemplateMenuByEntityName("listingAndReviews", "Find");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "listingAndReviews",
+      "Find",
+    );
 
     cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
       .then(($field) => {

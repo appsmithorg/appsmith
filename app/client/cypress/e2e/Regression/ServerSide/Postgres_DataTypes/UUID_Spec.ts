@@ -53,7 +53,10 @@ describe("UUID Datatype tests", function () {
   });
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("public.uuidtype", "Select");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "public.uuidtype",
+      "Select",
+    );
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)

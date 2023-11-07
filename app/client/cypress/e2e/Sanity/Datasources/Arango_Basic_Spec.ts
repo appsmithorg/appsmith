@@ -130,19 +130,14 @@ describe("Validate Arango & CURL Import Datasources", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    }); //needed for the added data to reflect in template queries
   });
 
   it("2. Run Select, Create, Update, Delete & few more queries on the created collection + Widget Binding", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue("Default value", "Brazil");
-    entityExplorer.NavigateToSwitcher("Explorer");
+    dataSources.CreateQueryFromActiveTab(dsName, true);
     //Select's own query
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       `${collectionName}`,
       "Select",
     );
@@ -166,7 +161,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(0, "Japan");
 
     //Insert a new place
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       `${collectionName}`,
       "Create",
     );
@@ -220,7 +215,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(7, "Iguazu Falls"); //making sure new inserted record is also considered for filtering
 
     //Update Japan to Australia
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       `${collectionName}`,
       "Update",
     );
@@ -247,7 +242,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews();
 
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       `${collectionName}`,
       "Select",
     );
@@ -255,7 +250,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(3, "Australia");
 
     //Delete record from collection
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       `${collectionName}`,
       "Delete",
     );
@@ -264,7 +259,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     //Verify no records return for the deleted key
     query = `FOR document IN ${collectionName}
     RETURN { country: document.country }`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       `${collectionName}`,
       "Select",
     );

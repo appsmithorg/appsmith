@@ -82,7 +82,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "assets-test--appsmith",
     );
 
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "assets-test--appsmith",
       "List files",
     );

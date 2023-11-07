@@ -316,7 +316,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("3. Validate 'Find' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Find");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Find",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     dataSources.RunQueryNVerifyResponseViews(1, false);
     agHelper.ActionContextMenuWithInPane({
@@ -326,7 +329,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("4. Validate 'Find by ID' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       "AuthorNAwards",
       "Find by id",
     );
@@ -397,7 +400,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   ]
 }]`;
 
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Insert");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Insert",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
     agHelper.EnterValue(insertauthorNAwards, {
       propFieldName: "",
@@ -419,7 +425,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("6. Validate 'Update' record from new collection & verify query response - Record not present - All Matching Document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Update",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
     agHelper.EnterValue(`{"_id": 3}`, {
       propFieldName: "",
@@ -448,7 +457,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("7. Validate 'Update' record from new collection & verify query response - Record present - All Matching Document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Update",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
     agHelper.EnterValue(
       `{
@@ -487,7 +499,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("8. Validate 'Update' record from new collection & verify query response - Record present - Single document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Update",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
     agHelper.EnterValue(`{"_id": 4}`, {
       propFieldName: "",
@@ -544,7 +559,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("10. Validate 'Delete' record from new collection & verify query response - Record present - Single document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Delete",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
     agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f41") }`, {
       propFieldName: "",
@@ -569,7 +587,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("11. Validate 'Delete' record from new collection & verify query response - Record present - All Matching Document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Delete",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
     agHelper.EnterValue(`{ "awards.award": "Rosing Prize" }`, {
       propFieldName: "",
@@ -596,7 +617,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("12. Validate 'Count' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Count");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Count",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Count");
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
@@ -611,7 +635,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("13. Validate 'Distinct' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Distinct");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Distinct",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Distinct");
     agHelper.EnterValue(`{ "awards.award": "National Medal of Technology" }`, {
       propFieldName: "",
@@ -637,7 +664,10 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("14. Validate 'Aggregate' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Aggregate");
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
+      "AuthorNAwards",
+      "Aggregate",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Aggregate");
     dataSources.RunQueryNVerifyResponseViews(7, false);
     agHelper.ActionContextMenuWithInPane({
@@ -786,7 +816,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     //Execute a find query on this collection to see if dates are fetched properly
     dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath");
 
-    entityExplorer.ActionTemplateMenuByEntityName("BirthNDeath", "Find");
+    dataSources.updateQueryWithDatasourceSchemaTemplate("BirthNDeath", "Find");
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     dataSources.RunQueryNVerifyResponseViews(4, false);
     agHelper.ActionContextMenuWithInPane({

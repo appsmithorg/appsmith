@@ -46,7 +46,7 @@ describe("MySQL Datatype tests", function () {
     dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
 
     //Creating SELECT query
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       inputData.tableName,
       "Select",
     );
@@ -58,7 +58,7 @@ describe("MySQL Datatype tests", function () {
 
     //Other queries
     query = inputData.query.insertRecord;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       inputData.tableName,
       "Insert",
     );
@@ -66,7 +66,7 @@ describe("MySQL Datatype tests", function () {
     dataSources.EnterQuery(query);
 
     query = inputData.query.dropTable;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       inputData.tableName,
       "Delete",
     );

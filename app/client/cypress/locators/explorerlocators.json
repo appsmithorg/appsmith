@@ -17,7 +17,6 @@
   "entityQuery": ".t--entity-name:contains('Datasources')",
   "datasourceStructure": ".t--entity.datasourceStructure",
   "datasourceColumn": ".t--datasource-column",
-  "templateMenuIcon": ".t--template-menu-trigger",
   "collapse": ".t--entity-collapse-toggle",
   "property": ".language-appsmith-binding",
   "editNameField": ".editing input",

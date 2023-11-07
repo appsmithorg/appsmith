@@ -30,7 +30,7 @@ describe("MySQL Datatype tests", function () {
 
   //Insert false values to each column and check for the error status of the request.
   it("1. False Cases & Long Integer as query param", () => {
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.updateQueryWithDatasourceSchemaTemplate(
       inputData.tableName,
       "Insert",
     );
