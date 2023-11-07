@@ -7,7 +7,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
-import * as viewWidgets from "../../../../locators/ViewWidgets.json";
 
 describe(`${ANVIL_EDITOR_TEST}: Anvil tests for DnD Module`, () => {
   it("1. Drag and Drop widget onto Empty Canvas", () => {

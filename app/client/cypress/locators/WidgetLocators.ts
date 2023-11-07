@@ -7,6 +7,7 @@ export const WIDGET = {
   BUTTON: "buttonwidget",
   WDSBUTTON: "wdsbuttonwidget",
   WDSTABLE: "wdstablewidgetv2",
+  WDSINPUT: "wdsinputwidget",
   BUTTONNAME: (index: string) => `Button${index}`,
   CODESCANNER: "codescannerwidget",
   CONTAINER: "containerwidget",
