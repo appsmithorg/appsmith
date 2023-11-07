@@ -11,7 +11,6 @@ describe(`${ANVIL_EDITOR_TEST}:Check Suggested Widgets Feature`, function () {
       fixture: "addWidgetTable-mock",
     });
     dataSources.RunQuery({ toValidateResponse: false });
-    dataSources.AddSuggestedWidget(Widgets.Table);
-    agHelper.AssertElementExist(viewWidgets.wdsTableWidget);
+    dataSources.AddSuggestedWidget(Widgets.WDSTable);
   });
 });

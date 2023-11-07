@@ -25,6 +25,7 @@ export enum Widgets {
   Table,
   Chart,
   Text,
+  WDSTable,
 }
 type AppModes = "Edit" | "View";
 
@@ -1755,6 +1756,16 @@ export class DataSources {
         );
         this.agHelper.AssertElementVisibility(
           this.locator._widgetInCanvas(WIDGET.TABLE),
+        );
+        break;
+      case Widgets.WDSTable:
+        this.agHelper.GetNClick(
+          this._suggestedWidget("WDS_TABLE_WIDGET", parentClass),
+          index,
+          force,
+        );
+        this.agHelper.AssertElementVisibility(
+          this.locator._widgetInCanvas(WIDGET.WDSBUTTON),
         );
         break;
       case Widgets.Chart:
