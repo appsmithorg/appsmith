@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.services.ce.TenantServiceCE;
@@ -54,10 +53,6 @@ public interface TenantService extends TenantServiceCE {
      * @return Boolean
      */
     Boolean isValidLicenseConfiguration(Tenant tenant);
-
-    Mono<Boolean> isEnterprisePlan(String tenantId);
-
-    Mono<License> getTenantLicense(String tenantId);
 
     /**
      * The method takes 3 inputs, a Mono of tenantConfiguration as JSON String, Part file for brand logo and Part file for brand favicon.

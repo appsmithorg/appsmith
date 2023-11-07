@@ -11,7 +11,7 @@ import java.time.Instant;
 
 @Data
 public class LicenseValidationResponseDTO {
-
+    private String licenseId;
     private String instanceId;
     private LicenseType licenseType;
     private LicenseStatus licenseStatus;
@@ -21,5 +21,4 @@ public class LicenseValidationResponseDTO {
     private Instant expiry;
     private boolean isValid;
     private SubscriptionDetails subscriptionDetails;
-    private String licenseId;
 }

@@ -67,6 +67,7 @@ class LicenseTest {
         responseDTO.setExpiry(Instant.now().plus(1, ChronoUnit.DAYS));
         responseDTO.setLicensePlan(LicensePlan.ENTERPRISE);
         responseDTO.setValid(true);
+        responseDTO.setLicenseId(UUID.randomUUID().toString());
         responseDTO.setLicenseOrigin(LicenseOrigin.SALES);
         responseDTO.setProductEdition(ProductEdition.COMMERCIAL);
         String licenseKey = UUID.randomUUID().toString();
@@ -74,6 +75,7 @@ class LicenseTest {
         license.updateLicenseFromValidationResponse(responseDTO);
 
         assertEquals(license.getKey(), licenseKey);
+        assertEquals(license.getId(), responseDTO.getLicenseId());
         assertEquals(license.getPlan(), LicensePlan.ENTERPRISE);
         assertEquals(license.getPreviousPlan(), LicensePlan.BUSINESS);
         assertEquals(license.getProductEdition(), ProductEdition.COMMERCIAL);
