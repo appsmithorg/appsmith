@@ -12,9 +12,9 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
+import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
@@ -28,15 +28,9 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
@@ -59,12 +53,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private final Gson gson;
 
     @Override
-    public Mono<ExportFileDTO> getPartialExportResources(
-            String applicationId,
-            String pageId,
-            String branchName,
-            MultiValueMap<String, String> params,
-            String widgets) {
+    public Mono<ApplicationJson> getPartialExportResources(
+            String applicationId, String pageId, String branchName, PartialExportFileDTO partialExportFileDTO) {
         /*
          * Params has ids for actions, customJsLibs and datasource
          * Export the resources based on the value of these entities
@@ -96,21 +86,25 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
         return applicationMono
                 .flatMap(application -> {
                     applicationJson.setExportedApplication(application);
-                    return pluginExportableService.getExportableEntities(
-                            exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+                    return pluginExportableService
+                            .getExportableEntities(
+                                    exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
+                            .thenReturn(applicationJson);
                 })
                 .flatMap(pluginList -> {
-                    if (params.containsKey(FieldName.DATASOURCE_LIST)) {
-                        return datasourceExportableService.getExportableEntities(
-                                exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson);
+                    if (partialExportFileDTO.getDatasourceList().size() > 0) {
+                        return datasourceExportableService
+                                .getExportableEntities(
+                                        exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
+                                .thenReturn(applicationJson);
                     }
                     return Mono.just(applicationJson);
                 })
                 .flatMap(appJson -> {
-                    if (params.containsKey(FieldName.CUSTOM_JS_LIB_LIST)) {
+                    if (partialExportFileDTO.getCustomJsLib().size() > 0) {
                         return exportFilteredCustomJSLib(
                                         applicationId,
-                                        Set.copyOf(params.get(FieldName.CUSTOM_JS_LIB_LIST)),
+                                        partialExportFileDTO.getCustomJsLib(),
                                         applicationJson,
                                         branchName)
                                 .flatMap(jsLibList -> {
@@ -129,33 +123,34 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                 // update page name in meta and exportable DTO for resource to name mapping
                 .flatMap(branchedPageId -> updatePageNameInResourceMapDTO(branchedPageId, mappedResourcesDTO))
                 // export actions
+                // export js objects
                 .flatMap(branchedPageId -> {
-                    if (params.containsKey(FieldName.ACTION_LIST)
-                            || params.containsKey(FieldName.ACTION_COLLECTION_LIST)) {
-                        return exportActions(
+                    if (partialExportFileDTO.getActionCollectionList().size() > 0) {
+                        return exportActionCollections(
                                         branchedPageId,
-                                        Set.copyOf(params.get(FieldName.ACTION_LIST)),
+                                        partialExportFileDTO.getActionCollectionList(),
                                         applicationJson,
                                         mappedResourcesDTO)
                                 .then(Mono.just(branchedPageId));
                     }
                     return Mono.just(branchedPageId);
                 })
-                // export js objects
                 .flatMap(branchedPageId -> {
-                    if (params.containsKey(FieldName.ACTION_COLLECTION_LIST)) {
-                        return exportActionCollections(
-                                branchedPageId,
-                                Set.copyOf(params.get(FieldName.ACTION_COLLECTION_LIST)),
-                                applicationJson,
-                                mappedResourcesDTO);
+                    if (partialExportFileDTO.getActionCollectionList().size() > 0
+                            || partialExportFileDTO.getActionList().size() > 0) {
+                        return exportActions(
+                                        branchedPageId,
+                                        partialExportFileDTO.getActionList(),
+                                        applicationJson,
+                                        mappedResourcesDTO)
+                                .then(Mono.just(branchedPageId));
                     }
-                    return Mono.just(applicationJson);
+                    return Mono.just(branchedPageId);
                 })
                 .flatMap(appJson -> {
                     // Remove the datasources not in use
-                    if (params.containsKey(FieldName.DATASOURCE_LIST)) {
-                        exportDatasource(Set.copyOf(params.get(FieldName.DATASOURCE_LIST)), applicationJson);
+                    if (partialExportFileDTO.getDatasourceList().size() > 0) {
+                        exportDatasource(partialExportFileDTO.getDatasourceList(), applicationJson);
                         // Sanitise the datasource
                         datasourceExportableService.sanitizeEntities(
                                 exportingMetaDTO,
@@ -166,27 +161,13 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                     return Mono.just(applicationJson);
                 })
                 .map(exportedJson -> {
-                    String applicationName =
-                            applicationJson.getExportedApplication().getName();
-                    applicationJson.setWidgets(widgets);
+                    applicationJson.setWidgets(partialExportFileDTO.getWidget());
                     applicationJson.setExportedApplication(null);
-                    String stringifiedFile = gson.toJson(exportedJson);
-                    Object jsonObject = gson.fromJson(stringifiedFile, Object.class);
-                    HttpHeaders responseHeaders = new HttpHeaders();
-                    ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                            .filename(applicationName + ".json", StandardCharsets.UTF_8)
-                            .build();
-                    responseHeaders.setContentDisposition(contentDisposition);
-                    responseHeaders.setContentType(MediaType.APPLICATION_JSON);
-
-                    ExportFileDTO exportFileDTO = new ExportFileDTO();
-                    exportFileDTO.setApplicationResource(jsonObject);
-                    exportFileDTO.setHttpHeaders(responseHeaders);
-                    return exportFileDTO;
+                    return applicationJson;
                 });
     }
 
-    private void exportDatasource(Set<String> validDatasource, ApplicationJson applicationJson) {
+    private void exportDatasource(List<String> validDatasource, ApplicationJson applicationJson) {
         List<DatasourceStorage> datasourceList = applicationJson.getDatasourceList().stream()
                 .filter(datasourceStorage -> validDatasource.contains(datasourceStorage.getDatasourceId()))
                 .toList();
@@ -194,7 +175,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     }
 
     private Mono<ApplicationJson> exportFilteredCustomJSLib(
-            String applicationId, Set<String> customJSLibSet, ApplicationJson applicationJson, String branchName) {
+            String applicationId, List<String> customJSLibSet, ApplicationJson applicationJson, String branchName) {
         return customJSLibService
                 .getAllJSLibsInApplication(applicationId, branchName, false)
                 .flatMap(customJSLibs -> {
@@ -209,7 +190,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
 
     private Mono<ApplicationJson> exportActions(
             String pageId,
-            Set<String> validActions,
+            List<String> validActions,
             ApplicationJson applicationJson,
             MappedExportableResourcesDTO mappedResourcesDTO) {
         return newActionService.findByPageId(pageId).collectList().flatMap(actions -> {
@@ -229,7 +210,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
 
     private Mono<ApplicationJson> exportActionCollections(
             String pageId,
-            Set<String> validActions,
+            List<String> validActions,
             ApplicationJson applicationJson,
             MappedExportableResourcesDTO mappedResourcesDTO) {
         return actionCollectionService.findByPageId(pageId).collectList().flatMap(actionCollections -> {

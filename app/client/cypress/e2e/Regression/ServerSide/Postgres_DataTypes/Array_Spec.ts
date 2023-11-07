@@ -145,6 +145,8 @@ describe("Array Datatype tests", function () {
     agHelper.ClickButton("Update");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
+    table.WaitUntilTableLoad();
+    agHelper.Sleep(5000); //some more time for rows to rearrange!
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3");
     });

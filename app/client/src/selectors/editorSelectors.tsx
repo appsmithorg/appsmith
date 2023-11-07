@@ -62,6 +62,7 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
+import { protectedModeSelector } from "./gitSyncSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -261,6 +262,11 @@ const defaultLayout: AppLayoutConfig = {
 
 const getAppLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout || defaultLayout;
+
+export const getIsMobileCanvasLayout = createSelector(
+  getAppLayout,
+  (appLayout: AppLayoutConfig) => appLayout.type === "MOBILE",
+);
 
 export const getIsAutoLayout = createSelector(
   getLayoutSystemType,
@@ -990,3 +996,9 @@ export const getGsheetToken = (state: AppState) =>
 
 export const getGsheetProjectID = (state: AppState) =>
   state.entities.datasources.gsheetProjectID;
+
+export const combinedPreviewModeSelector = createSelector(
+  previewModeSelector,
+  protectedModeSelector,
+  (isPreviewMode, isProtectedMode) => isPreviewMode || isProtectedMode,
+);
