@@ -326,8 +326,6 @@ describe("Json & JsonB Datatype tests", function () {
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("13. Verify Deletion of all created queries", () => {
@@ -672,8 +670,6 @@ describe("Json & JsonB Datatype tests", function () {
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("27. Verify Deletion of all created queries", () => {

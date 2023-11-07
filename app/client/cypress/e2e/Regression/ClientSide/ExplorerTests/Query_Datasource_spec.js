@@ -54,7 +54,7 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.testSaveDatasource();
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
-    /* eslint-disable */
+    dataSources.navigateToDatasource(datasourceName);
     agHelper.RenameWithInPane(`${datasourceName}new`);
     cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
 

@@ -54,7 +54,7 @@ export class DataSources {
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _dsReviewSection = "[data-testid='t--ds-review-section']";
-  private _addNewDataSource = ".t--add-datasource-button";
+  public _addNewDataSource = ".t--add-datasource-button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
@@ -81,7 +81,7 @@ export class DataSources {
   _reconnectDataSourceModal = "[data-testid=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
-  _activeDS = "[data-testid='active-datasource-name']";
+  _activeDS = "[data-selected='true']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
   _addSuggestedExisting = "t--suggested-widget-existing";
@@ -1863,7 +1863,6 @@ export class DataSources {
     presence = true,
   ) {
     const ds_entity_name = dsName.replace(/\s/g, "_");
-    this.navigateToDatasource(dsName);
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
       `getDatasourceStructureUpdated_${ds_entity_name}`,
     );

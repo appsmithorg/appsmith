@@ -1,16 +1,17 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
-  deployMode,
   appSettings,
   autoLayout,
+  deployMode,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
+
 let currentUrl: string;
 
 describe("Page orientation and navigation related usecases ", function () {

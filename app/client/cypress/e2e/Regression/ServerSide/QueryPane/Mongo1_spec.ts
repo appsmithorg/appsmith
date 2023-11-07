@@ -307,12 +307,13 @@ describe("Validate Mongo Query Pane Validations", () => {
         7,
       );
     });
+
+    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards");
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
-
-    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards");
   });
 
   it("3. Validate 'Find' record from new collection & verify query response", () => {
@@ -714,11 +715,12 @@ describe("Validate Mongo Query Pane Validations", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
+    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards", false);
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards", false);
   });
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function () {
@@ -813,6 +815,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    dataSources.navigateToDatasource(dsName);
     //Execute a find query on this collection to see if dates are fetched properly
     dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath");
 

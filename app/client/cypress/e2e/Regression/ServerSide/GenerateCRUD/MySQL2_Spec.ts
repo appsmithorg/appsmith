@@ -70,12 +70,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
+    dataSources.AssertTableInVirtuosoList(dsName, "Stores");
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
-
-    dataSources.AssertTableInVirtuosoList(dsName, "Stores");
   });
 
   it("2. Validate Select record from Postgress datasource & verify query response", () => {
@@ -365,11 +365,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
+    dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
   });
 
   after(

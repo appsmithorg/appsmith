@@ -151,6 +151,12 @@ describe("datasource unsaved changes popup shows even without changes", function
         _.dataSources._host(),
         _.dataManager.dsValues.Staging.mongo_host,
       );
+      _.agHelper.GetNClick(
+        _.dataSources._cancelEditDatasourceButton,
+        0,
+        true,
+        200,
+      );
 
       _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });

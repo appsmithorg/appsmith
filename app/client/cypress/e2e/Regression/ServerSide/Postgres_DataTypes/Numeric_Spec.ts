@@ -301,8 +301,6 @@ describe("Numeric Datatype tests", function () {
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("15. Verify Deletion of the datasource after all created queries are deleted", () => {
