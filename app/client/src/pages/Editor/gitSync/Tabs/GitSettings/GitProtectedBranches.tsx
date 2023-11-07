@@ -113,6 +113,7 @@ function GitProtectedBranches() {
       </HeadContainer>
       <BodyContainer>
         <StyledSelect
+          data-testid="t--git-protected-branches-select"
           isMultiSelect
           maxTagTextLength={8}
           onChange={(v) => setSelectedValues(v)}
@@ -131,6 +132,7 @@ function GitProtectedBranches() {
           ))}
         </StyledSelect>
         <Button
+          data-testid="t--git-protected-branches-update-btn"
           isDisabled={updateIsDisabled}
           isLoading={isUpdateLoading}
           kind="secondary"

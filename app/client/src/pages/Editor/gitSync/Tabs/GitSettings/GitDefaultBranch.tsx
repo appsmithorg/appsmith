@@ -102,6 +102,7 @@ function GitDefaultBranch() {
       </HeadContainer>
       <BodyContainer>
         <StyledSelect
+          data-testid="t--git-default-branch-select"
           isDisabled={!isGitProtectedFeatureLicensed}
           onChange={(v) => setSelectedValue(v)}
           value={selectedValue}
@@ -113,6 +114,7 @@ function GitDefaultBranch() {
           ))}
         </StyledSelect>
         <Button
+          data-testid="t--git-default-branch-update-btn"
           isDisabled={updateIsDisabled}
           kind="secondary"
           onClick={handleUpdate}
