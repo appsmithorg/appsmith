@@ -46,6 +46,10 @@ const StyledSelect = styled(Select)`
   margin-right: 12px;
 `;
 
+const StyledLink = styled(Link)`
+  display: inline-flex;
+`;
+
 function GitProtectedBranches() {
   const dispatch = useDispatch();
 
@@ -91,14 +95,13 @@ function GitProtectedBranches() {
         {!isGitProtectedFeatureLicensed && (
           <SectionDesc kind="body-m" renderAs="p">
             To protect multiple branches, try{" "}
-            <Link
+            <StyledLink
               kind="primary"
-              style={{ display: "inline-flex" }}
               target="_blank"
               to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
             >
               {createMessage(APPSMITH_ENTERPRISE)}
-            </Link>
+            </StyledLink>
           </SectionDesc>
         )}
       </HeadContainer>

@@ -57,6 +57,18 @@ const FeatureIcon = styled(Icon)`
   margin-right: 4px;
 `;
 
+const BranchTag = styled(Tag)`
+  display: inline-flex;
+`;
+
+const DefaultBranchMessage = styled(Text)`
+  margin-bottom: 16px;
+`;
+
+const ProtectionRulesTitle = styled(Text)`
+  margin-bottom: 8px;
+`;
+
 const features = [
   createMessage(BRANCH_PROTECTION_RULE_1),
   createMessage(BRANCH_PROTECTION_RULE_2),
@@ -107,16 +119,14 @@ function ConnectionSuccess() {
   const postBranchProtectionContent = () => {
     return (
       <>
-        <Text renderAs="p" style={{ marginBottom: 16 }}>
+        <DefaultBranchMessage renderAs="p">
           Right now,{" "}
-          <Tag isClosable={false} style={{ display: "inline-flex" }}>
-            {defaultBranchName}
-          </Tag>{" "}
-          is set as the default branch and it is protected.
-        </Text>
-        <Text renderAs="p" style={{ marginBottom: 8 }}>
+          <BranchTag isClosable={false}>{defaultBranchName}</BranchTag> is set
+          as the default branch and it is protected.
+        </DefaultBranchMessage>
+        <ProtectionRulesTitle renderAs="p">
           {createMessage(BRANCH_PROTECTION_RULES_AS_FOLLOWS)}
-        </Text>
+        </ProtectionRulesTitle>
         <FeatureList>
           {features.map((feature) => (
             <FeatureItem key={feature}>
