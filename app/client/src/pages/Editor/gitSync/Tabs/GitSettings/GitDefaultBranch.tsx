@@ -14,6 +14,7 @@ import {
   getIsGitProtectedFeatureLicensed,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
+import { APPSMITH_ENTERPRISE_LINK } from "./constants";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -82,17 +83,19 @@ function GitDefaultBranch() {
         <SectionDesc kind="body-m" renderAs="p">
           {createMessage(DEFAULT_BRANCH_DESC)}
         </SectionDesc>
-        <SectionDesc kind="body-m" renderAs="p">
-          To change your default branch, try{" "}
-          <Link
-            kind="primary"
-            style={{ display: "inline-flex" }}
-            target="_blank"
-            to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
-          >
-            {createMessage(APPSMITH_ENTERPRISE)}
-          </Link>
-        </SectionDesc>
+        {!isGitProtectedFeatureLicensed && (
+          <SectionDesc kind="body-m" renderAs="p">
+            To change your default branch, try{" "}
+            <Link
+              kind="primary"
+              style={{ display: "inline-flex" }}
+              target="_blank"
+              to={APPSMITH_ENTERPRISE_LINK}
+            >
+              {createMessage(APPSMITH_ENTERPRISE)}
+            </Link>
+          </SectionDesc>
+        )}
       </HeadContainer>
       <BodyContainer>
         <StyledSelect

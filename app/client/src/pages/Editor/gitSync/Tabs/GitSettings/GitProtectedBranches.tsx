@@ -18,6 +18,7 @@ import {
   getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
+import { APPSMITH_ENTERPRISE_LINK } from "./constants";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -98,7 +99,7 @@ function GitProtectedBranches() {
             <StyledLink
               kind="primary"
               target="_blank"
-              to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
+              to={APPSMITH_ENTERPRISE_LINK}
             >
               {createMessage(APPSMITH_ENTERPRISE)}
             </StyledLink>
