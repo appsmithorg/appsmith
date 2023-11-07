@@ -296,6 +296,7 @@ export default class AppEditorEngine extends AppEngine {
       yield put(fetchBranchesInit());
       yield take(ReduxActionTypes.FETCH_BRANCHES_SUCCESS);
       yield put(fetchGitProtectedBranchesInit());
+
     }
     yield put(resetPullMergeStatus());
   }
