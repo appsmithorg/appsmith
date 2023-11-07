@@ -8,6 +8,7 @@ import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.services.ce.AnalyticsServiceCEImpl;
+import com.appsmith.server.solutions.LicenseCacheHelper;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +16,17 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.appsmith.server.constants.AnalyticsConstants.LICENSE_ID;
 
 @Slf4j
 @Service
 public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements AnalyticsService {
     private final AuditLogService auditLogService;
+    private final LicenseCacheHelper licenseCacheHelper;
 
     @Autowired
     public AnalyticsServiceImpl(
@@ -32,7 +37,8 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
             UserUtils userUtils,
             ProjectProperties projectProperties,
             UserDataRepository userDataRepository,
-            AuditLogService auditLogService) {
+            AuditLogService auditLogService,
+            LicenseCacheHelper licenseCacheHelper) {
         super(
                 analytics,
                 sessionUserService,
@@ -42,6 +48,7 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
                 projectProperties,
                 userDataRepository);
         this.auditLogService = auditLogService;
+        this.licenseCacheHelper = licenseCacheHelper;
     }
 
     @Override
@@ -58,6 +65,19 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
             return auditLogMono.thenReturn(object);
         }
         return auditLogMono.then(super.sendObjectEvent(event, object, properties));
+    }
+
+    @Override
+    public Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties) {
+        // TODO :: using default tenant license, change it once multi-tenancy is introduced
+        return licenseCacheHelper.getDefault().flatMap(license -> {
+            // casting ? to Object for putting new properties
+            Map<String, Object> props = new HashMap<>(properties);
+            if (license != null) {
+                props.put(LICENSE_ID, license.getId());
+            }
+            return super.sendEvent(event, userId, props, true);
+        });
     }
 
     /**
