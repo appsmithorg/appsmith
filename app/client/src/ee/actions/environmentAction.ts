@@ -5,9 +5,36 @@ import type { CurrentEnvironmentDetails } from "@appsmith/reducers/environmentRe
 import { saveCurrentEnvironment } from "utils/storage";
 
 // Redux action to initiate fetching the environment configs
-export const fetchingEnvironmentConfigs = (workspaceId: string) => ({
+export const fetchingEnvironmentConfigs = (
+  workspaceId: string,
+  fetchDatasourceMeta = false,
+) => ({
   type: ReduxActionTypes.FETCH_ENVIRONMENT_INIT,
-  payload: workspaceId,
+  payload: { workspaceId, fetchDatasourceMeta },
+});
+
+// Redux action to create a new environment
+export const createNewEnvironment = (
+  environmentName: string,
+  workspaceId: string,
+) => ({
+  type: ReduxActionTypes.CREATE_ENVIRONMENT_INIT,
+  payload: { environmentName, workspaceId },
+});
+
+// Redux action to update an existing environment
+export const updateEnvironment = (
+  newEnvironmentName: string,
+  environmentId: string,
+) => ({
+  type: ReduxActionTypes.UPDATE_ENVIRONMENT_INIT,
+  payload: { newEnvironmentName, environmentId },
+});
+
+// Redux action to delete an existing environment
+export const deleteEnvironment = (environmentId: string) => ({
+  type: ReduxActionTypes.DELETE_ENVIRONMENT_INIT,
+  payload: { environmentId },
 });
 
 // Redux action to update the current environment details

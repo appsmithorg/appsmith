@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
@@ -66,6 +67,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.FieldName.ROLE_TAB_DATASOURCES;
+import static com.appsmith.server.constants.FieldName.ROLE_TAB_ENVIRONMENTS;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_DATASOURCE;
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static java.lang.Boolean.FALSE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -293,11 +297,11 @@ public class WorkspaceResourcesCECompatibleTest {
         assertThat(roleTabDTO).isNotNull();
         assertThat(roleTabDTO.getHoverMap()).isNotNull();
 
-        String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
-        String createdWorkspaceDelete = createdWorkspace1.getId() + "_Delete";
-        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
-        String createdWorkspaceExecute = createdWorkspace1.getId() + "_Execute";
-        String createdWorkspaceView = createdWorkspace1.getId() + "_View";
+        String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create_" + FieldName.WORKSPACE_DATASOURCE;
+        String createdWorkspaceDelete = createdWorkspace1.getId() + "_Delete_" + FieldName.WORKSPACE_DATASOURCE;
+        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit_" + FieldName.WORKSPACE_DATASOURCE;
+        String createdWorkspaceExecute = createdWorkspace1.getId() + "_Execute_" + FieldName.WORKSPACE_DATASOURCE;
+        String createdWorkspaceView = createdWorkspace1.getId() + "_View_" + FieldName.WORKSPACE_DATASOURCE;
 
         String createdDatasourceCreate = createdDatasource1.getId() + "_Create";
         String createdDatasourceDelete = createdDatasource1.getId() + "_Delete";
@@ -382,7 +386,7 @@ public class WorkspaceResourcesCECompatibleTest {
 
                     EntityView topData = datasourceResourcesTabView.getData();
                     assertThat(topData).isNotNull();
-                    assertThat(topData.getType()).isEqualTo(Workspace.class.getSimpleName());
+                    assertThat(topData.getType()).isEqualTo("Header");
 
                     BaseView createdWorkspaceView = topData.getEntities().stream()
                             .filter(entity -> entity.getId().equals(createdWorkspace.getId()))
@@ -399,18 +403,18 @@ public class WorkspaceResourcesCECompatibleTest {
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
                             .get();
-                    assertThat(createdHeaderEntityView.getType()).isEqualTo("Header");
+                    assertThat(createdHeaderEntityView.getType()).isEqualTo(Workspace.class.getSimpleName());
                     // Assert that single children exist in header in this tab : aka datasource
                     assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(1);
 
                     long environmentsEntityViewCount = createdHeaderEntityView.getEntities().stream()
-                            .filter(entity -> entity.getName().equals("Environments"))
+                            .filter(entity -> entity.getName().equals(ROLE_TAB_ENVIRONMENTS))
                             .count();
                     // As environments are disabled corresponding view will be not created
                     assertThat(environmentsEntityViewCount).isEqualTo(0);
 
                     EntityView DatasourcesEntityView = createdHeaderEntityView.getEntities().stream()
-                            .filter(entity -> entity.getName().equals("Datasources"))
+                            .filter(entity -> entity.getName().equals(ROLE_TAB_DATASOURCES))
                             .findFirst()
                             .get()
                             .getChildren()
@@ -461,7 +465,7 @@ public class WorkspaceResourcesCECompatibleTest {
 
                     EntityView topData = datasourceResourcesTabView.getData();
                     assertThat(topData).isNotNull();
-                    assertThat(topData.getType()).isEqualTo(Workspace.class.getSimpleName());
+                    assertThat(topData.getType()).isEqualTo("Header");
 
                     BaseView createdWorkspaceView = topData.getEntities().stream()
                             .filter(entity -> entity.getId().equals(createdWorkspace.getId()))
@@ -477,12 +481,12 @@ public class WorkspaceResourcesCECompatibleTest {
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
                             .get();
-                    assertThat(createdHeaderEntityView.getType()).isEqualTo("Header");
+                    assertThat(createdHeaderEntityView.getType()).isEqualTo(Workspace.class.getSimpleName());
                     // Assert that single children exist in header in this tab : aka datasource
                     assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(1);
 
                     EntityView DatasourcesEntityView = createdHeaderEntityView.getEntities().stream()
-                            .filter(entity -> entity.getName().equals("Datasources"))
+                            .filter(entity -> entity.getName().equals(ROLE_TAB_DATASOURCES))
                             .findFirst()
                             .get()
                             .getChildren()
@@ -506,7 +510,7 @@ public class WorkspaceResourcesCECompatibleTest {
                     assertThat(createdDatasourceView.getChildren()).isNull();
 
                     long environmentEntityCount = createdHeaderEntityView.getEntities().stream()
-                            .filter(entity -> entity.getName().equals("Environments"))
+                            .filter(entity -> entity.getName().equals(ROLE_TAB_ENVIRONMENTS))
                             .count();
                     assertThat(environmentEntityCount).isEqualTo(0);
                 })
@@ -555,8 +559,8 @@ public class WorkspaceResourcesCECompatibleTest {
         Map<String, Set<IdPermissionDTO>> disableHelperMao = roleTabDTO.getDisableHelperMap();
         assertThat(disableHelperMao).isNotNull();
 
-        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
-        String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
+        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit_" + WORKSPACE_DATASOURCE;
+        String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create_" + WORKSPACE_DATASOURCE;
         String createdDatasourceEdit = createdDatasource.getId() + "_Edit";
         String createdDatasourceCreate = createdDatasource.getId() + "_Create";
 

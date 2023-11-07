@@ -1,8 +1,11 @@
 export * from "ce/selectors/environmentSelectors";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { AppState } from "@appsmith/reducers";
 import type { EnvironmentType } from "@appsmith/configs/types";
-import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
+import { getFilteredEnvListWithPermissions } from "@appsmith/utils/Environments";
+import { hasManageWorkspaceEnvironmentPermission } from "@appsmith/utils/permissionHelpers";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 
 export const getEnvironmentByName = (state: AppState, name: string) => {
   const environments = state.environments.data;
@@ -31,14 +34,8 @@ export const getDefaultEnvironmentId = (state: AppState) => {
 };
 
 export const getDefaultEnvironment = (state: AppState) => {
-  const environments = state.environments.data;
-  const environment = environments.find(
-    (env) =>
-      env.isDefault === true &&
-      env.userPermissions &&
-      env.userPermissions.length > 0 &&
-      env.userPermissions[0] === PERMISSION_TYPE.EXECUTE_ENVIRONMENT,
-  );
+  const environments = getEnvironmentsWithPermission(state);
+  const environment = environments.find((env) => env.isDefault === true);
   return environment;
 };
 
@@ -48,12 +45,7 @@ export const getEnvironments = (state: AppState): Array<EnvironmentType> =>
 export const getEnvironmentsWithPermission = (
   state: AppState,
 ): Array<EnvironmentType> =>
-  state.environments.data.filter(
-    (env) =>
-      env.userPermissions &&
-      env.userPermissions.length > 0 &&
-      env.userPermissions[0] === PERMISSION_TYPE.EXECUTE_ENVIRONMENT,
-  );
+  getFilteredEnvListWithPermissions(getEnvironments(state));
 
 export const areEnvironmentsFetched = (state: AppState, workspaceId: string) =>
   state.environments.data.length > 0 &&
@@ -70,3 +62,28 @@ export const getCurrentEditingEnvironmentId = (state: AppState) =>
 
 export const getCurrentEnvironmentDetails = (state: AppState) =>
   state.environments.currentEnvironmentDetails;
+
+export const isEnvironmentFetching = (state: AppState) =>
+  state.environments.isLoading;
+
+export const isEnvironmentUpdating = (state: AppState) =>
+  state.environments.isUpdating;
+
+export const allowManageEnvironmentAccessForUser = (state: AppState) => {
+  const isFlagEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.release_custom_environments_enabled,
+  );
+  return isFlagEnabled;
+};
+
+export const allowManageEnvironmentAccessForWorkspace = (
+  state: AppState,
+  workspacePermissions: string[],
+) => {
+  const checkUserAccess = allowManageEnvironmentAccessForUser(state);
+  const hasWorkspaceManageEnvPermission =
+    hasManageWorkspaceEnvironmentPermission(workspacePermissions);
+
+  return checkUserAccess && hasWorkspaceManageEnvPermission;
+};

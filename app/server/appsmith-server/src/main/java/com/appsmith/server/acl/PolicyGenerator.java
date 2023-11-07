@@ -16,6 +16,7 @@ import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.DELETE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.DELETE_MODULES;
 import static com.appsmith.server.acl.AclPermission.DELETE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PACKAGES;
@@ -26,6 +27,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_WORKFLOWS;
@@ -36,6 +38,7 @@ import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_MODULES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PACKAGES;
@@ -60,6 +63,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ADD_USER_TO_ALL_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ASSIGN_PERMISSION_GROUPS;
@@ -76,23 +80,28 @@ import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_
 import static com.appsmith.server.acl.AclPermission.TENANT_UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_ENVIRONMENT;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_WORKFLOWS;
 
@@ -137,7 +146,11 @@ public class PolicyGenerator extends PolicyGeneratorCE {
     }
 
     protected void createEnvironmentPolicyGraph() {
-        hierarchyGraph.addEdge(AclPermission.WORKSPACE_EXECUTE_DATASOURCES, AclPermission.EXECUTE_ENVIRONMENTS);
+        hierarchyGraph.addEdge(WORKSPACE_MANAGE_ENVIRONMENTS, MANAGE_ENVIRONMENTS);
+        hierarchyGraph.addEdge(WORKSPACE_DELETE_ENVIRONMENTS, DELETE_ENVIRONMENTS);
+        hierarchyGraph.addEdge(WORKSPACE_EXECUTE_ENVIRONMENTS, EXECUTE_ENVIRONMENTS);
+
+        lateralGraph.addEdge(MANAGE_ENVIRONMENTS, EXECUTE_ENVIRONMENTS);
     }
 
     private void createTenantPolicyGraph() {
@@ -251,6 +264,18 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(WORKSPACE_EXPORT_WORKFLOWS, WORKSPACE_READ_WORKFLOWS);
 
         lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_WORKFLOWS);
+
+        // Workspace environments related permissions
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_ENVIRONMENTS);
+        lateralGraph.addEdge(READ_WORKSPACES, WORKSPACE_READ_ENVIRONMENTS);
+
+        lateralGraph.addEdge(WORKSPACE_CREATE_ENVIRONMENT, WORKSPACE_MANAGE_ENVIRONMENTS);
+        lateralGraph.addEdge(WORKSPACE_CREATE_ENVIRONMENT, WORKSPACE_DELETE_ENVIRONMENTS);
+        lateralGraph.addEdge(WORKSPACE_CREATE_ENVIRONMENT, WORKSPACE_EXECUTE_ENVIRONMENTS);
+        lateralGraph.addEdge(WORKSPACE_CREATE_ENVIRONMENT, WORKSPACE_READ_ENVIRONMENTS);
+        lateralGraph.addEdge(WORKSPACE_MANAGE_ENVIRONMENTS, WORKSPACE_READ_ENVIRONMENTS);
+        lateralGraph.addEdge(WORKSPACE_DELETE_ENVIRONMENTS, WORKSPACE_READ_ENVIRONMENTS);
+        lateralGraph.addEdge(WORKSPACE_READ_ENVIRONMENTS, WORKSPACE_EXECUTE_ENVIRONMENTS);
     }
 
     @Override

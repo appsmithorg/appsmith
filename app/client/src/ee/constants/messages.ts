@@ -282,8 +282,11 @@ export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) => {
 };
 
 // Environments
-export const ENVIRONMENT_FILTER_DISABLED_TOOLTIP = (PluginName = "this") =>
-  `Production and staging configurations are the same since ${PluginName.toLowerCase()} datasource doesn't support environments.`;
+export const ENVIRONMENT_FILTER_DISABLED_TOOLTIP = (
+  PluginName = "This",
+  envName = "staging",
+) =>
+  `Production and ${envName.toLowerCase()} configurations are the same since ${PluginName.toLowerCase()} datasource doesn't support environments.`;
 export const ENV_INFO_MODAL_CHECKBOX_LABEL = () =>
   "I understand, don't tell me again.";
 export const ENV_INFO_MODAL_HEADER = () =>
@@ -297,8 +300,27 @@ export const ENV_INFO_CALLOUT_TOOLTIP = () =>
 export const ENV_INFO_CALLOUT_CONTENT_1 = () => "End-users will see all ";
 export const ENV_INFO_CALLOUT_CONTENT_2 = () => "application-level";
 export const ENV_INFO_CALLOUT_CONTENT_3 = () =>
-  " changes irrespective of whether you made them while on Staging or Production.";
+  " changes irrespective of whether you made them while connected to any datasource environment.";
 export const ENV_INFO_MODAL_DISMISS_ACTION = () => "Don't show me again";
+export const MANAGE_ENV_TITLE = () =>
+  "List of datasource environments within your workspace";
+export const MANAGE_ENV_CREATE_MODAL_TITLE = () => "Create new environment";
+export const MANAGE_ENV_EDIT_MODAL_TITLE = () => "Update environment";
+export const MANAGE_ENV_MODAL_INPUT_LABEL = () => "Environment Name";
+export const MANAGE_ENV_MODAL_DELETE_DESC = (
+  envName: string,
+  workspaceName: string,
+  configuredDatasources: number,
+) =>
+  `Deleting ${envName} environment from ${workspaceName} will permanently remove ${envName.toLowerCase()} configurations for all ${configuredDatasources} datasources.`;
+export const MANAGE_ENV_MODAL_INPUT_PLACEHOLDER = () =>
+  "Enter environment name";
+export const MANAGE_ENV_ERROR_SP_CHAR_MESSAGE = () =>
+  "Environment cannot contain any special characters except “_”";
+export const MANAGE_ENV_ERROR_START_WITH_SP_CHAR_NUM_MESSAGE = () =>
+  "Environment name cannot start with a number or “_” character";
+export const MANAGE_ENV_ERROR_DUPLICATE_NAME_MESSAGE = () =>
+  "You cannot have two environments with the same name.";
 // Provisioning begin
 export const PROVISIONING_TITLE = () => "User provisioning & Group sync";
 export const PROVISIONING_DESC = () =>

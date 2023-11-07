@@ -140,6 +140,8 @@ public class EnvironmentResourceCECompatibleTest {
             testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnDatasource_assertExecuteOnEnvironments() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_custom_environments_enabled)))
+                .thenReturn(Mono.just(FALSE));
 
         Environment environment =
                 workspaceService.getDefaultEnvironment(createdWorkspace.getId()).blockFirst();

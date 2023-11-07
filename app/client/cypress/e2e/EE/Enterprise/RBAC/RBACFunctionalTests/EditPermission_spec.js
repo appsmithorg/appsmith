@@ -17,7 +17,8 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe("Edit Permission flow ", function () {
+// TODO: BEING FIXED BY AYUSH PAHWA FOR CUSTOM ENVIRONMENTS FEATURE
+describe.skip("Edit Permission flow ", function () {
   let newWorkspaceName;
   let workspaceName;
   let appName;

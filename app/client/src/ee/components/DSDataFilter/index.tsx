@@ -1,5 +1,8 @@
 import type { EnvironmentType } from "@appsmith/configs/types";
-import { getEnvironments } from "@appsmith/selectors/environmentSelectors";
+import {
+  allowManageEnvironmentAccessForWorkspace,
+  getEnvironments,
+} from "@appsmith/selectors/environmentSelectors";
 import { Text, Icon, Tooltip } from "design-system";
 import { capitalizeFirstLetter } from "pages/Editor/gitSync/QuickGitActions";
 import styled from "styled-components";
@@ -11,7 +14,7 @@ import {
 } from "@appsmith/constants/messages";
 import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
 import type { PluginType } from "entities/Action";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
@@ -19,6 +22,7 @@ import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import CE_DSDataFilter from "ce/components/DSDataFilter";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import history from "utils/history";
 
 export const defaultEnvironment = (workspaceId: string): EnvironmentType => ({
   id: DEFAULT_ENV_ID,
@@ -26,6 +30,7 @@ export const defaultEnvironment = (workspaceId: string): EnvironmentType => ({
   isDefault: true,
   userPermissions: [],
   workspaceId,
+  isLocked: true,
 });
 
 const Container = styled.div`
@@ -34,6 +39,27 @@ const Container = styled.div`
   border-right: 1px solid var(--ads-v2-color-border);
   width: 160px;
   height: 100%;
+`;
+
+const OptionsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 160px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+`;
+
+const ManageEnvironmentsButton = styled.div`
+  display: flex;
+  margin-top: auto;
+  height: 64px;
+  align-items: center;
+  border-radius: var(--ads-v2-border-radius);
+  background: var(--ads-color-background-secondary);
+  padding: 8px;
+  gap: 8px;
+  cursor: pointer;
 `;
 
 const DisabledICon = styled(Icon)`
@@ -49,6 +75,7 @@ const FilterComponentContainer = styled.div<{
   align-items: center;
   justify-content: flex-start;
   border-radius: var(--ads-v2-border-radius);
+  width: 159px;
 
   ${(props) =>
     props.isSelected && `background: var(--ads-color-background-secondary);`}
@@ -58,6 +85,8 @@ const FilterComponentContainer = styled.div<{
 
 const FilterComponentLabel = styled(Text)<{ disabled: boolean }>`
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
 
 interface ReduxStateProps {
@@ -95,10 +124,16 @@ const DSDataFilter = ({
   const isMultipleEnvEnabled = useFeatureFlag(
     FEATURE_FLAG.release_datasource_environments_enabled,
   );
-  const workspaceId = useSelector(getCurrentWorkspaceId);
+  const workspace = useSelector(getCurrentAppWorkspace);
+  const allowCustomEnvFeature = useSelector((state: AppState) =>
+    allowManageEnvironmentAccessForWorkspace(
+      state,
+      workspace.userPermissions || [],
+    ),
+  );
   const defaultSelectedEnvironment =
     environments.find((env: any) => env.isDefault) ||
-    defaultEnvironment(workspaceId);
+    defaultEnvironment(workspace.id);
   const [selectedEnvironment, setSelectedEnvironment] = React.useState(
     defaultSelectedEnvironment,
   );
@@ -195,21 +230,38 @@ const DSDataFilter = ({
 
   return (
     <Container>
-      {environments.map((env: EnvironmentType) => {
-        const isDisabled = DB_NOT_SUPPORTED.includes(pluginType as PluginType);
-        return isDisabled ? (
-          <Tooltip
-            content={createMessage(() =>
-              ENVIRONMENT_FILTER_DISABLED_TOOLTIP(pluginName),
-            )}
-            placement="right"
-          >
-            {renderOption(env, isDisabled && env.id !== selectedEnvironment.id)}
-          </Tooltip>
-        ) : (
-          renderOption(env, isDisabled)
-        );
-      })}
+      <OptionsContainer>
+        {environments.map((env: EnvironmentType) => {
+          const isDisabled = DB_NOT_SUPPORTED.includes(
+            pluginType as PluginType,
+          );
+          return isDisabled ? (
+            <Tooltip
+              content={createMessage(() =>
+                ENVIRONMENT_FILTER_DISABLED_TOOLTIP(pluginName, env.name),
+              )}
+              placement="right"
+            >
+              {renderOption(
+                env,
+                isDisabled && env.id !== selectedEnvironment.id,
+              )}
+            </Tooltip>
+          ) : (
+            renderOption(env, isDisabled)
+          );
+        })}
+      </OptionsContainer>
+      {allowCustomEnvFeature && (
+        <ManageEnvironmentsButton
+          onClick={() => {
+            history.push(`/workspace/${workspace.id}/settings/environments`);
+          }}
+        >
+          <Icon name="settings-control" size="lg" />
+          <Text kind="body-m">Manage Environments</Text>
+        </ManageEnvironmentsButton>
+      )}
     </Container>
   );
 };

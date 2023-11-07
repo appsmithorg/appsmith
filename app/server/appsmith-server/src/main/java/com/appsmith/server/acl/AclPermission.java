@@ -85,6 +85,7 @@ public enum AclPermission {
     // Resource creation permissions for workspace
     WORKSPACE_CREATE_APPLICATION("create:applications", Workspace.class),
     WORKSPACE_CREATE_DATASOURCE("create:datasources", Workspace.class),
+    WORKSPACE_CREATE_ENVIRONMENT("create:environments", Workspace.class),
     WORKSPACE_CREATE_PACKAGE("create:packages", Workspace.class),
     WORKSPACE_CREATE_WORKFLOW("create:workflows", Workspace.class),
 
@@ -101,6 +102,12 @@ public enum AclPermission {
     WORKSPACE_READ_DATASOURCES("read:workspaceDatasources", Workspace.class),
     WORKSPACE_DELETE_DATASOURCES("delete:workspaceDatasources", Workspace.class),
     WORKSPACE_EXECUTE_DATASOURCES("execute:workspaceDatasources", Workspace.class),
+
+    // Was the user assigned a global permission at the workspace level to manage environments?
+    WORKSPACE_MANAGE_ENVIRONMENTS("manage:workspaceEnvironments", Workspace.class),
+    WORKSPACE_READ_ENVIRONMENTS("read:workspaceEnvironments", Workspace.class),
+    WORKSPACE_DELETE_ENVIRONMENTS("delete:workspaceEnvironments", Workspace.class),
+    WORKSPACE_EXECUTE_ENVIRONMENTS("execute:workspaceEnvironments", Workspace.class),
 
     // global permission on workspace level to give create actions on all datasources
     WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS("create:workspaceDatasourceActions", Workspace.class),
@@ -196,6 +203,8 @@ public enum AclPermission {
 
     // Environment Permissions
     EXECUTE_ENVIRONMENTS("execute:environments", Environment.class),
+    DELETE_ENVIRONMENTS("delete:environments", Environment.class),
+    MANAGE_ENVIRONMENTS("manage:environments", Environment.class),
 
     // Manage tenant permissions
     MANAGE_TENANT("manage:tenants", Tenant.class),

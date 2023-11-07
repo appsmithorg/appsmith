@@ -15,9 +15,12 @@ import EnvironmentApi from "@appsmith/api/EnvironmentApi";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 import type { CurrentEnvironmentDetails } from "@appsmith/reducers/environmentReducer";
 import type { EnvironmentType } from "@appsmith/configs/types";
-import { ENVIRONMENT_QUERY_KEY } from "@appsmith/utils/Environments";
+import {
+  ENVIRONMENT_QUERY_KEY,
+  getFilteredEnvListWithPermissions,
+} from "@appsmith/utils/Environments";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
+import { toast } from "design-system";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
   getSavedCurrentEnvironmentDetails,
@@ -27,6 +30,8 @@ import {
 import { getEnvironments } from "@appsmith/selectors/environmentSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { isMultipleEnvEnabled } from "@appsmith/utils/planHelpers";
+
+export const LOCKED_ENVIRONMENTS_ENUM = ["production", "staging"];
 
 const fetchStoredEnv = (
   envs: EnvironmentType[],
@@ -50,7 +55,9 @@ const fetchStoredEnv = (
 };
 
 // Saga to handle fetching the environment configs
-function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
+function* FetchEnvironmentsInitSaga(
+  action: ReduxAction<{ workspaceId: string; fetchDatasourceMeta?: boolean }>,
+) {
   try {
     const response: ApiResponse<EnvironmentType[]> = yield call(
       EnvironmentApi.fetchEnvironmentConfigs,
@@ -61,12 +68,7 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
       const queryParams = new URLSearchParams(window.location.search);
 
       // list of env for which execute permission is present
-      const executableEnvs = response.data.filter(
-        (env) =>
-          env.userPermissions &&
-          env.userPermissions.length > 0 &&
-          env.userPermissions[0] === PERMISSION_TYPE.EXECUTE_ENVIRONMENT,
-      );
+      const executableEnvs = getFilteredEnvListWithPermissions(response.data);
 
       // Get current application ID
       const appId: string = yield select(getCurrentApplicationId);
@@ -76,7 +78,7 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
         id: "",
         name: "",
         appId,
-        workspaceId: action.payload,
+        workspaceId: action.payload.workspaceId,
         editingId: "",
       };
 
@@ -148,11 +150,23 @@ function* FetchEnvironmentsInitSaga(action: ReduxAction<string>) {
       }
       let envsData: Array<EnvironmentType> = [];
       if (!!response.data && response.data.length > 0) {
-        // env data needs to be sorted with env that has isDeault true at the top
-        envsData = response.data.sort((a, b) => {
-          if (a.isDefault) return -1;
-          if (b.isDefault) return 1;
-          return 0;
+        // We need to check if the name is present in locked list, if yes, then we need to set the isLocked
+        // flag to true (which disables editing and deleting of the env)
+        envsData = response.data.map((env: EnvironmentType) => {
+          if (
+            env.name &&
+            env.name.length > 0 &&
+            LOCKED_ENVIRONMENTS_ENUM.includes(env.name.toLowerCase())
+          ) {
+            return {
+              ...env,
+              isLocked: true,
+            };
+          }
+          return {
+            ...env,
+            isLocked: false,
+          };
         });
       }
       yield put({
@@ -195,6 +209,134 @@ function* fetchWorkspaceIdandInitSaga(
   yield put(fetchingEnvironmentConfigs(workspaceId));
 }
 
+// Saga to handle creating a new environment
+function* createEnvironmentSaga(
+  action: ReduxAction<{
+    environmentName: string;
+    workspaceId: string;
+  }>,
+) {
+  try {
+    const response: ApiResponse<EnvironmentType> = yield call(
+      EnvironmentApi.createEnvironment,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CREATE_ENVIRONMENT_SUCCESS,
+        payload: response.data,
+      });
+      toast.show(`Environment ${response.data.name} created successfully`, {
+        kind: "success",
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.CREATE_ENVIRONMENT_FAILED,
+        payload: response?.responseMeta,
+      });
+      toast.show(`Environment creation failed`, {
+        kind: "error",
+      });
+    }
+  } catch {
+    yield put({
+      type: ReduxActionTypes.CREATE_ENVIRONMENT_FAILED,
+      payload: {
+        error: "failed",
+      },
+    });
+    toast.show(`Environment creation failed`, {
+      kind: "error",
+    });
+  }
+}
+
+// Saga to handle updating an existing environment
+function* updateEnvironmentSaga(
+  action: ReduxAction<{
+    newEnvironmentName: string;
+    environmentId: string;
+  }>,
+) {
+  try {
+    const response: ApiResponse<EnvironmentType> = yield call(
+      EnvironmentApi.updateEnvironment,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ENVIRONMENT_SUCCESS,
+        payload: response.data,
+      });
+      toast.show(
+        `Environment ${action.payload.newEnvironmentName} updated successfully`,
+        {
+          kind: "success",
+        },
+      );
+    } else {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ENVIRONMENT_FAILED,
+        payload: response?.responseMeta,
+      });
+      toast.show(`Environment updation failed`, {
+        kind: "error",
+      });
+    }
+  } catch {
+    yield put({
+      type: ReduxActionTypes.UPDATE_ENVIRONMENT_FAILED,
+      payload: {
+        error: "failed",
+      },
+    });
+    toast.show(`Environment updation failed`, {
+      kind: "error",
+    });
+  }
+}
+
+// Saga to handle deleting an existing environment
+function* deleteEnvironmentSaga(
+  action: ReduxAction<{
+    environmentId: string;
+  }>,
+) {
+  try {
+    const response: ApiResponse<EnvironmentType> = yield call(
+      EnvironmentApi.deleteEnvironment,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.DELETE_ENVIRONMENT_SUCCESS,
+        payload: response.data,
+      });
+      toast.show(`Environment deleted successfully`, {
+        kind: "success",
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.DELETE_ENVIRONMENT_FAILED,
+        payload: response?.responseMeta,
+      });
+    }
+  } catch {
+    yield put({
+      type: ReduxActionTypes.DELETE_ENVIRONMENT_FAILED,
+      payload: {
+        error: "failed",
+      },
+    });
+    toast.show(`Environment deletion failed`, {
+      kind: "error",
+    });
+  }
+}
+
 export function* waitForFetchEnvironments() {
   const environments: EnvironmentType[] | undefined =
     yield select(getEnvironments);
@@ -220,5 +362,8 @@ export default function* EnvironmentSagas() {
       ReduxActionTypes.FETCH_ENVIRONMENT_INIT,
       FetchEnvironmentsInitSaga,
     ),
+    takeLatest(ReduxActionTypes.CREATE_ENVIRONMENT_INIT, createEnvironmentSaga),
+    takeLatest(ReduxActionTypes.UPDATE_ENVIRONMENT_INIT, updateEnvironmentSaga),
+    takeLatest(ReduxActionTypes.DELETE_ENVIRONMENT_INIT, deleteEnvironmentSaga),
   ]);
 }

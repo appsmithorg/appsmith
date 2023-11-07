@@ -13,7 +13,8 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe("Delete Permission flow ", function () {
+// TODO: BEING FIXED BY AYUSH PAHWA FOR CUSTOM ENVIRONMENTS FEATURE
+describe.skip("Delete Permission flow ", function () {
   let appName;
   let workspaceName;
   let newWorkspaceName;

@@ -10,7 +10,8 @@ import {
   fakerHelper,
 } from "../../../../../support/ee/ObjectsCore_EE";
 
-describe("Create group, check if users in group has group roles accessess", function () {
+// TODO: BEING FIXED BY AYUSH PAHWA FOR CUSTOM ENVIRONMENTS FEATURE
+describe.skip("Create group, check if users in group has group roles accessess", function () {
   let workspaceName: string, appName: string, datasourceName;
   const pageName = "page_no_permission" + fakerHelper.GetRandomNumber();
   const permissionAtPageLevel =

@@ -33,6 +33,7 @@ public enum FeatureFlagEnum {
     // -------------------------------------------------------------- //
 
     // ------------------- These are actual feature flags meant to be used across the product ----------------------- //
+    license_custom_environments_enabled,
     APP_NAVIGATION_LOGO_UPLOAD,
     release_embed_hide_share_settings_enabled,
     ab_mock_mongo_schema_enabled,
@@ -47,11 +48,6 @@ public enum FeatureFlagEnum {
      * knowledge base is the summary of the application on per page basis
      */
     release_knowledge_base_enabled,
-
-    /**
-     * feature flag for making connection pool sizes for plugins manually configurable
-     */
-    release_connection_pool_size,
 
     /**
      * Feature flag to detect if workflows feature is enabled for the tenant
@@ -80,7 +76,8 @@ public enum FeatureFlagEnum {
      */
     license_audit_logs_enabled,
     /**
-     * Feature flag to detect if unlimited private repos are supported for the tenant
+     * Feature flag to detect if unlimited private repos are supported for the
+     * tenant
      */
     license_git_unlimited_repo_enabled,
 
@@ -90,7 +87,8 @@ public enum FeatureFlagEnum {
     license_branding_enabled,
 
     /**
-     * Feature flag to detect if GAC i.e. custom roles and groups are supported for the tenant
+     * Feature flag to detect if GAC i.e. custom roles and groups are supported for
+     * the tenant
      */
     license_gac_enabled,
 
@@ -100,7 +98,8 @@ public enum FeatureFlagEnum {
     license_message_listener_enabled,
 
     /**
-     * Feature flag to detect if programmatic access control is supported for the tenant
+     * Feature flag to detect if programmatic access control is supported for the
+     * tenant
      */
     license_pac_enabled,
 

@@ -21,7 +21,10 @@ public class EnvironmentResourcesCECompatibleImpl implements EnvironmentResource
 
     @Override
     public Mono<BaseView> getEnvironmentEntityBaseView(
-            Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap, BaseView workspaceDTO) {
+            Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap,
+            BaseView workspaceDTO,
+            Workspace workspace,
+            String permissionGroupId) {
         return Mono.just(new BaseView());
     }
 

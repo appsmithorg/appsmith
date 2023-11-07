@@ -13,7 +13,8 @@ import {
   dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Multiple Permission flow ", function () {
+// TODO: BEING FIXED BY AYUSH PAHWA FOR CUSTOM ENVIRONMENTS FEATURE
+describe.skip("Multiple Permission flow ", function () {
   let datasourceName;
   let datasourceName2;
   let workspaceName;

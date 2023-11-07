@@ -48,6 +48,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
+import static com.appsmith.server.constants.FieldName.ROLE_TAB_DATASOURCES;
+import static com.appsmith.server.constants.FieldName.ROLE_TAB_ENVIRONMENTS;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,6 +118,8 @@ public class EnvironmentResourcesTest {
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_audit_logs_enabled)))
                 .thenReturn(Mono.just(FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_custom_environments_enabled)))
+                .thenReturn(Mono.just(TRUE));
         // This stub has been added for feature flag placed for multiple environments
         //        Mockito.when(featureFlagService.check(any())).thenReturn(Mono.just(TRUE));
 
@@ -147,24 +151,22 @@ public class EnvironmentResourcesTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void
-            testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenExecuteOnWorkspace_assertExecuteOnEnvironments() {
+            testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenWorkspaceDatasourceExecute_assertNoExecuteOnEnvironments() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        PermissionGroup permissionGroup = new PermissionGroup();
-        permissionGroup.setName("New role for editing : givenExecuteOnWorkspace_assertExecuteOnEnvironments");
-        PermissionGroup createdPermissionGroup =
-                permissionGroupService.create(permissionGroup).block();
+        String permissionGroupName = "New role for editing : givenExecuteOnWorkspace_assertExecuteOnEnvironments";
+        PermissionGroup createdPermissionGroup = createPermissionGroup(permissionGroupName);
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
 
         // Add entity changes
-        // Workspace : Give execute permissions to the workspace
+        // Workspace : Give WORKSPACE_EXECUTE_DATASOURCES
         UpdateRoleEntityDTO workspaceEntity = new UpdateRoleEntityDTO(
                 Workspace.class.getSimpleName(),
                 createdWorkspace.getId(),
                 List.of(1, 0, 0, 0, 0),
-                createdWorkspace.getName());
+                ROLE_TAB_DATASOURCES);
         updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceEntity));
         updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
 
@@ -179,17 +181,17 @@ public class EnvironmentResourcesTest {
         StepVerifier.create(environmentsMono)
                 .assertNext(environmentList -> {
 
-                    // Assert that environment execute has been given executegi permission for this permission group
+                    // Assert that environment execute has been given execute permission for this permission group
                     assertThat(environmentList).isNotEmpty();
                     assertThat(environmentList).hasSize(2);
-                    environmentList.stream().forEach(env -> {
+                    environmentList.forEach(env -> {
                         Optional<Policy> policyOptional = env.getPolicies().stream()
                                 .filter(policy -> policy.getPermission().equals(EXECUTE_ENVIRONMENTS.getValue()))
-                                .findFirst();
+                                .findAny();
 
                         assertThat(policyOptional.isPresent()).isTrue();
                         Policy policy = policyOptional.get();
-                        assertThat(policy.getPermissionGroups()).contains(createdPermissionGroup.getId());
+                        assertThat(policy.getPermissionGroups()).doesNotContain(createdPermissionGroup.getId());
                     });
                 })
                 .verifyComplete();
@@ -201,7 +203,7 @@ public class EnvironmentResourcesTest {
                 Workspace.class.getSimpleName(),
                 createdWorkspace.getId(),
                 List.of(0, 0, 0, 0, 0),
-                createdWorkspace.getName());
+                ROLE_TAB_DATASOURCES);
         updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceEntity2));
         updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
 
@@ -230,9 +232,48 @@ public class EnvironmentResourcesTest {
                 })
                 .verifyComplete();
 
-        PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
-                .archiveById(createdPermissionGroup.getId())
+        // in-order to remove after effects on other test cases.
+        permissionGroupService.archiveById(createdPermissionGroup.getId()).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testSaveRoleConfigurationChangesForDatasourceResourcesTab_givenWorkspaceEnvironmentPermission_assertNoChange() {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
+        String permissionGroupName = "New role for editing : givenAllWorkspace_<crud>_environments";
+        PermissionGroup createdPermissionGroup = createPermissionGroup(permissionGroupName);
+
+        // Workspace : Give WORKSPACE_<CRUD>_ENVIRONMENTS
+        UpdateRoleEntityDTO workspaceEntity = new UpdateRoleEntityDTO(
+                Workspace.class.getSimpleName(),
+                createdWorkspace.getId(),
+                List.of(1, 0, 1, 0, 1),
+                ROLE_TAB_ENVIRONMENTS);
+
+        UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
+        updateRoleConfigDTO.setEntitiesChanged(Set.of(workspaceEntity));
+        updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
+
+        roleConfigurationSolution
+                .updateRoles(createdPermissionGroup.getId(), updateRoleConfigDTO)
                 .block();
+
+        // Fetch the environment post the role change with execute permissions
+        Mono<List<Environment>> environmentsMono =
+                environmentService.findByWorkspaceId(createdWorkspace.getId()).collectList();
+
+        StepVerifier.create(environmentsMono)
+                .assertNext(environmentList -> {
+                    assertThat(environmentList).isNotEmpty();
+                    assertThat(environmentList).hasSize(2);
+                    environmentList.forEach(
+                            env -> env.getPolicies().forEach(policy -> assertThat(policy.getPermissionGroups())
+                                    .doesNotContain(createdPermissionGroup.getId())));
+                })
+                .verifyComplete();
+        permissionGroupService.archiveById(createdPermissionGroup.getId()).block();
     }
 
     @Test
@@ -334,5 +375,11 @@ public class EnvironmentResourcesTest {
         PermissionGroup deleteCreatedPermissionGroup = permissionGroupService
                 .archiveById(createdPermissionGroup.getId())
                 .block();
+    }
+
+    private PermissionGroup createPermissionGroup(String permissionGroupName) {
+        PermissionGroup permissionGroup = new PermissionGroup();
+        permissionGroup.setName(permissionGroupName);
+        return permissionGroupService.create(permissionGroup).block();
     }
 }

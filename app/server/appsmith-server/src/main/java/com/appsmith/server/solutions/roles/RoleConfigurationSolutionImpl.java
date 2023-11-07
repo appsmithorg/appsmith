@@ -537,12 +537,10 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         Flux<String> envIdFlux =
                 environmentRepository.findByWorkspaceId(workspaceId).map(Environment::getId);
 
-        boolean executeWorkspaceAdded = added.stream()
-                .anyMatch(permission ->
-                        AclPermission.WORKSPACE_EXECUTE_DATASOURCES.getValue().equals(permission.getValue()));
-        boolean executeWorkspaceRemoved = removed.stream()
-                .anyMatch(permission ->
-                        AclPermission.WORKSPACE_EXECUTE_DATASOURCES.getValue().equals(permission.getValue()));
+        // These two have been made false after we have added separate controls for environments on
+        // DATASOURCE & ENVIRONMENTS Tabs for environments
+        boolean executeWorkspaceAdded = false;
+        boolean executeWorkspaceRemoved = false;
         List<AclPermission> envAdded = new ArrayList<>();
         List<AclPermission> envRemoved = new ArrayList<>();
 

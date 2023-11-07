@@ -97,6 +97,7 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.TENANT_GROUP;
 import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.VIEWER;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_DATASOURCE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -201,6 +202,8 @@ public class WorkspaceResourcesTest {
                 .thenReturn(Mono.just(TRUE));
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_datasource_environments_enabled)))
                 .thenReturn(Mono.just(FALSE));
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_custom_environments_enabled)))
+                .thenReturn(Mono.just(TRUE));
 
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
@@ -656,9 +659,9 @@ public class WorkspaceResourcesTest {
         workspace.setName("testApplicationResourcesTab_testHoverMap workspace");
         Workspace createdWorkspace1 = workspaceService.create(workspace).block();
 
-        List<Environment> environmentList = environmentService
+        Map<String, Environment> environmentMap = environmentService
                 .findByWorkspaceId(createdWorkspace1.getId())
-                .collectList()
+                .collectMap(Environment::getName)
                 .block();
 
         Datasource datasource = new Datasource();
@@ -697,20 +700,35 @@ public class WorkspaceResourcesTest {
         assertThat(roleTabDTO).isNotNull();
         assertThat(roleTabDTO.getHoverMap()).isNotNull();
 
-        String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
-        String createdWorkspaceDelete = createdWorkspace1.getId() + "_Delete";
-        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
-        String createdWorkspaceExecute = createdWorkspace1.getId() + "_Execute";
-        String createdWorkspaceView = createdWorkspace1.getId() + "_View";
+        String createdWorkspaceDatasourceCreate = createdWorkspace1.getId() + "_Create_" + WORKSPACE_DATASOURCE;
+        String createdWorkspaceDatasourceDelete = createdWorkspace1.getId() + "_Delete_" + WORKSPACE_DATASOURCE;
+        String createdWorkspaceDatasourceEdit = createdWorkspace1.getId() + "_Edit_" + WORKSPACE_DATASOURCE;
+        String createdWorkspaceDatasourceExecute = createdWorkspace1.getId() + "_Execute_" + WORKSPACE_DATASOURCE;
+        String createdWorkspaceDatasourceView = createdWorkspace1.getId() + "_View_" + WORKSPACE_DATASOURCE;
 
         String createdDatasourceCreate = createdDatasource1.getId() + "_Create";
         String createdDatasourceDelete = createdDatasource1.getId() + "_Delete";
         String createdDatasourceEdit = createdDatasource1.getId() + "_Edit";
         String createdDatasourceView = createdDatasource1.getId() + "_View";
 
+        String productionEdit = environmentMap.get("production").getId() + "_Edit";
+        String stagingEdit = environmentMap.get("staging").getId() + "_Edit";
+
         assertThat(roleTabDTO.getHoverMap())
                 .contains(Map.entry(
-                        createdWorkspaceCreate,
+                        productionEdit,
+                        Set.of(new IdPermissionDTO(
+                                environmentMap.get("production").getId(), PermissionViewableName.EXECUTE))));
+
+        assertThat(roleTabDTO.getHoverMap())
+                .contains(Map.entry(
+                        stagingEdit,
+                        Set.of(new IdPermissionDTO(
+                                environmentMap.get("staging").getId(), PermissionViewableName.EXECUTE))));
+
+        assertThat(roleTabDTO.getHoverMap())
+                .contains(Map.entry(
+                        createdWorkspaceDatasourceCreate,
                         Set.of(
                                 new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.DELETE),
                                 new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
@@ -719,28 +737,25 @@ public class WorkspaceResourcesTest {
                                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.CREATE))));
         assertThat(roleTabDTO.getHoverMap())
                 .contains(Map.entry(
-                        createdWorkspaceDelete,
+                        createdWorkspaceDatasourceDelete,
                         Set.of(
                                 new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
                                 new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE),
                                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.DELETE))));
         assertThat(roleTabDTO.getHoverMap())
                 .contains(Map.entry(
-                        createdWorkspaceEdit,
+                        createdWorkspaceDatasourceEdit,
                         Set.of(
                                 new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
                                 new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE),
                                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EDIT))));
         assertThat(roleTabDTO.getHoverMap())
                 .contains(Map.entry(
-                        createdWorkspaceExecute,
-                        Set.of(
-                                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE),
-                                new IdPermissionDTO(environmentList.get(0).getId(), PermissionViewableName.EXECUTE),
-                                new IdPermissionDTO(environmentList.get(1).getId(), PermissionViewableName.EXECUTE))));
+                        createdWorkspaceDatasourceExecute,
+                        Set.of(new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE))));
         assertThat(roleTabDTO.getHoverMap())
                 .contains(Map.entry(
-                        createdWorkspaceView,
+                        createdWorkspaceDatasourceView,
                         Set.of(
                                 new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE),
                                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.VIEW))));
@@ -999,7 +1014,7 @@ public class WorkspaceResourcesTest {
 
                     EntityView topData = datasourceResourcesTabView.getData();
                     assertThat(topData).isNotNull();
-                    assertThat(topData.getType()).isEqualTo(Workspace.class.getSimpleName());
+                    assertThat(topData.getType()).isEqualTo("Header");
 
                     BaseView createdWorkspaceView = topData.getEntities().stream()
                             .filter(entity -> entity.getId().equals(createdWorkspace.getId()))
@@ -1016,7 +1031,7 @@ public class WorkspaceResourcesTest {
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
                             .get();
-                    assertThat(createdHeaderEntityView.getType()).isEqualTo("Header");
+                    assertThat(createdHeaderEntityView.getType()).isEqualTo(Workspace.class.getSimpleName());
                     // Assert that three kinds of children exist in header in this tab : aka datasource and Environments
                     assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(2);
 
@@ -1094,7 +1109,7 @@ public class WorkspaceResourcesTest {
 
                     EntityView topData = datasourceResourcesTabView.getData();
                     assertThat(topData).isNotNull();
-                    assertThat(topData.getType()).isEqualTo(Workspace.class.getSimpleName());
+                    assertThat(topData.getType()).isEqualTo("Header");
 
                     BaseView createdWorkspaceView = topData.getEntities().stream()
                             .filter(entity -> entity.getId().equals(createdWorkspace.getId()))
@@ -1110,7 +1125,7 @@ public class WorkspaceResourcesTest {
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream()
                             .findFirst()
                             .get();
-                    assertThat(createdHeaderEntityView.getType()).isEqualTo("Header");
+                    assertThat(createdHeaderEntityView.getType()).isEqualTo(Workspace.class.getSimpleName());
                     // Assert that three kinds of children exist in header in this tab : aka datasource and default
                     // environments
                     assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(2);
@@ -1751,17 +1766,17 @@ public class WorkspaceResourcesTest {
         Map<String, Set<IdPermissionDTO>> disableHelperMao = roleTabDTO.getDisableHelperMap();
         assertThat(disableHelperMao).isNotNull();
 
-        String createdWorkspaceEdit = createdWorkspace1.getId() + "_Edit";
-        String createdWorkspaceCreate = createdWorkspace1.getId() + "_Create";
+        String createdWorkspaceDatasourceEdit = createdWorkspace1.getId() + "_Edit_" + WORKSPACE_DATASOURCE;
+        String createWorkspaceDatasourceCreate = createdWorkspace1.getId() + "_Create_" + WORKSPACE_DATASOURCE;
         String createdDatasourceEdit = createdDatasource.getId() + "_Edit";
         String createdDatasourceCreate = createdDatasource.getId() + "_Create";
 
         // asserting a few relationships to exist in the map
-        assertThat(disableHelperMao.get(createdWorkspaceEdit))
+        assertThat(disableHelperMao.get(createdWorkspaceDatasourceEdit))
                 .containsAll(Set.of(
                         new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.VIEW),
                         new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE)));
-        assertThat(disableHelperMao.get(createdWorkspaceCreate))
+        assertThat(disableHelperMao.get(createWorkspaceDatasourceCreate))
                 .containsAll(Set.of(new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.DELETE)));
         assertThat(disableHelperMao.get(createdDatasourceEdit))
                 .containsAll(Set.of(
@@ -2578,10 +2593,7 @@ public class WorkspaceResourcesTest {
                 permissionGroupService.create(customRole).block();
 
         UpdateRoleEntityDTO workspaceRoleEntityWithWorkspaceDatasourcePermission = new UpdateRoleEntityDTO(
-                Workspace.class.getSimpleName(),
-                createdWorkspace.getId(),
-                List.of(1, 0, 0, 0, 0),
-                createdWorkspace.getName());
+                Workspace.class.getSimpleName(), createdWorkspace.getId(), List.of(1, 0, 0, 0, 0), "Datasources");
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
         updateRoleConfigDTO.setTabName(RoleTab.DATASOURCES_ENVIRONMENTS.getName());
