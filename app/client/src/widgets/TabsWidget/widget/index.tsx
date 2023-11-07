@@ -37,10 +37,7 @@ import {
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  largeWidgets,
-} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
@@ -231,7 +228,7 @@ class TabsWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

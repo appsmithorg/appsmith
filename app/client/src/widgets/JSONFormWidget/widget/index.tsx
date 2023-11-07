@@ -39,10 +39,7 @@ import type {
   PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/constants";
-import {
-  BlueprintOperationTypes,
-  largeWidgets,
-} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -324,7 +321,7 @@ class JSONFormWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

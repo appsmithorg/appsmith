@@ -20,10 +20,9 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import ButtonComponent, { ButtonType } from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
@@ -127,7 +126,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: { base: "360px" },

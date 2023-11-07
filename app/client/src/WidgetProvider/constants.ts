@@ -9,7 +9,7 @@ import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
-import type { DerivedPropertiesMap, WidgetType } from "WidgetProvider/factory";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
@@ -24,7 +24,6 @@ import type {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { WDSTableWidget } from "widgets/wds/WDSTableWidget";
 
 export interface WidgetSizeConfig {
   viewportMinWidth: number;
@@ -460,7 +459,3 @@ export interface WidgetConfigProps {
   widgetName: string;
   enhancements?: Record<string, unknown>; // TODO(abhinav): SPECIFY TYPES
 }
-
-export const largeWidgets: Record<WidgetType, boolean> = {
-  [WDSTableWidget.type]: true,
-};

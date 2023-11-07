@@ -26,10 +26,7 @@ import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import {
-  BlueprintOperationTypes,
-  largeWidgets,
-} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
@@ -305,7 +302,7 @@ class FormWidget extends ContainerWidget {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

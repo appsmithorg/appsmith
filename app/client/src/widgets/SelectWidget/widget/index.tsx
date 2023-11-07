@@ -9,10 +9,7 @@ import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import {
-  MinimumPopupWidthInPercentage,
-  largeWidgets,
-} from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import {
   isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
@@ -191,7 +188,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

@@ -18,14 +18,13 @@ import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
 import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
 import MetaWidgetGenerator from "../MetaWidgetGenerator";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
-  type CanvasWidgetStructure,
-  type FlattenedWidgetProps,
-  type PropertyUpdates,
-  type SnipingModeProperty,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  CanvasWidgetStructure,
+  FlattenedWidgetProps,
+  PropertyUpdates,
+  SnipingModeProperty,
 } from "WidgetProvider/constants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
@@ -208,7 +207,7 @@ class ListWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

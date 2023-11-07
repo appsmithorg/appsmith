@@ -22,10 +22,9 @@ import { TimePrecision } from "../constants";
 import { DateFormatOptions } from "./constants";
 import derivedProperties from "./parseDerivedProperties";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import moment from "moment";
@@ -156,7 +155,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

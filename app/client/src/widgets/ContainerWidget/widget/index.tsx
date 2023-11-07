@@ -24,7 +24,6 @@ import {
   type WidgetBaseConfiguration,
   type WidgetDefaultProps,
   type FlattenedWidgetProps,
-  largeWidgets,
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import IconSVG from "../icon.svg";
@@ -174,7 +173,7 @@ export class ContainerWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

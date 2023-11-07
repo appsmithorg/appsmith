@@ -9,10 +9,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "../icon.svg";
@@ -72,7 +71,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

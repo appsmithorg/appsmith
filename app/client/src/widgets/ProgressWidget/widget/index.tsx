@@ -11,10 +11,9 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -75,7 +74,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

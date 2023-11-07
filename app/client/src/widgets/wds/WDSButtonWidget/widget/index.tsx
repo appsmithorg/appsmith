@@ -12,10 +12,9 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { ButtonWidgetProps, ButtonWidgetState } from "./types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
-import {
-  largeWidgets,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { ButtonPlacementTypes, RecaptchaTypes } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -100,7 +99,7 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
-      isLargeWidget: !!largeWidgets[this.type],
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: { base: "360px" },
