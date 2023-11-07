@@ -10,6 +10,7 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
@@ -22,13 +23,13 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.multipart.Part;
@@ -54,7 +55,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
-    private final Gson gson;
+    private final SessionUserService sessionUserService;
     private final TransactionalOperator transactionalOperator;
     private final PermissionGroupRepository permissionGroupRepository;
     private final ImportableService<Plugin> pluginImportableService;
@@ -83,6 +84,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
         Mono<String> branchedPageIdMono =
                 newPageService.findBranchedPageId(branchName, pageId, AclPermission.MANAGE_PAGES);
+
+        Mono<User> currUserMono = sessionUserService.getCurrentUser();
 
         // Extract file and get App Json
         Mono<Application> partiallyImportedAppMono = importApplicationService
@@ -161,7 +164,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 .as(transactionalOperator::transactional);
 
         // Send Analytics event
-        return partiallyImportedAppMono.flatMap(application -> {
+        return partiallyImportedAppMono.zipWith(currUserMono).flatMap(tuple -> {
+            Application application = tuple.getT1();
+            User user = tuple.getT2();
             final Map<String, Object> eventData = Map.of(FieldName.APPLICATION, application);
 
             final Map<String, Object> data = Map.of(
@@ -169,7 +174,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     FieldName.WORKSPACE_ID, application.getWorkspaceId(),
                     FieldName.EVENT_DATA, eventData);
 
-            return analyticsService.sendObjectEvent(AnalyticsEvents.PARTIAL_IMPORT, application, data);
+            return analyticsService
+                    .sendEvent(AnalyticsEvents.PARTIAL_IMPORT.getEventName(), user.getUsername(), data)
+                    .thenReturn(application);
         });
     }
 
