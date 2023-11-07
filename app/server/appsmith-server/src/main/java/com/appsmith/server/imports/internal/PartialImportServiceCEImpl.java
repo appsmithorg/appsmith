@@ -34,11 +34,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.transaction.reactive.TransactionalOperator;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
@@ -69,16 +68,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     @Override
     public Mono<Application> importResourceInPage(
             String workspaceId, String applicationId, String pageId, String branchName, Part file) {
-        /*
-        1. Get branchedPageId from pageId and branchName
-        2. Get Application Mono
-        3. Prepare the Meta DTO's
-        4. Get plugin data
-        5. Import datasources
-        6. Import customJsLib
-        7. Import actions
-        8. Import actionCollection
-         */
 
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
 
@@ -147,8 +136,12 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                     importedApplicationMono,
                                     applicationJson))
                             .thenReturn("done")
-                            .then(Mono.defer(() -> {
+                            .flatMap(result -> {
                                 Application application = applicationJson.getExportedApplication();
+                                // Keep existing JS Libs and add the imported ones
+                                application
+                                        .getUnpublishedCustomJSLibs()
+                                        .addAll(new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
                                 if (mappedImportableResourcesDTO.getActionResultDTO() == null) {
                                     return applicationService.update(application.getId(), application);
                                 }
@@ -157,10 +150,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                                 application, importingMetaDTO, mappedImportableResourcesDTO)
                                         .then(newPageImportableService.updateImportedEntities(
                                                 application, importingMetaDTO, mappedImportableResourcesDTO))
-                                        .flatMap(
-                                                newPage -> applicationService.update(application.getId(), application));
-                            }));
+                                        .thenReturn(application);
+                            });
                 })
+                .flatMap(application -> applicationService.update(application.getId(), application))
                 .as(transactionalOperator::transactional);
 
         // Send Analytics event
@@ -204,7 +197,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             Mono<Workspace> workspaceMono,
             Mono<Application> importedApplicationMono,
             ApplicationJson applicationJson) {
-        Mono<Void> customJSLibMono = pluginImportableService.importEntities(
+        Mono<Void> pluginMono = pluginImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
@@ -221,8 +214,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         Mono<Void> customJsLibMono = customJSLibImportableService.importEntities(
                 importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
 
-        return Flux.merge(List.of(customJsLibMono, datasourceMono, customJSLibMono))
-                .then();
+        return pluginMono.then(datasourceMono).then(customJsLibMono).then();
     }
 
     private Mono<Void> getActionAndActionCollectionImport(
@@ -245,7 +237,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 importedApplicationMono,
                 applicationJson);
 
-        return Flux.merge(List.of(actionMono, actionCollectionMono)).then();
+        return actionMono.then(actionCollectionMono).then();
     }
 
     private Mono<String> paneNameMapForActionAndActionCollectionInAppJson(
