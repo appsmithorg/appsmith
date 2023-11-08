@@ -208,7 +208,6 @@ export function CustomEChartIFrameComponent(
             <div id="chartdiv" style="position:absolute; height: 100%; width: 100%;"></div>
     
             <script>
-                console.log("*******", "hey script is loading")
                 ${stringifyFns([
                   parseConfigurationForCallbackFns,
                   initializeECharts,
