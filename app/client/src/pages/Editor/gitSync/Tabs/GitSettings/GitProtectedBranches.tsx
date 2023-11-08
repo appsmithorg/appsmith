@@ -7,7 +7,7 @@ import {
 } from "@appsmith/constants/messages";
 import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
-import { xor } from "lodash";
+import { union, xor } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -56,13 +56,33 @@ function GitProtectedBranches() {
   const dispatch = useDispatch();
 
   const unfilteredBranches = useSelector(getGitBranches);
-  const branches = unfilteredBranches.filter(
-    (b) => !b.branchName.includes("origin/"),
-  );
+  const defaultBranch = useSelector(getDefaultGitBranchName);
+
+  const brancheNames = useMemo(() => {
+    const remoteBrancheNames = [];
+    const localBranchNames = [];
+    for (const unfilteredBranch of unfilteredBranches) {
+      if (unfilteredBranch.branchName === defaultBranch) {
+        continue;
+      }
+      if (unfilteredBranch.branchName.includes("origin/")) {
+        remoteBrancheNames.push(
+          unfilteredBranch.branchName.replace("origin/", ""),
+        );
+      } else {
+        localBranchNames.push(unfilteredBranch.branchName);
+      }
+    }
+    const branchNames = union(localBranchNames, remoteBrancheNames);
+    if (defaultBranch) {
+      branchNames.unshift(defaultBranch);
+    }
+    return branchNames;
+  }, [unfilteredBranches, defaultBranch]);
+
   const isGitProtectedFeatureLicensed = useFeatureFlag(
     FEATURE_FLAG.license_git_branch_protection_enabled,
   );
-  const defaultBranch = useSelector(getDefaultGitBranchName);
   const protectedBranches = useSelector(getProtectedBranchesSelector);
   const isUpdateLoading = useSelector(getIsUpdateProtectedBranchesLoading);
   const [selectedValues, setSelectedValues] = useState<string[]>();
@@ -119,15 +139,15 @@ function GitProtectedBranches() {
           onChange={(v) => setSelectedValues(v)}
           value={selectedValues}
         >
-          {branches.map((b) => (
+          {brancheNames.map((branchName) => (
             <Option
               disabled={
-                !isGitProtectedFeatureLicensed && b.branchName !== defaultBranch
+                !isGitProtectedFeatureLicensed && branchName !== defaultBranch
               }
-              key={b.branchName}
-              value={b.branchName}
+              key={branchName}
+              value={branchName}
             >
-              {b.branchName}
+              {branchName}
             </Option>
           ))}
         </StyledSelect>
