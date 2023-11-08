@@ -8,7 +8,7 @@ import styled from "styled-components";
 import SidebarButton from "./SidebarButton";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import history from "utils/history";
+import history, { NavigationMethod } from "utils/history";
 import { ButtonButtons, TopButtons } from "entities/IDE/constants";
 import useCurrentAppState from "../hooks";
 import {
@@ -54,6 +54,9 @@ function Sidebar() {
           pageId,
           suffix,
         }),
+        {
+          invokedBy: NavigationMethod.AppSidebar,
+        },
       );
     },
     [pageId],
