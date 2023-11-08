@@ -25,6 +25,7 @@ function GitSettings() {
     getIsGitProtectedFeatureEnabled,
   );
   const isGitAdmin = useIsGitAdmin();
+
   return (
     <ModalBody>
       <Container>
