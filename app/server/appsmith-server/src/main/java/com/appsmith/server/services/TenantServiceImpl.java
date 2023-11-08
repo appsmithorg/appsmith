@@ -8,6 +8,7 @@ import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -78,6 +79,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
     private final UserUtils userUtils;
     private final NetworkUtils networkUtils;
     private final ConfigService configService;
+    private final AuditLogService auditLogService;
     private final LicenseCacheHelper licenseCacheHelper;
     // Based on information provided on the Branding page.
     private static final int MAX_LOGO_SIZE_KB = 2048;
@@ -109,6 +111,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             UserUtils userUtils,
             PACConfigurationService pacConfigurationService,
             NetworkUtils networkUtils,
+            AuditLogService auditLogService,
             LicenseCacheHelper licenseCacheHelper) {
 
         super(
@@ -139,6 +142,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         this.userUtils = userUtils;
         this.networkUtils = networkUtils;
         this.configService = configService;
+        this.auditLogService = auditLogService;
         this.licenseCacheHelper = licenseCacheHelper;
     }
 
@@ -206,7 +210,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     } else if (tenant.getTenantConfiguration() != null
                             && tenant.getTenantConfiguration().getLicense() != null
                             && tenant.getTenantConfiguration().getLicense().getActive()) {
-                        sendAddLicenseToInstanceEvent(tenant);
+                        return sendAddLicenseToInstanceEvent(tenant);
                     }
                     return Mono.empty();
                 })
@@ -283,10 +287,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                                 AppsmithError.TENANT_DOWNGRADE_EXCEPTION,
                                 "Received error from Cloud Services while downgrading the tenant to free plan"));
                     })
-                    .map(updatedTenant -> {
-                        sendLicenseRemovedFromInstanceEvent(updatedTenant, pastLicense);
-                        return updatedTenant;
-                    });
+                    .flatMap(updatedTenant -> sendLicenseRemovedFromInstanceEvent(updatedTenant, pastLicense)
+                            .thenReturn(updatedTenant));
             // To ensures that even though the client may have cancelled the flow, the removal of license should proceed
             // uninterrupted and whenever the user refreshes the page, user should be presented with the synced state
             // with CS.
@@ -435,10 +437,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                                 // latest
                                 // DB object and not the modified one because of the client pertinent changes
                                 .then(repository.retrieveById(tenant.getId()))
-                                .map(updatedTenant -> {
-                                    sendLicenseUpdatedOnInstanceEvent(updatedTenant, existingLicense);
-                                    return updatedTenant;
-                                })
+                                .flatMap(updatedTenant -> sendLicenseUpdatedOnInstanceEvent(
+                                                updatedTenant, existingLicense)
+                                        .thenReturn(updatedTenant))
                                 .flatMap(this::forceUpdateTenantFeaturesAndUpdateFeaturesWithPendingMigrations)
                                 .then(syncLicensePlansAndRunFeatureBasedMigrations())
                                 .flatMap(updatedTenant -> licenseCacheHelper
@@ -706,9 +707,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         sendAnalyticsEvent(AnalyticsEvents.FREE_PLAN, analyticsProperties);
     }
 
-    private void sendAddLicenseToInstanceEvent(Tenant tenant) {
+    private Mono<Boolean> sendAddLicenseToInstanceEvent(Tenant tenant) {
         if (tenant == null) {
-            return;
+            return Mono.just(true);
         }
         Map<String, Object> analyticsProperties = new HashMap<>();
         License license = tenant.getTenantConfiguration().getLicense();
@@ -717,11 +718,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         analyticsProperties.put(FieldName.TENANT_ID, tenant.getId());
 
         sendAnalyticsEvent(AnalyticsEvents.ADD_LICENSE, analyticsProperties);
+        return logEvent(AnalyticsEvents.ADD_LICENSE, license, analyticsProperties)
+                .thenReturn(true);
     }
 
-    private void sendLicenseRemovedFromInstanceEvent(Tenant tenant, License pastLicense) {
+    private Mono<Boolean> sendLicenseRemovedFromInstanceEvent(Tenant tenant, License pastLicense) {
         if (tenant == null) {
-            return;
+            return Mono.just(true);
         }
         Map<String, Object> analyticsProperties = new HashMap<>();
         License license = tenant.getTenantConfiguration().getLicense();
@@ -731,6 +734,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         updateCurrentLicenseProperties(license, analyticsProperties);
 
         sendAnalyticsEvent(AnalyticsEvents.REMOVE_LICENSE, analyticsProperties);
+        return logEvent(AnalyticsEvents.REMOVE_LICENSE, pastLicense, analyticsProperties)
+                .thenReturn(true);
     }
 
     private void sendLicenseRefreshedEvent(Tenant tenant, License pastLicense, License currentLicense) {
@@ -746,9 +751,13 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         sendAnalyticsEvent(AnalyticsEvents.REFRESH_LICENSE, analyticsProperties);
     }
 
-    private void sendLicenseUpdatedOnInstanceEvent(Tenant tenant, License existingLicense) {
-        if (tenant == null || existingLicense == null || StringUtils.isNullOrEmpty(existingLicense.getKey())) {
-            return;
+    private Mono<Boolean> sendLicenseUpdatedOnInstanceEvent(Tenant tenant, License existingLicense) {
+        if (tenant == null) {
+            return Mono.just(true);
+        }
+        // if existing license is empty, it is a license add event
+        if (existingLicense == null || StringUtils.isNullOrEmpty(existingLicense.getKey())) {
+            return sendAddLicenseToInstanceEvent(tenant);
         }
 
         Map<String, Object> analyticsProperties = new HashMap<>();
@@ -760,6 +769,12 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
         analyticsProperties.put(FieldName.TENANT_ID, tenant.getId());
 
         sendAnalyticsEvent(AnalyticsEvents.UPDATE_LICENSE, analyticsProperties);
+        return logEvent(AnalyticsEvents.UPDATE_LICENSE, license, analyticsProperties)
+                .thenReturn(true);
+    }
+
+    private Mono<AuditLog> logEvent(AnalyticsEvents event, License license, Map<String, Object> analyticsProperties) {
+        return auditLogService.logEvent(event, license, Map.of(FieldName.EVENT_DATA, analyticsProperties));
     }
 
     private void sendAnalyticsEvent(AnalyticsEvents event, Map<String, Object> analyticsProperties) {

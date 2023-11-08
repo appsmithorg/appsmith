@@ -23,6 +23,7 @@ describe("audit-logs/utils/dbToLogs", function () {
         permissionGroup: {},
         userPermissions: [],
         workspace: {},
+        license: {},
       },
       {
         application: {},
@@ -42,6 +43,7 @@ describe("audit-logs/utils/dbToLogs", function () {
         permissionGroup: {},
         userPermissions: [],
         workspace: {},
+        license: {},
       },
     ];
     expect(actual).toEqual(expected);
