@@ -131,7 +131,7 @@ describe("Chart Widget", () => {
       </Provider>,
     );
 
-    echartsContainer = container.querySelector("#widgetID-chartiframe");
+    echartsContainer = container.querySelector("iframe");
     expect(echartsContainer).toBeInTheDocument();
   });
 
@@ -201,7 +201,7 @@ describe("Chart Widget", () => {
       </Provider>,
     );
 
-    echartsContainer = container.querySelector("#widgetID-chartiframe");
+    echartsContainer = container.querySelector("iframe");
     expect(echartsContainer).toBeInTheDocument();
   });
 
