@@ -128,13 +128,13 @@ export const entityDefinitions = {
         "!type": "fn(params: ?) -> +Promise",
         "!url":
           "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryrun",
-        "!doc": "Execute the query with the given parameters.",
+        "!doc": "Executes the query with the given parameters.",
       },
       clear: {
         "!type": "fn() -> +Promise",
         "!url":
           "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryclear",
-        "!doc": "Clear the query data.",
+        "!doc": "Clears the query data.",
       },
     };
   },
