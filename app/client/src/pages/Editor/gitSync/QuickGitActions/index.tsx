@@ -137,8 +137,11 @@ const getPullBtnStatus = (
 ) => {
   const { behindCount, isClean } = gitStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
-  let disabled = isProtected ? false : behindCount === 0;
-  if (!isClean) {
+  let disabled = behindCount === 0;
+  if (isProtected) {
+    disabled = false;
+    message = createMessage(PULL_CHANGES);
+  } else if (!isClean) {
     disabled = true;
     message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
   } else if (pullFailed) {
