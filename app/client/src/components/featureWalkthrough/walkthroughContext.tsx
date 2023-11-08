@@ -27,7 +27,7 @@ export interface FeatureDetails {
   description: string;
   // Gif or Image to give a walkthrough
   imageURL?: string;
-  // show next button
+  // flag to control footer visibility
   showFooterButton?: boolean;
   // footer details
   footerDetails?: FeatureFooterDeatils;
