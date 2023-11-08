@@ -2,7 +2,7 @@ import React from "react";
 import { BUILDER_PATH } from "constants/routes";
 import { Route, Switch, useRouteMatch } from "react-router";
 import * as Sentry from "@sentry/react";
-import useRoutes from "@appsmith/pages/Editor/IDE/MainPane/routes";
+import useRoutes from "@appsmith/pages/Editor/IDE/MainPane/useRoutes";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 export const MainPane = (props: { id: string }) => {
