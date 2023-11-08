@@ -26,6 +26,7 @@ import com.appsmith.server.domains.AuditLogEnvironmentMetadata;
 import com.appsmith.server.domains.AuditLogGacEntityMetadata;
 import com.appsmith.server.domains.AuditLogGacMetadata;
 import com.appsmith.server.domains.AuditLogGitMetadata;
+import com.appsmith.server.domains.AuditLogLicenseMetadata;
 import com.appsmith.server.domains.AuditLogMetadata;
 import com.appsmith.server.domains.AuditLogPageMetadata;
 import com.appsmith.server.domains.AuditLogPermissionGroupMetadata;
@@ -34,6 +35,7 @@ import com.appsmith.server.domains.AuditLogUserGroupMetadata;
 import com.appsmith.server.domains.AuditLogUserMetadata;
 import com.appsmith.server.domains.AuditLogWorkspaceMetadata;
 import com.appsmith.server.domains.GacEntityMetadata;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
@@ -455,6 +457,8 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
             auditLogMono = setResourceProperties((PermissionGroup) resource, auditLog, auditLogResource, eventData);
         } else if (resource instanceof User && event.equals(AnalyticsEvents.DELETE)) {
             auditLogMono = setResourceProperties((User) resource, auditLog, auditLogResource);
+        } else if (resource instanceof License) {
+            auditLogMono = setResourceProperties((License) resource, auditLog, auditLogResource);
         }
 
         // Instance setting events
@@ -477,6 +481,24 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
         }
 
         return auditLogMono;
+    }
+
+    private Mono<AuditLog> setResourceProperties(
+            License license, AuditLog auditLog, AuditLogResource auditLogResource) {
+        AuditLogLicenseMetadata licenseMetadata = new AuditLogLicenseMetadata();
+        if (license != null) {
+            licenseMetadata.setLicenseId(license.getLicenseId());
+            licenseMetadata.setId(license.getId());
+            licenseMetadata.setLicensePlan(license.getPlan());
+            licenseMetadata.setExpiry(license.getExpiry());
+            licenseMetadata.setStatus(license.getStatus());
+            licenseMetadata.setOrigin(license.getOrigin());
+            licenseMetadata.setType(license.getType());
+            licenseMetadata.setProductEdition(license.getProductEdition());
+        }
+        auditLog.setLicense(licenseMetadata);
+        auditLog.setResource(auditLogResource);
+        return Mono.just(auditLog);
     }
 
     private Mono<AuditLog> setResourceProperties(

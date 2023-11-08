@@ -48,6 +48,7 @@ public class AuditLog extends BaseDomain {
     ArrayList<String> invitedUsers;
 
     Set<String> instanceSettings;
+    AuditLogLicenseMetadata license;
 
     @Override
     @JsonIgnore

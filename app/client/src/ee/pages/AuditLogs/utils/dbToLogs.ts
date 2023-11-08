@@ -13,6 +13,15 @@ export function dbToLogs(serverLogs: any[]): AuditLogType[] {
     environment: serverLog.environment || {},
     datasource: serverLog.datasource || {},
     user: serverLog.user || {},
+    license:
+      {
+        ...serverLog.license,
+        ...(serverLog.license?.expiry && {
+          expiry: new Date(
+            Number(serverLog.license.expiry) * 1000,
+          ).toLocaleString(),
+        }),
+      } || {},
     userGroup: serverLog.group || {},
     permissionGroup: serverLog.role || {},
     instanceSettings: serverLog.instanceSettings || [],

@@ -127,4 +127,6 @@ public class FieldName extends FieldNameCE {
     public static final String PAST_LICENSE_ID = "pastLicenseId";
     public static final String TENANT_ID = "tenantId";
     public static final String WORKFLOW_ID = "workflowId";
+    public static final String LICENSE = "license";
+    public static final String ADDED = "added";
 }
