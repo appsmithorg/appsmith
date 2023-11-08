@@ -973,7 +973,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             noBottomBorder={showingTabsOnViewMode}
             pluginImage={pluginImage}
             pluginName={pluginName}
-            pluginPackageName={pluginPackageName}
             pluginType={pluginType}
             setDatasourceViewMode={setDatasourceViewMode}
             viewMode={viewMode}

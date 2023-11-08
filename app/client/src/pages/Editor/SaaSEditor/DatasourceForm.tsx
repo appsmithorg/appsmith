@@ -607,7 +607,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             noBottomBorder={showingTabsOnViewMode}
             pluginImage={pluginImage}
             pluginName={plugin?.name || ""}
-            pluginPackageName={plugin?.packageName || ""}
             pluginType={plugin?.type || ""}
             setDatasourceViewMode={setDatasourceViewMode}
             viewMode={viewMode}
