@@ -1418,7 +1418,7 @@ export class DataSources {
     tableName: string,
     templateName: string,
   ) {
-    this.agHelper.GetNClick(this._datasourceSchemaRefreshBtn);
+    this.RefreshDatasourceSchema();
     this.VerifyTableSchemaOnQueryEditor(tableName);
     cy.get(this._dsVirtuosoElementTable(tableName)).click();
     this.agHelper.GetNClick(
@@ -1891,6 +1891,8 @@ export class DataSources {
                   );
                 }
               }
+              // To close any template pop up, click on the body
+              cy.get(this.locator._body).click({ force: true });
               this.agHelper.AssertElementVisibility(
                 this._dsVirtuosoElementTable(targetTableName),
               );
