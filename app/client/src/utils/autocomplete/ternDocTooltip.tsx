@@ -31,7 +31,12 @@ export function TernDocToolTip(props: {
       <div className="flex items-center justify-between px-2 p-1 border-b border-mercury text-sm font-semibold">
         {displayText}
         {url && (
-          <Link className="text-xs" kind="primary" target="_blank" to={url}>
+          <Link
+            className="text-xs doc-link"
+            kind="primary"
+            target="_blank"
+            to={url}
+          >
             [docs]
           </Link>
         )}
@@ -51,10 +56,12 @@ export function TernDocToolTip(props: {
               <span
                 className="flex items-center justify-start py-[2px] text-xs whitespace-nowrap"
                 key={example}
-                style={{ color: CodeEditorColors.FUNCTION_ARGS }}
+                style={{ color: CodeEditorColors.KEYWORD }}
               >
                 {`${fnName}(`}
-                <span style={{ color: CodeEditorColors.STRING }}>{args}</span>
+                <span style={{ color: CodeEditorColors.TOOLTIP_FN_ARGS }}>
+                  {args}
+                </span>
                 {")"}
               </span>
             );

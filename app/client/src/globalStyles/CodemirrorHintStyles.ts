@@ -2,6 +2,7 @@ import { createGlobalStyle } from "styled-components";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { Theme } from "constants/DefaultTheme";
 import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
+import { CodeEditorColors } from "components/editorComponents/CodeEditor/styledComponents";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;
@@ -258,12 +259,12 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       max-width: none;
       white-space: nowrap;
       .CodeMirror-Tern-fname {
-        color: #304EAA;
+        color: ${CodeEditorColors.KEYWORD};
       }
       .CodeMirror-Tern-farg {
-        color: #DB6E33;
+        color: ${CodeEditorColors.TOOLTIP_FN_ARGS};
         &.CodeMirror-Tern-farg-current {
-          color: #DB6E33;
+          color: ${CodeEditorColors.TOOLTIP_FN_ARGS};
           font-weight: 600;
         }
       }
@@ -281,6 +282,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         overflow: auto;
         font-size: 11px;
         padding: 0 !important;
+        .doc-link > span {
+          font-size: var(--ads-v2-font-size-2);
+        }
       }
     }
   }
