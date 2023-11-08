@@ -759,72 +759,52 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
     }
 
-    public Flux<ActionViewDTO> getActionsForViewModeForPage(String pageId, String branchName) {
-        Mono<NewPage> pageMono = newPageService.findById(pageId, pagePermission.getReadPermission());
+    @Override
+    public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String pageId, String branchName) {
+        if (pageId != null) {
+            return getActionsForViewModeForPageForABranch(pageId, branchName);
+        } else if (defaultApplicationId != null) {
+            return getActionsForViewModeForApplicationForABranch(defaultApplicationId, branchName);
+        } else {
+            return Flux.error(new AppsmithException(
+                    AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID, FieldName.PAGE_ID));
+        }
+    }
 
-        return pageMono.flatMapMany(page -> {
-            String applicationId = page.getApplicationId();
+    private Flux<ActionViewDTO> getActionsForViewModeForPageForABranch(String pageId, String branchName) {
+        Mono<String> branchedPageId =
+                newPageService.findBranchedPageId(branchName, pageId, pagePermission.getReadPermission());
 
-            return getActionsForViewMode(applicationId, branchName);
+        return branchedPageId.flatMapMany(updatedPageId -> {
+            Flux<NewAction> actions = repository
+                    .findByPageId(updatedPageId, actionPermission.getReadPermission())
+                    .flatMap(this::sanitizeAction);
+            return mapAndFilterActions(actions);
         });
     }
 
-    @Override
-    public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
+    private Flux<ActionViewDTO> getActionsForViewModeForApplicationForABranch(
+            String defaultApplicationId, String branchName) {
         return applicationService
                 .findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
-                .flatMapMany(this::getActionsForViewMode)
+                .flatMapMany(this::getActionsForViewModeForApplication)
                 .map(responseUtils::updateActionViewDTOWithDefaultResources)
                 .name(GET_VIEW_MODE_ACTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
-    public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
-
+    public Flux<ActionViewDTO> getActionsForViewModeForApplication(String applicationId) {
         if (applicationId == null || applicationId.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
-        // fetch the published actions by applicationId
-        // No need to sort the results
         return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
-                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                .map(action -> {
-                    ActionViewDTO actionViewDTO = new ActionViewDTO();
-                    actionViewDTO.setId(action.getDefaultResources().getActionId());
-                    actionViewDTO.setName(action.getPublishedAction().getValidName());
-                    actionViewDTO.setPageId(action.getPublishedAction().getPageId());
-                    actionViewDTO.setConfirmBeforeExecute(
-                            action.getPublishedAction().getConfirmBeforeExecute());
-                    // Update defaultResources
-                    DefaultResources defaults = action.getDefaultResources();
-                    // Consider a situation when action is not published but user is viewing in deployed mode
-                    if (action.getPublishedAction().getDefaultResources() != null) {
-                        defaults.setPageId(action.getPublishedAction()
-                                .getDefaultResources()
-                                .getPageId());
-                        defaults.setCollectionId(action.getPublishedAction()
-                                .getDefaultResources()
-                                .getCollectionId());
-                    } else {
-                        defaults.setPageId(null);
-                        defaults.setCollectionId(null);
-                    }
-                    actionViewDTO.setDefaultResources(defaults);
-                    if (action.getPublishedAction().getJsonPathKeys() != null
-                            && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
-                        Set<String> jsonPathKeys;
-                        jsonPathKeys = new HashSet<>();
-                        jsonPathKeys.addAll(action.getPublishedAction().getJsonPathKeys());
-                        actionViewDTO.setJsonPathKeys(jsonPathKeys);
-                    }
-                    if (action.getPublishedAction().getActionConfiguration() != null) {
-                        actionViewDTO.setTimeoutInMillisecond(action.getPublishedAction()
-                                .getActionConfiguration()
-                                .getTimeoutInMillisecond());
-                    }
-                    return actionViewDTO;
+                .flatMap(this::sanitizeAction)
+                .flatMap(newAction -> {
+                    Flux<NewAction> actions = repository.findByPageId(
+                            newAction.getPublishedAction().getPageId(), actionPermission.getReadPermission());
+                    return mapAndFilterActions(actions);
                 });
     }
 
@@ -1134,6 +1114,51 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             }
             return addMissingPluginDetailsToNewActionObjects(action);
         });
+    }
+
+    private Flux<ActionViewDTO> mapAndFilterActions(Flux<NewAction> actions) {
+        return actions.filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
+                .map(action -> {
+                    ActionViewDTO actionViewDTO = new ActionViewDTO();
+                    actionViewDTO.setId(action.getDefaultResources().getActionId());
+                    actionViewDTO.setName(action.getPublishedAction().getValidName());
+                    actionViewDTO.setPageId(action.getPublishedAction().getPageId());
+                    actionViewDTO.setConfirmBeforeExecute(
+                            action.getPublishedAction().getConfirmBeforeExecute());
+
+                    // Update defaultResources
+                    DefaultResources defaults = action.getDefaultResources();
+
+                    // Consider a situation when action is not published but the user is viewing in deployed mode
+                    if (action.getPublishedAction().getDefaultResources() != null) {
+                        defaults.setPageId(action.getPublishedAction()
+                                .getDefaultResources()
+                                .getPageId());
+                        defaults.setCollectionId(action.getPublishedAction()
+                                .getDefaultResources()
+                                .getCollectionId());
+                    } else {
+                        defaults.setPageId(null);
+                        defaults.setCollectionId(null);
+                    }
+
+                    actionViewDTO.setDefaultResources(defaults);
+
+                    if (action.getPublishedAction().getJsonPathKeys() != null
+                            && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
+                        Set<String> jsonPathKeys =
+                                new HashSet<>(action.getPublishedAction().getJsonPathKeys());
+                        actionViewDTO.setJsonPathKeys(jsonPathKeys);
+                    }
+
+                    if (action.getPublishedAction().getActionConfiguration() != null) {
+                        actionViewDTO.setTimeoutInMillisecond(action.getPublishedAction()
+                                .getActionConfiguration()
+                                .getTimeoutInMillisecond());
+                    }
+
+                    return actionViewDTO;
+                });
     }
 
     private Mono<NewAction> addMissingPluginDetailsToNewActionObjects(NewAction action) {

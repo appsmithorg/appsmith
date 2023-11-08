@@ -130,18 +130,10 @@ public class ActionControllerCE {
             @RequestParam(required = false) String applicationId,
             @RequestParam(required = false) String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        if (pageId != null) {
-            // If pageId is present, applicationId is optional
-            return newActionService
-                    .getActionsForViewModeForPage(pageId, branchName)
-                    .collectList()
-                    .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
-        } else {
-            return newActionService
-                    .getActionsForViewMode(applicationId, branchName)
-                    .collectList()
-                    .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
-        }
+        return newActionService
+                .getActionsForViewMode(applicationId, pageId, branchName)
+                .collectList()
+                .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
     }
 
     @JsonView(Views.Public.class)

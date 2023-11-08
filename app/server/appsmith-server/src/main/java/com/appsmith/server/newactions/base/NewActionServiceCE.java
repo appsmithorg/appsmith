@@ -70,11 +70,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort);
 
-    Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
+    Flux<ActionViewDTO> getActionsForViewModeForApplication(String applicationId);
 
-    Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
-
-    Flux<ActionViewDTO> getActionsForViewModeForPage(String pageId, String branchName);
+    Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String pageId, String branchName);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
