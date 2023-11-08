@@ -238,6 +238,10 @@ const OuterContainer = styled.div`
   height: 100%;
 `;
 
+const CenterDiv = styled.div`
+  text-align: center;
+`;
+
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
@@ -245,7 +249,7 @@ function ConnectGitPlaceholder() {
   const isTooltipEnabled = isInGuidedTour || !isGitAdmin;
   const tooltipContent = useMemo(() => {
     if (!isGitAdmin) {
-      return <div>{createMessage(CONTACT_ADMIN_FOR_GIT)}</div>;
+      return <CenterDiv>{createMessage(CONTACT_ADMIN_FOR_GIT)}</CenterDiv>;
     }
     if (isInGuidedTour) {
       return (
