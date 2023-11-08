@@ -57,6 +57,7 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
+          ColumnTypes.CURRENCY,
           ColumnTypes.URL,
         ]);
       },
@@ -96,6 +97,7 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
+          ColumnTypes.CURRENCY,
           ColumnTypes.URL,
         ]);
       },
@@ -140,6 +142,7 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
+          ColumnTypes.CURRENCY,
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
           ColumnTypes.SWITCH,
@@ -186,6 +189,7 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
+          ColumnTypes.CURRENCY,
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
           ColumnTypes.SWITCH,
