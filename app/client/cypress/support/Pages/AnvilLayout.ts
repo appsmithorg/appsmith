@@ -24,8 +24,7 @@ export class AnvilLayout {
 
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
-      .trigger("dragstart", { force: true })
-      .trigger("mousemove", x, y, { force: true });
+      .trigger("dragstart", { force: true });
     cy.get(
       dropTargetId
         ? dropTargetId + this.locator._dropHere
