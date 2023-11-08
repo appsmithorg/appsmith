@@ -75,14 +75,6 @@ public class ApplicationTemplateControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("recent")
-    public Mono<ResponseDTO<List<ApplicationTemplate>>> getRecentlyUsedTemplates() {
-        return applicationTemplateService
-                .getRecentlyUsedTemplates()
-                .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
-    }
-
-    @JsonView(Views.Public.class)
     @PostMapping("{templateId}/merge/{applicationId}/{organizationId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> mergeTemplateWithApplication(
             @PathVariable String templateId,

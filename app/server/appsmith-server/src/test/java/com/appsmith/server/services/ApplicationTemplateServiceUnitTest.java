@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exports.internal.ExportApplicationService;
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
-import mockwebserver3.RecordedRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
@@ -124,37 +122,6 @@ public class ApplicationTemplateServiceUnitTest {
                     assertThat(applicationTemplates.size()).isEqualTo(3);
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void getRecentlyUsedTemplates_WhenNoRecentTemplate_ReturnsEmpty() {
-        // mock the user data to that has no recent template
-        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(new UserData()));
-
-        StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates())
-                .verifyComplete();
-    }
-
-    @Test
-    public void getRecentlyUsedTemplates_WhenRecentTemplatesExist_ReturnsTemplates()
-            throws InterruptedException, JsonProcessingException {
-
-        // mock the server to return a template when it's called
-        mockCloudServices.enqueue(new MockResponse()
-                .setBody(objectMapper.writeValueAsString(List.of(create("id-one", "First template"))))
-                .addHeader("Content-Type", "application/json"));
-
-        // make sure we've received the response returned by the mockCloudServices
-        StepVerifier.create(applicationTemplateService.getRecentlyUsedTemplates())
-                .assertNext(
-                        applicationTemplates -> assertThat(applicationTemplates).hasSize(1))
-                .verifyComplete();
-
-        // verify that mockCloudServices was called with the query param id i.e. id=id-one&id=id-two
-        RecordedRequest recordedRequest = mockCloudServices.takeRequest();
-        assert recordedRequest.getRequestUrl() != null;
-        List<String> queryParameterValues = recordedRequest.getRequestUrl().queryParameterValues("id");
-        assertThat(queryParameterValues).containsExactly("id-one", "id-two");
     }
 
     @Test

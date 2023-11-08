@@ -16,8 +16,6 @@ public interface ApplicationTemplateServiceCE {
 
     Flux<ApplicationTemplate> getSimilarTemplates(String templateId, MultiValueMap<String, String> params);
 
-    Mono<List<ApplicationTemplate>> getRecentlyUsedTemplates();
-
     Mono<ApplicationTemplate> getTemplateDetails(String templateId);
 
     Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId);

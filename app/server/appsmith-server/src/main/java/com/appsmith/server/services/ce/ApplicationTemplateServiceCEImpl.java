@@ -215,17 +215,6 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Mono<List<ApplicationTemplate>> getRecentlyUsedTemplates() {
-        return userDataService.getForCurrentUser().flatMap(userData -> {
-            List<String> templateIds = userData.getRecentlyUsedTemplateIds();
-            if (!CollectionUtils.isEmpty(templateIds)) {
-                return getActiveTemplates(templateIds);
-            }
-            return Mono.empty();
-        });
-    }
-
-    @Override
     public Mono<ApplicationTemplate> getFilters() {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
