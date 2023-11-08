@@ -27,6 +27,19 @@ export interface FeatureDetails {
   description: string;
   // Gif or Image to give a walkthrough
   imageURL?: string;
+  // show next button
+  showFooterButton?: boolean;
+  // footer details
+  footerDetails?: FeatureFooterDeatils;
+}
+
+export interface FeatureFooterDeatils {
+  // footer text
+  footerText: string;
+  // footer button text
+  footerButtonText: string;
+  // footer button onClick handler
+  onClickHandler: () => void;
 }
 
 export interface FeatureParams {
