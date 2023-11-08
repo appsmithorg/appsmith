@@ -335,14 +335,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       EditorNavigation.sidebar(SidebarButton.Data);
 
       // Choose the first data source which consists of users keyword & Click on the "New query +"" button
-      cy.get(`${datasource.datasourceCard}`)
-        .filter(":contains('Users')")
-        .first()
-        .within(() => {
-          cy.get(`${datasource.createQuery}`).click({
-            force: true,
-          });
-        });
+      _.dataSources.CreateQueryFromActiveTab("Users");
 
       // Click the editing field
       cy.get(".t--action-name-edit-field").click({
@@ -383,7 +376,7 @@ describe("List widget v2 - Basic server side data tests", () => {
   );
   it(
     "airgap",
-    "6. no of items rendered should be equal to page size - airgap",
+    "7. no of items rendered should be equal to page size - airgap",
     () => {
       _.dataSources.CreateDataSource("Postgres");
       cy.wait(1000);

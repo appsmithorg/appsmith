@@ -55,11 +55,11 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
     dataSources.navigateToDatasource(datasourceName);
-    agHelper.RenameWithInPane(`${datasourceName}new`);
+    agHelper.RenameWithInPane(`${datasourceName}new`, false);
     cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
 
     // reverting the name
-    agHelper.RenameWithInPane(datasourceName);
+    agHelper.RenameWithInPane(datasourceName, false);
 
     EditorNavigation.sidebar(SidebarButton.Pages);
 

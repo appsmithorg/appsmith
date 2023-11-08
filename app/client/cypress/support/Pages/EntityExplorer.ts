@@ -460,7 +460,6 @@ export class EntityExplorer {
   }
 
   public VerifyIsCurrentPage(pageName: string) {
-    EditorNavigation.sidebar(SidebarButton.Pages);
     this.agHelper
       .GetElement(this._pageNameDiv(pageName))
       .should("have.class", "activePage");

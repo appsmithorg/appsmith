@@ -24,10 +24,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   // });
 
   before("1. Create DS for generating CRUD template", () => {
-    featureFlagIntercept({
-      ab_gsheet_schema_enabled: true,
-      ab_mock_mongo_schema_enabled: true,
-    });
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

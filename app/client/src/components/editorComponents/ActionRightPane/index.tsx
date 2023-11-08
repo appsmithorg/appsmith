@@ -417,6 +417,7 @@ function ActionSidebar({
 
       {showSchema && (
         <CollapsibleSection
+          data-testId="datasource-schema-container"
           height={
             datasourceStructure?.tables?.length && !isLoadingSchema
               ? "50%"

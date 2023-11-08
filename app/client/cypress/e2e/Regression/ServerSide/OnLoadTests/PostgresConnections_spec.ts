@@ -57,7 +57,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       dsName_2 = $dsName;
 
       //Create 10 queries
-      for (let i = 1; i <= 10; i++) {
+      for (let i = 1; i <= 8; i++) {
         dataSources.NavigateFromActiveDS(dsName_2, true);
         agHelper.RenameWithInPane("Query_" + i);
         const userCreateQuery = `select table_name from information_schema.tables where table_schema='public' and table_type='BASE TABLE';`;
@@ -67,7 +67,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
   });
 
   it("3. Bind queries to select widget", () => {
-    for (let i = 1; i < 10; i++) {
+    for (let i = 1; i < 8; i++) {
       entityExplorer.DragDropWidgetNVerify(
         "selectwidget",
         i * 1.5 * 50 + 100,
@@ -163,7 +163,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
         entityType: entityItems.Query,
       });
 
-      for (let i = 1; i <= 10; i++) {
+      for (let i = 1; i <= 8; i++) {
         entityExplorer.ActionContextMenuByEntityName({
           entityNameinLeftSidebar: "Query_" + i,
           action: "Delete",

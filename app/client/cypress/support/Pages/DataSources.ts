@@ -285,6 +285,7 @@ export class DataSources {
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
   _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
+  private _dsSchemaContainer = `[data-testId="datasource-schema-container"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
     `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
   private _dsPageTabListItem = (buttonText: string) =>
@@ -1371,7 +1372,7 @@ export class DataSources {
     }
     this.selectTabOnDatasourcePage("View data");
     cy.wait("@getDatasourceStructure").then(() => {
-      cy.get(".bp3-collapse-body").contains(schema);
+      cy.get(this._dsSchemaContainer).contains(schema);
     });
   }
 
@@ -1421,7 +1422,7 @@ export class DataSources {
   ) {
     this.CreateQueryFromActiveTab(datasourceName);
     this.RefreshDatasourceSchema();
-    this.VerifyTableSchemaOnQueryEditor(tableName);
+    this.FilterAndVerifyDatasourceSchemaBySearch(tableName);
     cy.get(this._dsVirtuosoElementTable(tableName)).click();
     this.agHelper.GetNClick(
       this.entityExplorer.locator._contextMenuItem(templateName),
@@ -1900,7 +1901,9 @@ export class DataSources {
               );
             });
         } else {
-          this.agHelper.AssertElementAbsence(this._dsVirtuosoElement);
+          this.agHelper.AssertElementAbsence(
+            this._dsVirtuosoElementTable(targetTableName),
+          );
           expect(indexOfTable).to.equal(-1);
         }
       });

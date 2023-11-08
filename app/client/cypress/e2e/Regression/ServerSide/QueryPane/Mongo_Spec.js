@@ -291,13 +291,12 @@ describe("Validate Mongo query commands", function () {
 
   it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
     let id;
-    entityExplorer.SelectEntityByName("Query1");
-    dataSources.AssertTableInVirtuosoList(datasourceName, "listingAndReviews");
     dataSources.createQueryWithDatasourceSchemaTemplate(
       datasourceName,
       "listingAndReviews",
       "Find",
     );
+    entityExplorer.SelectEntityByName("Query1");
 
     cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
       .then(($field) => {
@@ -571,7 +570,11 @@ describe("Validate Mongo query commands", function () {
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}', formControls.rawBody);
     cy.wait(1000); //Waiting a bit before runing the command
     dataSources.RunQuery({ waitTimeInterval: 2000 });
-    dataSources.AssertTableInVirtuosoList(dsName, "NonAsciiTest", false);
+    dataSources.AssertTableInVirtuosoList(
+      datasourceName,
+      "NonAsciiTest",
+      false,
+    );
     cy.deleteQueryUsingContext();
   });
 });

@@ -290,7 +290,11 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     dataSources.EnterQuery(deleteTblQuery);
     dataSources.RunQuery();
     // TODO use the schema on the query itself to check
-    dataSources.AssertTableInVirtuosoList(dsName, "public.users_crud", false);
+    dataSources.AssertTableInVirtuosoList(
+      datasourceName,
+      "public.users_crud",
+      false,
+    );
     cy.deleteQueryUsingContext();
   });
 

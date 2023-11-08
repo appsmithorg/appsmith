@@ -106,7 +106,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
-      x: 800,
+      x: 845,
       y: 750,
     });
     cy.get(guidedTourLocators.successButton).click();

@@ -224,7 +224,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
 
     query = `UPDATE
     {
-        _key: "1"
+        _key: "2"
     }
     WITH
     {
