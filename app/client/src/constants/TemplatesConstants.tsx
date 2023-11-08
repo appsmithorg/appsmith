@@ -28,21 +28,6 @@ export const STARTER_BUILDING_BLOCKS = {
   DATASOURCE_PROMPT_DELAY: 3000,
   STARTER_BUILDING_BLOCKS_TEMPLATES: [
     {
-      id: 1,
-      title: createMessage(
-        STARTER_BUILDING_BLOCKS_LAYOUTS.layouts.recordEdit.name,
-      ),
-      description: createMessage(
-        STARTER_BUILDING_BLOCKS_LAYOUTS.layouts.recordEdit.description,
-      ),
-      icon: <RecordEdit />,
-      screenshot:
-        "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-edit.png",
-      templateId: "6530e343fa63b553e4be0266",
-      templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-      templatePageName: "Record Edit",
-    },
-    {
       id: 2,
       title: createMessage(
         STARTER_BUILDING_BLOCKS_LAYOUTS.layouts.recordDetails.name,
@@ -56,6 +41,21 @@ export const STARTER_BUILDING_BLOCKS = {
       templateId: "6530e343fa63b553e4be0266",
       templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
       templatePageName: "Record Details",
+    },
+    {
+      id: 1,
+      title: createMessage(
+        STARTER_BUILDING_BLOCKS_LAYOUTS.layouts.recordEdit.name,
+      ),
+      description: createMessage(
+        STARTER_BUILDING_BLOCKS_LAYOUTS.layouts.recordEdit.description,
+      ),
+      icon: <RecordEdit />,
+      screenshot:
+        "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-edit.png",
+      templateId: "6530e343fa63b553e4be0266",
+      templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
+      templatePageName: "Record Edit",
     },
     {
       id: 3,
