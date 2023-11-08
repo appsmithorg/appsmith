@@ -13,8 +13,9 @@ import {
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
-import EntityLink, { DebuggerLinkUI } from "../../EntityLink";
+import EntityLink from "../../EntityLink";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { DebuggerLinkUI } from "@appsmith/components/editorComponents/Debugger/entityTypeLinkMap";
 
 const EntityLinkWrapper = styled.div`
   display: flex;

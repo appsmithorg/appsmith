@@ -50,7 +50,6 @@ import {
 import ConfigTreeActions from "utils/configTree";
 import {
   dynamicTriggerErrorHandler,
-  evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
   logJSVarCreatedEvent,
   logSuccessfulBindings,
@@ -100,6 +99,8 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
+import { evalErrorHandler } from "./EvalErrorHandler";
+
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(

@@ -658,6 +658,7 @@ describe("isDataField", () => {
       },
     },
     MainContainer: {
+      widgetName: "MainContainer",
       defaultProps: {},
       defaultMetaProps: [],
       dynamicBindingPathList: [],
@@ -676,6 +677,7 @@ describe("isDataField", () => {
       widgetId: "0",
     },
     Button1: {
+      widgetName: "Button1",
       defaultProps: {},
       defaultMetaProps: ["recaptchaToken"],
       dynamicBindingPathList: [
@@ -797,6 +799,7 @@ describe("isDataField", () => {
       widgetId: "19ih8rt2eo",
     },
     Button2: {
+      widgetName: "Button2",
       defaultProps: {},
       defaultMetaProps: ["recaptchaToken"],
       dynamicBindingPathList: [
@@ -924,6 +927,7 @@ describe("isDataField", () => {
       widgetId: "vss3w1eecd",
     },
     Button3: {
+      widgetName: "Button3",
       defaultProps: {},
       defaultMetaProps: ["recaptchaToken"],
       dynamicBindingPathList: [
