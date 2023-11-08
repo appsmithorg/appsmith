@@ -1,5 +1,4 @@
 import React, { lazy, Suspense } from "react";
-
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
@@ -72,6 +71,12 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       searchTags: ["graph", "visuals", "visualisations"],
+    };
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      customEChartConfig: ["chartType"],
     };
   }
 
