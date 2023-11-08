@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
-import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import type { ButtonColumnActions } from "widgets/wds/WDSTableWidget/constants";
+import { EditableCellActions } from "widgets/wds/WDSTableWidget/constants";
 import { Button } from "./Button";
 import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
