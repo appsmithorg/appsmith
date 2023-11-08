@@ -24,6 +24,49 @@ interface StickyCanvasArenaRef {
   slidingArenaRef: RefObject<HTMLDivElement>;
 }
 
+const shouldUpdateCanvas = (
+  currentEntry: IntersectionObserverEntry,
+  previousEntry?: IntersectionObserverEntry,
+) => {
+  if (previousEntry) {
+    const {
+      boundingClientRect: {
+        left: previousBoundingLeft,
+        top: previousBoundingTop,
+      },
+      intersectionRect: {
+        height: previousIntersectHeight,
+        left: previousIntersectLeft,
+        top: previousIntersectTop,
+        width: previousIntersectWidth,
+      },
+    } = previousEntry;
+    const {
+      boundingClientRect: {
+        left: currentBoundingLeft,
+        top: currentBoundingTop,
+      },
+      intersectionRect: {
+        height: currentIntersectHeight,
+        left: currentIntersectLeft,
+        top: currentIntersectTop,
+        width: currentIntersectWidth,
+      },
+    } = currentEntry;
+    if (
+      previousIntersectHeight === currentIntersectHeight &&
+      previousIntersectWidth === currentIntersectWidth &&
+      previousIntersectLeft === currentIntersectLeft &&
+      previousIntersectTop === currentIntersectTop &&
+      previousBoundingTop === currentBoundingTop &&
+      previousBoundingLeft === currentBoundingLeft
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   position: absolute;
   top: 0px;
@@ -49,7 +92,7 @@ export const StickyCanvasArena = forwardRef(
       sliderId,
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
-
+    const previousIntersectionEntry = useRef<IntersectionObserverEntry>();
     const interSectionObserver = useRef(
       new IntersectionObserver((entries) => {
         entries.forEach(updateCanvasStylesIntersection);
@@ -94,9 +137,14 @@ export const StickyCanvasArena = forwardRef(
             slidingArenaRef.current,
           );
 
-          if (parentCanvas && stickyCanvasRef.current) {
+          if (
+            parentCanvas &&
+            stickyCanvasRef.current &&
+            shouldUpdateCanvas(entry, previousIntersectionEntry.current)
+          ) {
             repositionSliderCanvas(entry);
             rescaleSliderCanvas(entry);
+            previousIntersectionEntry.current = entry;
           }
         });
       }
