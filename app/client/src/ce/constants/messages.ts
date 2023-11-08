@@ -843,6 +843,7 @@ export const COMMITTING_AND_PUSHING_CHANGES = () =>
 export const DISCARDING_AND_PULLING_CHANGES = () =>
   "Discarding and pulling changes...";
 export const DISCARD_SUCCESS = () => "Discarded changes successfully.";
+export const DISCARD_AND_PULL_SUCCESS = () => "Pulled from remote successfully";
 
 export const IS_MERGING = () => "Merging changes...";
 
