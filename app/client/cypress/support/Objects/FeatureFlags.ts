@@ -1,18 +1,39 @@
 export const featureFlagIntercept = (
   flags: Record<string, boolean>,
-  reload = true,
+  shouldIntercept = true,
 ) => {
-  const response = {
-    responseMeta: {
-      status: 200,
-      success: true,
-    },
-    data: flags,
-    errorDisplay: "",
-  };
-  // cy.intercept("GET", "/api/v1/users/features", response);
-  if (reload) {
-    cy.reload();
-    cy.wait(2000); //for the page to re-load finish for CI runs
+
+  if (shouldIntercept) {
+    cy.intercept("GET", "/api/v1/users/features").as("getFeatures");
+  }
+
+  cy.reload();
+  cy.wait(2000);
+
+  if (shouldIntercept) {
+    cy.wait("@getFeatures").then((interception) => {
+      if (interception && interception.response) {
+        const originalResponse = interception?.response.body;
+        let modifiedResponse: any = {}
+        Object.keys(originalResponse.data).forEach(flag => {
+          if (flag.startsWith('license_')) {
+            modifiedResponse[flag] = originalResponse.data[flag]
+          }
+        })
+        modifiedResponse = {
+          ...modifiedResponse,
+          ...flags
+        }
+        const response = {
+          responseMeta: {
+            status: 200,
+            success: true,
+          },
+          data: { ...modifiedResponse },
+          errorDisplay: "",
+        };
+        cy.intercept("GET", "/api/v1/users/features", response);
+      }
+    })
   }
 };
