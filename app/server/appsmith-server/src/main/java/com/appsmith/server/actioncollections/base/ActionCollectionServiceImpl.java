@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.scheduler.Scheduler;
 
 @Service
@@ -31,7 +32,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            TransactionalOperator transactionalOperator) {
         super(
                 scheduler,
                 validator,
@@ -44,6 +46,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                actionPermission);
+                actionPermission,
+                transactionalOperator);
     }
 }

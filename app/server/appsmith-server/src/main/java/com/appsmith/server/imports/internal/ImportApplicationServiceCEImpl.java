@@ -487,6 +487,10 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
            6. Extract and save pages in the application
            7. Extract and save actions in the application
         */
+
+        // Start the stopwatch to log the execution time
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
+
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         // check for validation error and raise exception if error found
@@ -523,9 +527,6 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         Mono<Void> applicationSpecificImportedEntitiesMono =
                 applicationSpecificImportedEntities(applicationJson, importingMetaDTO, mappedImportableResourcesDTO);
 
-        // Start the stopwatch to log the execution time
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
-
         /*
          Calling the workspaceMono first to avoid creating multiple mongo transactions.
          If the first db call inside a transaction is a Flux, then there's a chance of creating multiple mongo
@@ -537,7 +538,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                         importedApplication, importingMetaDTO, mappedImportableResourcesDTO, currUserMono))
                 .cache();
 
-        Mono<Application> importMono = importedApplicationMono
+        Mono<Application> importMono = workspaceMono
                 .then(getImportableEntities(
                         importingMetaDTO,
                         mappedImportableResourcesDTO,
@@ -561,15 +562,16 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
 
                     return applicationService.update(application.getId(), updateApplication);
                 })
+                .as(transactionalOperator::transactional);
+
+        final Mono<Application> resultMono = importMono
+                // .retry(3)
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     log.error("Error importing application. Error: {}", errorMessage, throwable);
                     return Mono.error(
                             new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
-                .as(transactionalOperator::transactional);
-
-        final Mono<Application> resultMono = importMono
                 .flatMap(application ->
                         sendImportExportApplicationAnalyticsEvent(application.getId(), AnalyticsEvents.IMPORT))
                 .zipWith(currUserMono)

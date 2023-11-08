@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Set;
 
@@ -112,7 +113,12 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
     public Set<String> mapNameToIdForExportableEntities(
             MappedExportableResourcesDTO mappedExportableResourcesDTO, List<NewAction> newActionList) {
         Set<String> dbNamesUsedInActions = new HashSet<>();
-        newActionList.forEach(newAction -> {
+
+        ListIterator<NewAction> newActionListIterator = newActionList.listIterator();
+        // using iterator because we may need to remove elements from the list
+        while (newActionListIterator.hasNext()) {
+            NewAction newAction = newActionListIterator.next();
+            boolean actionIsInvalid = false;
             newAction.setPluginId(mappedExportableResourcesDTO.getPluginMap().get(newAction.getPluginId()));
             newAction.setWorkspaceId(null);
             newAction.setPolicies(null);
@@ -136,13 +142,17 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                 actionDTO.setPageId(
                         mappedExportableResourcesDTO.getPageIdToNameMap().get(actionDTO.getPageId() + EDIT));
 
-                if (!StringUtils.isEmpty(actionDTO.getCollectionId())
-                        && mappedExportableResourcesDTO
-                                .getCollectionIdToNameMap()
-                                .containsKey(actionDTO.getCollectionId())) {
-                    actionDTO.setCollectionId(mappedExportableResourcesDTO
+                if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
+                    // this is an JSObject action, need to map the collectionId to name
+                    if (mappedExportableResourcesDTO
                             .getCollectionIdToNameMap()
-                            .get(actionDTO.getCollectionId()));
+                            .containsKey(actionDTO.getCollectionId())) {
+                        actionDTO.setCollectionId(mappedExportableResourcesDTO
+                                .getCollectionIdToNameMap()
+                                .get(actionDTO.getCollectionId()));
+                    } else {
+                        actionIsInvalid = true; // this action is not valid, need to remove it from the list
+                    }
                 }
 
                 final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
@@ -154,13 +164,17 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                 actionDTO.setPageId(
                         mappedExportableResourcesDTO.getPageIdToNameMap().get(actionDTO.getPageId() + VIEW));
 
-                if (!StringUtils.isEmpty(actionDTO.getCollectionId())
-                        && mappedExportableResourcesDTO
-                                .getCollectionIdToNameMap()
-                                .containsKey(actionDTO.getCollectionId())) {
-                    actionDTO.setCollectionId(mappedExportableResourcesDTO
+                if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
+                    // this is an JSObject action, need to map the collectionId to name
+                    if (mappedExportableResourcesDTO
                             .getCollectionIdToNameMap()
-                            .get(actionDTO.getCollectionId()));
+                            .containsKey(actionDTO.getCollectionId())) {
+                        actionDTO.setCollectionId(mappedExportableResourcesDTO
+                                .getCollectionIdToNameMap()
+                                .get(actionDTO.getCollectionId()));
+                    } else {
+                        actionIsInvalid = true; // this action is not valid, need to remove it from the list
+                    }
                 }
 
                 if (!mappedExportableResourcesDTO.getActionIdToNameMap().containsValue(newAction.getId())) {
@@ -169,7 +183,12 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                     newAction.setId(updatedActionId);
                 }
             }
-        });
+
+            if (actionIsInvalid) {
+                newActionListIterator.remove();
+            }
+        }
+
         return dbNamesUsedInActions;
     }
 }

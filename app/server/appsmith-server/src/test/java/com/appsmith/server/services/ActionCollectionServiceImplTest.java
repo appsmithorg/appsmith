@@ -46,6 +46,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -115,6 +116,9 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     private PolicyGenerator policyGenerator;
 
+    @MockBean
+    private TransactionalOperator transactionalOperator;
+
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
@@ -132,7 +136,8 @@ public class ActionCollectionServiceImplTest {
                 applicationService,
                 responseUtils,
                 applicationPermission,
-                actionPermission);
+                actionPermission,
+                transactionalOperator);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
@@ -581,6 +586,9 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
                 .thenReturn(Mono.just(actionCollection));
 
+        Mockito.when(transactionalOperator.transactional(Mockito.any(Mono.class)))
+                .thenReturn(Mono.just(actionCollection));
+
         Mockito.when(actionCollectionRepository.save(Mockito.any())).thenAnswer(invocation -> {
             final ActionCollection argument = (ActionCollection) invocation.getArguments()[0];
             return Mono.just(argument);
@@ -617,6 +625,9 @@ public class ActionCollectionServiceImplTest {
         actionCollection.setDefaultResources(setDefaultResources(actionCollection));
         unpublishedCollection.setDefaultResources(setDefaultResources(unpublishedCollection));
         Instant deletedAt = Instant.now();
+
+        Mockito.when(transactionalOperator.transactional(Mockito.any(Mono.class)))
+                .thenReturn(Mono.just(actionCollection));
 
         Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
                 .thenReturn(Mono.just(actionCollection));

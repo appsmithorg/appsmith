@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -62,6 +63,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
     private final ActionPermission actionPermission;
+    private final TransactionalOperator transactionalOperator;
 
     @Autowired
     public ActionCollectionServiceCEImpl(
@@ -76,7 +78,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            TransactionalOperator transactionalOperator) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
@@ -85,6 +88,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
         this.actionPermission = actionPermission;
+        this.transactionalOperator = transactionalOperator;
     }
 
     @Override
@@ -374,21 +378,22 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                 .flatMap(actionId -> newActionService
                                         .deleteUnpublishedAction(actionId)
                                         // return an empty action so that the filter can remove it from the list
-                                        .onErrorResume(throwable -> {
-                                            log.debug(
+                                        .onErrorMap(throwable -> {
+                                            log.error(
                                                     "Failed to delete action with id {} for collection: {}",
                                                     actionId,
                                                     toDelete.getUnpublishedCollection()
-                                                            .getName());
-                                            log.error(throwable.getMessage());
-                                            return Mono.empty();
+                                                            .getName(),
+                                                    throwable);
+                                            return throwable;
                                         }))
                                 .collectList()
-                                .then(repository.save(toDelete))
-                                .flatMap(modifiedActionCollection -> {
-                                    return analyticsService.sendArchiveEvent(
-                                            modifiedActionCollection, getAnalyticsProperties(modifiedActionCollection));
-                                });
+                                .then(repository.save(toDelete));
+
+                        return transactionalOperator
+                                .transactional(modifiedActionCollectionMono)
+                                .flatMap(modifiedActionCollection -> analyticsService.sendArchiveEvent(
+                                        modifiedActionCollection, getAnalyticsProperties(modifiedActionCollection)));
                     } else {
                         // This actionCollection was never published. This document can be safely archived
                         modifiedActionCollectionMono = this.archiveById(toDelete.getId());
