@@ -27,8 +27,6 @@ export interface FeatureDetails {
   description: string;
   // Gif or Image to give a walkthrough
   imageURL?: string;
-  // flag to control footer visibility
-  showFooterButton?: boolean;
   // footer details
   footerDetails?: FeatureFooterDeatils;
 }
@@ -41,6 +39,12 @@ export interface FeatureFooterDeatils {
   // footer button onClick handler
   onClickHandler: () => void;
 }
+
+export const isFeatureFooterDeatils = (
+  obj: FeatureFooterDeatils,
+): obj is FeatureFooterDeatils => {
+  return !!obj;
+};
 
 export interface FeatureParams {
   // To execute a function on dismissing the tutorial walkthrough.

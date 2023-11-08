@@ -8,7 +8,9 @@ import type {
   FeatureParams,
   OffsetType,
 } from "./walkthroughContext";
-import WalkthroughContext from "./walkthroughContext";
+import WalkthroughContext, {
+  isFeatureFooterDeatils,
+} from "./walkthroughContext";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const CLIPID = "clip__feature";
@@ -308,17 +310,18 @@ const InstructionsComponent = ({
           <img src={details.imageURL} />
         </ImageWrapper>
       )}
-      {details.showFooterButton && !!details.footerDetails && (
-        <>
-          <FeatureFooterDivider />
-          <FeatureFooterWrapper>
-            <Text kind="body-s">{details.footerDetails.footerText}</Text>
-            <Button onClick={details.footerDetails.onClickHandler} size="sm">
-              {details.footerDetails.footerButtonText}
-            </Button>
-          </FeatureFooterWrapper>
-        </>
-      )}
+      {!!details.footerDetails &&
+        isFeatureFooterDeatils(details.footerDetails) && (
+          <>
+            <FeatureFooterDivider />
+            <FeatureFooterWrapper>
+              <Text kind="body-s">{details.footerDetails.footerText}</Text>
+              <Button onClick={details.footerDetails.onClickHandler} size="sm">
+                {details.footerDetails.footerButtonText}
+              </Button>
+            </FeatureFooterWrapper>
+          </>
+        )}
     </InstructionsWrapper>
   );
 };
