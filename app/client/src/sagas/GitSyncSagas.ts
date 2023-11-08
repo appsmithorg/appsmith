@@ -1024,7 +1024,7 @@ export function* deleteBranch({ payload }: ReduxAction<any>) {
       yield put(fetchBranchesInit({ pruneBranches: true }));
     }
   } catch (error) {
-    yield put(deleteBranchError(error));
+    yield put(deleteBranchError({ error, show: true }));
   }
 }
 
