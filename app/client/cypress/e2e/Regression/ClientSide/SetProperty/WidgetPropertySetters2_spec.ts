@@ -96,6 +96,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
         expect(val).be.empty;
       });
     agHelper.ClickButton("Submit");
+    agHelper.Sleep(3000); //for the Api to run & new value to be set, for CI runs
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -206,6 +207,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
       false,
     );
     deployMode.DeployApp();
+    agHelper.Sleep(3000); //for the Api to run & button to disappear, for CI runs
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.BUTTON),
     );
