@@ -313,26 +313,21 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCECompatibleImpl i
 
         // custom environment names can not be equal to production or staging as they are reserved
         // checking strictly by converting the provided input to lower cases
-        if (PRODUCTION_ENVIRONMENT.equalsIgnoreCase(environmentName)
-                || STAGING_ENVIRONMENT.equalsIgnoreCase(environmentName)) {
-            return Mono.error(new AppsmithException(DUPLICATE_KEY, ENVIRONMENT_NAME));
+        if (isEnvironmentNameStagingOrProduction(environmentName)) {
+            return Mono.error(new AppsmithException(DUPLICATE_KEY, environmentName));
         }
 
         Mono<Workspace> permittedWorkspaceMono =
                 getWorkspaceWithPermission(workspaceId, AclPermission.WORKSPACE_CREATE_ENVIRONMENT);
 
-        Mono<Boolean> isEnvironmentNameDuplicateMono = findByWorkspaceId(workspaceId)
-                .filter(environment -> environment.getName().equalsIgnoreCase(environmentName))
-                .next()
-                .flatMap(environment -> Mono.just(TRUE))
-                .switchIfEmpty(Mono.just(FALSE));
+        Mono<Boolean> isEnvironmentNameDuplicateMono = isEnvironmentNameDuplicate(workspaceId, environmentName);
 
         return Mono.zip(permittedWorkspaceMono, isEnvironmentNameDuplicateMono).flatMap(tuple2 -> {
             Workspace workspace = tuple2.getT1();
             Boolean isDuplicateEnvironmentName = tuple2.getT2();
 
             if (isDuplicateEnvironmentName) {
-                return Mono.error(new AppsmithException(DUPLICATE_KEY, ENVIRONMENT_NAME));
+                return Mono.error(new AppsmithException(DUPLICATE_KEY, environmentName));
             }
 
             Environment customEnvironment = new Environment(workspace.getId(), environmentName);
@@ -384,17 +379,15 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCECompatibleImpl i
         String environmentName = environmentDTO.getName().strip();
 
         // custom environment names can not be equal to production or staging as they are reserved
-        if (PRODUCTION_ENVIRONMENT.equalsIgnoreCase(environmentName)
-                || STAGING_ENVIRONMENT.equalsIgnoreCase(environmentName)) {
-            return Mono.error(new AppsmithException(DUPLICATE_KEY, ENVIRONMENT_NAME));
+        if (isEnvironmentNameStagingOrProduction(environmentName)) {
+            return Mono.error(new AppsmithException(DUPLICATE_KEY, environmentName));
         }
 
         Mono<Environment> environmentToUpdate = findById(
                         customEnvironmentId, Optional.of(AclPermission.MANAGE_ENVIRONMENTS))
                 .flatMap(environment -> {
                     // production or staging env cant be renamed as they are reserved
-                    if (PRODUCTION_ENVIRONMENT.equals(environment.getName())
-                            || STAGING_ENVIRONMENT.equals(environment.getName())) {
+                    if (isEnvironmentNameStagingOrProduction(environment.getName())) {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                     return Mono.just(environment);
@@ -402,12 +395,8 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCECompatibleImpl i
 
         return environmentToUpdate
                 .flatMap(dbEnvironment -> {
-                    Mono<Boolean> isEnvironmentNameDuplicateMono = findByWorkspaceId(dbEnvironment.getWorkspaceId())
-                            .filter(workspaceEnvironment ->
-                                    workspaceEnvironment.getName().equalsIgnoreCase(environmentName))
-                            .next()
-                            .flatMap(duplicateEnvironment -> Mono.just(TRUE))
-                            .switchIfEmpty(Mono.just(FALSE));
+                    Mono<Boolean> isEnvironmentNameDuplicateMono =
+                            isEnvironmentNameDuplicate(dbEnvironment.getWorkspaceId(), environmentName);
 
                     return Mono.zip(isEnvironmentNameDuplicateMono, Mono.just(dbEnvironment));
                 })
@@ -417,7 +406,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCECompatibleImpl i
 
                     // check if any other environment with same name exists here
                     if (isDuplicateEnvironmentName) {
-                        return Mono.error(new AppsmithException(DUPLICATE_KEY, ENVIRONMENT_NAME));
+                        return Mono.error(new AppsmithException(DUPLICATE_KEY, environmentName));
                     }
 
                     // update logic
@@ -429,6 +418,19 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCECompatibleImpl i
                                     environment.getWorkspaceId()));
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(NO_RESOURCE_FOUND, ENVIRONMENT_NAME)));
+    }
+
+    private Mono<Boolean> isEnvironmentNameDuplicate(String workspaceId, String environmentName) {
+        return findByWorkspaceId(workspaceId)
+                .filter(workspaceEnvironment -> workspaceEnvironment.getName().equalsIgnoreCase(environmentName))
+                .next()
+                .flatMap(duplicateEnvironment -> Mono.just(TRUE))
+                .switchIfEmpty(Mono.just(FALSE));
+    }
+
+    private boolean isEnvironmentNameStagingOrProduction(String environmentName) {
+        return PRODUCTION_ENVIRONMENT.equalsIgnoreCase(environmentName)
+                || STAGING_ENVIRONMENT.equalsIgnoreCase(environmentName);
     }
 
     private Mono<Workspace> getWorkspaceWithPermission(String workspaceId, AclPermission permission) {
