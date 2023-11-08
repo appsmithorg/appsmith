@@ -71,7 +71,6 @@ describe("Binary Datatype tests", function () {
     dataSources.SetQueryTimeout(30000);
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
     entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -399,8 +398,6 @@ describe("Binary Datatype tests", function () {
   //     agHelper.AssertElementAbsence(
   //       entityExplorer._entityNameInExplorer("public.binarytype"),
   //     );
-  //     entityExplorer.ExpandCollapseEntity(dsName, false);
-  //     entityExplorer.ExpandCollapseEntity("Datasources", false);
 
   //     //Delete all queries
   //     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists

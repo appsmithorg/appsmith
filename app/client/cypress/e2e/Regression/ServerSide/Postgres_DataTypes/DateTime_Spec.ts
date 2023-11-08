@@ -138,7 +138,6 @@ describe("DateTime Datatype tests", function () {
       entityType: entityItems.Query,
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("5. Inserting record - datetimetypes", () => {

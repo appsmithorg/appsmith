@@ -74,7 +74,6 @@ describe("Array Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "dropTable"); //Creating query from EE overlay
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("2. Inserting record - arraytypes", () => {

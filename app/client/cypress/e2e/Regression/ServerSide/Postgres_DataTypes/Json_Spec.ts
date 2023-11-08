@@ -93,7 +93,6 @@ describe("Json & JsonB Datatype tests", function () {
     agHelper.RenameWithInPane("dropTable");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("4. Inserting record - jsonbooks", () => {
@@ -412,7 +411,6 @@ describe("Json & JsonB Datatype tests", function () {
     agHelper.RenameWithInPane("dropEnum");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("18. Inserting record - jsonbooks", () => {

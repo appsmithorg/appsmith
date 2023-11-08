@@ -91,7 +91,6 @@ describe("UUID Datatype tests", function () {
     agHelper.RenameWithInPane("deleteRecord");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("5. Inserting record - uuidtype", () => {

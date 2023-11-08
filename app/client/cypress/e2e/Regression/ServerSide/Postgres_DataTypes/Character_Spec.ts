@@ -100,7 +100,6 @@ describe("Character Datatype tests", function () {
     agHelper.RenameWithInPane("deleteRecord");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("4. Inserting record (null values) - chartypes", () => {
