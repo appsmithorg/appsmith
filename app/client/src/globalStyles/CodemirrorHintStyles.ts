@@ -285,6 +285,11 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         .doc-link > span {
           font-size: var(--ads-v2-font-size-2);
         }
+        code {
+          background: var(--ads-v2-color-bg-subtle);
+          padding: 2px 4px;
+          border-radius: var(--ads-v2-border-radius);
+        }
       }
     }
   }

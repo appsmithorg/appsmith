@@ -207,7 +207,7 @@ export const GLOBAL_FUNCTIONS = {
     "!url":
       "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/store-value",
     "!doc":
-      "Stores the data in the browser's local storage as key-value pairs that represent storage objects and can be later accessed anywhere in the application.",
+      "Stores the data in the browser's local storage as key-value pairs that represent storage objects and can be later accessed anywhere in the application via <code>appsmith.store</code>.",
     "!type": "fn(key: string, value: any, persist?: bool) -> +Promise",
   },
   removeValue: {
