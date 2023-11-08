@@ -46,10 +46,9 @@ export const getPathDependencies: Record<
 export function getEntityDependencies(
   entity: IEntity,
 ): TDependencyMap | undefined {
-  return (
-    getDependencies[entity.getType()] &&
-    getDependencies[entity.getType()](entity)
-  );
+  const entityType = entity.getType();
+  const getDependenciesMethod = getDependencies[entityType];
+  return getDependenciesMethod && getDependenciesMethod(entity);
 }
 
 function getWidgetDependencies(widgetEntity: WidgetEntity): TDependencyMap {
@@ -160,9 +159,11 @@ export function getEntityPathDependencies(
   entity: IEntity,
   fullPropertyPath: string,
 ) {
+  const entityType = entity.getType();
+  const getPathDependenciesMethod = getPathDependencies[entityType];
   return (
-    getPathDependencies[entity.getType()] &&
-    getPathDependencies[entity.getType()](entity, fullPropertyPath)
+    getPathDependenciesMethod &&
+    getPathDependenciesMethod(entity, fullPropertyPath)
   );
 }
 function getWidgetPropertyPathDependencies(
