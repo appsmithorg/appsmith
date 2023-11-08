@@ -105,7 +105,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
-import CreateNewAppsOption from "./CreateNewAppsOption";
+import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 
 export const { cloudHosting } = getAppsmithConfigs();
