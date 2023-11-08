@@ -28,10 +28,10 @@ export interface FeatureDetails {
   // Gif or Image to give a walkthrough
   imageURL?: string;
   // footer details
-  footerDetails?: FeatureFooterDeatils;
+  footerDetails?: FeatureFooterDetails;
 }
 
-export interface FeatureFooterDeatils {
+export interface FeatureFooterDetails {
   // footer text
   footerText: string;
   // footer button text
@@ -40,9 +40,9 @@ export interface FeatureFooterDeatils {
   onClickHandler: () => void;
 }
 
-export const isFeatureFooterDeatils = (
-  obj: FeatureFooterDeatils,
-): obj is FeatureFooterDeatils => {
+export const isFeatureFooterDetails = (
+  obj: FeatureFooterDetails,
+): obj is FeatureFooterDetails => {
   return !!obj;
 };
 

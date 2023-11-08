@@ -9,7 +9,7 @@ import type {
   OffsetType,
 } from "./walkthroughContext";
 import WalkthroughContext, {
-  isFeatureFooterDeatils,
+  isFeatureFooterDetails,
 } from "./walkthroughContext";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -311,7 +311,7 @@ const InstructionsComponent = ({
         </ImageWrapper>
       )}
       {!!details.footerDetails &&
-        isFeatureFooterDeatils(details.footerDetails) && (
+        isFeatureFooterDetails(details.footerDetails) && (
           <>
             <FeatureFooterDivider />
             <FeatureFooterWrapper>
