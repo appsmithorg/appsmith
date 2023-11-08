@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Icon, Text, Tooltip } from "design-system";
 import { Classes, getTypographyByKey } from "design-system-old";
+import type { Datasource } from "entities/Datasource";
 
 const Label = styled.span`
   cursor: pointer;
@@ -71,7 +72,7 @@ export interface CollapsibleProps {
   label: string;
   CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
-  datasourceId?: string;
+  datasource?: Partial<Datasource>;
   containerRef?: MutableRefObject<HTMLDivElement | null>;
 }
 
@@ -115,7 +116,7 @@ export function Collapsible({
   children,
   containerRef,
   CustomLabelComponent,
-  datasourceId,
+  datasource,
   expand = true,
   label,
 }: CollapsibleProps) {
@@ -146,7 +147,7 @@ export function Collapsible({
         />
         {!!CustomLabelComponent ? (
           <CustomLabelComponent
-            datasourceId={datasourceId}
+            datasource={datasource}
             onRefreshCallback={() => handleCollapse(true)}
           />
         ) : (

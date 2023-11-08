@@ -326,7 +326,7 @@ function ActionSidebar({
               <Collapsible
                 CustomLabelComponent={DatasourceStructureHeader}
                 containerRef={schemaRef}
-                datasourceId={datasourceId}
+                datasource={{ id: datasourceId }}
                 expand={!showSuggestedWidgets}
                 label="Schema"
               >
