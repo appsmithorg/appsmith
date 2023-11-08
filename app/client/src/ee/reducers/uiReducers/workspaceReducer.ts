@@ -324,16 +324,14 @@ const handlers = {
 
     return draftState;
   },
-  [ReduxActionTypes.UPDATE_PACKAGE_NAME_INIT]: (
-    draftState: WorkspaceReduxState,
-  ) => {
+  [ReduxActionTypes.UPDATE_PACKAGE_INIT]: (draftState: WorkspaceReduxState) => {
     return {
       ...draftState,
       isSavingPkgName: true,
       isErrorSavingPkgName: false,
     };
   },
-  [ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_PACKAGE_SUCCESS]: (
     draftState: WorkspaceReduxState,
     action: ReduxAction<Package>,
   ) => {
@@ -345,7 +343,7 @@ const handlers = {
 
     return draftState;
   },
-  [ReduxActionErrorTypes.UPDATE_PACKAGE_NAME_ERROR]: (
+  [ReduxActionErrorTypes.UPDATE_PACKAGE_ERROR]: (
     draftState: WorkspaceReduxState,
   ) => {
     return {

@@ -1,6 +1,7 @@
 import type { AppState } from "@appsmith/reducers";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { createSelector } from "reselect";
+import type { Action } from "entities/Action";
 
 export const getAllModules = (state: AppState) => state.entities.modules;
 
@@ -29,3 +30,14 @@ export const getInputsForModule = createSelector(
     return modules[currentModuleId].inputs;
   },
 );
+
+export const getModulePublicAction = (
+  state: AppState,
+  moduleId: string,
+): Action | undefined => {
+  const action = state.entities.actions.find(
+    (action) => action.config.moduleId === moduleId && action.config.isPublic,
+  );
+
+  return action ? action.config : undefined;
+};

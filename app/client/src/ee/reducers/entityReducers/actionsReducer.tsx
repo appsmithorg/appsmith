@@ -43,17 +43,6 @@ const handlers = {
       return result;
     }
   },
-  [ReduxActionTypes.CREATE_QUERY_MODULE_SUCCESS]: (
-    draftMetaState: ActionDataState,
-    action: ReduxAction<any>,
-  ) => {
-    draftMetaState.push({
-      config: action.payload.entity,
-      isLoading: false,
-    });
-
-    return draftMetaState;
-  },
   [ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS]: (
     draftMetaState: ActionDataState,
     action: ReduxAction<Module>,
