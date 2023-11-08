@@ -759,6 +759,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
     }
 
+    public Flux<ActionViewDTO> getActionsForViewModeForPage(String pageId, String branchName) {
+        Mono<NewPage> pageMono = newPageService.findById(pageId, pagePermission.getReadPermission());
+
+        return pageMono.flatMapMany(page -> {
+            String applicationId = page.getApplicationId();
+
+            return getActionsForViewMode(applicationId, branchName);
+        });
+    }
+
     @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
         return applicationService

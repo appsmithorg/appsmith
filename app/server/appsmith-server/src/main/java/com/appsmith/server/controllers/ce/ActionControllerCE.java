@@ -127,12 +127,21 @@ public class ActionControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionViewDTO>>> getActionsForViewMode(
-            @RequestParam String applicationId,
+            @RequestParam(required = false) String applicationId,
+            @RequestParam(required = false) String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return newActionService
-                .getActionsForViewMode(applicationId, branchName)
-                .collectList()
-                .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
+        if (pageId != null) {
+            // If pageId is present, applicationId is optional
+            return newActionService
+                    .getActionsForViewModeForPage(pageId, branchName)
+                    .collectList()
+                    .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
+        } else {
+            return newActionService
+                    .getActionsForViewMode(applicationId, branchName)
+                    .collectList()
+                    .map(actions -> new ResponseDTO<>(HttpStatus.OK.value(), actions, null));
+        }
     }
 
     @JsonView(Views.Public.class)
