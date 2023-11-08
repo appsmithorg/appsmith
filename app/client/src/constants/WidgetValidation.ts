@@ -17,6 +17,7 @@ export enum ValidationTypes {
   SAFE_URL = "SAFE_URL",
   ARRAY_OF_TYPE_OR_TYPE = "ARRAY_OF_TYPE_OR_TYPE",
   UNION = "UNION",
+  OBJECT_WITH_FUNCTION = "OBJECT_WITH_FUNCTION",
 }
 
 export interface ValidationResponse {
