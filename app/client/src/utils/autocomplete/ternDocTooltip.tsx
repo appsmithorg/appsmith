@@ -27,7 +27,7 @@ export function TernDocToolTip(props: {
     displayText in ternDocsInfo ? ternDocsInfo[displayText].exampleArgs : null;
 
   return (
-    <div className="flex flex-col pb-1">
+    <div className="flex flex-col pb-1 t--tern-doc">
       <div className="flex items-center justify-between px-2 p-1 border-b border-mercury text-sm font-semibold">
         {displayText}
         {url && (
