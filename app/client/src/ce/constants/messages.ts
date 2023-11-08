@@ -1088,6 +1088,8 @@ export const NOW_PROTECT_BRANCH = () =>
 export const APPSMITH_ENTERPRISE = () => "Appsmith Enterprise";
 export const PROTECT_BRANCH_SUCCESS = () => "Changed protected branches";
 export const UPDATE_DEFAULT_BRANCH_SUCCESS = () => "Updated default branch";
+export const CONTACT_ADMIN_FOR_GIT = () =>
+  "Please contact your workspace admin to connect your app to a git repo";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
