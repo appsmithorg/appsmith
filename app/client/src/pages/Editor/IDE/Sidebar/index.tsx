@@ -84,7 +84,7 @@ function Sidebar() {
             <AnnouncementPopoverContent
               align="center"
               arrowFillColor="#F6F2FA"
-              banner="https://assets.appsmith.com.s3.us-east-2.amazonaws.com/new-sidebar-banner.svg"
+              banner="https://assets.appsmith.com/new-sidebar-banner.svg"
               collisionPadding={{ top: 20 }}
               description="Navigate faster through datasources, pages, and app settings."
               footer={
