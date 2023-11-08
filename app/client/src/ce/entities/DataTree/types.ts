@@ -164,7 +164,6 @@ export interface WidgetEntityConfig
     Omit<WidgetConfigProps, "widgetName" | "rows" | "columns">,
     WidgetConfig {
   widgetId: string;
-  widgetName: string;
   defaultMetaProps: Array<string>;
   type: string;
   __setters?: Record<string, any>;
