@@ -83,12 +83,10 @@ function* fetchPluginFormConfigsSaga() {
     const graphqlPlugin = getGraphQLPlugin(plugins);
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
-      log.error("API plugin Id added: ", JSON.stringify(apiPlugin.id));
     }
 
     if (graphqlPlugin) {
       pluginIdFormsToFetch.add(graphqlPlugin.id);
-      log.error("GraphQL plugin Id added: ", JSON.stringify(graphqlPlugin.id));
     }
 
     const actions: ActionDataState = yield select(getActions);
@@ -96,10 +94,6 @@ function* fetchPluginFormConfigsSaga() {
     for (const pluginId of actionPluginIds) {
       pluginIdFormsToFetch.add(pluginId);
     }
-    log.error(
-      "pluginIdFormsToFetch acquired",
-      JSON.stringify(pluginIdFormsToFetch),
-    );
 
     const pluginFormData: PluginFormPayload[] = [];
     const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
@@ -110,18 +104,9 @@ function* fetchPluginFormConfigsSaga() {
 
     for (let i = 0; i < pluginFormResponses.length; i++) {
       const response = pluginFormResponses[i];
-      log.error(
-        "Validating response: ",
-        JSON.stringify(response)?.length,
-        JSON.stringify(response),
-        JSON.stringify([...pluginIdFormsToFetch][i]),
-      );
       yield validateResponse(response);
       pluginFormData.push(response.data);
-      log.error("Response pushed");
     }
-
-    log.error("pluginIdFormsToFetch Responses validated");
 
     if (jsPlugin) {
       pluginIdFormsToFetch.add(jsPlugin.id);
@@ -184,7 +169,6 @@ function* fetchPluginFormConfigsSaga() {
       }),
     );
   } catch (error) {
-    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR,
       payload: { error },

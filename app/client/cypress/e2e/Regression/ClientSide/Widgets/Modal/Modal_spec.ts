@@ -21,8 +21,9 @@ describe("Modal Widget test cases", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
     entityExplorer.SelectEntityByName("Button1");
     propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
+    agHelper.Sleep();
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-    agHelper.Sleep(); //Wait for widgets to settle
+    agHelper.Sleep(2000); //Wait for widgets to settle
 
     //Verify that the Modal widget opens correctly when configured on a button click.
     agHelper.ClickButton("Submit");
@@ -48,9 +49,11 @@ describe("Modal Widget test cases", function () {
     entityExplorer.SelectEntityByName("Button1");
     propPane.ToggleJSMode("onClick", false);
     propPane.CreateModal("onClick");
+    agHelper.Sleep(500);
     propPane.CreateModal("onClick");
+    agHelper.Sleep(500);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-
+    agHelper.Sleep(2000); //Wait for widgets to settle & be visible
     agHelper.ClickButton("Submit");
     agHelper.AssertElementLength(locators._modal, 3);
     agHelper.AssertElementVisibility(locators._modal, true, 2);
@@ -255,34 +258,31 @@ describe("Modal Widget test cases", function () {
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
       1,
     );
-    assertHelper
-      .WaitForNetworkCall("@postExecute")
-      .then((interception: any) => {
-        agHelper.Sleep();
+    assertHelper.WaitForNetworkCall("@postExecute").then((response: any) => {
+      agHelper.Sleep();
+      const name = response.body.data.body[0].name;
+      agHelper.ValidateToastMessage("Executed api!");
 
-        const name = interception.response.body.data.body[0].name;
-        agHelper.ValidateToastMessage("Executed api!");
+      //Tab
+      agHelper.GetNClick(propPane._tabId1);
 
-        //Tab
-        agHelper.GetNClick(propPane._tabId1);
-
-        //Table
-        table.SearchTable(name);
-        table.ReadTableRowColumnData(0, 5, "v2").then(($cellData) => {
-          expect($cellData).to.contain(name);
-        });
-        table.SelectTableRow(0, 0, true, "v2");
-
-        //Text
-        agHelper.ScrollTo(locators._modal, "top");
-        agHelper.AssertContains(
-          name,
-          "be.visible",
-          locators._modal +
-            " " +
-            locators._widgetInDeployed(draggableWidgets.TEXT),
-        );
+      //Table
+      table.SearchTable(name);
+      table.ReadTableRowColumnData(0, 5, "v2").then(($cellData) => {
+        expect($cellData).to.contain(name);
       });
+      table.SelectTableRow(0, 0, true, "v2");
+
+      //Text
+      agHelper.ScrollTo(locators._modal, "top");
+      agHelper.AssertContains(
+        name,
+        "be.visible",
+        locators._modal +
+          " " +
+          locators._widgetInDeployed(draggableWidgets.TEXT),
+      );
+    });
   });
 
   it("5. Verify that the Modal widget opens correctly when configured on various events for different widget types.", () => {

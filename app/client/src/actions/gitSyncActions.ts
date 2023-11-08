@@ -460,3 +460,25 @@ export const deletingBranch = (payload: any) => ({
   type: ReduxActionTypes.DELETING_BRANCH,
   payload,
 });
+
+export const updateGitDefaultBranch = (payload: { branchName: string }) => {
+  return {
+    type: ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT,
+    payload,
+  };
+};
+
+export const fetchGitProtectedBranchesInit = () => {
+  return {
+    type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT,
+  };
+};
+
+export const updateGitProtectedBranchesInit = (payload: {
+  protectedBranches: string[];
+}) => {
+  return {
+    type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT,
+    payload,
+  };
+};

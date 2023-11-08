@@ -87,6 +87,7 @@ import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
   hasDeleteWorkspacePermission,
+  hasManageWorkspaceEnvironmentPermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -103,6 +104,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
+import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -469,6 +471,9 @@ export function ApplicationsSection(props: any) {
   const [workspaceToOpenMenu, setWorkspaceToOpenMenu] = useState<string | null>(
     null,
   );
+  const isManageEnvironmentEnabled = useSelector(
+    allowManageEnvironmentAccessForUser,
+  );
   const updateApplicationDispatch = (
     id: string,
     data: UpdateApplicationPayload,
@@ -607,6 +612,10 @@ export function ApplicationsSection(props: any) {
         const hasCreateNewApplicationPermission =
           hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
 
+        const renderManageEnvironmentMenu =
+          isManageEnvironmentEnabled &&
+          hasManageWorkspaceEnvironmentPermission(workspace.userPermissions);
+
         const onClickAddNewAppButton = (workspaceId: string) => {
           if (
             Object.entries(creatingApplicationMap).length === 0 ||
@@ -626,7 +635,8 @@ export function ApplicationsSection(props: any) {
           canInviteToWorkspace ||
           hasManageWorkspacePermissions ||
           hasCreateNewApplicationPermission ||
-          (canDeleteWorkspace && applications.length === 0);
+          (canDeleteWorkspace && applications.length === 0) ||
+          renderManageEnvironmentMenu;
 
         const handleResetMenuState = () => {
           setWorkspaceToOpenMenu(null);

@@ -26,6 +26,7 @@ export enum Widgets {
   Chart,
   Text,
 }
+type AppModes = "Edit" | "View";
 
 interface RunQueryParams {
   toValidateResponse?: boolean;
@@ -299,7 +300,7 @@ export class DataSources {
   _dsNameInExplorer = (dsName: string) =>
     `div.t--entity-name:contains('${dsName}')`;
 
-  public AssertDSEditViewMode(mode: "Edit" | "View") {
+  public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
     else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
   }
@@ -332,7 +333,7 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
-    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.GetNClick(this._generatePageBtn, 0, true);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.ClickButton("Got it");
   }
@@ -449,7 +450,7 @@ export class DataSources {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
     });
-    this.agHelper.RemoveTooltip("Add a new datasource");
+    this.agHelper.RemoveUIElement("Tooltip", "Add a new datasource");
     cy.get(this._newDatasourceContainer).scrollTo("bottom", {
       ensureScrollable: false,
     });
@@ -875,7 +876,7 @@ export class DataSources {
 
   public DeleteDatasouceFromActiveTab(
     datasourceName: string,
-    expectedRes = 200 || 409 || [200 | 409],
+    expectedRes = 200 || 409 || [200, 409],
   ) {
     this.ClickActiveTabDSContextMenu(datasourceName);
     this.agHelper.GetNClick(this._dsOptionMenuItem("Delete"), 0, false, 200);
@@ -885,7 +886,7 @@ export class DataSources {
 
   public DeleteDatasourceFromWithinDS(
     datasourceName: string,
-    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    expectedRes: number | number[] = 200 || 409 || [200, 409],
   ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
@@ -913,7 +914,7 @@ export class DataSources {
   }
 
   public DeleteDSDirectly(
-    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    expectedRes: number | number[] = 200 || 409 || [200, 409],
     toNavigateToDSInfoPage = true,
   ) {
     toNavigateToDSInfoPage &&
@@ -938,20 +939,15 @@ export class DataSources {
   }
 
   public ValidateDSDeletion(expectedRes: number | number[] = 200) {
-    let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
-    if (toValidateRes) {
-      if (expectedRes == 200)
-        this.agHelper.AssertContains("datasource deleted successfully");
-      else this.agHelper.AssertContains("action(s) using it.");
-      this.assertHelper.AssertNetworkStatus(
-        "@deleteDatasource",
-        expectedRes as number,
-      );
-    } else {
-      cy.wait("@deleteDatasource")
-        .its("response.body.responseMeta.status")
-        .should("be.oneOf", [200, 409]);
-    }
+    this.assertHelper
+      .AssertNetworkStatus("@deleteDatasource", expectedRes)
+      .then((responseStatus) => {
+        this.agHelper.AssertContains(
+          responseStatus === 200
+            ? "datasource deleted successfully"
+            : "action(s) using it",
+        );
+      });
   }
 
   public NavigateToActiveTab() {
@@ -1358,7 +1354,7 @@ export class DataSources {
     queryName = "",
     sleep = 500,
   ) {
-    this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
+    this.agHelper.RemoveUIElement("EvaluatedPopUp"); //to close the evaluated pop-up
     this.entityExplorer.CreateNewDsQuery(dsName);
     if (query) {
       this.EnterQuery(query, sleep);
@@ -1946,9 +1942,8 @@ export class DataSources {
           .WaitForNetworkCall(
             `@getDatasourceStructureUpdated_${ds_entity_name}`,
           )
-          .then(async (interception) => {
-            const tables: any[] =
-              interception?.response?.body.data?.tables || [];
+          .then(async (response) => {
+            const tables: any[] = response?.body.data?.tables || [];
             const indexOfTable = tables.findIndex(
               (table) => table.name === targetTableName,
             );
@@ -1991,7 +1986,6 @@ export class DataSources {
                       );
                     }
                   }
-
                   this.agHelper.AssertElementVisibility(
                     this._dsVirtuosoElementTable(targetTableName),
                   );

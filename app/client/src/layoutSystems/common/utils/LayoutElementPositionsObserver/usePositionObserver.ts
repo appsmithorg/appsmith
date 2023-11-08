@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { positionObserver } from ".";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
 export type ObservableElementType = "widget" | "layout";
@@ -25,7 +25,7 @@ export function usePositionObserver(
   },
   ref: RefObject<HTMLDivElement>,
 ) {
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const appMode = useSelector(getAppMode);
 
   useEffect(() => {

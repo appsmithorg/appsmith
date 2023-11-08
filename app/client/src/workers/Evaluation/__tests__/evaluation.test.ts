@@ -593,11 +593,12 @@ describe("DataTreeEvaluator", () => {
         ...configTree.Text1,
       },
     };
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -629,11 +630,12 @@ describe("DataTreeEvaluator", () => {
       ["Text3.text"]: [],
     };
 
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -673,11 +675,12 @@ describe("DataTreeEvaluator", () => {
       "Input1.value": ["Input1.text"],
     };
 
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -733,12 +736,13 @@ describe("DataTreeEvaluator", () => {
       },
     } as unknown as ConfigTree;
     const expectedDependencies = { ...initialdependencies };
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
 
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -774,11 +778,12 @@ describe("DataTreeEvaluator", () => {
       },
     } as unknown as ConfigTree;
 
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -836,12 +841,13 @@ describe("DataTreeEvaluator", () => {
       },
     } as unknown as ConfigTree;
 
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
 
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -906,14 +912,12 @@ describe("DataTreeEvaluator", () => {
       },
     } as unknown as ConfigTree;
 
-    const {
-      evalOrder,
-      nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
-      unEvalUpdates,
-    } = evaluator.setupUpdateTree(updatedTree1, updatedConfigTree1);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedTree1,
+      updatedConfigTree1,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder2,
       updatedConfigTree1,
       unEvalUpdates,
     );
@@ -943,14 +947,10 @@ describe("DataTreeEvaluator", () => {
       },
     };
 
-    const {
-      evalOrder: newEvalOrder,
-      nonDynamicFieldValidationOrder,
-      unEvalUpdates: unEvalUpdates2,
-    } = evaluator.setupUpdateTree(updatedTree2, updatedConfigTree2);
+    const { evalOrder: newEvalOrder, unEvalUpdates: unEvalUpdates2 } =
+      evaluator.setupUpdateTree(updatedTree2, updatedConfigTree2);
     evaluator.evalAndValidateSubTree(
       newEvalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree2,
       unEvalUpdates2,
     );
@@ -986,14 +986,10 @@ describe("DataTreeEvaluator", () => {
       },
     };
 
-    const {
-      evalOrder: newEvalOrder2,
-      nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
-      unEvalUpdates: unEvalUpdates3,
-    } = evaluator.setupUpdateTree(updatedTree3, updatedConfigTree3);
+    const { evalOrder: newEvalOrder2, unEvalUpdates: unEvalUpdates3 } =
+      evaluator.setupUpdateTree(updatedTree3, updatedConfigTree3);
     evaluator.evalAndValidateSubTree(
       newEvalOrder2,
-      nonDynamicFieldValidationOrder3,
       updatedConfigTree3,
       unEvalUpdates3,
     );
@@ -1026,12 +1022,13 @@ describe("DataTreeEvaluator", () => {
       ...configTree,
       TextX: configEntity,
     };
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     expect(evalOrder).toContain("TextX.text");
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -1060,13 +1057,14 @@ describe("DataTreeEvaluator", () => {
       ...configTree,
       TextY: configEntity,
     };
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     expect(evalOrder).toContain("TextY.text");
     expect(evalOrder.length).toBe(2);
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );

@@ -980,9 +980,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Application> findByNameAndWorkspaceId(
-            String applicationName, String workspaceId, AclPermission permission) {
-        return repository.findByNameAndWorkspaceId(applicationName, workspaceId, permission);
+    public Mono<Boolean> isApplicationNameTaken(String applicationName, String workspaceId, AclPermission permission) {
+        return repository
+                .countByNameAndWorkspaceId(applicationName, workspaceId, permission)
+                .map(count -> count > 0);
     }
 
     @Override
@@ -1025,5 +1026,21 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         analyticsProperties.put("applicationId", ObjectUtils.defaultIfNull(savedApplication.getId(), ""));
         analyticsProperties.put("orgId", ObjectUtils.defaultIfNull(savedApplication.getWorkspaceId(), ""));
         return analyticsProperties;
+    }
+
+    @Override
+    public Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches) {
+        return repository
+                .unprotectAllBranches(applicationId, applicationPermission.getEditPermission())
+                .then(Mono.defer(() -> {
+                    // Mono.defer is used to ensure the following code is executed only after the previous Mono
+                    // completes
+                    if (protectedBranches != null && !protectedBranches.isEmpty()) {
+                        return repository.protectBranchedApplications(
+                                applicationId, protectedBranches, applicationPermission.getEditPermission());
+                    }
+                    return Mono.empty();
+                }))
+                .then();
     }
 }

@@ -132,7 +132,7 @@ export class JSEditor {
     cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
-    this.agHelper.RemoveTooltip("Add a new query/JS Object");
+    this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     // Assert that the name of the JS Object is focused when newly created
@@ -148,16 +148,16 @@ export class JSEditor {
 
   public CreateJSObject(
     JSCode: string,
-    options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
+    options: Partial<ICreateJSObjectOptions> = {},
   ) {
     const {
       completeReplace,
-      lineNumber = 4,
+      lineNumber,
       paste,
-      prettify = true,
+      prettify,
       shouldCreateNewJSObj,
       toRun,
-    } = options;
+    } = { ...DEFAULT_CREATE_JS_OBJECT_OPTIONS, ...options };
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {

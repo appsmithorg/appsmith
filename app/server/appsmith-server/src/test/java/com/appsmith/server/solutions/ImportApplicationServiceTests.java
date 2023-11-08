@@ -1968,6 +1968,8 @@ public class ImportApplicationServiceTests {
                     final List<ActionDTO> actionList = tuple.getT2();
 
                     assertThat(application.getWorkspaceId()).isNotNull();
+                    assertThat(application.getServerSchemaVersion()).isNotNull();
+                    assertThat(application.getClientSchemaVersion()).isNotNull();
 
                     List<String> actionNames = new ArrayList<>();
                     actionList.forEach(actionDTO -> actionNames.add(actionDTO.getName()));
