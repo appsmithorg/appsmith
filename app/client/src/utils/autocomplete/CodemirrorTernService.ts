@@ -178,7 +178,6 @@ class CodeMirrorTernService {
     DataTreeDefEntityInformation
   >();
   options: { async: boolean };
-  activeArgType: string | null = null;
   recentEntities: string[] = [];
 
   constructor(options: { async: boolean }) {
@@ -216,9 +215,9 @@ class CodeMirrorTernService {
   // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
   updateArgHints(cm: CodeMirror.Editor) {
     this.closeArgHints();
-    this.activeArgType = null;
     cm.state.ternTooltip = null;
     if (cm.somethingSelected()) return false;
+    if (cm.state.completionActive) return false;
     const state = cm.getTokenAt(cm.getCursor()).state;
     const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
     const inner = CodeMirror.innerMode(cm.getMode(), state);
@@ -320,7 +319,6 @@ class CodeMirrorTernService {
       if (this.activeArgHints.clear) this.activeArgHints.clear();
       this.remove(this.activeArgHints);
       this.activeArgHints = null;
-      this.activeArgType = null;
     }
     return true;
   }
@@ -352,9 +350,6 @@ class CodeMirrorTernService {
         tip.appendChild(
           this.elt("span", cls + "type", shortTernType(arg.type)),
         );
-      }
-      if (i == pos) {
-        this.activeArgType = arg.type;
       }
     }
     tip.appendChild(document.createTextNode(")"));
@@ -516,12 +511,6 @@ class CodeMirrorTernService {
 
     const shouldComputeBestMatch =
       this.fieldEntityInformation.entityType !== ENTITY_TYPE_VALUE.JSACTION;
-
-    if (this.activeArgType) {
-      this.fieldEntityInformation.expectedType = getDataType(
-        this.activeArgType,
-      );
-    }
 
     completions = AutocompleteSorter.sort(
       completions,
@@ -1169,8 +1158,12 @@ class CodeMirrorTernService {
     const inner = CodeMirror.innerMode(cm.getMode(), state);
     if (inner.mode.name != "javascript") return false;
     const lex = inner.state.lexical;
-    if (lex.info === "call" && this.activeArgType) {
-      entityInformation.expectedType = getDataType(this.activeArgType);
+    if (lex.info === "call") {
+      const argPos = lex.pos || 0;
+      const args = this.cachedArgHints?.type?.args || [];
+      const arg = args[argPos];
+      const argType = arg?.type;
+      entityInformation.expectedType = getDataType(argType);
     }
     this.fieldEntityInformation = entityInformation;
   }
