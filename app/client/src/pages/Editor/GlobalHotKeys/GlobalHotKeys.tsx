@@ -49,6 +49,7 @@ import { toast } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -72,6 +73,7 @@ interface Props {
   redo: () => void;
   appMode?: APP_MODE;
   isPreviewMode: boolean;
+  isProtectedMode: boolean;
   setPreviewModeAction: (shouldSet: boolean) => void;
   isExplorerPinned: boolean;
   isSignpostingEnabled: boolean;
@@ -120,8 +122,9 @@ class GlobalHotKeys extends React.Component<Props> {
 
   public renderHotkeys() {
     const { isOpened: isWalkthroughOpened } = this.context ?? {};
+    const { isProtectedMode } = this.props;
     // If walkthrough is open disable shortcuts
-    if (isWalkthroughOpened) return <Hotkeys />;
+    if (isWalkthroughOpened || isProtectedMode) return <Hotkeys />;
 
     return (
       <Hotkeys>
@@ -370,6 +373,7 @@ const mapStateToProps = (state: AppState) => ({
   isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
+  isProtectedMode: protectedModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),
   isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
 });
