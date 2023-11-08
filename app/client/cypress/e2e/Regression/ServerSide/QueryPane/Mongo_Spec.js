@@ -293,7 +293,8 @@ describe("Validate Mongo query commands", function () {
     let id;
     entityExplorer.SelectEntityByName("Query1");
     dataSources.AssertTableInVirtuosoList(datasourceName, "listingAndReviews");
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      datasourceName,
       "listingAndReviews",
       "Find",
     );

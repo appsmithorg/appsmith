@@ -200,7 +200,8 @@ describe("Validate Oracle DS", () => {
     TO_DATE('2020-01-15', 'YYYY-MM-DD'),
     TO_DATE('{{DatePicker1.formattedDate}}', 'YYYY-MM-DD'),
     'This aircraft is used for domestic flights.')`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dataSourceName,
       guid.toUpperCase(),
       "Select",
     );

@@ -317,7 +317,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("3. Validate 'Find' record from new collection & verify query response", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Find",
     );
@@ -330,7 +331,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("4. Validate 'Find by ID' record from new collection & verify query response", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Find by id",
     );
@@ -401,7 +403,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   ]
 }]`;
 
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Insert",
     );
@@ -426,7 +429,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("6. Validate 'Update' record from new collection & verify query response - Record not present - All Matching Document", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Update",
     );
@@ -458,7 +462,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("7. Validate 'Update' record from new collection & verify query response - Record present - All Matching Document", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Update",
     );
@@ -500,7 +505,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("8. Validate 'Update' record from new collection & verify query response - Record present - Single document", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Update",
     );
@@ -537,7 +543,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("9. Validate 'Delete' record from new collection & verify query response - Record not present - Single document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Delete",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
     agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f43") }`, {
       propFieldName: "",
@@ -560,7 +570,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("10. Validate 'Delete' record from new collection & verify query response - Record present - Single document", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Delete",
     );
@@ -588,7 +599,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("11. Validate 'Delete' record from new collection & verify query response - Record present - All Matching Document", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Delete",
     );
@@ -618,7 +630,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("12. Validate 'Count' record from new collection & verify query response", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Count",
     );
@@ -636,7 +649,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("13. Validate 'Distinct' record from new collection & verify query response", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Distinct",
     );
@@ -665,7 +679,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("14. Validate 'Aggregate' record from new collection & verify query response", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Aggregate",
     );
@@ -819,7 +834,11 @@ describe("Validate Mongo Query Pane Validations", () => {
     //Execute a find query on this collection to see if dates are fetched properly
     dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath");
 
-    dataSources.updateQueryWithDatasourceSchemaTemplate("BirthNDeath", "Find");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "BirthNDeath",
+      "Find",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     dataSources.RunQueryNVerifyResponseViews(4, false);
     agHelper.ActionContextMenuWithInPane({

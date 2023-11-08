@@ -46,7 +46,8 @@ describe("DateTime Datatype tests", function () {
     TO_CHAR (datetimeT.ts, 'MONTH') ||' / ' || TO_CHAR(datetimeT.dater, 'Month') as "MONTH/Month",
     TO_CHAR (datetimeT.dater, 'D') ||' / ' || TO_CHAR(datetimeT.dater, 'day') as "Day of the wentityExplorer.k/WentityExplorer.kday",
     TO_CHAR (datetimeT.dater, 'W') as "WentityExplorer.k of Month" FROM public."datetimetypes" as datetimeT;`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
       "Select",
     );
@@ -61,7 +62,8 @@ describe("DateTime Datatype tests", function () {
   it("3. Creating all queries - datetimetypes", () => {
     query = `INSERT INTO public."datetimetypes" (ts, tstz, dater, timer, intervaler)
     VALUES('{{Insertts.text}}', '{{Inserttstz.text}}', '{{Insertdater.text}}', '{{Inserttimer.text}}', '{{Insertintervaler.text}}');`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
       "Insert",
     );
@@ -72,7 +74,8 @@ describe("DateTime Datatype tests", function () {
     query = `UPDATE public."datetimetypes" SET
     "ts" = '{{Updatets.text}}', "tstz" = '{{Updatetstz.text}}', "dater" = '{{Updatedater.text}}', "timer" = '{{Updatetimer.text}}',
     "intervaler" = '{{Updateintervaler.text}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
       "Update",
     );
@@ -81,7 +84,8 @@ describe("DateTime Datatype tests", function () {
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `DELETE FROM public."datetimetypes"`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
       "Delete",
     );
@@ -89,7 +93,8 @@ describe("DateTime Datatype tests", function () {
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."datetimetypes"`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
       "Delete",
     );
@@ -98,7 +103,8 @@ describe("DateTime Datatype tests", function () {
 
     query = `DELETE FROM public."datetimetypes"
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
       "Delete",
     );
@@ -112,7 +118,8 @@ describe("DateTime Datatype tests", function () {
    justify_days(INTERVAL '30 days'),
    justify_hours(INTERVAL '24 hours'),
    EXTRACT (MINUTE  FROM  INTERVAL '5 hours 21 minutes');`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.datetimetypes",
       "Select",
     );

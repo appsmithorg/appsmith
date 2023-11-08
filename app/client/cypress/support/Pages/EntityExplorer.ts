@@ -304,20 +304,6 @@ export class EntityExplorer {
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).realHover();
   }
 
-  public ActionTemplateMenuByEntityName(
-    entityNameinLeftSidebar: string,
-    action: templateActions,
-  ) {
-    EditorNavigation.sidebar(SidebarButton.Pages);
-    this.HoverOnEntityItem(entityNameinLeftSidebar);
-    cy.xpath(this._templateMenuTrigger(entityNameinLeftSidebar))
-      .first()
-      .click()
-      .wait(100); //for menu template to appear
-    this.agHelper.GetNClick(this.locator._contextMenuItem(action), 0, true);
-    this.agHelper.Sleep(500);
-  }
-
   public SearchWidgetPane(widgetType: string) {
     this.NavigateToSwitcher("Widgets", 0, true);
     this.agHelper.Sleep();

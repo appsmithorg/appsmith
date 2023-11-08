@@ -82,7 +82,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "assets-test--appsmith",
     );
 
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      datasourceName,
       "assets-test--appsmith",
       "List files",
     );

@@ -53,7 +53,8 @@ describe("UUID Datatype tests", function () {
   });
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.uuidtype",
       "Select",
     );

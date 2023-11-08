@@ -38,7 +38,8 @@ describe("Character Datatype tests", function () {
 
   it("2. Creating SELECT query - chartypes + Bug 14493", () => {
     query = `SELECT *, char_length("AsMany") as "AsMany-Len", char_length("Unlimited") as "Unlimited-Len" FROM public."chartypes" as charT LIMIT 10;`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.chartypes",
       "Select",
     );
@@ -55,7 +56,8 @@ describe("Character Datatype tests", function () {
   it("3. Creating all queries - chartypes", () => {
     query = `INSERT INTO public."chartypes" ("One(1)", "AsMany", "Limited(4)", "Unlimited")
     VALUES ({{Insertone.text}}, {{Insertasmany.text}}, {{Insertlimited.text}}::varchar(4), {{Insertunlimited.text}});`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.chartypes",
       "Insert",
     );
@@ -68,7 +70,8 @@ describe("Character Datatype tests", function () {
     "Limited(4)" = {{Updatelimited.text}}::varchar(4),
     "Unlimited" = {{Updateunlimited.text}}
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.chartypes",
       "Update",
     );
@@ -76,7 +79,8 @@ describe("Character Datatype tests", function () {
     agHelper.RenameWithInPane("updateRecord");
 
     query = `DELETE FROM public."chartypes"`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.chartypes",
       "Delete",
     );
@@ -84,7 +88,8 @@ describe("Character Datatype tests", function () {
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."chartypes"`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.chartypes",
       "Delete",
     );
@@ -92,7 +97,8 @@ describe("Character Datatype tests", function () {
     agHelper.RenameWithInPane("dropTable");
 
     query = `DELETE FROM public."chartypes" WHERE serialId = {{Table1.selectedRow.serialid}};`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.chartypes",
       "Delete",
     );

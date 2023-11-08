@@ -66,7 +66,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("2. Validate Select record from Postgress datasource & verify query response", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.vessels",
       "Select",
     );

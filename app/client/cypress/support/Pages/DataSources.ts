@@ -1414,10 +1414,12 @@ export class DataSources {
     this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }
 
-  public updateQueryWithDatasourceSchemaTemplate(
+  public createQueryWithDatasourceSchemaTemplate(
+    datasourceName: string,
     tableName: string,
     templateName: string,
   ) {
+    this.CreateQueryFromActiveTab(datasourceName);
     this.RefreshDatasourceSchema();
     this.VerifyTableSchemaOnQueryEditor(tableName);
     cy.get(this._dsVirtuosoElementTable(tableName)).click();

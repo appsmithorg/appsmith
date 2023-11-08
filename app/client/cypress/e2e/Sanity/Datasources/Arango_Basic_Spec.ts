@@ -135,9 +135,9 @@ describe("Validate Arango & CURL Import Datasources", () => {
   it("2. Run Select, Create, Update, Delete & few more queries on the created collection + Widget Binding", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue("Default value", "Brazil");
-    dataSources.CreateQueryFromActiveTab(dsName, true);
     //Select's own query
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Select",
     );
@@ -161,7 +161,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(0, "Japan");
 
     //Insert a new place
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Create",
     );
@@ -215,7 +216,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(7, "Iguazu Falls"); //making sure new inserted record is also considered for filtering
 
     //Update Japan to Australia
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Update",
     );
@@ -242,7 +244,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews();
 
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Select",
     );
@@ -250,7 +253,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(3, "Australia");
 
     //Delete record from collection
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Delete",
     );
@@ -259,7 +263,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     //Verify no records return for the deleted key
     query = `FOR document IN ${collectionName}
     RETURN { country: document.country }`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Select",
     );

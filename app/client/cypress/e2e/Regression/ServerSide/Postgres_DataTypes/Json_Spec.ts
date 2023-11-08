@@ -53,7 +53,8 @@ describe("Json & JsonB Datatype tests", function () {
   });
 
   it("2. Creating SELECT query - jsonbooks + Bug 14493", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.jsonbooks",
       "Select",
     );
@@ -361,7 +362,8 @@ describe("Json & JsonB Datatype tests", function () {
   });
 
   it("16. Creating SELECT query - jsonBbooks + Bug 14493", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.jsonBbooks",
       "Select",
     );

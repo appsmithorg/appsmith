@@ -38,7 +38,8 @@ describe("Numeric Datatype tests", function () {
   });
 
   it("2. Creating SELECT query - numerictypes + Bug 14493", () => {
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Select",
     );
@@ -52,7 +53,8 @@ describe("Numeric Datatype tests", function () {
   it("3. Creating all queries - numerictypes", () => {
     query = `INSERT INTO public."numerictypes" ("bigintid", "decimalid", "numericid")
     VALUES ({{Insertbigint.text}}, {{Insertdecimal.text}}, {{Insertnumeric.text}})`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Insert",
     );
@@ -64,7 +66,8 @@ describe("Numeric Datatype tests", function () {
     "decimalid" = {{Updatedecimal.text}},
     "numericid" = {{Updatenumeric.text}}
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Update",
     );
@@ -72,7 +75,8 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("updateRecord");
 
     query = `DELETE FROM public."numerictypes"`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Delete",
     );
@@ -80,7 +84,8 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."numerictypes"`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Delete",
     );
@@ -89,7 +94,8 @@ describe("Numeric Datatype tests", function () {
 
     query = `DELETE FROM public."numerictypes"
     WHERE serialId ={{Table1.selectedRow.serialid}}`;
-    dataSources.updateQueryWithDatasourceSchemaTemplate(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Delete",
     );
