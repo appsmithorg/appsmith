@@ -315,6 +315,7 @@ const generateDataTreeWidgetWithoutMeta = (
     overridingMetaPropsMap,
     defaultMetaProps,
     entityConfig: {
+      widgetId: widget.widgetId,
       defaultProps,
       defaultMetaProps: Object.keys(defaultMetaProps),
       dynamicBindingPathList,
@@ -403,6 +404,6 @@ export const generateDataTreeWidget = (
       componentWidth,
       type: widget.type,
     },
-    configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
+    configEntity: entityConfig,
   };
 };
