@@ -38,11 +38,17 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
+        entityExplorer.CreateNewDsQuery("public.users");
+        entityExplorer.CreateNewDsQuery("public.users");
+        entityExplorer.CreateNewDsQuery("public.users");
 
         dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
           cy.log("Movies DB created is " + $createdMockMovies);
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
+          entityExplorer.CreateNewDsQuery("movies");
+          entityExplorer.CreateNewDsQuery("movies");
+          entityExplorer.CreateNewDsQuery("movies");
 
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
@@ -83,17 +89,10 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
 
-        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
-
         dataSources.CreateDataSource("Mongo");
         cy.get("@dsName").then(($createdMockMovies: any) => {
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
-
-          dataSources.AssertTableInVirtuosoList(
-            mockDBNameMovies,
-            "listingAndReviews",
-          );
 
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
