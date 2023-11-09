@@ -249,7 +249,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
       `${collectionName}`,
       "Select",
     );
-    query = `FOR doc IN ${collectionName}
+    query = `FOR document IN ${collectionName}
     FILTER document._key == "1"
     RETURN document`;
     dataSources.EnterQuery(query);
