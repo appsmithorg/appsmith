@@ -753,7 +753,7 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
-  "Search for table or attribute";
+  "Search for table";
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
