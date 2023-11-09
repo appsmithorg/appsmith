@@ -78,6 +78,7 @@ describe("InputGroupField", () => {
       onDeleteClick: deleteFn,
     });
     expect(mockInputField).toHaveBeenNthCalledWith(1, {
+      evaluatedValueLookupPath: "testInputGroups.0.label",
       name: "testInputGroups.0.defaultValue",
     });
   });

@@ -5,6 +5,8 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 import "@testing-library/jest-dom";
 import { useController } from "react-hook-form";
+import { Provider } from "react-redux";
+import store from "store";
 
 function TestField({ name }: { name: string }) {
   const { field } = useController({
@@ -45,8 +47,11 @@ describe("ModuleInputsForm", () => {
   });
 
   it("renders the component", () => {
-    render(<ModuleInputsForm />);
-
+    render(
+      <Provider store={store}>
+        <ModuleInputsForm />
+      </Provider>,
+    );
     // Check if the component is rendered
     const headingElement = screen.getByText("Inputs");
     expect(headingElement).toBeInTheDocument();
@@ -55,7 +60,11 @@ describe("ModuleInputsForm", () => {
   it("updates the form and dispatches an action when a field is changed", () => {
     jest.useFakeTimers();
 
-    render(<ModuleInputsForm moduleId="module123" />);
+    render(
+      <Provider store={store}>
+        <ModuleInputsForm moduleId="module123" />
+      </Provider>,
+    );
 
     // Simulate changing a field
     const field = screen.getByTestId("testField-inputsForm.0.sectionName");
@@ -82,7 +91,11 @@ describe("ModuleInputsForm", () => {
   it("does not dispatch action when moduleId is missing", () => {
     jest.useFakeTimers();
 
-    render(<ModuleInputsForm />);
+    render(
+      <Provider store={store}>
+        <ModuleInputsForm />
+      </Provider>,
+    );
 
     // Simulate changing a field
     const field = screen.getByTestId("testField-inputsForm.0.sectionName");
