@@ -204,7 +204,7 @@ public enum AppsmithError {
                     + "  \"layoutId\" : \"{5}\","
                     + "  \"errorDetail\" : \"{8}\","
                     + "  \"dynamicBinding\" : {6},"
-                    + "  \"creatorType\" : {9}",
+                    + "  \"creatorType\" : \"{9}\"",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Invalid dynamic binding reference",
             ErrorType.BAD_REQUEST,
