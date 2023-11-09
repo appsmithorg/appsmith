@@ -65,7 +65,6 @@ import {
   createMessage,
   DELETING_APPLICATION,
   DELETING_MULTIPLE_APPLICATION,
-  DISCARD_SUCCESS,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
 import { APP_MODE } from "entities/App";
@@ -300,12 +299,6 @@ export function* fetchAppAndPagesSaga(
         },
       });
 
-      if (localStorage.getItem("GIT_DISCARD_CHANGES") === "success") {
-        toast.show(createMessage(DISCARD_SUCCESS), {
-          kind: "success",
-        });
-        localStorage.setItem("GIT_DISCARD_CHANGES", "");
-      }
       yield put({
         type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
         payload: response.data.application?.evaluationVersion,

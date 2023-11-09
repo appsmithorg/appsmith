@@ -10,6 +10,7 @@ import {
 import {
   actionChannel,
   call,
+  delay,
   fork,
   put,
   select,
@@ -84,6 +85,7 @@ import {
 import {
   createMessage,
   DELETE_BRANCH_SUCCESS,
+  DISCARD_SUCCESS,
   ERROR_GIT_AUTH_FAIL,
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
@@ -1024,11 +1026,13 @@ export function* deleteBranch({ payload }: ReduxAction<any>) {
       yield put(fetchBranchesInit({ pruneBranches: true }));
     }
   } catch (error) {
-    yield put(deleteBranchError(error));
+    yield put(deleteBranchError({ error, show: true }));
   }
 }
 
-function* discardChanges() {
+function* discardChanges({
+  payload,
+}: ReduxAction<{ successToastMessage: string } | null | undefined>) {
   let response: ApiResponse<GitDiscardResponse>;
   try {
     const appId: string = yield select(getCurrentApplicationId);
@@ -1040,10 +1044,15 @@ function* discardChanges() {
     );
     if (isValidResponse) {
       yield put(discardChangesSuccess(response.data));
-      // const applicationId: string = response.data.id;
+      const successToastMessage =
+        payload?.successToastMessage ?? createMessage(DISCARD_SUCCESS);
+      toast.show(successToastMessage, {
+        kind: "success",
+      });
+      // adding delay to show toast animation before reloading
+      yield delay(500);
       const pageId: string =
         response.data?.pages?.find((page: any) => page.isDefault)?.id || "";
-      localStorage.setItem("GIT_DISCARD_CHANGES", "success");
       const branch = response.data.gitApplicationMetadata.branchName;
       window.open(builderURL({ pageId, branch }), "_self");
     } else {
@@ -1053,11 +1062,9 @@ function* discardChanges() {
           show: true,
         }),
       );
-      localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
     }
   } catch (error) {
     yield put(discardChangesFailure({ error, show: true }));
-    localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
   }
 }
 

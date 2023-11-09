@@ -22,3 +22,5 @@ export enum CREDENTIAL_MODE {
   MANUALLY = "MANUALLY",
   IMPORT_JSON = "IMPORT_JSON",
 }
+
+export const REMOTE_BRANCH_PREFIX = "origin/";

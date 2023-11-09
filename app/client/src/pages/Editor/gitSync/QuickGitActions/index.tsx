@@ -12,6 +12,7 @@ import {
   CONNECT_GIT_BETA,
   CONNECTING_TO_REPO_DISABLED,
   createMessage,
+  DISCARD_AND_PULL_SUCCESS,
   DURING_ONBOARDING_TOUR,
   GIT_SETTINGS,
   MERGE,
@@ -134,8 +135,11 @@ const getPullBtnStatus = (
 ) => {
   const { behindCount, isClean } = gitStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
-  let disabled = isProtected ? false : behindCount === 0;
-  if (!isClean) {
+  let disabled = behindCount === 0;
+  if (isProtected) {
+    disabled = false;
+    message = createMessage(PULL_CHANGES);
+  } else if (!isClean) {
     disabled = true;
     message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
   } else if (pullFailed) {
@@ -187,7 +191,7 @@ const getQuickActionButtons = ({
     },
     {
       className: "t--bottom-bar-pull",
-      count: isProtectedMode ? undefined : gitStatus?.behindCount,
+      count: gitStatus?.behindCount,
       icon: "down-arrow-2",
       onClick: () => !pullDisabled && pull(),
       tooltipText: pullTooltipMessage,
@@ -343,7 +347,11 @@ export default function QuickGitActions() {
         source: "BOTTOM_BAR_GIT_PULL_BUTTON",
       });
       if (isProtectedMode) {
-        dispatch(discardChanges());
+        dispatch(
+          discardChanges({
+            successToastMessage: createMessage(DISCARD_AND_PULL_SUCCESS),
+          }),
+        );
       } else {
         dispatch(gitPullInit({ triggeredFromBottomBar: true }));
       }
