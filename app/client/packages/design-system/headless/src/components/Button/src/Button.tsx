@@ -26,16 +26,21 @@ const _Button = (props: ButtonProps, ref: ButtonRef) => {
     className,
     draggable = false,
     isDisabled = false,
+    ...rest
   } = props;
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const { focusProps, isFocusVisible } = useFocusRing({ autoFocus });
-  const { buttonProps, isPressed } = useButton(props, ref as ButtonRefObject);
+  const { buttonProps, isPressed } = useButton(
+    { isDisabled, ...rest },
+    ref as ButtonRefObject,
+  );
 
   return (
     <button
       {...mergeProps(buttonProps, hoverProps, focusProps)}
       aria-busy={props["aria-busy"] ?? undefined}
       aria-disabled={props["aria-disabled"] ?? undefined}
+      autoFocus={autoFocus}
       className={className}
       data-active={isPressed ? "" : undefined}
       data-disabled={isDisabled ? "" : undefined}
