@@ -19,6 +19,41 @@ export const entityDefinitions = {
     ) {
       return {
         ...generatedTypeDef,
+        "!doc":
+          "A global object that provides access to information and functionalities within an application",
+        "!url": "https://docs.appsmith.com/reference/appsmith-framework",
+        store: {
+          ...(generatedTypeDef.store as Def),
+          "!doc":
+            "Object to access any app-level data or temporary state that is stored on the user's browser",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#store-object",
+        },
+        user: {
+          ...(generatedTypeDef.user as Def),
+          "!doc":
+            "Object that contains the data of the currently authenticated user.",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#user-object",
+        },
+        URL: {
+          ...(generatedTypeDef.URL as Def),
+          "!doc": "Object containing all the attributes of the current URL",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#url-object",
+        },
+        theme: {
+          "!doc":
+            "Object containing the details of the theme properties applied to the application",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#theme-object",
+        },
+        mode: {
+          "!doc":
+            "An enum that contains whether the app runs in view or edit mode. It takes the values VIEW or EDIT",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#mode-enum",
+        },
         geolocation: {
           ...generatedTypeDef.geolocation,
           "!doc":
@@ -76,7 +111,11 @@ export const entityDefinitions = {
         "Object that contains the properties required to run queries and access the query data.",
       "!url":
         "https://docs.appsmith.com/reference/appsmith-framework/query-object",
-      isLoading: "bool",
+      isLoading: {
+        "!type": "bool",
+        "!doc":
+          "Boolean that indicates whether the query is currently being executed.",
+      },
       data: dataCustomDef,
       responseMeta: {
         "!doc":
@@ -89,13 +128,13 @@ export const entityDefinitions = {
         "!type": "fn(params: {}) -> +Promise",
         "!url":
           "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryrun",
-        "!doc": "Execute the query with the given parameters.",
+        "!doc": "Executes the query with the given parameters.",
       },
       clear: {
         "!type": "fn() -> +Promise",
         "!url":
           "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryclear",
-        "!doc": "Clear the query data.",
+        "!doc": "Clears the query data.",
       },
     };
   },
@@ -168,7 +207,7 @@ export const GLOBAL_FUNCTIONS = {
     "!url":
       "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/store-value",
     "!doc":
-      "Stores the data in the browser's local storage as key-value pairs that represent storage objects and can be later accessed anywhere in the application.",
+      "Stores the data in the browser's local storage as key-value pairs that represent storage objects and can be later accessed anywhere in the application via <code>appsmith.store</code>.",
     "!type": "fn(key: string, value: any, persist?: bool) -> +Promise",
   },
   removeValue: {
