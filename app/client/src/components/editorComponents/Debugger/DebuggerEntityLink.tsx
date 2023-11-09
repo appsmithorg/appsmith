@@ -1,4 +1,8 @@
-import type { Message, SourceEntity } from "entities/AppsmithConsole";
+import type {
+  ENTITY_TYPE,
+  Message,
+  SourceEntity,
+} from "entities/AppsmithConsole";
 import React, { useCallback } from "react";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Plugin } from "api/PluginApi";
