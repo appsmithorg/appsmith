@@ -73,7 +73,7 @@ const features = [
 
 function ConnectionSuccess() {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
-  const defaultBranchName = useSelector(getDefaultGitBranchName);
+  // const defaultBranchName = useSelector(getDefaultGitBranchName);
 
   const dispatch = useDispatch();
 
@@ -109,8 +109,10 @@ function ConnectionSuccess() {
       <>
         <DefaultBranchMessage renderAs="p">
           Right now,{" "}
-          <BranchTag isClosable={false}>{defaultBranchName}</BranchTag> is set
-          as the default branch and it is protected.
+          <BranchTag isClosable={false}>
+            {gitMetadata?.defaultBranchName}
+          </BranchTag>{" "}
+          is set as the default branch and it is protected.
         </DefaultBranchMessage>
         <ProtectionRulesTitle renderAs="p">
           {createMessage(BRANCH_PROTECTION_RULES_AS_FOLLOWS)}
