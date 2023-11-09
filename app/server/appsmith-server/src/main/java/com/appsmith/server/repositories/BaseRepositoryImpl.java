@@ -341,7 +341,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
             return "TEXT";
         }
 
-        if (Collection.class.isAssignableFrom(type)) {
+        if (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
             return "JSONB";
         }
 
