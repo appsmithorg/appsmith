@@ -29,6 +29,8 @@ const checkIfMousePositionIsInsideBlock = (
   );
 };
 
+const MAIN_CANVAS_BUFFER = 20;
+
 export const useCanvasActivation = (
   anvilDragStates: AnvilDnDStates,
   layoutId: string,
@@ -135,10 +137,10 @@ export const useCanvasActivation = (
         : smallToLargeSortedDroppableLayoutIds.find((each) => {
             const currentCanvasPositions = { ...layoutElementPositions[each] };
             if (each === mainCanvasLayoutId) {
-              currentCanvasPositions.left -= 20;
-              currentCanvasPositions.top -= 20;
-              currentCanvasPositions.width += 40;
-              currentCanvasPositions.height += 40;
+              currentCanvasPositions.left -= MAIN_CANVAS_BUFFER;
+              currentCanvasPositions.top -= MAIN_CANVAS_BUFFER;
+              currentCanvasPositions.width += 2 * MAIN_CANVAS_BUFFER;
+              currentCanvasPositions.height += 2 * MAIN_CANVAS_BUFFER;
             }
             if (currentCanvasPositions) {
               return checkIfMousePositionIsInsideBlock(
