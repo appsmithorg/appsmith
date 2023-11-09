@@ -196,8 +196,11 @@ export const fetchGitRemoteStatusSuccess = (payload: GitRemoteStatusData) => ({
   payload,
 });
 
-export const discardChanges = () => ({
+export const discardChanges = (
+  payload: { successToastMessage?: string } | undefined | null = {},
+) => ({
   type: ReduxActionTypes.GIT_DISCARD_CHANGES,
+  payload,
 });
 
 export const discardChangesSuccess = (payload: any) => ({
