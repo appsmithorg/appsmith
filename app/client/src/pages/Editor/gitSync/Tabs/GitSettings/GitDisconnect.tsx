@@ -27,6 +27,10 @@ const HeadContainer = styled.div`
 
 const BodyContainer = styled.div`
   display: flex;
+  border: solid 0.4px var(--ads-v2-color-red-600);
+  padding: 12px;
+  border-radius: 4px;
+  align-items: center;
 `;
 
 const BodyInnerContainer = styled.div`
@@ -70,7 +74,12 @@ function GitDisconnect() {
           </Text>
           <Text renderAs="p">{createMessage(DISCONNECT_GIT_MESSAGE)}</Text>
         </BodyInnerContainer>
-        <Button kind="error" onClick={handleDisconnect} size="md">
+        <Button
+          data-testid="t--git-disconnect-btn"
+          kind="error"
+          onClick={handleDisconnect}
+          size="md"
+        >
           {createMessage(DISCONNECT_GIT)}
         </Button>
       </BodyContainer>

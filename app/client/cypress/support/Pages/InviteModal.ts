@@ -7,6 +7,7 @@ export class InviteModal {
   private embedSettings = ObjectsRegistry.EmbedSettings;
   private deployMode = ObjectsRegistry.DeployMode;
   private commonLocators = ObjectsRegistry.CommonLocators;
+  private assertHelper = ObjectsRegistry.AssertHelper;
 
   public locators = {
     _inviteTab: "[data-testid='t--tab-INVITE']",
@@ -85,7 +86,11 @@ export class InviteModal {
       toggle,
       toggle == "On" ? false : true,
     );
-    cy.get(this.locators._previewEmbed).invoke("removeAttr", "target").click();
+    cy.get(this.locators._previewEmbed)
+      .invoke("removeAttr", "target")
+      .click()
+      .wait(2000);
+    this.assertHelper.AssertDocumentReady();
     this.agHelper.Sleep(3000); //for page to load
     if (toggle == "On") {
       this.deployMode.NavigateBacktoEditor(); //Also verifies that navigation bar is present

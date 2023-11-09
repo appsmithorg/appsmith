@@ -455,11 +455,13 @@ export class EntityExplorer {
         action: "Edit name",
       });
     else cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
-    cy.xpath(this.locator._entityNameEditing(entityName)).type(
-      renameVal + "{enter}",
-    );
-    this.AssertEntityPresenceInExplorer(renameVal);
+    cy.xpath(this.locator._entityNameEditing(entityName))
+      .type(renameVal)
+      .wait(500)
+      .type("{enter}")
+      .wait(300);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
+    this.AssertEntityPresenceInExplorer(renameVal);
   }
 
   public VerifyIsCurrentPage(pageName: string) {

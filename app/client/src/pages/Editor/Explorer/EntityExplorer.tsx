@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect } from "react";
+import React, { useRef, useCallback, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
@@ -33,6 +33,8 @@ import {
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { useFeatureFlag } from "../../../utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import DatasourceStarterLayoutPrompt from "./Datasources/DatasourceStarterLayoutPrompt";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -91,11 +93,19 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     dispatch(fetchWorkspace(currentWorkspaceId));
   }, [currentWorkspaceId]);
 
+  const { isOpened: isWalkthroughOpened, popFeature } =
+    useContext(WalkthroughContext) || {};
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
   const isAppSidebarEnabled = useFeatureFlag(
     FEATURE_FLAG.release_app_sidebar_enabled,
   );
+
+  const closeWalkthrough = useCallback(() => {
+    if (isWalkthroughOpened && popFeature) {
+      popFeature("EXPLORER_DATASOURCE_ADD");
+    }
+  }, [isWalkthroughOpened, popFeature]);
 
   const addDatasource = useCallback(
     (entryPoint: string) => {
@@ -109,8 +119,9 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
         entryPoint,
       });
+      closeWalkthrough();
     },
-    [pageId],
+    [pageId, closeWalkthrough],
   );
 
   const listDatasource = useCallback(() => {
@@ -145,16 +156,20 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
+      {/* Shows first time users only */}
+      <DatasourceStarterLayoutPrompt />
       {!isAppSidebarEnabled && (
-        <Datasources
-          addDatasource={addDatasource}
-          entityId={pageId}
-          isDatasourcesOpen={isDatasourcesOpen}
-          listDatasource={listDatasource}
-          onDatasourcesToggle={onDatasourcesToggle}
-        />
+        <>
+          <Datasources
+            addDatasource={addDatasource}
+            entityId={pageId}
+            isDatasourcesOpen={isDatasourcesOpen}
+            listDatasource={listDatasource}
+            onDatasourcesToggle={onDatasourcesToggle}
+          />
+          <JSDependencies />
+        </>
       )}
-      <JSDependencies />
     </EntityExplorerWrapper>
   );
 }

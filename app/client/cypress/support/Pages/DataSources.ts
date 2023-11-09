@@ -26,6 +26,7 @@ export enum Widgets {
   Chart,
   Text,
 }
+type AppModes = "Edit" | "View";
 
 interface RunQueryParams {
   toValidateResponse?: boolean;
@@ -299,7 +300,7 @@ export class DataSources {
   _dsNameInExplorer = (dsName: string) =>
     `div.t--entity-name:contains('${dsName}')`;
 
-  public AssertDSEditViewMode(mode: "Edit" | "View") {
+  public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
     else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
   }

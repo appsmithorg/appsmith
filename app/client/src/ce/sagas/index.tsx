@@ -26,7 +26,7 @@ import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import gitSyncSagas from "sagas/GitSyncSagas";
 import globalSearchSagas from "sagas/GlobalSearchSagas";
 import initSagas from "sagas/InitSagas";
-import { watchJSActionSagas } from "sagas/JSActionSagas";
+import { watchJSActionSagas } from "@appsmith/sagas/JSActionSagas";
 import JSLibrarySaga from "sagas/JSLibrarySaga";
 import jsPaneSagas from "sagas/JSPaneSagas";
 import layoutConversionSagas from "sagas/layoutConversionSagas";

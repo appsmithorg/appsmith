@@ -11,8 +11,8 @@
   font-family: inherit;
   border-style: solid;
   border-width: var(--border-width-1);
-  padding-inline: var(--inner-spacing-4);
-  block-size: var(--sizing-8);
+  padding-inline: var(--inner-spacing-3);
+  padding-block: var(--inner-spacing-2);
   min-inline-size: var(--sizing-8);
   border-radius: var(--border-radius-1);
 
@@ -119,7 +119,7 @@
   *-----------------------------------------------------------------------------
   */
   &[aria-disabled] {
-    cursor: default;
+    cursor: not-allowed;
     opacity: var(--opacity-disabled);
   }
 

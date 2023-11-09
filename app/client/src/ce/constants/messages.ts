@@ -508,6 +508,7 @@ export const PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES = (
 export const POST = () => "Post";
 export const CANCEL = () => "Cancel";
 export const REMOVE = () => "Remove";
+export const CREATE = () => "Create";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -780,8 +781,8 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
   `Git features will no more be shown for this application`;
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
-export const CONFIGURE_GIT = () => "Configure git";
-export const IMPORT_APP = () => "Import app via git";
+export const CONFIGURE_GIT = () => "Configure Git";
+export const IMPORT_APP = () => "Import app via Git";
 export const SETTINGS_GIT = () => "Settings";
 
 export const GIT_CONNECTION = () => "Git connection";
@@ -801,9 +802,11 @@ export const USER_PROFILE_SETTINGS_TITLE = () => "User settings";
 export const GIT_USER_SETTINGS_TITLE = () => "Git author";
 
 export const USE_DEFAULT_CONFIGURATION = () => "Use default configuration";
+export const AUTHOR_NAME_ONLY = () => "Name";
+export const AUTHOR_EMAIL_ONLY = () => "E-mail";
 export const AUTHOR_NAME = () => "Author name";
-export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL = () => "Author email";
+export const AUTHOR_NAME_CANNOT_BE_EMPTY = () => "Author name cannot be empty";
 export const AUTHOR_EMAIL_CANNOT_BE_EMPTY = () =>
   "Author email cannot be empty";
 
@@ -1000,19 +1003,18 @@ export const ERROR_GIT_INVALID_REMOTE = () =>
 // GIT ERRORS end
 
 // Git Connect V2
-export const CHOOSE_A_GIT_PROVIDER_STEP = () => "Choose a git provider";
+export const CHOOSE_A_GIT_PROVIDER_STEP = () => "Choose a Git provider";
 export const GENERATE_SSH_KEY_STEP = () => "Generate SSH key";
 export const ADD_DEPLOY_KEY_STEP = () => "Add deploy key";
-
 export const CHOOSE_GIT_PROVIDER_QUESTION = () =>
-  "To begin with, choose your git service provider";
+  "To begin with, choose your Git service provider";
 export const IS_EMPTY_REPO_QUESTION = () =>
-  "Do you have an existing empty repository to connect to git?";
+  "Do you have an existing empty repository to connect to Git?";
 export const HOW_TO_CREATE_EMPTY_REPO = () => "How to create a new repository?";
 export const IMPORT_APP_IF_NOT_EMPTY = () =>
-  "If you already have an app connected to git, you can import it to the workspace.";
+  "If you already have an app connected to Git, you can import it to the workspace.";
 export const I_HAVE_EXISTING_REPO = () =>
-  "I have an existing appsmith app connected to git";
+  "I have an existing appsmith app connected to Git";
 export const ERROR_REPO_NOT_EMPTY_TITLE = () =>
   "The repo you added isn't empty";
 export const ERROR_REPO_NOT_EMPTY_MESSAGE = () =>
@@ -1034,23 +1036,22 @@ export const CONSENT_ADDED_DEPLOY_KEY = () =>
   "I've added deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
 export const GIT_CONNECT_SUCCESS_TITLE = () =>
-  "Successfully connected to your git remote repository";
+  "Successfully connected to your Git remote repository";
 export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
   "Now you can start collaborating with your team members by committing, merging and deploying your app";
-export const START_USING_GIT = () => "Start using git";
-
+export const START_USING_GIT = () => "Start using Git";
+export const OPEN_GIT_SETTINGS = () => "Open Git settings";
 export const GIT_AUTHOR = () => "Git author";
-export const DISCONNECT_GIT = () => "Disconnect git";
+export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
-  "Once you delete a repository, there is no going back. Please be certain.";
+  "This is irreversible. If you wish to reconnect, you will have to connect a new empty repository.";
 export const NEED_EMPTY_REPO_MESSAGE = () =>
   "You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue.";
 export const GIT_IMPORT_WAITING = () =>
   "Please wait while we import the app...";
 export const GIT_CONNECT_WAITING = () =>
-  "Please wait while we connect to git...";
-export const CONNECT_GIT_TEXT = () => "Connect git";
-
+  "Please wait while we connect to Git...";
+export const CONNECT_GIT_TEXT = () => "Connect Git";
 export const ERROR_SSH_RECONNECT_MESSAGE = () =>
   "We couldn't connect to the repo due to a missing deploy key. You can fix this in two ways:";
 export const ERROR_SSH_RECONNECT_OPTION1 = () =>
@@ -1060,6 +1061,37 @@ export const ERROR_SSH_RECONNECT_OPTION2 = () =>
 export const COPIED_SSH_KEY = () => "Copied SSH key";
 export const NO_COPIED_SSH_KEY = () => "Could not copy SSH key";
 // Git Connect V2 end
+
+// Git Branch Protection
+export const UPDATE = () => "Update";
+export const DEFAULT_BRANCH = () => "Default branch";
+export const DEFAULT_BRANCH_DESC = () =>
+  "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
+export const BRANCH_PROTECTION = () => "Branch protection";
+export const BRANCH_PROTECTION_DESC = () =>
+  "Protected branches enable you to enforce Git workflows. Changes to the app are not allowed in the protected branches.";
+export const BRANCH_PROTECTION_RULES_AS_FOLLOWS = () =>
+  "Branch protection rules follow as,";
+export const BRANCH_PROTECTION_RULE_1 = () =>
+  "Commit and merge are not allowed.";
+export const BRANCH_PROTECTION_RULE_2 = () =>
+  "Users can’t create or edit queries, widgets, and JsObjects.";
+export const BRANCH_PROTECTION_RULE_3 = () =>
+  "You can still pull the latest changes and create new branches to edit the app.";
+export const BRANCH_PROTECTION_CHANGE_RULE = () =>
+  "You can remove protection on your default branch in Git settings.";
+export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
+export const BRANCH_TOOLTIP_MESSAGE = () =>
+  "You can remove protection on your default branch in Git settings.";
+export const GO_TO_SETTINGS = () => "Go to settings";
+export const NOW_PROTECT_BRANCH = () =>
+  "You can now protect your default branch.";
+export const APPSMITH_ENTERPRISE = () => "Appsmith Enterprise";
+export const PROTECT_BRANCH_SUCCESS = () => "Changed protected branches";
+export const UPDATE_DEFAULT_BRANCH_SUCCESS = () => "Updated default branch";
+export const CONTACT_ADMIN_FOR_GIT = () =>
+  "Please contact your workspace admin to connect your app to a git repo";
+// Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
@@ -1903,6 +1935,11 @@ export const ERR_FETCHING_DATASOURCE_PREVIEW_DATA = () =>
 export const FETCHING_DATASOURCE_PREVIEW_DATA = () => "Loading data";
 export const SCHEMA_PREVIEW_NO_DATA = () =>
   "No data records to show or the table header begins with an index other than 1";
+export const GSHEET_SPREADSHEET_LABEL = () => "Spreadsheets";
+export const GSHEET_SPREADSHEET_LOADING = () => "Loading Spreadsheets";
+export const GSHEET_SHEET_LOADING = () => "Loading Sheets";
+export const GSHEET_DATA_LOADING = () => "Loading attributes";
+export const GSHEET_SEARCH_PLACEHOLDER = () => "Search for spreadsheet";
 
 //Layout Conversion flow
 export const CONVERT = () => "Convert layout";
@@ -2161,6 +2198,8 @@ export const COMMUNITY_TEMPLATES = {
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
+export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
+export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
 export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
 
 export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
@@ -2168,3 +2207,43 @@ export const DATASOURCE_LIST_BLANK_TITLE = () =>
   "No datasources exist in your workplace.";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
   "You need a datasource connection to write your first query";
+
+export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
+  header: () => "Choose a template",
+  layouts: {
+    dashboard: {
+      name: () => "Visualize your data",
+      description: () => "Use to see your data in charts",
+    },
+    form: {
+      name: () => "Form",
+      description: () => "Add records to a database with a form",
+    },
+    recordEdit: {
+      name: () => "Change your data",
+      description: () => "Use to add or edit records via forms",
+    },
+    recordDetails: {
+      name: () => "View your data",
+      description: () => "Use to view fields for your records",
+    },
+  },
+  datasourceConnectPrompt: {
+    header: () => "Bring your data in!",
+    buttonText: () => "Connect your datasource",
+  },
+  or: () => "or",
+  dragAndDrop: () => "Drag and Drop Widgets",
+  importLoadingText: () => "Importing template",
+};
+
+// Create New Apps Intermediary step
+export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";
+export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
+  "Choose an option that fits your approach, and let's shape your app together.";
+export const START_FROM_TEMPLATE_TITLE = () => "Start with use-case";
+export const START_FROM_TEMPLATE_SUBTITLE = () =>
+  "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
+export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
+export const START_FROM_SCRATCH_SUBTITLE = () =>
+  "Create an app from the ground up. Design every detail of your app on a blank canvas.";
