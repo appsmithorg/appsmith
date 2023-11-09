@@ -43,12 +43,14 @@ export const entityDefinitions = {
             "https://docs.appsmith.com/reference/appsmith-framework/context-object#url-object",
         },
         theme: {
+          ...(generatedTypeDef.theme as Def),
           "!doc":
             "Object containing the details of the theme properties applied to the application",
           "!url":
             "https://docs.appsmith.com/reference/appsmith-framework/context-object#theme-object",
         },
         mode: {
+          "!type": generatedTypeDef.mode as Def,
           "!doc":
             "An enum that contains whether the app runs in view or edit mode. It takes the values VIEW or EDIT",
           "!url":
