@@ -1034,7 +1034,7 @@ export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
 export const HOW_TO_ADD_DEPLOY_KEY = () =>
   "How to paste SSH Key in repo and give write access?";
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
-  "I've added deploy key and gave it write access";
+  "I've added the deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
 export const GIT_CONNECT_SUCCESS_TITLE = () =>
   "Successfully connected to your Git remote repository";
