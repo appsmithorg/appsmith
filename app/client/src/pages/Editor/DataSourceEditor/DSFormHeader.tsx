@@ -9,9 +9,10 @@ import {
   CONTEXT_DELETE,
   EDIT,
   createMessage,
+  GENERATE_NEW_PAGE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import { debounce } from "lodash";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
@@ -19,6 +20,10 @@ import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import styled from "styled-components";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
+import { useShowPageGenerationOnHeader } from "./hooks";
+import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import history from "utils/history";
 
 export const ActionWrapper = styled.div`
   display: flex;
@@ -108,6 +113,8 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
 
+  const pageId = useSelector(getCurrentPageId);
+
   const deleteAction = () => {
     if (isDeleting) return;
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
@@ -115,6 +122,10 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
   };
 
   const onCloseMenu = debounce(() => setConfirmDelete(false), 20);
+
+  const showGenerateButton = useShowPageGenerationOnHeader(
+    datasource as Datasource,
+  );
 
   const renderMenuOptions = () => {
     return [
@@ -140,6 +151,23 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
           : createMessage(CONTEXT_DELETE)}
       </MenuItem>,
     ];
+  };
+
+  const routeToGeneratePage = () => {
+    if (!showGenerateButton) {
+      // disable button when it doesn't support page generation
+      return;
+    }
+    AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
+    history.push(
+      generateTemplateFormURL({
+        pageId,
+        params: {
+          datasourceId: (datasource as Datasource).id,
+          new_page: true,
+        },
+      }),
+    );
   };
 
   return (
@@ -200,6 +228,20 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             eventFrom="datasource-pane"
             pluginType={pluginType}
           />
+          {showGenerateButton && (
+            <Button
+              className={"t--generate-template"}
+              kind="secondary"
+              onClick={(e: any) => {
+                e.stopPropagation();
+                e.preventDefault();
+                routeToGeneratePage();
+              }}
+              size="md"
+            >
+              {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
+            </Button>
+          )}
         </ActionWrapper>
       )}
     </Header>
