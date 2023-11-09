@@ -15,6 +15,7 @@ import { ApiEditorContextProvider } from "pages/Editor/APIEditor/ApiEditorContex
 import { filterWhitelistedConfig } from "./helper";
 import { deleteModule, saveModuleName } from "@appsmith/actions/moduleActions";
 import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
+import ModuleInputsForm from "./ModuleInputsForm";
 
 interface ModuleApiEditorRouteParams {
   packageId: string;
@@ -66,13 +67,28 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
     [module?.id],
   );
 
+  const actionRightPaneAdditionSections = useMemo(() => {
+    if (!module?.inputsForm) {
+      return null;
+    }
+
+    return (
+      <ModuleInputsForm
+        defaultValues={{ inputsForm: module?.inputsForm }}
+        moduleId={module?.id}
+      />
+    );
+  }, [[module?.id, module?.inputsForm]]);
+
   return (
     <ApiEditorContextProvider
+      actionRightPaneAdditionSections={actionRightPaneAdditionSections}
       handleDeleteClick={noop}
       handleRunClick={noop}
       moreActionsMenu={moreActionsMenu}
       saveActionName={onSaveModuleName}
       settingsConfig={whitelistedSettingsConfig}
+      showRightPaneTabbedSection={false}
     >
       <Editor {...props} isEditorInitialized={isPackageEditorInitialized} />
     </ApiEditorContextProvider>

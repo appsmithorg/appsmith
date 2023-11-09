@@ -25,16 +25,11 @@ const DEFAULT_MODULE = {
   id: "module-id",
   packageId: "6528d5f14b7c8d700a1026c9",
   publicEntityId: "652535134b7c8d700a102652",
-  whitelistedPublicEntitySettingsForModule: [
-    "actionConfiguration.timeoutInMillisecond",
-    "executeOnLoad",
-  ],
-  whitelistedPublicEntitySettingsForModuleInstance: [],
-  inputs: {},
+  inputsForm: [],
   name: "Module 1",
   type: MODULE_TYPE.QUERY,
   userPermissions: [],
-};
+} as unknown as Module;
 
 const DEFAULT_ROUTE_MATCH_PARAMS = {
   isExact: true,

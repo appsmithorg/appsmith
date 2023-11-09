@@ -19,6 +19,7 @@ import {
 import { filterWhitelistedConfig } from "./helper";
 import { deleteModule, saveModuleName } from "@appsmith/actions/moduleActions";
 import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
+import ModuleInputsForm from "./ModuleInputsForm";
 
 interface ModuleQueryEditorRouteParams {
   pageId: string; // TODO: @ashit remove this and add generic key in the Editor
@@ -91,8 +92,24 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
     );
   }, []);
 
+  const actionRightPaneAdditionSections = useMemo(() => {
+    if (!module?.inputsForm) {
+      return null;
+    }
+
+    return (
+      <ModuleInputsForm
+        defaultValues={{
+          inputsForm: module?.inputsForm,
+        }}
+        moduleId={module?.id}
+      />
+    );
+  }, [module?.id, module?.inputsForm]);
+
   return (
     <QueryEditorContextProvider
+      actionRightPaneAdditionSections={actionRightPaneAdditionSections}
       changeQueryPage={changeQueryPage}
       moreActionsMenu={moreActionsMenu}
       onCreateDatasourceClick={noop}

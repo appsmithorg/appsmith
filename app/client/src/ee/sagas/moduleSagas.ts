@@ -13,10 +13,11 @@ import type {
   DeleteModulePayload,
   FetchModuleActionsPayload,
   SaveModuleNamePayload,
+  UpdateModuleInputsPayload,
 } from "@appsmith/actions/moduleActions";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type {
-  CreateModuleActionPayload,
+  CreateModulePayload,
   FetchModuleActionsResponse,
 } from "@appsmith/api/ModuleApi";
 import history from "utils/history";
@@ -24,7 +25,6 @@ import {
   currentPackageEditorURL,
   moduleEditorURL,
 } from "@appsmith/RouteBuilder";
-import type { ApiAction } from "entities/Action";
 import {
   PluginPackageName,
   type Action,
@@ -42,6 +42,7 @@ import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modu
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import { createNewQueryModuleName } from "@appsmith/utils/Packages/moduleHelpers";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
+import { generateDefaultInputSection } from "@appsmith/components/InputsForm/Fields/helper";
 
 export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
   try {
@@ -110,6 +111,45 @@ export function* saveModuleNameSaga(
   }
 }
 
+export function* updateModuleInputsSaga(
+  action: ReduxAction<UpdateModuleInputsPayload>,
+) {
+  try {
+    const { id, inputsForm } = action.payload;
+    const module: ReturnType<typeof getModuleById> = yield select(
+      getModuleById,
+      id,
+    );
+
+    if (!module) {
+      throw Error("Saving module inputs failed. Module not found.");
+    }
+
+    const updatedModule = {
+      ...module,
+      inputsForm,
+    };
+
+    const response: ApiResponse = yield call(
+      ModuleApi.updateModule,
+      updatedModule,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_MODULE_INPUTS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_MODULE_INPUTS_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export function* fetchModuleActionsSagas(
   action: ReduxAction<FetchModuleActionsPayload>,
 ) {
@@ -154,55 +194,33 @@ export function* createQueryModuleSaga(
       MODULE_PREFIX.QUERY,
     );
 
-    let actionPayload: CreateModuleActionPayload;
-
-    if (datasourceId) {
-      const createQueryModulePayload: Partial<Action> = yield call(
-        createDefaultActionPayloadWithPluginDefaults,
-        {
+    const defaultAction: Partial<Action> = datasourceId
+      ? yield call(createDefaultActionPayloadWithPluginDefaults, {
           datasourceId,
           from,
           newActionName,
-        } as CreateActionDefaultsParams,
-      );
-
-      const { name, ...rest } = createQueryModulePayload;
-
-      actionPayload = {
-        packageId,
-        name,
-        type: MODULE_TYPE.QUERY,
-        entity: {
-          type: MODULE_ACTION_TYPE.ACTION,
-          ...rest,
-        },
-      };
-    } else {
-      const createQueryModulePayload: Partial<ApiAction> = yield call(
-        createDefaultApiActionPayload,
-        {
+        } as CreateActionDefaultsParams)
+      : yield call(createDefaultApiActionPayload, {
           apiType,
           from,
           newActionName,
-        } as CreateApiActionDefaultsParams,
-      );
+        } as CreateApiActionDefaultsParams);
 
-      const { name, ...rest } = createQueryModulePayload;
-
-      actionPayload = {
-        packageId,
-        name,
-        type: MODULE_TYPE.QUERY,
-        entity: {
-          type: MODULE_ACTION_TYPE.ACTION,
-          ...rest,
-        },
-      };
-    }
+    const { name, ...restAction } = defaultAction;
+    const payload: CreateModulePayload = {
+      packageId,
+      name,
+      type: MODULE_TYPE.QUERY,
+      inputsForm: [generateDefaultInputSection()],
+      entity: {
+        type: MODULE_ACTION_TYPE.ACTION,
+        ...restAction,
+      },
+    };
 
     const response: ApiResponse<Module> = yield call(
       ModuleApi.createModule,
-      actionPayload,
+      payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
@@ -233,6 +251,10 @@ export default function* modulesSaga() {
     takeLatest(
       ReduxActionTypes.CREATE_QUERY_MODULE_INIT,
       createQueryModuleSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_MODULE_INPUTS_INIT,
+      updateModuleInputsSaga,
     ),
   ]);
 }

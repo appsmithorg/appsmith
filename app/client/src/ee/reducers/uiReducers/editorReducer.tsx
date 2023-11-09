@@ -17,6 +17,7 @@ export type EditorReduxState = CE_EditorReduxState & {
   currentPackageId?: string;
   isPackagePublishing: boolean;
   isModuleFetchingActions: boolean;
+  isModuleUpdating: boolean;
 };
 
 export const initialState: EditorReduxState = {
@@ -24,6 +25,7 @@ export const initialState: EditorReduxState = {
   isPackageEditorInitialized: false,
   isPackagePublishing: false,
   isModuleFetchingActions: false,
+  isModuleUpdating: false,
 };
 
 const handlers = {
@@ -75,6 +77,52 @@ const handlers = {
     return {
       ...state,
       isModuleFetchingActions: false,
+    };
+  },
+
+  [ReduxActionTypes.UPDATE_MODULE_INPUTS_INIT]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isModuleUpdating: true,
+    };
+  },
+
+  [ReduxActionTypes.UPDATE_MODULE_INPUTS_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isModuleUpdating: false,
+    };
+  },
+
+  [ReduxActionErrorTypes.UPDATE_MODULE_INPUTS_ERROR]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isModuleUpdating: false,
+    };
+  },
+
+  [ReduxActionTypes.SAVE_MODULE_NAME_INIT]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isModuleUpdating: true,
+    };
+  },
+
+  [ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isModuleUpdating: false,
+    };
+  },
+
+  [ReduxActionErrorTypes.SAVE_MODULE_NAME_ERROR]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isModuleUpdating: false,
     };
   },
 

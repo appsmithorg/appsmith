@@ -7,15 +7,13 @@ import {
   getJSCollections,
   getCurrentPageId,
 } from "ce/selectors/entitiesSelector";
-import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+import type { Module } from "@appsmith/constants/ModuleConstants";
 import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
 
-export const getInputsForModule = (
-  state: AppState,
-): Record<string, ModuleInput> => {
+export const getInputsForModule = (state: AppState): Module["inputsForm"] => {
   const moduleId = getCurrentModuleId(state);
   const module = state.entities.modules[moduleId];
-  return module?.inputs || {};
+  return module?.inputsForm || [];
 };
 
 export const getCurrentActions = createSelector(

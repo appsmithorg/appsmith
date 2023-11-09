@@ -15,10 +15,11 @@ interface FetchModuleActionsPayload {
   moduleId: string;
 }
 
-export interface CreateModuleActionPayload {
+export interface CreateModulePayload {
   packageId: string;
   type: MODULE_TYPE;
   name?: string;
+  inputsForm: Module["inputsForm"];
   entity: Partial<Action> & {
     type: MODULE_ACTION_TYPE;
   };
@@ -68,7 +69,7 @@ class ModuleApi extends Api {
   }
 
   static async createModule(
-    payload: CreateModuleActionPayload,
+    payload: CreateModulePayload,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(BASE_URL, payload);
   }
