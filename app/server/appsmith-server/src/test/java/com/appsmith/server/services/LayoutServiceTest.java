@@ -21,6 +21,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -94,6 +95,12 @@ public class LayoutServiceTest {
     @Autowired
     ApplicationPermission applicationPermission;
 
+    @Autowired
+    SessionUserService sessionUserService;
+
+    @Autowired
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -108,14 +115,26 @@ public class LayoutServiceTest {
 
     @BeforeEach
     public void setup() {
+        User currentUser = sessionUserService.getCurrentUser().block();
         purgeAllPages();
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutServiceTest");
+        Set<String> beforeCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
 
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
+        Set<String> afterCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+
+        log.info("Workspace ID: {}", workspaceId);
+        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.info("Policy for created Workspace: {}", workspace.getPolicies());
+        log.info("Current User ID: {}", currentUser.getId());
 
         datasource = new Datasource();
         datasource.setName("Default Database");
@@ -199,15 +218,13 @@ public class LayoutServiceTest {
     }
 
     private Mono<PageDTO> createPage(Application app, PageDTO page) {
-        return newPageService
-                .findByNameAndViewMode(page.getName(), AclPermission.READ_PAGES, false)
-                .switchIfEmpty(applicationPageService
-                        .createApplication(app, workspaceId)
-                        .map(application -> {
-                            page.setApplicationId(application.getId());
-                            return page;
-                        })
-                        .flatMap(applicationPageService::createPage));
+        return applicationPageService
+                .createApplication(app, workspaceId)
+                .map(application -> {
+                    page.setApplicationId(application.getId());
+                    return page;
+                })
+                .flatMap(applicationPageService::createPage);
     }
 
     @Test
