@@ -160,8 +160,10 @@ public enum AclPermission {
 
     MANAGE_MODULES("manage:modules", Module.class),
     READ_MODULES("read:modules", Module.class),
-    EXECUTE_MODULES("execute:modules", Module.class),
     DELETE_MODULES("delete:modules", Module.class),
+
+    CREATE_MODULE_INSTANCES("create:moduleInstances", Module.class),
+    CREATE_MODULE_EXECUTABLES("create:moduleExecutables", Module.class),
 
     PAGE_CREATE_PAGE_ACTIONS("create:pageActions", Page.class),
     PAGE_CREATE_MODULE_INSTANCES("create:moduleInstancesInPage", Page.class),

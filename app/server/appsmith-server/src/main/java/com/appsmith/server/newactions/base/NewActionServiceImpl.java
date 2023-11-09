@@ -289,6 +289,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
         return repository
                 .findAllNonJSActionsByModuleId(moduleId)
+                .flatMap(repository::setUserPermissionsInObject)
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
                 .flatMap(newAction -> generateActionByViewMode(newAction, false))

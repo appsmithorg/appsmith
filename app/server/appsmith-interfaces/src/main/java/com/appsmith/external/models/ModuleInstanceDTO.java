@@ -50,10 +50,6 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     Map<String, String> inputs;
 
-    @Transient
-    @JsonView(Views.Public.class)
-    String publicEntityId;
-
     @JsonView(Views.Public.class)
     Map<String, ModuleActionConfig> settings;
 

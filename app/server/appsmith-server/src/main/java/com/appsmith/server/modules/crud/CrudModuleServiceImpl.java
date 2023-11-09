@@ -8,6 +8,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
@@ -19,7 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ObjectUtils;
 import com.appsmith.server.helpers.ValidationUtils;
-import com.appsmith.server.moduleinstances.services.permissions.ModuleInstancePermissionChecker;
+import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.packages.permissions.PackagePermission;
@@ -179,24 +180,26 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     }
 
     private Mono<ModuleDTO> saveModuleAndCreateAction(Module module) {
-        return moduleRepository.save(module).flatMap(savedModule -> {
-            ModuleDTO moduleDTO = module.getUnpublishedModule();
-            // Update moduleDTO with savedModule details
-            moduleDTO.setId(savedModule.getId());
-            moduleDTO.setUserPermissions(savedModule.getUserPermissions());
+        return moduleRepository.save(module).flatMap(savedModule -> moduleRepository
+                .findById(savedModule.getId(), modulePermission.getCreateExecutablesPermission())
+                .flatMap(fetchedModule -> {
+                    ModuleDTO moduleDTO = module.getUnpublishedModule();
+                    moduleDTO.setId(fetchedModule.getId());
+                    moduleDTO.setUserPermissions(fetchedModule.getUserPermissions());
 
-            NewAction moduleAction = createModuleAction(moduleDTO, true);
+                    NewAction moduleAction = createModuleAction(moduleDTO, true);
+                    Set<Policy> childActionPolicies = policyGenerator.getAllChildPolicies(
+                            fetchedModule.getPolicies(), Module.class, Action.class);
+                    moduleAction.setPolicies(childActionPolicies);
 
-            return newActionService
-                    .validateAndSaveActionToRepository(moduleAction)
-                    .flatMap(savedActionDTO -> {
-                        return moduleRepository
-                                .save(module)
-                                .flatMap(moduleRepository::setUserPermissionsInObject)
-                                .flatMap(updatedModule -> setTransientFieldsFromModuleToModuleDTO(
-                                        updatedModule, updatedModule.getUnpublishedModule()));
-                    });
-        });
+                    return newActionService
+                            .validateAndSaveActionToRepository(moduleAction)
+                            .flatMap(savedActionDTO -> moduleRepository
+                                    .save(fetchedModule)
+                                    .flatMap(moduleRepository::setUserPermissionsInObject)
+                                    .then(setTransientFieldsFromModuleToModuleDTO(
+                                            fetchedModule, fetchedModule.getUnpublishedModule())));
+                }));
     }
 
     private NewAction createModuleAction(ModuleDTO moduleDTO, boolean isPublic) {

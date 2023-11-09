@@ -1,4 +1,4 @@
-package com.appsmith.server.moduleinstances.services.permissions;
+package com.appsmith.server.moduleinstances.permissions;
 
 import reactor.core.publisher.Mono;
 

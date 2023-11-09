@@ -1,28 +1,28 @@
-package com.appsmith.server.modules.permissions;
+package com.appsmith.server.moduleinstances.permissions;
 
 import com.appsmith.server.acl.AclPermission;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ModulePermissionImpl implements ModulePermission {
+public class ModuleInstancePermissionImpl implements ModuleInstancePermission {
     @Override
     public AclPermission getDeletePermission() {
-        return AclPermission.DELETE_MODULES;
+        return AclPermission.DELETE_MODULE_INSTANCES;
     }
 
     @Override
-    public AclPermission getCreateExecutablesPermission() {
-        return AclPermission.CREATE_MODULE_EXECUTABLES;
+    public AclPermission getExecutePermission() {
+        return AclPermission.EXECUTE_MODULE_INSTANCES;
     }
 
     @Override
     public AclPermission getEditPermission() {
-        return AclPermission.MANAGE_MODULES;
+        return AclPermission.MANAGE_MODULE_INSTANCES;
     }
 
     @Override
     public AclPermission getReadPermission() {
-        return AclPermission.READ_MODULES;
+        return AclPermission.READ_MODULE_INSTANCES;
     }
 
     @Override

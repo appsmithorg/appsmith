@@ -1,4 +1,4 @@
-package com.appsmith.server.moduleinstances.services.base;
+package com.appsmith.server.moduleinstances.base;
 
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 

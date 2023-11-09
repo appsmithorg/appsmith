@@ -13,7 +13,7 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.moduleinstances.services.permissions.ModuleInstancePermissionChecker;
+import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
 import com.appsmith.server.packages.crud.CrudPackageService;

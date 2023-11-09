@@ -4,5 +4,5 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.helpers.ModuleConsumable;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@JsonTypeName("action")
+@JsonTypeName("ACTION")
 public class ModuleActionDTO extends ActionDTO implements ModuleConsumable {}

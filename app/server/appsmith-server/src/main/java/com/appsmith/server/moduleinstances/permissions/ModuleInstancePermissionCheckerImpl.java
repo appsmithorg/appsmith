@@ -1,4 +1,4 @@
-package com.appsmith.server.moduleinstances.services.permissions;
+package com.appsmith.server.moduleinstances.permissions;
 
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import org.springframework.stereotype.Service;

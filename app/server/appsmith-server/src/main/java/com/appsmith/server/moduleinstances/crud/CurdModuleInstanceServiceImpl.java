@@ -1,6 +1,6 @@
-package com.appsmith.server.moduleinstances.services.crud;
+package com.appsmith.server.moduleinstances.crud;
 
-import com.appsmith.server.moduleinstances.services.base.BaseModuleInstanceServiceImpl;
+import com.appsmith.server.moduleinstances.base.BaseModuleInstanceServiceImpl;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import org.springframework.stereotype.Service;
 
