@@ -35,6 +35,9 @@ export const FEATURE_FLAG = {
   license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
   ab_onboarding_flow_start_with_data_dev_only_enabled:
     "ab_onboarding_flow_start_with_data_dev_only_enabled",
+  ab_create_new_apps_enabled: "ab_create_new_apps_enabled",
+  release_show_new_sidebar_announcement_enabled:
+    "release_show_new_sidebar_announcement_enabled",
   release_show_partial_import_export_enabled:
     "release_show_partial_import_export_enabled",
 } as const;
@@ -69,6 +72,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_git_branch_protection_enabled: false,
   license_widget_rtl_support_enabled: false,
   ab_onboarding_flow_start_with_data_dev_only_enabled: false,
+  ab_create_new_apps_enabled: false,
+  release_show_new_sidebar_announcement_enabled: false,
   release_show_partial_import_export_enabled: false,
 };
 

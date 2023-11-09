@@ -27,7 +27,8 @@ describe("Modal Widget test cases", function () {
 
     //Verify that the Modal widget opens correctly when configured on a button click.
     agHelper.ClickButton("Submit");
-    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.WaitUntilEleAppear(locators._modal);
+    agHelper.AssertElementExist(locators._modal);
 
     //Verify that the Modal widget is closed and no longer visible on the screen on clicking the "X" button.
     agHelper.AssertElementVisibility(
@@ -38,7 +39,8 @@ describe("Modal Widget test cases", function () {
 
     //Verify that clicking outside the Modal widget closes it as expected when Quick dismiss is enabled
     agHelper.ClickButton("Submit");
-    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.WaitUntilEleAppear(locators._modal);
+    agHelper.AssertElementExist(locators._modal);
     agHelper.ClickOutside(350, 150, false);
     agHelper.Sleep();
     agHelper.AssertElementAbsence(locators._modal);
