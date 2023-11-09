@@ -60,25 +60,25 @@ function GitProtectedBranches() {
   const defaultBranch = useSelector(getDefaultGitBranchName);
 
   const branchNames = useMemo(() => {
-    const remoteBranchNames = [];
-    const localBranchNames = [];
+    const returnVal: string[] = [];
     for (const unfilteredBranch of unfilteredBranches) {
       if (unfilteredBranch.branchName === defaultBranch) {
-        continue;
-      }
-      if (unfilteredBranch.branchName.includes(REMOTE_BRANCH_PREFIX)) {
-        remoteBranchNames.push(
-          unfilteredBranch.branchName.replace(REMOTE_BRANCH_PREFIX, ""),
+        returnVal.unshift(unfilteredBranch.branchName);
+      } else if (unfilteredBranch.branchName.includes(REMOTE_BRANCH_PREFIX)) {
+        const localBranchName = unfilteredBranch.branchName.replace(
+          REMOTE_BRANCH_PREFIX,
+          "",
         );
+        if (!returnVal.includes(localBranchName)) {
+          returnVal.push(
+            unfilteredBranch.branchName.replace(REMOTE_BRANCH_PREFIX, ""),
+          );
+        }
       } else {
-        localBranchNames.push(unfilteredBranch.branchName);
+        returnVal.push(unfilteredBranch.branchName);
       }
     }
-    const branchNames = union(localBranchNames, remoteBranchNames);
-    if (defaultBranch) {
-      branchNames.unshift(defaultBranch);
-    }
-    return branchNames;
+    return returnVal;
   }, [unfilteredBranches, defaultBranch]);
 
   const isGitProtectedFeatureLicensed = useFeatureFlag(
