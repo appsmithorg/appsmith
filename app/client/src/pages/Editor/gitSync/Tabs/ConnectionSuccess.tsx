@@ -73,8 +73,6 @@ const features = [
 
 function ConnectionSuccess() {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
-  // const defaultBranchName = useSelector(getDefaultGitBranchName);
-
   const dispatch = useDispatch();
 
   useEffect(() => {
