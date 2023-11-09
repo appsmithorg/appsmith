@@ -59,6 +59,7 @@ export function OneClickDropdownFieldControl(
             handleSelect(value, selectedOption);
           }
         }}
+        showSearch
         value={selected}
         virtual={false}
       >

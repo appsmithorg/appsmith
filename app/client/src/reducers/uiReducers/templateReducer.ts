@@ -121,7 +121,23 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplateToApp: true,
     };
   },
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingTemplateToApp: true,
+    };
+  },
   [ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isImportingTemplateToApp: false,
+    };
+  },
+  [ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW_SUCCESS]: (
     state: TemplatesReduxState,
   ) => {
     return {
@@ -137,6 +153,13 @@ const templateReducer = createReducer(initialState, {
       isImportingTemplateToApp: false,
     };
   },
+  [ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW_ERROR]:
+    (state: TemplatesReduxState) => {
+      return {
+        ...state,
+        isImportingTemplateToApp: false,
+      };
+    },
   [ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT]: (
     state: TemplatesReduxState,
   ) => {
