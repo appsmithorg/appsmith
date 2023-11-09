@@ -134,6 +134,8 @@ function GitProtectedBranches() {
       <BodyContainer>
         <StyledSelect
           data-testid="t--git-protected-branches-select"
+          dropdownMatchSelectWidth
+          getPopupContainer={(triggerNode) => triggerNode.parentNode}
           isMultiSelect
           maxTagTextLength={8}
           onChange={(v) => setSelectedValues(v)}
