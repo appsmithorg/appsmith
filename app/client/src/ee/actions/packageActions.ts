@@ -37,12 +37,20 @@ export const createPackageFromWorkspace = (
   };
 };
 
-export const updatePackage = (
-  payload: Partial<Package> & Pick<Package, "id">,
-) => {
+export const updatePackageName = (value: string, pkg: Package | null) => {
   return {
-    type: ReduxActionTypes.UPDATE_PACKAGE_INIT,
-    payload,
+    type: ReduxActionTypes.UPDATE_PACKAGE_NAME_INIT,
+    payload: {
+      ...pkg,
+      color: pkg?.color || "",
+      icon: pkg?.icon || "",
+      id: pkg?.id || "",
+      modifiedAt: pkg?.modifiedAt || "",
+      modifiedBy: pkg?.modifiedBy || "",
+      name: value,
+      workspaceId: pkg?.workspaceId || "",
+      userPermissions: pkg?.userPermissions || [],
+    },
   };
 };
 

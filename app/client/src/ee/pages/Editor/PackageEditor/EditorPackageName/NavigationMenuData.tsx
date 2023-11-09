@@ -105,13 +105,14 @@ export const GetNavigationMenuData = ({
         },
       ],
     },
-    hasDeletePackagePermission(currentPackage?.userPermissions) && {
-      text: "Delete package",
-      confirmText: "Are you sure?",
-      onClick: onDeletePackage,
-      type: MenuTypes.RECONFIRM,
-      isVisible: isPkgIdPresent,
-      style: { color: Colors.ERROR_RED },
-    },
+    hasDeletePackagePermission(currentPackage?.userPermissions) &&
+      false && {
+        text: "Delete package",
+        confirmText: "Are you sure?",
+        onClick: onDeletePackage,
+        type: MenuTypes.RECONFIRM,
+        isVisible: isPkgIdPresent,
+        style: { color: Colors.ERROR_RED },
+      },
   ].filter(Boolean) as MenuItemData[];
 };
