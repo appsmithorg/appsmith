@@ -73,6 +73,8 @@ function* readAndUpdateLayoutElementPositions() {
   for (const anvilLayoutDOMId of Object.keys(registeredLayouts)) {
     const element: HTMLElement | null =
       document.getElementById(anvilLayoutDOMId);
+    const { parentDropTarget } = registeredLayouts[anvilLayoutDOMId];
+    const parentPositions = positions[parentDropTarget];
     const layoutId = extractLayoutIdFromLayoutDOMId(anvilLayoutDOMId);
     if (element) {
       const rect: DOMRect = element.getBoundingClientRect();
@@ -81,9 +83,15 @@ function* readAndUpdateLayoutElementPositions() {
         top: rect.top - top,
         height: rect.height,
         width: rect.width,
-        // layouts also will have parents so adding these offset placeholders for future use cases
-        offsetLeft: 0,
-        offsetTop: 0,
+        ...(parentPositions
+          ? {
+              offsetLeft: rect.left - (parentPositions.left + left),
+              offsetTop: rect.top - (parentPositions.top + top),
+            }
+          : {
+              offsetLeft: 0,
+              offsetTop: 0,
+            }),
       };
     }
   }

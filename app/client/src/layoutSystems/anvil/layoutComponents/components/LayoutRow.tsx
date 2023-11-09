@@ -28,6 +28,7 @@ class LayoutRow extends BaseLayoutComponent {
       layoutId,
       layoutIndex,
       layoutStyle,
+      parentDropTarget,
       renderMode,
     } = this.props;
 
@@ -40,6 +41,7 @@ class LayoutRow extends BaseLayoutComponent {
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
         layoutIndex={layoutIndex}
+        parentDropTarget={parentDropTarget}
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >

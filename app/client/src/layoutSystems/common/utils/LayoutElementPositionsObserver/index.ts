@@ -37,6 +37,7 @@ class LayoutElementPositionObserver {
       ref: RefObject<HTMLDivElement>;
       layoutId: string;
       canvasId: string;
+      parentDropTarget: string;
       isDropTarget: boolean;
     };
   } = {};
@@ -113,6 +114,7 @@ class LayoutElementPositionObserver {
   public observeLayout(
     layoutId: string,
     canvasId: string,
+    parentDropTarget: string,
     isDropTarget: boolean,
     ref: RefObject<HTMLDivElement>,
   ) {
@@ -124,6 +126,7 @@ class LayoutElementPositionObserver {
             ref,
             canvasId,
             layoutId,
+            parentDropTarget,
             isDropTarget,
           };
         this.resizeObserver.observe(ref.current);

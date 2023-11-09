@@ -21,6 +21,7 @@ export function usePositionObserver(
     widgetId?: string;
     layoutId?: string;
     canvasId?: string;
+    parentDropTarget?: string;
     isDropTarget?: boolean;
   },
   ref: RefObject<HTMLDivElement>,
@@ -53,6 +54,7 @@ export function usePositionObserver(
           positionObserver.observeLayout(
             ids.layoutId,
             ids.canvasId,
+            ids.parentDropTarget || "",
             !!ids.isDropTarget,
             ref,
           );
