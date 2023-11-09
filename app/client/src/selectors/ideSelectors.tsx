@@ -5,3 +5,8 @@ export const getIsAppSidebarEnabled = createSelector(
   selectFeatureFlags,
   (flags) => !!flags?.release_app_sidebar_enabled,
 );
+
+export const getIsAppSidebarAnnouncementEnabled = createSelector(
+  selectFeatureFlags,
+  (flags) => !!flags?.release_show_new_sidebar_announcement_enabled,
+);

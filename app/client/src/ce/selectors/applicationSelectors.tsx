@@ -284,3 +284,23 @@ export const getApplicationLoadingStates = (state: AppState) => {
 };
 
 export const getAllAppUsers = () => [];
+
+export const getCurrentApplicationIdForCreateNewApp = (state: AppState) => {
+  return state.ui.applications.currentApplicationIdForCreateNewApp;
+};
+
+// Get application from id from userWorkspaces
+export const getApplicationByIdFromWorkspaces = createSelector(
+  getUserApplicationsWorkspaces,
+  (_: AppState, applicationId: string) => applicationId,
+  (userWorkspaces, applicationId) => {
+    let application: ApplicationPayload | undefined;
+    userWorkspaces.forEach((userWorkspace) => {
+      if (!application)
+        application = userWorkspace.applications.find(
+          (i) => i.id === applicationId,
+        );
+    });
+    return application;
+  },
+);

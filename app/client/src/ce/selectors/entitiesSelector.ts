@@ -709,7 +709,9 @@ export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
   getCurrentPageId,
   (widgetsByPage, currentPageId) =>
-    currentPageId ? widgetsByPage[currentPageId].dsl : {},
+    currentPageId && widgetsByPage[currentPageId]
+      ? widgetsByPage[currentPageId].dsl
+      : {},
 );
 
 export const getParentModalId = (

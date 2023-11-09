@@ -209,6 +209,15 @@ describe("bgNeutral color", () => {
   });
 });
 
+describe("bgNeutralOpacity color", () => {
+  it("should return correct color", () => {
+    const { bgNeutralOpacity } = new DarkModeTheme(
+      "oklch(0.51 0.24 279)",
+    ).getColors();
+    expect(bgNeutralOpacity).toEqual("rgb(3.6355% 4.017% 7.6512% / 0.5)");
+  });
+});
+
 describe("bgNeutralHover color", () => {
   it("should return correct color when lightness > or equal to 0.85", () => {
     const { bgNeutralHover } = new DarkModeTheme(

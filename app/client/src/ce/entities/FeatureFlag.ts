@@ -30,7 +30,14 @@ export const FEATURE_FLAG = {
   release_app_sidebar_enabled: "release_app_sidebar_enabled",
   release_git_branch_protection_enabled:
     "release_git_branch_protection_enabled",
+  license_git_branch_protection_enabled:
+    "license_git_branch_protection_enabled",
   license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
+  ab_onboarding_flow_start_with_data_dev_only_enabled:
+    "ab_onboarding_flow_start_with_data_dev_only_enabled",
+  ab_create_new_apps_enabled: "ab_create_new_apps_enabled",
+  release_show_new_sidebar_announcement_enabled:
+    "release_show_new_sidebar_announcement_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -60,7 +67,11 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_show_templates_instead_of_blank_canvas_enabled: false,
   release_app_sidebar_enabled: false,
   release_git_branch_protection_enabled: false,
+  license_git_branch_protection_enabled: false,
   license_widget_rtl_support_enabled: false,
+  ab_onboarding_flow_start_with_data_dev_only_enabled: false,
+  ab_create_new_apps_enabled: false,
+  release_show_new_sidebar_announcement_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
