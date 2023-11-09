@@ -135,7 +135,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
   it("2. Run Select, Create, Update, Delete & few more queries on the created collection + Widget Binding", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue("Default value", "Brazil");
-    //Select's own query
+    //Create a select query
     dataSources.createQueryWithDatasourceSchemaTemplate(
       dsName,
       `${collectionName}`,
@@ -224,7 +224,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
 
     query = `UPDATE
     {
-        _key: "2"
+        _key: "1"
     }
     WITH
     {
@@ -249,6 +249,10 @@ describe("Validate Arango & CURL Import Datasources", () => {
       `${collectionName}`,
       "Select",
     );
+    query = `FOR doc IN ${collectionName}
+    FILTER document._key == "1"
+    RETURN document`;
+    dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews(1);
     dataSources.AssertQueryTableResponse(3, "Australia");
 
