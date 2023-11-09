@@ -44,7 +44,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
-import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+import type { Module } from "@appsmith/constants/ModuleConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1278,6 +1278,6 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
   );
 };
 
-export function getInputsForModule(): Record<string, ModuleInput> {
-  return {};
+export function getInputsForModule(): Module["inputsForm"] {
+  return [];
 }
