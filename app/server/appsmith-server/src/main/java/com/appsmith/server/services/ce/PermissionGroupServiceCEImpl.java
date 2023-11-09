@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
 import java.util.List;
@@ -160,14 +161,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         return bulkAssignToUsers(permissionGroup, List.of(user));
     }
 
-    protected void ensureAssignedToUserIds(PermissionGroup permissionGroup) {
+    private void ensureAssignedToUserIds(PermissionGroup permissionGroup) {
         if (permissionGroup.getAssignedToUserIds() == null) {
-            permissionGroup.setAssignedToUserIds(new HashSet<>());
-        }
-    }
-
-    protected void ensureAssignedToUserGroups(PermissionGroup permissionGroup) {
-        if (permissionGroup.getAssignedToGroupIds() == null) {
             permissionGroup.setAssignedToUserIds(new HashSet<>());
         }
     }
@@ -185,7 +180,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         Mono<Boolean> clearCacheForUsersMono =
                 cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
 
-        return permissionGroupUpdateMono.then(clearCacheForUsersMono).then(permissionGroupUpdateMono);
+        return permissionGroupUpdateMono
+                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
+                .map(Tuple2::getT1);
     }
 
     @Override
@@ -218,7 +215,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .cache();
         Mono<Boolean> clearCacheForUsersMono =
                 cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
-        return updatePermissionGroupMono.then(clearCacheForUsersMono).then(updatePermissionGroupMono);
+        return updatePermissionGroupMono
+                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
+                .map(Tuple2::getT1);
     }
 
     @Override
@@ -236,7 +235,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .cache();
         Mono<Boolean> clearCacheForUsersMono =
                 cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
-        return updatePermissionGroupMono.then(clearCacheForUsersMono).then(updatePermissionGroupMono);
+        return updatePermissionGroupMono
+                .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
+                .map(Tuple2::getT1);
     }
 
     @Override
@@ -255,11 +256,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
                     Mono<UpdateResult> updatePermissionGroupResultMono =
                             repository.updateById(pg.getId(), updateObj).cache();
-                    Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds));
+                    Mono<Boolean> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds))
+                            .thenReturn(TRUE);
 
                     return updatePermissionGroupResultMono
-                            .then(clearCacheForUsersMono)
-                            .then(updatePermissionGroupResultMono);
+                            .zipWhen(updatedPermissionGroupResult -> clearCacheForUsersMono)
+                            .map(Tuple2::getT1);
                 })
                 .then(Mono.just(TRUE));
     }
