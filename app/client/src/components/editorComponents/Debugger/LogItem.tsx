@@ -13,7 +13,7 @@ import ContextualMenu from "./ContextualMenu";
 import { Button, Icon } from "design-system";
 import moment from "moment";
 import classNames from "classnames";
-import { DebuggerLinkUI } from "@appsmith/components/editorComponents/Debugger/entityTypeLinkMap";
+import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
