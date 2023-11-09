@@ -26,7 +26,7 @@ import { HelperBarInHeader } from "pages/Editor/HelpBarInHeader";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import {
   publishPackage,
-  updatePackageName,
+  updatePackage,
 } from "@appsmith/actions/packageActions";
 import type { Package } from "@appsmith/constants/PackageConstants";
 import EditorName from "pages/Editor/EditorName";
@@ -41,13 +41,18 @@ export function PackageEditorHeader() {
   const packageList = useSelector(getPackagesList) || [];
   const isPublishing = useSelector(getIsPackagePublishing);
   const currentPackage = useSelector(getCurrentPackage);
-  const packageId = currentPackage?.id;
+  const packageId = currentPackage?.id || "";
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
-  const updatePackage = (val: string, pkg: Package | null) => {
+  const onUpdatePackage = (val: string, pkg: Package | null) => {
     if (val !== pkg?.name) {
-      dispatch(updatePackageName(val, pkg));
+      dispatch(
+        updatePackage({
+          name: val,
+          id: pkg?.id || packageId,
+        }),
+      );
     }
   };
 
@@ -89,7 +94,9 @@ export function PackageEditorHeader() {
                   packageList.filter((el) => el.id === packageId).length > 0 // ankita: update later, this is always true for package
                 }
                 isPopoverOpen={isPopoverOpen}
-                onBlur={(value: string) => updatePackage(value, currentPackage)}
+                onBlur={(value: string) =>
+                  onUpdatePackage(value, currentPackage)
+                }
                 setIsPopoverOpen={setIsPopoverOpen}
               />
             </div>

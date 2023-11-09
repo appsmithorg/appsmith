@@ -32,7 +32,7 @@ const packageReducer = createImmerReducer(INITIAL_STATE, {
     return draftState;
   },
 
-  [ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_PACKAGE_SUCCESS]: (
     draftState: PackagesReducerState,
     action: ReduxAction<Package>,
   ) => {

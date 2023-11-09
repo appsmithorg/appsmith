@@ -48,7 +48,7 @@ const handler = (action: ReduxAction<any>) => {
       urlBuilder.setModulesParams(() => modulesParams);
       break;
     }
-    case ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS: {
+    case ReduxActionTypes.UPDATE_PACKAGE_SUCCESS: {
       const pkg: Package = action.payload;
       const packageParams: PackageParams = {
         packageId: pkg.id,

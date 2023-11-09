@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import PackageEditorHeader from "./PackageEditorHeader";
-import { updatePackageName } from "@appsmith/actions/packageActions";
+import { updatePackage } from "@appsmith/actions/packageActions";
 import { ExplorerPinnedState } from "@appsmith/reducers/uiReducers/explorerReducer";
 import { BrowserRouter as Router } from "react-router-dom";
 import "@testing-library/jest-dom";
@@ -108,8 +108,8 @@ describe("PackageEditorHeader", () => {
     expect(screen.getByTestId("t--package-publish-btn")).toBeInTheDocument();
   });
 
-  it("calls updatePackageName when package name is edited", () => {
-    // Mock the updatePackageName action
+  it("calls updatePackage when package name is edited", () => {
+    // Mock the updatePackage action
     store.dispatch = jest.fn();
 
     renderComponent();
@@ -125,9 +125,12 @@ describe("PackageEditorHeader", () => {
     fireEvent.change(packageNameInput, { target: { value: "NewPackageName" } });
     fireEvent.blur(packageNameInput);
 
-    // Assert that the updatePackageName action was called with the updated name
+    // Assert that the updatePackage action was called with the updated name
     expect(store.dispatch).toHaveBeenCalledWith(
-      updatePackageName("NewPackageName", currentPackage),
+      updatePackage({
+        name: "NewPackageName",
+        id: currentPackage.id,
+      }),
     );
   });
 });

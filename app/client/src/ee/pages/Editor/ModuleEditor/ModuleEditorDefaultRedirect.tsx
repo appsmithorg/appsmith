@@ -3,7 +3,7 @@ import { Redirect, matchPath, useLocation } from "react-router";
 
 import { MODULE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 import { useSelector } from "react-redux";
-import { getAction, getPlugins } from "@appsmith/selectors/entitiesSelector";
+import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -14,6 +14,7 @@ import {
 } from "@appsmith/RouteBuilder";
 import { keyBy } from "lodash";
 import type { Plugin } from "api/PluginApi";
+import { getModulePublicAction } from "@appsmith/selectors/modulesSelector";
 
 interface ModuleEditorDefaultRedirectProps {
   module: Module;
@@ -48,7 +49,7 @@ function ModuleEditorDefaultRedirect({
   const { pathname } = useLocation();
   const { isExact } = matchPath(pathname, MODULE_EDITOR_PATH) || {};
   const action: Action | undefined = useSelector((state) =>
-    getAction(state, module?.publicEntityId),
+    getModulePublicAction(state, module.id),
   );
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
