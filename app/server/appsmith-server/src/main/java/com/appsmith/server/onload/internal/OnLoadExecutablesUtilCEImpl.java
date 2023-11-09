@@ -1,17 +1,20 @@
-package com.appsmith.server.onpageload.internal;
+package com.appsmith.server.onload.internal;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.EntityDependencyNode;
 import com.appsmith.external.models.EntityReferenceType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
+import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.onpageload.executables.ExecutableOnPageLoadService;
+import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,11 +51,11 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
-public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE {
+public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
     private final AstService astService;
     private final ObjectMapper objectMapper;
-    private final ExecutableOnPageLoadService<ActionDTO> actionExecutableOnPageLoadService;
+    private final ExecutableOnLoadService<NewPage> pageExecutableOnLoadService;
 
     /**
      * The following regex finds the immediate parent of an entity path.
@@ -75,7 +78,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * !!!WARNING!!! : This function edits the parameters edges, executablesUsedInDSL and flatPageLoadExecutables
      * and the same are used by the caller function for further processing.
      *
-     * @param pageId                     : Argument used for fetching executables in this page
+     * @param creatorId                  : Argument used for fetching executables in this page
      * @param evaluatedVersion           : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
      * @param widgetNames                : Set of widget names which SHOULD have been populated before calling this function.
      * @param edgesRef                   : Set where this function adds all the relationships (dependencies) between executables
@@ -92,22 +95,22 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * in the list.
      */
     public Mono<List<Set<DslExecutableDTO>>> findAllOnLoadExecutables(
-            String pageId,
+            String creatorId,
             Integer evaluatedVersion,
             Set<String> widgetNames,
             Set<ExecutableDependencyEdge> edgesRef,
             Map<String, Set<String>> widgetDynamicBindingsMap,
             List<Executable> flatPageLoadExecutablesRef,
-            Set<String> executablesUsedInDSLRef) {
+            Set<String> executablesUsedInDSLRef,
+            CreatorContextType creatorType) {
 
-        Set<String> onPageLoadExecutableSetRef = new HashSet<>();
+        Set<String> onLoadExecutableSetRef = new HashSet<>();
         Set<String> explicitUserSetOnLoadExecutablesRef = new HashSet<>();
         Set<String> bindingsFromExecutablesRef = ConcurrentHashMap.newKeySet();
 
         // Function `extractAndSetExecutableBindingsInGraphEdges` updates this map to keep a track of all the
-        // executables which
-        // have been discovered while walking the executables to ensure that we don't end up in a recursive infinite
-        // loop
+        // executables which have been discovered while walking the executables to ensure that we don't end up in a
+        // recursive infinite loop
         // in case of a cyclical relationship between executables (and not specific paths) and helps us exit at the
         // appropriate junction.
         // e.g : Consider the following relationships :
@@ -116,13 +119,13 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         // In the above case, the two executables depend on each other without there being a real cyclical dependency.
         Map<String, EntityDependencyNode> executablesFoundDuringWalkRef = new HashMap<>();
 
-        Flux<Executable> allExecutablesByPageIdFlux = getAllExecutablesByPageIdFlux(pageId);
+        Flux<Executable> allExecutablesByCreatorIdFlux = getAllExecutablesByCreatorIdFlux(creatorId, creatorType);
 
-        Mono<Map<String, Executable>> executableNameToExecutableMapMono = allExecutablesByPageIdFlux
+        Mono<Map<String, Executable>> executableNameToExecutableMapMono = allExecutablesByCreatorIdFlux
                 .collectMap(Executable::getValidName, executable -> executable)
                 .cache();
 
-        Mono<Set<String>> executablesInPageMono = allExecutablesByPageIdFlux
+        Mono<Set<String>> executablesInCreatorContextMono = allExecutablesByCreatorIdFlux
                 .map(Executable::getValidName)
                 .collect(Collectors.toSet())
                 .cache();
@@ -147,17 +150,17 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         Mono<Set<ExecutableDependencyEdge>> createAllEdgesForPageMono = directlyReferencedExecutablesToGraphMono
                 // Add dependencies of all on page load executables set by the user in the graph
                 .flatMap(updatedEdges -> addExplicitUserSetOnLoadExecutablesToGraph(
-                        pageId,
+                        creatorId,
                         updatedEdges,
                         explicitUserSetOnLoadExecutablesRef,
                         executablesFoundDuringWalkRef,
                         bindingsFromExecutablesRef,
                         executableNameToExecutableMapMono,
                         executableBindingsInDslRef,
-                        evaluatedVersion))
+                        evaluatedVersion,
+                        creatorType))
                 // For all the executables found so far, recursively walk the dynamic bindings of the executables to
-                // find more
-                // relationships with other executables (& widgets)
+                // find more relationships with other executables (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
                         updatedEdges,
                         executablesFoundDuringWalkRef,
@@ -165,7 +168,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                         executableNameToExecutableMapMono,
                         evaluatedVersion))
                 // At last, add all the widget relationships to the graph as well.
-                .zipWith(executablesInPageMono)
+                .zipWith(executablesInCreatorContextMono)
                 .flatMap(tuple -> {
                     Set<ExecutableDependencyEdge> updatedEdges = tuple.getT1();
                     return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion);
@@ -173,7 +176,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
 
         // Create a graph given edges
         Mono<DirectedAcyclicGraph<String, DefaultEdge>> createGraphMono = Mono.zip(
-                        executablesInPageMono, createAllEdgesForPageMono)
+                        executablesInCreatorContextMono, createAllEdgesForPageMono)
                 .map(tuple -> {
                     Set<String> allExecutables = tuple.getT1();
                     Set<ExecutableDependencyEdge> updatedEdges = tuple.getT2();
@@ -190,7 +193,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
 
                     return computeOnPageLoadExecutablesSchedulingOrder(
                             graph,
-                            onPageLoadExecutableSetRef,
+                            onLoadExecutableSetRef,
                             executableNameToExecutableMap,
                             explicitUserSetOnLoadExecutablesRef);
                 })
@@ -199,15 +202,15 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                     // This scenario would happen if an explicitly turned on for page load executable does not have any
                     // relationships in the page with any widgets/executables.
                     Set<String> pageLoadExecutableNames = new HashSet<>();
-                    pageLoadExecutableNames.addAll(onPageLoadExecutableSetRef);
+                    pageLoadExecutableNames.addAll(onLoadExecutableSetRef);
                     pageLoadExecutableNames.addAll(explicitUserSetOnLoadExecutablesRef);
-                    pageLoadExecutableNames.removeAll(onPageLoadExecutableSetRef);
+                    pageLoadExecutableNames.removeAll(onLoadExecutableSetRef);
 
                     // If any of the explicitly set on page load executables havent been added yet, add them to the 0th
                     // set
                     // of executables set since no relationships were found with any other appsmith entity
                     if (!pageLoadExecutableNames.isEmpty()) {
-                        onPageLoadExecutableSetRef.addAll(pageLoadExecutableNames);
+                        onLoadExecutableSetRef.addAll(pageLoadExecutableNames);
 
                         // In case there are no page load executables, initialize the 0th set of page load executables
                         // list.
@@ -224,7 +227,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         // Transform the schedule order into client feasible DTO
         Mono<List<Set<DslExecutableDTO>>> computeCompletePageLoadExecutableScheduleMono =
                 filterAndTransformSchedulingOrderToDTO(
-                                onPageLoadExecutableSetRef,
+                                onLoadExecutableSetRef,
                                 executableNameToExecutableMapMono,
                                 computeOnPageLoadScheduleNamesMono)
                         .cache();
@@ -234,7 +237,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
         Mono<List<Executable>> flatPageLoadExecutablesMono = computeCompletePageLoadExecutableScheduleMono
                 .then(executableNameToExecutableMapMono)
                 .map(executableMap -> {
-                    onPageLoadExecutableSetRef.stream()
+                    onLoadExecutableSetRef.stream()
                             .forEach(executableName ->
                                     flatPageLoadExecutablesRef.add(executableMap.get(executableName)));
                     return flatPageLoadExecutablesRef;
@@ -246,17 +249,18 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
     @Override
     public Mono<Boolean> updateExecutablesExecuteOnLoad(
             List<Executable> onLoadExecutables,
-            String pageId,
+            String creatorId,
             List<LayoutExecutableUpdateDTO> executableUpdatesRef,
-            List<String> messagesRef) {
+            List<String> messagesRef,
+            CreatorContextType creatorType) {
         List<Executable> toUpdateExecutables = new ArrayList<>();
 
         // Fetch all the actions which exist in this page.
-        Flux<Executable> pageExecutablesFlux =
-                this.getAllExecutablesByPageIdFlux(pageId).cache();
+        Flux<Executable> creatorContextExecutablesFlux =
+                this.getAllExecutablesByCreatorIdFlux(creatorId, creatorType).cache();
 
         // Before we update the actions, fetch all the actions which are currently set to execute on load.
-        Mono<List<Executable>> existingOnPageLoadExecutablesMono = pageExecutablesFlux
+        Mono<List<Executable>> existingOnLoadExecutablesMono = creatorContextExecutablesFlux
                 .flatMap(executable -> {
                     if (TRUE.equals(executable.getExecuteOnLoad())) {
                         return Mono.just(executable);
@@ -265,26 +269,26 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                 })
                 .collectList();
 
-        return existingOnPageLoadExecutablesMono
-                .zipWith(pageExecutablesFlux.collectList())
+        return existingOnLoadExecutablesMono
+                .zipWith(creatorContextExecutablesFlux.collectList())
                 .flatMap(tuple -> {
-                    List<Executable> existingOnPageLoadExecutables = tuple.getT1();
-                    List<Executable> pageExecutables = tuple.getT2();
+                    List<Executable> existingOnLoadExecutables = tuple.getT1();
+                    List<Executable> creatorContextExecutables = tuple.getT2();
 
                     // There are no actions in this page. No need to proceed further since no actions would get updated
-                    if (pageExecutables.isEmpty()) {
+                    if (creatorContextExecutables.isEmpty()) {
                         return Mono.just(FALSE);
                     }
 
                     // No actions require an update if no actions have been found as page load actions as well as
                     // existing on load page actions are empty
-                    if (existingOnPageLoadExecutables.isEmpty()
+                    if (existingOnLoadExecutables.isEmpty()
                             && (onLoadExecutables == null || onLoadExecutables.isEmpty())) {
                         return Mono.just(FALSE);
                     }
 
                     // Extract names of existing page load actions and new page load actions for quick lookup.
-                    Set<String> existingOnPageLoadExecutableNames = existingOnPageLoadExecutables.stream()
+                    Set<String> existingOnLoadExecutableNames = existingOnLoadExecutables.stream()
                             .map(Executable::getValidName)
                             .collect(Collectors.toSet());
 
@@ -294,15 +298,15 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
 
                     // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
                     Set<String> turnedOffExecutableNames = new HashSet<>();
-                    turnedOffExecutableNames.addAll(existingOnPageLoadExecutableNames);
+                    turnedOffExecutableNames.addAll(existingOnLoadExecutableNames);
                     turnedOffExecutableNames.removeAll(newOnLoadExecutableNames);
 
                     // Calculate the actions which would need to be updated from execute on load FALSE to TRUE
                     Set<String> turnedOnExecutableNames = new HashSet<>();
                     turnedOnExecutableNames.addAll(newOnLoadExecutableNames);
-                    turnedOnExecutableNames.removeAll(existingOnPageLoadExecutableNames);
+                    turnedOnExecutableNames.removeAll(existingOnLoadExecutableNames);
 
-                    for (Executable executable : pageExecutables) {
+                    for (Executable executable : creatorContextExecutables) {
 
                         String executableName = executable.getValidName();
                         // If a user has ever set execute on load, this field can not be changed automatically. It has
@@ -331,11 +335,11 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
 
                     // Add newly turned on page actions to report back to the caller
                     executableUpdatesRef.addAll(
-                            addExecutableUpdatesForExecutableNames(pageExecutables, turnedOnExecutableNames));
+                            addExecutableUpdatesForExecutableNames(creatorContextExecutables, turnedOnExecutableNames));
 
                     // Add newly turned off page actions to report back to the caller
-                    executableUpdatesRef.addAll(
-                            addExecutableUpdatesForExecutableNames(pageExecutables, turnedOffExecutableNames));
+                    executableUpdatesRef.addAll(addExecutableUpdatesForExecutableNames(
+                            creatorContextExecutables, turnedOffExecutableNames));
 
                     // Now add messagesRef that would eventually be displayed to the developer user informing them
                     // about the action setting change.
@@ -356,23 +360,29 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                 });
     }
 
+    @Override
+    public Mono<Layout> findAndUpdateLayout(
+            String creatorId, CreatorContextType creatorType, String layoutId, Layout layout) {
+        return pageExecutableOnLoadService.findAndUpdateLayout(creatorId, layoutId, layout);
+    }
+
     private Mono<Executable> updateUnpublishedExecutable(String id, Executable executable) {
         if (executable instanceof ActionDTO actionDTO) {
-            return actionExecutableOnPageLoadService.updateUnpublishedExecutable(id, actionDTO);
+            return pageExecutableOnLoadService.updateUnpublishedExecutable(id, actionDTO);
         } else return Mono.just(executable);
     }
 
     private List<LayoutExecutableUpdateDTO> addExecutableUpdatesForExecutableNames(
-            List<Executable> pageExecutables, Set<String> updatedExecutableNames) {
+            List<Executable> executables, Set<String> updatedExecutableNames) {
 
-        return pageExecutables.stream()
-                .filter(pageExecutable -> updatedExecutableNames.contains(pageExecutable.getValidName()))
+        return executables.stream()
+                .filter(executable -> updatedExecutableNames.contains(executable.getValidName()))
                 .map(Executable::createLayoutExecutableUpdateDTO)
                 .collect(Collectors.toList());
     }
 
-    protected Flux<Executable> getAllExecutablesByPageIdFlux(String pageId) {
-        return actionExecutableOnPageLoadService.getAllExecutablesByPageIdFlux(pageId);
+    protected Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId, CreatorContextType creatorType) {
+        return pageExecutableOnLoadService.getAllExecutablesByCreatorIdFlux(creatorId);
     }
 
     /**
@@ -613,7 +623,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
 
     protected <T extends Executable> Mono<Executable> fillSelfReferencingPaths(T executable) {
         if (executable instanceof ActionDTO actionDTO) {
-            return actionExecutableOnPageLoadService.fillSelfReferencingPaths(actionDTO);
+            return pageExecutableOnLoadService.fillSelfReferencingPaths(actionDTO);
         } else return Mono.just(executable);
     }
 
@@ -902,7 +912,7 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * !!! WARNING !!! : This function updates the set `explicitUserSetOnLoadExecutables` and adds the names of all such
      * executables found in this function.
      *
-     * @param pageId
+     * @param creatorId
      * @param edges
      * @param explicitUserSetOnLoadExecutables
      * @param executablesFoundDuringWalkRef
@@ -910,17 +920,18 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
      * @return
      */
     private Mono<Set<ExecutableDependencyEdge>> addExplicitUserSetOnLoadExecutablesToGraph(
-            String pageId,
+            String creatorId,
             Set<ExecutableDependencyEdge> edges,
             Set<String> explicitUserSetOnLoadExecutables,
             Map<String, EntityDependencyNode> executablesFoundDuringWalkRef,
             Set<String> bindingsFromExecutablesRef,
             Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             Set<EntityDependencyNode> executableBindingsInDsl,
-            int evalVersion) {
+            int evalVersion,
+            CreatorContextType creatorType) {
 
         // First fetch all the executables which have been tagged as on load by the user explicitly.
-        return getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(pageId)
+        return getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(creatorId, creatorType)
                 .flatMap(this::fillSelfReferencingPaths)
                 // Add the vertices and edges to the graph for these executables
                 .flatMap(executable -> {
@@ -941,8 +952,9 @@ public class PageLoadExecutablesUtilCEImpl implements PageLoadExecutablesUtilCE 
                 .thenReturn(edges);
     }
 
-    protected Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(String pageId) {
-        return actionExecutableOnPageLoadService.getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(pageId);
+    protected Flux<Executable> getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(
+            String creatorId, CreatorContextType creatorType) {
+        return pageExecutableOnLoadService.getUnpublishedOnLoadExecutablesExplicitSetByUserInPageFlux(creatorId);
     }
 
     /**
