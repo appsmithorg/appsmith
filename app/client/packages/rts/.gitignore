@@ -1,5 +1,5 @@
 LICENSE
 config
-lib
+/lib/*
 index.js
 !src/scim/*

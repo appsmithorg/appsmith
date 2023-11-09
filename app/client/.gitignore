@@ -69,5 +69,5 @@ stats.json
 
 LICENSE
 config/*
-lib
+/lib/*
 index.js
