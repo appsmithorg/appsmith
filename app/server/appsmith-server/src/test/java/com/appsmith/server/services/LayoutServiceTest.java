@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
@@ -571,21 +572,27 @@ public class LayoutServiceTest {
                     Layout newLayout = new Layout();
 
                     JSONObject obj = new JSONObject(Map.of(
-                            "widgetName", "testWidget",
-                            "key", "value-updated",
-                            "another", "Hello people of the {{input1.text}} planet!",
-                            "dynamicGet", "some dynamic {{\"anIgnoredAction.data:\" + aGetAction.data}}",
+                            "widgetName",
+                            "testWidget",
+                            "key",
+                            "value-updated",
+                            "another",
+                            "Hello people of the {{input1.text}} planet!",
+                            "dynamicGet",
+                            "some dynamic {{\"anIgnoredAction.data:\" + aGetAction.data}}",
                             "dynamicPost",
-                                    "some dynamic {{\n" + "(function(ignoredAction1){\n"
-                                            + "\tlet a = ignoredAction1.data\n"
-                                            + "\tlet ignoredAction2 = { data: \"nothing\" }\n"
-                                            + "\tlet b = ignoredAction2.data\n"
-                                            + "\tlet c = \"ignoredAction3.data\"\n"
-                                            + "\t// ignoredAction4.data\n"
-                                            + "\treturn aPostAction.data\n"
-                                            + "})(anotherPostAction.data)}}",
-                            "dynamicPostWithAutoExec", "some dynamic {{aPostActionWithAutoExec.data}}",
-                            "dynamicDelete", "some dynamic {{aDeleteAction.data}}"));
+                            "some dynamic {{\n" + "(function(ignoredAction1){\n"
+                                    + "\tlet a = ignoredAction1.data\n"
+                                    + "\tlet ignoredAction2 = { data: \"nothing\" }\n"
+                                    + "\tlet b = ignoredAction2.data\n"
+                                    + "\tlet c = \"ignoredAction3.data\"\n"
+                                    + "\t// ignoredAction4.data\n"
+                                    + "\treturn aPostAction.data\n"
+                                    + "})(anotherPostAction.data)}}",
+                            "dynamicPostWithAutoExec",
+                            "some dynamic {{aPostActionWithAutoExec.data}}",
+                            "dynamicDelete",
+                            "some dynamic {{aDeleteAction.data}}"));
                     obj.putAll(Map.of(
                             "collection1Key", "some dynamic {{Collection.anAsyncCollectionActionWithoutCall.data}}",
                             "collection2Key", "some dynamic {{Collection.aSyncCollectionActionWithoutCall.data}}",
@@ -1303,7 +1310,8 @@ public class LayoutServiceTest {
                                     layoutId.get(),
                                     oldParent,
                                     "dynamicGet_IncorrectKey",
-                                    "New element is null"));
+                                    "New element is null",
+                                    CreatorContextType.PAGE));
                     return true;
                 })
                 .verify();
