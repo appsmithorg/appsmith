@@ -243,7 +243,6 @@ export function* getAllApplicationSaga() {
         payload: workspaceApplication,
       });
 
-      // TODO: use start with data flag here
       if (
         isEnabledForStartWithData &&
         isEnabledForCreateNew &&
