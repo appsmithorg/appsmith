@@ -16,7 +16,11 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
   const className: string = `anvil-canvas ${props.classList?.join(" ")}`;
 
   return (
-    <div className={className} id={getAnvilCanvasId(props.widgetId)}>
+    <div
+      className={className}
+      id={getAnvilCanvasId(props.widgetId)}
+      tabIndex={0}
+    >
       {renderLayouts(
         props.layout,
         map,

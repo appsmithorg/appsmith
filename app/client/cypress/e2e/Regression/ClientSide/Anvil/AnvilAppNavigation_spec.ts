@@ -14,7 +14,7 @@ import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/
 describe(`${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode with App navigation settings`, function () {
   beforeEach(() => {
     // Cleanup the canvas before each test
-    agHelper.SelectAllWidgets();
+    agHelper.SelectAllWidgets(`#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`);
     agHelper.PressDelete();
   });
   it("1. Change App navigation settings and valdiate the layout settings", () => {

@@ -11,7 +11,7 @@ import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Widget Name Canvas`, () => {
   beforeEach(() => {
     // Cleanup the canvas before each test
-    agHelper.SelectAllWidgets();
+    agHelper.SelectAllWidgets(`#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`);
     agHelper.PressDelete();
   });
   it("1. Widget Name should not be cut off at the top", () => {
