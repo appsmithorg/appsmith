@@ -49,6 +49,14 @@ abstract class BaseLayoutComponent extends PureComponent<
     return this.rendersWidgets ? extractWidgetIdsFromLayoutProps(props) : [];
   }
 
+  // Get types of widgets that are allowed in this layout component.
+  static getWhitelistedTypes(props: LayoutProps): string[] {
+    if (props.allowedWidgetTypes && props.allowedWidgetTypes.length) {
+      return props.allowedWidgetTypes;
+    }
+    return [];
+  }
+
   // Remove a child widget / layout from the layout component.
   // return undefined if layout is not permanent and is empty after deletion.
   static removeChild(

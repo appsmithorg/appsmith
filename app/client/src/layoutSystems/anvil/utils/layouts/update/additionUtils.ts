@@ -127,6 +127,9 @@ export function prepareWidgetsForAddition(
 ): WidgetLayoutProps[] | LayoutProps[] {
   if (!widgets || !widgets.length) return [];
 
+  /**
+   * TODO: @Preet Create a custom method to generate nested templates.
+   */
   const childTemplate: LayoutProps | null = Comp.getChildTemplate(
     layoutProps,
     widgets,
@@ -137,7 +140,7 @@ export function prepareWidgetsForAddition(
    * return widgets as they are.
    * They will be added to the affected layout directly.
    */
-  if (!childTemplate) return widgets;
+  if (!childTemplate || childTemplate === null) return widgets;
 
   /**
    * Get the layout json of the new layout to wrap the widgets in.

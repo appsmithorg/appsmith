@@ -82,6 +82,8 @@ export interface LayoutComponent extends React.FC<LayoutComponentProps> {
     props: LayoutProps,
     widgets?: WidgetLayoutProps[],
   ) => LayoutProps | undefined;
+  // Get types of widgets that are allowed in this layout component.
+  getWhitelistedTypes: (props: LayoutProps) => string[];
   // Get a list of highlights to demarcate the drop positions within the layout.
   deriveHighlights: (
     layoutProps: LayoutProps, // Properties of layout for which highlights have to be derived.

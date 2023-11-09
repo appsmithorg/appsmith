@@ -66,6 +66,8 @@ import type BaseWidget from "./BaseWidget";
 import { WDSTableWidget } from "./wds/WDSTableWidget";
 import { WDSButtonGroupWidget } from "./wds/WDSButtonGroupWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
+import { SectionWidget } from "./anvil/SectionWidget";
+import { ZoneWidget } from "./anvil/ZoneWidget";
 
 const Widgets = [
   CanvasWidget,
@@ -125,6 +127,8 @@ const Widgets = [
   WDSTableWidget,
   WDSButtonGroupWidget,
   WDSCheckboxGroupWidget,
+  SectionWidget,
+  ZoneWidget,
 
   //Deprecated Widgets
   InputWidget,

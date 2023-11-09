@@ -43,7 +43,6 @@ import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
   type DSLWidget,
-  largeWidgets,
 } from "WidgetProvider/constants";
 import ListComponent, {
   ListComponentEmpty,
