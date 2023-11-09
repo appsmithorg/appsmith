@@ -129,7 +129,8 @@ export const GLOBAL_FUNCTIONS = {
   },
   download: {
     "!doc": "Download anything as a file",
-    "!type": "fn(data: any, fileName: string, fileType?: string) -> +Promise",
+    "!type":
+      "fn(data: string|+Blob, fileName: string, fileType?: string) -> +Promise",
   },
   copyToClipboard: {
     "!doc": "Copy text to clipboard",
@@ -137,11 +138,12 @@ export const GLOBAL_FUNCTIONS = {
   },
   resetWidget: {
     "!doc": "Reset widget values",
-    "!type": "fn(widgetName: string, resetChildren: boolean) -> +Promise",
+    "!type": "fn(widgetName: string, resetChildren: bool) -> +Promise",
   },
   setInterval: {
     "!doc": "Execute triggers at a given interval",
-    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+    "!type":
+      "fn(callback: fn() -> void, interval: number, id?: string) -> number",
   },
   clearInterval: {
     "!doc": "Stop executing a setInterval with id",

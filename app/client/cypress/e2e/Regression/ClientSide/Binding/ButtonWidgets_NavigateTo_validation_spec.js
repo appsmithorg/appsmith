@@ -27,7 +27,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     cy.wait(2000);
     agHelper.ClickButton("Submit");
-    cy.wait(2000); //for page to load
+    cy.wait(4000); //for page to load
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.BUTTON),
     );

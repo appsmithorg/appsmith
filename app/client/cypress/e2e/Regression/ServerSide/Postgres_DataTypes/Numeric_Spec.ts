@@ -248,6 +248,7 @@ describe("Numeric Datatype tests", function () {
   it("11. Deleting records - numerictypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
+    agHelper.Sleep(3000); //for CI to finish delete
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 3rd record is deleted

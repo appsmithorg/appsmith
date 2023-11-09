@@ -83,12 +83,12 @@ describe("EChartsConfigurationBuilder", () => {
       type: "scroll",
       show: true,
     },
-    grid: { top: 100, bottom: 52, left: 52, show: false },
+    grid: { top: 110, bottom: 52, left: 50, show: false },
     title: {
       show: true,
       text: defaultProps.chartName,
       left: "center",
-      padding: [5, 50],
+      padding: [15, 50],
       textStyle: {
         fontFamily: "fontfamily",
         fontSize: 24,
@@ -126,12 +126,12 @@ describe("EChartsConfigurationBuilder", () => {
         color: Colors.DOVE_GRAY2,
         overflow: "truncate",
         show: true,
-        width: 12,
+        width: 2,
       },
       show: true,
       name: "yaxisname",
       nameLocation: "middle",
-      nameGap: 22,
+      nameGap: 20,
       nameTextStyle: {
         fontSize: 14,
         fontFamily: "fontfamily",
@@ -235,7 +235,7 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.title = {
         text: "chart name",
         left: "center",
-        padding: [5, 50],
+        padding: [15, 50],
         show: true,
         textStyle: {
           fontFamily: "fontfamily",
@@ -263,7 +263,7 @@ describe("EChartsConfigurationBuilder", () => {
         {
           text: "chart name",
           left: "center",
-          padding: [5, 50],
+          padding: [15, 50],
           show: true,
           textStyle: {
             fontFamily: "fontfamily",
@@ -274,13 +274,13 @@ describe("EChartsConfigurationBuilder", () => {
           },
         },
         {
-          top: 80,
+          top: 90,
           left: 495,
           textAlign: "center",
           text: "series1",
         },
         {
-          top: 80,
+          top: 90,
           left: 495,
           textAlign: "center",
           text: "series2",
@@ -579,7 +579,7 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.series = [
         {
           type: "pie",
-          top: 100,
+          top: 110,
           bottom: 30,
           name: "series1",
           encode: {

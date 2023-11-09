@@ -397,6 +397,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     const { configProperty, controlType, isRequired } = config;
     const configDetails = this.state.configDetails;
     const requiredFields = this.state.requiredFields;
+    if (!configProperty || !configProperty.includes(this.getEnvironmentId()))
+      return;
     configDetails[configProperty] = controlType;
     if (isRequired) requiredFields[configProperty] = config;
 
@@ -683,6 +685,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         name,
         userPermissions,
       },
+      configDetails: {},
+      requiredFields: {},
     });
     this.blockRoutes();
     return true;
@@ -871,16 +875,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   };
 
   shouldShowTabs = () => {
-    const {
-      isEnabledForDSViewModeSchema,
-      isPluginAllowedToPreviewData,
-      pluginDatasourceForm,
-    } = this.props;
-    const isRestAPI =
-      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm;
-    return (
-      isEnabledForDSViewModeSchema && isPluginAllowedToPreviewData && !isRestAPI
-    );
+    const { isEnabledForDSViewModeSchema, isPluginAllowedToPreviewData } =
+      this.props;
+    return isEnabledForDSViewModeSchema && isPluginAllowedToPreviewData;
   };
 
   renderTabsForViewMode = () => {

@@ -1,4 +1,7 @@
-import { firstTimeUserOnboardingInit } from "actions/onboardingActions";
+import {
+  firstTimeUserOnboardingInit,
+  setCurrentApplicationIdForCreateNewApp,
+} from "actions/onboardingActions";
 import {
   SIGNUP_SUCCESS_URL,
   BUILDER_PATH,
@@ -19,6 +22,7 @@ export const redirectUserAfterSignup = (
   _validLicense?: boolean,
   dispatch?: any,
   showStarterTemplatesInsteadofBlankCanvas: boolean = false,
+  isEnabledForCreateNew?: boolean,
 ): any => {
   if (redirectUrl) {
     try {
@@ -48,9 +52,26 @@ export const redirectUserAfterSignup = (
           showStarterTemplatesInsteadofBlankCanvas &&
             applicationId &&
             setUsersFirstApplicationId(applicationId);
-          dispatch(
-            firstTimeUserOnboardingInit(applicationId, pageId as string),
-          );
+          if (isEnabledForCreateNew) {
+            dispatch(
+              setCurrentApplicationIdForCreateNewApp(applicationId as string),
+            );
+            history.replace(APPLICATIONS_URL);
+          } else {
+            dispatch(
+              firstTimeUserOnboardingInit(applicationId, pageId as string),
+            );
+          }
+        } else {
+          if (!urlObject) {
+            try {
+              urlObject = new URL(redirectUrl, window.location.origin);
+            } catch (e) {}
+          }
+          const newRedirectUrl = urlObject?.toString() || "";
+          if (getIsSafeRedirectURL(newRedirectUrl)) {
+            window.location.replace(newRedirectUrl);
+          }
         }
       } else if (getIsSafeRedirectURL(redirectUrl)) {
         window.location.replace(redirectUrl);

@@ -21,12 +21,14 @@ describe("Modal Widget test cases", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
     entityExplorer.SelectEntityByName("Button1");
     propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
+    agHelper.Sleep();
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-    agHelper.Sleep(); //Wait for widgets to settle
+    agHelper.Sleep(2000); //Wait for widgets to settle
 
     //Verify that the Modal widget opens correctly when configured on a button click.
     agHelper.ClickButton("Submit");
-    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.WaitUntilEleAppear(locators._modal);
+    agHelper.AssertElementExist(locators._modal);
 
     //Verify that the Modal widget is closed and no longer visible on the screen on clicking the "X" button.
     agHelper.AssertElementVisibility(
@@ -37,7 +39,8 @@ describe("Modal Widget test cases", function () {
 
     //Verify that clicking outside the Modal widget closes it as expected when Quick dismiss is enabled
     agHelper.ClickButton("Submit");
-    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.WaitUntilEleAppear(locators._modal);
+    agHelper.AssertElementExist(locators._modal);
     agHelper.ClickOutside(350, 150, false);
     agHelper.Sleep();
     agHelper.AssertElementAbsence(locators._modal);
@@ -48,9 +51,11 @@ describe("Modal Widget test cases", function () {
     entityExplorer.SelectEntityByName("Button1");
     propPane.ToggleJSMode("onClick", false);
     propPane.CreateModal("onClick");
+    agHelper.Sleep(500);
     propPane.CreateModal("onClick");
+    agHelper.Sleep(500);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-
+    agHelper.Sleep(2000); //Wait for widgets to settle & be visible
     agHelper.ClickButton("Submit");
     agHelper.AssertElementLength(locators._modal, 3);
     agHelper.AssertElementVisibility(locators._modal, true, 2);

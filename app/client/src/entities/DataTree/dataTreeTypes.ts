@@ -1,11 +1,9 @@
 import type {
   DataTreeEntityConfig,
   DataTreeEntityObject,
-  ActionDispatcher,
   UnEvalTreeEntityObject,
   AppsmithEntity,
 } from "@appsmith/entities/DataTree/types";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
 
 export interface unEvalAndConfigTree {
   unEvalTree: UnEvalTree;
@@ -15,12 +13,12 @@ export interface unEvalAndConfigTree {
 export interface ConfigTree {
   [entityName: string]: DataTreeEntityConfig;
 }
-export type DataTreeEntity = DataTreeEntityObject | Page[] | ActionDispatcher;
+export type DataTreeEntity = DataTreeEntityObject;
 
 export interface DataTree {
   [entityName: string]: DataTreeEntity;
 }
-export type UnEvalTreeEntity = UnEvalTreeEntityObject | AppsmithEntity | Page[];
+export type UnEvalTreeEntity = UnEvalTreeEntityObject | AppsmithEntity;
 
 export interface UnEvalTree {
   [entityName: string]: UnEvalTreeEntity;
