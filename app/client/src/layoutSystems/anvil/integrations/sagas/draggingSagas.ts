@@ -10,17 +10,30 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { getWidgets } from "sagas/selectors";
-import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
+import type {
+  AnvilHighlightInfo,
+  LayoutProps,
+  WidgetLayoutProps,
+} from "../../utils/anvilTypes";
 import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
 import { moveWidgets } from "../../utils/layouts/update/moveUtils";
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import {
+  addWidgetsToSection,
+  createSectionAndAddWidget,
+} from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
+import { addWidgetsToMainCanvasLayout } from "layoutSystems/anvil/utils/layouts/update/mainCanvasLayoutUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 function* addWidgetsSaga(
   actionPayload: ReduxAction<{
     highlight: AnvilHighlightInfo;
+    isMainCanvas?: boolean;
+    isSection?: boolean;
     newWidget: {
       width: number;
       height: number;
@@ -31,7 +44,8 @@ function* addWidgetsSaga(
 ) {
   try {
     const start = performance.now();
-    const { highlight, newWidget } = actionPayload.payload;
+    const { highlight, isMainCanvas, isSection, newWidget } =
+      actionPayload.payload;
     const { alignment, canvasId } = highlight;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -49,7 +63,7 @@ function* addWidgetsSaga(
     const updatedParams: any = { ...newWidget, ...newParams };
 
     // Create and add widget.
-    const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
+    let updatedWidgets: CanvasWidgetsReduxState = yield call(
       getUpdateDslAfterCreatingChild,
       {
         ...updatedParams,
@@ -57,33 +71,79 @@ function* addWidgetsSaga(
       },
     );
 
-    const canvasWidget = updatedWidgetsOnAddition[canvasId];
-    const canvasLayout = canvasWidget.layout
-      ? canvasWidget.layout
-      : generateDefaultLayoutPreset();
-    /**
-     * Add new widget to the children of parent canvas.
-     * Also add it to parent canvas' layout.
-     */
-    const updatedWidgets = {
-      ...updatedWidgetsOnAddition,
-      [canvasWidget.widgetId]: {
-        ...canvasWidget,
-        layout: addWidgetsToPreset(canvasLayout, highlight, [
-          {
-            alignment,
-            widgetId: newWidget.newWidgetId,
-            widgetType: newWidget.type,
-          },
-        ]),
+    const draggedWidgets: WidgetLayoutProps[] = [
+      {
+        alignment,
+        widgetId: newWidget.newWidgetId,
+        widgetType: newWidget.type,
       },
-      [newWidget.newWidgetId]: {
-        ...updatedWidgetsOnAddition[newWidget.newWidgetId],
-        // This is a temp fix, widget dimensions will be self computed by widgets
-        height: newWidget.height,
-        width: newWidget.width,
-      },
-    };
+    ];
+
+    if (!!isMainCanvas) {
+      updatedWidgets = {
+        ...updatedWidgets,
+        [canvasId]: {
+          ...updatedWidgets[canvasId],
+          children: updatedWidgets[canvasId].children?.filter(
+            (each: string) => each !== newWidget.newWidgetId,
+          ),
+        },
+      };
+      updatedWidgets = addWidgetsToMainCanvasLayout(
+        updatedWidgets,
+        draggedWidgets,
+        highlight,
+      );
+    } else if (!!isSection) {
+      /**
+       * Add new widgets to section.
+       */
+      const canvasWidget: WidgetProps = updatedWidgets[canvasId];
+      const canvasPreset: LayoutProps[] = canvasWidget.layout
+        ? canvasWidget.layout
+        : generateDefaultLayoutPreset();
+      const res: {
+        canvasWidgets: CanvasWidgetsReduxState;
+        section: WidgetProps;
+      } = addWidgetsToSection(
+        updatedWidgets,
+        draggedWidgets,
+        highlight,
+        updatedWidgets[canvasWidget.parentId || MAIN_CONTAINER_WIDGET_ID],
+        {
+          ...canvasWidget,
+          children: canvasWidget.children.filter(
+            (each: string) => each !== newWidget.newWidgetId,
+          ),
+        },
+        canvasPreset[0],
+        canvasPreset,
+      );
+      updatedWidgets = res.canvasWidgets;
+    } else {
+      const canvasWidget = updatedWidgets[canvasId];
+      const canvasLayout = canvasWidget.layout
+        ? canvasWidget.layout
+        : generateDefaultLayoutPreset();
+      /**
+       * Add new widget to the children of parent canvas.
+       * Also add it to parent canvas' layout.
+       */
+      updatedWidgets = {
+        ...updatedWidgets,
+        [canvasWidget.widgetId]: {
+          ...canvasWidget,
+          layout: addWidgetsToPreset(canvasLayout, highlight, draggedWidgets),
+        },
+        [newWidget.newWidgetId]: {
+          ...updatedWidgets[newWidget.newWidgetId],
+          // This is a temp fix, widget dimensions will be self computed by widgets
+          height: newWidget.height,
+          width: newWidget.width,
+        },
+      };
+    }
+
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),

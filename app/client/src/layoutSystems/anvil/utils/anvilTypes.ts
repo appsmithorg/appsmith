@@ -40,6 +40,16 @@ export interface WidgetLayoutProps {
   widgetType: string;
 }
 
+export enum ChildTemplateTypes {
+  WIDGET = "WIDGET",
+  LAYOUT = "LAYOUT",
+}
+
+export interface ChildTemplate {
+  type: ChildTemplateTypes;
+  blueprint: LayoutProps | null;
+}
+
 export interface LayoutProps {
   layout: LayoutProps[] | WidgetLayoutProps[]; // Array of layout components or widgets to render.
   layoutId: string; // Identifier of layout
