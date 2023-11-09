@@ -7,7 +7,7 @@ import {
 } from "@appsmith/constants/messages";
 import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
-import { union, xor } from "lodash";
+import { xor } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
