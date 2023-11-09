@@ -1,3 +1,3 @@
-export const useModuleInstanceOption = () => {
+export const useModuleOptions = () => {
   return [];
 };

@@ -65,7 +65,7 @@ import { getAIPromptTriggered } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
-import { fetchActionDependencies } from "@appsmith/entities/Engine/actionHelpers";
+import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 export default class AppEditorEngine extends AppEngine {
@@ -159,7 +159,7 @@ export default class AppEditorEngine extends AppEngine {
     const isAirgappedInstance = isAirgapped();
     const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
     const { errorActions, initActions, successActions } =
-      fetchActionDependencies(currentWorkspaceId);
+      getPageDependencyActions(currentWorkspaceId);
 
     if (!isAirgappedInstance) {
       initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);

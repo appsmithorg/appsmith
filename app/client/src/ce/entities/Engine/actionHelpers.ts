@@ -7,7 +7,7 @@ import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const fetchActionDependencies = (currentWorkspaceId?: string) => {
+export const getPageDependencyActions = (currentWorkspaceId?: string) => {
   const initActions = [fetchPlugins(), fetchDatasources(), fetchPageDSLs()];
 
   const successActions = [

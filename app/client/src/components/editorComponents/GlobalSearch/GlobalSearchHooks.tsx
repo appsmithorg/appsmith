@@ -37,12 +37,12 @@ import {
   hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { Plugin } from "api/PluginApi";
-import { useModuleInstanceOption } from "@appsmith/utils/moduleInstanceHelpers";
+import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
-  const modules = useModuleInstanceOption();
+  const moduleOptions = useModuleOptions();
 
   // helper map for sorting based on recent usage
   const recentlyUsedDSMap = useRecentlyUsedDSMap();
@@ -78,7 +78,7 @@ export const useFilteredFileOperations = (query = "") => {
     allDatasources,
     canCreateActions,
     canCreateDatasource,
-    modules,
+    moduleOptions,
     plugins,
     recentlyUsedDSMap,
     query,
@@ -89,7 +89,7 @@ export const useFilteredAndSortedFileOperations = ({
   allDatasources = [],
   canCreateActions = true,
   canCreateDatasource = true,
-  modules = [],
+  moduleOptions = [],
   plugins = [],
   query,
   recentlyUsedDSMap = {},
@@ -97,7 +97,7 @@ export const useFilteredAndSortedFileOperations = ({
   allDatasources?: Datasource[];
   canCreateActions?: boolean;
   canCreateDatasource?: boolean;
-  modules?: ActionOperation[];
+  moduleOptions?: ActionOperation[];
   plugins?: Plugin[];
   recentlyUsedDSMap?: Record<string, number>;
   query: string;
@@ -115,8 +115,8 @@ export const useFilteredAndSortedFileOperations = ({
   fileOperations.push(actionOps[2]);
 
   // Add Module operations
-  if (modules.length > 0) {
-    modules.map((module) => fileOperations.push(module));
+  if (moduleOptions.length > 0) {
+    moduleOptions.map((moduleOp) => fileOperations.push(moduleOp));
   }
 
   // Add app datasources
