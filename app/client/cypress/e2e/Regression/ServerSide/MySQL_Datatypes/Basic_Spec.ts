@@ -43,8 +43,6 @@ describe("MySQL Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
-
     //Creating SELECT query
     dataSources.createQueryWithDatasourceSchemaTemplate(
       dsName,

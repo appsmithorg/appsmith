@@ -32,8 +32,6 @@ describe("Binary Datatype tests", function () {
     dataSources.CreateQueryAfterDSSaved(query, "createTable");
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dsName, "public.binarytype");
-
     //Creating SELECT query - binarytype + Bug 14493
     query = `SELECT binarytype.serialid, binarytype.imagename, encode(binarytype.existingimage, 'escape') as "OldImage", encode(binarytype.newimage, 'escape') as "NewImage" from public."binarytype";`;
     dataSources.createQueryWithDatasourceSchemaTemplate(

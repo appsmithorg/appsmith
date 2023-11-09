@@ -62,7 +62,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
     dataSources.RunQueryNVerifyResponseViews();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.vessels");
   });
 
   it("2. Validate Select record from Postgress datasource & verify query response", () => {

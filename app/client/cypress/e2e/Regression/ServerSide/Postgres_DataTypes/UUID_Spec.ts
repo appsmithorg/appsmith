@@ -49,7 +49,6 @@ describe("UUID Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.uuidtype");
   });
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {

@@ -39,8 +39,6 @@ describe("Array Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes");
-
     //Creating SELECT query - arraytypes + Bug 14493
     dataSources.createQueryWithDatasourceSchemaTemplate(
       dsName,

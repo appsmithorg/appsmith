@@ -308,8 +308,6 @@ describe("Validate Mongo Query Pane Validations", () => {
       );
     });
 
-    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards");
-
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -831,9 +829,8 @@ describe("Validate Mongo Query Pane Validations", () => {
       entityType: entityItems.Query,
     });
     dataSources.navigateToDatasource(dsName);
-    //Execute a find query on this collection to see if dates are fetched properly
-    dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath");
 
+    //Execute a find query on this collection to see if dates are fetched properly
     dataSources.createQueryWithDatasourceSchemaTemplate(
       dsName,
       "BirthNDeath",

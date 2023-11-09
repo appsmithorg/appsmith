@@ -6,10 +6,6 @@ import {
   entityItems,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import EditorNavigation, {
-  SidebarButton,
-} from "../../../../support/Pages/EditorNavigation";
 let mockDBNameUsers: string, mockDBNameMovies: string;
 
 describe("Entity explorer context menu should hide on scrolling", function () {
@@ -17,10 +13,8 @@ describe("Entity explorer context menu should hide on scrolling", function () {
     "excludeForAirgap",
     "1. Bug #15474 - Entity explorer menu must close on scroll",
     function () {
-      featureFlagIntercept({
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      });
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
       agHelper.GetNClick(locators._closeModal, 0, true, 0);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
@@ -36,6 +30,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       entityExplorer.ExpandCollapseEntity("Modal3");
       entityExplorer.ExpandCollapseEntity("Modal4");
       entityExplorer.ExpandCollapseEntity("Modal5");
+      entityExplorer.ExpandCollapseEntity("Modal6");
 
       // Setup to make the explorer scrollable
       entityExplorer.ExpandCollapseEntity("Queries/JS");
@@ -43,15 +38,12 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
-        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
 
         dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
           cy.log("Movies DB created is " + $createdMockMovies);
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
 
-          dataSources.AssertTableInVirtuosoList(mockDBNameMovies, "movies");
-          EditorNavigation.sidebar(SidebarButton.Pages);
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
           agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
@@ -70,10 +62,19 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
       agHelper.GetNClick(locators._closeModal, 0, true, 0);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
       entityExplorer.NavigateToSwitcher("Explorer");
       entityExplorer.ExpandCollapseEntity("Modal1");
       entityExplorer.ExpandCollapseEntity("Modal2");
       entityExplorer.ExpandCollapseEntity("Modal3");
+      entityExplorer.ExpandCollapseEntity("Modal4");
+      entityExplorer.ExpandCollapseEntity("Modal5");
+      entityExplorer.ExpandCollapseEntity("Modal6");
 
       // Setup to make the explorer scrollable
       entityExplorer.ExpandCollapseEntity("Queries/JS");

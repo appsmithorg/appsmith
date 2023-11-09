@@ -36,7 +36,6 @@ describe("DateTime Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.datetimetypes");
   });
 
   it("2. Creating SELECT query - datetimetypes + Bug 14493", () => {

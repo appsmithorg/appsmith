@@ -36,8 +36,6 @@ describe("Boolean & Enum Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable");
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dsName, "public.boolenumtypes");
-
     //Select query:
     dataSources.createQueryWithDatasourceSchemaTemplate(
       dsName,

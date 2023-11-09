@@ -177,8 +177,6 @@ describe("Validate Oracle DS", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dataSourceName, guid.toUpperCase());
-
     query = `INSERT INTO ${guid} (
     aircraft_id,
     aircraft_type,

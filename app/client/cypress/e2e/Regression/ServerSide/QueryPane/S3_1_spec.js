@@ -77,11 +77,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     cy.wait(2000);
 
-    dataSources.AssertTableInVirtuosoList(
-      datasourceName,
-      "assets-test--appsmith",
-    );
-
     dataSources.createQueryWithDatasourceSchemaTemplate(
       datasourceName,
       "assets-test--appsmith",

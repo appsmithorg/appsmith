@@ -575,6 +575,9 @@ describe("Validate Mongo query commands", function () {
       "NonAsciiTest",
       false,
     );
-    cy.deleteQueryUsingContext();
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
   });
 });

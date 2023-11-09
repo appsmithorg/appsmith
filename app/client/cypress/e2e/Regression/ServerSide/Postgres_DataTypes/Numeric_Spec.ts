@@ -34,7 +34,6 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes");
   });
 
   it("2. Creating SELECT query - numerictypes + Bug 14493", () => {

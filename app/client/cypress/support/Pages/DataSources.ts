@@ -1421,8 +1421,7 @@ export class DataSources {
     templateName: string,
   ) {
     this.CreateQueryFromActiveTab(datasourceName);
-    this.RefreshDatasourceSchema();
-    this.FilterAndVerifyDatasourceSchemaBySearch(tableName);
+    this.AssertTableInVirtuosoList(datasourceName, tableName);
     cy.get(this._dsVirtuosoElementTable(tableName)).click();
     this.agHelper.GetNClick(
       this.entityExplorer.locator._contextMenuItem(templateName),

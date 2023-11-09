@@ -33,7 +33,6 @@ describe("Character Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.chartypes");
   });
 
   it("2. Creating SELECT query - chartypes + Bug 14493", () => {

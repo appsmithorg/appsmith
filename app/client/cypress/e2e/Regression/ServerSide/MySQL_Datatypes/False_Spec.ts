@@ -23,8 +23,6 @@ describe("MySQL Datatype tests", function () {
       query = inputData.query.createTable;
       dataSources.CreateQueryAfterDSSaved(query, "createTable"); //Creating query from EE overlay
       dataSources.RunQuery();
-
-      dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
     });
   });
 

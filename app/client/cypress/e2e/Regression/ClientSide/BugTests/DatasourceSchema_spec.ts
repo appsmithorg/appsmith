@@ -53,6 +53,7 @@ describe("Datasource form related tests", function () {
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
     EditorNavigation.sidebar(SidebarButton.Pages);
+    entityExplorer.SelectEntityByName("Query1");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
