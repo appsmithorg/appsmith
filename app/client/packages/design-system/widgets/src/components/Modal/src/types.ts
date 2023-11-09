@@ -1,6 +1,12 @@
+import type {
+  PopoverContentProps,
+  PopoverProps,
+} from "@design-system/headless";
 import type { ReactNode } from "react";
 
-export interface ModalProps {
+export interface ModalProps
+  extends Pick<PopoverProps, "defaultOpen" | "isOpen" | "setOpen" | "onClose">,
+    Pick<PopoverContentProps, "overlayClassName" | "contentClassName"> {
   /** Size of the Modal
    * @default medium
    */

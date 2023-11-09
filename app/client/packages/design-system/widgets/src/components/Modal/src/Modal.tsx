@@ -6,18 +6,25 @@ import {
 } from "@design-system/headless";
 import styles from "./styles.module.css";
 import type { ModalProps } from "./types";
+import clsx from "clsx";
 
 export const Modal = (props: ModalProps) => {
-  const { children, size = "medium" } = props;
+  const {
+    children,
+    contentClassName,
+    overlayClassName,
+    size = "medium",
+    ...rest
+  } = props;
   const [trigger, ...content] = Children.toArray(children);
 
   return (
-    <Popover modal>
+    <Popover duration={200} modal {...rest}>
       <PopoverTrigger>{trigger}</PopoverTrigger>
       <PopoverContent
-        contentClassName={styles.content}
+        contentClassName={clsx(styles.content, contentClassName)}
         data-size={size}
-        overlayClassName={styles.overlay}
+        overlayClassName={clsx(styles.overlay, overlayClassName)}
       >
         {content}
       </PopoverContent>

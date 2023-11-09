@@ -16,7 +16,6 @@
   gap: var(--outer-spacing-4);
   padding-inline: var(--outer-spacing-4);
   padding-block: var(--outer-spacing-4);
-  min-height: var(--sizing-50);
 }
 
 .content[data-size="small"] {
@@ -38,4 +37,21 @@
   padding-inline: var(--outer-spacing-4);
   margin-inline: calc(var(--outer-spacing-4) * -1);
   flex: 1;
+}
+
+.overlay,
+.content {
+  transition-property: opacity;
+}
+.content[data-status="open"],
+.content[data-status="close"],
+.overlay[data-status="open"],
+.overlay[data-status="close"] {
+  transition-duration: 200ms;
+}
+.content[data-status="initial"],
+.content[data-status="close"],
+.overlay[data-status="initial"],
+.overlay[data-status="close"] {
+  opacity: 0;
 }

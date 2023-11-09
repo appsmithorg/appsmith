@@ -7,7 +7,8 @@ import {
   ButtonGroup,
   ButtonGroupItem,
 } from "@design-system/widgets";
-import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
+import { ControlledModal } from "./ControlledModal";
 
 <Meta title="Design-system/Widgets/Modal" component={Modal} />
 
@@ -23,6 +24,8 @@ export const Template = (args) => {
 # Modal
 
 A modal is a floating element that displays information that requires immediate attention, appearing over the page content and blocking interactions with the page until it is dismissed.
+
+Modal developed on basis of Popover headless component. Additional information about functionality of Modal component can be found in the [Popover story](/docs/design-system-headless-popover--docs).
 
 <Canvas>
   <Story name="Modal">{Template.bind({})}</Story>
@@ -118,3 +121,29 @@ export const fakeSubmit = async () => {
 
   </Story>
 </Canvas>
+
+# Controlled Modal
+
+<Canvas>
+  <Story name="Controlled Modal">
+    <ControlledModal />
+  </Story>
+</Canvas>
+
+<Source
+  dark
+  code={`
+export const ControlledModal = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Modal isOpen={isOpen} setOpen={setIsOpen}>
+      <Button>My modal trigger</Button>
+      <ModalBody>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Doloribus,
+        vero!
+      </ModalBody>
+    </Modal>
+  );
+};
+`}
+/>

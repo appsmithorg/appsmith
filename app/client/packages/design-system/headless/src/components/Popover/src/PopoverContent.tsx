@@ -4,6 +4,7 @@ import {
   FloatingPortal,
   useMergeRefs,
   FloatingOverlay,
+  useTransitionStatus,
 } from "@floating-ui/react";
 import { usePopoverContext } from "./PopoverContext";
 
@@ -19,11 +20,12 @@ const _PopoverContent = (props: PopoverContentProps, ref: Ref<HTMLElement>) => {
     style,
     ...rest
   } = props;
-  const { context, descriptionId, getFloatingProps, labelId, modal, open } =
+  const { context, descriptionId, duration, getFloatingProps, labelId, modal } =
     usePopoverContext();
   const refs = useMergeRefs([context.refs.setFloating, ref]);
+  const { isMounted, status } = useTransitionStatus(context, { duration });
 
-  if (!Boolean(open)) return null;
+  if (!Boolean(isMounted)) return null;
 
   const root = context.refs.domReference.current?.closest(
     "[data-theme-provider]",
@@ -34,6 +36,7 @@ const _PopoverContent = (props: PopoverContentProps, ref: Ref<HTMLElement>) => {
       aria-describedby={descriptionId}
       aria-labelledby={labelId}
       className={contentClassName}
+      data-status={status}
       ref={refs}
       style={{
         ...(modal ? {} : context.floatingStyles),
@@ -48,7 +51,7 @@ const _PopoverContent = (props: PopoverContentProps, ref: Ref<HTMLElement>) => {
   if (modal) {
     return (
       <FloatingPortal root={root}>
-        <FloatingOverlay className={overlayClassName}>
+        <FloatingOverlay className={overlayClassName} data-status={status}>
           <FloatingFocusManager
             closeOnFocusOut={closeOnFocusOut}
             context={context}
