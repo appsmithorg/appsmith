@@ -21,7 +21,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       _.dataSources.SaveDatasource();
       _.agHelper.Sleep();
       _.dataSources.EditDatasource();
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      _.dataSources.cancelDSEditAndAssertModalPopUp(false);
       _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
       _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
@@ -45,7 +45,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Even if headers, and query parameters are being initialized, we shouldnt see the popup
       // as those are not initialized by user
       _.dataSources.EditDatasource();
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      _.dataSources.cancelDSEditAndAssertModalPopUp(false);
       _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
       _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
