@@ -46,7 +46,7 @@ function logLatestEvalPropertyErrors(
       getEntityNameAndPropertyPath(evaluatedPath);
     const entity = dataTree[entityName];
     const entityConfig = configTree[entityName];
-    if (!isDynamicEntity(entity)) continue;
+    if (!entity || !entityConfig || !isDynamicEntity(entity)) continue;
     const logBlackList = (entityConfig as any)?.logBlackList;
     if (logBlackList && propertyPath in logBlackList) continue;
     const allEvalErrors: EvaluationError[] = get(
