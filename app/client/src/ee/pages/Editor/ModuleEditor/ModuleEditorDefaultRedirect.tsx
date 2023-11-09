@@ -23,13 +23,15 @@ interface ModuleEditorDefaultRedirectProps {
 interface GetUrlProps {
   id: string;
   plugin: Plugin;
+  moduleId: string;
 }
 
-const getURL = ({ id, plugin }: GetUrlProps) => {
+const getURL = ({ id, moduleId, plugin }: GetUrlProps) => {
   if (!!plugin && plugin.type === PluginType.SAAS) {
     return saasEditorApiIdURL({
       pluginPackageName: plugin.packageName,
       apiId: id,
+      moduleId,
     });
   } else if (
     plugin.type === PluginType.DB ||
@@ -37,9 +39,10 @@ const getURL = ({ id, plugin }: GetUrlProps) => {
   ) {
     return queryEditorIdURL({
       queryId: id,
+      moduleId,
     });
   } else {
-    return apiEditorIdURL({ apiId: id });
+    return apiEditorIdURL({ apiId: id, moduleId });
   }
 };
 
@@ -59,9 +62,11 @@ function ModuleEditorDefaultRedirect({
   const plugin = pluginGroups[action?.pluginId];
 
   if (!isExact || !plugin) return null;
+
   const defaultRedirectUrl = getURL({
     id: action.id,
     plugin: pluginGroups[action.pluginId],
+    moduleId: module.id,
   });
 
   return <Redirect to={defaultRedirectUrl} />;
