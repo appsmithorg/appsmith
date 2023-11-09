@@ -22,7 +22,6 @@ export function createSectionAndAddWidget(
   widgets: WidgetLayoutProps[],
   parentId: string,
 ): { canvasWidgets: CanvasWidgetsReduxState; section: WidgetProps } {
-  let canvasWidgets: CanvasWidgetsReduxState = { ...allWidgets };
   /**
    * Step 1: Create Section widget.
    */
@@ -48,8 +47,8 @@ export function createSectionAndAddWidget(
    * Step 2: Create Canvas widget and add to Section.
    */
   const preset: LayoutProps[] = sectionPreset();
-  let sectionLayout: LayoutProps = preset[0];
-  let canvasProps: WidgetProps = {
+  const sectionLayout: LayoutProps = preset[0];
+  const canvasProps: WidgetProps = {
     bottomRow: 10,
     children: [],
     isLoading: false,
@@ -72,7 +71,7 @@ export function createSectionAndAddWidget(
    * Step 3: Add widgets to section. and update relationships.
    */
   return addWidgetsToSection(
-    canvasWidgets,
+    allWidgets,
     widgets,
     highlight,
     sectionProps,
@@ -88,8 +87,8 @@ export function createSectionAndAddWidget(
  * @returns WidgetLayoutProps[][] : List of dragged widgets split by type.
  */
 function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
-  let zones: WidgetLayoutProps[] = [];
-  let nonZones: WidgetLayoutProps[] = [];
+  const zones: WidgetLayoutProps[] = [];
+  const nonZones: WidgetLayoutProps[] = [];
   widgets.forEach((widget: WidgetLayoutProps) => {
     if (widget.widgetType === "ZONE_WIDGET") {
       zones.push(widget);

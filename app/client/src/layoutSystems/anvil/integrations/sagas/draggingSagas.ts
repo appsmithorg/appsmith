@@ -21,10 +21,7 @@ import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import {
-  addWidgetsToSection,
-  createSectionAndAddWidget,
-} from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
+import { addWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 import { addWidgetsToMainCanvasLayout } from "layoutSystems/anvil/utils/layouts/update/mainCanvasLayoutUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -80,68 +77,26 @@ function* addWidgetsSaga(
     ];
 
     if (!!isMainCanvas) {
-      updatedWidgets = {
-        ...updatedWidgets,
-        [canvasId]: {
-          ...updatedWidgets[canvasId],
-          children: updatedWidgets[canvasId].children?.filter(
-            (each: string) => each !== newWidget.newWidgetId,
-          ),
-        },
-      };
-      updatedWidgets = addWidgetsToMainCanvasLayout(
+      updatedWidgets = addWidgetToMainCanvas(
         updatedWidgets,
         draggedWidgets,
         highlight,
+        newWidget.newWidgetId,
       );
     } else if (!!isSection) {
-      /**
-       * Add new widgets to section.
-       */
-      const canvasWidget: WidgetProps = updatedWidgets[canvasId];
-      const canvasPreset: LayoutProps[] = canvasWidget.layout
-        ? canvasWidget.layout
-        : generateDefaultLayoutPreset();
-      const res: {
-        canvasWidgets: CanvasWidgetsReduxState;
-        section: WidgetProps;
-      } = addWidgetsToSection(
+      updatedWidgets = addWidgetToSection(
         updatedWidgets,
         draggedWidgets,
         highlight,
-        updatedWidgets[canvasWidget.parentId || MAIN_CONTAINER_WIDGET_ID],
-        {
-          ...canvasWidget,
-          children: canvasWidget.children.filter(
-            (each: string) => each !== newWidget.newWidgetId,
-          ),
-        },
-        canvasPreset[0],
-        canvasPreset,
+        newWidget.newWidgetId,
       );
-      updatedWidgets = res.canvasWidgets;
     } else {
-      const canvasWidget = updatedWidgets[canvasId];
-      const canvasLayout = canvasWidget.layout
-        ? canvasWidget.layout
-        : generateDefaultLayoutPreset();
-      /**
-       * Add new widget to the children of parent canvas.
-       * Also add it to parent canvas' layout.
-       */
-      updatedWidgets = {
-        ...updatedWidgets,
-        [canvasWidget.widgetId]: {
-          ...canvasWidget,
-          layout: addWidgetsToPreset(canvasLayout, highlight, draggedWidgets),
-        },
-        [newWidget.newWidgetId]: {
-          ...updatedWidgets[newWidget.newWidgetId],
-          // This is a temp fix, widget dimensions will be self computed by widgets
-          height: newWidget.height,
-          width: newWidget.width,
-        },
-      };
+      updatedWidgets = addWidgetToGenericLayout(
+        updatedWidgets,
+        draggedWidgets,
+        highlight,
+        newWidget,
+      );
     }
 
     yield put(updateAndSaveLayout(updatedWidgets));
@@ -159,6 +114,97 @@ function* addWidgetsSaga(
     });
   }
 }
+
+function addWidgetToMainCanvas(
+  allWidgets: CanvasWidgetsReduxState,
+  draggedWidgets: WidgetLayoutProps[],
+  highlight: AnvilHighlightInfo,
+  widgetId: string,
+) {
+  let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+  updatedWidgets = {
+    ...updatedWidgets,
+    [highlight.canvasId]: {
+      ...updatedWidgets[highlight.canvasId],
+      children: updatedWidgets[highlight.canvasId].children?.filter(
+        (each: string) => each !== widgetId,
+      ),
+    },
+  };
+  return addWidgetsToMainCanvasLayout(
+    updatedWidgets,
+    draggedWidgets,
+    highlight,
+  );
+}
+
+function addWidgetToSection(
+  allWidgets: CanvasWidgetsReduxState,
+  draggedWidgets: WidgetLayoutProps[],
+  highlight: AnvilHighlightInfo,
+  widgetId: string,
+) {
+  /**
+   * Add new widgets to section.
+   */
+  const canvasWidget: WidgetProps = allWidgets[highlight.canvasId];
+  const canvasPreset: LayoutProps[] = canvasWidget.layout
+    ? canvasWidget.layout
+    : generateDefaultLayoutPreset();
+  const res: {
+    canvasWidgets: CanvasWidgetsReduxState;
+    section: WidgetProps;
+  } = addWidgetsToSection(
+    allWidgets,
+    draggedWidgets,
+    highlight,
+    allWidgets[canvasWidget.parentId || MAIN_CONTAINER_WIDGET_ID],
+    {
+      ...canvasWidget,
+      children: canvasWidget.children.filter(
+        (each: string) => each !== widgetId,
+      ),
+    },
+    canvasPreset[0],
+    canvasPreset,
+  );
+  return res.canvasWidgets;
+}
+
+function addWidgetToGenericLayout(
+  allWidgets: CanvasWidgetsReduxState,
+  draggedWidgets: WidgetLayoutProps[],
+  highlight: AnvilHighlightInfo,
+  newWidget: {
+    width: number;
+    height: number;
+    newWidgetId: string;
+    type: string;
+  },
+) {
+  const canvasWidget = allWidgets[highlight.canvasId];
+  const canvasLayout = canvasWidget.layout
+    ? canvasWidget.layout
+    : generateDefaultLayoutPreset();
+  /**
+   * Add new widget to the children of parent canvas.
+   * Also add it to parent canvas' layout.
+   */
+  return {
+    ...allWidgets,
+    [canvasWidget.widgetId]: {
+      ...canvasWidget,
+      layout: addWidgetsToPreset(canvasLayout, highlight, draggedWidgets),
+    },
+    [newWidget.newWidgetId]: {
+      ...allWidgets[newWidget.newWidgetId],
+      // This is a temp fix, widget dimensions will be self computed by widgets
+      height: newWidget.height,
+      width: newWidget.width,
+    },
+  };
+}
+
 /**
  * Remove widgets from current parents and layouts.
  * Add to new parent and layout.

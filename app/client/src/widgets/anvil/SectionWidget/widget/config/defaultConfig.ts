@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import {
   BlueprintOperationTypes,
-  FlattenedWidgetProps,
+  type FlattenedWidgetProps,
   type WidgetDefaultProps,
 } from "WidgetProvider/constants";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
