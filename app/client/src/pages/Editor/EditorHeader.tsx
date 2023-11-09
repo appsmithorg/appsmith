@@ -107,6 +107,7 @@ export function EditorHeader() {
   const featureFlags = useSelector(selectFeatureFlags);
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -114,7 +115,6 @@ export function EditorHeader() {
   );
   const isPreviewingApp =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
-  const isProtectedMode = useSelector(protectedModeSelector);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
@@ -159,6 +159,7 @@ export function EditorHeader() {
         pageCount,
         ...navigationSettingsWithPrefix,
         isPublic: !!currentApplication?.isPublic,
+        templateTitle: currentApplication?.forkedFromTemplateTitle,
       });
     }
   };
