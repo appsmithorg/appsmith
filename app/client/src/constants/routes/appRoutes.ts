@@ -52,6 +52,7 @@ export const ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH = "/settings/audit-logs";
 export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:selected?";
 export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
+export const APP_STATE_PATH = `/:appState`;
 
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);

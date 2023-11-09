@@ -3,6 +3,11 @@ import type { DropTargetComponentProps } from "layoutSystems/common/dropTarget/D
 import type { ReactNode } from "react";
 import { memo } from "react";
 import React from "react";
+import { useSelector } from "react-redux";
+import { getWidget } from "sagas/selectors";
+import type { AppState } from "@appsmith/reducers";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 interface DropTargetComponentWrapperProps {
   dropTargetProps: DropTargetComponentProps;
@@ -22,7 +27,16 @@ export const DropTargetComponentWrapper = memo(
     dropDisabled,
     dropTargetProps,
   }: DropTargetComponentWrapperProps) => {
-    if (dropDisabled) {
+    // This code block is added exclusively to handle List Widget Meta Canvas Widget which is generated via template.
+    const widget = useSelector((state: AppState) =>
+      getWidget(state, dropTargetProps.parentId || MAIN_CONTAINER_WIDGET_ID),
+    );
+    const isProtectedMode = useSelector(protectedModeSelector);
+    if (
+      (dropTargetProps.parentId && !widget) ||
+      isProtectedMode ||
+      dropDisabled
+    ) {
       //eslint-disable-next-line
       return <>{children}</>;
     }

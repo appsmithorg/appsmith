@@ -9,6 +9,7 @@ import type { DropdownOption } from "design-system-old";
 import { useDispatch, useSelector } from "react-redux";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -272,7 +273,17 @@ export interface UseSheetDataReturn {
   }: FetchSheetData) => void;
 }
 
-export const useSheetsList = (): UseSheetListReturn => {
+export interface UseSheetListProps {
+  setSheetOptions?: (tableOptions: DropdownOptions) => void;
+}
+
+export interface UseSheetDataProps {
+  setSheetData?: (tableOptions: DropdownOptions) => void;
+}
+
+export const useSheetsList = (
+  props: UseSheetListProps = {},
+): UseSheetListReturn => {
   const dispatch = useDispatch();
 
   const [sheetsList, setSheetsList] = useState<DropdownOption[]>([]);
@@ -298,12 +309,13 @@ export const useSheetsList = (): UseSheetListReturn => {
         const responseBody = payload.data.trigger;
         if (Array.isArray(responseBody)) {
           setSheetsList(responseBody);
+          props.setSheetOptions && props.setSheetOptions(responseBody);
         } else {
           // to handle error like "401 Unauthorized"
         }
       }
     },
-    [setSheetsList, setIsFetchingSheetsList],
+    [setSheetsList, setIsFetchingSheetsList, props.setSheetOptions],
   );
 
   const fetchSheetsList = useCallback(
@@ -314,6 +326,7 @@ export const useSheetsList = (): UseSheetListReturn => {
       selectedSpreadsheetUrl,
     }: FetchSheetsList) => {
       setSheetsList([]);
+      props.setSheetOptions && props.setSheetOptions([]);
       setIsFetchingSheetsList(true);
       setFailedFetchingSheetsList(false);
       const formattedRequestData = {
@@ -343,6 +356,7 @@ export const useSheetsList = (): UseSheetListReturn => {
       onFetchAllSheetFailure,
       setIsFetchingSheetsList,
       setFailedFetchingSheetsList,
+      props.setSheetOptions,
     ],
   );
 
@@ -354,7 +368,9 @@ export const useSheetsList = (): UseSheetListReturn => {
   };
 };
 
-export const useSheetData = (): UseSheetDataReturn => {
+export const useSheetData = (
+  props: UseSheetDataProps = {},
+): UseSheetDataReturn => {
   const dispatch = useDispatch();
 
   const [sheetData, setSheetData] = useState<any>([]);
@@ -364,10 +380,16 @@ export const useSheetData = (): UseSheetDataReturn => {
   const [failedFetchingSheetData, setFailedFetchingSheetData] =
     useState<boolean>(false);
 
-  const onFetchAllSheetFailure = useCallback(() => {
-    setIsFetchingSheetData(false);
-    setFailedFetchingSheetData(true);
-  }, [setIsFetchingSheetData]);
+  const onFetchAllSheetFailure = useCallback(
+    (error: string) => {
+      setIsFetchingSheetData(false);
+      setFailedFetchingSheetData(true);
+      AnalyticsUtil.logEvent("DATA_FETCH_FAILED_POST_SCHEMA_FETCH", {
+        error: error,
+      });
+    },
+    [setIsFetchingSheetData],
+  );
 
   const onFetchAllSheetSuccess = useCallback(
     (
@@ -380,12 +402,18 @@ export const useSheetData = (): UseSheetDataReturn => {
         const responseBody = payload.data.trigger;
         if (Array.isArray(responseBody)) {
           setSheetData(responseBody);
+          props.setSheetData && props.setSheetData(responseBody);
         } else {
           // to handle error like "401 Unauthorized"
+          AnalyticsUtil.logEvent(
+            "DATA_FETCH_FAILED_POST_SCHEMA_FETCH",
+            { error: payload }, // sending the entire payload here because it is not clear if there is a distinct
+            // field holding the error message
+          );
         }
       }
     },
-    [setSheetData, setIsFetchingSheetData],
+    [setSheetData, setIsFetchingSheetData, props.setSheetData],
   );
 
   const fetchSheetData = useCallback(
@@ -396,6 +424,7 @@ export const useSheetData = (): UseSheetDataReturn => {
       selectedSpreadsheetUrl,
     }: FetchSheetData) => {
       setSheetData([]);
+      props.setSheetData && props.setSheetData([]);
       setIsFetchingSheetData(true);
       setFailedFetchingSheetData(false);
       const formattedRequestData = {
@@ -428,6 +457,7 @@ export const useSheetData = (): UseSheetDataReturn => {
       onFetchAllSheetFailure,
       setIsFetchingSheetData,
       setFailedFetchingSheetData,
+      props.setSheetData,
     ],
   );
 

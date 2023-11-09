@@ -27,10 +27,7 @@ describe(
       agHelper.AssertElementExist(template.templateDialogBox);
       agHelper.AssertElementVisibility(templates.locators._templateCard);
       agHelper.Sleep(4000);
-      cy.xpath("//h1[text()='Meeting Scheduler']/parent::div")
-        .scrollIntoView()
-        .wait(500)
-        .click();
+      agHelper.GetNClick(template.vehicleMaintenenceApp);
       agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       agHelper.Sleep();
       agHelper.CheckForErrorToast(
@@ -58,7 +55,7 @@ describe(
         0,
         30000,
       );
-      agHelper.GetNClick(template.meetingSchedulerDashboard);
+      agHelper.GetNClick(template.vehicleMaintenenceApp);
       //agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       cy.wait("@getTemplatePages").should(
         "have.nested.property",

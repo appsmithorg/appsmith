@@ -55,13 +55,13 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     );
   };
 
-  const labelAndContextualHelp = (
+  const isLabelVisible = Boolean(label) || Boolean(contextualHelp);
+
+  const labelAndContextualHelp = isLabelVisible && (
     <div data-field-label-wrapper="">
-      {Boolean(label) && (
-        <Label {...labelProps} elementType={elementType}>
-          {label}
-        </Label>
-      )}
+      <Label {...labelProps} elementType={elementType}>
+        {label}
+      </Label>
       {contextualHelp}
     </div>
   );

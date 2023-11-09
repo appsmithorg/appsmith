@@ -9,9 +9,10 @@ import {
   CONTEXT_DELETE,
   EDIT,
   createMessage,
+  GENERATE_NEW_PAGE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import { debounce } from "lodash";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
@@ -19,9 +20,14 @@ import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import styled from "styled-components";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
+import { useShowPageGenerationOnHeader } from "./hooks";
+import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import history from "utils/history";
 
 export const ActionWrapper = styled.div`
   display: flex;
+  flex-direction: row-reverse;
   gap: 16px;
   align-items: center;
 `;
@@ -32,12 +38,14 @@ export const FormTitleContainer = styled.div`
   align-items: center;
 `;
 
-export const Header = styled.div`
+export const Header = styled.div<{ noBottomBorder: boolean }>`
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--ads-v2-color-border);
+  ${(props) =>
+    !props.noBottomBorder &&
+    "border-bottom: 1px solid var(--ads-v2-color-border);"}
   padding: var(--ads-v2-spaces-5) 0 var(--ads-v2-spaces-5);
   margin: 0 var(--ads-v2-spaces-7);
 `;
@@ -81,7 +89,7 @@ interface DSFormHeaderProps {
     viewMode: boolean;
   }) => void;
   viewMode: boolean;
-  isNewQuerySecondaryButton?: boolean;
+  noBottomBorder?: boolean;
 }
 
 export const DSFormHeader = (props: DSFormHeaderProps) => {
@@ -93,8 +101,8 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     datasourceId,
     isDeleting,
     isNewDatasource,
-    isNewQuerySecondaryButton,
     isPluginAuthorized,
+    noBottomBorder,
     pluginImage,
     pluginName,
     pluginType,
@@ -105,6 +113,8 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
 
+  const pageId = useSelector(getCurrentPageId);
+
   const deleteAction = () => {
     if (isDeleting) return;
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
@@ -112,6 +122,10 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
   };
 
   const onCloseMenu = debounce(() => setConfirmDelete(false), 20);
+
+  const showGenerateButton = useShowPageGenerationOnHeader(
+    datasource as Datasource,
+  );
 
   const renderMenuOptions = () => {
     return [
@@ -139,8 +153,25 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     ];
   };
 
+  const routeToGeneratePage = () => {
+    if (!showGenerateButton) {
+      // disable button when it doesn't support page generation
+      return;
+    }
+    AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
+    history.push(
+      generateTemplateFormURL({
+        pageId,
+        params: {
+          datasourceId: (datasource as Datasource).id,
+          new_page: true,
+        },
+      }),
+    );
+  };
+
   return (
-    <Header>
+    <Header noBottomBorder={!!noBottomBorder}>
       <FormTitleContainer>
         <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
         <FormTitle
@@ -195,9 +226,22 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             datasource={datasource as Datasource}
             disabled={!canCreateDatasourceActions || !isPluginAuthorized}
             eventFrom="datasource-pane"
-            isNewQuerySecondaryButton={isNewQuerySecondaryButton}
             pluginType={pluginType}
           />
+          {showGenerateButton && (
+            <Button
+              className={"t--generate-template"}
+              kind="secondary"
+              onClick={(e: any) => {
+                e.stopPropagation();
+                e.preventDefault();
+                routeToGeneratePage();
+              }}
+              size="md"
+            >
+              {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
+            </Button>
+          )}
         </ActionWrapper>
       )}
     </Header>

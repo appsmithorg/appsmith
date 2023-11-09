@@ -74,7 +74,21 @@ export const ResizerContentContainer = styled.div`
   &.api-datasource-content-container {
     flex-direction: column;
     padding: 0 var(--ads-v2-spaces-7) 0 var(--ads-v2-spaces-7);
+    & .t--ds-form-header {
+      border-bottom: 1px solid var(--ads-v2-color-border);
+    }
   }
+  &.db-form-resizer-content.db-form-resizer-content-show-tabs,
+  &.saas-form-resizer-content.saas-form-resizer-content-show-tabs {
+    padding: 0;
+    & .t--ds-form-header {
+      border-bottom: none;
+    }
+  }
+  &.saas-form-resizer-content.saas-form-resizer-content-show-tabs form {
+    padding-bottom: 0;
+  }
+  border-top: none;
   .db-form-content-container {
     display: flex;
     flex-direction: column;

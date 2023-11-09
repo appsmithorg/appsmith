@@ -59,7 +59,7 @@ describe("Select widget tests", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.SELECT));
 
     //Validate filtered data
-    agHelper.Sleep(3000); //Wait for widget to settle
+    agHelper.Sleep(6000); //Wait for widget to settle for CI failure
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.SELECT));
     agHelper.TypeText(widgetLocators.selectWidgetFilter, "Ulf");
     agHelper.Sleep(3000); //Wait for widget filter to settle for CI runs
@@ -68,6 +68,7 @@ describe("Select widget tests", function () {
       true,
     );
     agHelper.GetNClick(locators._selectOptionValue("Ulf Merbold"), 0, true);
+    agHelper.Sleep(); //for the new value to be set
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
       expect($selectedValue).to.eq("Ulf Merbold");
     });
