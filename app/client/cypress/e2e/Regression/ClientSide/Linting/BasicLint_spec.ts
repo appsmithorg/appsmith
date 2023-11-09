@@ -351,19 +351,18 @@ describe("Linting", () => {
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      entityExplorer.SelectEntityByName("JSObject3");
 
       agHelper.AssertElementAbsence(locators._lintErrorElement);
       EditorNavigation.sidebar(SidebarButton.Libraries);
       installer.uninstallLibrary("uuidjs");
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      entityExplorer.SelectEntityByName("JSObject3");
       agHelper.AssertElementExist(locators._lintErrorElement);
       agHelper.Sleep(2000);
       EditorNavigation.sidebar(SidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
-      EditorNavigation.sidebar(SidebarButton.Pages);
       homePage.NavigateToHome();
 
       homePage.CreateNewApplication();
