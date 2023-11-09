@@ -12,6 +12,11 @@ import { MAIN_CONTAINER_WIDGET_ID } from "../../../../../src/constants/WidgetCon
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
 
 describe(`${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode with App navigation settings`, function () {
+  beforeEach(() => {
+    // Cleanup the canvas before each test
+    agHelper.SelectAllWidgets();
+    agHelper.PressDelete();
+  });
   it("1. Change App navigation settings and valdiate the layout settings", () => {
     const mainCanvasId = `#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`;
     agHelper.AssertElementExist(mainCanvasId).then((mainCanvas) => {

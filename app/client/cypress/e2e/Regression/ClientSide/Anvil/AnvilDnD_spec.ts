@@ -9,6 +9,11 @@ import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 
 describe(`${ANVIL_EDITOR_TEST}: Anvil tests for DnD Module`, () => {
+  beforeEach(() => {
+    // Cleanup the canvas before each test
+    agHelper.SelectAllWidgets();
+    agHelper.PressDelete();
+  });
   it("1. Drag and Drop widget onto Empty Canvas", () => {
     const mainCanvasId = `#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`;
     agHelper.AssertElementExist(mainCanvasId).then((mainCanvas) => {
