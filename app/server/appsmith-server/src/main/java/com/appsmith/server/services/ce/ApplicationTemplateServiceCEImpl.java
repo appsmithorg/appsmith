@@ -132,6 +132,17 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .map(applicationTemplateList -> {
                     // Add sporting via sortPriority
                     // Add createdTime
+                    applicationTemplateList.sort((t1, t2) -> {
+                        if (t1.getSortPriority() == null || t2.getSortPriority() == null) {
+                            return 0;
+                        } else {
+                            return t1.getSortPriority().compareTo(t2.getSortPriority());
+                        }
+                    });
+                    int size = applicationTemplateList.stream()
+                            .filter(applicationTemplate -> applicationTemplate.getCreatedAt() == null)
+                            .toList()
+                            .size();
                     return applicationTemplateList;
                 });
     }
