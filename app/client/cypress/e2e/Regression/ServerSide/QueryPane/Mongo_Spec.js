@@ -429,19 +429,7 @@ describe("Validate Mongo query commands", function () {
     dataSources.RunQuery();
     dataSources.CheckResponseRecordsCount(3);
 
-    cy.get("@dSName").then((dbName) => {
-      //cy.CheckAndUnfoldEntityItem("Datasources");
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dbName,
-        action: "Refresh",
-        entityType: entityItems.Datasource,
-      });
-      // cy.get(`.t--entity.datasource:contains(${dbName})`)
-      //   .find(explorer.collapse)
-      //   .first()
-      //   .click();
-    });
-    cy.xpath("//div[text()='NonAsciiTest']").should("exist");
+    dataSources.AssertTableInVirtuosoList(datasourceName, "NonAsciiTest");
 
     //Verifying Suggested Widgets functionality
     cy.get(queryLocators.suggestedTableWidget).click().wait(1000);

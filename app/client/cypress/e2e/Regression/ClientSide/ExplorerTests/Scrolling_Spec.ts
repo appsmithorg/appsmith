@@ -38,21 +38,21 @@ describe("Entity explorer context menu should hide on scrolling", function () {
         cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
-        entityExplorer.CreateNewDsQuery("public.users");
-        entityExplorer.CreateNewDsQuery("public.users");
-        entityExplorer.CreateNewDsQuery("public.users");
+        entityExplorer.CreateNewDsQuery("Users");
+        entityExplorer.CreateNewDsQuery("Users");
+        entityExplorer.CreateNewDsQuery("Users");
 
         dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
           cy.log("Movies DB created is " + $createdMockMovies);
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
-          entityExplorer.CreateNewDsQuery("movies");
-          entityExplorer.CreateNewDsQuery("movies");
-          entityExplorer.CreateNewDsQuery("movies");
+          entityExplorer.CreateNewDsQuery("Movies");
+          entityExplorer.CreateNewDsQuery("Movies");
+          entityExplorer.CreateNewDsQuery("Movies");
 
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
-          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
+          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "top");
           agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });
       });
@@ -96,7 +96,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
 
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
-          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
+          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "top");
           agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });
       });

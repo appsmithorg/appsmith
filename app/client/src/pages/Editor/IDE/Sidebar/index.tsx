@@ -19,6 +19,7 @@ import {
   AnnouncementPopoverContent,
   Button,
 } from "design-system";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 const Container = styled.div`
   width: 50px;
@@ -52,6 +53,7 @@ function Sidebar() {
   const pageId = useSelector(getCurrentPageId);
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const guidedTourEnabled = useSelector(inGuidedTour);
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
@@ -82,6 +84,10 @@ function Sidebar() {
       JSON.stringify(true),
     );
   };
+
+  if (guidedTourEnabled) {
+    return null;
+  }
 
   return (
     <Container className="t--sidebar">
