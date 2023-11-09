@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import * as echarts from "echarts";
-import "echarts-gl";
 import { invisible } from "constants/DefaultTheme";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type {
@@ -17,18 +16,18 @@ import equal from "fast-deep-equal/es6";
 import type { WidgetPositionProps } from "widgets/BaseWidget";
 import { ChartErrorComponent } from "./ChartErrorComponent";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
-import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
-import {
-  generateEChartInstanceDisposalParams,
-  is3DChart,
-  isBasicEChart,
-  shouldDisposeEChartsInstance,
-} from "./helpers";
+import { dataClickCallbackHelper, isBasicEChart } from "./helpers";
 import {
   parseOnDataPointClickParams,
   isCustomEChart,
   isCustomFusionChart,
+  chartOptions,
 } from "./helpers";
+
+import { CustomEChartIFrameComponent } from "./CustomEChartIFrameComponent";
+import type { AppState } from "@appsmith/reducers";
+import { connect } from "react-redux";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -86,7 +85,7 @@ export interface ChartComponentProps extends WidgetPositionProps {
   boxShadow?: string;
   primaryColor?: string;
   showDataPointLabel: boolean;
-  fontFamily?: string;
+  fontFamily: string;
   dimensions: {
     componentWidth: number;
     componentHeight: number;
@@ -111,11 +110,12 @@ const CanvasContainer = styled.div<
   overflow: hidden;
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
-  padding: 10px 0 0 0;
 }`;
 
+export type ChartComponentConnectedProps = ReturnType<typeof mapStateToProps> &
+  ChartComponentProps;
 class ChartComponent extends React.Component<
-  ChartComponentProps,
+  ChartComponentConnectedProps,
   ChartComponentState
 > {
   fusionChartsInstance: any = null;
@@ -123,16 +123,16 @@ class ChartComponent extends React.Component<
 
   customFusionChartContainerId =
     this.props.widgetId + "custom-fusion-chart-container";
+
   eChartsContainerId = this.props.widgetId + "echart-container";
   eChartsHTMLContainer: HTMLElement | null = null;
 
   echartsConfigurationBuilder: EChartsConfigurationBuilder;
 
   echartConfiguration: Record<string, any> = {};
-  is3DChart = false;
   prevProps: ChartComponentProps;
 
-  constructor(props: ChartComponentProps) {
+  constructor(props: ChartComponentConnectedProps) {
     super(props);
     this.echartsConfigurationBuilder = new EChartsConfigurationBuilder();
     this.prevProps = {} as ChartComponentProps;
@@ -143,55 +143,9 @@ class ChartComponent extends React.Component<
     };
   }
 
-  getBasicEChartOptions = () => {
-    const datasetBuilder = new EChartsDatasetBuilder(
-      this.props.chartType,
-      this.props.chartData,
-    );
-    const dataset = datasetBuilder.datasetFromData();
-
-    const options = {
-      ...this.echartsConfigurationBuilder.prepareEChartConfig(
-        this.props,
-        datasetBuilder.filteredChartData,
-        datasetBuilder.longestDataLabels(),
-      ),
-      dataset: {
-        ...dataset,
-      },
-    };
-    return options;
-  };
-
   dataClickCallback = (params: echarts.ECElementEvent) => {
-    const dataPointClickParams = parseOnDataPointClickParams(
-      params,
-      this.state.chartType,
-    );
-
-    this.props.onDataPointClick(dataPointClickParams);
+    dataClickCallbackHelper(params, this.props, this.state.chartType);
   };
-
-  disposeEChartsIfNeeded() {
-    if (this.echartsInstance?.isDisposed()) {
-      return;
-    }
-
-    let shouldDisposeEcharts = true;
-    if (Object.keys(this.prevProps).length == 0) {
-      shouldDisposeEcharts = true;
-    } else {
-      const config = generateEChartInstanceDisposalParams(
-        this.prevProps,
-        this.props,
-      );
-      shouldDisposeEcharts = shouldDisposeEChartsInstance(config);
-    }
-    this.prevProps = this.props;
-    if (shouldDisposeEcharts) {
-      this.echartsInstance?.dispose();
-    }
-  }
 
   initializeEchartsInstance = () => {
     this.eChartsHTMLContainer = document.getElementById(
@@ -201,15 +155,12 @@ class ChartComponent extends React.Component<
       return;
     }
 
-    this.disposeEChartsIfNeeded();
-    this.is3DChart = is3DChart(this.props.customEChartConfig);
-
     if (!this.echartsInstance || this.echartsInstance.isDisposed()) {
       this.echartsInstance = echarts.init(
         this.eChartsHTMLContainer,
         undefined,
         {
-          renderer: this.is3DChart ? "canvas" : "svg",
+          renderer: "svg",
           width: this.props.dimensions.componentWidth,
           height: this.props.dimensions.componentHeight,
         },
@@ -225,23 +176,8 @@ class ChartComponent extends React.Component<
     );
   };
 
-  getCustomEChartOptions = () => {
-    return this.props.customEChartConfig;
-  };
-
   shouldSetOptions(eChartOptions: any) {
-    if (equal(this.echartConfiguration, eChartOptions)) {
-      if (this.is3DChart) {
-        return (
-          this.state.eChartsError == undefined ||
-          this.state.eChartsError == null
-        );
-      } else {
-        return false;
-      }
-    } else {
-      return true;
-    }
+    return !equal(this.echartConfiguration, eChartOptions);
   }
 
   renderECharts = () => {
@@ -251,12 +187,10 @@ class ChartComponent extends React.Component<
       return;
     }
 
-    let eChartOptions: Record<string, unknown> = {};
-    if (isCustomEChart(this.state.chartType)) {
-      eChartOptions = this.getCustomEChartOptions();
-    } else if (isBasicEChart(this.state.chartType)) {
-      eChartOptions = this.getBasicEChartOptions();
-    }
+    const eChartOptions: Record<string, unknown> = chartOptions(
+      this.state.chartType,
+      this.props,
+    );
 
     try {
       if (this.shouldSetOptions(eChartOptions)) {
@@ -302,6 +236,9 @@ class ChartComponent extends React.Component<
     if (this.state.chartType === "CUSTOM_FUSION_CHART") {
       this.disposeECharts();
       this.renderFusionCharts();
+    } else if (this.state.chartType == "CUSTOM_ECHART") {
+      this.disposeECharts();
+      this.disposeFusionCharts();
     } else {
       this.disposeFusionCharts();
       this.renderECharts();
@@ -421,8 +358,12 @@ class ChartComponent extends React.Component<
         onClick={onClick}
         {...rest}
       >
-        {this.state.chartType !== "CUSTOM_FUSION_CHART" && (
+        {isBasicEChart(this.state.chartType) && (
           <ChartsContainer id={this.eChartsContainerId} />
+        )}
+
+        {isCustomEChart(this.state.chartType) && (
+          <CustomEChartIFrameComponent {...this.props} />
         )}
 
         {this.state.chartType === "CUSTOM_FUSION_CHART" && (
@@ -437,4 +378,17 @@ class ChartComponent extends React.Component<
   }
 }
 
-export default ChartComponent;
+/**
+ * TODO: Balaji to refactor code to move out selected widget details to platform
+ */
+export const mapStateToProps = (
+  state: AppState,
+  ownProps: ChartComponentProps,
+) => {
+  return {
+    needsOverlay:
+      ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId,
+  };
+};
+
+export default connect(mapStateToProps)(ChartComponent);

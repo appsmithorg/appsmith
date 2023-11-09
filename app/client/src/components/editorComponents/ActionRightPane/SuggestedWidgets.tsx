@@ -2,7 +2,6 @@ import React, { memo, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
-import { Collapsible } from ".";
 import { getTypographyByKey } from "design-system-old";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -52,6 +51,7 @@ import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import Collapsible from "components/common/Collapsible";
 
 const BINDING_GUIDE_GIF = `${ASSETS_CDN_URL}/binding.gif`;
 

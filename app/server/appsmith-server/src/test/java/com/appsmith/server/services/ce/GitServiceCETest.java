@@ -50,12 +50,14 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -83,6 +85,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -158,7 +161,7 @@ public class GitServiceCETest {
     @Autowired
     ApplicationPageService applicationPageService;
 
-    @Autowired
+    @SpyBean
     ApplicationService applicationService;
 
     @Autowired
@@ -212,13 +215,22 @@ public class GitServiceCETest {
     @Autowired
     WorkspacePermission workspacePermission;
 
+    @Autowired
+    SessionUserService sessionUserService;
+
+    @Autowired
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
-
+        User currentUser = sessionUserService.getCurrentUser().block();
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("Git Service Test");
 
+        Set<String> beforeCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
@@ -235,6 +247,15 @@ public class GitServiceCETest {
         // applicationPermission = new ApplicationPermissionImpl();
         testUserProfile.setAuthorEmail("test@email.com");
         testUserProfile.setAuthorName("testUser");
+
+        Set<String> afterCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+
+        log.info("Workspace ID: {}", workspaceId);
+        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.info("Policy for created Workspace: {}", workspace.getPolicies());
+        log.info("Current User ID: {}", currentUser.getId());
     }
 
     @AfterEach
@@ -4353,7 +4374,7 @@ public class GitServiceCETest {
                 .assertNext(applicationList -> {
                     for (Application application : applicationList) {
                         GitApplicationMetadata metadata = application.getGitApplicationMetadata();
-                        assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(true);
+                        assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
                         if (application.getId().equals(defaultAppId)) {
                             // the default app should have the empty protected branch list
                             assertThat(metadata.getBranchProtectionRules()).isEmpty();
@@ -4373,5 +4394,31 @@ public class GitServiceCETest {
         StepVerifier.create(updateProtectedBranchesMono)
                 .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Protect branch"))
                 .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void updateProtectedBranches_WhenOneOperationFails_ChangesReverted() {
+        List<String> branchList = List.of("master", "develop", "feature");
+        // create three app with master as the default branch
+        String defaultAppId = createBranchedApplication(branchList);
+
+        Mockito.when(applicationService.updateProtectedBranches(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Test error")));
+
+        Mono<List<String>> updateProtectedBranchesMono = gitService.updateProtectedBranches(defaultAppId, List.of());
+
+        StepVerifier.create(updateProtectedBranchesMono)
+                .expectErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Test error"))
+                .verify();
+
+        StepVerifier.create(applicationService.findById(defaultAppId))
+                .assertNext(application -> {
+                    GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                    assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
+                    // the default app should have the empty protected branch list
+                    assertThat(metadata.getBranchProtectionRules()).isNullOrEmpty();
+                })
+                .verifyComplete();
     }
 }

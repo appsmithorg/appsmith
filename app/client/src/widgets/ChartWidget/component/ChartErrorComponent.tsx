@@ -44,7 +44,9 @@ const Title = styled(Text)`
 `;
 
 export interface ChartErrorProps {
-  error: Error;
+  error?: Error;
+  message?: string;
+  stack?: string;
 }
 
 export function ChartErrorComponent(props: ChartErrorProps) {
@@ -52,8 +54,8 @@ export function ChartErrorComponent(props: ChartErrorProps) {
 
   const errorMessage = () => {
     const title = messages.ErrorTitle;
-    const subheading = props.error.message;
-    const body = props.error.stack ?? "";
+    const subheading = props.error?.message ?? props.message ?? "";
+    const body = props.error?.stack ?? props.stack ?? "";
 
     return {
       title: title,

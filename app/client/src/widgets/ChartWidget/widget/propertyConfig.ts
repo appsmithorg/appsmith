@@ -97,7 +97,7 @@ export const contentConfig = (
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.OBJECT,
+            type: ValidationTypes.OBJECT_WITH_FUNCTION,
             params: {
               default: {},
             },

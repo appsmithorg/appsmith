@@ -51,6 +51,7 @@ function TableOrSpreadsheetDropdown() {
               onSelect(value, option);
             }
           }}
+          showSearch
           value={selected}
           virtual={false}
         >
@@ -61,7 +62,7 @@ function TableOrSpreadsheetDropdown() {
                 key={option.id}
                 value={option.value}
               >
-                <DropdownOption label={option.label} leftIcon={option.icon} />
+                <DropdownOption label={option.label} />
               </Option>
             );
           })}
