@@ -1,4 +1,4 @@
-import { Icon, Text } from "design-system";
+import { Icon, Text, Button, Divider } from "design-system";
 import { showIndicator } from "pages/Editor/GuidedTour/utils";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -8,7 +8,9 @@ import type {
   FeatureParams,
   OffsetType,
 } from "./walkthroughContext";
-import WalkthroughContext from "./walkthroughContext";
+import WalkthroughContext, {
+  isFeatureFooterDetails,
+} from "./walkthroughContext";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const CLIPID = "clip__feature";
@@ -68,6 +70,19 @@ const InstructionsHeaderWrapper = styled.div`
     margin-top: 5px;
     cursor: pointer;
   }
+`;
+
+const FeatureFooterDivider = styled(Divider)`
+  margin-top: 8px;
+`;
+
+const FeatureFooterWrapper = styled.div`
+  height: 36px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 interface RefRectParams {
@@ -295,6 +310,18 @@ const InstructionsComponent = ({
           <img src={details.imageURL} />
         </ImageWrapper>
       )}
+      {!!details.footerDetails &&
+        isFeatureFooterDetails(details.footerDetails) && (
+          <>
+            <FeatureFooterDivider />
+            <FeatureFooterWrapper>
+              <Text kind="body-s">{details.footerDetails.footerText}</Text>
+              <Button onClick={details.footerDetails.onClickHandler} size="sm">
+                {details.footerDetails.footerButtonText}
+              </Button>
+            </FeatureFooterWrapper>
+          </>
+        )}
     </InstructionsWrapper>
   );
 };
