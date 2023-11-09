@@ -74,6 +74,16 @@ jest.mock("components/editorComponents/GlobalSearch", () => {
   };
 });
 
+jest.mock("components/editorComponents/GlobalSearch/HelpBar", () => {
+  return {
+    __esModule: true,
+    default: () => {
+      // if you exporting component as default
+      return <div data-testid="global-search-modal-trigger" />;
+    },
+  };
+});
+
 const renderComponent = () => {
   return render(
     <Provider store={store}>
