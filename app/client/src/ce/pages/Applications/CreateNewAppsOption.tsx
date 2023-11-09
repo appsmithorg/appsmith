@@ -24,12 +24,15 @@ import {
   START_FROM_SCRATCH_TITLE,
   START_FROM_TEMPLATE_SUBTITLE,
   START_FROM_TEMPLATE_TITLE,
+  START_WITH_DATA_TITLE,
+  START_WITH_DATA_SUBTITLE,
   createMessage,
 } from "@appsmith/constants/messages";
 import Filters from "pages/Templates/Filters";
 import { isEmpty } from "lodash";
 import StartScratch from "assets/images/start-from-scratch.svg";
 import StartTemplate from "assets/images/start-from-template.svg";
+import StartData from "assets/images/start-from-data.png";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { TemplateView } from "pages/Templates/TemplateView";
 import {
@@ -181,6 +184,8 @@ const CreateNewAppsOption = ({
     }
   };
 
+  const onClickStartWithData = () => {};
+
   const goBackFromTemplate = () => {
     setUseTemplate(false);
   };
@@ -274,6 +279,13 @@ const CreateNewAppsOption = ({
   };
 
   const selectionOptions: CardProps[] = [
+    {
+      onClick: onClickStartWithData,
+      src: StartData,
+      subTitle: createMessage(START_WITH_DATA_SUBTITLE),
+      testid: "",
+      title: createMessage(START_WITH_DATA_TITLE),
+    },
     {
       onClick: onClickStartFromScratch,
       src: StartScratch,

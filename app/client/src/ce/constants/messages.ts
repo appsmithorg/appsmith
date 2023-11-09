@@ -2247,3 +2247,6 @@ export const START_FROM_TEMPLATE_SUBTITLE = () =>
 export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
 export const START_FROM_SCRATCH_SUBTITLE = () =>
   "Create an app from the ground up. Design every detail of your app on a blank canvas.";
+export const START_WITH_DATA_TITLE = () => "Start with data";
+export const START_WITH_DATA_SUBTITLE = () =>
+  "Get started with connecting your data, and easily craft a functional application.";
