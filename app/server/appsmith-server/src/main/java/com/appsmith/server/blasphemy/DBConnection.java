@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Collection;
 
 @Slf4j
@@ -56,12 +57,18 @@ public class DBConnection {
                     jsonObject.setType("jsonb");
                     jsonObject.setValue(new ObjectMapper().writeValueAsString(value));
                     statement.setObject(i++, jsonObject);
+                } else if (value instanceof Instant instant) {
+                    statement.setTimestamp(i++, java.sql.Timestamp.from(instant));
                 } else {
                     statement.setObject(i++, value);
                 }
             }
         }
 
-        log.debug("Result {}", statement.execute());
+        if (statement.execute()) {
+            log.debug("Result of select {}", statement.getMetaData());
+        } else {
+            log.debug("Result of update {}", statement.getUpdateCount());
+        }
     }
 }

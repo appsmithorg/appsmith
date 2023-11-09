@@ -3,10 +3,10 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.blasphemy.DBConnection;
 import com.appsmith.server.constants.FieldName;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Example;
@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -285,18 +286,31 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                 });
     }
 
-    @SneakyThrows
     @Override
     public <S extends T> Mono<S> save(S entity) {
+        final boolean isInsert = entity.getId() == null;
+        return super.save(entity).map(savedEntity -> {
+            try {
+                saveToPostgres(savedEntity, isInsert);
+            } catch (SQLException | JsonProcessingException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            return savedEntity;
+        });
+    }
+
+    private <S extends T> void saveToPostgres(S entity, boolean isInsert)
+            throws SQLException, JsonProcessingException, IllegalAccessException {
         final String tableName = toSnakeCase(entity.getClass().getSimpleName()) + "s"; // todo: pluralize better
         dbConnection.execute(
                 "CREATE TABLE IF NOT EXISTS %s (id SERIAL PRIMARY KEY, oid TEXT UNIQUE)".formatted(tableName));
 
         final Map<String, Object> valueMap = new LinkedHashMap<>();
 
-        for (Field field : entity.getClass().getDeclaredFields()) {
+        for (Field field : getAllFields(entity)) {
             final String columnName = toSnakeCase(field.getName());
             if ("id".equals(columnName)) {
+                valueMap.put("oid", entity.getId());
                 continue;
             }
             final Object value = getValue(entity, field);
@@ -305,7 +319,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
             valueMap.put(columnName, value);
         }
 
-        if (entity.getId() == null) {
+        if (isInsert) {
             // insert new entry
             final String sql = """
                 INSERT INTO %s (%s)
@@ -321,8 +335,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
             // update existing entry
 
         }
-
-        return super.save(entity);
     }
 
     private String toSnakeCase(String name) {
@@ -365,5 +377,20 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
             case "Boolean", "boolean" -> "BOOLEAN";
             default -> throw new RuntimeException("Unknown type: " + type.getSimpleName());
         };
+    }
+
+    private List<Field> getAllFields(Object entity) {
+        final List<Field> fields = new ArrayList<>();
+        Class<?> cls = entity.getClass();
+
+        while (cls != null) {
+            fields.addAll(List.of(cls.getDeclaredFields()));
+            cls = cls.getSuperclass();
+        }
+
+        // This is too large a number for Postgres' `integer` type, and we don't really need this in the DB anyway.
+        fields.removeIf(f -> "serialVersionUID".equals(f.getName()));
+
+        return fields;
     }
 }
