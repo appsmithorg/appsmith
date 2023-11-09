@@ -8,7 +8,6 @@ import {
   BRANCH_PROTECTION_RULE_1,
   BRANCH_PROTECTION_RULE_2,
   BRANCH_PROTECTION_RULE_3,
-  GIT_CONNECT_SUCCESS_MESSAGE,
   GIT_CONNECT_SUCCESS_TITLE,
   OPEN_GIT_SETTINGS,
   START_USING_GIT,
@@ -21,10 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  getDefaultGitBranchName,
-  getIsGitProtectedFeatureEnabled,
-} from "selectors/gitSyncSelectors";
+import { getDefaultGitBranchName } from "selectors/gitSyncSelectors";
 
 const Container = styled.div``;
 
@@ -78,9 +74,7 @@ const features = [
 function ConnectionSuccess() {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
   const defaultBranchName = useSelector(getDefaultGitBranchName);
-  const isGitProtectedFeatureEnabled = useSelector(
-    getIsGitProtectedFeatureEnabled,
-  );
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -110,13 +104,7 @@ function ConnectionSuccess() {
     });
   };
 
-  const preBranchProtectionContent = () => {
-    return (
-      <Text renderAs="p">{createMessage(GIT_CONNECT_SUCCESS_MESSAGE)}</Text>
-    );
-  };
-
-  const postBranchProtectionContent = () => {
+  const branchProtectionContent = () => {
     return (
       <>
         <DefaultBranchMessage renderAs="p">
@@ -144,19 +132,7 @@ function ConnectionSuccess() {
     );
   };
 
-  const preBranchProtectionActions = () => {
-    return (
-      <Button
-        data-testid="t--start-using-git-button"
-        onClick={handleStartGit}
-        size="md"
-      >
-        {createMessage(START_USING_GIT)}
-      </Button>
-    );
-  };
-
-  const postBranchProtectionActions = () => {
+  const branchProtectionActions = () => {
     return (
       <>
         <Button
@@ -184,16 +160,10 @@ function ConnectionSuccess() {
               {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
             </TitleText>
           </TitleContainer>
-          {isGitProtectedFeatureEnabled
-            ? postBranchProtectionContent()
-            : preBranchProtectionContent()}
+          {branchProtectionContent()}
         </Container>
       </ModalBody>
-      <ModalFooter>
-        {isGitProtectedFeatureEnabled
-          ? postBranchProtectionActions()
-          : preBranchProtectionActions()}
-      </ModalFooter>
+      <ModalFooter>{branchProtectionActions()}</ModalFooter>
     </>
   );
 }
