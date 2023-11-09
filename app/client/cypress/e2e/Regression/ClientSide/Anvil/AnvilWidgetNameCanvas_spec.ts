@@ -16,7 +16,7 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Widget Name Canvas`, () => {
       const y = mainCanvas.position().top;
       const width = mainCanvas.width() || 0;
       // start align
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSBUTTON, x, y + 20, {
+      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSBUTTON, x + 10, y + 20, {
         skipWidgetSearch: true,
       });
       // end align

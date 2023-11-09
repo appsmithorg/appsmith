@@ -55,7 +55,10 @@ export class AnvilLayout {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mouseup", x, y, {
+        eventConstructor: "MouseEvent",
+        force: true,
+      });
   }
 
   public DragDropAnvilWidgetNVerify(
