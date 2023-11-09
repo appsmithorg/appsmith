@@ -1089,6 +1089,8 @@ export const NOW_PROTECT_BRANCH = () =>
 export const APPSMITH_ENTERPRISE = () => "Appsmith Enterprise";
 export const PROTECT_BRANCH_SUCCESS = () => "Changed protected branches";
 export const UPDATE_DEFAULT_BRANCH_SUCCESS = () => "Updated default branch";
+export const CONTACT_ADMIN_FOR_GIT = () =>
+  "Please contact your workspace admin to connect your app to a git repo";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
@@ -2234,3 +2236,14 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   dragAndDrop: () => "Drag and Drop Widgets",
   importLoadingText: () => "Importing template",
 };
+
+// Create New Apps Intermediary step
+export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";
+export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
+  "Choose an option that fits your approach, and let's shape your app together.";
+export const START_FROM_TEMPLATE_TITLE = () => "Start with use-case";
+export const START_FROM_TEMPLATE_SUBTITLE = () =>
+  "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
+export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
+export const START_FROM_SCRATCH_SUBTITLE = () =>
+  "Create an app from the ground up. Design every detail of your app on a blank canvas.";

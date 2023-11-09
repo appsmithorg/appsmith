@@ -816,6 +816,23 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.SET_CURRENT_APPLICATION_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      currentApplicationIdForCreateNewApp: action.payload,
+    };
+  },
+  [ReduxActionTypes.RESET_CURRENT_APPLICATION_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentApplicationIdForCreateNewApp: undefined,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -858,6 +875,7 @@ export interface ApplicationsReduxState {
     isFetchingAllRoles: boolean;
     isFetchingAllUsers: boolean;
   };
+  currentApplicationIdForCreateNewApp?: string;
 }
 
 export interface Application {
