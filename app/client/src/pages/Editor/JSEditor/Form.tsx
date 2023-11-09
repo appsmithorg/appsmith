@@ -313,10 +313,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         <Form onSubmit={(event) => event.preventDefault()}>
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
-              <JSObjectNameEditor
-                disabled={!isChangePermitted}
-                page="JS_PANE"
-              />
+              <JSObjectNameEditor disabled={!isChangePermitted} />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
               <MoreJSCollectionsMenu
