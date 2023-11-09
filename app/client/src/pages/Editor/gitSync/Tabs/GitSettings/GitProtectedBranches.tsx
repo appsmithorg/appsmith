@@ -20,6 +20,7 @@ import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useAppsmithEnterpriseLink } from "./hooks";
+import { REMOTE_BRANCH_PREFIX } from "../../constants";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -58,22 +59,22 @@ function GitProtectedBranches() {
   const unfilteredBranches = useSelector(getGitBranches);
   const defaultBranch = useSelector(getDefaultGitBranchName);
 
-  const brancheNames = useMemo(() => {
-    const remoteBrancheNames = [];
+  const branchNames = useMemo(() => {
+    const remoteBranchNames = [];
     const localBranchNames = [];
     for (const unfilteredBranch of unfilteredBranches) {
       if (unfilteredBranch.branchName === defaultBranch) {
         continue;
       }
-      if (unfilteredBranch.branchName.includes("origin/")) {
-        remoteBrancheNames.push(
-          unfilteredBranch.branchName.replace("origin/", ""),
+      if (unfilteredBranch.branchName.includes(REMOTE_BRANCH_PREFIX)) {
+        remoteBranchNames.push(
+          unfilteredBranch.branchName.replace(REMOTE_BRANCH_PREFIX, ""),
         );
       } else {
         localBranchNames.push(unfilteredBranch.branchName);
       }
     }
-    const branchNames = union(localBranchNames, remoteBrancheNames);
+    const branchNames = union(localBranchNames, remoteBranchNames);
     if (defaultBranch) {
       branchNames.unshift(defaultBranch);
     }
@@ -141,7 +142,7 @@ function GitProtectedBranches() {
           onChange={(v) => setSelectedValues(v)}
           value={selectedValues}
         >
-          {brancheNames.map((branchName) => (
+          {branchNames.map((branchName) => (
             <Option
               disabled={
                 !isGitProtectedFeatureLicensed && branchName !== defaultBranch
