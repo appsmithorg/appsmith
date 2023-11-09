@@ -22,6 +22,7 @@ import type {
   WidgetBaseConfiguration,
   WidgetDefaultProps,
 } from "WidgetProvider/constants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -66,7 +67,9 @@ class BaseInputWidget<
     };
   }
 
-  static getPropertyPaneContentConfig() {
+  static getPropertyPaneContentConfig(
+    generalProperties: PropertyPaneConfig[] = [],
+  ) {
     return [
       {
         sectionName: "Label",
@@ -317,6 +320,7 @@ class BaseInputWidget<
               return props.type !== "PHONE_INPUT_WIDGET";
             },
           },
+          ...generalProperties,
         ],
       },
       {

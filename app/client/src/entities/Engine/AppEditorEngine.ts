@@ -7,6 +7,9 @@ import {
   fetchMockDatasources,
 } from "actions/datasourceActions";
 import {
+  fetchGitRemoteStatusInit,
+  fetchBranchesInit,
+  fetchGitProtectedBranchesInit,
   fetchGitStatusInit,
   remoteUrlInputValue,
   resetPullMergeStatus,
@@ -35,14 +38,17 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
-import { call, put, select, spawn } from "redux-saga/effects";
+import { call, put, select, spawn, take } from "redux-saga/effects";
 import {
   failFastApiCalls,
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import {
+  getCurrentGitBranch,
+  getIsGitStatusLiteEnabled,
+} from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import PerformanceTracker, {
@@ -265,6 +271,9 @@ export default class AppEditorEngine extends AppEngine {
 
   public *loadGit(applicationId: string) {
     const branchInStore: string = yield select(getCurrentGitBranch);
+    const isGitStatusLiteEnabled: boolean = yield select(
+      getIsGitStatusLiteEnabled,
+    );
     yield put(
       restoreRecentEntitiesRequest({
         applicationId,
@@ -276,7 +285,17 @@ export default class AppEditorEngine extends AppEngine {
     // add branch query to path and fetch status
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
-      yield put(fetchGitStatusInit({ compareRemote: false }));
+
+      if (isGitStatusLiteEnabled) {
+        yield put(fetchGitRemoteStatusInit());
+        yield put(fetchGitStatusInit({ compareRemote: false }));
+      } else {
+        yield put(fetchGitStatusInit({ compareRemote: true }));
+      }
+
+      yield put(fetchBranchesInit());
+      yield take(ReduxActionTypes.FETCH_BRANCHES_SUCCESS);
+      yield put(fetchGitProtectedBranchesInit());
     }
     yield put(resetPullMergeStatus());
   }

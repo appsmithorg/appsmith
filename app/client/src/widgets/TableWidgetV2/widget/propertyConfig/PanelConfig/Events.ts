@@ -20,6 +20,7 @@ export default {
         !(
           columnType === ColumnTypes.TEXT ||
           columnType === ColumnTypes.NUMBER ||
+          columnType === ColumnTypes.CURRENCY ||
           columnType === ColumnTypes.CHECKBOX ||
           columnType === ColumnTypes.SWITCH ||
           columnType === ColumnTypes.SELECT ||
@@ -56,7 +57,9 @@ export default {
         const isEditable = get(props, `${baseProperty}.isEditable`, "");
         return (
           !(
-            columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
+            columnType === ColumnTypes.TEXT ||
+            columnType === ColumnTypes.NUMBER ||
+            columnType === ColumnTypes.CURRENCY
           ) || !isEditable
         );
       },

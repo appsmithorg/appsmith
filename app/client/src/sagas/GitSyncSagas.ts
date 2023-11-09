@@ -31,7 +31,13 @@ import type {
   GetSSHKeyResponseData,
   GitStatusParams,
 } from "actions/gitSyncActions";
-import { fetchGitRemoteStatusSuccess } from "actions/gitSyncActions";
+import {
+  fetchGitRemoteStatusInit,
+  fetchGitProtectedBranchesInit,
+  updateGitProtectedBranchesInit,
+  fetchGitRemoteStatusSuccess,
+  clearCommitSuccessfulState,
+} from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
   connectToGitSuccess,
@@ -81,6 +87,7 @@ import {
   ERROR_GIT_AUTH_FAIL,
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
+  PROTECT_BRANCH_SUCCESS,
 } from "@appsmith/constants/messages";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 
@@ -89,6 +96,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
+  getIsGitProtectedFeatureEnabled,
   getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
@@ -109,6 +117,7 @@ import {
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
+import { updateGitDefaultBranchSaga } from "@appsmith/sagas/GitExtendedSagas";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -132,6 +141,9 @@ function* commitToGitRepoSaga(
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+    const isGitStatusLiteEnabled: boolean = yield select(
+      getIsGitStatusLiteEnabled,
+    );
     const gitMetaData: GitApplicationMetadata = yield select(
       getCurrentAppGitMetaData,
     );
@@ -159,7 +171,12 @@ function* commitToGitRepoSaga(
           payload: curApplication,
         });
       }
-      yield put(fetchGitStatusInit());
+      if (isGitStatusLiteEnabled) {
+        yield put(fetchGitRemoteStatusInit());
+        yield put(fetchGitStatusInit({ compareRemote: false }));
+      } else {
+        yield put(fetchGitStatusInit({ compareRemote: true }));
+      }
     } else {
       yield put({
         type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
@@ -195,7 +212,9 @@ function* commitToGitRepoSaga(
 }
 
 function* connectToGitSaga(action: ConnectToGitReduxAction) {
-  let response: ApiResponse | undefined;
+  let response:
+    | ApiResponse<{ gitApplicationMetadata: { branchName: string } }>
+    | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
@@ -210,19 +229,31 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     if (isValidResponse) {
       // @ts-expect-error: response is of type unknown
       yield put(connectToGitSuccess(response?.data));
+      const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
+
+      const isGitProtectedFeatureEnabled: boolean = yield select(
+        getIsGitProtectedFeatureEnabled,
+      );
+      if (isGitProtectedFeatureEnabled) {
+        yield put(
+          updateGitProtectedBranchesInit({
+            protectedBranches: defaultBranch ? [defaultBranch] : [],
+          }),
+        );
+      }
+
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
         // @ts-expect-error: response is of type unknown
         action.onSuccessCallback(response?.data);
       }
-      // @ts-expect-error: response is of type unknown
       const branch = response?.data?.gitApplicationMetadata?.branchName;
-
-      const updatedPath = addBranchParam(branch);
+      const updatedPath = addBranchParam(branch || "");
       history.replace(updatedPath);
 
       /* commit effect START */
       yield put(commitToRepoSuccess());
+      yield put(clearCommitSuccessfulState());
       const curApplication: ApplicationPayload = yield select(
         getCurrentApplication,
       );
@@ -1030,6 +1061,94 @@ function* discardChanges() {
   }
 }
 
+function* fetchGitProtectedBranchesSaga() {
+  const isGitProtectedFeatureEnabled: boolean = yield select(
+    getIsGitProtectedFeatureEnabled,
+  );
+  if (!isGitProtectedFeatureEnabled) {
+    return;
+  }
+  let response: ApiResponse<string[]>;
+  try {
+    const appId: string = yield select(getCurrentApplicationId);
+    response = yield GitSyncAPI.getProtectedBranches(appId);
+
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      const protectedBranches: string[] = response?.data;
+      yield put({
+        type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_SUCCESS,
+        payload: { protectedBranches },
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR,
+      payload: { error, show: true },
+    });
+  }
+}
+
+function* updateGitProtectedBranchesSaga({
+  payload,
+}: ReduxAction<{ protectedBranches: string[] }>) {
+  const isGitProtectedFeatureEnabled: boolean = yield select(
+    getIsGitProtectedFeatureEnabled,
+  );
+  if (!isGitProtectedFeatureEnabled) {
+    return;
+  }
+  const { protectedBranches } = payload;
+  const applicationId: string = yield select(getCurrentApplicationId);
+  let response: ApiResponse<string[]>;
+  try {
+    response = yield call(
+      GitSyncAPI.updateProtectedBranches,
+      applicationId,
+      protectedBranches,
+    );
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_SUCCESS,
+      });
+      yield put(fetchGitProtectedBranchesInit());
+      toast.show(createMessage(PROTECT_BRANCH_SUCCESS), {
+        kind: "success",
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR,
+      payload: { error, show: true },
+    });
+  }
+}
+
 const gitRequestActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
@@ -1055,6 +1174,11 @@ const gitRequestActions: Record<
   [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
   [ReduxActionTypes.DELETE_BRANCH_INIT]: deleteBranch,
   [ReduxActionTypes.GIT_DISCARD_CHANGES]: discardChanges,
+  [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
+    fetchGitProtectedBranchesSaga,
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
+    updateGitProtectedBranchesSaga,
 };
 
 /**

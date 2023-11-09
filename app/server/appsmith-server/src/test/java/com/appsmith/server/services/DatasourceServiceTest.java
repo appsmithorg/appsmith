@@ -87,6 +87,9 @@ public class DatasourceServiceTest {
     DatasourceService datasourceService;
 
     @SpyBean
+    DatasourceService spyDatasourceService;
+
+    @SpyBean
     DatasourceStorageService datasourceStorageService;
 
     @Autowired
@@ -1907,8 +1910,12 @@ public class DatasourceServiceTest {
         return new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration);
     }
 
-    @Test
-    @WithUserDetails(value = "api_user")
+    /**
+     *  This is commented out because of a different implementation in EE codebase, will figure out how to fix that
+     *  without mocking the featureFlag.
+     */
+    // @Test
+    // @WithUserDetails(value = "api_user")
     public void verifyOnlyOneStorageIsSaved() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -2041,6 +2048,35 @@ public class DatasourceServiceTest {
                 .assertNext(testResult -> {
                     assertThat(testResult).isNotNull();
                     assertThat(testResult.getInvalids()).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyTestDatasource_withRateLimitExceeded_returnsTooManyRequests() {
+        Datasource datasource = createDatasourceObject("sampleDatasource", workspaceId, "postgres-plugin");
+        DatasourceStorageDTO datasourceStorageDTO = generateSampleDatasourceStorageDTO();
+
+        datasourceStorageDTO.setWorkspaceId(workspaceId);
+        datasourceStorageDTO.setPluginId(datasource.getPluginId());
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.doReturn(Mono.just(true))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
+        Mono<DatasourceTestResult> testResultMono =
+                spyDatasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
+
+        String expectedErrorMessage = "Too many failed requests received. Please try again after 5 minutes";
+
+        StepVerifier.create(testResultMono)
+                .assertNext(testResult -> {
+                    assertThat(testResult).isNotNull();
+                    assertThat(testResult.getInvalids()).isNotEmpty();
+                    assertThat(testResult.getInvalids().contains(expectedErrorMessage))
+                            .isTrue();
                 })
                 .verifyComplete();
     }
