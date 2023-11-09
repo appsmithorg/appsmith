@@ -1,13 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const getPageDependencyActions = (currentWorkspaceId?: string) => {
+export const getPageDependencyActions = (
+  currentWorkspaceId: string = "",
+  featureFlags: DependentFeatureFlags = {},
+) => {
   const initActions = [fetchPlugins(), fetchDatasources(), fetchPageDSLs()];
 
   const successActions = [

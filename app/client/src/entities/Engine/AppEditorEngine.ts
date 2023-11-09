@@ -67,6 +67,10 @@ import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import {
+  getFeatureFlagsForEngine,
+  type DependentFeatureFlags,
+} from "@appsmith/selectors/engineSelectors";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -158,8 +162,11 @@ export default class AppEditorEngine extends AppEngine {
   private *loadPluginsAndDatasources() {
     const isAirgappedInstance = isAirgapped();
     const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
+    const featureFlags: DependentFeatureFlags = yield select(
+      getFeatureFlagsForEngine,
+    );
     const { errorActions, initActions, successActions } =
-      getPageDependencyActions(currentWorkspaceId);
+      getPageDependencyActions(currentWorkspaceId, featureFlags);
 
     if (!isAirgappedInstance) {
       initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
