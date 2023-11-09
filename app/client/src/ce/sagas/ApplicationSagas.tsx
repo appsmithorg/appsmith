@@ -214,6 +214,10 @@ export function* getAllApplicationSaga() {
       selectFeatureFlagCheck,
       FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
     );
+    const isEnabledForCreateNew: boolean = yield select(
+      selectFeatureFlagCheck,
+      FEATURE_FLAG.ab_create_new_apps_enabled,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const workspaceApplication: WorkspaceApplicationObject[] =
@@ -240,7 +244,11 @@ export function* getAllApplicationSaga() {
       });
 
       // TODO: use start with data flag here
-      if (isEnabledForStartWithData && workspaceApplication.length > 0) {
+      if (
+        isEnabledForStartWithData &&
+        isEnabledForCreateNew &&
+        workspaceApplication.length > 0
+      ) {
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: workspaceApplication[0]?.workspace,

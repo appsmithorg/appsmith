@@ -167,6 +167,10 @@ const CreateNewAppsOption = ({
     FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
   );
 
+  const isEnabledForCreateNew = useFeatureFlag(
+    FEATURE_FLAG.ab_create_new_apps_enabled,
+  );
+
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
     AnalyticsUtil.logEvent("CREATE_APP_FROM_TEMPLATE");
@@ -195,7 +199,7 @@ const CreateNewAppsOption = ({
 
   const onClickStartWithData = () => {
     // fetch plugins information to show list of all plugins
-    if (isEnabledForStartWithData) {
+    if (isEnabledForStartWithData && isEnabledForCreateNew) {
       dispatch(fetchPlugins());
     }
   };
