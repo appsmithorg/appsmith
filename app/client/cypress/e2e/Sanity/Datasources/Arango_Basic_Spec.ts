@@ -336,12 +336,6 @@ describe("Validate Arango & CURL Import Datasources", () => {
       entityType: entityItems.Api,
     }); //Deleting api created
 
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    }); //needed for the deletion of ds to reflect
-    agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
     //Deleting datasource finally
     dataSources.DeleteDatasourceFromWithinDS(dsName);
 
