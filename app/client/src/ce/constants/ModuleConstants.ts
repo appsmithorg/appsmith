@@ -1,4 +1,17 @@
+type ID = string;
+
 export interface ModuleInput {
+  id: string;
+  propertyName: string;
+}
+export interface ModuleInputSection {
+  id: string;
+  children?: ModuleInput[];
+}
+
+export interface Module {
+  id: ID;
   name: string;
-  defaultValue: any;
+  packageId: ID;
+  inputsForm: ModuleInputSection[];
 }

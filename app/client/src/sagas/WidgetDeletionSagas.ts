@@ -5,7 +5,10 @@ import type {
 import { updateAndSaveLayout } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type {
+  ApplicationPayload,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -51,6 +54,7 @@ import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/Auto
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -271,6 +275,10 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         }
         yield put(updateAndSaveLayout(finalData));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
+
+        const currentApplication: ApplicationPayload = yield select(
+          getCurrentApplication,
+        );
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
           : "WIDGET_DELETE";
@@ -278,6 +286,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         AnalyticsUtil.logEvent(analyticsEvent, {
           widgetName: widget.widgetName,
           widgetType: widget.type,
+          templateTitle: currentApplication?.forkedFromTemplateTitle,
         });
         if (!disallowUndo) {
           // close property pane after delete

@@ -39,14 +39,16 @@ import type { Action } from "redux";
 import {
   EVAL_AND_LINT_REDUX_ACTIONS,
   FIRST_EVAL_REDUX_ACTIONS,
+  getRequiresLinting,
+} from "@appsmith/actions/evaluationActionsList";
+import {
   setDependencyMap,
   setEvaluatedTree,
   shouldForceEval,
   shouldLog,
   shouldProcessAction,
   shouldTriggerEvaluation,
-  getRequiresLinting,
-} from "@appsmith/actions/evaluationActions";
+} from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
   dynamicTriggerErrorHandler,

@@ -37,12 +37,12 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
       additionalData,
     ): boolean => {
       if (additionalData && additionalData.blockCompletions) {
-        CodemirrorTernService.setEntityInformation({
+        CodemirrorTernService.setEntityInformation(editor, {
           ...entityInformation,
           blockCompletions: additionalData.blockCompletions,
         });
       } else {
-        CodemirrorTernService.setEntityInformation(entityInformation);
+        CodemirrorTernService.setEntityInformation(editor, entityInformation);
       }
 
       const entityType = entityInformation?.entityType;

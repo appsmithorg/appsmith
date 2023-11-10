@@ -50,7 +50,7 @@ export const ViewModeWrapper = styled.div`
   padding: var(--ads-v2-spaces-7) 0;
   gap: var(--ads-v2-spaces-4);
   overflow: auto;
-  height: fit-content;
+  height: 100%;
   width: 100%;
   flex-shrink: 0;
 `;
