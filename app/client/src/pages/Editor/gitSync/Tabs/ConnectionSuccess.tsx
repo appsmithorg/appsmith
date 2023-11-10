@@ -20,7 +20,6 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getDefaultGitBranchName } from "selectors/gitSyncSelectors";
 
 const Container = styled.div``;
 
