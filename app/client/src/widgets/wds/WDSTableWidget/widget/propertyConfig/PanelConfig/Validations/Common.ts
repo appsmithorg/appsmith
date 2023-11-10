@@ -1,10 +1,10 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 import {
   showByColumnType,
   getColumnPath,
-} from "widgets/TableWidgetV2/widget/propertyUtils";
+} from "widgets/wds/WDSTableWidget/widget/propertyUtils";
 
 export default [
   {

@@ -1,19 +1,23 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { DateInputFormat } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
+import {
+  ColumnTypes,
+  DateInputFormat,
+} from "widgets/wds/WDSTableWidget/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
   hideByColumnType,
   showByColumnType,
   uniqueColumnAliasValidation,
+  updateCurrencyDefaultValues,
   updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 
 export default {
   sectionName: "Data",
@@ -32,6 +36,10 @@ export default {
         {
           label: "Checkbox",
           value: ColumnTypes.CHECKBOX,
+        },
+        {
+          label: "Currency",
+          value: ColumnTypes.CURRENCY,
         },
         {
           label: "Date",
@@ -78,6 +86,7 @@ export default {
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
+        updateCurrencyDefaultValues,
       ]),
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,
@@ -109,6 +118,7 @@ export default {
             ColumnTypes.DATE,
             ColumnTypes.IMAGE,
             ColumnTypes.NUMBER,
+            ColumnTypes.CURRENCY,
             ColumnTypes.TEXT,
             ColumnTypes.VIDEO,
             ColumnTypes.URL,
@@ -164,6 +174,7 @@ export default {
           ColumnTypes.CHECKBOX,
           ColumnTypes.SWITCH,
           ColumnTypes.SELECT,
+          ColumnTypes.CURRENCY,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
@@ -429,6 +440,117 @@ export default {
         },
       },
       isTriggerProperty: false,
+    },
+    {
+      helpText: "Changes the type of currency",
+      propertyName: "currencyCode",
+      label: "Currency",
+      enableSearch: true,
+      dropdownHeight: "156px",
+      controlType: "DROP_DOWN",
+      searchPlaceholderText: "Search by code or name",
+      options: CurrencyDropdownOptions,
+      virtual: true,
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          default: "USD",
+          required: true,
+          allowedValues: CurrencyDropdownOptions.map((option) => option.value),
+        },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== ColumnTypes.CURRENCY;
+      },
+      dependencies: ["primaryColumns", "columnType"],
+    },
+    {
+      helpText: "No. of decimals in currency input",
+      propertyName: "decimals",
+      label: "Decimals allowed",
+      controlType: "DROP_DOWN",
+      options: [
+        {
+          label: "0",
+          value: 0,
+        },
+        {
+          label: "1",
+          value: 1,
+        },
+        {
+          label: "2",
+          value: 2,
+        },
+      ],
+      isJSConvertible: false,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.NUMBER,
+        params: {
+          min: 0,
+          max: 2,
+          default: 0,
+          required: true,
+        },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== ColumnTypes.CURRENCY;
+      },
+      dependencies: ["primaryColumns", "columnType"],
+    },
+    {
+      propertyName: "thousandSeparator",
+      helpText: "formats the currency with a thousand separator",
+      label: "Thousand separator",
+      controlType: "SWITCH",
+      dependencies: ["primaryColumns", "columnType"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: { type: ValidationTypes.BOOLEAN },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== ColumnTypes.CURRENCY;
+      },
+    },
+    {
+      propertyName: "notation",
+      helpText: "Displays the currency in standard or compact notation",
+      label: "Notation",
+      controlType: "DROP_DOWN",
+      options: [
+        {
+          label: "Standard",
+          value: "standard",
+        },
+        {
+          label: "Compact",
+          value: "compact",
+        },
+      ],
+      dependencies: ["primaryColumns", "columnType"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: { default: "standard", allowedValues: ["standard", "compact"] },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== ColumnTypes.CURRENCY;
+      },
     },
   ],
 };
