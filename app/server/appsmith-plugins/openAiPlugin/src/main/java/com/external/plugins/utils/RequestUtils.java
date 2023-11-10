@@ -30,6 +30,8 @@ import static com.external.plugins.constants.OpenAIConstants.EXCHANGE_STRATEGIES
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
 import static com.external.plugins.constants.OpenAIConstants.MODELS_ENDPOINT;
 import static com.external.plugins.constants.OpenAIConstants.OPEN_AI_HOST;
+import static com.external.plugins.constants.OpenAIConstants.VISION;
+import static com.external.plugins.constants.OpenAIConstants.VISION_ENDPOINT;
 import static com.external.plugins.constants.OpenAIErrorMessages.EMPTY_BEARER_TOKEN;
 
 public class RequestUtils {
@@ -57,6 +59,8 @@ public class RequestUtils {
             return URI.create(OPEN_AI_HOST + CHAT_ENDPOINT);
         } else if (EMBEDDINGS.equals(command)) {
             return URI.create(OPEN_AI_HOST + EMBEDDINGS_ENDPOINT);
+        } else if (VISION.equals(command)) {
+            return URI.create(OPEN_AI_HOST + VISION_ENDPOINT);
         } else if (MODEL.equals(command)) {
             return URI.create(OPEN_AI_HOST + MODELS_ENDPOINT);
         } else {

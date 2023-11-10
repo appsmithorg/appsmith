@@ -19,6 +19,10 @@
             {
               "label": "Embeddings",
               "value": "EMBEDDINGS"
+            },
+            {
+              "label": "Vision",
+              "value": "VISION"
             }
           ]
         }
@@ -27,6 +31,7 @@
   ],
   "files": [
     "chat.json",
-    "embeddings.json"
+    "embeddings.json",
+    "vision.json"
   ]
 }
