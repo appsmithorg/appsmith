@@ -14,4 +14,14 @@
 
     <name>mongoPlugin</name>
 
+    <dependencies>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mongodb</artifactId>
+            <version>1.19.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
 </project>
