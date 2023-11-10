@@ -474,9 +474,9 @@ export class GitSync {
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
     );
+    this.agHelper.AssertContains("Discarded changes successfully");
     this.assertHelper.AssertNetworkStatus("@discardChanges");
     this.assertHelper.AssertNetworkStatus("@gitStatus");
-    this.agHelper.AssertContains("Discarded changes successfully");
     this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
   }
 
