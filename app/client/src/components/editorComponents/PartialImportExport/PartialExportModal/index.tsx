@@ -34,6 +34,7 @@ import WidgetsExport from "./WidgetsExport";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { getPartialImportExportLoadingState } from "@appsmith/selectors/applicationSelectors";
 import type { JSLibrary } from "workers/common/JSLibrary";
+import { getCurrentPageName } from "selectors/editorSelectors";
 
 interface Props {
   handleModalClose: () => void;
@@ -56,6 +57,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   const partialImportExportLoadingState = useSelector(
     getPartialImportExportLoadingState,
   );
+  const currentPageName = useSelector(getCurrentPageName);
 
   useEffect(() => {
     setCustomJsLibraries(libraries.filter((lib) => !!lib.url));
@@ -206,7 +208,8 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       <ModalContent>
         <ModalHeader>
           <Text className="title" kind="heading-xl">
-            {createMessage(PARTIAL_IMPORT_EXPORT.export.modalHeading)}
+            {createMessage(PARTIAL_IMPORT_EXPORT.export.modalHeading)}{" "}
+            {currentPageName ? ` - ${currentPageName}` : ""}
           </Text>
         </ModalHeader>
         <Text kind="heading-s" renderAs="h2">
