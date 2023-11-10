@@ -13,5 +13,6 @@ export const featureFlagIntercept = (
   cy.intercept("GET", "/api/v1/users/features", response);
   if (reload) {
     cy.reload();
+    cy.wait(2000); //for the page to re-load finish for CI runs
   }
 };

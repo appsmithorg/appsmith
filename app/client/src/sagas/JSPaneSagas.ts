@@ -557,10 +557,8 @@ function* handleRefactorJSActionNameSaga(
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     const requestData = {
-      refactorAction: {
-        ...data.payload.refactorAction,
-        layoutId: layoutId,
-      },
+      ...data.payload.refactorAction,
+      layoutId: layoutId,
       actionCollection: data.payload.actionCollection,
     };
     // call to refactor action

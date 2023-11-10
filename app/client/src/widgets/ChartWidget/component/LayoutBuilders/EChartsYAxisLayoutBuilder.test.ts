@@ -11,7 +11,7 @@ describe("EChartsYAxisLayoutBuilder", () => {
         longestLabel: { x: "x label", y: "123456" },
       });
 
-      expect(builder.maxWidthForLabels()).toEqual(16);
+      expect(builder.maxWidthForLabels()).toEqual(6);
     });
   });
 
@@ -25,8 +25,8 @@ describe("EChartsYAxisLayoutBuilder", () => {
       });
 
       expect(builder.minimumWidth).toEqual(150);
-      expect(builder.maxWidthForLabels()).toEqual(16);
-      expect(builder.widthForLabels()).toEqual(16);
+      expect(builder.maxWidthForLabels()).toEqual(6);
+      expect(builder.widthForLabels()).toEqual(6);
     });
 
     it("if available space is lesser than label width, it returns available space", () => {
@@ -38,8 +38,8 @@ describe("EChartsYAxisLayoutBuilder", () => {
       });
 
       expect(builder.minimumWidth).toEqual(150);
-      expect(builder.maxWidthForLabels()).toEqual(16);
-      expect(builder.widthForLabels()).toEqual(10);
+      expect(builder.maxWidthForLabels()).toEqual(6);
+      expect(builder.widthForLabels()).toEqual(6);
     });
   });
 
@@ -83,8 +83,8 @@ describe("EChartsYAxisLayoutBuilder", () => {
 
       expect(builder.minimumWidth).toEqual(150);
       expect(builder.showYAxisConfig()).toEqual(true);
-      expect(builder.labelsWidth).toEqual(10);
-      expect(builder.gridLeftOffset()).toEqual(50);
+      expect(builder.labelsWidth).toEqual(6);
+      expect(builder.gridLeftOffset()).toEqual(54);
     });
 
     it("when y axis is not visible, offset is 5", () => {
@@ -114,9 +114,9 @@ describe("EChartsYAxisLayoutBuilder", () => {
 
       const expectedOutput = {
         show: true,
-        nameGap: 20,
+        nameGap: 24,
         axisLabel: {
-          width: 10,
+          width: 6,
           overflow: "truncate",
         },
       };

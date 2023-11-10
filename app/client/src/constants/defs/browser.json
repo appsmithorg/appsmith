@@ -245,12 +245,12 @@
   "setTimeout": {
     "!type": "fn(f: fn(), ms: number) -> number",
     "!url": "https://developer.mozilla.org/en/docs/DOM/window.setTimeout",
-    "!doc": "Calls a function or executes a code snippet after specified delay."
+    "!doc": "Calls a function or executes a code snippet after specified delay. Returns a number that can be used to clear the timeout with <code>clearTimeout()</code>."
   },
   "clearTimeout": {
-    "!type": "fn(timeout: number)",
+    "!type": "fn(timerId: number)",
     "!url": "https://developer.mozilla.org/en/docs/DOM/window.clearTimeout",
-    "!doc": "Clears the delay set by window.setTimeout()."
+    "!doc": "Clears the function scheduled to run by <code>setTimeout()</code>."
   },
   "Response": {
     "!type": "fn()",
@@ -369,5 +369,61 @@
     "!url": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API",
     "!doc": "The Fetch API provides an interface for fetching resources (including across the network).",
     "!type": "fn(url: string, options?: ?) -> +Promise[:t=+Response]"
+  },
+  "URL": {
+    "!type": "fn(url: string, base?: string)",
+    "createObjectURL": {
+      "!type": "fn(object: +Blob|+File): string"
+    },
+    "canParse": {
+      "!type": "fn(url: string, base?: string): bool"
+    },
+    "revokeObjectURL": {
+      "!type": "fn(url: string): void"
+    },
+    "prototype": {
+      "hash": {
+        "!type": "string"
+      },
+      "host": {
+        "!type": "string"
+      },
+      "hostname": {
+        "!type": "string"
+      },
+      "href": {
+        "!type": "string"
+      },
+      "origin": {
+        "!type": "string"
+      },
+      "password": {
+        "!type": "string"
+      },
+      "pathname": {
+        "!type": "string"
+      },
+      "port": {
+        "!type": "string"
+      },
+      "protocol": {
+        "!type": "string"
+      },
+      "search": {
+        "!type": "string"
+      },
+      "searchParams": {
+        "!type": "+URLSearchParams"
+      },
+      "username": {
+        "!type": "string"
+      },
+      "toString": {
+        "!type": "fn() -> string"
+      },
+      "toJSON": {
+        "!type": "fn() -> string"
+      }
+    }
   }
 }

@@ -37,6 +37,7 @@ export const CodeEditorColors = {
   NUMBER: "#555",
   COMMENT: "var(--ads-v2-color-gray-400)",
   FUNCTION_ARGS: "hsl(288, 44%, 44%)",
+  TOOLTIP_FN_ARGS: "#DB6E33",
 };
 
 export const EditorWrapper = styled.div<{

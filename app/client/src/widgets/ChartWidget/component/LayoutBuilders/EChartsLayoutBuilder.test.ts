@@ -259,15 +259,15 @@ describe("layout configs", () => {
         height: 30,
       },
       grid: {
-        top: 100,
+        top: 110,
         bottom: 113,
-        left: 53,
+        left: 51,
       },
       yAxis: {
         show: true,
-        nameGap: 23,
+        nameGap: 21,
         axisLabel: {
-          width: 13,
+          width: 3,
           overflow: "truncate",
         },
       },

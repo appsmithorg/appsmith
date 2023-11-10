@@ -80,4 +80,29 @@ describe("Autocomplete tests for setters", () => {
     propPane.EnterJSContext("onClick", "{{Input1.set", true, false);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled");
   });
+
+  it("3. function arguments hint shows up", () => {
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.EnterJSContext("onClick", "{{", true, false);
+    agHelper.GetNClickByContains(locators._hints, "appsmith", 0, false);
+    agHelper.AssertElementVisibility(locators._evalValuePopover);
+    propPane.EnterJSContext("onClick", "{{showAlert", true, false);
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "showAlert");
+    agHelper.AssertElementAbsence(locators._evalValuePopover);
+    agHelper.GetNClickByContains(locators._hints, "showAlert", 0, false);
+    agHelper.GetNAssertElementText(
+      locators._argHintFnName,
+      "showAlert",
+      "contain.text",
+    );
+    agHelper.AssertElementAbsence(locators._evalValuePopover);
+  });
+
+  it("4. function description tooltip shows up", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.EnterJSContext("onClick", "{{showAlert", true, false);
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "showAlert");
+    agHelper.AssertElementExist(locators._tern_doc);
+  });
 });
