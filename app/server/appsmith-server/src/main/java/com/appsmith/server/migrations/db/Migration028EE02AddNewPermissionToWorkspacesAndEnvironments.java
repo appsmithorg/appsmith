@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations.db;
 
+import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QEnvironment;
@@ -22,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,13 +45,15 @@ import static org.springframework.data.mongodb.core.query.Query.query;
  * we would only use default ones.
  */
 @Slf4j
-@ChangeUnit(order = "028-ee-02", id = "add-new-environment-perm-to-workspace", author = " ")
+@ChangeUnit(order = "028-ee-02", id = "add-new-environment-perm-to-workspace-rerun", author = " ")
 public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
 
     private final MongoTemplate mongoTemplate;
     private static final String POLICIES = fieldName(QWorkspace.workspace.policies);
     private static final String ID = fieldName(QWorkspace.workspace.id);
     private static final String DEFAULT_PERMISSION_GROUPS = fieldName(QWorkspace.workspace.defaultPermissionGroups);
+    private final Map<String, Set<String>> workspaceIdToAppShareDeveloperPermissionGroupIds = new HashMap<>();
+    private Map<String, Set<String>> workspaceToPermissionGroupIdMap = new HashMap<>();
 
     public Migration028EE02AddNewPermissionToWorkspacesAndEnvironments(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -61,7 +65,8 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
     @Execution
     public void addPermissionToWorkspacesAndEnvironments() {
 
-        Map<String, Set<String>> workspaceToPermissionGroupIdMap = getMapOfWorkspaceToAppSharePermissionGroupIds();
+        // populating both the workspaceIdToPermissionGroupSetsMap maps for using
+        populateMapsOfWorkspaceToAppSharePermissionGroupIds();
 
         Query query = new Query().cursorBatchSize(1024).addCriteria(getWorkspaceCriteria());
         query.fields().include(ID, POLICIES, DEFAULT_PERMISSION_GROUPS);
@@ -111,6 +116,26 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
                     .map(permissionGroup -> permissionGroup.getId())
                     .collect(Collectors.toSet());
 
+            // This flag is to check that if workspace already has policies with below-mentioned permissions.
+            // We can be sure that existence or these permissions are atomic.
+            boolean workspaceHasEnvironmentPolicies = dbWorkspace.getPolicies().stream()
+                    .map(Policy::getPermission)
+                    .anyMatch(permission -> AclPermission.WORKSPACE_CREATE_ENVIRONMENT
+                                    .getValue()
+                                    .equals(permission)
+                            || AclPermission.WORKSPACE_MANAGE_ENVIRONMENTS
+                                    .getValue()
+                                    .equals(permission)
+                            || AclPermission.WORKSPACE_DELETE_ENVIRONMENTS
+                                    .getValue()
+                                    .equals(permission)
+                            || AclPermission.WORKSPACE_READ_ENVIRONMENTS
+                                    .getValue()
+                                    .equals(permission)
+                            || AclPermission.WORKSPACE_EXECUTE_ENVIRONMENTS
+                                    .getValue()
+                                    .equals(permission));
+
             // create new policies
             Policy workspaceCreateEnvironmentPolicy =
                     getWorkspaceCreateEnvironmentPolicy(adminAndDeveloperPermissionGroupIds);
@@ -124,26 +149,25 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
             // When we share an application, the workspace adds a new permission group to a policy with permission
             // READ_WORKSPACES
             // Hence those application level permission will also be required for the above two
-            Set<String> appLevelSharePermissionGroupIds = workspaceToPermissionGroupIdMap.get(dbWorkspace.getId());
-
-            if (CollectionUtils.isNullOrEmpty(appLevelSharePermissionGroupIds)) {
-                appLevelSharePermissionGroupIds = new HashSet<>();
-            }
+            Set<String> appLevelSharePermissionGroupIds =
+                    workspaceToPermissionGroupIdMap.getOrDefault(dbWorkspace.getId(), new HashSet<>());
 
             Policy workspaceReadEnvironmentsPolicy =
                     getWorkspaceReadEnvironmentsPolicy(permissionGroupIds, appLevelSharePermissionGroupIds);
             Policy workspaceExecuteEnvironmentsPolicy =
                     getWorkspaceExecuteEnvironmentsPolicy(permissionGroupIds, appLevelSharePermissionGroupIds);
 
-            // add the policies in existing policies for workspaces
-            dbWorkspace
-                    .getPolicies()
-                    .addAll(Set.of(
-                            workspaceCreateEnvironmentPolicy,
-                            workspaceDeleteEnvironmentsPolicy,
-                            workspaceMangeEnvironmentsPolicy,
-                            workspaceReadEnvironmentsPolicy,
-                            workspaceExecuteEnvironmentsPolicy));
+            // only add the policies in existing policies for workspaces if workspace doesn't have these policies.
+            if (!workspaceHasEnvironmentPolicies) {
+                dbWorkspace
+                        .getPolicies()
+                        .addAll(Set.of(
+                                workspaceCreateEnvironmentPolicy,
+                                workspaceDeleteEnvironmentsPolicy,
+                                workspaceMangeEnvironmentsPolicy,
+                                workspaceReadEnvironmentsPolicy,
+                                workspaceExecuteEnvironmentsPolicy));
+            }
 
             Query workspaceUpdateQuery = new Query()
                     .addCriteria(where(fieldName(QWorkspace.workspace.id)).is(dbWorkspace.getId()));
@@ -161,17 +185,51 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
                             return;
                         }
 
+                        // Update post issue https://github.com/appsmithorg/appsmith/issues/28720
+                        // There was a mistake in this migration which affected environments policy,
+                        // hence it took-away the already existing EXECUTE_ENVIRONMENTS POLICY from each environment
+                        // object. If the migration has run already then there would not be any
+                        // execute-environments policy present.
+                        // If that is the case then we should get rid of the whole policy and create a new policy set
+                        // from scratch.
+
+                        Set<Policy> environmentPolicySet = dbEnvironment.getPolicies();
+
+                        // This boolean is only true if the migration has not run before.
+                        boolean isExecuteEnvironmentPolicyPresent = environmentPolicySet.stream()
+                                .map(Policy::getPermission)
+                                .anyMatch(permission -> AclPermission.EXECUTE_ENVIRONMENTS
+                                        .getValue()
+                                        .equals(permission));
+
+                        // Enter this conditional block only if executeEnvironment is not present.
+                        if (!isExecuteEnvironmentPolicyPresent) {
+                            environmentPolicySet = new HashSet<>();
+                            Set<String> appSharedDeveloperPermissionGroupIds =
+                                    workspaceIdToAppShareDeveloperPermissionGroupIds.getOrDefault(
+                                            dbEnvironment.getWorkspaceId(), new HashSet<>());
+                            Policy executeEnvironmentsPolicy = conditionallyAddExecuteEnvironmentsPolicy(
+                                    dbEnvironment,
+                                    permissionGroupIds,
+                                    adminAndDeveloperPermissionGroupIds,
+                                    appLevelSharePermissionGroupIds,
+                                    appSharedDeveloperPermissionGroupIds);
+                            environmentPolicySet.add(executeEnvironmentsPolicy);
+                            dbEnvironment.setPolicies(environmentPolicySet);
+                        }
+
                         Policy manageEnvironmentsPolicy =
                                 getManageEnvironmentsPolicy(adminAndDeveloperPermissionGroupIds);
                         Policy deleteEnvironmentsPolicy =
                                 getDeleteEnvironmentPolicy(adminAndDeveloperPermissionGroupIds);
+
                         dbEnvironment.getPolicies().addAll(Set.of(manageEnvironmentsPolicy, deleteEnvironmentsPolicy));
 
                         Query environmentQuery = new Query()
                                 .addCriteria(where(fieldName(QEnvironment.environment.id))
                                         .is(dbEnvironment.getId()));
                         Update environmentUpdate = new Update()
-                                .set(POLICIES, dbWorkspace.getPolicies())
+                                .set(POLICIES, dbEnvironment.getPolicies())
                                 .unset(CUSTOM_ENVIRONMENT_MIGRATION_FLAG);
                         mongoTemplate.updateFirst(environmentQuery, environmentUpdate, Environment.class);
                     });
@@ -255,10 +313,10 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
     }
 
     /**
-     *  This method provides a map of workspaceIds to all permission groups which have been introduced as app level sharing
-     * @return Map<String, Set<String>>
+     * This method populates both maps of workspaceIds to all permission groups which have been introduced
+     * as app-level sharing. These permissions are app's app-viewer & app's developer
      */
-    private Map<String, Set<String>> getMapOfWorkspaceToAppSharePermissionGroupIds() {
+    private void populateMapsOfWorkspaceToAppSharePermissionGroupIds() {
         // Fetch all app viewer permissions across the board
         Criteria appLevelPermissionGroupsCriteria = new Criteria()
                 .andOperator(
@@ -281,6 +339,17 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
                 .filter(permissionGroup -> permissionGroup.getName().startsWith("App Viewer")
                         || permissionGroup.getName().startsWith("Developer"))
                 .collect(Collectors.toSet());
+
+        Map<String, Set<String>> appIdToAppShareDevelopersMap = new HashMap<>();
+        appLevelPermissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith("Developer"))
+                .forEach(permissionGroup -> {
+                    String appId = permissionGroup.getDefaultDomainId();
+                    if (!appIdToAppShareDevelopersMap.containsKey(appId)) {
+                        appIdToAppShareDevelopersMap.put(appId, new HashSet<>());
+                    }
+                    appIdToAppShareDevelopersMap.get(appId).add(permissionGroup.getId());
+                });
 
         Map<String, Set<String>> appIdToPermissionGroupIdsMap = appSharePermissionGroupIds.stream()
                 .collect(Collectors.toMap(
@@ -308,8 +377,28 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
         final Query performanceOptimizedApplicationQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, fetchApplicationWorkspaceIdsQuery, Application.class);
 
-        Map<String, Set<String>> workspaceToPermissionGroupIdsMap = mongoTemplate.stream(
-                        performanceOptimizedApplicationQuery, Application.class)
+        workspaceToPermissionGroupIdMap = mongoTemplate.stream(performanceOptimizedApplicationQuery, Application.class)
+                .map(application -> {
+                    String appId = application.getId();
+                    String workspaceId = application.getWorkspaceId();
+
+                    // if the developer map doesn't have this application then we don't need to add any permission group
+                    // for this application
+                    if (!appIdToAppShareDevelopersMap.containsKey(appId)) {
+                        return application;
+                    }
+
+                    if (!workspaceIdToAppShareDeveloperPermissionGroupIds.containsKey(workspaceId)) {
+                        workspaceIdToAppShareDeveloperPermissionGroupIds.put(workspaceId, new HashSet<>());
+                    }
+
+                    // at this point we can be sure that appId certainly has at least one entry in
+                    // appIdToAppShareDeveloperMap
+                    workspaceIdToAppShareDeveloperPermissionGroupIds
+                            .get(workspaceId)
+                            .addAll(appIdToAppShareDevelopersMap.get(appId));
+                    return application;
+                })
                 .collect(Collectors.toMap(
                         application -> application.getWorkspaceId(),
                         application -> appIdToPermissionGroupIdsMap.get(application.getId()),
@@ -317,7 +406,31 @@ public class Migration028EE02AddNewPermissionToWorkspacesAndEnvironments {
                             a.addAll(b);
                             return a;
                         }));
+    }
 
-        return workspaceToPermissionGroupIdsMap;
+    public static Policy conditionallyAddExecuteEnvironmentsPolicy(
+            Environment environment,
+            Set<String> defaultPermissionGroupIds,
+            Set<String> adminAndDeveloperPermissionGroupIds,
+            Set<String> appSharePermissionGroupIds,
+            Set<String> appShareDevelopersPermissionGroupIds) {
+
+        Set<String> executePermissionGroupSet = new HashSet<>();
+        if (CommonFieldName.PRODUCTION_ENVIRONMENT.equals(environment.getName())) {
+            // all default permission groups and app-shared viewer & developer gets added to permission group.
+            executePermissionGroupSet.addAll(defaultPermissionGroupIds);
+            executePermissionGroupSet.addAll(appSharePermissionGroupIds);
+
+        } else {
+            // before custom-environment there could only be production and staging
+            // only admins & developers and app-share developers get access to staging's execute environments
+            executePermissionGroupSet.addAll(adminAndDeveloperPermissionGroupIds);
+            executePermissionGroupSet.addAll(appShareDevelopersPermissionGroupIds);
+        }
+
+        return Policy.builder()
+                .permission(AclPermission.EXECUTE_ENVIRONMENTS.getValue())
+                .permissionGroups(executePermissionGroupSet)
+                .build();
     }
 }

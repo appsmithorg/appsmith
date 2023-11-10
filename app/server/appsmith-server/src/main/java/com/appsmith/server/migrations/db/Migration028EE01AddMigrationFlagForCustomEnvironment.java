@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-@ChangeUnit(order = "028-ee-01", id = "add-migration-flags-custom-envs", author = " ")
+@ChangeUnit(order = "028-ee-01", id = "add-migration-flags-custom-envs-rerun", author = " ")
 public class Migration028EE01AddMigrationFlagForCustomEnvironment {
 
     private final MongoTemplate mongoTemplate;
