@@ -21,7 +21,7 @@ import com.mongodb.reactivestreams.client.MongoCollection;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Flux;
@@ -73,11 +73,11 @@ public class MongoPluginFormsTest {
 
     @SuppressWarnings("rawtypes")
     @Container
-    public static GenericContainer mongoContainer = new MongoTestContainer();
+    public static MongoDBContainer mongoContainer = MongoTestDBContainerManager.getMongoDBForTest();
 
     @BeforeAll
     public static void setUp() {
-        address = mongoContainer.getContainerIpAddress();
+        address = mongoContainer.getHost();
         port = mongoContainer.getFirstMappedPort();
         String uri = "mongodb://" + address + ":" + port;
         mongoClient = MongoClients.create(uri);

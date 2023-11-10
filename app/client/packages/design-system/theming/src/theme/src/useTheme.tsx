@@ -41,6 +41,7 @@ export function useTheme(props: UseThemeProps = {}) {
         return {
           ...prevState,
           ...tokensAccessor.getColors(),
+          colorMode: tokensAccessor.getColorMode(),
         };
       });
     }

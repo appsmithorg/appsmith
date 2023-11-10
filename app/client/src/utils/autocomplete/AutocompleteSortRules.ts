@@ -313,6 +313,9 @@ class BlockAsyncFnsInDataFieldRule implements AutocompleteRule {
     "clearTimeout",
     "setInterval",
     "clearInterval",
+    "postWindowMessage",
+    "windowMessageListener",
+    "watchPosition",
   ];
   computeScore(
     completion: Completion<TernCompletionResult>,
