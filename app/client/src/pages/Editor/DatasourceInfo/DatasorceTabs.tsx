@@ -40,7 +40,7 @@ const TabPanelContainer = styled(TabPanel)`
 
 const ConfigurationsTabPanelContainer = styled(TabPanel)`
   margin-top: 0;
-  overflow: hidden;
+  overflow: scroll;
   flex-grow: 1;
   padding: 0 var(--ads-v2-spaces-7);
 `;

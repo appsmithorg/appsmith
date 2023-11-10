@@ -76,10 +76,11 @@ describe("MySQL Datatype tests", function () {
       });
       i % 2 && agHelper.ToggleSwitch("Bool_column");
       agHelper.ClickButton("insertRecord");
+      agHelper.Sleep(2000); //for the modal to close after entering all values & value to reflect in table
       agHelper.AssertElementVisibility(
         locators._buttonByText("Run InsertQuery"),
       );
-      agHelper.Sleep(2000);
+      agHelper.Sleep(3000);
     });
   });
 

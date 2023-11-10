@@ -15,10 +15,8 @@ describe("List no functions on empty collection", () => {
   }
 }`,
       {
-        paste: true,
         completeReplace: true,
         toRun: false,
-        shouldCreateNewJSObj: true,
         prettify: false,
       },
     );

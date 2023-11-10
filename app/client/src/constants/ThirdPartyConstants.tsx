@@ -26,6 +26,8 @@ export const EMBED_PRIVATE_APPS_DOC =
 export const PROVISIONING_SETUP_DOC =
   "http://docs.appsmith.com/advanced-concepts/user-provisioning-group-sync";
 export const DISCORD_URL = "https://discord.gg/rBTTVJp";
+export const ENTERPRISE_PRICING_PAGE = "https://www.appsmith.com/enterprise";
+
 export const PRICING_PAGE_URL = (
   URL: string,
   source: string,

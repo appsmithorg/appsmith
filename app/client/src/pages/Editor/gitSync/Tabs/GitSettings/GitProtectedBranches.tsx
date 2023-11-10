@@ -5,10 +5,9 @@ import {
   UPDATE,
   createMessage,
 } from "@appsmith/constants/messages";
-import { isCEMode } from "@appsmith/utils";
 import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
-import { xor } from "lodash";
+import { union, xor } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -18,6 +17,10 @@ import {
   getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useAppsmithEnterpriseLink } from "./hooks";
+import { REMOTE_BRANCH_PREFIX } from "../../constants";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -46,18 +49,48 @@ const StyledSelect = styled(Select)`
   margin-right: 12px;
 `;
 
+const StyledLink = styled(Link)`
+  display: inline-flex;
+`;
+
 function GitProtectedBranches() {
-  const isCE = isCEMode();
   const dispatch = useDispatch();
 
   const unfilteredBranches = useSelector(getGitBranches);
-  const branches = unfilteredBranches.filter(
-    (b) => !b.branchName.includes("origin/"),
-  );
   const defaultBranch = useSelector(getDefaultGitBranchName);
+
+  const branchNames = useMemo(() => {
+    const remoteBranchNames = [];
+    const localBranchNames = [];
+    for (const unfilteredBranch of unfilteredBranches) {
+      if (unfilteredBranch.branchName === defaultBranch) {
+        continue;
+      }
+      if (unfilteredBranch.branchName.includes(REMOTE_BRANCH_PREFIX)) {
+        remoteBranchNames.push(
+          unfilteredBranch.branchName.replace(REMOTE_BRANCH_PREFIX, ""),
+        );
+      } else {
+        localBranchNames.push(unfilteredBranch.branchName);
+      }
+    }
+    const branchNames = union(localBranchNames, remoteBranchNames);
+    if (defaultBranch) {
+      branchNames.unshift(defaultBranch);
+    }
+    return branchNames;
+  }, [unfilteredBranches, defaultBranch]);
+
+  const isGitProtectedFeatureLicensed = useFeatureFlag(
+    FEATURE_FLAG.license_git_branch_protection_enabled,
+  );
   const protectedBranches = useSelector(getProtectedBranchesSelector);
   const isUpdateLoading = useSelector(getIsUpdateProtectedBranchesLoading);
   const [selectedValues, setSelectedValues] = useState<string[]>();
+
+  const enterprisePricingLink = useAppsmithEnterpriseLink(
+    "git_branch_protection",
+  );
 
   useEffect(() => {
     setSelectedValues(protectedBranches);
@@ -86,36 +119,43 @@ function GitProtectedBranches() {
         <SectionDesc kind="body-m" renderAs="p">
           {createMessage(BRANCH_PROTECTION_DESC)}
         </SectionDesc>
-        <SectionDesc kind="body-m" renderAs="p">
-          To protect multiple branches, try{" "}
-          <Link
-            kind="primary"
-            style={{ display: "inline-flex" }}
-            target="_blank"
-            to="https://www.appsmith.com/enterprise?lead_source=git%20feat%20branch%20config"
-          >
-            {createMessage(APPSMITH_ENTERPRISE)}
-          </Link>
-        </SectionDesc>
+        {!isGitProtectedFeatureLicensed && (
+          <SectionDesc kind="body-m" renderAs="p">
+            To protect multiple branches, try{" "}
+            <StyledLink
+              kind="primary"
+              target="_blank"
+              to={enterprisePricingLink}
+            >
+              {createMessage(APPSMITH_ENTERPRISE)}
+            </StyledLink>
+          </SectionDesc>
+        )}
       </HeadContainer>
       <BodyContainer>
         <StyledSelect
+          data-testid="t--git-protected-branches-select"
+          dropdownMatchSelectWidth
+          getPopupContainer={(triggerNode) => triggerNode.parentNode}
           isMultiSelect
           maxTagTextLength={8}
           onChange={(v) => setSelectedValues(v)}
           value={selectedValues}
         >
-          {branches.map((b) => (
+          {branchNames.map((branchName) => (
             <Option
-              disabled={isCE && b.branchName !== defaultBranch}
-              key={b.branchName}
-              value={b.branchName}
+              disabled={
+                !isGitProtectedFeatureLicensed && branchName !== defaultBranch
+              }
+              key={branchName}
+              value={branchName}
             >
-              {b.branchName}
+              {branchName}
             </Option>
           ))}
         </StyledSelect>
         <Button
+          data-testid="t--git-protected-branches-update-btn"
           isDisabled={updateIsDisabled}
           isLoading={isUpdateLoading}
           kind="secondary"
