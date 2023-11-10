@@ -22,6 +22,8 @@ import ResizeObserver from "resize-observer-polyfill";
  * Whenever any of the registered elements changes size, the ResizeObserver triggers
  * This class then triggers a process call which is debounced.
  */
+type LayoutOrderArray = string[];
+
 class LayoutElementPositionObserver {
   // Objects to store registered elements
   private registeredWidgets: {
@@ -41,6 +43,8 @@ class LayoutElementPositionObserver {
       isDropTarget: boolean;
     };
   } = {};
+
+  private dropTargetsDomIdsOrder: LayoutOrderArray = [];
 
   private mutationOptions: MutationObserverInit = {
     attributes: true,
@@ -129,6 +133,20 @@ class LayoutElementPositionObserver {
             parentDropTarget,
             isDropTarget,
           };
+        if (
+          isDropTarget &&
+          !this.dropTargetsDomIdsOrder.includes(layoutDOMId)
+        ) {
+          const parentIndex = this.dropTargetsDomIdsOrder.findIndex(
+            (each) => each === parentDropTarget,
+          );
+          if (parentIndex === -1) {
+            // main canvas drop target
+            this.dropTargetsDomIdsOrder.push(layoutDOMId);
+          } else {
+            this.dropTargetsDomIdsOrder.splice(parentIndex, 0, layoutDOMId);
+          }
+        }
         this.resizeObserver.observe(ref.current);
         this.mutationObserver.observe(ref.current, this.mutationOptions);
       }
@@ -137,11 +155,20 @@ class LayoutElementPositionObserver {
 
   //Method to de register layouts for resize observer changes
   public unObserveLayout(layoutDOMId: string) {
-    const element = this.registeredLayouts[layoutDOMId]?.ref?.current;
+    const layoutObj = this.registeredLayouts[layoutDOMId];
+    const element = layoutObj?.ref?.current;
     if (element) {
       this.resizeObserver.unobserve(element);
     }
-
+    const { isDropTarget } = layoutObj;
+    if (isDropTarget) {
+      const layoutIndex = this.dropTargetsDomIdsOrder.findIndex(
+        (each) => each === layoutDOMId,
+      );
+      if (layoutIndex !== -1) {
+        this.dropTargetsDomIdsOrder.splice(layoutIndex, 1);
+      }
+    }
     delete this.registeredLayouts[layoutDOMId];
     store.dispatch(
       deleteLayoutElementPositions([
@@ -186,6 +213,10 @@ class LayoutElementPositionObserver {
   // Getters for registered elements
   public getRegisteredLayouts() {
     return this.registeredLayouts;
+  }
+
+  public getDropTargetDomIdsOrder() {
+    return this.dropTargetsDomIdsOrder;
   }
 
   private trackEntry(DOMId: string) {

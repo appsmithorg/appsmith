@@ -1,10 +1,7 @@
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { all, put, select, takeEvery, takeLatest } from "redux-saga/effects";
-import {
-  extractLayoutIdFromLayoutDOMId,
-  extractWidgetIdFromAnvilWidgetDOMId,
-} from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { extractWidgetIdFromAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
 import log from "loglevel";
@@ -13,6 +10,48 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import type { RefObject } from "react";
+
+function processPositionsForLayouts(
+  layoutDomId: string,
+  positions: LayoutElementPositions,
+  registeredLayouts: {
+    [layoutDOMId: string]: {
+      ref: RefObject<HTMLDivElement>;
+      layoutId: string;
+      canvasId: string;
+      parentDropTarget: string;
+      isDropTarget: boolean;
+    };
+  },
+  mainContainerDOMRectOffsets: {
+    left: number;
+    top: number;
+  },
+) {
+  const { left, top } = mainContainerDOMRectOffsets;
+  const { layoutId, parentDropTarget } = registeredLayouts[layoutDomId];
+  const element: HTMLElement | null = document.getElementById(layoutDomId);
+  const parentPositions = positions[parentDropTarget];
+  if (element) {
+    const rect: DOMRect = element.getBoundingClientRect();
+    positions[layoutId] = {
+      left: rect.left - left,
+      top: rect.top - top,
+      height: rect.height,
+      width: rect.width,
+      ...(parentPositions
+        ? {
+            offsetLeft: rect.left - (parentPositions.left + left),
+            offsetTop: rect.top - (parentPositions.top + top),
+          }
+        : {
+            offsetLeft: 0,
+            offsetTop: 0,
+          }),
+    };
+  }
+}
 
 /**
  * This saga is used to read(from DOM) and update(in reducers) the widget and layout positions
@@ -69,33 +108,23 @@ function* readAndUpdateLayoutElementPositions() {
   // Offset the values by the MainContainer's left and top
   // Store the values in the `positions` object
 
+  // process drop targets first
+  const dropTargetsOrder = positionObserver.getDropTargetDomIdsOrder();
+  dropTargetsOrder.forEach((eachDomId) =>
+    processPositionsForLayouts(eachDomId, positions, registeredLayouts, {
+      left,
+      top,
+    }),
+  );
   // Do the above for layouts
-  for (const anvilLayoutDOMId of Object.keys(registeredLayouts)) {
-    const element: HTMLElement | null =
-      document.getElementById(anvilLayoutDOMId);
-    const { parentDropTarget } = registeredLayouts[anvilLayoutDOMId];
-    const parentPositions = positions[parentDropTarget];
-    const layoutId = extractLayoutIdFromLayoutDOMId(anvilLayoutDOMId);
-    if (element) {
-      const rect: DOMRect = element.getBoundingClientRect();
-      positions[layoutId] = {
-        left: rect.left - left,
-        top: rect.top - top,
-        height: rect.height,
-        width: rect.width,
-        ...(parentPositions
-          ? {
-              offsetLeft: rect.left - (parentPositions.left + left),
-              offsetTop: rect.top - (parentPositions.top + top),
-            }
-          : {
-              offsetLeft: 0,
-              offsetTop: 0,
-            }),
-      };
-    }
-  }
-
+  Object.keys(registeredLayouts)
+    .filter((each) => !dropTargetsOrder.includes(each))
+    .forEach((eachDomId) =>
+      processPositionsForLayouts(eachDomId, positions, registeredLayouts, {
+        left,
+        top,
+      }),
+    );
   // Do the above for widgets
   for (const anvilWidgetDOMId of Object.keys(registeredWidgets)) {
     const { layoutId } = registeredWidgets[anvilWidgetDOMId];
