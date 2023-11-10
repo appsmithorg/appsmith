@@ -39,21 +39,34 @@ describe("AlignedRow highlights", () => {
         left: 0,
         top: 0,
         width: 400,
+        offsetLeft: 0,
+        offsetTop: 0,
       };
       const centerPosition: LayoutElementPosition = {
         height: 40,
         left: 404,
         top: 0,
         width: 400,
+        offsetLeft: 404,
+        offsetTop: 0,
       };
       const endPosition: LayoutElementPosition = {
         height: 40,
         left: 808,
         top: 0,
         width: 400,
+        offsetLeft: 808,
+        offsetTop: 0,
       };
       const dimensions: LayoutElementPositions = {
-        [layoutId]: { height: 40, left: 0, top: 0, width: 1208 },
+        [layoutId]: {
+          height: 40,
+          left: 0,
+          top: 0,
+          width: 1208,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
         [`${layoutId}-0`]: startPosition,
         [`${layoutId}-1`]: centerPosition,
         [`${layoutId}-2`]: endPosition,
@@ -63,7 +76,6 @@ describe("AlignedRow highlights", () => {
         layout,
         "0",
         [],
-        layout.layoutId,
       )(dimensions, [
         {
           widgetId: "10",
@@ -119,19 +131,34 @@ describe("AlignedRow highlights", () => {
         left: 0,
         top: 0,
         width: 1208,
+        offsetLeft: 0,
+        offsetTop: 0,
       };
 
       const dimensions: LayoutElementPositions = {
         [layoutId]: layoutPosition,
-        [button]: { height: 40, left: 10, top: 4, width: 120 },
-        [input]: { height: 70, left: 140, top: 4, width: 1058 },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 4,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 4,
+        },
+        [input]: {
+          height: 70,
+          left: 140,
+          top: 4,
+          width: 1058,
+          offsetLeft: 140,
+          offsetTop: 4,
+        },
       };
 
       const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
         layout,
         "0",
         [],
-        layout.layoutId,
       )(dimensions, [
         {
           widgetId: "10",
@@ -187,6 +214,8 @@ describe("AlignedRow highlights", () => {
         left: 0,
         top: 0,
         width: 1208,
+        offsetLeft: 0,
+        offsetTop: 0,
       };
 
       const dimensions: LayoutElementPositions = {
@@ -196,28 +225,47 @@ describe("AlignedRow highlights", () => {
           left: 0,
           top: 0,
           width: 400,
+          offsetLeft: 0,
+          offsetTop: 0,
         },
         [getAlignmentLayoutId(layoutId, FlexLayerAlignment.Center)]: {
           height: 48,
           left: 404,
           top: 0,
           width: 400,
+          offsetLeft: 404,
+          offsetTop: 0,
         },
         [getAlignmentLayoutId(layoutId, FlexLayerAlignment.End)]: {
           height: 48,
           left: 808,
           top: 0,
           width: 400,
+          offsetLeft: 808,
+          offsetTop: 0,
         },
-        [button1.widgetId]: { height: 40, left: 10, top: 4, width: 120 },
-        [button2.widgetId]: { height: 40, left: 540, top: 4, width: 120 },
+        [button1.widgetId]: {
+          height: 40,
+          left: 10,
+          top: 4,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 4,
+        },
+        [button2.widgetId]: {
+          height: 40,
+          left: 540,
+          top: 4,
+          width: 120,
+          offsetLeft: 540,
+          offsetTop: 4,
+        },
       };
 
       const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
         layout,
         "0",
         [],
-        layout.layoutId,
       )(dimensions, [
         {
           widgetId: "10",
