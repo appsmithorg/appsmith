@@ -84,12 +84,11 @@ describe("Git Bugs", function () {
     _.gitSync.CreateGitBranch(`st`, true);
     cy.get("@gitbranchName").then((branchName) => {
       statusBranch = branchName;
-      _.agHelper.GetNClick(_.locators._appEditMenuBtn);
-      // cy.wait(_.locators._appEditMenu);
-      _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+      EditorNavigation.sidebar(SidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appThemeSettings);
       _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
       _.agHelper.GetNClick(_.locators._appThemeCard, 2);
+      EditorNavigation.sidebar(SidebarButton.Pages);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
@@ -98,11 +97,10 @@ describe("Git Bugs", function () {
         _.gitSync._gitStatusChanges,
       );
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
-      _.agHelper.GetNClick(_.locators._appEditMenuBtn);
-      // cy.wait(_.locators._appEditMenu);
-      _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+      EditorNavigation.sidebar(SidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
+      EditorNavigation.sidebar(SidebarButton.Pages);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
@@ -119,10 +117,10 @@ describe("Git Bugs", function () {
     _.gitSync.CreateGitBranch(`b24946`, true);
     cy.get("@gitbranchName").then((branchName) => {
       statusBranch = branchName;
-      _.agHelper.GetNClick(_.locators._appEditMenuBtn);
-      _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+      EditorNavigation.sidebar(SidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
+      EditorNavigation.sidebar(SidebarButton.Pages);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.GetNClick(_.gitSync._discardChanges);

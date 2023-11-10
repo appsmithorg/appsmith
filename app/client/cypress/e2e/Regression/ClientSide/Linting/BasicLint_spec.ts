@@ -59,11 +59,11 @@ describe("Linting", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
     entityExplorer.NavigateToSwitcher("Explorer");
-    dataSources.CreateDataSource("MySql");
-    cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName as unknown as string;
-    });
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    // dataSources.CreateDataSource("MySql");
+    // cy.get("@dsName").then(($dsName) => {
+    //   dsName = $dsName as unknown as string;
+    // });
+    // EditorNavigation.sidebar(SidebarButton.Pages);
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
@@ -358,7 +358,7 @@ describe("Linting", () => {
       installer.uninstallLibrary("uuidjs");
       entityExplorer.SelectEntityByName("JSObject3");
       agHelper.AssertElementExist(locators._lintErrorElement);
-      agHelper.Sleep(2000);
+      agHelper.RefreshPage();
       EditorNavigation.sidebar(SidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");

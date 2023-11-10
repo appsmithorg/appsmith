@@ -272,6 +272,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
       `${collectionName}`,
       "Select",
     );
+    dataSources.EnterQuery(query);
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)

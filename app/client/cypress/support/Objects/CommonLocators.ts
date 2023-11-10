@@ -256,7 +256,6 @@ export class CommonLocators {
   _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
   _appEditMenu = "[data-testid='t--editor-menu']";
   _appEditMenuBtn = "[data-testid='t--editor-menu-cta']";
-  _appEditMenuSettings = "[data-testid='t--editor-menu-settings']";
   _appEditExportSettings = "[data-testid='t--editor-menu-export-application']";
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
