@@ -103,7 +103,8 @@ function Onboarding() {
     })();
   }, [user, currentApplicationId]);
 
-  if (shouldShowStarterTemplates) return <StarterBuildingBlocks />;
+  if (shouldShowStarterTemplates && appState === IDEAppState.PAGES)
+    return <StarterBuildingBlocks />;
   else if (!shouldShowStarterTemplates && appState === IDEAppState.PAGES)
     return (
       <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
