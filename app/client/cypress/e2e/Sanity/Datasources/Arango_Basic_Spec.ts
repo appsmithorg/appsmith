@@ -262,11 +262,14 @@ describe("Validate Arango & CURL Import Datasources", () => {
       `${collectionName}`,
       "Delete",
     );
+    query = `REMOVE "1" in ${collectionName}`;
+    dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews(1); //Removing Australia
 
     //Verify no records return for the deleted key
     query = `FOR document IN ${collectionName}
-    RETURN { country: document.country }`;
+    FILTER document._key == "1"
+    RETURN document`;
     dataSources.createQueryWithDatasourceSchemaTemplate(
       dsName,
       `${collectionName}`,
