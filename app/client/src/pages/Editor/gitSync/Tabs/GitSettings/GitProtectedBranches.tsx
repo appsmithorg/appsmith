@@ -2,6 +2,7 @@ import {
   APPSMITH_ENTERPRISE,
   BRANCH_PROTECTION,
   BRANCH_PROTECTION_DESC,
+  LEARN_MORE,
   UPDATE,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -22,6 +23,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useAppsmithEnterpriseLink } from "./hooks";
 import { REMOTE_BRANCH_PREFIX } from "../../constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -138,7 +140,10 @@ function GitProtectedBranches() {
           {createMessage(BRANCH_PROTECTION)}
         </SectionTitle>
         <SectionDesc kind="body-m" renderAs="p">
-          {createMessage(BRANCH_PROTECTION_DESC)}
+          {createMessage(BRANCH_PROTECTION_DESC)}{" "}
+          <StyledLink target="_blank" to={DOCS_BRANCH_PROTECTION_URL}>
+            {createMessage(LEARN_MORE)}
+          </StyledLink>
         </SectionDesc>
         {!isGitProtectedFeatureLicensed && (
           <SectionDesc kind="body-m" renderAs="p">
