@@ -97,4 +97,12 @@ describe("Autocomplete tests for setters", () => {
     );
     agHelper.AssertElementAbsence(locators._evalValuePopover);
   });
+
+  it("4. function description tooltip shows up", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
+    entityExplorer.SelectEntityByName("Button1");
+    propPane.EnterJSContext("onClick", "{{showAlert", true, false);
+    agHelper.GetElementsNAssertTextPresence(locators._hints, "showAlert");
+    agHelper.AssertElementExist(locators._tern_doc);
+  });
 });

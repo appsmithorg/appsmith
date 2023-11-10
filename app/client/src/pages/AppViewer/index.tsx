@@ -133,7 +133,7 @@ function AppViewer(props: Props) {
     return (
       areEnvironmentsFetched(state, workspaceId) &&
       (isMultipleEnvEnabled || canShowRamp) &&
-      environmentList.length &&
+      environmentList.length > 0 &&
       !isOnlyDefaultShown
     );
   });
