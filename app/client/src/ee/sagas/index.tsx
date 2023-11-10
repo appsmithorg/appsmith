@@ -11,7 +11,7 @@ import AISagas from "./aiSagas";
 import ProvisioningSagas from "./ProvisioningSagas";
 import PackagesSagas from "./packagesSagas";
 import PackageInitSagas from "./packageInitSagas";
-import ModuleInstanceSaga from "./ModuleInstanceSaga";
+import ModuleInstanceSaga from "./moduleInstanceSagas";
 import ModuleSagas from "./moduleSagas";
 
 const sagasArr = [

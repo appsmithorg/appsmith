@@ -14,10 +14,6 @@ export enum MODULE_TYPE {
   UI = "UI",
 }
 
-export enum MODULE_ACTION_TYPE {
-  ACTION = "action",
-}
-
 export enum MODULE_PREFIX {
   QUERY = "Query",
 }

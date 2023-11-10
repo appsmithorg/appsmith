@@ -1,5 +1,5 @@
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ModuleType } from "@appsmith/constants/ModuleInstanceConstants";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 
 export interface SaveModuleNamePayload {
@@ -17,7 +17,7 @@ export interface FetchModuleActionsPayload {
 
 export interface CreateQueryModulePayload {
   datasourceId?: string;
-  type: ModuleType;
+  type: MODULE_TYPE;
   from: string;
   packageId: string;
   apiType?: string;

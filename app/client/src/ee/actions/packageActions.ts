@@ -17,9 +17,22 @@ export interface PublishPackagePayload {
   packageId: string;
 }
 
+export interface FetchAllPackagesInWorkspacePayload {
+  wodrkspaceId: string;
+}
+
 export const fetchAllPackages = () => {
   return {
     type: ReduxActionTypes.FETCH_ALL_PACKAGES_INIT,
+  };
+};
+
+export const fetchAllPackagesInWorkspace = (
+  payload: FetchAllPackagesInWorkspacePayload,
+) => {
+  return {
+    type: ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_INIT,
+    payload,
   };
 };
 

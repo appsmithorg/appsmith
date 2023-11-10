@@ -3,13 +3,13 @@ import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
 
 import Api from "api/Api";
 import type {
-  MODULE_ACTION_TYPE,
   MODULE_TYPE,
   Module,
   ModuleAction,
 } from "@appsmith/constants/ModuleConstants";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Action } from "entities/Action";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
 interface FetchModuleActionsPayload {
   moduleId: string;
@@ -21,7 +21,7 @@ export interface CreateModulePayload {
   name?: string;
   inputsForm: Module["inputsForm"];
   entity: Partial<Action> & {
-    type: MODULE_ACTION_TYPE;
+    type: ENTITY_TYPE;
   };
 }
 

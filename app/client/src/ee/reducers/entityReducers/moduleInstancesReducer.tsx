@@ -1,7 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { createQueryModuleInstanceSuccess } from "@appsmith/actions/moduleInstanceActions";
 import type {
   ModuleInstance,
   ModuleInstanceId,
@@ -18,9 +17,7 @@ const initialState: ModuleInstanceReducerState = {};
 export const handlers = {
   [ReduxActionTypes.CREATE_MODULE_INSTANCE_SUCCESS]: (
     draftState: ModuleInstanceReducerState,
-    action: ReduxAction<
-      ReturnType<typeof createQueryModuleInstanceSuccess>["payload"]
-    >,
+    action: ReduxAction<ModuleInstance>,
   ) => {
     draftState[action.payload.id] = action.payload;
     return draftState;

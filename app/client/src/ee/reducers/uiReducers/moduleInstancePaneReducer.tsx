@@ -4,10 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type {
-  updateModuleInstance,
-  updateModuleInstanceSuccess,
-} from "@appsmith/actions/moduleInstanceActions";
+import type { updateModuleInstance } from "@appsmith/actions/moduleInstanceActions";
 import type {
   ModuleId,
   ModuleInstance,
@@ -59,9 +56,7 @@ export const handlers = {
 
   [ReduxActionTypes.UPDATE_MODULE_INSTANCE_SUCCESS]: (
     draftState: ModuleInstancePaneState,
-    action: ReduxAction<
-      ReturnType<typeof updateModuleInstanceSuccess>["payload"]
-    >,
+    action: ReduxAction<ModuleInstance>,
   ) => {
     draftState.isSaving[action.payload.id] = false;
     return draftState;

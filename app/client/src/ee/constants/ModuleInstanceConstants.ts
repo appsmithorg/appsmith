@@ -1,10 +1,7 @@
+import type { MODULE_TYPE } from "./ModuleConstants";
+
 export type ModuleId = string;
 export type ModuleInstanceId = string;
-export enum ModuleType {
-  QUERY,
-  JS_OBJECT,
-  UI,
-}
 
 export enum ModuleInstanceCreatorType {
   MODULE = "MODULE",
@@ -12,7 +9,7 @@ export enum ModuleInstanceCreatorType {
 }
 export interface ModuleInstance {
   id: ModuleInstanceId;
-  type: ModuleType;
+  type: MODULE_TYPE;
   moduleId: ModuleId;
   name: string;
   pageId: string;
@@ -27,7 +24,7 @@ export interface ModuleInstance {
   };
 }
 export interface QueryModuleInstance extends ModuleInstance {
-  type: ModuleType.QUERY;
+  type: MODULE_TYPE.QUERY;
   jsonPathKeys: string[];
   dynamicBindingPathList: Record<string, true>;
   data: string;

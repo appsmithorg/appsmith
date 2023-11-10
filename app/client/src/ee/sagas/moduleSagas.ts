@@ -33,7 +33,6 @@ import {
 } from "entities/Action";
 import { createDefaultActionPayloadWithPluginDefaults } from "sagas/ActionSagas";
 import {
-  MODULE_ACTION_TYPE,
   MODULE_TYPE,
   type Module,
   MODULE_PREFIX,
@@ -42,6 +41,7 @@ import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modu
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import { createNewQueryModuleName } from "@appsmith/utils/Packages/moduleHelpers";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { generateDefaultInputSection } from "@appsmith/components/InputsForm/Fields/helper";
 
 export function* deleteModuleSaga(action: ReduxAction<DeleteModulePayload>) {
@@ -213,7 +213,7 @@ export function* createQueryModuleSaga(
       type: MODULE_TYPE.QUERY,
       inputsForm: [generateDefaultInputSection()],
       entity: {
-        type: MODULE_ACTION_TYPE.ACTION,
+        type: ENTITY_TYPE_VALUE.ACTION,
         ...restAction,
       },
     };

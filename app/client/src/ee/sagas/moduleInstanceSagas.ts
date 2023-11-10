@@ -1,10 +1,7 @@
+import { moduleInstanceQueryEditorIdURL } from "@appsmith/RouteBuilder";
 import type {
   CreateQueryModuleInstancePayload,
   FetchModuleInstancesPayload,
-} from "@appsmith/actions/moduleInstanceActions";
-import {
-  createQueryModuleInstanceSuccess,
-  fetchModuleInstancesSuccess,
 } from "@appsmith/actions/moduleInstanceActions";
 import ModuleInstancesApi from "@appsmith/api/ModuleInstanceApi";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -31,14 +28,23 @@ function* createQueryModuleInstanceSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) throw response.responseMeta.error;
 
-    yield put(createQueryModuleInstanceSuccess(response.data.moduleInstance));
+    yield put({
+      type: ReduxActionTypes.CREATE_MODULE_INSTANCE_SUCCESS,
+      payload: response.data.moduleInstance,
+    });
 
-    const redirectURL = action.payload.onSuccessRedirectURL;
+    const redirectURL = moduleInstanceQueryEditorIdURL({
+      moduleId: moduleId,
+      queryId: response.data.moduleInstance.id,
+    });
     if (redirectURL) {
       history.push(redirectURL);
     }
   } catch (error) {
-    yield put({ type: ReduxActionErrorTypes.CREATE_MODULE_INSTANCE_ERROR });
+    yield put({
+      type: ReduxActionErrorTypes.CREATE_MODULE_INSTANCE_ERROR,
+      payload: error,
+    });
   }
 }
 
@@ -57,7 +63,10 @@ function* fetchModuleInstancesSaga(
     const isValidResponse = validateResponse(response);
     if (!isValidResponse) throw response.responseMeta.error;
 
-    yield put(fetchModuleInstancesSuccess(response.data.moduleInstances));
+    yield put({
+      type: ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_SUCCESS,
+      payload: response.data.moduleInstances,
+    });
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_ERROR,

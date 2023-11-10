@@ -19,6 +19,9 @@ import {
 import { filterWhitelistedConfig } from "./helper";
 import { deleteModule, saveModuleName } from "@appsmith/actions/moduleActions";
 import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
+import history from "utils/history";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { INTEGRATION_TABS } from "constants/routes";
 import ModuleInputsForm from "./ModuleInputsForm";
 
 interface ModuleQueryEditorRouteParams {
@@ -82,6 +85,15 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
     [module?.id],
   );
 
+  const onCreateDatasourceClick = () => {
+    history.push(
+      integrationEditorURL({
+        pageId: packageId, // ankita: update later
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
+    );
+  };
+
   const onDeleteModule = useCallback(() => {
     dispatch(deleteModule({ id: module?.id || "" }));
   }, [module?.id]);
@@ -112,7 +124,7 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
       actionRightPaneAdditionSections={actionRightPaneAdditionSections}
       changeQueryPage={changeQueryPage}
       moreActionsMenu={moreActionsMenu}
-      onCreateDatasourceClick={noop}
+      onCreateDatasourceClick={onCreateDatasourceClick}
       onEntityNotFoundBackClick={noop}
       saveActionName={onSaveModuleName}
     >

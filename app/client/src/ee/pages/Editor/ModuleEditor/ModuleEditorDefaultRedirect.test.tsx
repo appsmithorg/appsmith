@@ -43,7 +43,6 @@ const REMOTE_PLUGIN = {
 
 const DEFAULT_MODULE = {
   id: "moduleId",
-  publicEntityId: DEFAULT_ENTITY.id,
 } as unknown as Module;
 
 const setGetAction = (value?: Action) => {
