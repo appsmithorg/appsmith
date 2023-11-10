@@ -103,6 +103,8 @@ function GitDefaultBranch() {
       <BodyContainer>
         <StyledSelect
           data-testid="t--git-default-branch-select"
+          dropdownMatchSelectWidth
+          getPopupContainer={(triggerNode) => triggerNode.parentNode}
           isDisabled={!isGitProtectedFeatureLicensed}
           onChange={(v) => setSelectedValue(v)}
           value={selectedValue}

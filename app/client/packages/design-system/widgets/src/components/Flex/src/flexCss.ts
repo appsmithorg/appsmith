@@ -58,6 +58,7 @@ const flexStyles = (
       cssProp === "paddingLeft" ||
       cssProp === "paddingRight" ||
       cssProp === "paddingTop" ||
+      cssProp === "paddingBottom" ||
       cssProp === "marginBottom" ||
       cssProp === "width" ||
       cssProp === "height" ||
