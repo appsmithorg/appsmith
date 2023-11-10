@@ -102,4 +102,21 @@ describe("Datasource form related tests", function () {
     dataSources.CreateQueryAfterDSSaved();
     dataSources.FilterAndVerifyDatasourceSchemaBySearch("appsmith-hris");
   });
+
+  it(
+    "excludeForAirgap",
+    "7. Verify if the schema table accordions is collapsed in case of search",
+    () => {
+      agHelper.RefreshPage();
+      dataSources.CreateMockDB("Users");
+      agHelper.TypeText(
+        dataSources._datasourceStructureSearchInput,
+        "public.us",
+      );
+      agHelper.Sleep(1000);
+      agHelper.AssertElementAbsence(
+        `${dataSources._dsStructurePreviewMode} ${dataSources._datasourceSchemaColumn}`,
+      );
+    },
+  );
 });
