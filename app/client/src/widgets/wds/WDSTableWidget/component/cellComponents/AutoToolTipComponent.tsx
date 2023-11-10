@@ -3,7 +3,7 @@ import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import type { CellAlignment, VerticalAlignment } from "../Constants";
 import styled from "styled-components";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 import { importSvg } from "design-system-old";
 
 const OpenNewTabIcon = importSvg(
