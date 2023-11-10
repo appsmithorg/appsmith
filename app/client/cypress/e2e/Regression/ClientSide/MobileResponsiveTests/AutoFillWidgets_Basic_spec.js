@@ -42,9 +42,9 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
     cy.dragAndDropToCanvas("currencyinputwidget", { x: 110, y: 210 });
     cy.dragAndDropToCanvas("audiowidget", { x: 250, y: 300 });
     cy.dragAndDropToCanvas("selectwidget", { x: 560, y: 560 });
-    cy.dragAndDropToCanvas("checkboxwidget", { x: 770, y: 770 });
-    cy.dragAndDropToCanvas("radiogroupwidget", { x: 770, y: 770 });
-    cy.dragAndDropToCanvas("datepickerwidget2", { x: 770, y: 970 });
+    cy.dragAndDropToCanvas("checkboxwidget", { x: 670, y: 770 });
+    cy.dragAndDropToCanvas("radiogroupwidget", { x: 670, y: 770 });
+    cy.dragAndDropToCanvas("datepickerwidget2", { x: 670, y: 970 });
     cy.dragAndDropToCanvas("phoneinputwidget", { x: 660, y: 810 });
     cy.dragAndDropToCanvas("categorysliderwidget", { x: 620, y: 810 });
     cy.wait(5000);
