@@ -255,6 +255,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         errorMessage={validation.errorMessage}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         label={this.props.label}
         onCurrencyChange={this.onCurrencyChange}
         onFocusChange={this.onFocusChange}

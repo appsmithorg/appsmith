@@ -1,3 +1,4 @@
+import type { CurrencyTypeOptions } from "constants/Currency";
 import type { BaseInputComponentProps } from "widgets/wds/WDSBaseInputWidget";
 
 export interface CurrencyInputComponentProps extends BaseInputComponentProps {
@@ -5,5 +6,7 @@ export interface CurrencyInputComponentProps extends BaseInputComponentProps {
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
   decimals?: number;
-  onCurrencyChange: (code?: any) => void;
+  onCurrencyChange: (
+    code?: (typeof CurrencyTypeOptions)[number]["currency"],
+  ) => void;
 }

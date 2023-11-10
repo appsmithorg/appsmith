@@ -82,7 +82,9 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
       onClick={focusInput}
       ref={ref}
     >
-      {startIcon}
+      {Boolean(startIcon) && (
+        <span data-field-input-start-icon="">{startIcon}</span>
+      )}
       <ElementType
         {...mergeProps(inputProps, hoverProps, focusProps, focusableProps)}
         className={inputClassName}
@@ -90,7 +92,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
         ref={inputRef as any}
         rows={multiLine ? 1 : undefined}
       />
-      {endIcon}
+      {Boolean(endIcon) && <span data-field-input-end-icon="">{endIcon}</span>}
     </div>
   );
 

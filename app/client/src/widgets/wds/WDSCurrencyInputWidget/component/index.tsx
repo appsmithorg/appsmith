@@ -15,6 +15,7 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
       contextualHelp={props.tooltip}
       errorMessage={props.errorMessage}
       isDisabled={props.isDisabled}
+      isRequired={props.isRequired}
       label={props.label}
       onChange={props.onValueChange}
       onFocusChange={props.onFocusChange}
