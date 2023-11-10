@@ -13,18 +13,11 @@ import { toast } from "design-system";
 import { call, delay, put, select } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getIsGitProtectedFeatureEnabled } from "selectors/gitSyncSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 
 export function* updateGitDefaultBranchSaga({
   payload,
 }: ReduxAction<{ branchName: string }>) {
-  const isGitProtectedFeatureEnabled: boolean = yield select(
-    getIsGitProtectedFeatureEnabled,
-  );
-  if (!isGitProtectedFeatureEnabled) {
-    return;
-  }
   const { branchName } = payload;
   const applicationId: string = yield select(getCurrentApplicationId);
   let response: ApiResponse<string> | undefined;
