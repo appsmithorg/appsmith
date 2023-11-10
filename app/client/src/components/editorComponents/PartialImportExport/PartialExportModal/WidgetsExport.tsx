@@ -1,4 +1,5 @@
 import { Checkbox } from "design-system";
+import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import React from "react";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import styled from "styled-components";
@@ -86,7 +87,11 @@ function WidgetSelector({
             isSelected={isSelected}
             onChange={() => toggleNode(widget, parentArray)}
           >
-            {widget.widgetName}
+            <div className="flex items-center">
+              <WidgetIcon height={12} type={widget.type} width={12} />
+              &nbsp;
+              {widget.widgetName}
+            </div>
           </Checkbox>
         </CheckboxContainer>
         {widget.children?.map((child) =>
