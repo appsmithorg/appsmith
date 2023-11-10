@@ -27,3 +27,7 @@ body,
 .is-chromatic * {
   animation: none !important;
 }
+
+*:focus {
+  outline: none;
+}
