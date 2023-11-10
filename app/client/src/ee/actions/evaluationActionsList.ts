@@ -1,14 +1,14 @@
-export * from "ce/actions/evaluationActions";
+export * from "ce/actions/evaluationActionsList";
 import {
   EVALUATE_REDUX_ACTIONS as CE_EVALUATE_REDUX_ACTIONS,
-  shouldTriggerLinting,
   getRequiresLinting as CE_getRequiresLinting,
-} from "ce/actions/evaluationActions";
+} from "ce/actions/evaluationActionsList";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getModuleMode } from "@appsmith/selectors/packageSelectors";
 import store from "store";
 import { MODULE_MODE } from "@appsmith/entities/package";
+import { shouldTriggerLinting } from "actions/evaluationActions";
 
 export const EVALUATE_REDUX_ACTIONS = [
   ...CE_EVALUATE_REDUX_ACTIONS,
