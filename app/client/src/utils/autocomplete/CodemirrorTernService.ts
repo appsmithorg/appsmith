@@ -20,6 +20,7 @@ import {
 } from "../getCodeMirrorNamespace";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { findIndex, isString } from "lodash";
+import { renderTernTooltipContent } from "./ternDocTooltip";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -558,32 +559,33 @@ class CodeMirrorTernService {
     CodeMirror.on(
       obj,
       "select",
-      (cur: { data: { doc: string } }, node: any) => {
+      (cur: Completion<TernCompletionResult>, node: any) => {
         this.active = cur;
         this.remove(tooltip);
         const content = cur.data.doc;
-        if (content) {
-          tooltip = this.makeTooltip(
-            node.parentNode.getBoundingClientRect().right + window.pageXOffset,
-            node.getBoundingClientRect().top + window.pageYOffset,
-            content,
-            cm,
-          );
-          tooltip.className += " " + cls + "hint-doc";
-          CodeMirror.on(
-            cm,
-            "keyup",
-            (cm: CodeMirror.Editor, keyboardEvent: KeyboardEvent) => {
-              if (
-                keyboardEvent.code === "Space" &&
-                keyboardEvent.ctrlKey &&
-                tooltip
-              ) {
-                tooltip.className += " visible";
-              }
-            },
-          );
-        }
+        if (!content) return;
+        const docTooltipContainer = this.elt("div", "flex flex-col pb-1");
+        renderTernTooltipContent(docTooltipContainer, cur);
+        tooltip = this.makeTooltip(
+          node.parentNode.getBoundingClientRect().right + window.pageXOffset,
+          node.getBoundingClientRect().top + window.pageYOffset + 2,
+          docTooltipContainer,
+          cm,
+          cls + "hint-doc",
+        );
+        CodeMirror.on(
+          cm,
+          "keyup",
+          (cm: CodeMirror.Editor, keyboardEvent: KeyboardEvent) => {
+            if (
+              keyboardEvent.code === "Space" &&
+              keyboardEvent.ctrlKey &&
+              tooltip
+            ) {
+              tooltip.className += " visible";
+            }
+          },
+        );
       },
     );
     resolve(obj);
