@@ -29,6 +29,7 @@ import com.appsmith.server.repositories.ModuleRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bson.types.ObjectId;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -36,8 +37,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -152,17 +153,19 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     private Mono<Object> getSettingsForm() {
         try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            File file = new File(classLoader.getResource("modules/setting.json").getFile());
+            ClassPathResource resource = new ClassPathResource("modules/setting.json");
+            InputStream inputStream = resource.getInputStream();
 
-            JsonNode rootTree = objectMapper.readTree(file);
+            JsonNode rootTree = objectMapper.readTree(inputStream);
 
             List<JsonNode> settingsForm = objectMapper.convertValue(rootTree.get("setting"), List.class);
 
-            return Mono.just(settingsForm);
+            inputStream.close();
 
+            return Mono.just(settingsForm);
         } catch (IOException e) {
-            return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e.getMessage()));
+            return Mono.error(
+                    new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, "Unable to fetch settings of module"));
         }
     }
 
