@@ -272,6 +272,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         action.setGitSyncId(null);
                     });
 
+                    if (applicationJson.getActionCollectionList() == null) {
+                        return Mono.just(pageName);
+                    }
                     applicationJson.getActionCollectionList().forEach(actionCollection -> {
                         actionCollection.getPublishedCollection().setPageId(pageName);
                         actionCollection.getUnpublishedCollection().setPageId(pageName);
