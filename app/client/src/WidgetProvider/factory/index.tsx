@@ -361,7 +361,7 @@ class WidgetFactory {
               section.generateDynamicProperties?.(widgetProperties);
 
             if (dynamicProperties && dynamicProperties.length) {
-              addPropertyConfigIds(dynamicProperties);
+              addPropertyConfigIds(dynamicProperties, false);
               section = produce(section, (draft) => {
                 draft.children = [...dynamicProperties, ...section.children];
               });

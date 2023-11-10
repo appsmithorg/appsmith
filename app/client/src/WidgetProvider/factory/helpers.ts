@@ -16,6 +16,7 @@ import {
   PropertyPaneConfigTemplates,
   WidgetFeaturePropertyPaneEnhancements,
 } from "../../utils/WidgetFeatures";
+import { generateReactKey } from "utils/generators";
 
 export enum PropertyPaneConfigTypes {
   STYLE = "STYLE",
@@ -111,11 +112,19 @@ export function generatePropertyPaneSearchConfig(
    the resulting config is frozen and re-used during the lifecycle
    of the current browser session. See WidgetFactory
 */
-export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
+export const addPropertyConfigIds = (
+  config: PropertyPaneConfig[],
+  useReactKey = true,
+) => {
   return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
-    sectionOrControlConfig.id =
-      (sectionOrControlConfig as PropertyPaneSectionConfig).sectionName ||
-      (sectionOrControlConfig as PropertyPaneControlConfig).propertyName;
+    if (useReactKey) {
+      sectionOrControlConfig.id = generateReactKey();
+    } else {
+      sectionOrControlConfig.id =
+        (sectionOrControlConfig as PropertyPaneSectionConfig).sectionName ||
+        (sectionOrControlConfig as PropertyPaneControlConfig).propertyName;
+    }
+
     if (sectionOrControlConfig.children) {
       sectionOrControlConfig.children = addPropertyConfigIds(
         sectionOrControlConfig.children,
