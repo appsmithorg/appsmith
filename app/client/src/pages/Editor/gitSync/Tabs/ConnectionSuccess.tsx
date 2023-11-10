@@ -96,7 +96,7 @@ function ConnectionSuccess() {
         tab: GitSyncModalTab.SETTINGS,
       }),
     );
-    AnalyticsUtil.logEvent("GS_START_USING_GIT", {
+    AnalyticsUtil.logEvent("GS_OPEN_GIT_SETTINGS", {
       repoUrl: gitMetadata?.remoteUrl,
     });
   };
