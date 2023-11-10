@@ -2,6 +2,7 @@ import {
   PARTIAL_IMPORT_EXPORT,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getPartialImportExportLoadingState } from "@appsmith/selectors/applicationSelectors";
 import {
   selectFilesForExplorer,
   selectLibrariesForExplorer,
@@ -22,19 +23,17 @@ import {
 } from "design-system";
 import { ControlIcons } from "icons/ControlIcons";
 import { MenuIcons } from "icons/MenuIcons";
-import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
+import { getCurrentPageName } from "selectors/editorSelectors";
 import styled from "styled-components";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import WidgetsExport from "./WidgetsExport";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { getPartialImportExportLoadingState } from "@appsmith/selectors/applicationSelectors";
-import type { JSLibrary } from "workers/common/JSLibrary";
-import { getCurrentPageName } from "selectors/editorSelectors";
 
 interface Props {
   handleModalClose: () => void;
@@ -83,8 +82,8 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
 
     return [
       {
-        title: "JsObjects",
-        icon: JsFileIconV2(16, 16),
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.jsObjects),
+        icon: <Icon name="js" size="md" />,
         children: jsObjects ? (
           <EntityCheckboxSelector
             entities={jsObjects}
@@ -96,7 +95,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         ) : null,
       },
       {
-        title: "Databases",
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.databases),
         icon: <Icon name="database-2-line" size="md" />,
         children:
           appWideDS.length > 0 ? (
@@ -110,7 +109,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
           ) : null,
       },
       {
-        title: "Queries",
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.queries),
         icon: <MenuIcons.GROUP_QUERY_ICON height={16} keepColors width={16} />,
         children: groupedData ? (
           <JSObjectsNQueriesExport
@@ -124,7 +123,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         ) : null,
       },
       {
-        title: "Custom libraries",
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.customLibs),
         icon: <MenuIcons.LIBRARY_ICON height={16} keepColors width={16} />,
         children:
           customJsLibraries.length > 0 ? (
@@ -138,7 +137,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
           ) : null,
       },
       {
-        title: "Widgets",
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.widgets),
         icon: <ControlIcons.GROUP_CONTROL height={16} keepColors width={16} />,
         children: canvasWidgets ? (
           <WidgetsExport
