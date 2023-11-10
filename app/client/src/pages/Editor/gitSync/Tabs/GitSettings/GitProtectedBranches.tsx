@@ -21,6 +21,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useAppsmithEnterpriseLink } from "./hooks";
 import { REMOTE_BRANCH_PREFIX } from "../../constants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -86,7 +87,7 @@ function GitProtectedBranches() {
   );
   const protectedBranches = useSelector(getProtectedBranchesSelector);
   const isUpdateLoading = useSelector(getIsUpdateProtectedBranchesLoading);
-  const [selectedValues, setSelectedValues] = useState<string[]>();
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   const enterprisePricingLink = useAppsmithEnterpriseLink(
     "git_branch_protection",
@@ -103,11 +104,31 @@ function GitProtectedBranches() {
   const updateIsDisabled = !areProtectedBranchesDifferent;
 
   const handleUpdate = () => {
+    sendAnalyticsEvent();
     dispatch(
       updateGitProtectedBranchesInit({
         protectedBranches: selectedValues ?? [],
       }),
     );
+  };
+
+  const sendAnalyticsEvent = () => {
+    const eventData = {
+      branches_added: [] as string[],
+      branches_removed: [] as string[],
+      protected_branches: selectedValues,
+    };
+    for (const val of selectedValues) {
+      if (!protectedBranches.includes(val)) {
+        eventData.branches_added.push(val);
+      }
+    }
+    for (const val of protectedBranches) {
+      if (!selectedValues.includes(val)) {
+        eventData.branches_removed.push(val);
+      }
+    }
+    AnalyticsUtil.logEvent("GS_PROTECTED_BRANCHES_UPDATE", eventData);
   };
 
   return (
