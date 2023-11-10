@@ -1,9 +1,8 @@
 import type { WidgetProps } from "widgets/BaseWidget";
-import {
-  LayoutComponentTypes,
-  type AnvilHighlightInfo,
-  type LayoutProps,
-  type WidgetLayoutProps,
+import type {
+  AnvilHighlightInfo,
+  LayoutProps,
+  WidgetLayoutProps,
 } from "../../anvilTypes";
 import { generateReactKey } from "utils/generators";
 import { RenderModes } from "constants/WidgetConstants";
@@ -38,7 +37,7 @@ export function createZoneAndAddWidgets(
     type: "ZONE_WIDGET",
     version: 1,
     widgetId: generateReactKey(),
-    widgetName: "Zone1", // TODO: Need the function to logically add the number.
+    widgetName: "Zone" + getRandomInt(1, 100), // TODO: Need the function to logically add the number.
   };
 
   /**
@@ -62,7 +61,7 @@ export function createZoneAndAddWidgets(
     type: "CANVAS_WIDGET",
     version: 1,
     widgetId: generateReactKey(),
-    widgetName: "Canvas1", // TODO: Need the function to logically add the number.
+    widgetName: "Canvas" + getRandomInt(1, 100), // TODO: Need the function to logically add the number.
   };
 
   /**
@@ -160,15 +159,12 @@ function addWidgetsToChildTemplate(
    * Get the child template from the zone component.
    */
   let template: LayoutProps | null | undefined = zoneComp.getChildTemplate(
-    {
-      layoutId: "",
-      layoutType: LayoutComponentTypes.ZONE,
-      layout: [],
-    },
+    zoneLayout,
     draggedWidgets,
   );
 
   if (template) {
+    template = { ...template, layoutId: generateReactKey() };
     /**
      * There is a template.
      * => use the template to create the child layout.
@@ -190,4 +186,10 @@ function addWidgetsToChildTemplate(
    * If no template is available, then add widgets directly to layout.
    */
   return zoneComp.addChild(zoneLayout, draggedWidgets, highlight);
+}
+
+function getRandomInt(min: number, max: number): number {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

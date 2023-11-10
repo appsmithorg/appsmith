@@ -166,7 +166,6 @@ function addWidgetToSection(
       ),
     },
     canvasPreset[0],
-    canvasPreset,
   );
   return res.canvasWidgets;
 }

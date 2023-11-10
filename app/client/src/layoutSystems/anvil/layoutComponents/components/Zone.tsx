@@ -1,3 +1,4 @@
+import React from "react";
 import AlignedLayoutColumn from "./AlignedLayoutColumn";
 import type {
   LayoutComponentProps,
@@ -6,6 +7,7 @@ import type {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import { isLargeWidget } from "layoutSystems/anvil/utils/layouts/widgetUtils";
+import { FlexLayout } from "./FlexLayout";
 
 class Zone extends AlignedLayoutColumn {
   constructor(props: LayoutComponentProps) {
@@ -47,10 +49,38 @@ class Zone extends AlignedLayoutColumn {
       maxChildLimit: hasLargeWidget ? 1 : 0,
     };
   }
+
+  render() {
+    const {
+      canvasId,
+      isDropTarget,
+      layoutId,
+      layoutIndex,
+      layoutStyle,
+      renderMode,
+    } = this.props;
+
+    return (
+      <FlexLayout
+        alignSelf={"stretch"}
+        canvasId={canvasId}
+        direction="column"
+        flexGrow={1}
+        flexShrink={1}
+        isDropTarget={!!isDropTarget}
+        layoutId={layoutId}
+        layoutIndex={layoutIndex}
+        renderMode={renderMode}
+        {...(layoutStyle || {})}
+      >
+        {this.renderDraggingArena()}
+        {this.renderChildLayouts()}
+      </FlexLayout>
+    );
+  }
 }
 
 export default Zone;
-
 
 /**
  * MainCanvas childTemplate - SectionWidget

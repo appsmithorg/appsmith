@@ -39,7 +39,14 @@ export const deriveAlignedRowHighlights =
     draggedWidgets: DraggedWidget[],
   ): AnvilHighlightInfo[] => {
     if (!draggedWidgets.length || !positions[layoutProps.layoutId]) return [];
-    const { isDropTarget, layout, layoutId } = layoutProps;
+    const { isDropTarget, layout, layoutId, maxChildLimit } = layoutProps;
+
+    /**
+     * Step 1: Check if draggedWidgets will exceed the maxChildLimit of the layout.
+     */
+    if (maxChildLimit !== undefined && maxChildLimit > 0) {
+      if (layout?.length + draggedWidgets.length > maxChildLimit) return [];
+    }
 
     const parentDropTargetId: string = isDropTarget
       ? layoutId
@@ -49,7 +56,7 @@ export const deriveAlignedRowHighlights =
       getRelativeDimensions(parentDropTargetId, positions);
 
     /**
-     * Step 1: Construct a base highlight.
+     * Step 2: Construct a base highlight.
      */
     const baseHighlight: AnvilHighlightInfo = {
       alignment: FlexLayerAlignment.Start,
@@ -65,7 +72,7 @@ export const deriveAlignedRowHighlights =
     };
 
     /**
-     * Step 2: Check if layout is empty and appropriately return initial set of highlights.
+     * Step 3: Check if layout is empty and appropriately return initial set of highlights.
      */
     if (!layout || !layout.length) {
       return getInitialHighlights(
@@ -77,7 +84,7 @@ export const deriveAlignedRowHighlights =
     }
 
     /**
-     * Step 3: Derive highlights for widgets.
+     * Step 4: Derive highlights for widgets.
      */
     return getHighlightsForWidgets(
       layoutProps,

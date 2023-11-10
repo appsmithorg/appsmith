@@ -11,6 +11,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import WidgetFactory from "WidgetProvider/factory";
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
+import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -82,14 +83,16 @@ const checkIfWidgetTypeDraggedIsAllowedToDrop = (
   if (allowedWidgetTypes.length === 0) {
     return true;
   }
+  let draggedWidgetTypes: string[] = [];
   if (isNewWidget) {
     const { newWidget } = dragDetails;
-    return allowedWidgetTypes.includes(newWidget.type);
+    draggedWidgetTypes.push(newWidget.type);
   } else {
-    return selectedWidgets.every((eachWidgetId) => {
-      return allowedWidgetTypes.includes(allWidgets[eachWidgetId].type);
-    });
+    draggedWidgetTypes = selectedWidgets.map(
+      (eachWidgetId) => allWidgets[eachWidgetId].type,
+    );
   }
+  return areWidgetsWhitelisted(draggedWidgetTypes, allowedWidgetTypes);
 };
 
 export const useAnvilDnDStates = ({

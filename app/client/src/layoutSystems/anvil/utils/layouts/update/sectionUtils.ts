@@ -40,7 +40,7 @@ export function createSectionAndAddWidget(
     type: "SECTION_WIDGET",
     version: 1,
     widgetId: generateReactKey(),
-    widgetName: "Section1", // TODO: Need the function to logically add the number.
+    widgetName: "Section" + getRandomInt(1, 100), // TODO: Need the function to logically add the number.
   };
 
   /**
@@ -64,7 +64,7 @@ export function createSectionAndAddWidget(
     type: "CANVAS_WIDGET",
     version: 1,
     widgetId: generateReactKey(),
-    widgetName: "Canvas1", // TODO: Need the function to logically add the number.
+    widgetName: "Canvas" + getRandomInt(1, 100), // TODO: Need the function to logically add the number.
   };
 
   /**
@@ -77,7 +77,6 @@ export function createSectionAndAddWidget(
     sectionProps,
     canvasProps,
     sectionLayout,
-    preset,
   );
 }
 
@@ -126,12 +125,13 @@ export function addWidgetsToSection(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
-  sectionProps: WidgetProps,
-  canvasProps: WidgetProps,
+  section: WidgetProps,
+  canvas: WidgetProps,
   sectionLayout: LayoutProps,
-  preset: LayoutProps[],
 ): { canvasWidgets: CanvasWidgetsReduxState; section: WidgetProps } {
   let canvasWidgets = { ...allWidgets };
+  const sectionProps = { ...section };
+  let canvasProps = { ...canvas };
   /**
    * Step 1: Split widgets into zones and non zones.
    *
@@ -180,7 +180,7 @@ export function addWidgetsToSection(
         highlight,
         canvasProps.widgetId,
       );
-    canvasProps.children = [...canvasProps.children, ...data.zone.widgetId];
+    canvasProps.children = [...canvasProps.children, data.zone.widgetId];
     sectionLayout = sectionComp.addChild(
       sectionLayout,
       [
@@ -198,12 +198,12 @@ export function addWidgetsToSection(
   /**
    * Step 4: Update section preset with the updated section layout.
    */
-  preset[0] = sectionLayout;
+  // preset = sectionLayout;
 
   /**
    * Step 5: Update canvas widget with the updated preset.
    */
-  canvasProps.layout = preset;
+  canvasProps.layout = [sectionLayout];
 
   /**
    * Step 6: Establish relationship between section and canvas widget.
@@ -219,4 +219,10 @@ export function addWidgetsToSection(
     },
     section: sectionProps,
   };
+}
+
+function getRandomInt(min: number, max: number): number {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

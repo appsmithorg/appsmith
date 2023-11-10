@@ -57,7 +57,7 @@ class AlignedWidgetColumn extends BaseLayoutComponent {
         {...(layoutStyle || {})}
       >
         {this.renderDraggingArena()}
-        {this.renderChildLayouts()}
+        {this.renderChildWidgets()}
       </FlexLayout>
     );
   }

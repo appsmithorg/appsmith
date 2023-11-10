@@ -20,7 +20,7 @@ export function addWidgetsToMainCanvasLayout(
    * Step 1: Get layout for MainCanvas.
    */
   let mainCanvasWidget: WidgetProps = allWidgets[highlight.canvasId];
-  const mainCanvasPreset: LayoutProps[] = mainCanvasWidget.layout;
+  let mainCanvasPreset: LayoutProps[] = mainCanvasWidget.layout;
   let mainCanvasLayout: LayoutProps | undefined = getAffectedLayout(
     mainCanvasPreset,
     highlight.layoutOrder,
@@ -62,7 +62,7 @@ export function addWidgetsToMainCanvasLayout(
   /**
    * Step 4: Update the MainCanvasLayout preset with the updated layout.
    */
-  mainCanvasPreset[0] = mainCanvasLayout;
+  mainCanvasPreset = [mainCanvasLayout];
 
   /**
    * Step 5: Update the MainCanvasWidget with the updated preset.

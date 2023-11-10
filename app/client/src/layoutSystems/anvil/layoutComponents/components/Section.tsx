@@ -54,6 +54,8 @@ class Section extends WidgetRow {
     }
     return ["ZONE_WIDGET"];
   }
+
+  static rendersWidgets: boolean = true;
 }
 
 export default Section;

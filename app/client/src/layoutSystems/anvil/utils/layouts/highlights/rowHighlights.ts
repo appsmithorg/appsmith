@@ -56,7 +56,15 @@ export const deriveRowHighlights =
     )
       return [];
 
-    const { isDropTarget, layoutId, layoutStyle } = layoutProps;
+    const { isDropTarget, layout, layoutId, layoutStyle, maxChildLimit } =
+      layoutProps;
+
+    /**
+     * Step 1: Check if draggedWidgets will exceed the maxChildLimit of the layout.
+     */
+    if (maxChildLimit !== undefined && maxChildLimit > 0) {
+      if (layout?.length + draggedWidgets.length > maxChildLimit) return [];
+    }
 
     const parentDropTargetId: string = isDropTarget
       ? layoutId

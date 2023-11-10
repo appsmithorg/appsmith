@@ -43,6 +43,14 @@ export function deriveHighlights(
   hasAlignments: boolean,
   hasFillWidget?: boolean,
 ): AnvilHighlightInfo[] {
+  /**
+   * Step 1: Check if draggedWidgets will exceed the maxChildLimit of the layout.
+   */
+  const { layout, maxChildLimit } = layoutProps;
+  if (maxChildLimit !== undefined && maxChildLimit > 0) {
+    if (layout?.length + draggedWidgets.length > maxChildLimit) return [];
+  }
+
   const getDimensions: GetDimensions = getRelativeDimensions(
     layoutProps.isDropTarget ? layoutProps.layoutId : parentDropTargetId,
     widgetPositions,
