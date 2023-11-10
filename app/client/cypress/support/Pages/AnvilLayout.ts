@@ -42,9 +42,6 @@ export class AnvilLayout {
       })
       .trigger("mousemove", x, y, {
         eventConstructor: "MouseEvent",
-      })
-      .trigger("mousemove", x, y, {
-        eventConstructor: "MouseEvent",
       });
     this.agHelper.Sleep(200);
     cy.get(
