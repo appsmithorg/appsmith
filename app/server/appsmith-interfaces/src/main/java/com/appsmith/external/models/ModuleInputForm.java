@@ -8,24 +8,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class ModuleInput {
+public class ModuleInputForm {
     @JsonView(Views.Public.class)
     String id;
 
     @JsonView(Views.Public.class)
-    String label;
+    String sectionName;
 
     @JsonView(Views.Public.class)
-    String propertyName;
-
-    @JsonView(Views.Public.class)
-    String controlType;
-
-    @JsonView(Views.Public.class)
-    String defaultValue;
+    List<ModuleInput> children;
 }

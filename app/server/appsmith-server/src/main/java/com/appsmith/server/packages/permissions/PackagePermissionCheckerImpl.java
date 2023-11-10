@@ -24,7 +24,8 @@ public class PackagePermissionCheckerImpl implements PackagePermissionChecker {
         List<String> projectionFieldNames = List.of(
                 fieldName(QPackage.package$.id),
                 fieldName(QPackage.package$.packageUUID),
-                fieldName(QPackage.package$.policies));
+                fieldName(QPackage.package$.policies),
+                fieldName(QPackage.package$.workspaceId));
         return packageRepository.findById(packageId, projectionFieldNames, permission);
     }
 }

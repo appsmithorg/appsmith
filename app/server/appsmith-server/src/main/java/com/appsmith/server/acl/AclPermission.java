@@ -152,6 +152,9 @@ public enum AclPermission {
     DELETE_PACKAGES("delete:packages", Package.class),
 
     APPLICATION_CREATE_PAGES("create:pages", Application.class),
+
+    // Due to this edge in the hierarchy graph, access to creating module instances would be limited to default
+    // workspace admins and workspace developers
     PACKAGE_CREATE_MODULES("create:modules", Package.class),
 
     MANAGE_PAGES("manage:pages", Page.class),
@@ -163,6 +166,9 @@ public enum AclPermission {
     DELETE_MODULES("delete:modules", Module.class),
 
     CREATE_MODULE_INSTANCES("create:moduleInstances", Module.class),
+
+    // This permission would be used to add actions, JS objects and other module instances to the module in the context
+    // of creator
     CREATE_MODULE_EXECUTABLES("create:moduleExecutables", Module.class),
 
     PAGE_CREATE_PAGE_ACTIONS("create:pageActions", Page.class),

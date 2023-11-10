@@ -1,6 +1,7 @@
 package com.appsmith.server.modules.services;
 
 import com.appsmith.external.models.ModuleInput;
+import com.appsmith.external.models.ModuleInputForm;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Module;
@@ -39,7 +40,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -192,16 +192,15 @@ public class ModuleServiceTest {
 
         // Update name and inputs
         moduleDTO.setName("GetAllUsersModule");
-        moduleDTO.setInputs(Map.of(
-                "minAge", new ModuleInput("minAge", "0"),
-                "gender", new ModuleInput("gender", "all")));
+        moduleDTO.setInputsForm(List.of(new ModuleInputForm(
+                "id", "", List.of(new ModuleInput("id1", "label", "propertyName", "controlType", "defaultValue")))));
         Mono<ModuleDTO> updateModuleMono = crudModuleService.updateModule(moduleDTO, moduleRef.get());
 
         StepVerifier.create(updateModuleMono)
                 .assertNext(updatedModule -> {
                     assertThat(updatedModule.getName()).isEqualTo(moduleDTO.getName());
-                    assertThat(updatedModule.getInputs()).isNotEmpty();
-                    assertThat(updatedModule.getInputs().size()).isEqualTo(2);
+                    assertThat(updatedModule.getInputsForm()).isNotEmpty();
+                    assertThat(updatedModule.getInputsForm().size()).isEqualTo(1);
                 })
                 .verifyComplete();
     }
