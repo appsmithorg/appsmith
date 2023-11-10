@@ -24,12 +24,12 @@ import {
   START_FROM_SCRATCH_TITLE,
   START_FROM_TEMPLATE_SUBTITLE,
   START_FROM_TEMPLATE_TITLE,
+  START_WITH_DATA_TITLE,
+  START_WITH_DATA_SUBTITLE,
   createMessage,
 } from "@appsmith/constants/messages";
 import Filters from "pages/Templates/Filters";
 import { isEmpty } from "lodash";
-import StartScratch from "assets/images/start-from-scratch.svg";
-import StartTemplate from "assets/images/start-from-template.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { TemplateView } from "pages/Templates/TemplateView";
 import {
@@ -38,6 +38,10 @@ import {
 } from "actions/onboardingActions";
 import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -90,12 +94,15 @@ const OptionWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   flex-grow: 1;
+  padding: var(--ads-v2-spaces-7) 0;
 `;
 
 const CardsWrapper = styled.div`
   display: flex;
   gap: 16px;
   margin-top: 48px;
+  flex-wrap: wrap;
+  justify-content: center;
 `;
 
 const CardContainer = styled.div`
@@ -155,6 +162,10 @@ const CreateNewAppsOption = ({
       currentApplicationIdForCreateNewApp,
     ),
   );
+  const isEnabledForStartWithData = useFeatureFlag(
+    FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
+  );
+
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
     AnalyticsUtil.logEvent("CREATE_APP_FROM_TEMPLATE");
@@ -180,6 +191,8 @@ const CreateNewAppsOption = ({
       );
     }
   };
+
+  const onClickStartWithData = () => {};
 
   const goBackFromTemplate = () => {
     setUseTemplate(false);
@@ -276,19 +289,29 @@ const CreateNewAppsOption = ({
   const selectionOptions: CardProps[] = [
     {
       onClick: onClickStartFromScratch,
-      src: StartScratch,
+      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-scratch.png`),
       subTitle: createMessage(START_FROM_SCRATCH_SUBTITLE),
       testid: "t--start-from-scratch",
       title: createMessage(START_FROM_SCRATCH_TITLE),
     },
     {
       onClick: onClickStartFromTemplate,
-      src: StartTemplate,
+      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-usecase.png`),
       subTitle: createMessage(START_FROM_TEMPLATE_SUBTITLE),
       testid: "t--start-from-template",
       title: createMessage(START_FROM_TEMPLATE_TITLE),
     },
   ];
+
+  if (isEnabledForStartWithData) {
+    selectionOptions.unshift({
+      onClick: onClickStartWithData,
+      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-data.png`),
+      subTitle: createMessage(START_WITH_DATA_SUBTITLE),
+      testid: "t--start-from-data",
+      title: createMessage(START_WITH_DATA_TITLE),
+    });
+  }
 
   useEffect(() => {
     AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {
