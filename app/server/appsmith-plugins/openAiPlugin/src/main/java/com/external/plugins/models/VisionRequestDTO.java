@@ -17,7 +17,7 @@ public class VisionRequestDTO extends OpenAIRequestDTO {
      * maximum tokens to use for this request
      */
     @JsonProperty("max_tokens")
-    Float maxTokens;
+    Integer maxTokens;
 
     List<VisionMessage> messages;
 }

@@ -38,6 +38,7 @@ public class OpenAIConstants {
     public static final String TEMPERATURE = "temperature";
     public static final String TEXT_TYPE = "text";
     public static final String IMAGE_TYPE = "image_url";
+    public static final String CONTENT = "content";
 
     // Other constants
     public static final String BODY = "body";

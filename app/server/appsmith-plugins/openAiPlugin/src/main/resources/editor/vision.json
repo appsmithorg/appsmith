@@ -24,7 +24,7 @@
           "condition": "{{true}}",
           "config": {
             "params": {
-              "requestType": "CHAT_MODELS",
+              "requestType": "VISION_MODELS",
               "displayType": "DROP_DOWN"
             }
           }
@@ -61,9 +61,9 @@
     {
       "label": "System Messages",
       "tooltipText": "Provide instruction to assistant",
-      "subtitle": "A list of messages to provide as instruction to assistant",
+      "subtitle": "A list of messages for Assistant as instructions",
       "propertyName": "systemMessages",
-      "isRequired": true,
+      "isRequired": false,
       "configProperty": "actionConfiguration.formData.systemMessages",
       "controlType": "ARRAY_FIELD",
       "addMoreButtonLabel": "Add System Message",

@@ -6,13 +6,15 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.models.OpenAIRequestDTO;
 import com.external.plugins.models.QueryType;
 import com.external.plugins.models.Role;
-import com.external.plugins.models.UserContent;
+import com.external.plugins.models.UserImageContent;
 import com.external.plugins.models.UserQuery;
+import com.external.plugins.models.UserTextContent;
 import com.external.plugins.models.VisionMessage;
 import com.external.plugins.models.VisionRequestDTO;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.http.HttpMethod;
@@ -23,10 +25,12 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.external.plugins.constants.OpenAIConstants.CONTENT;
 import static com.external.plugins.constants.OpenAIConstants.ID;
 import static com.external.plugins.constants.OpenAIConstants.IMAGE_TYPE;
 import static com.external.plugins.constants.OpenAIConstants.LABEL;
@@ -47,16 +51,13 @@ import static com.external.plugins.constants.OpenAIErrorMessages.QUERY_NOT_CONFI
 import static com.external.plugins.constants.OpenAIErrorMessages.STRING_APPENDER;
 
 @Slf4j
+@RequiredArgsConstructor
 public class VisionCommand implements OpenAICommand {
 
     private final Gson gson;
 
     private final String regex = "(ft:gpt.*vision.*)?(gpt).*vision.*";
     private final Pattern pattern = Pattern.compile(regex);
-
-    public VisionCommand(Gson gson) {
-        this.gson = gson;
-    }
 
     @Override
     public HttpMethod getTriggerHTTPMethod() {
@@ -103,7 +104,7 @@ public class VisionCommand implements OpenAICommand {
         Float temperature = getTemperatureFromFormData(formData);
 
         visionRequestDTO.setMessages(visionMessages);
-        visionRequestDTO.setMaxTokens((Float) formData.get(MAX_TOKENS));
+        visionRequestDTO.setMaxTokens(getMaxTokenFromFormData(formData));
         visionRequestDTO.setTemperature(temperature);
         return visionRequestDTO;
     }
@@ -118,24 +119,25 @@ public class VisionCommand implements OpenAICommand {
         Type chatListType = new TypeToken<List<UserQuery>>() {}.getType();
         try {
             List<UserQuery> userQueries = gson.fromJson(gson.toJson(messages), chatListType);
-            List<VisionMessage> visionMessages = new ArrayList<>();
 
             VisionMessage visionMessage = new VisionMessage();
             visionMessage.setContent(new ArrayList<>());
             visionMessage.setRole(Role.user);
 
             for (UserQuery userQuery : userQueries) {
-                UserContent userContent = new UserContent();
                 if (QueryType.text.equals(userQuery.getType())) {
+                    UserTextContent userContent = new UserTextContent();
                     userContent.setType(TEXT_TYPE);
                     userContent.setText(userQuery.getContent());
+                    visionMessage.getContent().add(userContent);
                 } else if (QueryType.image.equals(userQuery.getType())) {
+                    UserImageContent userContent = new UserImageContent();
                     userContent.setType(IMAGE_TYPE);
-                    userContent.setImageUrl(new UserContent.ImageUrl(userQuery.getContent()));
+                    userContent.setImageUrl(new UserImageContent.ImageUrl(userQuery.getContent()));
+                    visionMessage.getContent().add(userContent);
                 }
-                visionMessage.getContent().add(userContent);
             }
-            return visionMessages;
+            return List.of(visionMessage);
         } catch (Exception exception) {
             log.debug("An exception occurred while converting types for messages: {}", messages);
             throw new AppsmithPluginException(
@@ -151,15 +153,15 @@ public class VisionCommand implements OpenAICommand {
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
         }
 
-        Type chatListType = new TypeToken<List<String>>() {}.getType();
+        Type chatListType = new TypeToken<List<LinkedHashMap<String, String>>>() {}.getType();
         try {
-            List<String> systemMessages = gson.fromJson(gson.toJson(messages), chatListType);
+            List<LinkedHashMap<String, String>> systemMessagesMap = gson.fromJson(gson.toJson(messages), chatListType);
 
             List<VisionMessage> visionMessages = new ArrayList<>();
-            for (String systemMessage : systemMessages) {
+            for (Map<String, String> systemMessageMap : systemMessagesMap) {
                 VisionMessage visionMessage = new VisionMessage();
                 visionMessage.setRole(Role.system);
-                visionMessage.setContent(List.of(systemMessage));
+                visionMessage.setContent(List.of(systemMessageMap.get(CONTENT)));
                 visionMessages.add(visionMessage);
             }
             return visionMessages;
@@ -168,6 +170,26 @@ public class VisionCommand implements OpenAICommand {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
+        }
+    }
+
+    private int getMaxTokenFromFormData(Map<String, Object> formData) {
+        int defaultMaxToken = 1000;
+
+        String maxTokenAsString = RequestUtils.extractValueFromFormData(formData, MAX_TOKENS);
+
+        if (!StringUtils.hasText(maxTokenAsString)) {
+            return defaultMaxToken;
+        }
+
+        try {
+            return Integer.parseInt(maxTokenAsString);
+        } catch (IllegalArgumentException illegalArgumentException) {
+            return defaultMaxToken;
+        } catch (Exception exception) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, BAD_TEMPERATURE_CONFIGURATION));
         }
     }
 
