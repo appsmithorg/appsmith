@@ -1,4 +1,5 @@
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -6,7 +7,6 @@ import {
   hideByColumnType,
   getColumnPath,
 } from "../../propertyUtils";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 
 export default {
   sectionName: "Events",
@@ -20,6 +20,7 @@ export default {
         !(
           columnType === ColumnTypes.TEXT ||
           columnType === ColumnTypes.NUMBER ||
+          columnType === ColumnTypes.CURRENCY ||
           columnType === ColumnTypes.CHECKBOX ||
           columnType === ColumnTypes.SWITCH ||
           columnType === ColumnTypes.SELECT ||
@@ -56,7 +57,9 @@ export default {
         const isEditable = get(props, `${baseProperty}.isEditable`, "");
         return (
           !(
-            columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
+            columnType === ColumnTypes.TEXT ||
+            columnType === ColumnTypes.NUMBER ||
+            columnType === ColumnTypes.CURRENCY
           ) || !isEditable
         );
       },
