@@ -1,11 +1,11 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
 
-type UpdateNameAndVerifyUrlObj = {
-  reset: boolean,
-  newAppName: string,
-  verifyAppNameAs?: string,
-  pageName?: string,
-  restOfUrl?: string,
+interface UpdateNameAndVerifyUrlObj {
+  reset: boolean;
+  newAppName: string;
+  verifyAppNameAs?: string;
+  pageName?: string;
+  restOfUrl?: string;
 }
 
 export class GeneralSettings {
@@ -20,11 +20,11 @@ export class GeneralSettings {
   };
 
   UpdateAppNameAndVerifyUrl({
-    reset,
     newAppName,
-    verifyAppNameAs,
     pageName = "page1",
+    reset,
     restOfUrl = "",
+    verifyAppNameAs,
   }: UpdateNameAndVerifyUrlObj) {
     const appNameToBeVerified = verifyAppNameAs ?? newAppName;
     this.agHelper
@@ -37,7 +37,13 @@ export class GeneralSettings {
         );
         this.agHelper.PressEnter(1000);
         this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
-        this.appSettings.CheckUrl(appNameToBeVerified, pageName, undefined, true, restOfUrl);
+        this.appSettings.CheckUrl(
+          appNameToBeVerified,
+          pageName,
+          undefined,
+          true,
+          restOfUrl,
+        );
         if (reset) {
           this.agHelper.RemoveCharsNType(
             this.locators._appNameField,
@@ -46,7 +52,13 @@ export class GeneralSettings {
           );
           this.agHelper.PressEnter(1000);
           this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
-          this.appSettings.CheckUrl(currentAppName as string, pageName, undefined, true, restOfUrl);
+          this.appSettings.CheckUrl(
+            currentAppName as string,
+            pageName,
+            undefined,
+            true,
+            restOfUrl,
+          );
         }
       });
   }

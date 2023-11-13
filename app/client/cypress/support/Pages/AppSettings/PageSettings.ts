@@ -1,10 +1,10 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
 
-type UpdatePageNameAndVerifyUrlObj = {
-  newPageName: string,
-  reset?: boolean,
-  verifyPageNameAs?: string,
-  restOfUrl?: string,
+interface UpdatePageNameAndVerifyUrlObj {
+  newPageName: string;
+  reset?: boolean;
+  verifyPageNameAs?: string;
+  restOfUrl?: string;
 }
 
 export class PageSettings {
@@ -70,9 +70,9 @@ export class PageSettings {
 
   UpdatePageNameAndVerifyUrl({
     newPageName,
-    verifyPageNameAs,
     reset = true,
     restOfUrl = "",
+    verifyPageNameAs,
   }: UpdatePageNameAndVerifyUrlObj) {
     const pageNameToBeVerified = verifyPageNameAs ?? newPageName;
     this.agHelper
@@ -88,7 +88,13 @@ export class PageSettings {
           );
           this.agHelper.PressEnter();
           this.assertHelper.AssertNetworkStatus("@updatePage", 200);
-          this.appSettings.CheckUrl(appName as string, pageNameToBeVerified, undefined, true, restOfUrl);
+          this.appSettings.CheckUrl(
+            appName as string,
+            pageNameToBeVerified,
+            undefined,
+            true,
+            restOfUrl,
+          );
           if (reset) {
             this.agHelper.RemoveCharsNType(
               this.locators._pageNameField,
@@ -127,7 +133,13 @@ export class PageSettings {
           }
           this.agHelper.PressEnter();
           this.assertHelper.AssertNetworkStatus("@updatePage", 200);
-          this.appSettings.CheckUrl(appName as string, "", customSlug, true, restOfUrl);
+          this.appSettings.CheckUrl(
+            appName as string,
+            "",
+            customSlug,
+            true,
+            restOfUrl,
+          );
         });
       });
   }

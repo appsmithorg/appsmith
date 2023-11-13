@@ -4,7 +4,12 @@ describe("Page Settings", () => {
   it("1. Page name change updates URL", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page1");
-    _.pageSettings.UpdatePageNameAndVerifyUrl({newPageName: "Page2", verifyPageNameAs: undefined, reset: false, restOfUrl: "/settings"});
+    _.pageSettings.UpdatePageNameAndVerifyUrl({
+      newPageName: "Page2",
+      verifyPageNameAs: undefined,
+      reset: false,
+      restOfUrl: "/settings",
+    });
     _.homePage.GetAppName().then((appName) => {
       _.deployMode.DeployApp();
       _.appSettings.CheckUrl(appName as string, "Page2", undefined, false);
@@ -46,7 +51,11 @@ describe("Page Settings", () => {
     // Page name allows accented character
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
-    _.pageSettings.UpdatePageNameAndVerifyUrl({newPageName: "Page3œßð", verifyPageNameAs: "Page3", restOfUrl: "/settings"});
+    _.pageSettings.UpdatePageNameAndVerifyUrl({
+      newPageName: "Page3œßð",
+      verifyPageNameAs: "Page3",
+      restOfUrl: "/settings",
+    });
     _.appSettings.ClosePane();
 
     //Page name doesn't allow special character
