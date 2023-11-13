@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { getDragHandlers } from "widgets/TableWidgetV2/widget/utilities";
+import { getDragHandlers } from "widgets/wds/WDSTableWidget/widget/utilities";
 import { HeaderCell } from "../cellComponents/HeaderCell";
 import type { ReactTableColumnProps } from "../Constants";
 import { StickyType } from "../Constants";

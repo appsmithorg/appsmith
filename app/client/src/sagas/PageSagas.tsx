@@ -1372,6 +1372,7 @@ function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 
 function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   const currentPageId: string = yield select(getCurrentPageId);
+  const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
   if (action.payload) {
     // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));
@@ -1380,7 +1381,9 @@ function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
         pageId: currentPageId,
       }),
     );
-  } else {
+  } else if (isPreviewMode) {
+    // check if already in edit mode, then only do this
+
     // when switching back to edit mode
     // we go back to the previous route e.g query, api etc.
     history.goBack();

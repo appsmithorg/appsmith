@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { get } from "lodash";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import {
   getBasePropertyPath,
   hideByColumnType,
