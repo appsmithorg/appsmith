@@ -1,6 +1,10 @@
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import React from "react";
-import type { AnvilHighlightInfo, DraggedWidget } from "../utils/anvilTypes";
+import type {
+  AnvilHighlightInfo,
+  DraggedWidget,
+  LayoutComponentTypes,
+} from "../utils/anvilTypes";
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
@@ -9,6 +13,7 @@ import { useCanvasActivation } from "./hooks/useCanvasActivation";
 interface AnvilCanvasDraggingArenaProps {
   canvasId: string;
   layoutId: string;
+  layoutType: LayoutComponentTypes;
   allowedWidgetTypes: string[];
   deriveAllHighlightsFn: (
     layoutElementPositions: LayoutElementPositions,
@@ -19,8 +24,13 @@ interface AnvilCanvasDraggingArenaProps {
 export const AnvilCanvasDraggingArena = (
   props: AnvilCanvasDraggingArenaProps,
 ) => {
-  const { allowedWidgetTypes, canvasId, deriveAllHighlightsFn, layoutId } =
-    props;
+  const {
+    allowedWidgetTypes,
+    canvasId,
+    deriveAllHighlightsFn,
+    layoutId,
+    layoutType,
+  } = props;
   // useAnvilDnDStates to fetch all states used in Anvil DnD
   const anvilDragStates = useAnvilDnDStates({
     allowedWidgetTypes,
@@ -28,7 +38,12 @@ export const AnvilCanvasDraggingArena = (
     layoutId,
   });
   useCanvasActivation(anvilDragStates, layoutId);
-  const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
+  const onDrop = useAnvilWidgetDrop(
+    canvasId,
+    layoutId,
+    layoutType,
+    anvilDragStates,
+  );
 
   return (
     <AnvilHighlightingCanvas

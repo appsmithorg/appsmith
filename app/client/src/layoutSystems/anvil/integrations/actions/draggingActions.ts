@@ -12,12 +12,17 @@ export const addNewAnvilWidgetAction = (
     type: string;
   },
   highlight: AnvilHighlightInfo,
+  meta: {
+    isMainCanvas: boolean;
+    isSection: boolean;
+  },
 ) => {
   return {
     type: AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET,
     payload: {
       highlight,
       newWidget,
+      ...meta,
     },
   };
 };
@@ -28,12 +33,17 @@ export const addNewAnvilWidgetAction = (
 export const moveAnvilWidgets = (
   highlight: AnvilHighlightInfo,
   movedWidgets: string[],
+  meta: {
+    isMainCanvas: boolean;
+    isSection: boolean;
+  },
 ) => {
   return {
     type: AnvilReduxActionTypes.ANVIL_MOVE_WIDGET,
     payload: {
       highlight,
       movedWidgets,
+      ...meta,
     },
   };
 };
