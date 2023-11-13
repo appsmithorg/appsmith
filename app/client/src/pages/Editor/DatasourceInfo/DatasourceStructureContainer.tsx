@@ -59,7 +59,6 @@ const Container = (props: Props) => {
   const [datasourceStructure, setDatasourceStructure] = useState<
     DatasourceStructureType | undefined
   >(props.datasourceStructure);
-  const [hasSearchedOccured, setHasSearchedOccured] = useState(false);
 
   const { isOpened: isWalkthroughOpened, popFeature } =
     useContext(WalkthroughContext) || {};
@@ -95,12 +94,6 @@ const Container = (props: Props) => {
 
   const handleOnChange = (value: string) => {
     if (!props.datasourceStructure?.tables?.length) return;
-
-    if (value.length > 0) {
-      !hasSearchedOccured && setHasSearchedOccured(true);
-    } else {
-      hasSearchedOccured && setHasSearchedOccured(false);
-    }
 
     const filteredDastasourceStructure =
       props.datasourceStructure.tables.filter((table) =>
@@ -141,7 +134,6 @@ const Container = (props: Props) => {
               context={props.context}
               currentActionId={props.currentActionId || ""}
               datasourceId={props.datasourceId}
-              forceExpand={hasSearchedOccured}
               // If set, then it doesn't set the context menu to generate query from templates
               onEntityTableClick={props.onEntityTableClick}
               step={props.step + 1}
