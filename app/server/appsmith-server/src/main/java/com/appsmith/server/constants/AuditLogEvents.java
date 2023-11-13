@@ -6,6 +6,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
@@ -64,7 +65,10 @@ public class AuditLogEvents {
         ROLE_ASSIGNED_GROUPS,
         ROLE_ASSIGNED_USERS,
         ROLE_UNASSIGNED_GROUPS,
-        ROLE_UNASSIGNED_USERS
+        ROLE_UNASSIGNED_USERS,
+        LICENSE_ADDED,
+        LICENSE_UPDATED,
+        LICENSE_REMOVED
     }
 
     // Map of AnalyticEvent name with their corresponding Audit Log Action name
@@ -108,7 +112,10 @@ public class AuditLogEvents {
                     FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS),
             entry(
                     AnalyticsEvents.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP.getEventName(),
-                    FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS));
+                    FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS),
+            entry(AnalyticsEvents.ADD_LICENSE.getEventName(), FieldName.ADDED),
+            entry(AnalyticsEvents.UPDATE_LICENSE.getEventName(), FieldName.UPDATED),
+            entry(AnalyticsEvents.REMOVE_LICENSE.getEventName(), FieldName.REMOVED));
 
     // Map of Appsmith resource name with their corresponding Audit Log resource name
     public static final Map<String, String> resourceMap = Map.ofEntries(
@@ -123,7 +130,8 @@ public class AuditLogEvents {
             entry(UserGroup.class.getSimpleName(), FieldName.GROUP),
             entry(PermissionGroup.class.getSimpleName(), FieldName.ROLE),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.INSTANCE_SETTING),
-            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING));
+            entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.INSTANCE_SETTING),
+            entry(License.class.getSimpleName(), FieldName.LICENSE));
 
     public static final Map<String, String> authenticationMethodsMap = Map.ofEntries(
             entry(APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.toString(), FieldName.GOOGLE),

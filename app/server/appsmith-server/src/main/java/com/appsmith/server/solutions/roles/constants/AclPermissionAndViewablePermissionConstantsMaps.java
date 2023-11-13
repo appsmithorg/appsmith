@@ -21,6 +21,7 @@ import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.DELETE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
@@ -33,6 +34,7 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
@@ -58,15 +60,20 @@ import static com.appsmith.server.acl.AclPermission.TENANT_READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_ENVIRONMENT;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_ENVIRONMENTS;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.ASSOCIATE_ROLE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.CREATE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.DELETE;
@@ -95,6 +102,11 @@ public class AclPermissionAndViewablePermissionConstantsMaps {
             Map.entry(MANAGE_WORKSPACES, EDIT),
             Map.entry(READ_WORKSPACES, VIEW),
             Map.entry(DELETE_WORKSPACES, DELETE),
+            Map.entry(WORKSPACE_CREATE_ENVIRONMENT, CREATE),
+            Map.entry(WORKSPACE_MANAGE_ENVIRONMENTS, EDIT),
+            Map.entry(WORKSPACE_DELETE_ENVIRONMENTS, DELETE),
+            Map.entry(WORKSPACE_READ_ENVIRONMENTS, VIEW),
+            Map.entry(WORKSPACE_EXECUTE_ENVIRONMENTS, EXECUTE),
 
             // Datasource level permissions
             Map.entry(EXECUTE_DATASOURCES, EXECUTE),
@@ -152,7 +164,9 @@ public class AclPermissionAndViewablePermissionConstantsMaps {
             Map.entry(ASSIGN_PERMISSION_GROUPS, ASSOCIATE_ROLE),
 
             // Environment level permissions
-            Map.entry(EXECUTE_ENVIRONMENTS, EXECUTE));
+            Map.entry(DELETE_ENVIRONMENTS, DELETE),
+            Map.entry(EXECUTE_ENVIRONMENTS, EXECUTE),
+            Map.entry(MANAGE_ENVIRONMENTS, EDIT));
 
     private static final Map<PermissionViewableName, List<AclPermission>> viewableToPermissionsMap =
             permissionViewableMap.entrySet().stream()

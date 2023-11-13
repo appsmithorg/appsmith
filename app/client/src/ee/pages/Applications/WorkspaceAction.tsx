@@ -112,10 +112,8 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
         <MenuItem
           data-testid="t--workspace-action-create-app"
           disabled={!hasCreateNewApplicationPermission}
-          // TODO: @Ashit - change icon to the one in figma
-          // https://www.figma.com/file/Z0QsSdGOydURn6WIMQ3rHM/Solution-Design-of-Appsmith-reusability-aka-Modules?type=design&node-id=866-87724&mode=design&t=bNUG1p7EUMlT1rkL-0
           onSelect={() => onCreateNewApplication(workspaceId)}
-          startIcon="download"
+          startIcon="apps-line"
         >
           {createMessage(NEW_APP)}
         </MenuItem>

@@ -8,7 +8,6 @@ import {
 } from "@appsmith/pages/Billing/Types/types";
 
 import type { AppState } from "@appsmith/reducers";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getRemainingDaysFromTimestamp } from "@appsmith/utils/billingUtils";
 import { EE_PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 import { createSelector } from "reselect";
@@ -209,10 +208,6 @@ export const getEndDate = (state: AppState) => {
 export const getCustomerEmail = (state: AppState) =>
   state.tenant?.tenantConfiguration?.license?.subscriptionDetails
     ?.customerEmail;
-
-// selector to check if the user is on an enterprise user (non-BE)
-export const enableEEOnlyFeatures = (state: AppState) =>
-  isEnterprise(state) || (isAirgapped() && isAirgapLicense(state));
 
 /**
  * selects the tenant brand colors

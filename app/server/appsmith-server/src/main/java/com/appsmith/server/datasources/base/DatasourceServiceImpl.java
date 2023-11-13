@@ -139,42 +139,45 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
     @Override
     protected Flux<DatasourceStorage> organiseDatasourceStorages(@NotNull Datasource savedDatasource) {
         Map<String, DatasourceStorageDTO> storages = savedDatasource.getDatasourceStorages();
-        int datasourceStorageDTOsAllowed = 2;
-        String storageMessage = "Error: Exceeded maximum allowed datasourceStorage count. Please provide a maximum of "
-                + datasourceStorageDTOsAllowed + " datasourceStorage items.";
+        return datasourceStorageService.getDatasourceStorageDTOsAllowed().flatMapMany(datasourceStorageDTOsAllowed -> {
+            String storageMessage =
+                    "Error: Exceeded maximum allowed datasourceStorage count. Please provide a maximum of "
+                            + datasourceStorageDTOsAllowed + " datasourceStorage items.";
 
-        if (storages.size() > datasourceStorageDTOsAllowed) {
-            if (savedDatasource.getMessages() == null) {
-                savedDatasource.setMessages(new HashSet<>());
+            if (storages.size() > datasourceStorageDTOsAllowed) {
+                if (savedDatasource.getMessages() == null) {
+                    savedDatasource.setMessages(new HashSet<>());
+                }
+                // Since the datasource has been created we can't error out, we won't be creating any
+                // datasourceStorages,
+                // but sending back with the hint message.
+
+                log.debug(
+                        "Error: Exceeded maximum allowed datasourceStorage count for datasource {} with datasourceId {}",
+                        savedDatasource.getName(),
+                        savedDatasource.getId());
+                savedDatasource.getMessages().add(storageMessage);
+                return Flux.empty();
             }
-            // Since the datasource has been created we can't error out, we won't be creating any datasourceStorages,
-            // but sending back with the hint message.
 
-            log.debug(
-                    "Error: Exceeded maximum allowed datasourceStorage count for datasource {} with datasourceId {}",
-                    savedDatasource.getName(),
-                    savedDatasource.getId());
-            savedDatasource.getMessages().add(storageMessage);
-            return Flux.empty();
-        }
+            Map<String, DatasourceStorage> storagesToBeSaved = new HashMap<>();
 
-        Map<String, DatasourceStorage> storagesToBeSaved = new HashMap<>();
-
-        return Flux.fromIterable(storages.values())
-                .flatMap(datasourceStorageDTO -> this.getTrueEnvironmentId(
-                                savedDatasource.getWorkspaceId(),
-                                datasourceStorageDTO.getEnvironmentId(),
-                                savedDatasource.getPluginId(),
-                                null)
-                        .map(trueEnvironmentId -> {
-                            datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
-                            DatasourceStorage datasourceStorage =
-                                    datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(
-                                            datasourceStorageDTO);
-                            datasourceStorage.prepareTransientFields(savedDatasource);
-                            storagesToBeSaved.put(trueEnvironmentId, datasourceStorage);
-                            return datasourceStorage;
-                        }))
-                .thenMany(Flux.fromIterable(storagesToBeSaved.values()));
+            return Flux.fromIterable(storages.values())
+                    .flatMap(datasourceStorageDTO -> this.getTrueEnvironmentId(
+                                    savedDatasource.getWorkspaceId(),
+                                    datasourceStorageDTO.getEnvironmentId(),
+                                    savedDatasource.getPluginId(),
+                                    null)
+                            .map(trueEnvironmentId -> {
+                                datasourceStorageDTO.setEnvironmentId(trueEnvironmentId);
+                                DatasourceStorage datasourceStorage =
+                                        datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(
+                                                datasourceStorageDTO);
+                                datasourceStorage.prepareTransientFields(savedDatasource);
+                                storagesToBeSaved.put(trueEnvironmentId, datasourceStorage);
+                                return datasourceStorage;
+                            }))
+                    .thenMany(Flux.fromIterable(storagesToBeSaved.values()));
+        });
     }
 }

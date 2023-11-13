@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.PackageDTO;
 import lombok.Data;
 import lombok.ToString;
 

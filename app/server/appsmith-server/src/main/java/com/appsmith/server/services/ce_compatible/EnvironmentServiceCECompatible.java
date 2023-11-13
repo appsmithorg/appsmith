@@ -15,6 +15,9 @@ public interface EnvironmentServiceCECompatible extends CrudService<Environment,
 
     Flux<EnvironmentDTO> getEnvironmentDTOByWorkspaceId(String workspaceId);
 
+    Mono<EnvironmentDTO> setDatasourceConfigurationDetailsForEnvironment(
+            EnvironmentDTO environmentDTO, String workspaceId);
+
     Mono<EnvironmentDTO> setEnvironmentToDefault(Map<String, String> defaultEnvironmentMap);
 
     Flux<Environment> getDefaultEnvironment(String workspaceId);
@@ -23,4 +26,10 @@ public interface EnvironmentServiceCECompatible extends CrudService<Environment,
 
     Mono<String> verifyEnvironmentIdByWorkspaceId(
             String workspaceId, String environmentId, AclPermission aclPermission);
+
+    Mono<EnvironmentDTO> createCustomEnvironment(Map<String, String> customEnvironmentDetails);
+
+    Mono<EnvironmentDTO> deleteCustomEnvironment(String environmentId);
+
+    Mono<EnvironmentDTO> updateCustomEnvironment(String customEnvironmentId, EnvironmentDTO environmentDTO);
 }

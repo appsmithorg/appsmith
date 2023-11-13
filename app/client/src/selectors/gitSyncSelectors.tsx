@@ -216,3 +216,31 @@ export const getIsGitConnectV2Enabled = createSelector(
   selectFeatureFlags,
   (flags) => !!flags?.release_git_connect_v2_enabled,
 );
+
+export const getProtectedBranchesSelector = (state: AppState) =>
+  state.ui.gitSync.protectedBranches;
+
+export const protectedModeSelector = createSelector(
+  getIsGitConnected,
+  getCurrentGitBranch,
+  getProtectedBranchesSelector,
+  (isGitConnected, currentBranch, protectedBranches = []) => {
+    if (!isGitConnected || !currentBranch) {
+      return false;
+    } else {
+      return protectedBranches.includes(currentBranch);
+    }
+  },
+);
+
+export const getIsUpdateProtectedBranchesLoading = (state: AppState) => {
+  return (
+    state.ui.gitSync.isUpdateProtectedBranchesLoading ||
+    state.ui.gitSync.protectedBranchesLoading
+  );
+};
+
+export const getIsGitProtectedFeatureEnabled = createSelector(
+  selectFeatureFlags,
+  (flags) => !!flags?.release_git_branch_protection_enabled,
+);

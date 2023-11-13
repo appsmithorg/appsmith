@@ -23,6 +23,7 @@ export class PropertyPane {
   private locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
+  _propertyPaneSidebar = ".t--property-pane-sidebar";
   _jsonFieldEdit = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
@@ -84,6 +85,7 @@ export class PropertyPane {
   _selectorViewButton = ".selector-view .bp3-button-text";
   _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-page";
   _sameWindowDropdownOption = ".t--open-dropdown-Same-window";
+  _windowTargetDropdown = ".t--open-dropdown-Window";
   _navigateToType = (type: string) =>
     "div.tab-view span:contains('" + type + "')";
 
@@ -185,7 +187,7 @@ export class PropertyPane {
     //   }
     // });
     this.OpenJsonFormFieldSettings(fieldName);
-    this.agHelper.SelectDropdownList("Field Type", newDataType);
+    this.SelectPropertiesDropDown("Field Type", newDataType);
     this.agHelper.AssertAutoSave();
     this.assertHelper.AssertNetworkStatus("@updateLayout");
   }

@@ -1,6 +1,6 @@
 import type { Datasource, DatasourceStorage } from "entities/Datasource";
 import React from "react";
-import type { EnvironmentType } from "@appsmith/reducers/environmentReducer";
+import type { EnvironmentType } from "@appsmith/configs/types";
 import { getEnvironments } from "@appsmith/selectors/environmentSelectors";
 import { useSelector } from "react-redux";
 import { Text } from "design-system";

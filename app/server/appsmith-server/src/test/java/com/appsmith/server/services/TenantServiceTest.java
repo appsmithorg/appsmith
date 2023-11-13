@@ -9,6 +9,7 @@ import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.SubscriptionDetails;
@@ -16,6 +17,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ProductEdition;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.dtos.UserGroupDTO;
@@ -45,6 +47,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
@@ -55,6 +58,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -68,6 +73,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
+import static com.appsmith.server.constants.ce.FieldNameCE.TENANT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -129,6 +135,15 @@ public class TenantServiceTest {
 
     @SpyBean
     FeatureFlagService featureFlagService;
+
+    @Autowired
+    WorkspaceService workspaceService;
+
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPageService applicationPageService;
 
     private Tenant tenant;
 
@@ -1328,6 +1343,191 @@ public class TenantServiceTest {
                 })
                 .verifyComplete();
 
+        removeUserFromTenantAdmin();
+    }
+
+    @Test
+    @WithUserDetails(value = "anonymousUser")
+    public void activateTenantAndGetRedirectUrl_userWithoutManageTenantPermission_throwACLException() {
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO();
+        Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, new HttpHeaders());
+
+        StepVerifier.create(resultMono)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(error.getMessage())
+                            .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getMessage(TENANT, DEFAULT));
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            activateTenantAndGetRedirectUrl_withInvalidLicenseKey_userWithManageTenantPermission_throwCloudServiceException() {
+
+        // Mock CS response to get invalid license
+        Mockito.when(licenseAPIManager.licenseCheck(any()))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, "")));
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("invalid-license-key", false);
+        Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, new HttpHeaders());
+
+        StepVerifier.create(resultMono)
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(AppsmithException.class);
+                    assertThat(error.getMessage()).isEqualTo(AppsmithError.CLOUD_SERVICES_ERROR.getMessage(""));
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            activateTenantAndGetRedirectUrl_withValidLicenseKey_withoutDefaultWorkspace_userWithManageTenantPermission_returnsRedirectUrl() {
+
+        String licenseKey = "sample-license-key";
+        License license = new License();
+        license.setActive(true);
+        license.setType(LicenseType.PAID);
+        license.setKey(licenseKey);
+        license.setStatus(LicenseStatus.valueOf("ACTIVE"));
+        license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
+        license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
+
+        // Mock CS response to get valid license
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("sample-license-key", false);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://localhost");
+        Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, headers);
+
+        StepVerifier.create(resultMono)
+                .assertNext(redirectUrl -> {
+                    String encodedUrl = URLEncoder.encode("http://localhost/applications", StandardCharsets.UTF_8);
+                    assertThat(redirectUrl).isEqualTo("/signup-success?redirectUrl=" + encodedUrl);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            activateTenantAndGetRedirectUrl_withValidLicenseKey_withDefaultWorkspace_userWithManageTenantPermission_returnsRedirectUrl() {
+
+        User user = sessionUserService.getCurrentUser().block();
+
+        Workspace workspace = workspaceService
+                .createDefault(new Workspace(), user)
+                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
+                .block();
+
+        Application application = new Application();
+        application.setName("test_application");
+        assert workspace != null;
+        application.setWorkspaceId(workspace.getId());
+        application = applicationPageService.createApplication(application).block();
+
+        String licenseKey = "sample-license-key";
+        License license = new License();
+        license.setActive(true);
+        license.setType(LicenseType.PAID);
+        license.setKey(licenseKey);
+        license.setStatus(LicenseStatus.valueOf("ACTIVE"));
+        license.setExpiry(Instant.now().plus(Duration.ofHours(1)));
+        license.setOrigin(LicenseOrigin.SELF_SERVE);
+        license.setPlan(LicensePlan.BUSINESS);
+        license.setProductEdition(ProductEdition.COMMERCIAL);
+
+        // Mock CS response to get valid license
+        Mockito.when(licenseAPIManager.licenseCheck(any())).thenReturn(Mono.just(license));
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("sample-license-key", false);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://localhost");
+        Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, headers);
+
+        assert application != null;
+        StepVerifier.create(resultMono.zipWith(applicationService.findById(application.getId())))
+                .assertNext(tuple -> {
+                    String signupUrl = tuple.getT1();
+                    Application application1 = tuple.getT2();
+                    String pageId = application1.getPages().get(0).getId();
+                    String redirectUrl = URLEncoder.encode(
+                                    "http://localhost/applications/" + application1.getId() + "/pages/" + pageId
+                                            + "/edit",
+                                    StandardCharsets.UTF_8)
+                            + "&enableFirstTimeUserExperience=true";
+                    assertThat(signupUrl).isEqualTo("/signup-success?redirectUrl=" + redirectUrl);
+                })
+                .verifyComplete();
+
+        // Cleanup the default generated workspace and application
+        applicationPageService.deleteApplication(application.getId()).block();
+        workspaceService.archiveById(workspace.getId()).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void activateTenantAndGetRedirectUrl_withoutLicenseKey_userWithManageTenantPermission_returnsRedirectUrl() {
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("", false);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://localhost");
+        Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, headers);
+
+        StepVerifier.create(resultMono)
+                .assertNext(redirectUrl -> {
+                    String encodedUrl = URLEncoder.encode("http://localhost/applications", StandardCharsets.UTF_8);
+                    assertThat(redirectUrl).isEqualTo("/signup-success?redirectUrl=" + encodedUrl);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void activateTenantAndGetRedirectUrl_withoutLicenseKey_userWithDefaultWorkspace_returnsRedirectUrl() {
+
+        // Create a default workspace
+        User user = sessionUserService.getCurrentUser().block();
+        makeUserTenantAdminViaCustomUserGroup(user);
+        Workspace workspace = workspaceService
+                .createDefault(new Workspace(), user)
+                .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
+                .block();
+
+        Application application = new Application();
+        application.setName("test_application");
+        assert workspace != null;
+        application.setWorkspaceId(workspace.getId());
+        application = applicationPageService.createApplication(application).block();
+
+        UpdateLicenseKeyDTO updateLicenseKeyDTO = new UpdateLicenseKeyDTO("", false);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setOrigin("http://localhost");
+        Mono<String> resultMono = tenantService.activateTenantAndGetRedirectUrl(updateLicenseKeyDTO, headers);
+
+        assert application != null;
+        StepVerifier.create(resultMono.zipWith(applicationService.findById(application.getId())))
+                .assertNext(tuple -> {
+                    String signupUrl = tuple.getT1();
+                    Application application1 = tuple.getT2();
+                    String pageId = application1.getPages().get(0).getId();
+                    String redirectUrl = URLEncoder.encode(
+                                    "http://localhost/applications/" + application1.getId() + "/pages/" + pageId
+                                            + "/edit",
+                                    StandardCharsets.UTF_8)
+                            + "&enableFirstTimeUserExperience=true";
+                    assertThat(signupUrl).isEqualTo("/signup-success?redirectUrl=" + redirectUrl);
+                })
+                .verifyComplete();
+
+        // Cleanup the default generated workspace and application
+        applicationPageService.deleteApplication(application.getId()).block();
+        workspaceService.archiveById(workspace.getId()).block();
         removeUserFromTenantAdmin();
     }
 }

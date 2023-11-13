@@ -31,6 +31,11 @@ public class ModuleInstance extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     ModuleInstanceCreatorType creatorType;
 
+    // Variants of publicEntity { Query module : ActionDTO, JS module: ActionCollectionDTO,
+    // UI module: Layout}
+    @JsonView(Views.Public.class)
+    String publicEntityId;
+
     @JsonView(Views.Public.class)
     ModuleInstanceDTO unpublishedModuleInstance;
 

@@ -58,7 +58,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.CommonFieldName.PRODUCTION_ENVIRONMENT;
+import static com.appsmith.external.constants.CommonFieldName.STAGING_ENVIRONMENT;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_DATASOURCE;
+import static com.appsmith.server.constants.FieldName.WORKSPACE_ENVIRONMENT;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateBaseViewDto;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPermissionDTOsAndUpdateMap;
@@ -245,7 +249,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .collectList()
                 .map(workspaceDTOs -> {
                     EntityView entityView = new EntityView();
-                    entityView.setType(Workspace.class.getSimpleName());
+                    entityView.setType("Header");
                     entityView.setEntities(workspaceDTOs);
                     return entityView;
                 });
@@ -270,43 +274,58 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
             Flux<Workspace> workspaceFlux,
             Map<String, Collection<DatasourceResourceDTO>> workspaceDatasourceMap,
             Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap) {
-        return workspaceFlux
-                .map(workspace -> generateBaseViewDto(
-                        workspace,
-                        Workspace.class,
-                        workspace.getName(),
-                        RoleTab.DATASOURCES_ENVIRONMENTS,
-                        permissionGroupId,
-                        policyGenerator))
-                .flatMap(workspaceDTO -> {
-                    // Create the empty header representations and add the respective children inside them
-                    EntityView header = new EntityView();
-                    header.setType("Header");
+        return workspaceFlux.flatMap(workspace -> {
+            BaseView workspaceDTO = generateBaseViewDto(
+                    workspace,
+                    Workspace.class,
+                    workspace.getName(),
+                    RoleTab.DATASOURCES_ENVIRONMENTS,
+                    permissionGroupId,
+                    policyGenerator);
+            // Create the empty header representations and add the respective children inside them
+            EntityView header = new EntityView();
+            header.setType(Workspace.class.getSimpleName());
 
-                    // Datasource View
-                    BaseView datasourcesView = new BaseView();
-                    datasourcesView.setName("Datasources");
-                    EntityView datasourcesEntityView = new EntityView();
-                    datasourcesEntityView.setType(Datasource.class.getSimpleName());
-                    List<DatasourceResourceDTO> datasourceResourceDTOS =
-                            (List<DatasourceResourceDTO>) workspaceDatasourceMap.get(workspaceDTO.getId());
-                    datasourcesEntityView.setEntities(datasourceResourceDTOS);
-                    datasourcesView.setChildren(Set.of(datasourcesEntityView));
+            // Datasource View
+            BaseView datasourcesView = new BaseView();
+            datasourcesView.setId(workspace.getId());
+            datasourcesView.setName("Datasources");
+            Tuple2<List<Integer>, List<Integer>> roleViewPermissionDTO = getRoleViewPermissionDTO(
+                    permissionGroupId,
+                    Workspace.class,
+                    policyGenerator,
+                    workspace.getPolicies(),
+                    RoleTab.DATASOURCES_ENVIRONMENTS.getDuplicateEntities().stream()
+                            .filter(tuple3 -> tuple3.getT1().equals("Datasources"))
+                            .findFirst()
+                            .get()
+                            .getT3()
+                            .stream()
+                            .collect(Collectors.toSet()),
+                    RoleTab.DATASOURCES_ENVIRONMENTS.getViewablePermissions());
+            datasourcesView.setEnabled(roleViewPermissionDTO.getT1());
+            datasourcesView.setEditable(roleViewPermissionDTO.getT2());
+            EntityView datasourcesEntityView = new EntityView();
+            datasourcesEntityView.setType(Datasource.class.getSimpleName());
+            List<DatasourceResourceDTO> datasourceResourceDTOS =
+                    (List<DatasourceResourceDTO>) workspaceDatasourceMap.get(workspaceDTO.getId());
+            datasourcesEntityView.setEntities(datasourceResourceDTOS);
+            datasourcesView.setChildren(Set.of(datasourcesEntityView));
 
-                    Mono<BaseView> environmentViewMono =
-                            environmentResources.getEnvironmentEntityBaseView(workspaceEnvironmentMap, workspaceDTO);
+            Mono<BaseView> environmentViewMono = environmentResources.getEnvironmentEntityBaseView(
+                    workspaceEnvironmentMap, workspaceDTO, workspace, permissionGroupId);
 
-                    return environmentViewMono.map(environmentsView -> {
-                        List<BaseView> baseViews = new ArrayList<>();
-                        baseViews.add(datasourcesView);
-                        if (environmentsView != null && StringUtils.hasLength(environmentsView.getName())) {
-                            baseViews.add(environmentsView);
-                        }
-                        header.setEntities(baseViews);
-                        workspaceDTO.setChildren(Set.of(header));
-                        return workspaceDTO;
-                    });
-                });
+            return environmentViewMono.map(environmentsView -> {
+                List<BaseView> baseViews = new ArrayList<>();
+                baseViews.add(datasourcesView);
+                if (environmentsView != null && StringUtils.hasLength(environmentsView.getName())) {
+                    baseViews.add(environmentsView);
+                }
+                header.setEntities(baseViews);
+                workspaceDTO.setChildren(Set.of(header));
+                return workspaceDTO;
+            });
+        });
     }
 
     private Map<String, Collection<DatasourceResourceDTO>> getWorkspaceDatasourceMap(
@@ -394,7 +413,11 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap = new HashMap<>();
         workspaceEnvironmentNotDtoMap.forEach((workspaceId, environments) -> {
             Collection<EnvironmentResourceDTO> environmentResourceDTOS = environments.stream()
-                    .sorted(Comparator.comparing(Environment::getName))
+                    .sorted(Comparator.comparing(Environment::getIsDefault)
+                            .thenComparing(environment -> environment.getName().equals(PRODUCTION_ENVIRONMENT)
+                                    || environment.getName().equals(STAGING_ENVIRONMENT))
+                            .thenComparing(Environment::getName)
+                            .reversed())
                     .map(environment -> {
                         EnvironmentResourceDTO environmentResourceDTO = new EnvironmentResourceDTO();
                         environmentResourceDTO.setId(environment.getId());
@@ -824,6 +847,15 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                     String workspaceId = workspace.getId();
                     generateLateralPermissionDTOsAndUpdateMap(
                             workspaceLateralMap, disableMap, workspaceId, workspaceId, Workspace.class);
+                    disableMap.forEach((key, value) -> {
+                        if (key.startsWith(workspaceId)
+                                && !key.contains(WORKSPACE_DATASOURCE)
+                                && !key.contains(WORKSPACE_ENVIRONMENT)) {
+                            disableMap.remove(key);
+                            disableMap.put(key + "_" + WORKSPACE_DATASOURCE, value);
+                            disableMap.put(key + "_" + WORKSPACE_ENVIRONMENT, value);
+                        }
+                    });
                     return workspaceId;
                 })
                 .then();
@@ -878,10 +910,16 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         Mono<Boolean> workspaceDatasourcesHoverMapMono = workspaceDatasourceMapMono
                 .flatMapMany(workspaceDatasourceMap -> {
                     return workspaceFlux.map(workspace -> {
+                        ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMapDatasources = new ConcurrentHashMap<>();
+
                         String workspaceId = workspace.getId();
 
                         generateLateralPermissionDTOsAndUpdateMap(
-                                workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
+                                workspaceHierarchicalLateralMap,
+                                hoverMapDatasources,
+                                workspaceId,
+                                workspaceId,
+                                Workspace.class);
 
                         Collection<Datasource> datasources = workspaceDatasourceMap.get(workspace.getId());
 
@@ -890,18 +928,28 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                                 String datasourceId = datasource.getId();
                                 generateLateralPermissionDTOsAndUpdateMap(
                                         workspaceHierarchicalLateralMap,
-                                        hoverMap,
+                                        hoverMapDatasources,
                                         workspaceId,
                                         datasourceId,
                                         Datasource.class);
                                 generateLateralPermissionDTOsAndUpdateMap(
                                         datasourceHierarchicalLateralMap,
-                                        hoverMap,
+                                        hoverMapDatasources,
                                         datasourceId,
                                         datasourceId,
                                         Datasource.class);
                             });
                         }
+
+                        hoverMapDatasources.forEach((key, value) -> {
+                            if (key.startsWith(workspaceId)
+                                    && !key.contains(WORKSPACE_DATASOURCE)
+                                    && !key.contains(WORKSPACE_ENVIRONMENT)) {
+                                hoverMapDatasources.remove(key);
+                                hoverMapDatasources.put(key + "_" + WORKSPACE_DATASOURCE, value);
+                            }
+                        });
+                        hoverMap.putAll(hoverMapDatasources);
 
                         return workspace;
                     });

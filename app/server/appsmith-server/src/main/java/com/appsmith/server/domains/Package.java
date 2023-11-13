@@ -1,15 +1,14 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BranchAwareDomain;
-import com.appsmith.external.models.PackageDTO;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.dtos.PackageDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
@@ -28,23 +27,23 @@ public class Package extends BranchAwareDomain {
     String workspaceId;
 
     @JsonView(Views.Public.class)
-    String color;
-
-    @JsonView(Views.Public.class)
-    String icon;
-
-    @Transient
-    @JsonView(Views.Public.class)
-    String name;
-
-    @JsonView(Views.Public.class)
     String packageUUID; // `packageUUID` is not globally unique but within the workspace
 
+    // `unpublishedPackage` will be empty in case of published version of the package document.
     @JsonView(Views.Internal.class)
     PackageDTO unpublishedPackage;
 
+    // `publishedPackage` will be empty in case of unpublished version aka DEV version of the package document.
     @JsonView(Views.Internal.class)
     PackageDTO publishedPackage;
+
+    // `srcPackageId` will be null for the DEV version; It will contain the `id` of the package that
+    // the package editor is working on
+    @JsonView(Views.Internal.class)
+    String srcPackageId;
+
+    @JsonView(Views.Internal.class)
+    String version;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
@@ -55,6 +54,15 @@ public class Package extends BranchAwareDomain {
     public String getLastUpdateTime() {
         if (updatedAt != null) {
             return ISO_FORMATTER.format(updatedAt);
+        }
+        return null;
+    }
+
+    @JsonProperty(value = "lastPublished", access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Public.class)
+    public String getLastPublishedTime() {
+        if (lastPublishedAt != null) {
+            return ISO_FORMATTER.format(lastPublishedAt);
         }
         return null;
     }

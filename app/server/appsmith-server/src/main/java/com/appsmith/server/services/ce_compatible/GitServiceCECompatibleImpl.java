@@ -4,7 +4,6 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
@@ -30,9 +29,8 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Service
 public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitServiceCECompatible {
@@ -62,7 +60,8 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
-            GitPrivateRepoHelper gitPrivateRepoHelper) {
+            GitPrivateRepoHelper gitPrivateRepoHelper,
+            TransactionalOperator transactionalOperator) {
         super(
                 userService,
                 userDataService,
@@ -88,26 +87,12 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
                 workspaceService,
                 redisUtils,
                 observationRegistry,
-                gitPrivateRepoHelper);
+                gitPrivateRepoHelper,
+                transactionalOperator);
     }
 
     @Override
     public Mono<String> setDefaultBranch(String defaultApplicationId, String newDefaultBranchName) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<Application> protectBranch(String defaultApplicationId, String branchName) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<Application> unProtectBranch(String defaultApplicationId, String branchName) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<List<String>> getProtectedBranches(String defaultApplicationId) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

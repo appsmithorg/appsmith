@@ -17,7 +17,7 @@ import {
 import Card from "components/common/Card";
 import history from "utils/history";
 import { generateEditedByText } from "pages/Applications/helpers";
-import { BASE_PACKAGE_EDITOR_URL } from "@appsmith/constants/routes/packageRoutes";
+import { BASE_PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 import type { Package } from "@appsmith/constants/PackageConstants";
 import type { ModifiedMenuItemProps } from "pages/Applications/ApplicationCard";
 import { useDispatch, useSelector } from "react-redux";
@@ -224,7 +224,7 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
   );
 
   const editPackage = useCallback(() => {
-    history.push(`${BASE_PACKAGE_EDITOR_URL}/${pkg.id}`);
+    history.push(`${BASE_PACKAGE_EDITOR_PATH}/${pkg.id}`);
   }, [pkg.id]);
 
   return (
@@ -249,7 +249,7 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
       {!isMenuOpen && (
         <Button
           className="t--package-edit-link"
-          href={`${BASE_PACKAGE_EDITOR_URL}/${pkg.id}`}
+          href={`${BASE_PACKAGE_EDITOR_PATH}/${pkg.id}`}
           onClick={editPackage}
           size="md"
           startIcon={"pencil-line"}

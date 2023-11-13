@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { EditInteractionKind, SavingState } from "design-system-old";
-import { Tooltip } from "design-system";
+import { Button, Tooltip } from "design-system";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import {
@@ -11,6 +11,7 @@ import {
 } from "@appsmith/constants/messages";
 import {
   getCurrentPackage,
+  getIsPackagePublishing,
   getIsSavingPackageName,
   getPackagesList,
   getisErrorSavingPackageName,
@@ -23,7 +24,10 @@ import { LockEntityExplorer } from "pages/Editor/commons/LockEntityExplorer";
 import { Omnibar } from "pages/Editor/commons/Omnibar";
 import { HelperBarInHeader } from "pages/Editor/HelpBarInHeader";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
-import { updatePackageName } from "@appsmith/actions/packageActions";
+import {
+  publishPackage,
+  updatePackageName,
+} from "@appsmith/actions/packageActions";
 import type { Package } from "@appsmith/constants/PackageConstants";
 import EditorName from "pages/Editor/EditorName";
 import { GetNavigationMenuData } from "./EditorPackageName/NavigationMenuData";
@@ -35,6 +39,7 @@ export function PackageEditorHeader() {
   const isSavingName = useSelector(getIsSavingPackageName);
   const isErroredSavingName = useSelector(getisErrorSavingPackageName);
   const packageList = useSelector(getPackagesList) || [];
+  const isPublishing = useSelector(getIsPackagePublishing);
   const currentPackage = useSelector(getCurrentPackage);
   const packageId = currentPackage?.id;
 
@@ -43,6 +48,12 @@ export function PackageEditorHeader() {
   const updatePackage = (val: string, pkg: Package | null) => {
     if (val !== pkg?.name) {
       dispatch(updatePackageName(val, pkg));
+    }
+  };
+
+  const onPublishPackage = () => {
+    if (packageId) {
+      dispatch(publishPackage({ packageId }));
     }
   };
 
@@ -90,9 +101,22 @@ export function PackageEditorHeader() {
           />
         </HeaderSection>
 
-        <HelperBarInHeader isPreviewMode={false} />
+        <HelperBarInHeader isPreview={false} />
 
-        <HeaderSection />
+        <HeaderSection className="gap-x-1">
+          <div className="flex items-center">
+            <Button
+              data-testid="t--package-publish-btn"
+              isLoading={isPublishing}
+              kind="tertiary"
+              onClick={onPublishPackage}
+              size="md"
+              startIcon={"rocket"}
+            >
+              Publish
+            </Button>
+          </div>
+        </HeaderSection>
 
         <Omnibar />
       </HeaderWrapper>

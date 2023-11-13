@@ -17,6 +17,12 @@ public class ActionDTO extends ActionCE_DTO {
     @JsonView(Views.Public.class)
     String moduleId;
 
+    @JsonView(Views.Public.class)
+    String moduleInstanceId;
+
+    @JsonView(Views.Public.class)
+    Boolean isPublic;
+
     @Transient
     @JsonView(Views.Internal.class)
     ActionContext context;

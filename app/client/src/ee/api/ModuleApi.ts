@@ -35,7 +35,7 @@ class ModuleApi extends Api {
     payload: FetchModuleActionsPayload,
   ): Promise<AxiosPromise<ApiResponse<FetchModuleActionsResponse>>> {
     const { moduleId } = payload;
-    const url = `${BASE_URL}/${moduleId}`;
+    const url = `${BASE_URL}/${moduleId}/actions`;
 
     return Api.get(url);
   }

@@ -93,8 +93,6 @@ describe("URLBuilder", () => {
     };
 
     URLBuilder.prototype.generateBasePath = jest.fn((pageId, mode) => {
-      expect(pageId).toBe(testPageId); // Ensure the overridden pageId is used
-      expect(mode).toBe(testMode);
       return `mockedBasePath/${pageId}/${mode}`;
     });
 
@@ -108,6 +106,14 @@ describe("URLBuilder", () => {
     expect(result).toEqual(
       "mockedBasePath/testPageId/EDIT/testSuffix?param1=value1&param2=value2&branch=testBranch#testHash",
     );
+  });
+
+  it("should throw an error when pageId is missing", () => {
+    urlBuilder.setCurrentPageId(null);
+
+    expect(() => {
+      urlBuilder.build({}, APP_MODE.EDIT);
+    }).toThrow(URIError);
   });
 });
 

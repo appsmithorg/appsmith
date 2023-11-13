@@ -13,7 +13,7 @@ import { createReducer } from "utils/ReducerUtils";
 
 export type EditorReduxState = CE_EditorReduxState & {
   isPackageEditorInitialized: boolean;
-  currentModuleId?: string;
+  currentModuleId?: string | null;
   currentPackageId?: string;
   isPackagePublishing: boolean;
   isModuleFetchingActions: boolean;
@@ -75,6 +75,37 @@ const handlers = {
     return {
       ...state,
       isModuleFetchingActions: false,
+    };
+  },
+
+  [ReduxActionTypes.SET_CURRENT_MODULE]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ id?: string | null }>,
+  ) => {
+    return {
+      ...state,
+      currentModuleId: action.payload.id,
+    };
+  },
+
+  [ReduxActionTypes.PUBLISH_PACKAGE_INIT]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isPackagePublishing: true,
+    };
+  },
+
+  [ReduxActionTypes.PUBLISH_PACKAGE_SUCCESS]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isPackagePublishing: false,
+    };
+  },
+
+  [ReduxActionErrorTypes.PUBLISH_PACKAGE_ERROR]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isPackagePublishing: false,
     };
   },
 };

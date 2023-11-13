@@ -1,12 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.dtos.UpdateLicenseKeyDTO;
 import com.appsmith.server.services.ce.TenantServiceCE;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 public interface TenantService extends TenantServiceCE {
@@ -17,10 +16,10 @@ public interface TenantService extends TenantServiceCE {
     /**
      * To add a license key to the default tenant and return redirect URL
      * @param updateLicenseKeyDTO   DTO for updating the license key
-     * @param exchange              ServerWebExchange
+     * @param httpHeaders           HTTP headers
      * @return Mono of String
      */
-    Mono<String> activateTenantAndGetRedirectUrl(UpdateLicenseKeyDTO updateLicenseKeyDTO, ServerWebExchange exchange);
+    Mono<String> activateTenantAndGetRedirectUrl(UpdateLicenseKeyDTO updateLicenseKeyDTO, HttpHeaders httpHeaders);
 
     Mono<Tenant> removeLicenseKey();
 
@@ -54,10 +53,6 @@ public interface TenantService extends TenantServiceCE {
      * @return Boolean
      */
     Boolean isValidLicenseConfiguration(Tenant tenant);
-
-    Mono<Boolean> isEnterprisePlan(String tenantId);
-
-    Mono<License> getTenantLicense(String tenantId);
 
     /**
      * The method takes 3 inputs, a Mono of tenantConfiguration as JSON String, Part file for brand logo and Part file for brand favicon.

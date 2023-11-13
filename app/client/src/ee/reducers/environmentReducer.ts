@@ -1,15 +1,7 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
-
-// Type for one environment
-export interface EnvironmentType {
-  id: string;
-  name: string;
-  workspaceId: string;
-  isDefault?: boolean;
-  userPermissions?: string[];
-}
+import { createImmerReducer } from "utils/ReducerUtils";
+import type { EnvironmentType } from "@appsmith/configs/types";
 
 export interface CurrentEnvironmentDetails {
   id: string; // current environment id
@@ -25,6 +17,10 @@ export interface EnvironmentsReduxState {
    * @param {boolean} isLoading - Whether the environments are being fetched
    */
   isLoading: boolean;
+  /**
+   * @param {boolean} isUpdating - Whether the environments are being updated
+   */
+  isUpdating: boolean;
   /**
    * @param {boolean} error - Whether there was an error while fetching the environments
    */
@@ -42,6 +38,7 @@ export interface EnvironmentsReduxState {
 // Initial state of the environment state in redux
 export const initialEnvironmentState: EnvironmentsReduxState = {
   isLoading: false,
+  isUpdating: false,
   error: false,
   data: [],
   currentEnvironmentDetails: {
@@ -80,6 +77,79 @@ const handlers = {
     isLoading: false,
     error: true,
   }),
+  [ReduxActionTypes.CREATE_ENVIRONMENT_INIT]: (
+    state: EnvironmentsReduxState,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    isUpdating: true,
+  }),
+  [ReduxActionTypes.CREATE_ENVIRONMENT_FAILED]: (
+    state: EnvironmentsReduxState,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    isUpdating: false,
+    error: true,
+  }),
+  [ReduxActionTypes.CREATE_ENVIRONMENT_SUCCESS]: (
+    state: EnvironmentsReduxState,
+    action: ReduxAction<EnvironmentType>,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    isUpdating: false,
+    data: [...state.data, action.payload],
+  }),
+  [ReduxActionTypes.UPDATE_ENVIRONMENT_SUCCESS]: (
+    state: EnvironmentsReduxState,
+    action: ReduxAction<EnvironmentType>,
+  ): EnvironmentsReduxState => {
+    const updatedEnvironments = state.data.map((environment) => {
+      if (environment.id === action.payload.id) {
+        return action.payload;
+      }
+      return environment;
+    });
+    return {
+      ...state,
+      isUpdating: false,
+      data: updatedEnvironments,
+    };
+  },
+  [ReduxActionTypes.DELETE_ENVIRONMENT_SUCCESS]: (
+    state: EnvironmentsReduxState,
+    action: ReduxAction<EnvironmentType>,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    isUpdating: false,
+    data: state.data.filter(
+      (environment) => environment.id !== action.payload.id,
+    ),
+  }),
+  [ReduxActionTypes.UPDATE_ENVIRONMENT_INIT]: (
+    state: EnvironmentsReduxState,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    isUpdating: true,
+  }),
+  [ReduxActionTypes.UPDATE_ENVIRONMENT_FAILED]: (
+    state: EnvironmentsReduxState,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    isUpdating: false,
+    error: true,
+  }),
+  [ReduxActionTypes.DELETE_ENVIRONMENT_INIT]: (
+    state: EnvironmentsReduxState,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    isUpdating: true,
+  }),
+  [ReduxActionTypes.DELETE_ENVIRONMENT_FAILED]: (
+    state: EnvironmentsReduxState,
+  ): EnvironmentsReduxState => ({
+    ...state,
+    isUpdating: false,
+    error: true,
+  }),
   [ReduxActionTypes.SET_CURRENT_ENVIRONMENT]: (
     state: EnvironmentsReduxState,
     action: ReduxAction<CurrentEnvironmentDetails>,
@@ -99,4 +169,4 @@ const handlers = {
   }),
 };
 
-export default createReducer(initialEnvironmentState, handlers);
+export default createImmerReducer(initialEnvironmentState, handlers);

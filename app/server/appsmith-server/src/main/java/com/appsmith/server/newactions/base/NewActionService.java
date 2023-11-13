@@ -11,4 +11,8 @@ public interface NewActionService extends NewActionServiceCE {
     Mono<NewAction> sendNewActionAnalyticsEvent(AnalyticEventDTO analyticEventDTO, String origin);
 
     Mono<List<ActionDTO>> getAllUnpublishedModuleActions(String moduleId);
+
+    Mono<List<NewAction>> archiveActionsByModuleId(String moduleId);
+
+    Mono<NewAction> findPublicActionByModuleId(String moduleId);
 }

@@ -16,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.appsmith.server.constants.EmailConstants.APPLICATION_EMAIL_SUBJECT_FOR_EXISTING_USER;
 import static com.appsmith.server.constants.EmailConstants.APPLICATION_EMAIL_SUBJECT_FOR_NEW_USER;
 import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_DEVELOPER_TEXT;
 import static com.appsmith.server.constants.EmailConstants.EMAIL_ROLE_VIEWER_TEXT;
@@ -30,9 +29,9 @@ import static com.appsmith.server.constants.EmailConstants.INVITE_TO_INSTANCE_EM
 import static com.appsmith.server.constants.EmailConstants.INVITE_TO_INSTANCE_EMAIL_TEMPLATE_VIA_GROUPS;
 import static com.appsmith.server.constants.EmailConstants.INVITE_USER_CLIENT_URL_FORMAT;
 import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT;
-import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_APPLICATION_REDIRECTION;
-import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_INSTANCE_INVITE;
-import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_USER_SIGNUP_APPLICATION_INVITE;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_GET_ACCESS;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_GO_TO_YOUR_INSTANCE;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_JOIN_YOUR_INSTANCE;
 import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_URL;
 import static com.appsmith.server.constants.EmailConstants.ROLE_NAME;
 import static com.appsmith.server.constants.FieldName.INSTANCE_ID;
@@ -72,23 +71,12 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
         Map<String, String> params = getApplicationEmailParams(
                 invitingUser, applicationInvitedTo, inviteUrl, appRoleType, instanceId, isNewUser);
 
-        String subject = "";
-
-        if (isNewUser) {
-            subject = String.format(APPLICATION_EMAIL_SUBJECT_FOR_NEW_USER, params.get(INVITER_APPLICATION_NAME));
-        } else {
-            subject = String.format(
-                    APPLICATION_EMAIL_SUBJECT_FOR_EXISTING_USER,
-                    params.get(INVITER_FIRST_NAME),
-                    params.get(INVITER_APPLICATION_NAME));
-        }
-
-        String finalSubject = subject;
+        String subject = String.format(APPLICATION_EMAIL_SUBJECT_FOR_NEW_USER, params.get(INVITER_APPLICATION_NAME));
 
         return emailServiceHelper
                 .enrichWithBrandParams(params, originHeader)
                 .flatMap(updatedParams ->
-                        emailSender.sendMail(invitedUser.getEmail(), finalSubject, INVITE_APP_TEMPLATE, updatedParams));
+                        emailSender.sendMail(invitedUser.getEmail(), subject, INVITE_APP_TEMPLATE, updatedParams));
     }
 
     @Override
@@ -116,7 +104,7 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
                 URLEncoder.encode(invitedUser.getUsername().toLowerCase(), StandardCharsets.UTF_8));
         String emailSubject = String.format(INVITE_TO_INSTANCE_EMAIL_SUBJECT_VIA_GROUP, groupAddedTo);
         Map<String, String> params =
-                getInstanceEmailParamsForGroupInvite(invitingUser, inviteUrl, groupAddedTo, instanceName);
+                getInstanceEmailParamsForGroupInvite(invitingUser, invitedUser, inviteUrl, groupAddedTo, instanceName);
         return emailServiceHelper
                 .enrichWithBrandParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
@@ -159,19 +147,14 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
         }
 
         // Set primary link URL based on conditions
-        if (isNewUser) {
-            params.put(PRIMARY_LINK_TEXT, PRIMARY_LINK_TEXT_USER_SIGNUP_APPLICATION_INVITE);
-        } else {
-            params.put(PRIMARY_LINK_TEXT, PRIMARY_LINK_TEXT_APPLICATION_REDIRECTION);
-        }
-
+        params.put(PRIMARY_LINK_TEXT, PRIMARY_LINK_TEXT_GET_ACCESS);
         params.put(PRIMARY_LINK_URL, inviteUrl);
 
         return params;
     }
 
     private Map<String, String> getInstanceEmailParamsForGroupInvite(
-            User invitingUser, String inviteUrl, String groupName, String instanceName) {
+            User invitingUser, User invitedUser, String inviteUrl, String groupName, String instanceName) {
         Map<String, String> params = new HashMap<>();
         if (invitingUser != null) {
             params.put(
@@ -183,7 +166,11 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
 
         if (invitingUser != null) {
             params.put(PRIMARY_LINK_URL, inviteUrl);
-            params.put(PRIMARY_LINK_TEXT, PRIMARY_LINK_TEXT_INSTANCE_INVITE);
+            if (!invitedUser.isEnabled()) {
+                params.put(PRIMARY_LINK_TEXT, PRIMARY_LINK_TEXT_JOIN_YOUR_INSTANCE);
+            } else {
+                params.put(PRIMARY_LINK_TEXT, PRIMARY_LINK_TEXT_GO_TO_YOUR_INSTANCE);
+            }
         }
 
         params.put(INSTANCE_NAME, instanceName);
@@ -204,7 +191,7 @@ public class EmailServiceImpl extends EmailServiceCEImpl implements EmailService
 
         if (invitingUser != null) {
             params.put(PRIMARY_LINK_URL, inviteUrl);
-            params.put(PRIMARY_LINK_TEXT, PRIMARY_LINK_TEXT_INSTANCE_INVITE);
+            params.put(PRIMARY_LINK_TEXT, PRIMARY_LINK_TEXT_JOIN_YOUR_INSTANCE);
         }
 
         params.put(INSTANCE_NAME, instanceName);

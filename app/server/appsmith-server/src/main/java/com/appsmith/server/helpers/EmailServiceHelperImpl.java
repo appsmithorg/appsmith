@@ -17,10 +17,13 @@ import static com.appsmith.server.constants.EmailConstants.BRAND_FONT_COLOR;
 import static com.appsmith.server.constants.EmailConstants.BRAND_PRIMARY_COLOR;
 import static com.appsmith.server.constants.EmailConstants.EMAIL_VERIFICATION_EMAIL_TEMPLATE_EE;
 import static com.appsmith.server.constants.EmailConstants.FORGOT_PASSWORD_TEMPLATE_EE;
+import static com.appsmith.server.constants.EmailConstants.INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT_EE;
 import static com.appsmith.server.constants.EmailConstants.INVITE_TO_INSTANCE_ADMIN_EMAIL_TEMPLATE;
+import static com.appsmith.server.constants.EmailConstants.INVITE_TO_WORKSPACE_EMAIL_SUBJECT_EE;
 import static com.appsmith.server.constants.EmailConstants.INVITE_TO_WORKSPACE_EXISTING_USER_TEMPLATE_EE;
 import static com.appsmith.server.constants.EmailConstants.INVITE_TO_WORKSPACE_NEW_USER_TEMPLATE_EE;
 import static com.appsmith.server.constants.EmailConstants.LOGO_URL;
+import static com.appsmith.server.constants.EmailConstants.PRIMARY_LINK_TEXT_INVITE_TO_INSTANCE_EE;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.INSTANCE_NAME;
 import static com.appsmith.server.domains.TenantConfiguration.DEFAULT_APPSMITH_LOGO;
 
@@ -73,6 +76,24 @@ public class EmailServiceHelperImpl extends EmailServiceHelperCEImpl implements 
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public String getAdminInstanceInviteTemplate() {
         return INVITE_TO_INSTANCE_ADMIN_EMAIL_TEMPLATE;
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
+    public String getJoinInstanceCtaPrimaryText() {
+        return PRIMARY_LINK_TEXT_INVITE_TO_INSTANCE_EE;
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
+    public String getSubjectJoinInstanceAsAdmin(String instanceName) {
+        return String.format(INSTANCE_ADMIN_INVITE_EMAIL_SUBJECT_EE, instanceName);
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
+    public String getSubjectJoinWorkspace(String workspaceName) {
+        return String.format(INVITE_TO_WORKSPACE_EMAIL_SUBJECT_EE, workspaceName);
     }
 
     private String getBrandLogoUrl(String brandLogoUrl, String originURL) {

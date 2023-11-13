@@ -704,10 +704,15 @@ export const getIcon = (iconLocations: any[], pluginId: string) => {
   return <img alt={icon.name} src={getAssetUrl(icon.iconLocation)} />;
 };
 
+const eligibleRowNames = ["Datasources", "Environments", "Groups", "Roles"];
+const eligibleTypes = ["Tenant", "Workspace"];
+
 export const getExtendedId = (rowData: any, type: string) => {
-  return ["Groups", "Roles"].includes(rowData.name) && type === "Tenant"
-    ? `_${type}${rowData.name.substring(0, rowData.name.length - 1)}`
-    : ``;
+  if (eligibleRowNames.includes(rowData.name) && eligibleTypes.includes(type)) {
+    return `_${type}${rowData.name.substring(0, rowData.name.length - 1)}`;
+  }
+
+  return "";
 };
 
 export function RolesTree(props: RoleTreeProps & { selectedTab: boolean }) {

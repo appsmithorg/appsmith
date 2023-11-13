@@ -155,7 +155,9 @@ describe("Edit Permission flow ", function () {
           );
           // check the edit datasource role
           cy.get(RBAC.dataSourcesandQueriesTab).click();
-          cy.contains("td", `${workspaceName}`).next().next().next().click();
+          cy.contains("td", `${workspaceName}`).click();
+          cy.contains("td", "Datasources").next().next().next().click();
+          cy.contains("td", "Environments").next().click();
           // save role
           cy.get(RBAC.saveButton).click();
           cy.wait("@saveRole").should(

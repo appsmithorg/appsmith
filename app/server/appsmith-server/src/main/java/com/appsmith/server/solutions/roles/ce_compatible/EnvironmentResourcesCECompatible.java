@@ -18,7 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public interface EnvironmentResourcesCECompatible {
 
     Mono<BaseView> getEnvironmentEntityBaseView(
-            Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap, BaseView workspaceDTO);
+            Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap,
+            BaseView workspaceDTO,
+            Workspace workspace,
+            String permissionGroupId);
 
     Mono<Boolean> getWorkspaceEnvironmentsHoverMapMono(
             RoleTab roleTab,

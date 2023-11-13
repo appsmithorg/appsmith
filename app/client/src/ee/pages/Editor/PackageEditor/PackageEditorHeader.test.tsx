@@ -74,6 +74,16 @@ jest.mock("components/editorComponents/GlobalSearch", () => {
   };
 });
 
+jest.mock("components/editorComponents/GlobalSearch/HelpBar", () => {
+  return {
+    __esModule: true,
+    default: () => {
+      // if you exporting component as default
+      return <div data-testid="global-search-modal-trigger" />;
+    },
+  };
+});
+
 const renderComponent = () => {
   return render(
     <Provider store={store}>
@@ -95,6 +105,7 @@ describe("PackageEditorHeader", () => {
     expect(
       screen.getByTestId("global-search-modal-trigger"),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("t--package-publish-btn")).toBeInTheDocument();
   });
 
   it("calls updatePackageName when package name is edited", () => {

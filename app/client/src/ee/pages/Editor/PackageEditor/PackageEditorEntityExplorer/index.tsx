@@ -1,6 +1,6 @@
 import React from "react";
 
-import { EntityExplorerSidebar } from "components/editorComponents/Sidebar";
+import EntityExplorerSidebar from "components/editorComponents/EntityExplorerSidebar";
 import Modules from "../../PackageExplorer/Modules";
 import Explorer from "../../PackageExplorer";
 

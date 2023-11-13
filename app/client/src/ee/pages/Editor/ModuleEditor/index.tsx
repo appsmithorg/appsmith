@@ -2,7 +2,10 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 
-import { fetchModuleActions } from "@appsmith/actions/moduleActions";
+import {
+  fetchModuleActions,
+  setCurrentModule,
+} from "@appsmith/actions/moduleActions";
 import { SentryRoute } from "@appsmith/AppRouter";
 import ModuleQueryEditor from "./ModuleQueryEditor";
 import {
@@ -25,6 +28,7 @@ import ModuleEditorDefaultRedirect from "./ModuleEditorDefaultRedirect";
 import IntegrationEditor from "pages/Editor/IntegrationEditor";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 
 interface RouteProps {
   moduleId: string;
@@ -44,6 +48,16 @@ function ModuleEditor({ match }: ModuleEditorProps) {
 
   useEffect(() => {
     dispatch(fetchModuleActions({ moduleId }));
+  }, [moduleId]);
+
+  useEffect(() => {
+    dispatch(setCurrentModule(moduleId));
+    urlBuilder.setCurrentModuleId(moduleId);
+
+    return () => {
+      dispatch(setCurrentModule(null));
+      urlBuilder.setCurrentModuleId(null);
+    };
   }, [moduleId]);
 
   if (!module) return null;

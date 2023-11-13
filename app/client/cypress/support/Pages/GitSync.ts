@@ -47,6 +47,14 @@ export class GitSync {
   private _gitSyncBranches = ".t--sync-branches";
   learnMoreSshUrl = ".t--learn-more-ssh-url";
   repoLimitExceededErrorModal = ".t--git-repo-limited-modal";
+  public _bottomSettingsBtn = ".t--bottom-git-settings";
+  public _defaultBranchSelect = "[data-testid='t--git-default-branch-select']";
+  public _defaultBranchUpdateBtn =
+    "[data-testid='t--git-default-branch-update-btn']";
+  public _protectedBranchesSelect =
+    "[data-testid='t--git-protected-branches-select']";
+  public _protectedBranchesUpdateBtn =
+    "[data-testid='t--git-protected-branches-update-btn']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -239,7 +247,6 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.GetNClick(this.startUsingGitButton);
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
-        this.CloseGitSyncModal();
       }
 
       cy.wrap(repoName).as("gitRepoName");

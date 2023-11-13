@@ -175,6 +175,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
     @Override
     public Mono<CachedFeatures> updateCachedTenantFeatures(String tenantId, CachedFeatures cachedFeatures) {
+        log.debug("Updating cached tenant features for tenant: {}", tenantId);
         return Mono.just(cachedFeatures);
     }
 
