@@ -29,6 +29,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
     useState<WidgetCardsGroupedByTags>(groupedCards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
 
   const fuse = useMemo(() => {
     const options = {
@@ -66,6 +67,7 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
       setFilteredCards(groupWidgetCardsByTags(searchResult));
+      setIsEmpty(searchResult.length === 0);
     } else {
       setFilteredCards(groupedCards);
       setIsSearching(false);
@@ -101,6 +103,12 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
         className="flex-grow px-3 mt-2 overflow-y-scroll"
         data-testid="widget-sidebar-scrollable-wrapper"
       >
+        {isEmpty && (
+          <Text color="#6A7585" kind="body-m">
+            We couldn’t find any widgets called `{searchInputRef.current?.value}
+            `
+          </Text>
+        )}
         <div>
           {Object.keys(filteredCards).map((tag) => {
             const cardsForThisTag: WidgetCardProps[] =
