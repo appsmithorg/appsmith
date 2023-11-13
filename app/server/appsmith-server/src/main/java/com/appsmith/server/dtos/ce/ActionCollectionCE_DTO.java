@@ -2,6 +2,7 @@ package com.appsmith.server.dtos.ce;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
@@ -49,6 +50,14 @@ public class ActionCollectionCE_DTO {
 
     @JsonView(Views.Public.class)
     String pageId;
+
+    // If `contextType` is MODULE then `contextId` is the id of the module. Eventual plan is to move `pageId` to
+    // `contextId` with `contextType` as PAGE
+    @JsonView(Views.Public.class)
+    String contextId;
+
+    @JsonView(Views.Public.class)
+    CreatorContextType contextType;
 
     // This field will only be populated if this collection is bound to one plugin (eg: JS)
     @JsonView(Views.Public.class)

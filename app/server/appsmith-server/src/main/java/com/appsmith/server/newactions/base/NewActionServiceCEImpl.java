@@ -6,6 +6,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionProvider;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
@@ -1725,5 +1726,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<NewAction> findByListOfPageIds(
             List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
         return repository.findByListOfPageIds(unpublishedPages, optionalPermission);
+    }
+
+    @Override
+    public Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            boolean viewMode,
+            boolean includeJs) {
+        if (viewMode) {
+            return repository.findAllPublishedActionsByContextIdAndContextType(
+                    contextId, contextType, permission, includeJs);
+        }
+        return repository.findAllUnpublishedActionsByContextIdAndContextType(
+                contextId, contextType, permission, includeJs);
     }
 }

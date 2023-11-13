@@ -1,6 +1,7 @@
 package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
@@ -136,4 +137,11 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
     Flux<NewAction> findByListOfPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+
+    Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            boolean viewMode,
+            boolean includeJs);
 }
