@@ -256,7 +256,7 @@ export class DataSources {
     `//div[contains(@class, 'datasourceStructure-query-editor')]//div[contains(@class, 't--entity-name')][text()='${schemaName}']`;
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
-  private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
+  _datasourceSchemaColumn = ".t--datasource-column";
   _datasourceStructureSearchInput = ".datasourceStructure-search input";
   _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
@@ -299,6 +299,7 @@ export class DataSources {
   _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
   _dsNameInExplorer = (dsName: string) =>
     `div.t--entity-name:contains('${dsName}')`;
+  _dsStructurePreviewMode = ".datasourceStructure-datasource-view-mode";
 
   public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -1478,7 +1479,7 @@ export class DataSources {
 
   public VerifyColumnSchemaOnQueryEditor(schema: string, index = 0) {
     this.agHelper
-      .GetElement(this._datasourceColumnSchemaInQueryEditor)
+      .GetElement(this._datasourceSchemaColumn)
       .eq(index)
       .contains(schema);
   }

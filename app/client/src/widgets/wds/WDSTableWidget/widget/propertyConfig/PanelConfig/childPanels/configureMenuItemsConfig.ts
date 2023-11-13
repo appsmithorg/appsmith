@@ -7,8 +7,8 @@ import {
   iconNamesForEachRowValidation,
   iconPositionForEachRowValidation,
   textForEachRowValidation,
-} from "widgets/TableWidgetV2/widget/propertyUtils";
-import { getSourceDataAndCaluclateKeysForEventAutoComplete } from "widgets/TableWidgetV2/widget/utilities";
+} from "widgets/wds/WDSTableWidget/widget/propertyUtils";
+import { getSourceDataAndCaluclateKeysForEventAutoComplete } from "widgets/wds/WDSTableWidget/widget/utilities";
 
 export default {
   editableTitle: false,
