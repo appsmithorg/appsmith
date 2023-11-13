@@ -10,3 +10,16 @@ export function setSelectedDatasource(id: string | undefined) {
     );
   }
 }
+
+export function setPageUrl(path: string | undefined) {
+  if (path) {
+    const params = history.location.search;
+    history.push(`${path}${params}`);
+  }
+}
+
+export function setAppUrl(path: string | undefined) {
+  if (path) {
+    history.push(path);
+  }
+}
