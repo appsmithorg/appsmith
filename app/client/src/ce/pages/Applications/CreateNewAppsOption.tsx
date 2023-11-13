@@ -42,6 +42,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { fetchPlugins } from "actions/pluginActions";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -192,7 +193,12 @@ const CreateNewAppsOption = ({
     }
   };
 
-  const onClickStartWithData = () => {};
+  const onClickStartWithData = () => {
+    // fetch plugins information to show list of all plugins
+    if (isEnabledForStartWithData) {
+      dispatch(fetchPlugins());
+    }
+  };
 
   const goBackFromTemplate = () => {
     setUseTemplate(false);
