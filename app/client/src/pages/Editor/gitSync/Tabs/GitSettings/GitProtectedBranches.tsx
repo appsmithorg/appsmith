@@ -2,12 +2,13 @@ import {
   APPSMITH_ENTERPRISE,
   BRANCH_PROTECTION,
   BRANCH_PROTECTION_DESC,
+  LEARN_MORE,
   UPDATE,
   createMessage,
 } from "@appsmith/constants/messages";
 import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
-import { union, xor } from "lodash";
+import { xor } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -21,6 +22,8 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useAppsmithEnterpriseLink } from "./hooks";
 import { REMOTE_BRANCH_PREFIX } from "../../constants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -60,25 +63,25 @@ function GitProtectedBranches() {
   const defaultBranch = useSelector(getDefaultGitBranchName);
 
   const branchNames = useMemo(() => {
-    const remoteBranchNames = [];
-    const localBranchNames = [];
+    const returnVal: string[] = [];
     for (const unfilteredBranch of unfilteredBranches) {
       if (unfilteredBranch.branchName === defaultBranch) {
-        continue;
-      }
-      if (unfilteredBranch.branchName.includes(REMOTE_BRANCH_PREFIX)) {
-        remoteBranchNames.push(
-          unfilteredBranch.branchName.replace(REMOTE_BRANCH_PREFIX, ""),
+        returnVal.unshift(unfilteredBranch.branchName);
+      } else if (unfilteredBranch.branchName.includes(REMOTE_BRANCH_PREFIX)) {
+        const localBranchName = unfilteredBranch.branchName.replace(
+          REMOTE_BRANCH_PREFIX,
+          "",
         );
+        if (!returnVal.includes(localBranchName)) {
+          returnVal.push(
+            unfilteredBranch.branchName.replace(REMOTE_BRANCH_PREFIX, ""),
+          );
+        }
       } else {
-        localBranchNames.push(unfilteredBranch.branchName);
+        returnVal.push(unfilteredBranch.branchName);
       }
     }
-    const branchNames = union(localBranchNames, remoteBranchNames);
-    if (defaultBranch) {
-      branchNames.unshift(defaultBranch);
-    }
-    return branchNames;
+    return returnVal;
   }, [unfilteredBranches, defaultBranch]);
 
   const isGitProtectedFeatureLicensed = useFeatureFlag(
@@ -86,7 +89,7 @@ function GitProtectedBranches() {
   );
   const protectedBranches = useSelector(getProtectedBranchesSelector);
   const isUpdateLoading = useSelector(getIsUpdateProtectedBranchesLoading);
-  const [selectedValues, setSelectedValues] = useState<string[]>();
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   const enterprisePricingLink = useAppsmithEnterpriseLink(
     "git_branch_protection",
@@ -103,11 +106,31 @@ function GitProtectedBranches() {
   const updateIsDisabled = !areProtectedBranchesDifferent;
 
   const handleUpdate = () => {
+    sendAnalyticsEvent();
     dispatch(
       updateGitProtectedBranchesInit({
         protectedBranches: selectedValues ?? [],
       }),
     );
+  };
+
+  const sendAnalyticsEvent = () => {
+    const eventData = {
+      branches_added: [] as string[],
+      branches_removed: [] as string[],
+      protected_branches: selectedValues,
+    };
+    for (const val of selectedValues) {
+      if (!protectedBranches.includes(val)) {
+        eventData.branches_added.push(val);
+      }
+    }
+    for (const val of protectedBranches) {
+      if (!selectedValues.includes(val)) {
+        eventData.branches_removed.push(val);
+      }
+    }
+    AnalyticsUtil.logEvent("GS_PROTECTED_BRANCHES_UPDATE", eventData);
   };
 
   return (
@@ -117,7 +140,10 @@ function GitProtectedBranches() {
           {createMessage(BRANCH_PROTECTION)}
         </SectionTitle>
         <SectionDesc kind="body-m" renderAs="p">
-          {createMessage(BRANCH_PROTECTION_DESC)}
+          {createMessage(BRANCH_PROTECTION_DESC)}{" "}
+          <StyledLink target="_blank" to={DOCS_BRANCH_PROTECTION_URL}>
+            {createMessage(LEARN_MORE)}
+          </StyledLink>
         </SectionDesc>
         {!isGitProtectedFeatureLicensed && (
           <SectionDesc kind="body-m" renderAs="p">
