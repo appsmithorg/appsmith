@@ -1034,7 +1034,7 @@ export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
 export const HOW_TO_ADD_DEPLOY_KEY = () =>
   "How to paste SSH Key in repo and give write access?";
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
-  "I've added deploy key and gave it write access";
+  "I've added the deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
 export const GIT_CONNECT_SUCCESS_TITLE = () =>
   "Successfully connected to your Git remote repository";
@@ -1083,7 +1083,7 @@ export const BRANCH_PROTECTION_CHANGE_RULE = () =>
   "You can remove protection on your default branch in Git settings.";
 export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
 export const BRANCH_TOOLTIP_MESSAGE = () =>
-  "You can remove protection on your default branch in Git settings.";
+  "Please create a new branch or checkout an existing one to edit the app.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";

@@ -98,7 +98,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
-  getIsGitProtectedFeatureEnabled,
+  getIsGitConnectV2Enabled,
   getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
@@ -221,6 +221,9 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
     response = yield GitSyncAPI.connect(action.payload, applicationId);
+    const isGitConnectV2Enabled: boolean = yield select(
+      getIsGitConnectV2Enabled,
+    );
 
     const isValidResponse: boolean = yield validateResponse(
       response,
@@ -233,10 +236,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       yield put(connectToGitSuccess(response?.data));
       const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
 
-      const isGitProtectedFeatureEnabled: boolean = yield select(
-        getIsGitProtectedFeatureEnabled,
-      );
-      if (isGitProtectedFeatureEnabled) {
+      if (isGitConnectV2Enabled) {
         yield put(
           updateGitProtectedBranchesInit({
             protectedBranches: defaultBranch ? [defaultBranch] : [],
@@ -1069,12 +1069,6 @@ function* discardChanges({
 }
 
 function* fetchGitProtectedBranchesSaga() {
-  const isGitProtectedFeatureEnabled: boolean = yield select(
-    getIsGitProtectedFeatureEnabled,
-  );
-  if (!isGitProtectedFeatureEnabled) {
-    return;
-  }
   let response: ApiResponse<string[]>;
   try {
     const appId: string = yield select(getCurrentApplicationId);
@@ -1111,12 +1105,6 @@ function* fetchGitProtectedBranchesSaga() {
 function* updateGitProtectedBranchesSaga({
   payload,
 }: ReduxAction<{ protectedBranches: string[] }>) {
-  const isGitProtectedFeatureEnabled: boolean = yield select(
-    getIsGitProtectedFeatureEnabled,
-  );
-  if (!isGitProtectedFeatureEnabled) {
-    return;
-  }
   const { protectedBranches } = payload;
   const applicationId: string = yield select(getCurrentApplicationId);
   let response: ApiResponse<string[]>;
