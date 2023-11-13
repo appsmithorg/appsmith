@@ -20,6 +20,7 @@ import {
 } from "../getCodeMirrorNamespace";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { findIndex, isString } from "lodash";
+import { renderTernTooltipContent } from "./ternDocTooltip";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -177,7 +178,6 @@ class CodeMirrorTernService {
     DataTreeDefEntityInformation
   >();
   options: { async: boolean };
-  activeArgType: string | null = null;
   recentEntities: string[] = [];
 
   constructor(options: { async: boolean }) {
@@ -215,7 +215,6 @@ class CodeMirrorTernService {
   // Forked from app/client/node_modules/codemirror/addon/tern/tern.js
   updateArgHints(cm: CodeMirror.Editor) {
     this.closeArgHints();
-    this.activeArgType = null;
     cm.state.ternTooltip = null;
     if (cm.somethingSelected()) return false;
     if (cm.state.completionActive) return false;
@@ -271,7 +270,7 @@ class CodeMirrorTernService {
           guess: data.guess,
           doc: cm.getDoc(),
         };
-        this.showArgHints(cm, argPos);
+        if (!cm.state.completionActive) this.showArgHints(cm, argPos);
       },
     );
     return true;
@@ -320,7 +319,6 @@ class CodeMirrorTernService {
       if (this.activeArgHints.clear) this.activeArgHints.clear();
       this.remove(this.activeArgHints);
       this.activeArgHints = null;
-      this.activeArgType = null;
     }
     return true;
   }
@@ -352,9 +350,6 @@ class CodeMirrorTernService {
         tip.appendChild(
           this.elt("span", cls + "type", shortTernType(arg.type)),
         );
-      }
-      if (i == pos) {
-        this.activeArgType = arg.type;
       }
     }
     tip.appendChild(document.createTextNode(")"));
@@ -517,12 +512,6 @@ class CodeMirrorTernService {
     const shouldComputeBestMatch =
       this.fieldEntityInformation.entityType !== ENTITY_TYPE_VALUE.JSACTION;
 
-    if (this.activeArgType) {
-      this.fieldEntityInformation.expectedType = getDataType(
-        this.activeArgType,
-      );
-    }
-
     completions = AutocompleteSorter.sort(
       completions,
       { ...this.fieldEntityInformation, token },
@@ -551,39 +540,40 @@ class CodeMirrorTernService {
           (completion) => !completion.isHeader,
         ).length,
       });
-      this.closeArgHints();
+      this.activeArgHints && this.remove(this.activeArgHints);
     });
     CodeMirror.on(obj, "close", () => this.remove(tooltip));
     CodeMirror.on(obj, "update", () => this.remove(tooltip));
     CodeMirror.on(
       obj,
       "select",
-      (cur: { data: { doc: string } }, node: any) => {
+      (cur: Completion<TernCompletionResult>, node: any) => {
         this.active = cur;
         this.remove(tooltip);
         const content = cur.data.doc;
-        if (content) {
-          tooltip = this.makeTooltip(
-            node.parentNode.getBoundingClientRect().right + window.pageXOffset,
-            node.getBoundingClientRect().top + window.pageYOffset,
-            content,
-            cm,
-          );
-          tooltip.className += " " + cls + "hint-doc";
-          CodeMirror.on(
-            cm,
-            "keyup",
-            (cm: CodeMirror.Editor, keyboardEvent: KeyboardEvent) => {
-              if (
-                keyboardEvent.code === "Space" &&
-                keyboardEvent.ctrlKey &&
-                tooltip
-              ) {
-                tooltip.className += " visible";
-              }
-            },
-          );
-        }
+        if (!content) return;
+        const docTooltipContainer = this.elt("div", "flex flex-col pb-1");
+        renderTernTooltipContent(docTooltipContainer, cur);
+        tooltip = this.makeTooltip(
+          node.parentNode.getBoundingClientRect().right + window.pageXOffset,
+          node.getBoundingClientRect().top + window.pageYOffset + 2,
+          docTooltipContainer,
+          cm,
+          cls + "hint-doc",
+        );
+        CodeMirror.on(
+          cm,
+          "keyup",
+          (cm: CodeMirror.Editor, keyboardEvent: KeyboardEvent) => {
+            if (
+              keyboardEvent.code === "Space" &&
+              keyboardEvent.ctrlKey &&
+              tooltip
+            ) {
+              tooltip.className += " visible";
+            }
+          },
+        );
       },
     );
     resolve(obj);
@@ -610,8 +600,8 @@ class CodeMirrorTernService {
       );
     });
 
-    // When a function is picked, move the cursor between the parenthesis
-    const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
+    // When a function is picked, move the cursor between the parenthesis.
+    const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
     CodeMirror.on(hints, "pick", (selected: Completion) => {
       const hintsWithoutHeaders = hints.list.filter(
         (h: Record<string, unknown>) => h.isHeader !== true,
@@ -1159,7 +1149,22 @@ class CodeMirrorTernService {
     this.remove(tooltip);
   }
 
-  setEntityInformation(entityInformation: FieldEntityInformation) {
+  setEntityInformation(
+    cm: CodeMirror.Editor,
+    entityInformation: FieldEntityInformation,
+  ) {
+    const state = cm.getTokenAt(cm.getCursor()).state;
+    const CodeMirror = getCodeMirrorNamespaceFromDoc(cm.getDoc());
+    const inner = CodeMirror.innerMode(cm.getMode(), state);
+    if (inner.mode.name != "javascript") return false;
+    const lex = inner.state.lexical;
+    if (lex.info === "call") {
+      const argPos = lex.pos || 0;
+      const args = this.cachedArgHints?.type?.args || [];
+      const arg = args[argPos];
+      const argType = arg?.type;
+      entityInformation.expectedType = getDataType(argType);
+    }
     this.fieldEntityInformation = entityInformation;
   }
 

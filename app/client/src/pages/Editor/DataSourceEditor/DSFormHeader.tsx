@@ -198,7 +198,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
                     startIcon="context-menu"
                   />
                 </MenuTrigger>
-                <MenuContent style={{ zIndex: 100 }} width="200px">
+                <MenuContent align="end" style={{ zIndex: 100 }} width="200px">
                   {renderMenuOptions()}
                 </MenuContent>
               </StyledMenu>

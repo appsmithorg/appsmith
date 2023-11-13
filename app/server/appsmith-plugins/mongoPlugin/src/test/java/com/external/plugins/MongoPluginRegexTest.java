@@ -9,13 +9,11 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.models.SSLDetails;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.reactivestreams.client.MongoClient;
-import com.mongodb.reactivestreams.client.MongoClients;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
@@ -44,19 +42,15 @@ public class MongoPluginRegexTest {
 
     private static String address;
     private static Integer port;
-    private JsonNode value;
-    private static MongoClient mongoClient;
 
     @SuppressWarnings("rawtypes")
     @Container
-    public static GenericContainer mongoContainer = new MongoTestContainer();
+    public static MongoDBContainer mongoContainer = MongoTestDBContainerManager.getMongoDBForTest();
 
     @BeforeAll
     public static void setUp() {
-        address = mongoContainer.getContainerIpAddress();
+        address = mongoContainer.getHost();
         port = mongoContainer.getFirstMappedPort();
-        String uri = "mongodb://" + address + ":" + port;
-        mongoClient = MongoClients.create(uri);
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {

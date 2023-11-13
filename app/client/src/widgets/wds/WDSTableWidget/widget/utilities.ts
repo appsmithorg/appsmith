@@ -221,6 +221,10 @@ export function getDefaultColumnProperties(
         )}"]))}}`,
     sticky: StickyType.NONE,
     validation: {},
+    currencyCode: "USD",
+    decimals: 0,
+    thousandSeparator: true,
+    notation: "standard" as Intl.NumberFormatOptions["notation"],
   };
 
   return columnProps;
@@ -508,6 +512,14 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
+      currencyCode: getPropertyValue(
+        columnProperties.currencyCode,
+        rowIndex,
+        true,
+      ),
+      decimals: columnProperties.decimals,
+      thousandSeparator: !!columnProperties.thousandSeparator,
+      notation: columnProperties.notation,
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
@@ -520,6 +532,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.CHECKBOX,
   ColumnTypes.SWITCH,
   ColumnTypes.DATE,
+  ColumnTypes.CURRENCY,
 ];
 
 export function isColumnTypeEditable(columnType: string) {
@@ -1102,3 +1115,13 @@ export const getSelectOptions = (
     return getArrayPropertyValue(columnProperties.selectOptions, rowIndex);
   }
 };
+
+export function convertNumToCompactString(num: number) {
+  if (num >= 1e6) {
+    return (num / 1e6).toFixed(1) + "M";
+  } else if (num >= 1e3) {
+    return (num / 1e3).toFixed(1) + "K";
+  } else {
+    return num.toString();
+  }
+}
