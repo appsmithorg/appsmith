@@ -32,7 +32,7 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
 
   static getDefaults() {
     return {
-      widgetName: "Custom widget",
+      widgetName: "CustomWidget",
       rows: 50,
       columns: 50,
       version: 1,

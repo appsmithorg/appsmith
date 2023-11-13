@@ -13,7 +13,7 @@ export type HTMLDocumentBuidlerControlProps = ControlProps & {
   };
 };
 
-class HTMLDocumentBuidlerControl extends BaseControl<
+class HTMLDocumentBuilderControl extends BaseControl<
   HTMLDocumentBuidlerControlProps,
   {
     widgetBuilder: any;
@@ -66,4 +66,4 @@ class HTMLDocumentBuidlerControl extends BaseControl<
   }
 }
 
-export default HTMLDocumentBuidlerControl;
+export default HTMLDocumentBuilderControl;
