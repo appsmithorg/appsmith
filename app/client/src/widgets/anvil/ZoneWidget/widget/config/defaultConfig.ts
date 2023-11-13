@@ -18,7 +18,7 @@ export const defaultConfig: WidgetDefaultProps = {
   responsiveBehavior: ResponsiveBehavior.Fill,
   rows: 0,
   version: 1,
-  widgetName: "ZoneWidget",
+  widgetName: "Zone",
   blueprint: {
     view: [
       {
