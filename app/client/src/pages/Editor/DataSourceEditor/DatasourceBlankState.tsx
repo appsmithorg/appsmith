@@ -62,7 +62,7 @@ const DatasourceBlankState = (
           {createMessage(DATASOURCE_BLANK_STATE_MESSAGE)}
         </Text>
         <Button
-          disabled={canCreateDatasource}
+          disabled={!canCreateDatasource}
           kind="primary"
           onClick={() =>
             history.push(
