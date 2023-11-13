@@ -5,6 +5,7 @@ export interface FluidConfig {
   outerSpacing: ScaleConfig;
   innerSpacing: ScaleConfig;
   typography: ScaleConfig;
+  borderRadius: ScaleConfig;
 }
 
 export interface ScaleConfig {

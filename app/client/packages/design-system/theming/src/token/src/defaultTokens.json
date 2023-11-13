@@ -50,12 +50,21 @@
       "stepsDown": 1,
       "userSizingRatio": 1.6,
       "userDensityRatio": 0
-    }
+    },
+    "borderRadius": {
+      "minV": 1,
+      "maxV": 2,
+      "minR": 1,
+      "maxR": 2,
+      "minN": 3,
+      "maxN": 5,
+      "stepsUp": 3,
+      "stepsDown": 0,
+      "userSizingRatio": 0,
+      "userDensityRatio": 0
+    },
   },
   "colorMode": "light",
-  "borderRadius": {
-    "1": "0px"
-  },
   "boxShadow": {
     "1": "0 2px 2px 0 rgba(0, 0, 0, 0.2)"
   },

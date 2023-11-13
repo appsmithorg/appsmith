@@ -17,7 +17,6 @@ const tokensAccessor = new TokensAccessor({
 
 export function useTheme(props: UseThemeProps = {}) {
   const {
-    borderRadius,
     colorMode = "light",
     fontFamily,
     seedColor,
@@ -25,11 +24,8 @@ export function useTheme(props: UseThemeProps = {}) {
     userSizing = 1,
   } = props;
 
-  const { innerSpacing, outerSpacing, sizing, typography } = useFluidTokens(
-    fluid,
-    userDensity,
-    userSizing,
-  );
+  const { innerSpacing, outerSpacing, sizing, typography, borderRadius } =
+    useFluidTokens(fluid, userDensity, userSizing);
 
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
 
@@ -149,6 +145,19 @@ export function useTheme(props: UseThemeProps = {}) {
       });
     }
   }, [typography]);
+
+  useEffect(() => {
+    if (borderRadius) {
+      tokensAccessor.updateBorderRadius(borderRadius);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getBorderRadius(),
+        };
+      });
+    }
+  }, [borderRadius]);
 
   return { theme, setTheme };
 }

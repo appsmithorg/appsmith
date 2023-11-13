@@ -3,6 +3,7 @@ import debounce from "lodash/debounce";
 import { getFluidSizing } from "./getFluidSizing";
 import { getFluidSpacing } from "./getFluidSpacing";
 import { getFluidTypography } from "./getFluidTypography";
+import { getFluidRadii } from "./getFluidRadii";
 
 import type { Typography } from "../../../typography";
 import type { TokenObj } from "../types";
@@ -20,6 +21,7 @@ export const useFluidTokens = (
   const [sizing, setSizing] = useState<TokenObj>();
   const [outerSpacing, setOuterSpacing] = useState<TokenObj>();
   const [innerSpacing, setInnerSpacing] = useState<TokenObj>();
+  const [borderRadius, setBorderRadius] = useState<TokenObj>();
 
   const onResize = () => {
     setTypography(
@@ -54,6 +56,15 @@ export const useFluidTokens = (
         maxVw,
         minVw,
         fluidConfig.innerSpacing,
+        userDensity,
+        userSizing,
+      ),
+    );
+    setBorderRadius(
+      getFluidRadii(
+        maxVw,
+        minVw,
+        fluidConfig.borderRadius,
         userDensity,
         userSizing,
       ),
