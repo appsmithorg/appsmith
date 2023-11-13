@@ -359,12 +359,6 @@ public class GitServiceCEImpl implements GitServiceCE {
         return this.commitApplication(commitDTO, defaultApplicationId, branchName, doAmend, true);
     }
 
-    private boolean isBranchProtected(GitApplicationMetadata metaData, String branchName) {
-        return metaData != null
-                && metaData.getBranchProtectionRules() != null
-                && metaData.getBranchProtectionRules().contains(branchName);
-    }
-
     /**
      * This method will make a commit to local repo and is used internally in flows like create, merge branch
      * Since the lock is already acquired by the other flows, we do not need to acquire file lock again
@@ -439,14 +433,16 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         boolean isSystemGenerated = isSystemGeneratedTemp;
         Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
-                .map(application -> {
-                    if (isBranchProtected(application.getGitApplicationMetadata(), branchName)) {
+                .zipWhen(application ->
+                        gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName))
+                .map(objects -> {
+                    if (objects.getT2()) {
                         throw new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED,
                                 "commit",
                                 "Cannot commit to protected branch " + branchName);
                     }
-                    return application;
+                    return objects.getT1();
                 })
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
@@ -2727,14 +2723,16 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<Application> deleteBranch(String defaultApplicationId, String branchName) {
         Mono<Application> deleteBranchMono = getApplicationById(defaultApplicationId)
-                .map(application -> {
-                    if (isBranchProtected(application.getGitApplicationMetadata(), branchName)) {
+                .zipWhen(application ->
+                        gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName))
+                .map(objects -> {
+                    if (objects.getT2()) {
                         throw new AppsmithException(
                                 AppsmithError.GIT_ACTION_FAILED,
                                 "delete",
                                 "Cannot delete protected branch " + branchName);
                     }
-                    return application;
+                    return objects.getT1();
                 })
                 .flatMap(application -> addFileLock(defaultApplicationId).map(status -> application))
                 .flatMap(application -> {
@@ -3336,11 +3334,20 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<List<String>> getProtectedBranches(String defaultApplicationId) {
-        return getApplicationById(defaultApplicationId)
-                .flatMap(application -> {
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    return Mono.justOrEmpty(gitApplicationMetadata.getBranchProtectionRules());
-                })
-                .defaultIfEmpty(List.of());
+        return getApplicationById(defaultApplicationId).map(application -> {
+            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+            /*
+             user may have multiple branches as protected, but we only return the default branch
+             as protected branch if it's present in the list of protected branches
+            */
+            List<String> protectedBranches = gitApplicationMetadata.getBranchProtectionRules();
+            String defaultBranchName = gitApplicationMetadata.getDefaultBranchName();
+
+            if (!CollectionUtils.isNullOrEmpty(protectedBranches) && protectedBranches.contains(defaultBranchName)) {
+                return List.of(defaultBranchName);
+            } else {
+                return List.of();
+            }
+        });
     }
 }
