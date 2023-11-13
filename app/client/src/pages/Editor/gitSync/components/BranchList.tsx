@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createNewBranchInit,
   fetchBranchesInit,
+  fetchGitProtectedBranchesInit,
   // setIsGitSyncModalOpen,
   switchGitBranchInit,
 } from "actions/gitSyncActions";
@@ -246,6 +247,7 @@ export default function BranchList(props: {
       source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
     });
     dispatch(fetchBranchesInit({ pruneBranches: true }));
+    dispatch(fetchGitProtectedBranchesInit());
   };
 
   const branches = useSelector(getGitBranches);
