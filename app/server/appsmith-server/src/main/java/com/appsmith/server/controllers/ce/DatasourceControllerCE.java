@@ -158,14 +158,11 @@ public class DatasourceControllerCE {
     public Mono<Void> getTokenRequestUrl(
             @PathVariable String datasourceId,
             @PathVariable String pageId,
-            ServerWebExchange serverWebExchange,
             @RequestParam String environmentId,
-            @RequestParam String branchName) {
+            @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            ServerWebExchange serverWebExchange) {
         log.debug(
-                "Going to retrieve token request URL for datasource with id: {} and page id: {} and branchName: {}",
-                datasourceId,
-                pageId,
-                branchName);
+                "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
         return authenticationService
                 .getAuthorizationCodeURLForGenericOAuth2(
                         datasourceId, environmentId, pageId, branchName, serverWebExchange.getRequest())
