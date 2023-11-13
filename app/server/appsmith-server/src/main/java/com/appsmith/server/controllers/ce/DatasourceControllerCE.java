@@ -159,12 +159,16 @@ public class DatasourceControllerCE {
             @PathVariable String datasourceId,
             @PathVariable String pageId,
             ServerWebExchange serverWebExchange,
-            @RequestParam String environmentId) {
+            @RequestParam String environmentId,
+            @RequestParam String branchName) {
         log.debug(
-                "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
+                "Going to retrieve token request URL for datasource with id: {} and page id: {} and branchName: {}",
+                datasourceId,
+                pageId,
+                branchName);
         return authenticationService
                 .getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, environmentId, pageId, serverWebExchange.getRequest())
+                        datasourceId, environmentId, pageId, branchName, serverWebExchange.getRequest())
                 .flatMap(url -> {
                     serverWebExchange.getResponse().setStatusCode(HttpStatus.FOUND);
                     serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));

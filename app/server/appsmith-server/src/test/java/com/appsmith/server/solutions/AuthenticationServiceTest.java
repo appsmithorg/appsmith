@@ -109,7 +109,7 @@ public class AuthenticationServiceTest {
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null);
+                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null, null);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -150,7 +150,7 @@ public class AuthenticationServiceTest {
         Mono<String> authorizationCodeUrlMono = datasourceMono
                 .map(BaseDomain::getId)
                 .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, defaultEnvironmentId, "irrelevantPageId", null));
+                        datasourceId, defaultEnvironmentId, "irrelevantPageId", null, null));
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -228,7 +228,7 @@ public class AuthenticationServiceTest {
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                datasourceId1, defaultEnvironmentId, pageDto.getId(), httpRequest);
+                datasourceId1, defaultEnvironmentId, pageDto.getId(), null, httpRequest);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .assertNext(url -> {
