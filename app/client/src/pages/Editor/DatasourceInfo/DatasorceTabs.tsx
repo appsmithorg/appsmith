@@ -13,8 +13,11 @@ import DatasourceViewModeSchema from "./DatasourceViewModeSchema";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { isEnvironmentValid } from "@appsmith/utils/Environments";
 import type { Datasource } from "entities/Datasource";
-import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
-import { getPluginNameFromId } from "@appsmith/selectors/entitiesSelector";
+import {
+  isDatasourceAuthorizedForQueryCreation,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import GoogleSheetSchema from "./GoogleSheetSchema";
 
 const TabsContainer = styled(Tabs)`
@@ -37,7 +40,7 @@ const TabPanelContainer = styled(TabPanel)`
 
 const ConfigurationsTabPanelContainer = styled(TabPanel)`
   margin-top: 0;
-  overflow: hidden;
+  overflow: scroll;
   flex-grow: 1;
   padding: 0 var(--ads-v2-spaces-7);
 `;
@@ -55,14 +58,22 @@ const DatasourceTabs = (props: DatasourceTabProps) => {
   const setDatasourceViewModeFlagClick = (value: boolean) => {
     dispatch(setDatasourceViewModeFlag(value));
   };
-  const pluginName = useSelector((state) =>
-    getPluginNameFromId(state, props.datasource.pluginId),
+  const plugin = useSelector((state) =>
+    getPlugin(state, props.datasource.pluginId),
   );
-  const isGoogleSheetPlugin = isGoogleSheetPluginDS(pluginName);
+  const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
+  const isPluginAuthorized =
+    !!plugin && !!props.datasource
+      ? isDatasourceAuthorizedForQueryCreation(
+          props.datasource,
+          plugin,
+          currentEnvironmentId,
+        )
+      : false;
   return (
     <TabsContainer
       defaultValue={
-        isDatasourceValid
+        isDatasourceValid || isPluginAuthorized
           ? VIEW_MODE_TABS.VIEW_DATA
           : VIEW_MODE_TABS.CONFIGURATIONS
       }

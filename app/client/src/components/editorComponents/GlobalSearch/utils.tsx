@@ -27,11 +27,7 @@ import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { importRemixIcon } from "design-system-old";
-
-const AddLineIcon = importRemixIcon(
-  async () => import("remixicon-react/AddLineIcon"),
-);
+import { Icon } from "design-system";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -338,7 +334,7 @@ export const generateCreateNewDSOption = (
       title: "New datasource",
       icon: (
         <EntityIcon>
-          <AddLineIcon size={22} />
+          <Icon name="plus" size="lg" />
         </EntityIcon>
       ),
       kind: SEARCH_ITEM_TYPES.actionOperation,
