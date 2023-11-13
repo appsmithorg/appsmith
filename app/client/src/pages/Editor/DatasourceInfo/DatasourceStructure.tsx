@@ -28,7 +28,6 @@ interface DatasourceStructureItemProps {
   datasourceId: string;
   context: DatasourceStructureContext;
   isDefaultOpen?: boolean;
-  forceExpand?: boolean;
   currentActionId: string;
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
@@ -150,7 +149,6 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
       collapseRef={collapseRef}
       contextMenu={templateMenu}
       entityId={`${props.datasourceId}-${dbStructure.name}-${props.context}`}
-      forceExpand={props.forceExpand}
       icon={datasourceTableIcon}
       isDefaultExpanded={props?.isDefaultOpen}
       name={dbStructure.name}
@@ -177,7 +175,6 @@ type DatasourceStructureProps = Partial<DatasourceStructureItemProps> & {
   datasourceId: string;
   context: DatasourceStructureContext;
   isDefaultOpen?: boolean;
-  forceExpand?: boolean;
   currentActionId: string;
 };
 
