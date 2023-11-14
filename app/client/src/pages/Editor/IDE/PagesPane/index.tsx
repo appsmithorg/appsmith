@@ -4,6 +4,7 @@ import { Flex, SegmentedControl } from "design-system";
 import { useLocation } from "react-router";
 import { FocusEntity } from "navigation/FocusEntity";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 
 enum TabsType {
   QUERIES = "queries",
@@ -55,17 +56,17 @@ const _pagesPane = () => {
         isFullWidth
         options={[
           {
-            label: "Queries",
+            label: createMessage(PAGES_PANE_TEXTS.queries_tab),
             startIcon: "queries-line",
             value: TabsType.QUERIES,
           },
           {
-            label: "JS",
+            label: createMessage(PAGES_PANE_TEXTS.js_tab),
             startIcon: "braces-line",
             value: TabsType.JS,
           },
           {
-            label: "UI",
+            label: createMessage(PAGES_PANE_TEXTS.ui_tab),
             startIcon: "dashboard-line",
             value: TabsType.UI,
           },

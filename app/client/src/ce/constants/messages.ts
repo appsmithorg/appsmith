@@ -2252,3 +2252,9 @@ export const START_FROM_SCRATCH_SUBTITLE = () =>
 export const START_WITH_DATA_TITLE = () => "Start with data";
 export const START_WITH_DATA_SUBTITLE = () =>
   "Get started with connecting your data, and easily craft a functional application.";
+
+export const PAGES_PANE_TEXTS = {
+  queries_tab: () => "Queries",
+  js_tab: () => "JS",
+  ui_tab: () => "UI",
+};
