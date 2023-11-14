@@ -330,4 +330,5 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.LIBRARY]: [],
   [FocusEntity.SETTINGS]: [],
+  [FocusEntity.DATASOURCE_TEMP]: [],
 };
