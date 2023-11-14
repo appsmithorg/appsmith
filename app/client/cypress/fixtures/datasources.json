@@ -88,5 +88,5 @@
   "GraphqlApiUrl_TED": "http://host.docker.internal:5000/graphql",
   "GITEA_API_BASE_TED": "localhost",
   "GITEA_API_PORT_TED": "3001",
-  "GITEA_API_URL_TED": "git@localhost:Cypress"
+  "GITEA_API_URL_TED": "git@host.docker.internal:Cypress"
 }
