@@ -650,7 +650,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         List<Criteria> criteriaList = new ArrayList<>();
 
         String contextIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.contextId);
+                + fieldName(QNewAction.newAction.unpublishedAction.pageId);
         String contextTypePath = fieldName(QNewAction.newAction.unpublishedAction) + "."
                 + fieldName(QNewAction.newAction.unpublishedAction.contextType);
         Criteria contextIdAndContextTypeCriteria =
@@ -677,7 +677,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         List<Criteria> criteriaList = new ArrayList<>();
         String contextIdPath = fieldName(QNewAction.newAction.publishedAction) + "."
-                + fieldName(QNewAction.newAction.publishedAction.contextId);
+                + fieldName(QNewAction.newAction.publishedAction.pageId);
         String contextTypePath = fieldName(QNewAction.newAction.publishedAction) + "."
                 + fieldName(QNewAction.newAction.publishedAction.contextType);
         Criteria contextIdAndContextTypeCriteria =

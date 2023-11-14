@@ -275,7 +275,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
         String contextIdPath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextId);
+                + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId);
         String contextTypePath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
                 + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =
@@ -287,7 +287,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
         String contextIdPath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
-                + fieldName(QActionCollection.actionCollection.publishedCollection.contextId);
+                + fieldName(QActionCollection.actionCollection.publishedCollection.pageId);
         String contextTypePath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
                 + fieldName(QActionCollection.actionCollection.publishedCollection.contextType);
         Criteria contextIdAndContextTypeCriteria =

@@ -76,11 +76,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Public.class)
     String pageId;
 
-    // If `contextType` is MODULE then `contextId` is the id of the module. Eventual plan is to move `pageId` to
-    // `contextId` with `contextType` as PAGE
-    @JsonView(Views.Public.class)
-    String contextId;
-
     @JsonView(Views.Public.class)
     CreatorContextType contextType;
 
