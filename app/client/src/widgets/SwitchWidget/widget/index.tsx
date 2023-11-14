@@ -103,6 +103,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

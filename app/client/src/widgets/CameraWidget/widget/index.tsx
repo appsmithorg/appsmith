@@ -81,6 +81,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

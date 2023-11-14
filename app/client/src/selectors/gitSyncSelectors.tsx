@@ -239,3 +239,7 @@ export const getIsUpdateProtectedBranchesLoading = (state: AppState) => {
     state.ui.gitSync.protectedBranchesLoading
   );
 };
+
+export const getIsGetProtectedBranchesLoading = (state: AppState) => {
+  return state.ui.gitSync.protectedBranchesLoading;
+};

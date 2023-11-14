@@ -104,6 +104,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: { base: "360px" },

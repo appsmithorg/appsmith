@@ -519,6 +519,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

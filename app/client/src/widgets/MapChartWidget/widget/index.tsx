@@ -136,6 +136,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
