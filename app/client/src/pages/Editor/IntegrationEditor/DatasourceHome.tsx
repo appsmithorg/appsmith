@@ -5,6 +5,7 @@ import { initialize } from "redux-form";
 import {
   getDBPlugins,
   getPluginImages,
+  getMostPopularPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
@@ -21,6 +22,12 @@ import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSel
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import { createNewApiAction } from "actions/apiPaneActions";
+import { PluginPackageName } from "entities/Action";
+import { Spinner } from "design-system";
+import PlusLogo from "assets/images/Plus-logo.svg";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -112,6 +119,8 @@ interface DatasourceHomeScreenProps {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
+  showMostPopularPlugins?: boolean;
+  isCreating?: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
 }
 
@@ -119,6 +128,11 @@ interface ReduxDispatchProps {
   initializeForm: (data: Record<string, any>) => void;
   createDatasource: (data: any) => void;
   createTempDatasource: (data: any) => void;
+  createNewApiAction: (
+    pageId: string,
+    from: EventLocation,
+    apiType?: string,
+  ) => void;
 }
 
 interface ReduxStateProps {
@@ -181,8 +195,27 @@ class DatasourceHomeScreen extends React.Component<Props> {
     });
   };
 
+  handleOnClick = () => {
+    AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+      source: API_ACTION.CREATE_NEW_API,
+    });
+    if (this.props.pageId) {
+      this.props.createNewApiAction(
+        this.props.pageId,
+        "API_PANE",
+        PluginPackageName.REST_API,
+      );
+    }
+  };
+
   render() {
-    const { currentApplication, pluginImages, plugins } = this.props;
+    const {
+      currentApplication,
+      isCreating,
+      pluginImages,
+      plugins,
+      showMostPopularPlugins,
+    } = this.props;
 
     return (
       <DatasourceHomePage>
@@ -215,17 +248,35 @@ class DatasourceHomeScreen extends React.Component<Props> {
               </DatasourceCard>
             );
           })}
+          {!!showMostPopularPlugins ? (
+            <ApiCard
+              className="t--createBlankApiCard create-new-api"
+              onClick={() => this.handleOnClick()}
+            >
+              <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
+                <img
+                  alt="New"
+                  className="curlImage t--plusImage content-icon"
+                  src={PlusLogo}
+                />
+                <p className="textBtn">REST API</p>
+              </CardContentWrapper>
+              {isCreating && <Spinner className="cta" size={25} />}
+            </ApiCard>
+          ) : null}
         </DatasourceCardsContainer>
       </DatasourceHomePage>
     );
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => {
+const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
   const { datasources } = state.entities;
   return {
     pluginImages: getPluginImages(state),
-    plugins: getDBPlugins(state),
+    plugins: props.showMostPopularPlugins
+      ? getMostPopularPlugins(state)
+      : getDBPlugins(state),
     currentApplication: getCurrentApplication(state),
     isSaving: datasources.loading,
     generateCRUDSupportedPlugin: getGenerateCRUDEnabledPluginMap(state),
@@ -239,6 +290,11 @@ const mapDispatchToProps = (dispatch: any) => {
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
     createTempDatasource: (data: any) =>
       dispatch(createTempDatasourceFromForm(data)),
+    createNewApiAction: (
+      pageId: string,
+      from: EventLocation,
+      apiType?: string,
+    ) => dispatch(createNewApiAction(pageId, from, apiType)),
   };
 };
 
