@@ -11,7 +11,14 @@ import { APP_MODE } from "entities/App";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import type { RefObject } from "react";
-
+/**
+ * In this function,
+ * Get the DOM elements for the registered widgets and layouts
+ * Call `getBoundingClientRect` on each of them
+ * Offset the values by the MainContainer's left and top and store them as left top values in positions
+ * Offset the values by their parent drop targets positions(if parent drop target exists) and store them as offsetTop offsetLeft values in positions.
+ * Store the values in the `positions` object
+ */
 function processPositionsForLayouts(
   layoutDomId: string,
   positions: LayoutElementPositions,
@@ -101,22 +108,15 @@ function* readAndUpdateLayoutElementPositions() {
   // However, it doesn't work in all browsers as we need the V2 trackVisibility API
   const registeredLayouts = positionObserver.getRegisteredLayouts();
   const registeredWidgets = positionObserver.getRegisteredWidgets();
-
-  // In the following code:
-  // Get the DOM elements for the registered widgets and layouts
-  // Call `getBoundingClientRect` on each of them
-  // Offset the values by the MainContainer's left and top
-  // Store the values in the `positions` object
-
-  // process drop targets first
   const dropTargetsOrder = positionObserver.getDropTargetDomIdsOrder();
+  // process drop targets positions first to capture all drop targets offset positions in order of parent to child drop target(dropTargetsOrder).
   dropTargetsOrder.forEach((eachDomId) =>
     processPositionsForLayouts(eachDomId, positions, registeredLayouts, {
       left,
       top,
     }),
   );
-  // Do the above for layouts
+  // process positions for layouts wrt MainContainer as well as their parent drop target layout
   Object.keys(registeredLayouts)
     .filter((each) => !dropTargetsOrder.includes(each))
     .forEach((eachDomId) =>
@@ -125,7 +125,7 @@ function* readAndUpdateLayoutElementPositions() {
         top,
       }),
     );
-  // Do the above for widgets
+  // process positions for widgets wrt MainContainer as well as their parent drop target layout
   for (const anvilWidgetDOMId of Object.keys(registeredWidgets)) {
     const { layoutId } = registeredWidgets[anvilWidgetDOMId];
     const parentDropTargetPositions = positions[layoutId];
