@@ -1,7 +1,3 @@
-import {
-  fetchAppThemesAction,
-  fetchSelectedAppThemeAction,
-} from "actions/appThemingActions";
 import { fetchMockDatasources } from "actions/datasourceActions";
 import {
   fetchGitRemoteStatusInit,
@@ -13,13 +9,9 @@ import {
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { fetchJSCollections } from "actions/jsActionActions";
 import { loadGuidedTourInit } from "actions/onboardingActions";
-import { fetchAllPageEntityCompletion, fetchPage } from "actions/pageActions";
-import {
-  executePageLoadActions,
-  fetchActions,
-} from "actions/pluginActionActions";
+import { fetchAllPageEntityCompletion } from "actions/pageActions";
+import { executePageLoadActions } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import type {
   ApplicationPayload,
@@ -65,7 +57,10 @@ import { getAIPromptTriggered } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
-import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
+import {
+  getPageDependencyActions,
+  getPagesActionsThemes,
+} from "@appsmith/entities/Engine/actionHelpers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
   getFeatureFlagsForEngine,
@@ -114,29 +109,11 @@ export default class AppEditorEngine extends AppEngine {
     toLoadPageId: string,
     applicationId: string,
   ) {
-    const initActionsCalls = [
-      fetchPage(toLoadPageId, true),
-      fetchActions({ applicationId }, []),
-      fetchJSCollections({ applicationId }),
-      fetchSelectedAppThemeAction(applicationId),
-      fetchAppThemesAction(applicationId),
-    ];
-
-    const successActionEffects = [
-      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-      ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
-      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    ];
-
-    const failureActionEffects = [
-      ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
-      ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
-      ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
-      ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
-      ReduxActionErrorTypes.FETCH_PAGE_ERROR,
-    ];
+    const featureFlags: DependentFeatureFlags = yield select(
+      getFeatureFlagsForEngine,
+    );
+    const { failureActionEffects, initActionsCalls, successActionEffects } =
+      getPagesActionsThemes(toLoadPageId, applicationId, featureFlags);
 
     initActionsCalls.push(fetchJSLibraries(applicationId));
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);
