@@ -1,5 +1,5 @@
 import React from "react";
-import WidgetsEditorEntityExplorer from "../../WidgetsEditorEntityExplorer";
+// import WidgetsEditorEntityExplorer from "../../WidgetsEditorEntityExplorer";
 import { useSelector } from "react-redux";
 import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 import styled from "styled-components";
@@ -16,6 +16,7 @@ import {
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
+import { PagesPane } from "../PagesPane";
 
 const LeftPaneContainer = styled.div`
   height: 100%;
@@ -28,7 +29,8 @@ const LeftPane = () => {
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   const { path } = useRouteMatch();
   if (!isAppSidebarEnabled) {
-    return <WidgetsEditorEntityExplorer />;
+    // return <WidgetsEditorEntityExplorer />;
+    return <PagesPane />;
   }
   return (
     <LeftPaneContainer>
@@ -53,7 +55,8 @@ const LeftPane = () => {
           exact
           path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
         />
-        <SentryRoute component={WidgetsEditorEntityExplorer} />
+        {/* <SentryRoute component={WidgetsEditorEntityExplorer} /> */}
+        <SentryRoute component={PagesPane} />
       </Switch>
     </LeftPaneContainer>
   );
