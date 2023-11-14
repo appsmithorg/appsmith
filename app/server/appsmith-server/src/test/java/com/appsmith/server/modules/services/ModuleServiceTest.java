@@ -1,10 +1,13 @@
 package com.appsmith.server.modules.services;
 
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.ModuleInput;
 import com.appsmith.external.models.ModuleInputForm;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Module;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ModuleActionDTO;
@@ -19,6 +22,7 @@ import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
@@ -82,6 +86,9 @@ public class ModuleServiceTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
     @SpyBean
     FeatureFlagService featureFlagService;
 
@@ -95,6 +102,7 @@ public class ModuleServiceTest {
     static String defaultEnvironmentId;
     static String packageId;
     static PackageDTO testPackage = null;
+    Datasource datasource;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -129,7 +137,19 @@ public class ModuleServiceTest {
                     .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                     .block();
         }
+
+        setupDatasource();
         setupTestPackage();
+    }
+
+    private void setupDatasource() {
+        datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(workspaceId);
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
     }
 
     public void setupTestPackage() {
@@ -176,6 +196,7 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -201,6 +222,18 @@ public class ModuleServiceTest {
                     assertThat(updatedModule.getName()).isEqualTo(moduleDTO.getName());
                     assertThat(updatedModule.getInputsForm()).isNotEmpty();
                     assertThat(updatedModule.getInputsForm().size()).isEqualTo(1);
+                })
+                .verifyComplete();
+
+        Mono<List<ModuleConsumable>> moduleActionsMono = crudModuleEntityService.getModuleActions(moduleRef.get());
+
+        StepVerifier.create(moduleActionsMono)
+                .assertNext(moduleConsumables -> {
+                    moduleConsumables.forEach(moduleConsumable -> {
+                        ModuleActionDTO moduleAction = (ModuleActionDTO) moduleConsumable;
+                        assertThat(moduleAction.getDatasource()).isNotNull();
+                        assertThat(moduleAction.getDatasource().getName()).isEqualTo(datasource.getName());
+                    });
                 })
                 .verifyComplete();
     }

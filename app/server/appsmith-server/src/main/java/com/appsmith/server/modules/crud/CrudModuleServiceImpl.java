@@ -309,6 +309,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                         ActionDTO updateActionDTO = new ActionDTO();
                                         updateActionDTO.setContext(ActionDTO.ActionContext.MODULE);
                                         updateActionDTO.setName(moduleDTO.getName());
+                                        updateActionDTO.setDatasource(
+                                                newAction.getUnpublishedAction().getDatasource());
                                         return newActionService.updateUnpublishedActionWithoutAnalytics(
                                                 newAction.getId(), updateActionDTO, Optional.empty());
                                     })
