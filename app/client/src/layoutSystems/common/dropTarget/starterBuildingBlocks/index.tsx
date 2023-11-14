@@ -58,7 +58,7 @@ function StarterBuildingBlocks() {
       workspaceId: currentWorkSpace.id,
       source: "canvas",
       eventData: {
-        starterTemplateName: layoutItems[index].templateName,
+        templateAppName: layoutItems[index].templateName,
       },
     });
   };

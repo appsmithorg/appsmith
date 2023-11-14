@@ -31,6 +31,7 @@ import {
 import { INTEGRATION_TABS } from "constants/routes";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { STARTER_BUILDING_BLOCK_TEMPLATE_NAME } from "constants/TemplatesConstants";
 
 function DatasourceStarterLayoutPrompt() {
   const dispatch = useDispatch();
@@ -64,7 +65,9 @@ function DatasourceStarterLayoutPrompt() {
       applicationId: currentApplicationId,
       workspaceId: currentWorkspaceId,
       source: "canvas",
-      eventData: {},
+      eventData: {
+        templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
+      },
     });
   }, [pageId]);
 
