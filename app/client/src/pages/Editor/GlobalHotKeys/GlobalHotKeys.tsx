@@ -36,7 +36,7 @@ import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "@appsmith/constants/messages";
-import { setPreviewModeAction } from "actions/editorActions";
+import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
@@ -74,7 +74,7 @@ interface Props {
   appMode?: APP_MODE;
   isPreviewMode: boolean;
   isProtectedMode: boolean;
-  setPreviewModeAction: (shouldSet: boolean) => void;
+  setPreviewModeInitAction: (shouldSet: boolean) => void;
   isExplorerPinned: boolean;
   isSignpostingEnabled: boolean;
   setExplorerPinnedAction: (shouldPinned: boolean) => void;
@@ -264,7 +264,7 @@ class GlobalHotKeys extends React.Component<Props> {
             this.props.closeProppane();
             this.props.closeTableFilterProppane();
             e.preventDefault();
-            this.props.setPreviewModeAction(false);
+            this.props.setPreviewModeInitAction(false);
           }}
         />
         <Hotkey
@@ -337,7 +337,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Preview Mode"
           onKeyDown={() => {
-            this.props.setPreviewModeAction(!this.props.isPreviewMode);
+            this.props.setPreviewModeInitAction(!this.props.isPreviewMode);
           }}
         />
         <Hotkey
@@ -399,8 +399,8 @@ const mapDispatchToProps = (dispatch: any) => {
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
-    setPreviewModeAction: (shouldSet: boolean) =>
-      dispatch(setPreviewModeAction(shouldSet)),
+    setPreviewModeInitAction: (shouldSet: boolean) =>
+      dispatch(setPreviewModeInitAction(shouldSet)),
     setExplorerPinnedAction: (shouldSet: boolean) =>
       dispatch(setExplorerPinnedAction(shouldSet)),
     showCommitModal: () =>
