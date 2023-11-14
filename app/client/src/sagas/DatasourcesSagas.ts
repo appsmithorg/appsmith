@@ -626,11 +626,11 @@ function* redirectAuthorizationCodeSaga(
     const currentEnvironment: string = yield select(
       getCurrentEditingEnvironmentId,
     );
-    window.location.href =
-      `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}` +
-      !!branchName
-        ? `&branch=` + branchName
-        : ``;
+    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
+    if (!!branchName) {
+      windowLocation = windowLocation + `&branchName=` + branchName;
+    }
+    window.location.href = windowLocation;
   } else {
     try {
       // Get an "appsmith token" from the server
