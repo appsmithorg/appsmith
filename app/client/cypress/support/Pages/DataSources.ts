@@ -1918,6 +1918,7 @@ export class DataSources {
     EditorNavigation.ViaSidebar(SidebarButton.Data);
     cy.get(datasource.datasourceCard)
       .contains(name)
+      .first()
       .scrollIntoView()
       .should("be.visible")
       .click()
