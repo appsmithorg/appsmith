@@ -19,6 +19,23 @@ import type { Datasource } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import type { SuggestedWidget } from "api/ActionAPI";
+
+interface ApiRightPaneProps {
+  additionalSections?: React.ReactNode;
+  actionName: string;
+  actionRightPaneBackLink: React.ReactNode;
+  applicationId?: string;
+  currentActionDatasourceId: string;
+  currentPageId?: string;
+  datasourceId: string;
+  datasources: any;
+  hasResponse: boolean;
+  onClick: (datasource: Datasource) => void;
+  pluginId: string;
+  showTabbedSection: boolean;
+  suggestedWidgets?: SuggestedWidget[];
+}
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -40,7 +57,7 @@ const DatasourceContainer = styled.div`
   color: var(--ads-v2-color-fg);
 
   .tab-container-right-sidebar {
-    padding: 0;
+    padding: 0 var(--ads-v2-spaces-7);
     height: 100%;
     border-left: 1px solid var(--ads-v2-color-border);
 
@@ -153,7 +170,6 @@ const NoEntityFoundWrapper = styled.div`
 `;
 
 const TablistWithPadding = styled.div`
-  padding: 0 var(--ads-v2-spaces-7);
   flex-shrink: 0;
 `;
 
@@ -186,7 +202,8 @@ const API_RIGHT_PANE_TABS = {
   CONNECTIONS: "connections",
   DATASOURCES: "datasources",
 };
-function ApiRightPane(props: any) {
+
+function ApiRightPane(props: ApiRightPaneProps) {
   const dispatch = useDispatch();
   const { hasDependencies } = useEntityDependencies(props.actionName);
   const selectedTab = useSelector(getApiRightPaneSelectedTab);
@@ -216,112 +233,122 @@ function ApiRightPane(props: any) {
   return (
     <DatasourceContainer>
       <TabbedViewContainer className="tab-container-right-sidebar">
-        <Tabs
-          data-testid={"api-right-pane"}
-          onValueChange={setSelectedTab}
-          value={
-            isUndefined(selectedTab)
-              ? API_RIGHT_PANE_TABS.DATASOURCES
-              : selectedTab
-          }
-        >
-          <TablistWithPadding>
-            <TabsList>
-              <Tab
-                key={API_RIGHT_PANE_TABS.DATASOURCES}
-                value={API_RIGHT_PANE_TABS.DATASOURCES}
-              >
-                Datasources
-              </Tab>
-              <Tab
-                key={API_RIGHT_PANE_TABS.CONNECTIONS}
-                value={API_RIGHT_PANE_TABS.CONNECTIONS}
-              >
-                Connections
-              </Tab>
-            </TabsList>
-          </TablistWithPadding>
-          <TabPanel value={API_RIGHT_PANE_TABS.DATASOURCES}>
-            {props.datasources && props.datasources.length > 0 ? (
-              <DataSourceListWrapper
-                className={
-                  selectedTab === API_RIGHT_PANE_TABS.DATASOURCES ? "show" : ""
-                }
-              >
-                {(sortedDatasources || []).map((d: Datasource, idx: number) => {
-                  const dataSourceInfo: string = getDatasourceInfo(d);
-                  return (
-                    <DatasourceCard key={idx} onClick={() => props.onClick(d)}>
-                      <DataSourceNameContainer>
-                        <Text type={TextType.H5} weight={FontWeight.BOLD}>
-                          {d.name}
-                        </Text>
-                        {d?.id === props.currentActionDatasourceId && (
-                          <Tag isClosable={false} size="md">
-                            In use
-                          </Tag>
-                        )}
-                        <Button
-                          isIconButton
-                          kind="tertiary"
-                          onClick={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            history.push(
-                              datasourcesEditorIdURL({
-                                pageId: props.currentPageId,
-                                datasourceId: d.id,
-                                params: getQueryParams(),
-                              }),
-                            );
-                          }}
-                          size="sm"
-                          startIcon="pencil-line"
-                        />
-                      </DataSourceNameContainer>
-                      <DatasourceURL>
-                        {d.datasourceStorages[currentEnvironmentId]
-                          ?.datasourceConfiguration?.url || ""}
-                      </DatasourceURL>
-                      {dataSourceInfo && (
-                        <Text type={TextType.P3} weight={FontWeight.NORMAL}>
-                          {dataSourceInfo}
-                        </Text>
-                      )}
-                    </DatasourceCard>
-                  );
-                })}
-              </DataSourceListWrapper>
-            ) : (
-              <EmptyDatasourceContainer>
-                <NoEntityFoundWrapper>
-                  <div className="lines first-line" />
-                  <div className="lines second-line" />
-                </NoEntityFoundWrapper>
-                <Text
-                  textAlign="center"
-                  type={TextType.H5}
-                  weight={FontWeight.NORMAL}
+        {props.additionalSections}
+        {props.showTabbedSection && (
+          <Tabs
+            data-testid={"api-right-pane"}
+            onValueChange={setSelectedTab}
+            value={
+              isUndefined(selectedTab)
+                ? API_RIGHT_PANE_TABS.DATASOURCES
+                : selectedTab
+            }
+          >
+            <TablistWithPadding>
+              <TabsList>
+                <Tab
+                  key={API_RIGHT_PANE_TABS.DATASOURCES}
+                  value={API_RIGHT_PANE_TABS.DATASOURCES}
                 >
-                  When you save a datasource, it will show up here.
-                </Text>
-              </EmptyDatasourceContainer>
-            )}
-          </TabPanel>
-          <TabPanel value={API_RIGHT_PANE_TABS.CONNECTIONS}>
-            <SomeWrapper>
-              <ActionRightPane
-                actionName={props.actionName}
-                actionRightPaneBackLink={props.actionRightPaneBackLink}
-                context={DatasourceStructureContext.API_EDITOR}
-                datasourceId={props.datasourceId}
-                hasConnections={hasDependencies}
-                hasResponse={props.hasResponse}
-                pluginId={props.pluginId}
-                suggestedWidgets={props.suggestedWidgets}
-              />
-            </SomeWrapper>
-          </TabPanel>
-        </Tabs>
+                  Datasources
+                </Tab>
+                <Tab
+                  key={API_RIGHT_PANE_TABS.CONNECTIONS}
+                  value={API_RIGHT_PANE_TABS.CONNECTIONS}
+                >
+                  Connections
+                </Tab>
+              </TabsList>
+            </TablistWithPadding>
+            <TabPanel value={API_RIGHT_PANE_TABS.DATASOURCES}>
+              {props.datasources && props.datasources.length > 0 ? (
+                <DataSourceListWrapper
+                  className={
+                    selectedTab === API_RIGHT_PANE_TABS.DATASOURCES
+                      ? "show"
+                      : ""
+                  }
+                >
+                  {(sortedDatasources || []).map(
+                    (d: Datasource, idx: number) => {
+                      const dataSourceInfo: string = getDatasourceInfo(d);
+                      return (
+                        <DatasourceCard
+                          key={idx}
+                          onClick={() => props.onClick(d)}
+                        >
+                          <DataSourceNameContainer>
+                            <Text type={TextType.H5} weight={FontWeight.BOLD}>
+                              {d.name}
+                            </Text>
+                            {d?.id === props.currentActionDatasourceId && (
+                              <Tag isClosable={false} size="md">
+                                In use
+                              </Tag>
+                            )}
+                            <Button
+                              isIconButton
+                              kind="tertiary"
+                              onClick={(e: React.MouseEvent) => {
+                                e.stopPropagation();
+                                history.push(
+                                  datasourcesEditorIdURL({
+                                    pageId: props.currentPageId,
+                                    datasourceId: d.id,
+                                    params: getQueryParams(),
+                                  }),
+                                );
+                              }}
+                              size="sm"
+                              startIcon="pencil-line"
+                            />
+                          </DataSourceNameContainer>
+                          <DatasourceURL>
+                            {d.datasourceStorages[currentEnvironmentId]
+                              ?.datasourceConfiguration?.url || ""}
+                          </DatasourceURL>
+                          {dataSourceInfo && (
+                            <Text type={TextType.P3} weight={FontWeight.NORMAL}>
+                              {dataSourceInfo}
+                            </Text>
+                          )}
+                        </DatasourceCard>
+                      );
+                    },
+                  )}
+                </DataSourceListWrapper>
+              ) : (
+                <EmptyDatasourceContainer>
+                  <NoEntityFoundWrapper>
+                    <div className="lines first-line" />
+                    <div className="lines second-line" />
+                  </NoEntityFoundWrapper>
+                  <Text
+                    textAlign="center"
+                    type={TextType.H5}
+                    weight={FontWeight.NORMAL}
+                  >
+                    When you save a datasource, it will show up here.
+                  </Text>
+                </EmptyDatasourceContainer>
+              )}
+            </TabPanel>
+            <TabPanel value={API_RIGHT_PANE_TABS.CONNECTIONS}>
+              <SomeWrapper>
+                <ActionRightPane
+                  actionName={props.actionName}
+                  actionRightPaneBackLink={props.actionRightPaneBackLink}
+                  context={DatasourceStructureContext.API_EDITOR}
+                  datasourceId={props.datasourceId}
+                  hasConnections={hasDependencies}
+                  hasResponse={props.hasResponse}
+                  pluginId={props.pluginId}
+                  suggestedWidgets={props.suggestedWidgets}
+                />
+              </SomeWrapper>
+            </TabPanel>
+          </Tabs>
+        )}
       </TabbedViewContainer>
     </DatasourceContainer>
   );

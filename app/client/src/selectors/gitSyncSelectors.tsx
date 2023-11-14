@@ -240,7 +240,6 @@ export const getIsUpdateProtectedBranchesLoading = (state: AppState) => {
   );
 };
 
-export const getIsGitProtectedFeatureEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) => !!flags?.release_git_branch_protection_enabled,
-);
+export const getIsGetProtectedBranchesLoading = (state: AppState) => {
+  return state.ui.gitSync.protectedBranchesLoading;
+};

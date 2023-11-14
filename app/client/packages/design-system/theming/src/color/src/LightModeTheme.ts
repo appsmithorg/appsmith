@@ -52,6 +52,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.to("sRGB").toString(),
       bgAssistive: this.bgAssistive.to("sRGB").toString(),
       bgNeutral: this.bgNeutral.to("sRGB").toString(),
+      bgNeutralOpacity: this.bgNeutralOpacity.to("sRGB").toString(),
       bgNeutralHover: this.bgNeutralHover.to("sRGB").toString(),
       bgNeutralActive: this.bgNeutralActive.to("sRGB").toString(),
       bgNeutralSubtle: this.bgNeutralSubtle.to("sRGB").toString(),
@@ -297,6 +298,14 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       color.oklch.c = 0;
     }
+
+    return color;
+  }
+
+  private get bgNeutralOpacity() {
+    const color = this.bgNeutral.clone();
+
+    color.alpha = 0.5;
 
     return color;
   }

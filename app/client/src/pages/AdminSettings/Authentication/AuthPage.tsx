@@ -15,8 +15,8 @@ import { Button, Callout, Divider, Icon, Text, Tooltip } from "design-system";
 import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
-import BusinessTag from "components/BusinessTag";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
+import EnterpriseTag from "components/EnterpriseTag";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -191,7 +191,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       renderAs="p"
                     >
                       {method.label}&nbsp;
-                      {!method.isFeatureEnabled && <BusinessTag />}
+                      {!method.isFeatureEnabled && <EnterpriseTag />}
                       {method.isConnected && (
                         <Tooltip
                           content={createMessage(
