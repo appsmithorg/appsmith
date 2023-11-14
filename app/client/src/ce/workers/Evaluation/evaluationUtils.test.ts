@@ -81,6 +81,7 @@ const BASE_WIDGET_CONFIG: WidgetEntityConfig = {
   propertyOverrideDependency: {},
   overridingPropertyPaths: {},
   defaultMetaProps: [],
+  derivedProperties: {},
 };
 
 const testDataTree: Record<string, WidgetEntity> = {

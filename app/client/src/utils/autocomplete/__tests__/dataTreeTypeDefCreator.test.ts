@@ -42,6 +42,7 @@ describe("dataTreeTypeDefCreator", () => {
       bindingPaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
       },
+      derivedProperties: {},
       reactivePaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
       },

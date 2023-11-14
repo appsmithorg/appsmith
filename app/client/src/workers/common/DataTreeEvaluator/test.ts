@@ -674,6 +674,7 @@ describe("isDataField", () => {
       dynamicTriggerPathList: [],
       isMetaPropDirty: false,
       widgetId: "0",
+      derivedProperties: {},
     },
     Button1: {
       defaultProps: {},
@@ -707,6 +708,7 @@ describe("isDataField", () => {
         borderRadius: "TEMPLATE",
         boxShadow: "TEMPLATE",
       },
+      derivedProperties: {},
       reactivePaths: {
         recaptchaToken: "TEMPLATE",
         buttonColor: "TEMPLATE",
@@ -825,6 +827,7 @@ describe("isDataField", () => {
         borderRadius: "TEMPLATE",
         boxShadow: "TEMPLATE",
       },
+      derivedProperties: {},
       reactivePaths: {
         recaptchaToken: "TEMPLATE",
         buttonColor: "TEMPLATE",
@@ -926,6 +929,7 @@ describe("isDataField", () => {
     Button3: {
       defaultProps: {},
       defaultMetaProps: ["recaptchaToken"],
+      derivedProperties: {},
       dynamicBindingPathList: [
         {
           key: "buttonColor",
