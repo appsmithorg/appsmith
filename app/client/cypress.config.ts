@@ -25,15 +25,7 @@ export default defineConfig({
   },
   e2e: {
     baseUrl: "https://dev.appsmith.com/",
-    env: {
-      USERNAME: "jacques+123@appsmith.com",
-      PASSWORD: "123456",
-      TESTUSERNAME1: "viewerappsmith@mailinator.com",
-      TESTPASSWORD1: "Test@123",
-      TESTUSERNAME2: "developerappsmith@mailinator.com",
-      TESTPASSWORD2: "Test@123",
-      GITEA_TOKEN: "fa1080b66dc0f7f5799dc7d274a446e902456937",
-    },
+    env: {},
     setupNodeEvents(on, config) {
       return require("./cypress/plugins/index.js")(on, config);
     },
