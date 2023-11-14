@@ -16,7 +16,6 @@ else
 fi
 
 # build cra app
-export REACT_APP_CLOUD_HOSTING=true
 export REACT_APP_SENTRY_RELEASE=$GIT_SHA
 export REACT_APP_CLIENT_LOG_LEVEL=ERROR
 # Disable CRA built-in ESLint checks since we have our own config and a separate step for this
