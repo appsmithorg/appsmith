@@ -15,6 +15,10 @@ import {
   Radio,
   IconButton,
   TextArea,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@design-system/widgets";
 // This component is used only for testing purpose and is not used in the prod
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
@@ -23,6 +27,15 @@ import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 import EmotionUnhappyLineIcon from "remixicon-react/EmotionUnhappyLineIcon";
 
 export const ComplexForm = () => {
+  const fakeSubmit = async () => {
+    return new Promise<void>((resolve) =>
+      setTimeout(() => {
+        alert("Your order is on the way...");
+        resolve();
+      }, 500),
+    );
+  };
+
   return (
     <Flex direction="column" gap="spacing-6">
       <Flex direction="column" gap="spacing-3">
@@ -79,7 +92,20 @@ export const ComplexForm = () => {
             If you cancel, you will lose your order
           </TooltipContent>
         </TooltipRoot>
-        <Button>Ok</Button>
+        <Modal size="small">
+          <Button>Ok</Button>
+          <ModalHeader title="Confirmation" />
+          <ModalBody>
+            <Text>
+              <ul>
+                <li>Hamburger — XL</li>
+                <li>French fries — L</li>
+                <li>Coca-Cola — S</li>
+              </ul>
+            </Text>
+          </ModalBody>
+          <ModalFooter onSubmit={fakeSubmit} submitText="Confirm" />
+        </Modal>
       </Flex>
     </Flex>
   );

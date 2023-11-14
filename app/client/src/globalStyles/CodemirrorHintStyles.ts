@@ -2,6 +2,7 @@ import { createGlobalStyle } from "styled-components";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { Theme } from "constants/DefaultTheme";
 import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
+import { CodeEditorColors } from "components/editorComponents/CodeEditor/styledComponents";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;
@@ -14,15 +15,13 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       z-index: 20;
       overflow: hidden;
       list-style: none;
-      margin-top: ${(props) => props.theme.spaces[3]}px;
-      padding: 0px 0px;
-      font-family: monospace;
+      padding: 0px;
+      font-family: ${(props) => props.theme.fonts.code};
       max-height: 25em;
       overflow-y: auto;
       background: var(--ads-v2-color-bg);
       box-shadow: var(--ads-v2-shadow-popovers);
       border: 1px solid var(--ads-v2-color-border);
-      border-radius: var(--ads-v2-border-radius);
     }
 
     .CodeMirror-hint {
@@ -38,7 +37,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       letter-spacing: -0.24px;
       &:hover {
         background: var(--ads-v2-color-bg-subtle);
-        border-radius: 0px;
         color: var(--ads-v2-color-fg);
         &:after {
           color: var(--ads-v2-color-fg);
@@ -82,9 +80,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       font-family: ${(props) => props.theme.fonts.text};
       font-size:14px;
       margin: 0 4px;
-      &:hover {
-        border-radius: var(--ads-v2-border-radius);
-      }
       &.CodeMirror-hint-active {
         .magic {
           path {
@@ -172,7 +167,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       bottom: 6px;
       height: 12px;
       width: 12px;
-      border-radius: var(--ads-v2-border-radius);
       font-size: 10px;
       line-height: 12px;
       font-weight: normal;
@@ -238,7 +232,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     }
     li.CodeMirror-hint-active {
       background-color: var(--ads-v2-color-bg-muted);
-      border-radius: var(--ads-v2-border-radius);
       color: var(--ads-v2-color-fg);
       &:after {
         color: var(--ads-v2-color-fg);
@@ -261,21 +254,42 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       background: var(--ads-v2-color-bg);
       box-shadow: var(--ads-v2-shadow-popovers);
       border: 1px solid var(--ads-v2-color-border);
-      border-radius: var(--ads-v2-border-radius);
+      z-index: 15px;
+      font-weight: 500;
       max-width: none;
       white-space: nowrap;
       .CodeMirror-Tern-fname {
-        color: #304EAA;
+        color: ${CodeEditorColors.KEYWORD};
       }
       .CodeMirror-Tern-farg {
-        color: #DB6E33;
+        color: ${CodeEditorColors.TOOLTIP_FN_ARGS};
         &.CodeMirror-Tern-farg-current {
-          color: #DB6E33;
+          color: ${CodeEditorColors.TOOLTIP_FN_ARGS};
           font-weight: 600;
         }
       }
       .CodeMirror-Tern-type {
         color: #364252;
+      }
+      &.CodeMirror-Tern-hint-doc {
+        display: block;
+        background: var(--ads-v2-color-bg);
+        box-shadow: var(--ads-v2-shadow-popovers);
+        border: 1px solid var(--ads-v2-color-border);
+        color: var(--ads-v2-color-fg);
+        max-height: 150px;
+        max-width: 350px;
+        overflow: auto;
+        font-size: 11px;
+        padding: 0 !important;
+        .doc-link > span {
+          font-size: var(--ads-v2-font-size-2);
+        }
+        code {
+          background: var(--ads-v2-color-bg-subtle);
+          padding: 2px 4px;
+          border-radius: var(--ads-v2-border-radius);
+        }
       }
     }
   }
@@ -299,7 +313,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     bottom: 6px;
     height: 12px;
     width: 12px;
-    border-radius: var(--ads-v2-border-radius);
     font-size: 10px;
     line-height: 12px;
     font-weight: normal;
@@ -339,26 +352,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   }
 }
 
-  .CodeMirror-Tern-hint-doc {
-    display: none;
-    &.visible {
-      display: block;
-        background-color: var(--ads-v2-color-bg) !important;
-        color: var(--ads-v2-color-fg) !important;
-        max-height: 150px;
-        width: 250px;
-        font-size: 12px;
-        padding: 5px !important;
-        border: 1px solid !important;
-        border: 1px solid var(--ads-v2-color-border) !important;
-        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
-        overflow: scroll;
-    }
-  }
   .CodeMirror-lint-tooltip {
     && {
       border: 1px solid var(--ads-v2-color-border) !important;
-      border-radius: var(--ads-v2-border-radius);
       background: var(--ads-v2-color-bg) !important;
       box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
       padding: 4px;
