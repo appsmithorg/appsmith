@@ -9,9 +9,6 @@ export const selectFeatureFlagCheck = (
   state: AppState,
   flagName: FeatureFlag,
 ): boolean => {
-  if (flagName === "ab_wds_enabled") {
-    return true;
-  }
   const flagValues = selectFeatureFlags(state);
   if (flagName in flagValues) {
     return flagValues[flagName];
