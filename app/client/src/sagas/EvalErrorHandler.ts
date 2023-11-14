@@ -70,7 +70,7 @@ function logLatestEvalPropertyErrors(
     }
 
     const entityType = entity.ENTITY_TYPE as string;
-    const payloadInfo = getEntityPayloadInfo[entityType](entity, entityConfig);
+    const payloadInfo = getEntityPayloadInfo[entityType](entityConfig);
 
     if (!payloadInfo) continue;
 
