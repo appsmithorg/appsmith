@@ -11,6 +11,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
+import type React from "react";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
@@ -54,7 +55,7 @@ export interface PropertyPaneControlConfig {
   // Serves in the tooltip
   helpText?: string;
   //Dynamic text serves below the property pane inputs
-  helperText?: ((props: any) => string) | string;
+  helperText?: ((props: any) => React.ReactNode) | React.ReactNode;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;

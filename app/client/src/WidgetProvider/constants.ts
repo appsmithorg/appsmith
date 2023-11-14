@@ -80,6 +80,7 @@ export interface WidgetBaseConfiguration {
   searchTags?: string[];
   tags?: WidgetTags[];
   needsHeightForContent?: boolean;
+  isSearchWildcard?: boolean;
 }
 
 export type WidgetDefaultProps = Partial<WidgetProps> & WidgetConfigProps;

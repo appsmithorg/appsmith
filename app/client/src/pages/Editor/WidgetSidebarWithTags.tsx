@@ -31,6 +31,15 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
   const [isSearching, setIsSearching] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
 
+  const searchWildcards = useMemo(() => {
+    return cards
+      .filter((card) => card.isSearchWildcard)
+      .map((card) => ({
+        ...card,
+        tags: [WIDGET_TAGS.SUGGESTED_WIDGETS],
+      }));
+  }, [cards]);
+
   const fuse = useMemo(() => {
     const options = {
       keys: [
@@ -66,11 +75,18 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
 
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
-      setFilteredCards(groupWidgetCardsByTags(searchResult));
+
+      if (searchResult.length > 0) {
+        setFilteredCards(groupWidgetCardsByTags(searchResult));
+      } else {
+        setFilteredCards(groupWidgetCardsByTags(searchWildcards));
+      }
+
       setIsEmpty(searchResult.length === 0);
     } else {
       setFilteredCards(groupedCards);
       setIsSearching(false);
+      setIsEmpty(false);
     }
   };
 
@@ -104,7 +120,12 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
         data-testid="widget-sidebar-scrollable-wrapper"
       >
         {isEmpty && (
-          <Text color="#6A7585" kind="body-m">
+          <Text
+            color="#6A7585"
+            kind="body-m"
+            renderAs="p"
+            style={{ marginBottom: "15px" }}
+          >
             We couldn’t find any widgets called `{searchInputRef.current?.value}
             `
           </Text>
@@ -119,7 +140,11 @@ function WidgetSidebarWithTags({ isActive }: { isActive: boolean }) {
             }
 
             // We don't need to show suggested widgets when the user is searching
-            if (isSearching && tag === WIDGET_TAGS.SUGGESTED_WIDGETS) {
+            if (
+              isSearching &&
+              tag === WIDGET_TAGS.SUGGESTED_WIDGETS &&
+              !isEmpty
+            ) {
               return null;
             }
 

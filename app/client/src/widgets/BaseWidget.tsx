@@ -516,6 +516,7 @@ export interface WidgetCardProps {
   icon: string;
   isBeta?: boolean;
   tags?: WidgetTags[];
+  isSearchWildcard?: boolean;
 }
 
 export const WidgetOperations = {

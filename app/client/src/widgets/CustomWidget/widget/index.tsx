@@ -2,7 +2,8 @@ import React from "react";
 
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 
 import CustomComponent from "../component";
 
@@ -21,6 +22,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       isCanvas: false,
       tags: [WIDGET_TAGS.DISPLAY],
       searchTags: ["external"],
+      isSearchWildcard: true,
     };
   }
 
@@ -53,7 +55,18 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "model",
-            helperText: "Bind the model variable to the widget",
+            helperText: (
+              <div style={{ marginTop: "10px" }}>
+                This model exposes Appsmith data to the widget editor.{" "}
+                <a
+                  href="https://docs.appsmith.com/core-concepts/dynamic-data"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Read more
+                </a>
+              </div>
+            ),
             label: "",
             controlType: "INPUT_TEXT",
             defaultValue: "{}",
