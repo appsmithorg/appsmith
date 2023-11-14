@@ -7,7 +7,8 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import moment from "moment";
+import dayjs from "dayjs";
+// import moment from "moment";
 import type {
   LayoutOnLoadActionErrors,
   PageAction,
@@ -93,7 +94,7 @@ export const handlers = {
   [ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS]: (state: EditorReduxState) => {
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
-    state.loadingStates.published = moment().format();
+    state.loadingStates.published = dayjs().format();
     return { ...state };
   },
   [ReduxActionTypes.SAVE_PAGE_INIT]: (state: EditorReduxState) => {

@@ -6,7 +6,8 @@ import type {
 } from "entities/AppsmithConsole";
 import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
 import { klona } from "klona/lite";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import TriggerEmitter from "../utils/TriggerEmitter";
 import type { EventEmitter } from "events";
@@ -99,7 +100,7 @@ class UserLog {
   private parseLogs(method: Methods, data: any[]): LogObject {
     // Create an ID
     const id = uuid4();
-    const timestamp = moment().format("HH:mm:ss");
+    const timestamp = dayjs().format("HH:mm:ss");
     // Parse the methods
     let output = data;
     // For logs UI we only keep 3 levels of severity, info, warn, error

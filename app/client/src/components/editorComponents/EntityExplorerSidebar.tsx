@@ -30,7 +30,8 @@ import { SIDEBAR_ID } from "constants/Explorer";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
-import moment from "moment";
+import dayjs from "dayjs";
+// import moment from "moment";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
 import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
 
@@ -197,7 +198,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
 
   const handleMouseLeave = useCallback(() => {
     if (hoverStartTime !== 0) {
-      const timeTaken = moment().diff(hoverStartTime, "seconds");
+      const timeTaken = dayjs().diff(hoverStartTime, "seconds");
       AnalyticsUtil.logEvent("TIME_TO_NAVIGATE_ENTITY_EXPLORER", { timeTaken });
       setHoverStartTime(0);
     }

@@ -1,5 +1,6 @@
 import log from "loglevel";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import localforage from "localforage";
 import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
 import { isNumber } from "lodash";
@@ -44,7 +45,7 @@ const store = localforage.createInstance({
 });
 
 export const resetAuthExpiration = () => {
-  const expireBy = moment().add(1, "h").format();
+  const expireBy = dayjs().add(1, "h").format();
   store.setItem(STORAGE_KEYS.AUTH_EXPIRATION, expireBy).catch((error) => {
     log.error("Unable to set expiration time");
     log.error(error);
@@ -55,7 +56,7 @@ export const hasAuthExpired = async () => {
   const expireBy: string | null = await store.getItem(
     STORAGE_KEYS.AUTH_EXPIRATION,
   );
-  if (expireBy && moment().isAfter(moment(expireBy))) {
+  if (expireBy && dayjs().isAfter(dayjs(expireBy))) {
     return true;
   }
   return false;

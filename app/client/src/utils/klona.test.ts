@@ -1,6 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/full";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 
 describe("Klona clone test", () => {
   it("Strings, Booleans, numbers, null & undefined values", () => {
@@ -51,7 +52,7 @@ describe("Klona clone test", () => {
 
   it("Dates and regex values", () => {
     const currentDate = new Date();
-    const currentMoment = moment();
+    const currentMoment = dayjs();
     const input = {
       meta: {
         date: currentDate,
@@ -73,7 +74,7 @@ describe("Klona clone test", () => {
 
     // mutate
     input.meta.date = new Date(327392879);
-    input.meta.moment = moment();
+    input.meta.moment = dayjs();
     input.meta.regex = /^def$/g;
     input.meta.regexExp = new RegExp(/^def$/);
 

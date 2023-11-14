@@ -4,7 +4,8 @@ import {
 } from "@appsmith/constants/messages";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import { sample } from "lodash";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -67,7 +68,7 @@ export function getExpectedValue(
     case ValidationTypes.DATE_ISO_STRING:
       return {
         type: "ISO 8601 date string",
-        example: moment().toISOString(true),
+        example: dayjs().toISOString(),
         autocompleteDataType: AutocompleteDataType.STRING,
       };
     case ValidationTypes.BOOLEAN:

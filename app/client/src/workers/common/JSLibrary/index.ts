@@ -1,5 +1,5 @@
 import lodashPackageJson from "lodash/package.json";
-import momentPackageJson from "moment-timezone/package.json";
+// import momentPackageJson from "moment-timezone/package.json";
 
 export interface JSLibrary {
   version?: string;
@@ -18,7 +18,7 @@ export const defaultLibraries: JSLibrary[] = [
   },
   {
     accessor: ["moment"],
-    version: momentPackageJson.version,
+    version: "1234",
     docsURL: `https://momentjs.com/docs/`,
     name: "moment",
   },

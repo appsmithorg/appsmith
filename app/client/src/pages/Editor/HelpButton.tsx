@@ -23,7 +23,8 @@ import {
   Text,
 } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import moment from "moment/moment";
+// import moment from "moment/moment";
+import dayjs from "dayjs";
 import styled from "styled-components";
 import {
   getFirstTimeUserOnboardingModal,
@@ -302,7 +303,7 @@ function HelpButton() {
                     )}
                   </span>
                   <span>
-                    Released {moment(appVersion.releaseDate).fromNow()}
+                    Released {dayjs(appVersion.releaseDate).fromNow()}
                   </span>
                 </HelpFooter>
               </MenuItem>

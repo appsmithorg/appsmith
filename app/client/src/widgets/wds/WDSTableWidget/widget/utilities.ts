@@ -31,7 +31,10 @@ import {
 } from "utils/DynamicBindingUtils";
 import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "WidgetProvider/constants";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
+// import dayjs from dayjs;
+// globalThis
 import type { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import log from "loglevel";
@@ -759,7 +762,7 @@ export const getColumnType = (
       return ColumnTypes.CHECKBOX;
     case "string":
       return dateFormatOptions.some(({ value: format }) =>
-        moment(columnValue as string, format, true).isValid(),
+        dayjs(columnValue as string, format, true).isValid(),
       )
         ? ColumnTypes.DATE
         : ColumnTypes.TEXT;

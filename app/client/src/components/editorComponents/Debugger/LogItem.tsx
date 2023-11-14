@@ -11,7 +11,8 @@ import { getLogIcon } from "./helpers";
 import { Classes, getTypographyByKey } from "design-system-old";
 import ContextualMenu from "./ContextualMenu";
 import { Button, Icon } from "design-system";
-import moment from "moment";
+import dayjs from "dayjs";
+// import moment from "moment";
 import classNames from "classnames";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
@@ -268,7 +269,7 @@ function LogItem(props: LogItemProps) {
         />
         <span className={`debugger-time ${props.severity}`}>
           {props.severity === Severity.ERROR
-            ? moment(parseInt(props.timestamp)).format("HH:mm:ss")
+            ? dayjs(parseInt(props.timestamp)).format("HH:mm:ss")
             : props.timestamp}
         </span>
 

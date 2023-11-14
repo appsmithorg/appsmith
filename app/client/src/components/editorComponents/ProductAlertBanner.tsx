@@ -8,7 +8,8 @@ import type {
 } from "reducers/uiReducers/usersReducer";
 import { setMessageConfig } from "@appsmith/sagas/userSagas";
 import type { CalloutLinkProps } from "design-system/build/Callout/Callout.types";
-import moment from "moment/moment";
+// import moment from "moment/moment";
+import dayjs from "dayjs";
 import {
   createMessage,
   I_UNDERSTAND,
@@ -86,7 +87,7 @@ const ProductAlertBanner = () => {
 
   // If still snoozed, it will not be shown
   if (config && config.snoozeTill) {
-    const stillSnoozed = moment().isBefore(moment(config.snoozeTill));
+    const stillSnoozed = dayjs().isBefore(dayjs(config.snoozeTill));
     if (stillSnoozed) {
       return null;
     }
@@ -126,7 +127,7 @@ const ProductAlertBanner = () => {
             if (message.remindLaterDays) {
               updateConfig(message.messageId, {
                 dismissed: false,
-                snoozeTill: moment()
+                snoozeTill: dayjs()
                   .add(message.remindLaterDays, "days")
                   .toDate(),
               });

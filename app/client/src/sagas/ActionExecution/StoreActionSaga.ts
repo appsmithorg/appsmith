@@ -8,7 +8,8 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import type {
   TClearStoreDescription,
   TRemoveValueDescription,
@@ -56,7 +57,7 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
       text,
       severity: Severity.INFO,
       category: LOG_CATEGORY.PLATFORM_GENERATED,
-      timestamp: moment().format("HH:mm:ss"),
+      timestamp: dayjs().format("HH:mm:ss"),
       isExpanded: false,
     })),
   );

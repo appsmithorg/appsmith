@@ -13,7 +13,8 @@ import {
 import { get, set, isNil, has, uniq } from "lodash";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import { isDynamicValue } from "./DynamicBindingUtils";
 import type { ApiResponse } from "api/ApiResponses";
 import type { DSLWidget } from "WidgetProvider/constants";
@@ -691,14 +692,14 @@ export const howMuchTimeBeforeText = (
   date: string,
   options: { lessThanAMinute: boolean } = { lessThanAMinute: false },
 ) => {
-  if (!date || !moment.isMoment(moment(date))) {
+  if (!date || !dayjs.isDayjs(dayjs(date))) {
     return "";
   }
 
   const { lessThanAMinute } = options;
 
-  const now = moment();
-  const checkDate = moment(date);
+  const now = dayjs();
+  const checkDate = dayjs(date);
   const years = now.diff(checkDate, "years");
   const months = now.diff(checkDate, "months");
   const days = now.diff(checkDate, "days");

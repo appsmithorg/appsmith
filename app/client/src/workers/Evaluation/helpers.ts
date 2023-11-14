@@ -4,7 +4,8 @@ import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isNumber, isObject, set } from "lodash";
-import { isMoment } from "moment";
+// import { isMoment } from "moment";
+import dayjs from "dayjs";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
 export const fn_keys: string = "__fn_keys__";
@@ -271,7 +272,7 @@ const generateDiffUpdates = (
 
       //convert all invalid moment objects to nulls ...
       //large collect nodes are anyway getting serialised so the invalid objects will be converted to nulls
-      if (isMoment(rhs) && !rhs.isValid()) {
+      if (dayjs.isDayjs(rhs) && !rhs.isValid()) {
         if (lhs === undefined || lhs !== null) {
           attachDirectly.push({
             kind: "E",

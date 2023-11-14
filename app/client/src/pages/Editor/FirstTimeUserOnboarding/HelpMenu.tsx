@@ -5,7 +5,8 @@ import {
   APPSMITH_DISPLAY_VERSION,
   createMessage,
 } from "@appsmith/constants/messages";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import styled from "styled-components";
 import { triggerWelcomeTour } from "./Utils";
 import { useDispatch, useSelector } from "react-redux";
@@ -129,7 +130,7 @@ function HelpMenu(props: {
             )}
           </StyledText>
           <StyledText color="var(--ads-v2-color-fg-muted)" kind={"action-s"}>
-            Released {moment(appVersion.releaseDate).fromNow()}
+            Released {dayjs(appVersion.releaseDate).fromNow()}
           </StyledText>
         </HelpFooter>
       )}

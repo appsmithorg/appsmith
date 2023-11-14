@@ -1,4 +1,5 @@
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import React, { useCallback, useContext, useEffect, useMemo } from "react";
 import { useController } from "react-hook-form";
 
@@ -69,7 +70,7 @@ const componentDefaultValues = ({
 
   if (!isCustomField) {
     const format = dateFormatOptions.find(({ value: format }) => {
-      return moment(sourceData, format, true).isValid();
+      return dayjs(sourceData, format, true).isValid();
     });
 
     if (format) {
@@ -78,7 +79,7 @@ const componentDefaultValues = ({
 
     if (sourceDataPath && !skipDefaultValueProcessing) {
       const { prefixTemplate, suffixTemplate } = bindingTemplate;
-      const defaultValueString = `moment(${sourceDataPath}, "${dateFormat}").format("${ISO_DATE_FORMAT}")`;
+      const defaultValueString = `dayjs(${sourceDataPath}, "${dateFormat}").format("${ISO_DATE_FORMAT}")`;
       defaultValue = `${prefixTemplate}${defaultValueString}${suffixTemplate}`;
     }
   }
@@ -92,7 +93,7 @@ const componentDefaultValues = ({
 
 export const isValidType = (value: string) =>
   dateFormatOptions.some(({ value: format }) =>
-    moment(value, format, true).isValid(),
+    dayjs(value, format, true).isValid(),
   );
 
 const isValid = (schemaItem: DateFieldProps["schemaItem"], value?: unknown) =>
@@ -138,7 +139,7 @@ function DateField({
       if (schemaItem.convertToISO || !selectedValue) {
         onChange(selectedValue);
       } else {
-        onChange(moment(selectedValue).format(schemaItem.dateFormat));
+        onChange(dayjs(selectedValue).format(schemaItem.dateFormat));
       }
 
       if (schemaItem.onDateSelected && executeAction) {
@@ -164,11 +165,11 @@ function DateField({
   const valueInISOFormat = useMemo(() => {
     if (!isValueValid || typeof value !== "string") return "";
 
-    if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
+    if (dayjs(value, ISO_DATE_FORMAT, true).isValid()) {
       return value;
     }
 
-    const valueInSelectedFormat = moment(value, schemaItem.dateFormat, true);
+    const valueInSelectedFormat = dayjs(value, schemaItem.dateFormat, true);
 
     if (valueInSelectedFormat.isValid()) {
       return valueInSelectedFormat.format(ISO_DATE_FORMAT);
@@ -183,8 +184,8 @@ function DateField({
     }
 
     if (!schemaItem.convertToISO && value && value === valueInISOFormat) {
-      if (moment(value, ISO_DATE_FORMAT, true).isValid()) {
-        onChange(moment(value).format(schemaItem.dateFormat));
+      if (dayjs(value, ISO_DATE_FORMAT, true).isValid()) {
+        onChange(dayjs(value).format(schemaItem.dateFormat));
       }
     }
   }, [schemaItem.convertToISO, value, valueInISOFormat, schemaItem.dateFormat]);

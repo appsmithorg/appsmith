@@ -27,7 +27,8 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import moment from "moment";
+import dayjs from "dayjs";
+// import moment from "moment";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
@@ -94,7 +95,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
       dateFormat: "YYYY-MM-DD HH:mm",
       columns: 20,
       widgetName: "DatePicker",
-      defaultDate: moment().toISOString(),
+      defaultDate: dayjs().toISOString(),
       minDate: "1920-12-31T18:30:00.000Z",
       maxDate: "2121-12-31T18:29:00.000Z",
       version: 2,
@@ -627,8 +628,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{(()=>{${derivedProperties.isValidDate}})()}}`,
-      selectedDate: `{{ this.value ? moment(this.value).toISOString() : "" }}`,
-      formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : "" }}`,
+      selectedDate: `{{ this.value ? dayjs(this.value).toISOString() : "" }}`,
+      formattedDate: `{{ this.value ? dayjs(this.value).format(this.dateFormat) : "" }}`,
     };
   }
 

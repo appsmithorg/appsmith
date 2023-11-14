@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import "@github/g-emoji-element";
 import { Divider, Text, Button, Tag } from "design-system";
 
@@ -153,7 +154,7 @@ function ReleaseComponent({ release }: ReleaseProps) {
         <Tag isClosable={false} size="md">
           {tagName}
         </Tag>
-        <StyledDate>{moment(publishedAt).format("D MMM YYYY")}</StyledDate>
+        <StyledDate>{dayjs(publishedAt).format("D MMM YYYY")}</StyledDate>
       </TagContainer>
       <Text kind="heading-s">{name}</Text>
       <StyledContent

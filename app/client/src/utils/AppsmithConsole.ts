@@ -7,7 +7,8 @@ import {
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { LogActionPayload, Log } from "entities/AppsmithConsole";
 import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import store from "store";
 import AnalyticsUtil from "./AnalyticsUtil";
 import { isEmpty } from "lodash";
@@ -36,7 +37,7 @@ function log(ev: Log) {
 }
 
 function getTimeStamp() {
-  return moment().format("HH:mm:ss");
+  return dayjs().format("HH:mm:ss");
 }
 
 function addLogs(logs: Log[]) {

@@ -5,7 +5,8 @@ import type { IRef, Alignment } from "@blueprintjs/core";
 import { ControlGroup, Classes } from "@blueprintjs/core";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import type { DatePickerType } from "../constants";
 import { TimePrecision } from "../constants";
@@ -165,8 +166,8 @@ class DatePickerComponent extends React.Component<
     // prevProps.selectedDate can undefined and moment(undefined) returns now
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      (!moment(this.props.selectedDate).isSame(
-        moment(prevProps.selectedDate),
+      (!dayjs(this.props.selectedDate).isSame(
+        dayjs(prevProps.selectedDate),
         "seconds",
       ) ||
         (!prevProps.selectedDate && this.props.selectedDate))
@@ -176,7 +177,7 @@ class DatePickerComponent extends React.Component<
   }
 
   getValidDate = (date: string, format: string) => {
-    const _date = moment(date, format);
+    const _date = dayjs(date, format);
     return _date.isValid() ? _date.toDate() : undefined;
   };
 
@@ -205,19 +206,19 @@ class DatePickerComponent extends React.Component<
       labelWidth,
     } = this.props;
 
-    const now = moment();
+    const now = dayjs();
     const year = now.get("year");
     const minDate = this.props.minDate
       ? new Date(this.props.minDate)
       : now
           .clone()
-          .set({ month: 0, date: 1, year: year - 100 })
+          // .set({ month: 0, date: 1, year: year - 100 })
           .toDate();
     const maxDate = this.props.maxDate
       ? new Date(this.props.maxDate)
       : now
           .clone()
-          .set({ month: 11, date: 31, year: year + 100 })
+          // .set({ month: 11, date: 31, year: year + 100 })
           .toDate();
     const isValid = this.state.selectedDate
       ? this.isValidDate(new Date(this.state.selectedDate))
@@ -417,9 +418,9 @@ class DatePickerComponent extends React.Component<
 
   isValidDate = (date: Date): boolean => {
     let isValid = true;
-    const parsedCurrentDate = moment(date);
+    const parsedCurrentDate = dayjs(date);
     if (this.props.minDate) {
-      const parsedMinDate = moment(this.props.minDate);
+      const parsedMinDate = dayjs(this.props.minDate);
       if (
         this.props.minDate &&
         parsedMinDate.isValid() &&
@@ -430,7 +431,7 @@ class DatePickerComponent extends React.Component<
       }
     }
     if (this.props.maxDate) {
-      const parsedMaxDate = moment(this.props.maxDate);
+      const parsedMaxDate = dayjs(this.props.maxDate);
       if (
         isValid &&
         this.props.maxDate &&
@@ -449,7 +450,7 @@ class DatePickerComponent extends React.Component<
 
   formatDate = (date: Date): string => {
     const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-    return moment(date).format(dateFormat);
+    return dayjs(date).format(dateFormat);
   };
 
   parseDate = (dateStr: string): Date | null => {

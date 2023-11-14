@@ -14,7 +14,8 @@ import _, {
   uniq,
 } from "lodash";
 
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
@@ -1034,23 +1035,23 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       } else {
         isValid = true;
       }
-    } else if (typeof value === "object" && moment(value).isValid()) {
+    } else if (typeof value === "object" && dayjs().isValid()) {
       //Date and moment object
       isValid = true;
-      parsed = moment(value).toISOString(true);
+      parsed = dayjs().toISOString();
     } else if (isString(value)) {
       //Date string
       if (
-        value === moment(value).toISOString() ||
-        value === moment(value).toISOString(true)
+        value === dayjs(value).toISOString() ||
+        value === dayjs(value).toISOString()
       ) {
         return {
           isValid: true,
           parsed: value,
         };
-      } else if (moment(value).isValid()) {
+      } else if (dayjs(value).isValid()) {
         isValid = true;
-        parsed = moment(value).toISOString(true);
+        parsed = dayjs(value).toISOString();
       } else {
         isValid = false;
         message = {
@@ -1107,7 +1108,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           "propertyPath",
           "config",
           fnBody,
-        )(value, props, globalThis._, globalThis.moment, propertyPath, config);
+        )(value, props, globalThis._, dayjs, propertyPath, config);
 
         return result;
       } catch (e) {

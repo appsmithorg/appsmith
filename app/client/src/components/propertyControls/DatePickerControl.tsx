@@ -1,7 +1,8 @@
 import React from "react";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import { TimePrecision } from "@blueprintjs/datetime";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
@@ -12,15 +13,15 @@ class DatePickerControl extends BaseControl<
   DatePickerControlProps,
   DatePickerControlState
 > {
-  now = moment();
+  now = dayjs();
   year = this.now.get("year");
   maxDate: Date = this.now
     .clone()
-    .set({ month: 11, date: 31, year: this.year + 100 })
+    // .set({ month: 11, date: 31, year: this.year + 100 })
     .toDate();
   minDate: Date = this.now
     .clone()
-    .set({ month: 0, date: 1, year: this.year - 150 })
+    // .set({ month: 0, date: 1, year: this.year - 150 })
     .toDate();
 
   private wrapperRef = React.createRef<HTMLInputElement>();
@@ -66,7 +67,7 @@ class DatePickerControl extends BaseControl<
         ? ISO_DATE_FORMAT
         : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
     const isValid = this.state.selectedDate
-      ? this.validateDate(moment(this.state.selectedDate, dateFormat).toDate())
+      ? this.validateDate(dayjs(this.state.selectedDate, dateFormat).toDate())
       : true;
     const value =
       this.props.propertyValue && isValid
@@ -99,7 +100,7 @@ class DatePickerControl extends BaseControl<
   }
 
   getValidDate = (date: string, format: string) => {
-    const _date = moment(date, format);
+    const _date = dayjs(date, format);
     return _date.isValid() ? _date.toDate() : undefined;
   };
 
@@ -133,13 +134,13 @@ class DatePickerControl extends BaseControl<
       this.props.widgetProperties.version === 2
         ? ISO_DATE_FORMAT
         : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
-    return date ? moment(date, dateFormat).isValid() : true;
+    return date ? dayjs(date, dateFormat).isValid() : true;
   };
 
   formatDate = (date: Date): string => {
     const dateFormat =
       this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
-    return moment(date).format(dateFormat);
+    return dayjs(date).format(dateFormat);
   };
 
   parseDate = (dateStr: string): Date | null => {
@@ -150,10 +151,10 @@ class DatePickerControl extends BaseControl<
         this.props.widgetProperties.version === 2
           ? ISO_DATE_FORMAT
           : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
-      const date = moment(dateStr, dateFormat);
+      const date = dayjs(dateStr, dateFormat);
 
-      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-      else return moment().toDate();
+      if (date.isValid()) return dayjs(dateStr, dateFormat).toDate();
+      else return dayjs().toDate();
     }
   };
 

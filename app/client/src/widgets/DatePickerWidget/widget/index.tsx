@@ -6,7 +6,8 @@ import DatePickerComponent from "../component";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import type { DatePickerType } from "../constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -41,7 +42,7 @@ function defaultDateValidation(
     };
   }
 
-  const isValid = moment(value as string, dateFormat).isValid();
+  const isValid = dayjs(value as string, dateFormat).isValid();
 
   return {
     isValid,
@@ -79,7 +80,7 @@ function minDateValidation(
       ],
     };
   }
-  const parsedMinDate = moment(value as string, dateFormat);
+  const parsedMinDate = dayjs(value as string, dateFormat);
   let isValid = parsedMinDate.isValid();
 
   if (!props.defaultDate) {
@@ -89,7 +90,7 @@ function minDateValidation(
       messages: [{ name: "", message: "" }],
     };
   }
-  const parsedDefaultDate = moment(props.defaultDate, dateFormat);
+  const parsedDefaultDate = dayjs(props.defaultDate, dateFormat);
 
   if (
     isValid &&
@@ -140,7 +141,7 @@ function maxDateValidation(
       ],
     };
   }
-  const parsedMaxDate = moment(value as string, dateFormat);
+  const parsedMaxDate = dayjs(value as string, dateFormat);
   let isValid = parsedMaxDate.isValid();
   if (!props.defaultDate) {
     return {
@@ -149,7 +150,7 @@ function maxDateValidation(
       messages: [{ name: "", message: "" }],
     };
   }
-  const parsedDefaultDate = moment(props.defaultDate, dateFormat);
+  const parsedDefaultDate = dayjs(props.defaultDate, dateFormat);
 
   if (
     isValid &&
@@ -201,7 +202,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       dateFormat: "YYYY-MM-DD HH:mm",
       columns: 20,
       widgetName: "DatePicker",
-      defaultDate: moment().format("YYYY-MM-DD HH:mm"),
+      defaultDate: dayjs().format("YYYY-MM-DD HH:mm"),
       version: 1,
       animateLoading: true,
     };
@@ -238,7 +239,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 fn: defaultDateValidation,
                 expected: {
                   type: "ISO 8601 string",
-                  example: moment().toISOString(),
+                  example: dayjs().toISOString(),
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -332,7 +333,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 fn: minDateValidation,
                 expected: {
                   type: "ISO 8601 string",
-                  example: moment().toISOString(),
+                  example: dayjs().toISOString(),
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -353,7 +354,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
                 fn: maxDateValidation,
                 expected: {
                   type: "ISO 8601 string",
-                  example: moment().toISOString(),
+                  example: dayjs().toISOString(),
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -400,7 +401,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   componentDidUpdate(prevProps: DatePickerWidgetProps) {
     if (this.props.dateFormat !== prevProps.dateFormat) {
       if (this.props.defaultDate) {
-        const defaultDate = moment(
+        const defaultDate = dayjs(
           this.props.defaultDate,
           this.props.dateFormat,
         );
@@ -408,13 +409,13 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           super.updateWidgetProperty("defaultDate", "");
         } else {
           if (this.props.minDate) {
-            const minDate = moment(this.props.minDate, this.props.dateFormat);
+            const minDate = dayjs(this.props.minDate, this.props.dateFormat);
             if (!minDate.isValid() || defaultDate.isBefore(minDate)) {
               super.updateWidgetProperty("defaultDate", "");
             }
           }
           if (this.props.maxDate) {
-            const maxDate = moment(this.props.maxDate, this.props.dateFormat);
+            const maxDate = dayjs(this.props.maxDate, this.props.dateFormat);
             if (!maxDate.isValid() || defaultDate.isAfter(maxDate)) {
               super.updateWidgetProperty("defaultDate", "");
             }

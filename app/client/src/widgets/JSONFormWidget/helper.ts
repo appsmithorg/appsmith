@@ -14,7 +14,8 @@ import {
   inverseFieldType,
   getBindingTemplate,
 } from "./constants";
-import moment from "moment";
+// import moment from "moment";
+import dayjs from "dayjs";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 
 interface ConvertFormDataOptions {
@@ -368,7 +369,7 @@ export const generateSchemaWithDefaultValues = (columns: Column[]) => {
   const typeMappings: Record<string, unknown> = {
     number: 0,
     string: "",
-    date: moment(moment.now()).format(ISO_DATE_FORMAT),
+    date: dayjs(dayjs()).format(ISO_DATE_FORMAT),
     array: [],
   };
 

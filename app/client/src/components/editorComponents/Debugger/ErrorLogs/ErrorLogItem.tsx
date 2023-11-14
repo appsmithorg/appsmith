@@ -12,7 +12,8 @@ import LogEntityLink from "./components/LogEntityLink";
 import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import moment from "moment";
+import dayjs from "dayjs";
+// import moment from "moment";
 import LogHelper from "./components/LogHelper";
 import { toggleExpandErrorLogItem } from "actions/debuggerActions";
 import { Button, Icon } from "design-system";
@@ -131,7 +132,7 @@ export const getUpdateTimestamp = (state?: Record<string, any>) => {
   if (state) {
     //clone state to avoid mutating the original state.
     const copyState = JSON.parse(JSON.stringify(state));
-    copyState.requestedAt = moment(copyState.requestedAt).format(
+    copyState.requestedAt = dayjs(copyState.requestedAt).format(
       "YYYY-MM-DD HH:mm:ss",
     );
     return copyState;
