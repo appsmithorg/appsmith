@@ -1,15 +1,9 @@
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import { invisible } from "constants/DefaultTheme";
 import WidgetComponentBoundary from "layoutSystems/common/widgetComponent/WidgetComponentBoundary";
 import React from "react";
-import styled from "styled-components";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import Skeleton from "widgets/Skeleton";
-const WidgetVisibilityWrapper = styled.div<{
-  visible: boolean;
-}>`
-  ${(props) => (!props.visible ? invisible : "")}
-`;
+
 export const AnvilWidgetComponent = (props: BaseWidgetProps) => {
   const { deferRender, detachFromLayout, type } = props;
   /**
@@ -25,12 +19,7 @@ export const AnvilWidgetComponent = (props: BaseWidgetProps) => {
     return <Skeleton />;
   }
 
-  if (!detachFromLayout)
-    return (
-      <WidgetVisibilityWrapper visible={!!props.isVisible}>
-        {props.children}
-      </WidgetVisibilityWrapper>
-    );
+  if (!detachFromLayout) return props.children;
 
   return (
     <ErrorBoundary>
