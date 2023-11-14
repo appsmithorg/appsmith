@@ -377,6 +377,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: true,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
@@ -2489,6 +2490,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             cellBackground={cellProperties.cellBackground}
             columnType={column.columnType}
             compactMode={compactMode}
+            currencyCode={cellProperties.currencyCode}
+            decimals={cellProperties.decimals}
             disabledEditIcon={
               shouldDisableEdit || this.props.isAddRowInProgress
             }
@@ -2504,12 +2507,14 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             isEditableCellValid={this.isColumnCellValid(alias)}
             isHidden={isHidden}
             isNewRow={isNewRow}
+            notation={cellProperties.notation}
             onCellTextChange={this.onCellTextChange}
             onSubmitString={props.cell.column.columnProperties.onSubmit}
             rowIndex={rowIndex}
             tableWidth={this.props.componentWidth}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
+            thousandSeparator={cellProperties.thousandSeparator}
             toggleCellEditMode={this.toggleCellEditMode}
             validationErrorMessage={validationErrorMessage}
             value={props.cell.value}

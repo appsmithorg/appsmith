@@ -207,6 +207,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
       false,
     );
     deployMode.DeployApp();
+    agHelper.Sleep(3000); //for the Api to run & button to disappear, for CI runs
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.BUTTON),
     );

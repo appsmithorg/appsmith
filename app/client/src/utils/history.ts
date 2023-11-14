@@ -14,6 +14,7 @@ export enum NavigationMethod {
   CanvasClick = "CanvasClick",
   ActionBackButton = "ActionBackButton",
   ContextSwitching = "ContextSwitching",
+  AppSidebar = "AppSidebar",
 }
 
 export interface AppsmithLocationState {

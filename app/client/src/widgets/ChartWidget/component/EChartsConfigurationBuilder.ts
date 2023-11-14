@@ -11,7 +11,7 @@ import { Colors } from "constants/Colors";
 import { EChartsLayoutBuilder } from "./LayoutBuilders/EChartsLayoutBuilder";
 
 export class EChartsConfigurationBuilder {
-  fontFamily: string | undefined;
+  fontFamily: string = "Nunito Sans";
   fontSize = 14;
 
   #seriesConfigurationForPieChart(
@@ -115,10 +115,6 @@ export class EChartsConfigurationBuilder {
     return 0.3 * props.dimensions.componentHeight - 35;
   };
 
-  #evaluateFontFamily(fontFamily: string | undefined) {
-    return fontFamily === "System Default" ? "inherit" : fontFamily;
-  }
-
   #titleConfigForPiechart(
     props: ChartComponentProps,
     allSeriesData: AllChartData,
@@ -159,7 +155,7 @@ export class EChartsConfigurationBuilder {
     const defaultTitleConfig = {
       text: props.chartName,
       show: layoutConfig.title.show,
-      padding: [5, 50],
+      padding: [15, 50],
       left: "center",
       textStyle: {
         fontFamily: this.fontFamily,
@@ -339,7 +335,7 @@ export class EChartsConfigurationBuilder {
     allSeriesData: AllChartData,
     longestLabels: LongestLabelParams,
   ) {
-    this.fontFamily = this.#evaluateFontFamily(props.fontFamily);
+    this.fontFamily = props.fontFamily;
     const layoutBuilder = new EChartsLayoutBuilder({
       allowScroll: props.allowScroll,
       widgetHeight: props.dimensions.componentHeight,

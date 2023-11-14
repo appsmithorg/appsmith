@@ -206,7 +206,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   return (
     <div
       className={classNames({
-        "js-entity-explorer t--entity-explorer transition-transform transform  flex h-[inherit] duration-400":
+        "js-entity-explorer t--entity-explorer transition-transform transform  flex h-full duration-400":
           true,
         "border-r": !isAppSidebarEnabled,
         relative: pinned,

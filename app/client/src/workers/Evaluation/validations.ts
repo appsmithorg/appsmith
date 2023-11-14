@@ -19,7 +19,11 @@ import type { ValidationConfig } from "constants/PropertyControlConstants";
 
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
-import { countOccurrences, findDuplicateIndex } from "./helpers";
+import {
+  countOccurrences,
+  findDuplicateIndex,
+  stringifyFnsInObject,
+} from "./helpers";
 
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
@@ -360,6 +364,7 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
 
       return validationType;
     case ValidationTypes.OBJECT:
+    case ValidationTypes.OBJECT_WITH_FUNCTION:
       let objectType = "Object";
       if (config.params?.allowedKeys) {
         objectType = "{";
@@ -1248,6 +1253,37 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: resultValue,
     };
   },
+  [ValidationTypes.OBJECT_WITH_FUNCTION]: (
+    config: ValidationConfig,
+    value: any,
+    props: Record<string, unknown>,
+    propertyPath: string,
+  ): ValidationResponse => {
+    const invalidResponse = {
+      isValid: true,
+      parsed: {},
+      messages: [
+        {
+          name: "TypeError",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+        },
+      ],
+    };
+
+    const { isValid, messages, parsed } = VALIDATORS[ValidationTypes.OBJECT](
+      config,
+      value,
+      props,
+      propertyPath,
+    );
+
+    if (!isValid) {
+      return { isValid, messages, parsed }; // return the expected type
+    } else {
+      return { isValid, messages, parsed: stringifyFnsInObject(parsed) };
+    }
+  },
+
   [ValidationTypes.UNION]: (
     config: ValidationConfig,
     value: unknown,
