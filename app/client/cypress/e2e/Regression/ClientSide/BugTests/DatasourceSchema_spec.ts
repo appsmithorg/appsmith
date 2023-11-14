@@ -5,11 +5,19 @@ import {
   entityExplorer,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let guid;
 let dataSourceName: string;
 describe("Datasource form related tests", function () {
   before(() => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     homePage.CreateNewWorkspace("FetchSchemaOnce", true);
     homePage.CreateAppInWorkspace("FetchSchemaOnce");
   });
@@ -19,7 +27,6 @@ describe("Datasource form related tests", function () {
     cy.get("@guid").then((uid) => {
       guid = uid;
       dataSourceName = "Postgres " + guid;
-      entityExplorer.ExpandCollapseEntity("Datasources");
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.RenameWithInPane(dataSourceName, false);
@@ -42,12 +49,11 @@ describe("Datasource form related tests", function () {
 
   it("2. Verify if schema was fetched once #18448", () => {
     agHelper.RefreshPage();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dataSourceName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dataSourceName);
+    dataSources.navigateToDatasource(dataSourceName);
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
+    EditorNavigation.sidebar(SidebarButton.Pages);
+    entityExplorer.SelectEntityByName("Query1");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,

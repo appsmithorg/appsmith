@@ -10,10 +10,19 @@ import {
   table,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
-// import { INTERCEPT } from "../../../../fixtures/variables";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 let dsName: any;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
+  before(() => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
+  });
   // beforeEach(function() {
   //   if (INTERCEPT.MYSQL) {
   //     cy.log("MySQL DB is not found. Using intercept");
@@ -25,6 +34,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
+      EditorNavigation.sidebar(SidebarButton.Pages);
       entityExplorer.AddNewPage();
       entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
@@ -54,7 +64,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //coz if app is published & shared then deleting ds may cause issue, So!
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 409);
       agHelper.WaitUntilAllToastsDisappear();
     });
     deployMode.DeployApp(locators._emptyPageTxt);
@@ -62,7 +72,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 200);
     });
     agHelper.WaitUntilAllToastsDisappear();
   });
@@ -153,12 +163,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
     dataSources.RunQueryNVerifyResponseViews();
+    dataSources.AssertTableInVirtuosoList(dsName, "productlines");
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
-
-    dataSources.AssertTableInVirtuosoList(dsName, "productlines");
   });
 
   it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
@@ -272,18 +282,11 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("Stores"),
-    );
+    dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
   });
 
   it("10. Verify application does not break when user runs the query with wrong table name", function () {
+    EditorNavigation.sidebar(SidebarButton.Pages);
     entityExplorer.SelectEntityByName("DropProductlines", "Queries/JS");
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {

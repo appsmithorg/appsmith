@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
 import {
   agHelper,
@@ -23,6 +27,7 @@ describe("FirstTimeUserOnboarding", function () {
     cy.get(OnboardingLocator.introModal).should("be.visible");
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.introModal).should("not.exist");
+    EditorNavigation.sidebar(SidebarButton.Pages);
     cy.get(".t--entity-name:contains(Page1)")
       .trigger("mouseover")
       .click({ force: true });
@@ -36,7 +41,7 @@ describe("FirstTimeUserOnboarding", function () {
       agHelper.GetNAssertContains(OnboardingLocator.checklistStatus, "0 of 5");
       agHelper.AssertElementExist(OnboardingLocator.checklistDatasourceBtn);
       agHelper.GetNClick(OnboardingLocator.checklistDatasourceBtn);
-      agHelper.AssertElementVisibility(OnboardingLocator.datasourcePage);
+      agHelper.AssertElementVisibility(dataSources._newDatasourceContainer);
 
       agHelper.GetNClick(OnboardingLocator.datasourceMock);
 
@@ -48,6 +53,7 @@ describe("FirstTimeUserOnboarding", function () {
         .realHover()
         .should("have.css", "cursor", "auto");
       agHelper.GetNClick(OnboardingLocator.checklistActionBtn);
+      dataSources.navigateToDatasource("Movies");
       agHelper.GetNClick(OnboardingLocator.createQuery);
 
       agHelper.Sleep();
@@ -117,7 +123,7 @@ describe("FirstTimeUserOnboarding", function () {
         .should("have.css", "cursor", "pointer");
 
       cy.get(OnboardingLocator.checklistDatasourceBtn).click();
-      cy.get(OnboardingLocator.datasourcePage).should("be.visible");
+      cy.get(dataSources._newDatasourceContainer).should("be.visible");
       cy.get(datasource.MongoDB).click();
       dataSources.FillMongoDSForm();
       cy.generateUUID().then((uid) => {

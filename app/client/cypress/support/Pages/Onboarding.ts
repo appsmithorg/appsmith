@@ -33,7 +33,7 @@ export class Onboarding {
       true,
     );
     this._aggregateHelper.AssertElementVisibility(
-      OnboardingLocator.datasourcePage,
+      this._datasources._newDatasourceContainer,
     );
     this.closeIntroModal();
     this._aggregateHelper.AssertElementAbsence(
@@ -57,6 +57,7 @@ export class Onboarding {
       .should("have.css", "cursor", "not-allowed");
     cy.get(OnboardingLocator.checklistActionBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistActionBtn).click();
+    this._datasources.navigateToDatasource("Movies");
     cy.get(OnboardingLocator.createQuery).should("be.visible");
     cy.get(OnboardingLocator.createQuery).click();
     cy.wait(1000);

@@ -10,6 +10,9 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate Mongo URI CRUD with JSON Form", () => {
   let dsName: any;
@@ -23,6 +26,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       agHelper.RenameWithInPane(dsName, false);
       dataSources.FillMongoDatasourceFormWithURI();
       dataSources.TestSaveDatasource();
+      EditorNavigation.sidebar(SidebarButton.Pages);
       entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
@@ -41,7 +45,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       table.WaitUntilTableLoad();
       //Should not be able to delete ds until app is published again
       //coz if app is published & shared then deleting ds may cause issue, So!
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 409);
     });
   });
 

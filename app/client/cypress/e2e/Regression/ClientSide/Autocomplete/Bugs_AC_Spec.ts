@@ -8,6 +8,9 @@ import {
   installer,
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Autocomplete bug fixes", function () {
   it("1. Bug #12790 Verifies if selectedRow is in best match", function () {
@@ -90,10 +93,11 @@ describe("Autocomplete bug fixes", function () {
     "excludeForAirgap",
     "7. Installed library should show up in autocomplete",
     function () {
-      entityExplorer.ExpandCollapseEntity("Libraries");
+      EditorNavigation.sidebar(SidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
+      EditorNavigation.sidebar(SidebarButton.Pages);
       entityExplorer.SelectEntityByName("Text1");
       propPane.TypeTextIntoField("Text", "{{UUI");
       agHelper.GetNAssertElementText(locators._hints, "UUID");
@@ -105,7 +109,9 @@ describe("Autocomplete bug fixes", function () {
     "8. No autocomplete for Removed libraries",
     function () {
       entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
+      EditorNavigation.sidebar(SidebarButton.Libraries);
       installer.uninstallLibrary("uuidjs");
+      EditorNavigation.sidebar(SidebarButton.Pages);
       propPane.TypeTextIntoField("Text", "{{UUID.");
       agHelper.AssertElementAbsence(locators._hints);
     },
