@@ -703,4 +703,52 @@ public class GitServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void getProtectedBranches_WhenDowngradedUserHasMultipleBranchProtected_ReturnsEmptyOrDefaultBranchOnly() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(FALSE));
+
+        Application testApplication = new Application();
+        testApplication.setName("App" + UUID.randomUUID());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Application> applicationMono = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                    gitApplicationMetadata.setDefaultBranchName("master");
+                    // include default branch in the list of the protected branches
+                    gitApplicationMetadata.setBranchProtectionRules(List.of("master", "develop"));
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationRepository.save(application);
+                })
+                .cache();
+
+        Mono<List<String>> branchListMonoWithDefaultBranch =
+                applicationMono.flatMap(application -> gitService.getProtectedBranches(application.getId()));
+
+        StepVerifier.create(branchListMonoWithDefaultBranch)
+                .assertNext(branchList -> {
+                    assertThat(branchList).containsExactly("master");
+                })
+                .verifyComplete();
+
+        Mono<List<String>> branchListMonoWithoutDefaultBranch = applicationMono
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    // remove the default branch from the protected branches
+                    gitApplicationMetadata.setBranchProtectionRules(List.of("develop", "feature"));
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.getProtectedBranches(application.getId()));
+
+        StepVerifier.create(branchListMonoWithoutDefaultBranch)
+                .assertNext(branchList -> {
+                    assertThat(branchList).isNullOrEmpty();
+                })
+                .verifyComplete();
+    }
 }

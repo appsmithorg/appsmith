@@ -166,4 +166,15 @@ public class GitServiceImpl extends GitServiceCECompatibleImpl implements GitSer
                     .thenReturn(branchNames);
         });
     }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_git_branch_protection_enabled)
+    public Mono<List<String>> getProtectedBranches(String defaultApplicationId) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    return Mono.justOrEmpty(gitApplicationMetadata.getBranchProtectionRules());
+                })
+                .defaultIfEmpty(List.of());
+    }
 }
