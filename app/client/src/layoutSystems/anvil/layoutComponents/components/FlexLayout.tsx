@@ -20,6 +20,7 @@ import type {
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
+import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -30,6 +31,7 @@ export interface FlexLayoutProps
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
+  layoutType: LayoutComponentTypes;
   layoutIndex: number;
   renderMode: RenderMode;
 
@@ -67,6 +69,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     justifyContent,
     layoutId,
     layoutIndex,
+    layoutType,
     maxHeight,
     maxWidth,
     minHeight,
@@ -88,7 +91,8 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     {
       layoutId: layoutId,
       canvasId: canvasId,
-      isDropTarget: isDropTarget,
+      isDropTarget,
+      layoutType,
     },
     ref,
   );

@@ -125,8 +125,8 @@ function DraggableComponent(props: DraggableComponentProps) {
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
   const onDragStart: DragEventHandler = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    // e.preventDefault();
+    // e.stopPropagation();
     // allowDrag check is added as react jest test simulation is not respecting default behaviour
     // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
     if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {

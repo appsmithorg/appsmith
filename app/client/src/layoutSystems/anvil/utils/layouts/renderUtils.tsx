@@ -168,6 +168,7 @@ export function renderWidgetsInAlignedRow(
     flexBasis: { base: "auto", [`${MOBILE_BREAKPOINT}px`]: "0%" },
     flexGrow: 1,
     flexShrink: 1,
+    layoutType: props.layoutType,
     renderMode: props.renderMode,
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
   };

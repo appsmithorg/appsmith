@@ -31,6 +31,9 @@ class Section extends WidgetRow {
       layout: [],
       layoutId: "",
       layoutType: LayoutComponentTypes.ZONE,
+      layoutStyle: {
+        flexGrow: "inherit",
+      },
     };
 
     if (!widgets || !widgets?.length) return defaultTemplate;

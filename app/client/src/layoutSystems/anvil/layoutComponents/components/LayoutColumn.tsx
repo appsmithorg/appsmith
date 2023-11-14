@@ -40,6 +40,7 @@ class LayoutColumn extends BaseLayoutComponent {
       layoutId,
       layoutIndex,
       layoutStyle,
+      layoutType,
       renderMode,
     } = this.props;
 
@@ -50,6 +51,7 @@ class LayoutColumn extends BaseLayoutComponent {
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
         layoutIndex={layoutIndex}
+        layoutType={layoutType}
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >

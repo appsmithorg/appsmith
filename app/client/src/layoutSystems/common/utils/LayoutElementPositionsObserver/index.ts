@@ -14,6 +14,7 @@ import {
   readLayoutElementPositions,
 } from "layoutSystems/anvil/integrations/actions";
 import ResizeObserver from "resize-observer-polyfill";
+import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 // Note: We have a singleton observer in `utils/resizeObserver.ts`. I noticed this too late and the API is not easy to adapt in this file.
 // Adding this to the list of things to fix in the future.
 /**
@@ -34,6 +35,7 @@ class LayoutElementPositionObserver {
       layoutId: string;
       canvasId: string;
       isDropTarget: boolean;
+      layoutType: LayoutComponentTypes;
     };
   } = {};
 
@@ -106,6 +108,7 @@ class LayoutElementPositionObserver {
     layoutId: string,
     canvasId: string,
     isDropTarget: boolean,
+    layoutType: LayoutComponentTypes,
     ref: RefObject<HTMLDivElement>,
   ) {
     if (ref?.current) {
@@ -117,6 +120,7 @@ class LayoutElementPositionObserver {
             canvasId,
             layoutId,
             isDropTarget,
+            layoutType,
           };
         this.resizeObserver.observe(ref.current);
         this.mutationObserver.observe(ref.current, this.mutationOptions);

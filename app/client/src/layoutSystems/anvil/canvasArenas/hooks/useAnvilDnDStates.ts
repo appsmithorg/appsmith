@@ -5,7 +5,10 @@ import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { useMemo } from "react";
 import { getSelectedWidgets } from "selectors/ui";
-import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
+import {
+  type DraggedWidget,
+  LayoutComponentTypes,
+} from "layoutSystems/anvil/utils/anvilTypes";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import WidgetFactory from "WidgetProvider/factory";
@@ -17,6 +20,7 @@ interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
   canvasId: string;
   layoutId: string;
+  layoutType: LayoutComponentTypes;
 }
 
 export interface AnvilDnDStates {
@@ -28,6 +32,8 @@ export interface AnvilDnDStates {
   isChildOfLayout: boolean;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
+  isMainCanvas: boolean;
+  isSection: boolean;
   isNewWidget: boolean;
   isNewWidgetInitialTargetCanvas: boolean;
   isResizing: boolean;
@@ -98,6 +104,7 @@ const checkIfWidgetTypeDraggedIsAllowedToDrop = (
 export const useAnvilDnDStates = ({
   allowedWidgetTypes,
   layoutId,
+  layoutType,
 }: AnvilDnDStatesProps): AnvilDnDStates => {
   const mainCanvasLayoutId: string = useSelector((state) =>
     getDropTargetLayoutId(state, MAIN_CONTAINER_WIDGET_ID),
@@ -168,6 +175,8 @@ export const useAnvilDnDStates = ({
    */
   const activateOverlayWidgetDrop =
     isNewWidget && AnvilOverlayWidgetTypes.includes(newWidget.type);
+  const isMainCanvas: boolean = layoutId === mainCanvasLayoutId;
+  const isSection: boolean = layoutType === LayoutComponentTypes.SECTION;
   return {
     activateOverlayWidgetDrop,
     allowToDrop,
@@ -178,6 +187,8 @@ export const useAnvilDnDStates = ({
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
+    isMainCanvas,
+    isSection,
     isNewWidgetInitialTargetCanvas,
     isResizing,
     mainCanvasLayoutId,

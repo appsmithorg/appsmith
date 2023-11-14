@@ -1,6 +1,7 @@
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { Indices } from "constants/Layers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
@@ -28,14 +29,13 @@ const checkIfMousePositionIsInsideBlock = (
   );
 };
 
-export const useCanvasActivation = (
-  anvilDragStates: AnvilDnDStates,
-  layoutId: string,
-) => {
+export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
   const {
     activateOverlayWidgetDrop,
     dragDetails,
+    draggedBlocks,
     isDragging,
+    isMainCanvas,
     isNewWidget,
     layoutElementPositions,
     mainCanvasLayoutId,
@@ -46,6 +46,12 @@ export const useCanvasActivation = (
   const draggedWidgetPositions = anvilDragStates.selectedWidgets.map((each) => {
     return layoutElementPositions[each];
   });
+  const areSectionsDragged = draggedBlocks.every(
+    (each) => each.type === "SECTION_WIDGET",
+  );
+  const areZonesDragged = draggedBlocks.every(
+    (each) => each.type === "ZONE_WIDGET",
+  );
   /**
    * boolean ref that indicates if the mouse position is outside of main canvas while dragging
    * this is being tracked in order to activate/deactivate canvas.
@@ -60,9 +66,7 @@ export const useCanvasActivation = (
    * all layouts registered on the position observer.
    */
   const allLayouts: any =
-    layoutId === mainCanvasLayoutId && isDragging
-      ? positionObserver.getRegisteredLayouts()
-      : {};
+    isMainCanvas && isDragging ? positionObserver.getRegisteredLayouts() : {};
 
   /**
    * all domIds of layouts on the page.
@@ -89,7 +93,13 @@ export const useCanvasActivation = (
     .filter((each) => {
       const layoutInfo = allLayouts[each];
       const currentPositions = layoutElementPositions[layoutInfo.layoutId];
-      return currentPositions && !!layoutInfo.isDropTarget;
+      const canActivate = areSectionsDragged
+        ? mainCanvasLayoutId === layoutInfo.layoutId
+        : areZonesDragged
+        ? layoutInfo.layoutType === LayoutComponentTypes.SECTION ||
+          mainCanvasLayoutId === layoutInfo.layoutId
+        : true;
+      return canActivate && currentPositions && !!layoutInfo.isDropTarget;
     })
     .map((each) => allLayouts[each].layoutId);
 
@@ -165,7 +175,7 @@ export const useCanvasActivation = (
     }
   };
   useEffect(() => {
-    if (isDragging && layoutId === mainCanvasLayoutId) {
+    if (isDragging && isMainCanvas) {
       document?.addEventListener("mousemove", onMouseMoveWhileDragging);
       document.body.addEventListener("mouseup", onMouseUp, false);
       window.addEventListener("mouseup", onMouseUp, false);

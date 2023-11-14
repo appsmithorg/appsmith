@@ -3,22 +3,21 @@ import {
   addNewAnvilWidgetAction,
   moveAnvilWidgets,
 } from "layoutSystems/anvil/integrations/actions/draggingActions";
-import {
-  type AnvilHighlightInfo,
-  LayoutComponentTypes,
-} from "layoutSystems/anvil/utils/anvilTypes";
+import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import type { AnvilDnDStates } from "./useAnvilDnDStates";
 
 export const useAnvilWidgetDrop = (
   canvasId: string,
-  layoutId: string,
-  layoutType: LayoutComponentTypes,
   anvilDragStates: AnvilDnDStates,
 ) => {
   const dispatch = useDispatch();
-  const { dragDetails, isNewWidget, mainCanvasLayoutId } = anvilDragStates;
+  const { dragDetails, isMainCanvas, isNewWidget, isSection } = anvilDragStates;
+  const dragMeta = {
+    isMainCanvas,
+    isSection,
+  };
   const generateNewWidgetBlock = useCallback(() => {
     const { newWidget } = dragDetails;
     return {
@@ -30,10 +29,6 @@ export const useAnvilWidgetDrop = (
     };
   }, [dragDetails]);
   return (renderedBlock: AnvilHighlightInfo) => {
-    const dragMeta = {
-      isMainCanvas: layoutId === mainCanvasLayoutId,
-      isSection: layoutType === LayoutComponentTypes.SECTION,
-    };
     if (isNewWidget) {
       const newWidgetBlock = generateNewWidgetBlock();
       dispatch(
