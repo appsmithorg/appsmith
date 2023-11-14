@@ -18,6 +18,7 @@ import type { AppTheme } from "entities/AppTheming";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
@@ -167,6 +168,7 @@ export interface WidgetEntityConfig
   defaultMetaProps: Array<string>;
   type: string;
   __setters?: Record<string, any>;
+  derivedProperties: DerivedPropertiesMap;
 }
 
 export interface AppsmithEntity extends Omit<AppDataState, "store"> {

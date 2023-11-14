@@ -4,7 +4,9 @@ import {
   isATriggerPath,
   isDynamicLeaf,
   isJSAction,
+  isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 
 export default function sortLintingPathsByType(
   pathsToLint: string[],
@@ -23,6 +25,17 @@ export default function sortLintingPathsByType(
 
     if (isJSAction(entity)) {
       jsObjectPaths.add(fullPropertyPath);
+      continue;
+    }
+
+    // We are only interested in adding lint errors to paths edited by users
+    // System generated code doesn't require linting
+    if (
+      isWidget(entity) &&
+      (entityConfig as WidgetEntityConfig).derivedProperties.hasOwnProperty(
+        propertyPath,
+      )
+    ) {
       continue;
     }
 

@@ -336,6 +336,7 @@ const generateDataTreeWidgetWithoutMeta = (
       type: widget.type,
       ...dynamicPathsList,
       ...setterConfig,
+      derivedProperties: derivedPropertyMap,
     },
   };
 };
