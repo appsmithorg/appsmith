@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
-import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 export type ObservableElementType = "widget" | "layout";
 
 /**
@@ -23,7 +23,7 @@ export function usePositionObserver(
     layoutId?: string;
     canvasId?: string;
     isDropTarget?: boolean;
-    layoutType: LayoutComponentTypes;
+    layoutType?: LayoutComponentTypes;
   },
   ref: RefObject<HTMLDivElement>,
 ) {
@@ -56,7 +56,7 @@ export function usePositionObserver(
             ids.layoutId,
             ids.canvasId,
             !!ids.isDropTarget,
-            ids.layoutType,
+            ids.layoutType || LayoutComponentTypes.WIDGET_ROW,
             ref,
           );
           break;
