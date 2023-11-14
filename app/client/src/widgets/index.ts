@@ -63,6 +63,7 @@ import { WDSCheckboxWidget } from "./wds/WDSCheckboxWidget";
 import { WDSIconButtonWidget } from "./wds/WDSIconButtonWidget";
 import { WDSTextWidget } from "./wds/WDSTextWidget";
 import type BaseWidget from "./BaseWidget";
+import ExternalWidget from "./ExternalWidget";
 import { WDSTableWidget } from "./wds/WDSTableWidget";
 import { WDSButtonGroupWidget } from "./wds/WDSButtonGroupWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
@@ -120,6 +121,7 @@ const Widgets = [
   CategorySliderWidget,
   CodeScannerWidget,
   ListWidgetV2,
+  ExternalWidget,
   WDSButtonWidget,
   WDSInputWidget,
   WDSCheckboxWidget,

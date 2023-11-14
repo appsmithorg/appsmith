@@ -95,8 +95,6 @@ const defaultFilter = [
 class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static type = "TABLE_WIDGET";
 
-  static preloadConfig = true;
-
   static getConfig() {
     return {
       name: "Table",
