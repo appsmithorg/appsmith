@@ -15,7 +15,7 @@ export const defaultConfig: WidgetDefaultProps = {
   children: [],
   columns: 0,
   detachFromLayout: false,
-  responsiveBehavior: ResponsiveBehavior.Fill,
+  responsiveBehavior: ResponsiveBehavior.Hug,
   rows: 0,
   version: 1,
   widgetName: "Section",
