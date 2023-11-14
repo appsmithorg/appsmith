@@ -27,14 +27,19 @@ import history from "utils/history";
 import { showDebuggerFlag } from "../../../selectors/debuggerSelectors";
 import classNames from "classnames";
 import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
+import { Divider } from "design-system";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
   overflow: auto;
   flex: 1;
   & > div {
-    margin-bottom: 20px;
+    margin-bottom: var(--ads-spaces-9);
   }
+`;
+
+const StyledDivider = styled(Divider)`
+  margin-bottom: var(--ads-spaces-9);
 `;
 
 interface MockDataSourcesProps {
@@ -244,6 +249,7 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
+        <StyledDivider />
         <CreateNewDatasource
           active={false}
           history={history}
@@ -252,6 +258,7 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
+        <StyledDivider />
         <CreateNewSaasIntegration
           active={false}
           history={history}
@@ -260,6 +267,9 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
+        {dataSources.length > 0 && this.props.mockDatasources.length > 0 && (
+          <StyledDivider />
+        )}
         {dataSources.length > 0 &&
           this.props.mockDatasources.length > 0 &&
           mockDataSection}

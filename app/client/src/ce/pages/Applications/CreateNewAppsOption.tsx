@@ -43,15 +43,16 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { fetchPlugins } from "actions/pluginActions";
+import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 
 const SectionWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
   ${(props) => `
-    height: calc(100vh - ${props.theme.homePage.header}px);
     margin-top: ${props.theme.homePage.header}px;
   `}
+  background: var(--ads-v2-color-gray-50);
 `;
 
 const BackWrapper = styled.div<{ hidden?: boolean }>`
@@ -59,7 +60,7 @@ const BackWrapper = styled.div<{ hidden?: boolean }>`
   ${(props) => `
     top: ${props.theme.homePage.header}px;
     `}
-  background: var(--ads-v2-color-bg);
+  background: inherit;
   padding: var(--ads-v2-spaces-3);
   z-index: 1;
   margin-left: -4px;
@@ -116,11 +117,17 @@ const CardContainer = styled.div`
   text-align: center;
   cursor: pointer;
   border-radius: 4px;
+  background: var(--ads-v2-color-bg);
   img {
     height: 160px;
     margin-bottom: 48px;
   }
   position: relative;
+`;
+
+const WithDataWrapper = styled.div`
+  background: var(--ads-v2-color-bg);
+  padding: var(--ads-v2-spaces-13);
 `;
 
 interface CardProps {
@@ -141,6 +148,14 @@ const Card = ({ onClick, src, subTitle, testid, title }: CardProps) => {
   );
 };
 
+const START_WITH_TYPE = {
+  TEMPLATE: "TEMPLATE",
+  DATA: "DATA",
+};
+type TYPE_START_WITH_TYPE = keyof typeof START_WITH_TYPE;
+type TYPE_START_WITH_TYPE_VALUE =
+  (typeof START_WITH_TYPE)[TYPE_START_WITH_TYPE];
+
 const CreateNewAppsOption = ({
   currentApplicationIdForCreateNewApp,
   onClickBack,
@@ -148,7 +163,9 @@ const CreateNewAppsOption = ({
   currentApplicationIdForCreateNewApp: string;
   onClickBack: () => void;
 }) => {
-  const [useTemplate, setUseTemplate] = useState(false);
+  const [useType, setUseType] = useState<
+    TYPE_START_WITH_TYPE_VALUE | undefined
+  >();
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
@@ -178,7 +195,7 @@ const CreateNewAppsOption = ({
     if (!templatesCount) {
       dispatch(getAllTemplates());
     }
-    setUseTemplate(true);
+    setUseType(START_WITH_TYPE.TEMPLATE);
   };
 
   const onClickStartFromScratch = () => {
@@ -197,11 +214,12 @@ const CreateNewAppsOption = ({
     // fetch plugins information to show list of all plugins
     if (isEnabledForStartWithData) {
       dispatch(fetchPlugins());
+      setUseType(START_WITH_TYPE.DATA);
     }
   };
 
-  const goBackFromTemplate = () => {
-    setUseTemplate(false);
+  const goBackToInitialScreen = () => {
+    setUseType(undefined);
   };
 
   const getTemplateById = (id: string) => {
@@ -265,7 +283,7 @@ const CreateNewAppsOption = ({
 
   const onClickBackButton = () => {
     if (isImportingTemplate) return;
-    if (useTemplate) {
+    if (useType === START_WITH_TYPE.TEMPLATE) {
       if (selectedTemplate) {
         // Going back from template details view screen
         const template = getTemplateById(selectedTemplate);
@@ -281,8 +299,14 @@ const CreateNewAppsOption = ({
         AnalyticsUtil.logEvent(
           "ONBOARDING_FLOW_CLICK_BACK_BUTTON_START_FROM_TEMPLATE_PAGE",
         );
-        goBackFromTemplate();
+        goBackToInitialScreen();
       }
+    } else if (useType === START_WITH_TYPE.DATA) {
+      // Going back from start from data screen
+      AnalyticsUtil.logEvent(
+        "ONBOARDING_FLOW_CLICK_BACK_BUTTON_START_FROM_DATA_PAGE",
+      );
+      goBackToInitialScreen();
     } else {
       // Going back from create new app flow
       AnalyticsUtil.logEvent(
@@ -344,7 +368,7 @@ const CreateNewAppsOption = ({
 
   return (
     <SectionWrapper>
-      <BackWrapper hidden={!useTemplate}>
+      <BackWrapper hidden={!useType}>
         <Link
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
@@ -354,7 +378,7 @@ const CreateNewAppsOption = ({
           {createMessage(GO_BACK)}
         </Link>
       </BackWrapper>
-      {useTemplate ? (
+      {useType === START_WITH_TYPE.TEMPLATE ? (
         selectedTemplate ? (
           <TemplateView
             onClickUseTemplate={onClickUseTemplate}
@@ -376,6 +400,10 @@ const CreateNewAppsOption = ({
             </TemplateContentWrapper>
           </TemplateWrapper>
         )
+      ) : useType === START_WITH_TYPE.DATA ? (
+        <WithDataWrapper>
+          <CreateNewDatasourceTab />
+        </WithDataWrapper>
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">
