@@ -14,7 +14,7 @@ import {
 } from "navigation/FocusEntity";
 import type { Config } from "navigation/FocusElements";
 import { ConfigType, FocusElementsConfig } from "navigation/FocusElements";
-import { setFocusHistory } from "actions/focusHistoryActions";
+import { storeFocusHistory } from "actions/focusHistoryActions";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -107,7 +107,7 @@ function* storeStateOfPath(
     state[selectorInfo.name] = yield call(getState, selectorInfo, fromPath);
   }
   yield put(
-    setFocusHistory(key, {
+    storeFocusHistory(key, {
       entityInfo,
       state,
     }),
@@ -255,7 +255,10 @@ function* getEntitiesForSet(
   const branch: string | undefined = yield select(getCurrentGitBranch);
   const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
   const currentEntityInfo = identifyEntityFromPath(currentPath);
-  if (isAppStateChange(previousPath, currentPath)) {
+  if (
+    isAppStateChange(previousPath, currentPath) &&
+    state === NavigationMethod.AppSidebar
+  ) {
     const currentAppId: string = yield select(getCurrentApplicationId);
     const key = `${currentEntityInfo.appState}.${currentAppId}#${branch}`;
     entities.push({

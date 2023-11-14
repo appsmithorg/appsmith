@@ -23,6 +23,7 @@ export enum FocusEntity {
   CANVAS = "CANVAS",
   DATASOURCE_LIST = "DATASOURCE_LIST",
   DATASOURCE = "DATASOURCE",
+  DATASOURCE_TEMP = "DATASOURCE_TEMP",
   DEBUGGER = "DEBUGGER",
   QUERY = "QUERY",
   JS_OBJECT = "JS_OBJECT",
@@ -115,16 +116,22 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       appState: AppState.PAGES,
     };
   }
-  if (
-    match.params.datasourceId &&
-    match.params.datasourceId !== TEMP_DATASOURCE_ID
-  ) {
-    return {
-      entity: FocusEntity.DATASOURCE,
-      id: match.params.datasourceId,
-      pageId: match.params.pageId,
-      appState: AppState.DATA,
-    };
+  if (match.params.datasourceId) {
+    if (match.params.datasourceId == TEMP_DATASOURCE_ID) {
+      return {
+        entity: FocusEntity.DATASOURCE_TEMP,
+        id: match.params.datasourceId,
+        pageId: match.params.pageId,
+        appState: AppState.DATA,
+      };
+    } else {
+      return {
+        entity: FocusEntity.DATASOURCE,
+        id: match.params.datasourceId,
+        pageId: match.params.pageId,
+        appState: AppState.DATA,
+      };
+    }
   }
   if (match.params.selectedTab) {
     return {
