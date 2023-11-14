@@ -61,20 +61,21 @@ const DatasourceBlankState = (
         <Text kind="body-s">
           {createMessage(DATASOURCE_BLANK_STATE_MESSAGE)}
         </Text>
-        <Button
-          disabled={!canCreateDatasource}
-          kind="primary"
-          onClick={() =>
-            history.push(
-              integrationEditorURL({
-                pageId: props.match.params.pageId,
-                selectedTab: INTEGRATION_TABS.NEW,
-              }),
-            )
-          }
-        >
-          Bring your data
-        </Button>
+        {canCreateDatasource && (
+          <Button
+            kind="primary"
+            onClick={() =>
+              history.push(
+                integrationEditorURL({
+                  pageId: props.match.params.pageId,
+                  selectedTab: INTEGRATION_TABS.NEW,
+                }),
+              )
+            }
+          >
+            Bring your data
+          </Button>
+        )}
       </Content>
     </Container>
   );
