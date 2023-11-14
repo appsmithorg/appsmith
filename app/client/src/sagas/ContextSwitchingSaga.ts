@@ -257,7 +257,7 @@ function* getEntitiesForSet(
   const currentEntityInfo = identifyEntityFromPath(currentPath);
   if (
     isAppStateChange(previousPath, currentPath) &&
-    state === NavigationMethod.AppSidebar
+    state.invokedBy === NavigationMethod.AppSidebar
   ) {
     const currentAppId: string = yield select(getCurrentApplicationId);
     const key = `${currentEntityInfo.appState}.${currentAppId}#${branch}`;
