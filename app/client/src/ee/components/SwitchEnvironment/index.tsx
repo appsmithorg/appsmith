@@ -1,5 +1,5 @@
 import CE_SwitchEnvironment from "ce/components/SwitchEnvironment";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -9,9 +9,13 @@ import {
   getEnvironmentsWithPermission,
   getDefaultEnvironment,
   getCurrentEnvironmentId,
+  renderEnvWalkthrough,
 } from "@appsmith/selectors/environmentSelectors";
 import { Option, Select, Text, toast } from "design-system";
-import { ENVIRONMENT_QUERY_KEY } from "@appsmith/utils/Environments";
+import {
+  ENVIRONMENT_QUERY_KEY,
+  envSwitcherWalkthroughConfig,
+} from "@appsmith/utils/Environments";
 import { softRefreshActions } from "actions/pluginActionActions";
 import {
   START_SWITCH_ENVIRONMENT,
@@ -22,11 +26,26 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import { useLocation } from "react-router";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { saveCurrentEnvironment } from "utils/storage";
+import {
+  getFeatureWalkthroughShown,
+  saveCurrentEnvironment,
+  setFeatureWalkthroughShown,
+} from "utils/storage";
 import { setCurrentEnvironment } from "@appsmith/actions/environmentAction";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { createTempDatasourceFromForm } from "actions/datasourceActions";
+import { PluginPackageName } from "entities/Action";
+import { getPluginByPackageName } from "@appsmith/selectors/entitiesSelector";
+
+const WALKTHROUGH_GUIDE_GIF = `${ASSETS_CDN_URL}/env_selection.gif`;
+
+const WALKTHROUGH_SECTION_ID = "t--switch-env";
 
 const Wrapper = styled.div`
   display: flex;
@@ -45,11 +64,15 @@ export interface SwitchEnvironmentProps {
   environmentList: Array<EnvironmentType>;
   viewMode?: boolean;
   setCurrentEnvDetails: (currentEnvDetails: CurrentEnvironmentDetails) => void;
+  createTempDatasource?: (data: any) => void;
+  postgresPluginId?: string;
 }
 
 const SwitchEnvironment = ({
+  createTempDatasource,
   defaultEnvironment,
   environmentList,
+  postgresPluginId,
   setCurrentEnvDetails,
   viewMode,
 }: SwitchEnvironmentProps) => {
@@ -74,6 +97,46 @@ const SwitchEnvironment = ({
   //URL for datasource edit and review page is same
   //this parameter helps us to differentiate between the two.
   const isDatasourceViewMode = useSelector(isDatasourceInViewMode);
+
+  const renderWalkthrough = useSelector((state: AppState) =>
+    renderEnvWalkthrough(state, 1),
+  );
+
+  // Walkthrough section
+  const { popFeature, pushFeature } = useContext(WalkthroughContext) || {};
+
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.env_walkthrough,
+    );
+    const imageURL = getAssetUrl(WALKTHROUGH_GUIDE_GIF);
+
+    // Adding walkthrough tutorial
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
+      pushFeature(
+        envSwitcherWalkthroughConfig(
+          WALKTHROUGH_SECTION_ID,
+          closeWalkthrough,
+          imageURL,
+          createTempDatasource,
+          postgresPluginId,
+        ),
+      );
+  };
+
+  const closeWalkthrough = (setFlag = true) => {
+    popFeature && popFeature(FEATURE_WALKTHROUGH_KEYS.env_walkthrough);
+    if (setFlag)
+      setFeatureWalkthroughShown(
+        FEATURE_WALKTHROUGH_KEYS.env_walkthrough,
+        true,
+      );
+  };
+
+  useEffect(() => {
+    if (renderWalkthrough) checkAndShowWalkthrough();
+  }, [renderWalkthrough]);
 
   useEffect(() => {
     !!selectedEnv && saveCurrentEnvironment(selectedEnv.id, appId);
@@ -123,6 +186,7 @@ const SwitchEnvironment = ({
     <Wrapper
       aria-disabled={diableSwitchEnvironment && !isDatasourceViewMode}
       data-testid="t--switch-env"
+      id={WALKTHROUGH_SECTION_ID}
     >
       <Select
         className="select_environemnt"
@@ -159,6 +223,11 @@ const SwitchEnvironment = ({
 
 const mapStateToProps = (state: AppState) => {
   const environmentList = getEnvironmentsWithPermission(state);
+  const postgresPlugin = getPluginByPackageName(
+    state,
+    PluginPackageName.POSTGRES,
+  );
+
   let defaultEnvironment;
 
   if (!!environmentList && environmentList.length > 0) {
@@ -191,6 +260,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     environmentList,
     defaultEnvironment,
+    postgresPluginId: postgresPlugin?.id,
   };
 };
 
@@ -199,6 +269,8 @@ const mapDispatchToProps = (dispatch: any) => {
     setCurrentEnvDetails: (currentEnvDetails: CurrentEnvironmentDetails) => {
       dispatch(setCurrentEnvironment(currentEnvDetails));
     },
+    createTempDatasource: (data: any) =>
+      dispatch(createTempDatasourceFromForm(data)),
   };
 };
 

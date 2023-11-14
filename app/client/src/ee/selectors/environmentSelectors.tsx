@@ -6,6 +6,11 @@ import type { EnvironmentType } from "@appsmith/configs/types";
 import { getFilteredEnvListWithPermissions } from "@appsmith/utils/Environments";
 import { hasManageWorkspaceEnvironmentPermission } from "@appsmith/utils/permissionHelpers";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { getHasManageWorkspaceDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getCurrentAppWorkspace } from "./workspaceSelectors";
+import { onCanvas } from "components/editorComponents/Debugger/helpers";
+import { matchDatasourcePath } from "constants/routes";
+import { isDatasourceInViewMode } from "selectors/ui";
 
 export const getEnvironmentByName = (state: AppState, name: string) => {
   const environments = state.environments.data;
@@ -86,4 +91,68 @@ export const allowManageEnvironmentAccessForWorkspace = (
     hasManageWorkspaceEnvironmentPermission(workspacePermissions);
 
   return checkUserAccess && hasWorkspaceManageEnvPermission;
+};
+
+// Conditions to show the env walkthrough
+// 1. Walkthrough is not shown before
+// 2. The feature flag for release datasource environments is enabled
+// 3. The feature flag for the env walkthrough is enabled
+// 4. User should have edit datasource permissions
+// 5. There should be no datasources with staging environment configured
+// 6. For step 1, the user should be on the canvas page and for step 2, the user should be on the datasource page with edit mode enabled
+export const renderEnvWalkthrough = (state: AppState, step = 1) => {
+  // Check 1 is done in the component itself (since it is an async function call)
+
+  // Check 2
+  const isFlagEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.release_datasource_environments_enabled,
+  );
+  if (!isFlagEnabled) return false;
+
+  // Check 3
+  const isEnvWalkthroughEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.ab_env_walkthrough_enabled,
+  );
+  if (!isEnvWalkthroughEnabled) return false;
+
+  // Check 4
+  const isGACEnabledFlag = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.license_gac_enabled,
+  );
+
+  const userWorkspacePermissions =
+    getCurrentAppWorkspace(state).userPermissions ?? [];
+
+  const canManageDatasource = getHasManageWorkspaceDatasourcePermission(
+    isGACEnabledFlag,
+    userWorkspacePermissions,
+  );
+  if (!canManageDatasource) return false;
+
+  // Check 5
+  const environments = getEnvironments(state);
+  const stagingEnvDetails = environments.find((env) => env.name === "Staging");
+  if (
+    !stagingEnvDetails ||
+    !stagingEnvDetails.datasourceMeta ||
+    !stagingEnvDetails.datasourceMeta.hasOwnProperty("configuredDatasources")
+  )
+    return false;
+  if (stagingEnvDetails.datasourceMeta?.configuredDatasources > 0) return false;
+
+  // Check 6
+  if (step === 1 && onCanvas()) return true;
+
+  const isDatasourceViewMode = isDatasourceInViewMode(state);
+  if (
+    step === 2 &&
+    !!matchDatasourcePath(window.location.pathname) &&
+    !isDatasourceViewMode
+  )
+    return true;
+
+  return false;
 };

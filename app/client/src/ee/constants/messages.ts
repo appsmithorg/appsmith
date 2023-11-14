@@ -281,7 +281,7 @@ export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) => {
   }
 };
 
-// Environments
+// Environments start
 export const ENVIRONMENT_FILTER_DISABLED_TOOLTIP = (
   PluginName = "This",
   envName = "staging",
@@ -321,6 +321,17 @@ export const MANAGE_ENV_ERROR_START_WITH_SP_CHAR_NUM_MESSAGE = () =>
   "Environment name cannot start with a number or “_” character";
 export const MANAGE_ENV_ERROR_DUPLICATE_NAME_MESSAGE = () =>
   "You cannot have two environments with the same name.";
+export const ENV_WALKTHROUGH_A_TITLE = () => "Datasource environments";
+export const ENV_WALKTHROUGH_A_BODY = () =>
+  `Appsmith now supports having different environment configurations for your datasources.\n\nYou can use this dropdown to select the active environment for your application.`;
+export const ENV_WALKTHROUGH_A_FOOTER_TEXT = () =>
+  "Step 2: Configure your environment";
+export const ENV_WALKTHROUGH_A_FOOTER_BTN_TEXT = () => "Next";
+export const ENV_WALKTHROUGH_B_TITLE = () => "Configure environments";
+export const ENV_WALKTHROUGH_B_BODY = () =>
+  `Select the desired environment option from the selector.\n\nFill in the relevant information to configure the environment for your datasource and save.`;
+// Environments end
+
 // Provisioning begin
 export const PROVISIONING_TITLE = () => "User provisioning & Group sync";
 export const PROVISIONING_DESC = () =>
