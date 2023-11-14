@@ -26,7 +26,7 @@ describe("one click binding mongodb datasource", function () {
     dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {

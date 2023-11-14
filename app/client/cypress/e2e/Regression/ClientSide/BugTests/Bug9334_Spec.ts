@@ -20,7 +20,7 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   });
 
   it("1. Create dummy pages for navigating", () => {

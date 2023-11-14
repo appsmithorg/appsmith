@@ -19,7 +19,7 @@ describe("Bug 14666: Api Response Test Functionality ", function () {
   });
 
   it("2. Test table loading when data is not in array format", function () {
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     apiPage.CreateAndFillApi(
       testdata.baseUrl + testdata.echoMethod,
       "TableTestAPI",

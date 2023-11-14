@@ -34,7 +34,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.AddNewPage();
       entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
@@ -286,7 +286,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("10. Verify application does not break when user runs the query with wrong table name", function () {
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.SelectEntityByName("DropProductlines", "Queries/JS");
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {

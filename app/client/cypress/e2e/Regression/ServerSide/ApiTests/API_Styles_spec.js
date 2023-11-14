@@ -66,7 +66,7 @@ describe("Validate API Panel CSS Styles", function () {
         //Create two datasource for testing binding prompt background-color
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
-        EditorNavigation.sidebar(SidebarButton.Pages);
+        EditorNavigation.ViaSidebar(SidebarButton.Pages);
         entityExplorer.ExpandCollapseEntity("Queries/JS");
         cy.get(commonLocators.entityName).contains("test_styles").click();
         //Click on API search editor
@@ -84,7 +84,7 @@ describe("Validate API Panel CSS Styles", function () {
           .should("have.css", "background-color", hover);
         //Delete created test API
         cy.DeleteAPI();
-        EditorNavigation.sidebar(SidebarButton.Pages);
+        EditorNavigation.ViaSidebar(SidebarButton.Pages);
         cy.wait(2000);
         cy.get(commonLocators.entityName)
           .contains("test_styles")

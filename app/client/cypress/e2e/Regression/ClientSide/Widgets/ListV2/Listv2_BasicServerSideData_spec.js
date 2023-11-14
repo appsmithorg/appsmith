@@ -332,7 +332,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       // Click on sample(mock) user database.
       cy.get(datasource.mockUserDatabase).click();
 
-      EditorNavigation.sidebar(SidebarButton.Data);
+      EditorNavigation.ViaSidebar(SidebarButton.Data);
 
       // Choose the first data source which consists of users keyword & Click on the "New query +"" button
       _.dataSources.CreateQueryFromActiveTab("Users");

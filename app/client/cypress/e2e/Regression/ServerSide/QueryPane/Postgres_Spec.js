@@ -30,7 +30,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   });
 
   it("2. Create & runs existing table data with dynamic binding and deletes the query", () => {
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
     cy.NavigateToActiveDSQueryPane(datasourceName);

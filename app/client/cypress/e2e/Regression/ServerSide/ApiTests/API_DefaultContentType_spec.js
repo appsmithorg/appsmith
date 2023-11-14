@@ -54,7 +54,7 @@ describe("API Panel request body", function () {
   });
 
   it("2. Bug 14624 - Verifying the content-type none is not added", function () {
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     cy.CreateAPI("FirstAPI");
 
     // Checking for default Body type to be NONE

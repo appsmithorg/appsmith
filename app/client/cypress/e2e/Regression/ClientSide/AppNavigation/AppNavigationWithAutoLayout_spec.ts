@@ -22,13 +22,13 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
 
   it("2. Change App navigation settings and valdiate the layout settings", () => {
     entityExplorer.SelectEntityByName("Page1", "Pages");
-    EditorNavigation.sidebar(SidebarButton.Settings);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
     );
     agHelper.AssertElementExist(appSettings.locators._sideNavbar);
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"));
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"), 1);
     agHelper.AssertElementExist(locators._fixedLayout);

@@ -21,7 +21,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.AddNewPage();
       entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);

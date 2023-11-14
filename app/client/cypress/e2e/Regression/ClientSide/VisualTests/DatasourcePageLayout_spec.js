@@ -16,7 +16,7 @@ describe("Visual tests for datasources", () => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
-    EditorNavigation.sidebar(SidebarButton.Data);
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
     cy.get(".t--data-blank-state").matchImageSnapshot("emptydatasourcepage");
   });
   /* cy.NavigateToDatasourceEditor();

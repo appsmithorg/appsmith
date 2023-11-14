@@ -27,7 +27,7 @@ describe("UUID Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");

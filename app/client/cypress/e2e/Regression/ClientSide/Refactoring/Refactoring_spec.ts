@@ -44,7 +44,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     dataSources.CreateDataSource("MySql", true, false);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
       //Selecting paintings table from MySQL DS
       //Initialize new JSObject with custom code

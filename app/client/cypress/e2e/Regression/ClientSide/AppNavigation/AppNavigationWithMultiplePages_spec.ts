@@ -16,7 +16,7 @@ let currentUrl: string;
 
 describe("Page orientation and navigation related usecases ", function () {
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
-    EditorNavigation.sidebar(SidebarButton.Settings);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,

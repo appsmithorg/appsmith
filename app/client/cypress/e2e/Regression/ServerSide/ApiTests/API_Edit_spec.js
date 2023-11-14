@@ -38,7 +38,7 @@ describe("API Panel Test Functionality", function () {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
   });
 

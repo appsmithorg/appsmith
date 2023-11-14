@@ -2113,7 +2113,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreatePage", () => {
-  EditorNavigation.sidebar(SidebarButton.Pages);
+  EditorNavigation.ViaSidebar(SidebarButton.Pages);
   cy.get(pages.AddPage).first().click();
   cy.xpath("//span[text()='New blank page']/parent::div").click();
 });

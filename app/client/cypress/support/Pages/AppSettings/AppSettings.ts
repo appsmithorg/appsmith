@@ -68,11 +68,11 @@ export class AppSettings {
   };
 
   public OpenAppSettings() {
-    EditorNavigation.sidebar(SidebarButton.Settings);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
   }
 
   public ClosePane() {
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   }
 
   public GoToThemeSettings() {

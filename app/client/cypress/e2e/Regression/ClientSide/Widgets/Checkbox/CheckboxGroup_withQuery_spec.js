@@ -13,7 +13,7 @@ describe("Checkbox Group Widget Functionality", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   });
 
   it("1. Check checkbox group with dynamic query", function () {

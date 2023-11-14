@@ -195,7 +195,7 @@ describe("MaintainContext&Focus", function () {
   });
 
   it("5. Maintain focus of form control inputs", () => {
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.SelectEntityByName("SQL_Query");
     dataSources.ToggleUsePreparedStatement(false);
     entityExplorer.SelectEntityByName("S3_Query");

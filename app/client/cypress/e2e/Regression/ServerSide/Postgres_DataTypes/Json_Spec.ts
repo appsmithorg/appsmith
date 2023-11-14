@@ -26,7 +26,7 @@ describe("Json & JsonB Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     agHelper.AddDsl("Datatypes/JsonDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");

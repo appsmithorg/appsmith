@@ -19,8 +19,8 @@ describe("Dropdown Widget Check value does not reset on navigation", function ()
     cy.wait(200);
 
     //Navigate
-    EditorNavigation.sidebar(SidebarButton.Data);
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
     //Again navigate back to the widget
     _.entityExplorer.SelectEntityByName("Select3");

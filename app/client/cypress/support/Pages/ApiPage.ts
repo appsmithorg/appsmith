@@ -89,7 +89,7 @@ export class ApiPage {
   ) {
     if (aftDSSaved) this.agHelper.GetNClick(this._createQuery);
     else {
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       this.agHelper.RemoveUIElement("EvaluatedPopUp");
       this.agHelper.GetHoverNClick(this.locator._createNew);
       this.agHelper.GetNClick(this._blankAPI, 0, true);

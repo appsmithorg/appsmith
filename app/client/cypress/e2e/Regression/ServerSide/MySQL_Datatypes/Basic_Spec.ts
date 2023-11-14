@@ -32,7 +32,7 @@ describe("MySQL Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   });
 
   it("1. Creating mysqlDTs table & queries", () => {

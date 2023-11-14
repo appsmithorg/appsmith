@@ -26,7 +26,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       agHelper.RenameWithInPane(dsName, false);
       dataSources.FillMongoDatasourceFormWithURI();
       dataSources.TestSaveDatasource();
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);

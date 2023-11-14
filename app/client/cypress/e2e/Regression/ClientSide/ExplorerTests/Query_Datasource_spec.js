@@ -61,7 +61,7 @@ describe("Entity explorer tests related to query and datasource", function () {
     // reverting the name
     agHelper.RenameWithInPane(datasourceName, false);
 
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
     // going  to the query create page
     cy.CheckAndUnfoldEntityItem("Queries/JS");

@@ -52,7 +52,7 @@ describe("Datasource form related tests", function () {
     dataSources.navigateToDatasource(dataSourceName);
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.SelectEntityByName("Query1");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",

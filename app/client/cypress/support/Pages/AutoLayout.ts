@@ -112,14 +112,14 @@ export class AutoLayout {
   }
 
   public VerifyIsAutoLayout() {
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
     this.agHelper.GetNAssertContains(this.autoConvertButton, "fixed layout");
     this.agHelper.AssertElementExist(this.flexMainContainer);
   }
 
   public VerifyIsFixedLayout() {
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
     cy.get(this.autoConvertButton).should("contain", "auto-layout");
     cy.get(this.flexMainContainer).should("not.exist");

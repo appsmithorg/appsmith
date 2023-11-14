@@ -37,7 +37,7 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
     // Have to fill form since modal won't show for empty ds
     dataSources.FillPostgresDSForm();
 
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     agHelper.AssertContains(
       "Don't save",
       "exist",

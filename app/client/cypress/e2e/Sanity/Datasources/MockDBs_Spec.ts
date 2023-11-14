@@ -30,7 +30,7 @@ describe(
         );
 
         dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
-        EditorNavigation.sidebar(SidebarButton.Data);
+        EditorNavigation.ViaSidebar(SidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -39,7 +39,7 @@ describe(
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.RunQueryNVerifyResponseViews(10, true);
-        EditorNavigation.sidebar(SidebarButton.Data);
+        EditorNavigation.ViaSidebar(SidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -65,7 +65,7 @@ describe(
         agHelper.Sleep(2000); //for movies collection to load & populate in dropdown
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        EditorNavigation.sidebar(SidebarButton.Data);
+        EditorNavigation.ViaSidebar(SidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -76,7 +76,7 @@ describe(
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        EditorNavigation.sidebar(SidebarButton.Data);
+        EditorNavigation.ViaSidebar(SidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -86,7 +86,7 @@ describe(
     });
 
     afterEach(() => {
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
@@ -98,7 +98,7 @@ describe(
         action: "Delete",
         entityType: entityItems.Query,
       });
-      EditorNavigation.sidebar(SidebarButton.Data);
+      EditorNavigation.ViaSidebar(SidebarButton.Data);
       dataSources
         .getDatasourceListItemDescription(dsName)
         .then(($queryCount) =>

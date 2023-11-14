@@ -27,7 +27,7 @@ describe("FirstTimeUserOnboarding", function () {
     cy.get(OnboardingLocator.introModal).should("be.visible");
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.introModal).should("not.exist");
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     cy.get(".t--entity-name:contains(Page1)")
       .trigger("mouseover")
       .click({ force: true });

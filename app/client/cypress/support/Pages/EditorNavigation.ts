@@ -9,7 +9,7 @@ class EditorNavigation {
     sidebar: ".t--sidebar",
     sidebarButtons: (name: SidebarButton) => `.t--sidebar-${name}`,
   };
-  sidebar(button: SidebarButton) {
+  ViaSidebar(button: SidebarButton) {
     cy.get(this.locators.sidebar)
       .should("be.visible")
       .find(this.locators.sidebarButtons(button))

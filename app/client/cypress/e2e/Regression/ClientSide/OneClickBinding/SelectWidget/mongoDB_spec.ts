@@ -26,7 +26,7 @@ describe("Table widget one click binding feature", () => {
     dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.NavigateToSwitcher("Widgets");
 
       entityExplorer.SelectEntityByName("Select1", "Widgets");

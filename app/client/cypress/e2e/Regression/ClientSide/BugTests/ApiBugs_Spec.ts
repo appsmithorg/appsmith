@@ -63,7 +63,7 @@ describe("API Bugs", function () {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   });
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {

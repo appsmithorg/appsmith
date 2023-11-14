@@ -112,8 +112,8 @@ describe("Validate Oracle DS", () => {
     dataSources.AssertDataSourceInfo(["Host address", "Port", "Service Name"]);
     agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
     dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
-    EditorNavigation.sidebar(SidebarButton.Pages);
-    EditorNavigation.sidebar(SidebarButton.Data);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
     dataSources.AssertDSInActiveList(dataSourceName);
   });
 

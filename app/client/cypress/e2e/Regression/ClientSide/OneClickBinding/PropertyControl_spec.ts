@@ -72,7 +72,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.AssertElementExist(dataSources._newDatasourceContainer);
 
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -124,7 +124,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     dataSources.SaveDatasource();
 
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -152,7 +152,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
       dataSources.SaveDatasource();
 
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
     });
 
     propPane.MoveToTab("Style");

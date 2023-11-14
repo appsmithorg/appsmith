@@ -63,7 +63,7 @@ describe("Linting", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName as unknown as string;
     });
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
@@ -346,7 +346,7 @@ describe("Linting", () => {
       });
 
       agHelper.AssertElementExist(locators._lintErrorElement);
-      EditorNavigation.sidebar(SidebarButton.Libraries);
+      EditorNavigation.ViaSidebar(SidebarButton.Libraries);
       // install the library
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
@@ -354,12 +354,12 @@ describe("Linting", () => {
       entityExplorer.SelectEntityByName("JSObject3");
 
       agHelper.AssertElementAbsence(locators._lintErrorElement);
-      EditorNavigation.sidebar(SidebarButton.Libraries);
+      EditorNavigation.ViaSidebar(SidebarButton.Libraries);
       installer.uninstallLibrary("uuidjs");
       entityExplorer.SelectEntityByName("JSObject3");
       agHelper.AssertElementExist(locators._lintErrorElement);
       agHelper.RefreshPage();
-      EditorNavigation.sidebar(SidebarButton.Libraries);
+      EditorNavigation.ViaSidebar(SidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();

@@ -139,7 +139,7 @@ describe("GlobalSearch", function () {
   });
 
   it("7. Api actions should have API as prefix", () => {
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(globalSearchLocators.blankDatasource).first().click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
@@ -152,7 +152,7 @@ describe("GlobalSearch", function () {
     cy.fillAuthenticatedAPIForm();
     cy.saveDatasource();
 
-    EditorNavigation.sidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(".ads-v2-menu__menu-item span:contains('omnibarApiDatasource')")
       .first()

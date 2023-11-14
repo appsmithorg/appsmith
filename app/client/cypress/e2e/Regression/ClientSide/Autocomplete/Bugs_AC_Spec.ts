@@ -93,11 +93,11 @@ describe("Autocomplete bug fixes", function () {
     "excludeForAirgap",
     "7. Installed library should show up in autocomplete",
     function () {
-      EditorNavigation.sidebar(SidebarButton.Libraries);
+      EditorNavigation.ViaSidebar(SidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.SelectEntityByName("Text1");
       propPane.TypeTextIntoField("Text", "{{UUI");
       agHelper.GetNAssertElementText(locators._hints, "UUID");
@@ -109,9 +109,9 @@ describe("Autocomplete bug fixes", function () {
     "8. No autocomplete for Removed libraries",
     function () {
       entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
-      EditorNavigation.sidebar(SidebarButton.Libraries);
+      EditorNavigation.ViaSidebar(SidebarButton.Libraries);
       installer.uninstallLibrary("uuidjs");
-      EditorNavigation.sidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       propPane.TypeTextIntoField("Text", "{{UUID.");
       agHelper.AssertElementAbsence(locators._hints);
     },

@@ -58,7 +58,7 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
 });
 
 Cypress.Commands.add("NavigateToActiveDatasources", () => {
-  EditorNavigation.sidebar(SidebarButton.Data);
+  EditorNavigation.ViaSidebar(SidebarButton.Data);
 });
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
