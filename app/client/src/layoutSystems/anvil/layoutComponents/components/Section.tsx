@@ -6,6 +6,8 @@ import {
   type LayoutComponentProps,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
+import React from "react";
+import { SectionRow } from "./SectionRow";
 import WidgetRow from "./WidgetRow";
 
 class Section extends WidgetRow {
@@ -56,6 +58,9 @@ class Section extends WidgetRow {
   }
 
   static rendersWidgets: boolean = true;
+  render() {
+    return <SectionRow {...this.props} />;
+  }
 }
 
 export default Section;
