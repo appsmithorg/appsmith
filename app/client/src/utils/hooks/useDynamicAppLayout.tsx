@@ -45,7 +45,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
+import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -79,7 +79,7 @@ export const useDynamicAppLayout = () => {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   const isPreviewing = isPreviewMode;
 

@@ -8,7 +8,6 @@ describe("Pages", function () {
   let apiName = "someApi";
 
   it("1. Clone page & check tooltip for long name", function () {
-    //cy.NavigateToAPI_Panel();
     _.apiPage.CreateApi(apiName);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.entityExplorer.ClonePage("Page1");

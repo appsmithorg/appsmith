@@ -1,9 +1,14 @@
 import type { ComponentProps } from "widgets/BaseComponent";
 import type { TextInputProps } from "@design-system/widgets";
 
+export type KeyDownEvent = React.KeyboardEvent<
+  HTMLTextAreaElement | HTMLInputElement
+>;
+
 export interface BaseInputComponentProps extends ComponentProps {
   autoFocus?: boolean;
   autoComplete?: string;
+  onKeyDown?: (e: KeyDownEvent) => void;
 
   maxChars?: number;
   widgetId: string;

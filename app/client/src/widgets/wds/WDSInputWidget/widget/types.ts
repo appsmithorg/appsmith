@@ -25,7 +25,3 @@ export interface Validation {
   errorMessage?: string;
   validationStatus?: InputComponentProps["validationStatus"];
 }
-
-export type KeyDownEvent = React.KeyboardEvent<
-  HTMLTextAreaElement | HTMLInputElement
->;

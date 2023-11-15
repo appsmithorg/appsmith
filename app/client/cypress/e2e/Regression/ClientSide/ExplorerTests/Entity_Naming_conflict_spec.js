@@ -11,8 +11,6 @@ describe("Tab widget test", function () {
 
   it("1. Rename API with table widget name validation test", function () {
     cy.log("Login Successful");
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.CreateApiAndValidateUniqueEntityName(apiName);
     cy.get(apiwidget.apiTxt)
       .clear()

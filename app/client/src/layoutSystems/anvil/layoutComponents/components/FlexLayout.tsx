@@ -31,6 +31,7 @@ export interface FlexLayoutProps
   isDropTarget?: boolean;
   layoutId: string;
   layoutIndex: number;
+  parentDropTarget: string;
   renderMode: RenderMode;
 
   border?: string;
@@ -72,6 +73,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     minHeight,
     minWidth,
     padding,
+    parentDropTarget,
     position,
     renderMode,
     rowGap,
@@ -89,6 +91,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       layoutId: layoutId,
       canvasId: canvasId,
       isDropTarget: isDropTarget,
+      parentDropTarget,
     },
     ref,
   );
