@@ -95,11 +95,11 @@ const CONSOLE_DOT_LOG_INVOCATION_REGEX =
   /console.log[.call | .apply]*\s*\(.*?\)/gm;
 
 function* handleCreateNewJsActionSaga(
-  action: ReduxAction<{ pageId: string; from: EventLocation; name?: string }>,
+  action: ReduxAction<{ pageId: string; from: EventLocation }>,
 ) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
-  const { from, name, pageId } = action.payload;
+  const { from, pageId } = action.payload;
   const pluginId: string = yield select(
     getPluginIdOfPackageName,
     PluginPackageName.JS,
@@ -109,12 +109,10 @@ function* handleCreateNewJsActionSaga(
     const pageJSActions = jsActions.filter(
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
-    const newJSCollectionName =
-      name || createNewJSFunctionName(pageJSActions, pageId);
+    const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
     const { actions, body } = createDummyJSCollectionActions(
       pageId,
       workspaceId,
-      from,
     );
     yield put(
       createJSCollectionRequest({
