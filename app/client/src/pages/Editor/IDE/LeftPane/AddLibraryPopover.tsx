@@ -18,10 +18,13 @@ import { useDispatch } from "react-redux";
 const AddLibraryPopover = () => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
-  const onOpenChange = useCallback(() => {
-    dispatch(clearInstalls());
-    setOpen(false);
-  }, [open]);
+  const onOpenChange = useCallback(
+    (open) => {
+      dispatch(clearInstalls());
+      setOpen(open);
+    },
+    [open],
+  );
   return (
     <Popover onOpenChange={onOpenChange} open={open}>
       <PopoverTrigger>
