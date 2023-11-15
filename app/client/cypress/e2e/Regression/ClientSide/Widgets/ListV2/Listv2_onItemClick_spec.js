@@ -82,7 +82,7 @@ describe("List widget v2 onItemClick", () => {
 
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.INPUT_V2,
-      250,
+      150,
       50,
       draggableWidgets.CONTAINER,
     );
@@ -94,7 +94,7 @@ describe("List widget v2 onItemClick", () => {
 
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.SELECT,
-      250,
+      150,
       50,
       draggableWidgets.CONTAINER,
     );
@@ -107,7 +107,7 @@ describe("List widget v2 onItemClick", () => {
 
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.BUTTON,
-      250,
+      150,
       50,
       draggableWidgets.CONTAINER,
     );

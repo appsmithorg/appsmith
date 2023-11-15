@@ -315,6 +315,7 @@ function ActionSidebar({
         <CollapsibleGroup height={additionalSections ? "50%" : "100%"}>
           {showSchema && (
             <CollapsibleSection
+              data-testId="datasource-schema-container"
               height={
                 datasourceStructure?.tables?.length && !isLoadingSchema
                   ? "50%"

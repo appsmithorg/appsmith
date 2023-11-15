@@ -35,6 +35,7 @@ class PropertyControlFactory {
     customEditor?: string,
     additionalAutoComplete?: AdditionalDynamicDataTree,
     hideEvaluatedValue?: boolean,
+    isSearchResult?: boolean,
   ): JSX.Element {
     let controlBuilder;
     let evaluatedValue = controlData.evaluatedValue;
@@ -59,6 +60,7 @@ class PropertyControlFactory {
         customJSControl: customEditor,
         additionalAutoComplete,
         hideEvaluatedValue,
+        isSearchResult,
       };
 
       const control = controlBuilder.buildPropertyControl(controlProps);

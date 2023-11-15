@@ -1461,8 +1461,7 @@
       "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/JSON/stringify",
       "!doc": "Convert a value to JSON, optionally replacing values if a replacer function is specified, or optionally including only the specified properties if a replacer array is specified."
     },
-    "!url": "https://developer.mozilla.org/en-US/docs/JSON",
-    "!doc": "JSON (JavaScript Object Notation) is a data-interchange format.  It closely resembles a subset of JavaScript syntax, although it is not a strict subset. (See JSON in the JavaScript Reference for full details.)  It is useful when writing any kind of JavaScript-based application, including websites and browser extensions.  For example, you might store user information in JSON format in a cookie, or you might store extension preferences in JSON in a string-valued browser preference."
+    "!url": "https://developer.mozilla.org/en-US/docs/JSON"
   },
   "ArrayBuffer": {
     "!type": "fn(length: number)",

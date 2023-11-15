@@ -627,7 +627,10 @@ export function getPropertiesToUpdate(
   const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
   const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
 
-  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
+  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(
+    widget.type,
+    widget,
+  );
   const { triggerPaths: triggerPathsFromPropertyConfig = {} } =
     getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
 

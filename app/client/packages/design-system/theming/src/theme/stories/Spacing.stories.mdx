@@ -16,26 +16,15 @@ spacing system can add clarity and consistency to a design.
 There are two types of spacing in design systems: inner spacing and
 outer spacing.
 
-### Inner Spacing
-
-Inner spacing, also known as **padding**, is the space between an
-element's content and its border. It creates room for the content to
-breathe and makes the element more visually appealing.
-
-### Outer Spacing
-
-Outer spacing, also known as **margin** and **gap**, is the space
-between elements. It creates a visual separation between elements and
-contributes to the overall balance of a design.
-
-## Tokens Table
-
-export const Spacing = () => {
+export const Spacing = ({ type }) => {
   const { theme } = useTheme();
-  const { spacing } = theme;
+  const { outerSpacing, innerSpacing } = theme;
   return (
     <ThemeProvider theme={theme}>
-      <TokenTable prefix="spacing" tokens={spacing}>
+      <TokenTable
+        prefix={`${type}-spacing`}
+        tokens={type === "inner" ? innerSpacing : outerSpacing}
+      >
         {(cssVar) => (
           <StyledLinePreview
             style={{
@@ -48,4 +37,18 @@ export const Spacing = () => {
   );
 };
 
-<Spacing />
+### Inner Spacing
+
+Inner spacing, also known as **padding**, is the space between an
+element's content and its border. It creates room for the content to
+breathe and makes the element more visually appealing.
+
+<Spacing type="inner" />
+
+### Outer Spacing
+
+Outer spacing, also known as **margin** and **gap**, is the space
+between elements. It creates a visual separation between elements and
+contributes to the overall balance of a design.
+
+<Spacing type="outer" />

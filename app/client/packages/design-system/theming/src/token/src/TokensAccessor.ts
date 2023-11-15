@@ -108,6 +108,7 @@ export class TokensAccessor {
       ...this.getBorderWidth(),
       ...this.getOpacity(),
       ...this.getZIndex(),
+      colorMode: this.getColorMode(),
     };
   };
 
@@ -187,6 +188,10 @@ export class TokensAccessor {
     if (this.zIndex == null) return {} as ThemeToken;
 
     return this.createTokenObject(this.zIndex, "zIndex");
+  };
+
+  getColorMode = () => {
+    return this.colorMode;
   };
 
   private get isLightMode() {
