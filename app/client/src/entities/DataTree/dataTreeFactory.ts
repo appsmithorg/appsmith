@@ -18,7 +18,7 @@ import type {
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
-import { generateModuleInstance } from "@appsmith/entities/DataTree/DataTreeModuleInstance";
+import { generateModuleInstance } from "@appsmith/entities/DataTree/dataTreeModuleInstance";
 export class DataTreeFactory {
   static create({
     actions,

@@ -1,1 +1,1 @@
-export * from "ce/entities/DataTree/DataTreeModuleInstance";
+export * from "ce/entities/DataTree/dataTreeModuleInstance";
