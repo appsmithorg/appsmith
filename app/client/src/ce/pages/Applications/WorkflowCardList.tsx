@@ -1,9 +1,9 @@
-import type { Package } from "@appsmith/constants/PackageConstants";
+import type { Workflow } from "@appsmith/constants/WorkflowConstants";
 
 export interface WorkflowCardListProps {
   isMobile: boolean;
   workspaceId: string;
-  workflows?: Package[];
+  workflows?: Workflow[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
