@@ -43,9 +43,11 @@ import static com.external.plugins.constants.OpenAIConstants.USER_MESSAGES;
 import static com.external.plugins.constants.OpenAIConstants.VALUE;
 import static com.external.plugins.constants.OpenAIConstants.VISION;
 import static com.external.plugins.constants.OpenAIConstants.VISION_MODEL_SELECTOR;
+import static com.external.plugins.constants.OpenAIErrorMessages.BAD_MAX_TOKEN_CONFIGURATION;
 import static com.external.plugins.constants.OpenAIErrorMessages.BAD_TEMPERATURE_CONFIGURATION;
 import static com.external.plugins.constants.OpenAIErrorMessages.EXECUTION_FAILURE;
-import static com.external.plugins.constants.OpenAIErrorMessages.INCORRECT_MESSAGE_FORMAT;
+import static com.external.plugins.constants.OpenAIErrorMessages.INCORRECT_SYSTEM_MESSAGE_FORMAT;
+import static com.external.plugins.constants.OpenAIErrorMessages.INCORRECT_USER_MESSAGE_FORMAT;
 import static com.external.plugins.constants.OpenAIErrorMessages.MODEL_NOT_SELECTED;
 import static com.external.plugins.constants.OpenAIErrorMessages.QUERY_NOT_CONFIGURED;
 import static com.external.plugins.constants.OpenAIErrorMessages.STRING_APPENDER;
@@ -113,7 +115,7 @@ public class VisionCommand implements OpenAICommand {
         if (messages == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_USER_MESSAGE_FORMAT));
         }
 
         Type chatListType = new TypeToken<List<UserQuery>>() {}.getType();
@@ -139,10 +141,10 @@ public class VisionCommand implements OpenAICommand {
             }
             return List.of(visionMessage);
         } catch (Exception exception) {
-            log.debug("An exception occurred while converting types for messages: {}", messages);
+            log.debug("An exception occurred while converting types for user messages: {}", messages);
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_USER_MESSAGE_FORMAT));
         }
     }
 
@@ -150,7 +152,7 @@ public class VisionCommand implements OpenAICommand {
         if (messages == null) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_SYSTEM_MESSAGE_FORMAT));
         }
 
         Type chatListType = new TypeToken<List<LinkedHashMap<String, String>>>() {}.getType();
@@ -168,10 +170,10 @@ public class VisionCommand implements OpenAICommand {
             }
             return visionMessages;
         } catch (Exception exception) {
-            log.debug("An exception occurred while converting types for messages: {}", messages);
+            log.debug("An exception occurred while converting types for system messages: {}", messages);
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_SYSTEM_MESSAGE_FORMAT));
         }
     }
 
@@ -191,7 +193,7 @@ public class VisionCommand implements OpenAICommand {
         } catch (Exception exception) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    String.format(STRING_APPENDER, EXECUTION_FAILURE, BAD_TEMPERATURE_CONFIGURATION));
+                    String.format(STRING_APPENDER, EXECUTION_FAILURE, BAD_MAX_TOKEN_CONFIGURATION));
         }
     }
 
