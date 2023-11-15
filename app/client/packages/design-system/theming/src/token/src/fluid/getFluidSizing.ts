@@ -38,7 +38,7 @@ export const getFluidSizing = (
   sizing: ScaleConfig,
   userDensity = 1,
   userSizing = 1,
-  count = 100,
+  count = 200,
 ) => {
   const fluidValue = getFluidValue(
     maxVw,

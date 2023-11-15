@@ -20,7 +20,7 @@ import {
   StickyType,
 } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
-import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
+import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
 import { Popover2 } from "@blueprintjs/popover2";
 import { MenuDivider } from "@design-system/widgets-old";
 import { importRemixIcon, importSvg } from "@design-system/widgets-old";

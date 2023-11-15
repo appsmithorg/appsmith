@@ -19,6 +19,7 @@ const AddLibraryPopover = () => {
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger>
         <Button
+          className="t--install-library-button"
           isIconButton
           kind="tertiary"
           onClick={() => setOpen(true)}
@@ -26,7 +27,13 @@ const AddLibraryPopover = () => {
           startIcon="add-line"
         />
       </PopoverTrigger>
-      <PopoverContent align="start" className="z-[25]" side="left" size="md">
+      <PopoverContent
+        align="start"
+        className="z-[25]"
+        side="left"
+        sideOffset={16}
+        size="md"
+      >
         <PopoverHeader className="sticky top-0" isClosable>
           {createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
         </PopoverHeader>

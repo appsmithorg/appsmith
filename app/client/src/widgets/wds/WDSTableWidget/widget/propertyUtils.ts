@@ -774,6 +774,50 @@ export const updateMenuItemsSource = (
   return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
 };
 
+export const updateCurrencyDefaultValues = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: unknown,
+): Array<{ propertyPath: string; propertyValue: unknown }> | undefined => {
+  const propertiesToUpdate: Array<{
+    propertyPath: string;
+    propertyValue: unknown;
+  }> = [];
+  const baseProperty = getBasePropertyPath(propertyPath);
+
+  if (propertyValue === ColumnTypes.CURRENCY) {
+    if (!get(props, `${baseProperty}.currencyCode`)) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.currencyCode`,
+        propertyValue: "USD",
+      });
+    }
+
+    if (get(props, `${baseProperty}.decimals`) === undefined) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.decimals`,
+        propertyValue: 0,
+      });
+    }
+
+    if (get(props, `${baseProperty}.notation`) === undefined) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.notation`,
+        propertyValue: "standard",
+      });
+    }
+
+    if (get(props, `${baseProperty}.thousandSeparator`) === undefined) {
+      propertiesToUpdate.push({
+        propertyPath: `${baseProperty}.thousandSeparator`,
+        propertyValue: true,
+      });
+    }
+  }
+
+  return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
+};
+
 export function selectColumnOptionsValidation(
   value: unknown,
   props: TableWidgetProps,

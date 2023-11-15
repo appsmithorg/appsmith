@@ -10,6 +10,9 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 let dsName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
@@ -20,6 +23,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   });
 
   it("1. Tc 54, 55 - Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function () {

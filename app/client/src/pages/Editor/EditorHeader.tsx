@@ -159,6 +159,7 @@ export function EditorHeader() {
         pageCount,
         ...navigationSettingsWithPrefix,
         isPublic: !!currentApplication?.isPublic,
+        templateTitle: currentApplication?.forkedFromTemplateTitle,
       });
     }
   };

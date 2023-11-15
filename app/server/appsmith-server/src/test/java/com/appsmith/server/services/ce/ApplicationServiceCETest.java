@@ -54,6 +54,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -266,6 +267,9 @@ public class ApplicationServiceCETest {
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
+    @Autowired
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
     String workspaceId;
     String defaultEnvironmentId;
 
@@ -299,6 +303,9 @@ public class ApplicationServiceCETest {
         Workspace toCreate = new Workspace();
         toCreate.setName("ApplicationServiceTest");
 
+        Set<String> beforeCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
@@ -366,6 +373,14 @@ public class ApplicationServiceCETest {
         datasource1.setDatasourceStorages(storages1);
 
         testDatasource1 = datasourceService.create(datasource1).block();
+        Set<String> afterCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+
+        log.info("Workspace ID: {}", workspaceId);
+        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.info("Policy for created Workspace: {}", workspace.getPolicies());
+        log.info("Current User ID: {}", currentUser.getId());
     }
 
     @AfterEach

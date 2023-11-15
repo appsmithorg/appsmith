@@ -20,6 +20,7 @@ import {
   getApplicationList,
   getApplicationSearchKeyword,
   getCreateApplicationError,
+  getCurrentApplicationIdForCreateNewApp,
   getDeletingMultipleApps,
   getIsCreatingApplication,
   getIsDeletingApplication,
@@ -105,6 +106,8 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
+import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
+import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -809,6 +812,8 @@ export interface ApplicationProps {
   resetEditor: () => void;
   queryModuleFeatureFlagEnabled: boolean;
   resetCurrentWorkspace: () => void;
+  currentApplicationIdForCreateNewApp?: string;
+  resetCurrentApplicationIdForCreateNewApp: () => void;
 }
 
 export interface ApplicationState {
@@ -846,7 +851,14 @@ export class Applications<
   }
 
   public render() {
-    return (
+    return this.props.currentApplicationIdForCreateNewApp ? (
+      <CreateNewAppsOption
+        currentApplicationIdForCreateNewApp={
+          this.props.currentApplicationIdForCreateNewApp
+        }
+        onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
+      />
+    ) : (
       <PageWrapper displayName="Applications">
         <LeftPane />
         <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
@@ -878,6 +890,8 @@ export const mapStateToProps = (state: AppState) => ({
   userWorkspaces: getUserApplicationsWorkspacesList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),
+  currentApplicationIdForCreateNewApp:
+    getCurrentApplicationIdForCreateNewApp(state),
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({
@@ -902,6 +916,8 @@ export const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
   resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
+  resetCurrentApplicationIdForCreateNewApp: () =>
+    dispatch(resetCurrentApplicationIdForCreateNewApp()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);
