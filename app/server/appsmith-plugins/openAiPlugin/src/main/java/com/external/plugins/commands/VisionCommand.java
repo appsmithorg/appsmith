@@ -41,6 +41,7 @@ import static com.external.plugins.constants.OpenAIConstants.TEMPERATURE;
 import static com.external.plugins.constants.OpenAIConstants.TEXT_TYPE;
 import static com.external.plugins.constants.OpenAIConstants.USER_MESSAGES;
 import static com.external.plugins.constants.OpenAIConstants.VALUE;
+import static com.external.plugins.constants.OpenAIConstants.VISION;
 import static com.external.plugins.constants.OpenAIConstants.VISION_MODEL_SELECTOR;
 import static com.external.plugins.constants.OpenAIErrorMessages.BAD_TEMPERATURE_CONFIGURATION;
 import static com.external.plugins.constants.OpenAIErrorMessages.EXECUTION_FAILURE;
@@ -75,7 +76,7 @@ public class VisionCommand implements OpenAICommand {
 
     @Override
     public URI createExecutionUri() {
-        return URI.create("https://en1rkgio4ybmi.x.pipedream.net");
+        return RequestUtils.createUriFromCommand(VISION);
     }
 
     @Override
