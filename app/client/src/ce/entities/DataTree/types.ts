@@ -17,7 +17,7 @@ import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsRed
 import type { AppTheme } from "entities/AppTheming";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
-import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+import type { Module } from "@appsmith/constants/ModuleConstants";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
@@ -186,7 +186,7 @@ export interface DataTreeSeed {
   theme: AppTheme["properties"];
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
-  moduleInputs: Record<string, ModuleInput>;
+  moduleInputs: Module["inputsForm"];
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;
 }

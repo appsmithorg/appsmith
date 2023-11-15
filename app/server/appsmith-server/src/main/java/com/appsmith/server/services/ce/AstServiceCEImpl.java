@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -49,6 +51,44 @@ public class AstServiceCEImpl implements AstServiceCE {
             .build());
 
     private static final long MAX_API_RESPONSE_TIME_IN_MS = 50;
+
+    @Override
+    public Mono<Map<MustacheBindingToken, String>> replaceValueInMustacheKeys(
+            Set<MustacheBindingToken> mustacheKeySet,
+            String oldName,
+            String newName,
+            int evalVersion,
+            Pattern oldNamePattern) {
+        return this.replaceValueInMustacheKeys(mustacheKeySet, oldName, newName, evalVersion, oldNamePattern, false);
+    }
+
+    @Override
+    public Mono<Map<MustacheBindingToken, String>> replaceValueInMustacheKeys(
+            Set<MustacheBindingToken> mustacheKeySet,
+            String oldName,
+            String newName,
+            int evalVersion,
+            Pattern oldNamePattern,
+            boolean isJSObject) {
+        if (Boolean.TRUE.equals(this.instanceConfig.getIsRtsAccessible())) {
+            return this.refactorNameInDynamicBindings(mustacheKeySet, oldName, newName, evalVersion, isJSObject);
+        }
+        return this.replaceValueInMustacheKeys(mustacheKeySet, oldNamePattern, newName);
+    }
+
+    @Override
+    public Mono<Map<MustacheBindingToken, String>> replaceValueInMustacheKeys(
+            Set<MustacheBindingToken> mustacheKeySet, Pattern oldNamePattern, String newName) {
+        return Flux.fromIterable(mustacheKeySet)
+                .flatMap(mustacheKey -> {
+                    Matcher matcher = oldNamePattern.matcher(mustacheKey.getValue());
+                    if (matcher.find()) {
+                        return Mono.zip(Mono.just(mustacheKey), Mono.just(matcher.replaceAll(newName)));
+                    }
+                    return Mono.empty();
+                })
+                .collectMap(Tuple2::getT1, Tuple2::getT2);
+    }
 
     @Override
     public Flux<Tuple2<String, Set<String>>> getPossibleReferencesFromDynamicBinding(

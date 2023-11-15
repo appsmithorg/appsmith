@@ -161,6 +161,7 @@ import {
   getCurrentEnvironmentDetails,
 } from "@appsmith/selectors/environmentSelectors";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -452,12 +453,12 @@ function* updateDatasourceSaga(
   >,
 ) {
   try {
-    const currentEnvDetails: { id: string; name: string } = yield select(
+    const currentEnvDetails: { editingId: string; name: string } = yield select(
       getCurrentEnvironmentDetails,
     );
     const queryParams = getQueryParams();
     const currentEnvironment =
-      actionPayload.payload?.currEditingEnvId || currentEnvDetails.id;
+      actionPayload.payload?.currEditingEnvId || currentEnvDetails.editingId;
     const datasourcePayload = omit(actionPayload.payload, "name");
     const datasourceStoragePayload =
       datasourcePayload.datasourceStorages[currentEnvironment];
@@ -619,12 +620,17 @@ function* redirectAuthorizationCodeSaga(
 ) {
   const { datasourceId, pageId, pluginType } = actionPayload.payload;
   const isImport: string = yield select(getWorkspaceIdForImport);
+  const branchName: string | undefined = yield select(getCurrentGitBranch);
 
   if (pluginType === PluginType.API) {
     const currentEnvironment: string = yield select(
       getCurrentEditingEnvironmentId,
     );
-    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
+    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
+    if (!!branchName) {
+      windowLocation = windowLocation + `&branchName=` + branchName;
+    }
+    window.location.href = windowLocation;
   } else {
     try {
       // Get an "appsmith token" from the server
@@ -1570,8 +1576,12 @@ function* executeDatasourceQuerySaga(
       },
     });
     if (action.onErrorCallback) {
-      // @ts-expect-error: onErrorCallback expects string
-      action.onErrorCallback(error);
+      if (error instanceof Error) {
+        action.onErrorCallback(error.message);
+      } else {
+        // @ts-expect-error: onErrorCallback expects string
+        action.onErrorCallback(error);
+      }
     }
   }
 }

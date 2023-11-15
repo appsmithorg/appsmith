@@ -15,14 +15,10 @@ describe("Select Widget", () => {
     featureFlagIntercept({
       license_widget_rtl_support_enabled: false,
     });
-
     agHelper.AssertElementAbsence(".t--property-control-enablertl");
-
     featureFlagIntercept({
       license_widget_rtl_support_enabled: true,
     });
-
-    agHelper.RefreshPage();
 
     agHelper.Sleep(2000);
 

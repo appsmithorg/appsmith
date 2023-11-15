@@ -52,6 +52,15 @@ function StarterBuildingBlocks() {
   const handleItemHover = (index: number) => {
     setTemplateScreenshot(layoutItems[index].screenshot);
     setLayoutItemActive(layoutItems[index].title);
+
+    AnalyticsUtil.logEvent("STARTER_BUILDING_BLOCK_HOVER", {
+      applicationId: currentApplication?.id,
+      workspaceId: currentWorkSpace.id,
+      source: "canvas",
+      eventData: {
+        templateAppName: layoutItems[index].templateName,
+      },
+    });
   };
 
   const onClick = (

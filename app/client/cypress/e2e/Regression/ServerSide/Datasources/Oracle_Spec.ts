@@ -13,6 +13,10 @@ import {
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import datasource from "../../../../locators/DatasourcesEditor.json";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate Oracle DS", () => {
   let dataSourceName: string, guid: any, query: string, selectQuery: string;
@@ -108,7 +112,8 @@ describe("Validate Oracle DS", () => {
     dataSources.AssertDataSourceInfo(["Host address", "Port", "Service Name"]);
     agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
     dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
-    agHelper.GoBack(); //Do not edit anythin, go back to active ds list, ensure no modal is opened
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
     dataSources.AssertDSInActiveList(dataSourceName);
   });
 
@@ -172,8 +177,6 @@ describe("Validate Oracle DS", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dataSourceName, guid.toUpperCase());
-
     query = `INSERT INTO ${guid} (
     aircraft_id,
     aircraft_type,
@@ -195,7 +198,11 @@ describe("Validate Oracle DS", () => {
     TO_DATE('2020-01-15', 'YYYY-MM-DD'),
     TO_DATE('{{DatePicker1.formattedDate}}', 'YYYY-MM-DD'),
     'This aircraft is used for domestic flights.')`;
-    entityExplorer.ActionTemplateMenuByEntityName(guid.toUpperCase(), "Select");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dataSourceName,
+      guid.toUpperCase(),
+      "Select",
+    );
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)

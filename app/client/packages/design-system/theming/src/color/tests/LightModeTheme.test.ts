@@ -226,6 +226,15 @@ describe("bgNeutral color", () => {
   });
 });
 
+describe("bgNeutralOpacity color", () => {
+  it("should return correct color", () => {
+    const { bgNeutralOpacity } = new LightModeTheme(
+      "oklch(0.51 0.24 279)",
+    ).getColors();
+    expect(bgNeutralOpacity).toEqual("rgb(27.662% 28.6% 35.606% / 0.5)");
+  });
+});
+
 describe("bgNeutralHover color", () => {
   it("should return correct color when lightness < 0.06", () => {
     const { bgNeutralHover } = new LightModeTheme(

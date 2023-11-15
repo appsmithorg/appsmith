@@ -42,13 +42,13 @@ interface TokenTableProps {
   children: (cssVar: string) => ReactNode;
   filter?: string | string[];
   tokens?: { [key: string]: Token };
-  isExactMatch: boolean;
+  isExactMatch?: boolean;
 }
 
 export const TokenTable = ({
   children,
   filter,
-  isExactMatch,
+  isExactMatch = true,
   prefix,
   tokens,
 }: TokenTableProps) => {

@@ -7,6 +7,7 @@ import {
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
   messages,
 } from "../constants";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const isLabelOrientationApplicableFor = (chartType: string) =>
   LABEL_ORIENTATION_COMPATIBLE_CHARTS.includes(chartType);
@@ -93,11 +94,18 @@ export const contentConfig = (
           placeholderText: `Custom ECharts Configuration`,
           propertyName: "customEChartConfig",
           label: "Custom ECharts Configuration",
-          controlType: "INPUT_TEXT",
+          controlType: "WRAPPED_CODE_EDITOR",
+          controlConfig: {
+            wrapperCode: {
+              prefix: "{{ ((chartType) => ( ",
+              suffix: (widget: WidgetProps) =>
+                `))(${widget.widgetName}.chartType); }}`,
+            },
+          },
           isBindProperty: true,
           isTriggerProperty: false,
           validation: {
-            type: ValidationTypes.OBJECT,
+            type: ValidationTypes.OBJECT_WITH_FUNCTION,
             params: {
               default: {},
             },

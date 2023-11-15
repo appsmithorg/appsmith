@@ -23,3 +23,5 @@ export const getCurrentEnvironmentDetails = (state: AppState) => ({
   name: "",
   editingId: "unused_env",
 });
+
+export const allowManageEnvironmentAccessForUser = (state: AppState) => false;

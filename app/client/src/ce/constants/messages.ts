@@ -508,6 +508,7 @@ export const PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES = (
 export const POST = () => "Post";
 export const CANCEL = () => "Cancel";
 export const REMOVE = () => "Remove";
+export const CREATE = () => "Create";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -752,7 +753,7 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
-  "Search for table or attribute";
+  "Search for table";
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -842,6 +843,7 @@ export const COMMITTING_AND_PUSHING_CHANGES = () =>
 export const DISCARDING_AND_PULLING_CHANGES = () =>
   "Discarding and pulling changes...";
 export const DISCARD_SUCCESS = () => "Discarded changes successfully.";
+export const DISCARD_AND_PULL_SUCCESS = () => "Pulled from remote successfully";
 
 export const IS_MERGING = () => "Merging changes...";
 
@@ -1032,12 +1034,12 @@ export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
 export const HOW_TO_ADD_DEPLOY_KEY = () =>
   "How to paste SSH Key in repo and give write access?";
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
-  "I've added deploy key and gave it write access";
+  "I've added the deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
 export const GIT_CONNECT_SUCCESS_TITLE = () =>
   "Successfully connected to your Git remote repository";
 export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
-  "Right now, {branch} is set as the default branch and it is protected.";
+  "Now you can start collaborating with your team members by committing, merging and deploying your app";
 export const START_USING_GIT = () => "Start using Git";
 export const OPEN_GIT_SETTINGS = () => "Open Git settings";
 export const GIT_AUTHOR = () => "Git author";
@@ -1081,11 +1083,16 @@ export const BRANCH_PROTECTION_CHANGE_RULE = () =>
   "You can remove protection on your default branch in Git settings.";
 export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
 export const BRANCH_TOOLTIP_MESSAGE = () =>
-  "You can remove protection on your default branch in Git settings.";
+  "Please create a new branch or checkout an existing one to edit the app.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
 export const APPSMITH_ENTERPRISE = () => "Appsmith Enterprise";
+export const PROTECT_BRANCH_SUCCESS = () => "Changed protected branches";
+export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
+  `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
+export const CONTACT_ADMIN_FOR_GIT = () =>
+  "Please contact your workspace admin to connect your app to a git repo";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
@@ -2199,7 +2206,7 @@ export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
 
 export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
 export const DATASOURCE_LIST_BLANK_TITLE = () =>
-  "No datasources exist in your workplace.";
+  "No datasources exist in your workspace.";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
   "You need a datasource connection to write your first query";
 
@@ -2231,3 +2238,17 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   dragAndDrop: () => "Drag and Drop Widgets",
   importLoadingText: () => "Importing template",
 };
+
+// Create New Apps Intermediary step
+export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";
+export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
+  "Choose an option that fits your approach, and let's shape your app together.";
+export const START_FROM_TEMPLATE_TITLE = () => "Start with use-case";
+export const START_FROM_TEMPLATE_SUBTITLE = () =>
+  "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
+export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
+export const START_FROM_SCRATCH_SUBTITLE = () =>
+  "Create an app from the ground up. Design every detail of your app on a blank canvas.";
+export const START_WITH_DATA_TITLE = () => "Start with data";
+export const START_WITH_DATA_SUBTITLE = () =>
+  "Get started with connecting your data, and easily craft a functional application.";

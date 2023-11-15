@@ -9,15 +9,24 @@ import {
   locators,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Json & JsonB Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Importing App & setting theme", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     agHelper.AddDsl("Datatypes/JsonDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");
@@ -40,11 +49,14 @@ describe("Json & JsonB Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks");
   });
 
   it("2. Creating SELECT query - jsonbooks + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("public.jsonbooks", "Select");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.jsonbooks",
+      "Select",
+    );
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
@@ -81,7 +93,6 @@ describe("Json & JsonB Datatype tests", function () {
     agHelper.RenameWithInPane("dropTable");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("4. Inserting record - jsonbooks", () => {
@@ -314,8 +325,6 @@ describe("Json & JsonB Datatype tests", function () {
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("13. Verify Deletion of all created queries", () => {
@@ -347,12 +356,11 @@ describe("Json & JsonB Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-
-    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks");
   });
 
   it("16. Creating SELECT query - jsonBbooks + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.jsonBbooks",
       "Select",
     );
@@ -402,7 +410,6 @@ describe("Json & JsonB Datatype tests", function () {
     agHelper.RenameWithInPane("dropEnum");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("18. Inserting record - jsonbooks", () => {
@@ -660,8 +667,6 @@ describe("Json & JsonB Datatype tests", function () {
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("27. Verify Deletion of all created queries", () => {
