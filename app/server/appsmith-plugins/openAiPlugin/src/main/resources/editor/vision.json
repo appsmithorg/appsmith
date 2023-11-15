@@ -34,6 +34,7 @@
     {
       "label": "Max Tokens",
       "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+      "subtitle": "The maximum number of tokens to generate in the chat completion.",
       "Description": "Put a positive integer value",
       "configProperty": "actionConfiguration.formData.maxTokens",
       "controlType": "INPUT_TEXT",
