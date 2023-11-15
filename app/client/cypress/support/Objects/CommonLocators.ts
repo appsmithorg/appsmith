@@ -257,7 +257,6 @@ export class CommonLocators {
   _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
   _appEditMenu = "[data-testid='t--editor-menu']";
   _appEditMenuBtn = "[data-testid='t--editor-menu-cta']";
-  _appEditMenuSettings = "[data-testid='t--editor-menu-settings']";
   _appEditExportSettings = "[data-testid='t--editor-menu-export-application']";
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
@@ -301,7 +300,6 @@ export class CommonLocators {
   _buttonInDeployedMode = ".bp3-button";
   _treeSelectPlaceholder = ".rc-tree-select-selection-placeholder";
   _treeSelectTitle = ".rc-tree-select-tree-title";
-  _newDataSourceBtn = ".datasources .t--entity-add-btn";
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
   _listText = "//span[text()='Blue']/../..";

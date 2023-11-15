@@ -219,7 +219,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group"
+        className="flex flex-col p-0 bg-white min-w-52 max-w-96 group"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         ref={sidebarRef}
