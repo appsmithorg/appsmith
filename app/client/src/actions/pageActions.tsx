@@ -551,3 +551,14 @@ export const resetApplicationWidgets = () => ({
 export const fetchPageDSLs = () => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
 });
+
+export const setupPage = (
+  pageId: string,
+  isFirstLoad = false,
+): ReduxAction<FetchPageRequest> => ({
+  type: ReduxActionTypes.SETUP_PAGE_INIT,
+  payload: {
+    id: pageId,
+    isFirstLoad,
+  },
+});

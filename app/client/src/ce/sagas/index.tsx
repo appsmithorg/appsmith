@@ -33,7 +33,7 @@ import layoutConversionSagas from "sagas/layoutConversionSagas";
 import LintingSaga from "sagas/LintingSagas";
 import modalSagas from "sagas/ModalSagas";
 import onboardingSagas from "sagas/OnboardingSagas";
-import pageSagas from "sagas/PageSagas";
+import pageSagas from "@appsmith/sagas/PageSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import pluginSagas from "sagas/PluginSagas";
 import providersSagas from "sagas/ProvidersSaga";
