@@ -358,7 +358,6 @@ describe("Linting", () => {
       installer.uninstallLibrary("uuidjs");
       entityExplorer.SelectEntityByName("JSObject3");
       agHelper.AssertElementExist(locators._lintErrorElement);
-      agHelper.RefreshPage();
       EditorNavigation.ViaSidebar(SidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
