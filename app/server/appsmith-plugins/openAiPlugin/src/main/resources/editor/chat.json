@@ -32,14 +32,6 @@
       }
     },
     {
-      "label": "path to query",
-      "configProperty": "actionConfiguration.path",
-      "controlType": "INPUT_TEXT",
-      "initialValue": "/v1/chat/completions",
-      "isRequired": true,
-      "hidden": true
-    },
-    {
       "label": "Temperature",
       "tooltipText": "Put a value between 0 and 2",
       "Description": "Put a value between 0 and 2",

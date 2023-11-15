@@ -56,7 +56,7 @@ public class VisionCommand implements OpenAICommand {
 
     private final Gson gson;
 
-    private final String regex = "(ft:gpt.*vision.*)?(gpt).*vision.*";
+    private final String regex = "(ft:)?(gpt).*(vision).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     @Override
@@ -125,12 +125,12 @@ public class VisionCommand implements OpenAICommand {
             visionMessage.setRole(Role.user);
 
             for (UserQuery userQuery : userQueries) {
-                if (QueryType.text.equals(userQuery.getType())) {
+                if (QueryType.TEXT.equals(userQuery.getType())) {
                     UserTextContent userContent = new UserTextContent();
                     userContent.setType(TEXT_TYPE);
                     userContent.setText(userQuery.getContent());
                     visionMessage.getContent().add(userContent);
-                } else if (QueryType.image.equals(userQuery.getType())) {
+                } else if (QueryType.IMAGE.equals(userQuery.getType())) {
                     UserImageContent userContent = new UserImageContent();
                     userContent.setType(IMAGE_TYPE);
                     userContent.setImageUrl(new UserImageContent.ImageUrl(userQuery.getContent()));
@@ -160,9 +160,11 @@ public class VisionCommand implements OpenAICommand {
             List<VisionMessage> visionMessages = new ArrayList<>();
             for (Map<String, String> systemMessageMap : systemMessagesMap) {
                 VisionMessage visionMessage = new VisionMessage();
-                visionMessage.setRole(Role.system);
-                visionMessage.setContent(List.of(systemMessageMap.get(CONTENT)));
-                visionMessages.add(visionMessage);
+                if (StringUtils.hasText(systemMessageMap.get(CONTENT))) {
+                    visionMessage.setRole(Role.system);
+                    visionMessage.setContent(List.of(systemMessageMap.get(CONTENT)));
+                    visionMessages.add(visionMessage);
+                }
             }
             return visionMessages;
         } catch (Exception exception) {

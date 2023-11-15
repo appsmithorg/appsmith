@@ -14,7 +14,7 @@
       "configProperty": "actionConfiguration.formData.visionModel.data",
       "controlType": "DROP_DOWN",
       "initialValue": "",
-      "options": ["gpt-4-vision-preview"],
+      "options": [],
       "placeholderText": "All models will be fetched.",
       "fetchOptionsConditionally": true,
       "alternateViewTypes": ["json"],
@@ -32,20 +32,12 @@
       }
     },
     {
-      "label": "path to query",
-      "configProperty": "actionConfiguration.path",
-      "controlType": "INPUT_TEXT",
-      "initialValue": "/v1/chat/completions",
-      "isRequired": true,
-      "hidden": true
-    },
-    {
       "label": "Max Token",
       "tooltipText": "Max tokens to use for this assistant requests",
       "Description": "Put a positive integer value",
       "configProperty": "actionConfiguration.formData.maxTokens",
       "controlType": "INPUT_TEXT",
-      "initialValue": "1",
+      "initialValue": "16",
       "isRequired": true
     },
     {
@@ -79,12 +71,12 @@
     {
       "label": "User Messages",
       "tooltipText": "Provide User queries",
-      "subtitle": "A list of queries/images for Assistant",
+      "subtitle": "A list of user messages or images. You can pass a link to the image or the base64 encoded image directly in the request.",
       "propertyName": "userMessages",
       "isRequired": true,
       "configProperty": "actionConfiguration.formData.userMessages",
       "controlType": "ARRAY_FIELD",
-      "addMoreButtonLabel": "Add User Query/Image",
+      "addMoreButtonLabel": "Add User message or Image",
       "schema": [
         {
           "label": "Type",
@@ -105,7 +97,7 @@
           "label": "Content",
           "key": "content",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "{{ UserImage.image }} / {{ QueryInput.text }}"
+          "placeholderText": "\"{{Img1.image}} or {{Input1.text}}\""
         }
       ]
     }
