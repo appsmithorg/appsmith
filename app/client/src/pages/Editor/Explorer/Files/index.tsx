@@ -6,6 +6,7 @@ import {
   ADD_QUERY_JS_BUTTON,
   EMPTY_QUERY_JS_BUTTON_TEXT,
   EMPTY_QUERY_JS_MAIN_TEXT,
+  ADD_QUERY_JS_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -158,6 +159,7 @@ function Files() {
           openMenu={isMenuOpen}
           query={query}
           setQuery={setQuery}
+          tooltipText={createMessage(ADD_QUERY_JS_TOOLTIP)}
         />
       }
       entityId={pageId + "_actions"}
