@@ -65,6 +65,7 @@ import type { WrappedCodeEditorControlProps } from "./WrappedCodeEditorControl";
 import WrappedCodeEditorControl from "./WrappedCodeEditorControl";
 import DynamicPropertiesControl from "./HTMLDocumentBuilderControl";
 import CustomWidgetEditSourceButtonControl from "./CustomWidgetEditSourceButtonControl";
+import CustomWidgetAddEventButtonControl from "./CustomWidgetAddEventButtonControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -111,6 +112,7 @@ export const PropertyControls = {
   WrappedCodeEditorControl,
   DynamicPropertiesControl,
   CustomWidgetEditSourceButtonControl,
+  CustomWidgetAddEventButtonControl,
 };
 
 export type PropertyControlPropsType =

@@ -52,7 +52,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
   }
 
   static getControlType() {
-    return "CUSTOM_WIDGET_BUTTON_CONTROL";
+    return "CUSTOM_WIDGET_EDIT_BUTTON_CONTROL";
   }
 }
 

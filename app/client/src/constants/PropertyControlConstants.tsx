@@ -105,6 +105,7 @@ export interface PropertyPaneControlConfig {
     isToggleDisabled: boolean,
     triggerFlag?: boolean,
   ) => boolean;
+  controlConfig?: Record<string, unknown>;
 }
 
 interface ValidationConfigParams {
