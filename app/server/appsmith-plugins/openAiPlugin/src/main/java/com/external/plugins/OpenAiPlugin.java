@@ -114,7 +114,7 @@ public class OpenAiPlugin extends BasePlugin {
             final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
             assert (bearerTokenAuth.getBearerToken() != null);
 
-            return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.fromValue(requestBody))
+            return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.fromValue(openAIRequestDTO))
                     .flatMap(responseEntity -> {
                         HttpStatusCode statusCode = responseEntity.getStatusCode();
                         HttpHeaders headers = responseEntity.getHeaders();
