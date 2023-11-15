@@ -323,6 +323,8 @@ export const useCanvasDragging = (
             onMouseUp,
             false,
           );
+          // to make sure drops on the main canvas boundary buffer are processed
+          document.addEventListener("mouseup", onMouseUp);
           scrollParent?.addEventListener("scroll", onScroll, false);
         }
 
@@ -332,6 +334,7 @@ export const useCanvasDragging = (
             onMouseMove,
           );
           slidingArenaRef.current?.removeEventListener("mouseup", onMouseUp);
+          document.removeEventListener("mouseup", onMouseUp);
           scrollParent?.removeEventListener("scroll", onScroll);
         };
       } else {
