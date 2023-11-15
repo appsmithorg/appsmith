@@ -181,6 +181,7 @@ import localStorage from "utils/localStorage";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -2041,7 +2042,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree);
-  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
   try {
     let newWidget = {
       newWidgetId: generateReactKey(),
@@ -2069,26 +2070,39 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       bottomRow,
       parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     };
-
-    if (isAutoLayout) {
-      yield put({
-        type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
-        payload: {
-          dropPayload: {
-            isNewLayer: true,
-            alignment: FlexLayerAlignment.Start,
+    switch (layoutSystemType) {
+      case LayoutSystemTypes.AUTO:
+        yield put({
+          type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+          payload: {
+            dropPayload: {
+              isNewLayer: true,
+              alignment: FlexLayerAlignment.Start,
+            },
+            newWidget,
+            parentId: MAIN_CONTAINER_WIDGET_ID,
+            direction: LayoutDirection.Vertical,
+            addToBottom: true,
           },
-          newWidget,
-          parentId: MAIN_CONTAINER_WIDGET_ID,
-          direction: LayoutDirection.Vertical,
-          addToBottom: true,
-        },
-      });
-    } else {
-      yield put({
-        type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
-        payload: newWidget,
-      });
+        });
+        break;
+      case LayoutSystemTypes.ANVIL:
+        yield put(
+          addSuggestedWidgetAnvilAction({
+            newWidgetId: newWidget.newWidgetId,
+            rows: newWidget.rows,
+            columns: newWidget.columns,
+            type: newWidget.type,
+            ...widgetConfig,
+          }),
+        );
+        break;
+      default:
+        yield put({
+          type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
+          payload: newWidget,
+        });
+        break;
     }
 
     yield take(ReduxActionTypes.UPDATE_LAYOUT);

@@ -77,15 +77,40 @@ describe("rowHighlights tests", () => {
         },
       ];
       const dimensions: LayoutElementPositions = {
-        "0": { top: 0, left: 0, width: 200, height: 200 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 30, left: 220, width: 100, height: 30 },
+        "0": {
+          top: 0,
+          left: 0,
+          width: 200,
+          height: 200,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 30,
+          left: 220,
+          width: 100,
+          height: 30,
+          offsetLeft: 220,
+          offsetTop: 30,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "0",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -123,16 +148,48 @@ describe("rowHighlights tests", () => {
         },
       ];
       const dimensions: LayoutElementPositions = {
-        "0": { top: 0, left: 0, width: 300, height: 200 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 70, left: 10, width: 100, height: 30 },
-        "4": { top: 70, left: 110, width: 100, height: 80 },
+        "0": {
+          top: 0,
+          left: 0,
+          width: 300,
+          height: 200,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 70,
+          left: 10,
+          width: 100,
+          height: 30,
+          offsetLeft: 10,
+          offsetTop: 70,
+        },
+        "4": {
+          top: 70,
+          left: 110,
+          width: 100,
+          height: 80,
+          offsetLeft: 110,
+          offsetTop: 70,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "0",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -172,16 +229,48 @@ describe("rowHighlights tests", () => {
         },
       ];
       const dimensions: LayoutElementPositions = {
-        "0": { top: 0, left: 0, width: 200, height: 200 },
-        "1": { top: 70, left: 4, width: 100, height: 40 },
-        "2": { top: 70, left: 110, width: 100, height: 60 },
-        "3": { top: 0, left: 10, width: 100, height: 30 },
-        "4": { top: 0, left: 110, width: 100, height: 80 },
+        "0": {
+          top: 0,
+          left: 0,
+          width: 200,
+          height: 200,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 70,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 70,
+        },
+        "2": {
+          top: 70,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 70,
+        },
+        "3": {
+          top: 0,
+          left: 10,
+          width: 100,
+          height: 30,
+          offsetLeft: 10,
+          offsetTop: 0,
+        },
+        "4": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 80,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "0",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -230,15 +319,40 @@ describe("rowHighlights tests", () => {
         },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 340, height: 100 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 30, left: 220, width: 100, height: 30 },
+        layoutID: {
+          top: 0,
+          left: 0,
+          width: 340,
+          height: 100,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 30,
+          left: 220,
+          width: 100,
+          height: 30,
+          offsetLeft: 220,
+          offsetTop: 30,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "layoutID",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -293,15 +407,40 @@ describe("rowHighlights tests", () => {
         },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 340, height: 100 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 30, left: 220, width: 100, height: 30 },
+        layoutID: {
+          top: 0,
+          left: 0,
+          width: 340,
+          height: 100,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 30,
+          left: 220,
+          width: 100,
+          height: 30,
+          offsetLeft: 220,
+          offsetTop: 30,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "layoutID",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -359,15 +498,40 @@ describe("rowHighlights tests", () => {
         },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 230, height: 100 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 70, left: 10, width: 100, height: 30 },
+        layoutID: {
+          top: 0,
+          left: 0,
+          width: 230,
+          height: 100,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 70,
+          left: 10,
+          width: 100,
+          height: 30,
+          offsetLeft: 10,
+          offsetTop: 70,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "layoutID",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -428,15 +592,40 @@ describe("rowHighlights tests", () => {
         },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 230, height: 100 },
-        "1": { top: 40, left: 4, width: 100, height: 40 },
-        "2": { top: 40, left: 110, width: 100, height: 60 },
-        "3": { top: 0, left: 10, width: 100, height: 30 },
+        layoutID: {
+          top: 0,
+          left: 0,
+          width: 230,
+          height: 100,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 40,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 40,
+        },
+        "2": {
+          top: 40,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 40,
+        },
+        "3": {
+          top: 0,
+          left: 10,
+          width: 100,
+          height: 30,
+          offsetLeft: 10,
+          offsetTop: 0,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "layoutID",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -488,7 +677,14 @@ describe("rowHighlights tests", () => {
         layout: [],
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
+        [layout.layoutId]: {
+          height: 100,
+          left: 10,
+          top: 10,
+          width: 500,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
@@ -520,7 +716,14 @@ describe("rowHighlights tests", () => {
         },
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
+        [layout.layoutId]: {
+          height: 100,
+          left: 10,
+          top: 10,
+          width: 500,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
@@ -556,7 +759,14 @@ describe("rowHighlights tests", () => {
         },
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
+        [layout.layoutId]: {
+          height: 100,
+          left: 10,
+          top: 10,
+          width: 500,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
@@ -629,13 +839,62 @@ describe("rowHighlights tests", () => {
        * Create a map of widget positions.
        */
       const positions: LayoutElementPositions = {
-        [layoutOne.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
-        [button1]: { height: 40, left: 10, top: 10, width: 100 },
-        [input1]: { height: 100, left: 60, top: 10, width: 430 },
-        [layoutTwo.layoutId]: { height: 100, left: 510, top: 10, width: 500 },
-        [button2]: { height: 40, left: 10, top: 10, width: 100 },
-        [input2]: { height: 100, left: 60, top: 10, width: 430 },
-        [layout.layoutId]: { height: 100, left: 0, top: 0, width: 1020 },
+        [layoutOne.layoutId]: {
+          height: 100,
+          left: 10,
+          top: 10,
+          width: 500,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [button1]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input1]: {
+          height: 100,
+          left: 60,
+          top: 10,
+          width: 430,
+          offsetLeft: 60,
+          offsetTop: 10,
+        },
+        [layoutTwo.layoutId]: {
+          height: 100,
+          left: 510,
+          top: 10,
+          width: 500,
+          offsetLeft: 510,
+          offsetTop: 10,
+        },
+        [button2]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input2]: {
+          height: 100,
+          left: 60,
+          top: 10,
+          width: 430,
+          offsetLeft: 60,
+          offsetTop: 10,
+        },
+        [layout.layoutId]: {
+          height: 100,
+          left: 0,
+          top: 0,
+          width: 1020,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
@@ -676,9 +935,30 @@ describe("rowHighlights tests", () => {
        * Create a map of widget positions.
        */
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 100, left: 0, top: 10, width: 500 },
-        [button1]: { height: 40, left: 10, top: 10, width: 100 },
-        [input1]: { height: 100, left: 120, top: 10, width: 370 },
+        [layout.layoutId]: {
+          height: 100,
+          left: 0,
+          top: 10,
+          width: 500,
+          offsetLeft: 0,
+          offsetTop: 10,
+        },
+        [button1]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input1]: {
+          height: 100,
+          left: 120,
+          top: 10,
+          width: 370,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
       };
 
       /**

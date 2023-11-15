@@ -51,10 +51,7 @@ export function deriveHighlights(
     if (layout?.length + draggedWidgets.length > maxChildLimit) return [];
   }
 
-  const getDimensions: GetDimensions = getRelativeDimensions(
-    layoutProps.isDropTarget ? layoutProps.layoutId : parentDropTargetId,
-    widgetPositions,
-  );
+  const getDimensions: GetDimensions = getRelativeDimensions(widgetPositions);
   // If layout is empty, return an initial set of highlights to demarcate the starting position.
   if (!layoutProps.layout?.length) {
     return getInitialHighlights(
