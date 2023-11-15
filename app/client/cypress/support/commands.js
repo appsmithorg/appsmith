@@ -33,7 +33,7 @@ const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
-// import { featureFlagIntercept } from "./Objects/FeatureFlags";
+import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -1199,7 +1199,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   }).as("postTenant");
   cy.intercept("PUT", "/api/v1/git/discard/app/*").as("discardChanges");
   cy.intercept("GET", "/api/v1/libraries/*").as("getLibraries");
-  // featureFlagIntercept({}, false);
+  featureFlagIntercept({}, false);
   cy.intercept(
     {
       method: "GET",
@@ -1659,16 +1659,16 @@ Cypress.Commands.add(
 
     cy.xpath(
       "//div[text()='" +
-      entityNameinLeftSidebar +
-      "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]",
+        entityNameinLeftSidebar +
+        "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]",
     )
       .last()
       .click({ force: true });
 
     cy.xpath(
       "//div[text()='" +
-      action +
-      "']/ancestor::a[contains(@class, 'single-select')]",
+        action +
+        "']/ancestor::a[contains(@class, 'single-select')]",
     )
       .click({ force: true })
       .wait(500);
@@ -1676,8 +1676,8 @@ Cypress.Commands.add(
     if (subAction) {
       cy.xpath(
         "//div[text()='" +
-        subAction +
-        "']/parent::a[contains(@class, 'single-select')]",
+          subAction +
+          "']/parent::a[contains(@class, 'single-select')]",
       )
         .click({ force: true })
         .wait(500);
@@ -1693,8 +1693,8 @@ Cypress.Commands.add(
 Cypress.Commands.add("selectEntityByName", (entityNameinLeftSidebar) => {
   cy.xpath(
     "//div[contains(@class, 't--entity-name')][text()='" +
-    entityNameinLeftSidebar +
-    "']",
+      entityNameinLeftSidebar +
+      "']",
   )
     .last()
     .click({ force: true })
@@ -1752,8 +1752,8 @@ cy.all = function (...commands) {
         return cmd[chainStart]
           ? cmd[chainStart].attributes
           : _.find(cy.queue.get(), {
-            attributes: { chainerId: cmd.chainerId },
-          }).attributes;
+              attributes: { chainerId: cmd.chainerId },
+            }).attributes;
       })
       .concat(stopCommand.attributes)
       .slice(1)
@@ -1785,8 +1785,8 @@ Cypress.Commands.add("VerifyErrorMsgAbsence", (errorMsgToVerifyAbsence) => {
   //cy.wait(10000)
   cy.xpath(
     "//div[@class='Toastify']//span[contains(text(),'" +
-    errorMsgToVerifyAbsence +
-    "')]",
+      errorMsgToVerifyAbsence +
+      "')]",
     { timeout: 0 },
   ).should("not.exist");
 });
@@ -1796,8 +1796,8 @@ Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
   //cy.wait(10000)
   cy.xpath(
     "//div[@class='Toastify']//span[contains(text(),'" +
-    errorMsgToVerifyAbsence +
-    "')]",
+      errorMsgToVerifyAbsence +
+      "')]",
     { timeout: 0 },
   ).should("exist");
 });
