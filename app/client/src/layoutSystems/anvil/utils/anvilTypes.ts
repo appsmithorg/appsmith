@@ -175,6 +175,7 @@ export type GetLayoutHighlights = (
   canvasId: string,
   layoutOrder: string[],
   parentDropTargetId: string,
+  isReorderingWidgets: boolean,
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
@@ -192,6 +193,7 @@ export type DeriveHighlightsFn = (
 export type GetHighlights = (
   widgetPositions: LayoutElementPositions,
   draggedWidgets: DraggedWidget[],
+  isReorderingWidgets: boolean,
 ) => AnvilHighlightInfo[];
 
 export type UpdateHighlights = (

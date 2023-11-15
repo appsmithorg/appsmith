@@ -47,6 +47,7 @@ export const deriveRowHighlights =
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
+    isReorderingWidgets: boolean,
   ): AnvilHighlightInfo[] => {
     if (
       !layoutProps ||
@@ -62,7 +63,11 @@ export const deriveRowHighlights =
     /**
      * Step 1: Check if draggedWidgets will exceed the maxChildLimit of the layout.
      */
-    if (maxChildLimit !== undefined && maxChildLimit > 0) {
+    if (
+      !isReorderingWidgets &&
+      maxChildLimit !== undefined &&
+      maxChildLimit > 0
+    ) {
       if (layout?.length + draggedWidgets.length > maxChildLimit) return [];
     }
 
@@ -114,6 +119,7 @@ export const deriveRowHighlights =
         draggedWidgets,
         layoutOrder,
         parentDropTargetId,
+        isReorderingWidgets,
         getDimensions,
       );
     }
@@ -341,6 +347,7 @@ export function getHighlightsForLayoutRow(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
   parentDropTargetId: string,
+  isReorderingWidgets: boolean,
   getDimensions: GetDimensions,
 ): AnvilHighlightInfo[] {
   let highlights: AnvilHighlightInfo[] = [];
@@ -374,7 +381,7 @@ export function getHighlightsForLayoutRow(
       canvasId,
       [...layoutOrder, layout[index].layoutId],
       parentDropTargetId,
-    )(positions, draggedWidgets);
+    )(positions, draggedWidgets, isReorderingWidgets);
 
     if (layoutHighlights.length) {
       // Add a highlight before the child layout

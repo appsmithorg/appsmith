@@ -65,13 +65,17 @@ describe("AlignedRow highlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(dimensions, [
-        {
-          widgetId: "10",
-          type: "BUTTON_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Hug,
-        },
-      ]);
+      )(
+        dimensions,
+        [
+          {
+            widgetId: "10",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
+        false,
+      );
 
       expect(res.length).toEqual(3);
 
@@ -133,13 +137,17 @@ describe("AlignedRow highlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(dimensions, [
-        {
-          widgetId: "10",
-          type: "BUTTON_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Hug,
-        },
-      ]);
+      )(
+        dimensions,
+        [
+          {
+            widgetId: "10",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
+        false,
+      );
 
       expect(res.length).toEqual(3);
 
@@ -227,13 +235,17 @@ describe("AlignedRow highlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(dimensions, [
-        {
-          widgetId: "10",
-          type: "BUTTON_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Hug,
-        },
-      ]);
+      )(
+        dimensions,
+        [
+          {
+            widgetId: "10",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
+        false,
+      );
 
       expect(res.length).toEqual(5);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);

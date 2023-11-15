@@ -33,13 +33,17 @@ describe("AlignedColumnHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, [
-        {
-          widgetId: "random",
-          type: "BUTTON_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Hug,
-        },
-      ]);
+      )(
+        positions,
+        [
+          {
+            widgetId: "random",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
+        false,
+      );
       const highlightWidth: number = positions[layout.layoutId].width / 3;
       expect(res.length).toEqual(3);
       // Each highlight should be of equal width = 1/3 width of the layout.
@@ -65,13 +69,17 @@ describe("AlignedColumnHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, [
-        {
-          widgetId: "1",
-          type: "INPUT_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Fill,
-        },
-      ]);
+      )(
+        positions,
+        [
+          {
+            widgetId: "1",
+            type: "INPUT_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Fill,
+          },
+        ],
+        false,
+      );
 
       expect(res.length).toEqual(1);
       expect(res[0].width).toEqual(positions[layout.layoutId].width);
@@ -93,13 +101,17 @@ describe("AlignedColumnHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, [
-        {
-          widgetId: "1",
-          type: "BUTTON_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Hug,
-        },
-      ]);
+      )(
+        positions,
+        [
+          {
+            widgetId: "1",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
+        false,
+      );
 
       expect(res.length).toEqual(9);
 
@@ -136,13 +148,17 @@ describe("AlignedColumnHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, [
-        {
-          widgetId: "1",
-          type: "BUTTON_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Hug,
-        },
-      ]);
+      )(
+        positions,
+        [
+          {
+            widgetId: "1",
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
+        false,
+      );
 
       // Top of first set of highlights should span the empty space above the first widget.
       expect(res[0].dropZone.top).toEqual(
@@ -182,13 +198,17 @@ describe("AlignedColumnHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, [
-        {
-          widgetId: "1",
-          type: "INPUT_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Fill,
-        },
-      ]);
+      )(
+        positions,
+        [
+          {
+            widgetId: "1",
+            type: "INPUT_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Fill,
+          },
+        ],
+        false,
+      );
 
       expect(res.length).toEqual(3);
       // First highlight before the first widget.
@@ -220,13 +240,17 @@ describe("AlignedColumnHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, [
-        {
-          widgetId: input,
-          type: "INPUT_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Fill,
-        },
-      ]);
+      )(
+        positions,
+        [
+          {
+            widgetId: input,
+            type: "INPUT_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Fill,
+          },
+        ],
+        false,
+      );
 
       // Highlight for the dragged widget's position should be discounted.
       expect(res.length).toEqual(2);
@@ -259,13 +283,17 @@ describe("AlignedColumnHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, [
-        {
-          widgetId: button,
-          type: "BUTTON_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Hug,
-        },
-      ]);
+      )(
+        positions,
+        [
+          {
+            widgetId: button,
+            type: "BUTTON_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Hug,
+          },
+        ],
+        false,
+      );
 
       // Highlight for the dragged widget's position should be discounted.
       expect(res.length).toEqual(6);
@@ -322,13 +350,17 @@ describe("AlignedColumnHighlights tests", () => {
         "0",
         [],
         column.layoutId,
-      )(dimensions, [
-        {
-          widgetId: "1",
-          type: "INPUT_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Fill,
-        },
-      ]);
+      )(
+        dimensions,
+        [
+          {
+            widgetId: "1",
+            type: "INPUT_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Fill,
+          },
+        ],
+        false,
+      );
 
       /**
        * # of highlights:
@@ -407,13 +439,17 @@ describe("AlignedColumnHighlights tests", () => {
         "0",
         [],
         column.layoutId,
-      )(dimensions, [
-        {
-          widgetId: "1",
-          type: "INPUT_WIDGET",
-          responsiveBehavior: ResponsiveBehavior.Fill,
-        },
-      ]);
+      )(
+        dimensions,
+        [
+          {
+            widgetId: "1",
+            type: "INPUT_WIDGET",
+            responsiveBehavior: ResponsiveBehavior.Fill,
+          },
+        ],
+        false,
+      );
 
       /**
        * # of highlights:
