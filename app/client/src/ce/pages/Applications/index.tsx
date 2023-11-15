@@ -32,7 +32,6 @@ import {
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
-import SubHeader from "pages/common/SubHeader";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -69,7 +68,6 @@ import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
-  SEARCH_APPS,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
 
@@ -855,13 +853,13 @@ export class Applications<
         <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
           {(matches: boolean) => (
             <ApplicationsWrapper isMobile={matches}>
-              <SubHeader
+              {/* <SubHeader
                 search={{
                   placeholder: createMessage(SEARCH_APPS),
                   queryFn: this.props.searchApplications,
                   defaultValue: this.props.searchKeyword,
                 }}
-              />
+              /> */}
               <ApplicationsSection searchKeyword={this.props.searchKeyword} />
               <RepoLimitExceededErrorModal />
             </ApplicationsWrapper>
