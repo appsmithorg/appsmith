@@ -80,9 +80,9 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
-  getModulesData,
   getLayoutSystemPayload,
   getLoadingEntities,
+  getModulesData,
   (
     currentActionEntities,
     widgets,
@@ -93,9 +93,9 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
-    modulesData,
     layoutSystemPayload,
     loadingEntities,
+    modulesData,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -108,9 +108,9 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
-      ...modulesData,
       loadingEntities,
       ...layoutSystemPayload,
+      ...modulesData,
     });
   },
 );
