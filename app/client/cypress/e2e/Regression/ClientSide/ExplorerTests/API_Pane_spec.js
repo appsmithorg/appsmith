@@ -24,18 +24,9 @@ describe("Entity explorer API pane related testcases", function () {
       locator._visibleTextSpan("No query/JS to display"),
     );
     agHelper.AssertElementVisibility(locator._visibleTextSpan("New query/JS"));
-
-    ee.ExpandCollapseEntity("Datasources");
-    agHelper.AssertElementVisibility(
-      locator._visibleTextSpan("No datasource to display"),
-    );
-    agHelper.AssertElementVisibility(
-      locator._visibleTextSpan("New datasource"),
-    );
   });
 
   it("2. Move to page / edit API name /properties validation", function () {
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.SaveAndRunAPI();

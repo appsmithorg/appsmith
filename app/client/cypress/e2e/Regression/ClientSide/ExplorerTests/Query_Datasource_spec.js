@@ -1,6 +1,8 @@
 /// <reference types="Cypress" />
 
-const datasource = require("../../../../locators/DatasourcesEditor.json");
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
@@ -52,26 +54,14 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.testSaveDatasource();
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
-    /* eslint-disable */
-    cy.wait(2000);
-    cy.NavigateToQueryEditor();
-    cy.CheckAndUnfoldEntityItem("Datasources");
-    cy.contains(".t--entity-name", datasourceName).click();
-
-    cy.get(".t--edit-datasource-name").click();
-    cy.get(".t--edit-datasource-name input")
-      .clear()
-      .type(`${datasourceName}new`, { force: true })
-      .blur();
-
-    cy.contains(commonlocators.entityName, `${datasourceName}new`);
+    dataSources.navigateToDatasource(datasourceName);
+    agHelper.RenameWithInPane(`${datasourceName}new`, false);
+    cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
 
     // reverting the name
-    cy.get(".t--edit-datasource-name").click();
-    cy.get(".t--edit-datasource-name input")
-      .clear()
-      .type(`${datasourceName}`, { force: true })
-      .blur();
+    agHelper.RenameWithInPane(datasourceName, false);
+
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
     // going  to the query create page
     cy.CheckAndUnfoldEntityItem("Queries/JS");
@@ -122,6 +112,6 @@ describe("Entity explorer tests related to query and datasource", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName);
   });
 });

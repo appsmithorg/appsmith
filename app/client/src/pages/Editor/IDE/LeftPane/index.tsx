@@ -16,6 +16,7 @@ import {
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 const LeftPaneContainer = styled.div`
   height: 100%;
@@ -27,7 +28,8 @@ const LeftPaneContainer = styled.div`
 const LeftPane = () => {
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
   const { path } = useRouteMatch();
-  if (!isAppSidebarEnabled) {
+  const guidedTourEnabled = useSelector(inGuidedTour);
+  if (!isAppSidebarEnabled || guidedTourEnabled) {
     return <WidgetsEditorEntityExplorer />;
   }
   return (

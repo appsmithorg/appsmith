@@ -9,7 +9,6 @@ const tooltTipQuery = `.rc-tooltip.ads-v2-tooltip:not(.rc-tooltip-hidden) > .rc-
 describe("Entity Explorer showing tooltips on long names", function () {
   it("1. Expect tooltip on long names only", function () {
     // create an API with a short name
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI(shortName);
     ee.ExpandCollapseEntity("Queries/JS", true);
     // assert that a tooltip does not show up during hover
@@ -19,7 +18,6 @@ describe("Entity Explorer showing tooltips on long names", function () {
     cy.get("body").realHover({ position: "topLeft" });
 
     // create another API with a long name
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI(longName);
 
     // assert that a tooltip does show up during hover
