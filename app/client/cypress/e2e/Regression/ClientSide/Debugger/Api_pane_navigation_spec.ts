@@ -21,7 +21,7 @@ describe("excludeForAirgap", "Api pane navigation", () => {
 
     apiPage.SelectPaneTab("Headers");
     apiPage.EnterHeader("test", "test");
-    debuggerHelper.AssertErrorCount(1);
+    debuggerHelper.AssertErrorCount(2);
     entityExplorer.NavigateToSwitcher("Widgets");
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClicklogEntityLink();
@@ -46,7 +46,7 @@ describe("excludeForAirgap", "Api pane navigation", () => {
     });
     apiPage.SelectPaneTab("Headers");
     entityExplorer.NavigateToSwitcher("Widgets");
-    debuggerHelper.AssertErrorCount(1);
+    debuggerHelper.AssertErrorCount(2);
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClicklogEntityLink();
 
