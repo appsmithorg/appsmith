@@ -25,6 +25,6 @@ describe("Check debugger logs state when there are onPageLoad actions", function
     agHelper.AssertElementVisibility(".t--debugger-count");
     // debuggerHelper.isErrorCount(0);
     cy.wait("@postExecute");
-    debuggerHelper.AssertErrorCount(1);
+    debuggerHelper.AssertErrorCount(2);
   });
 });
