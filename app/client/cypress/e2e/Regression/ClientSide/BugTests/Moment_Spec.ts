@@ -121,7 +121,6 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       agHelper.WaitUntilAllToastsDisappear();
       deployMode.DeployApp(locators._widgetInDeployed("tablewidget"), false);
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Datasources");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );

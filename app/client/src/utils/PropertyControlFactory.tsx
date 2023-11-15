@@ -38,6 +38,7 @@ class PropertyControlFactory {
     },
     additionalAutoComplete?: AdditionalDynamicDataTree,
     hideEvaluatedValue?: boolean,
+    isSearchResult?: boolean,
   ): JSX.Element {
     let controlBuilder;
     let evaluatedValue = controlData.evaluatedValue;
@@ -68,6 +69,7 @@ class PropertyControlFactory {
         additionalControlData: {
           shouldFocusOnJSControl: jsControl.shouldFocusOnJSControl,
         },
+        isSearchResult,
       };
 
       const control = controlBuilder.buildPropertyControl(controlProps);

@@ -16,6 +16,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 const CLIPID = "clip__feature";
 const Z_INDEX = 1000;
 
+const WalkthroughDescription = styled.div`
+  // CSS to add new line for each \n in the description
+  white-space: pre-line;
+`;
+
 const WalkthroughWrapper = styled.div<{ overlayColor?: string }>`
   left: 0px;
   top: 0px;
@@ -300,9 +305,9 @@ const InstructionsComponent = ({
           startIcon="close-line"
         />
       </InstructionsHeaderWrapper>
-      {details.description && (
-        <div dangerouslySetInnerHTML={{ __html: details.description }} />
-      )}
+      <WalkthroughDescription
+        dangerouslySetInnerHTML={{ __html: details.description }}
+      />
       {details.imageURL && (
         <ImageWrapper>
           <img src={details.imageURL} />

@@ -4,6 +4,9 @@ import {
   apiPage,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let APIName;
 const testUrl1 =
@@ -16,12 +19,11 @@ const testUrl3 =
 describe("API Panel Test Functionality ", function () {
   it("1. Test Search API fetaure", function () {
     cy.log("Login Successful");
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.generateUUID().then((uid) => {
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       cy.CreateAPI(`FirstAPI_${uid}`);
       cy.log("Creation of FirstAPI Action successful");
-      cy.NavigateToAPI_Panel();
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       cy.CreateAPI(`SecondAPI_${uid}`);
       cy.CheckAndUnfoldEntityItem("Queries/JS");
       cy.log("Creation of SecondAPI Action successful");
@@ -54,7 +56,6 @@ describe("API Panel Test Functionality ", function () {
     cy.checkIfApiPaneIsVisible();
   });
   it("3. Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function () {
-    cy.NavigateToAPI_Panel();
     cy.generateUUID().then((uid) => {
       APIName = uid;
       cy.CreateAPI(APIName);
