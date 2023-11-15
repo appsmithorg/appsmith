@@ -43,6 +43,7 @@ class WidgetColumn extends BaseLayoutComponent {
       layoutIndex,
       layoutStyle,
       layoutType,
+      parentDropTarget,
       renderMode,
     } = this.props;
 
@@ -54,6 +55,7 @@ class WidgetColumn extends BaseLayoutComponent {
         layoutId={layoutId}
         layoutIndex={layoutIndex}
         layoutType={layoutType}
+        parentDropTarget={parentDropTarget}
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >

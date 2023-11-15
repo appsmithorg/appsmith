@@ -5,6 +5,7 @@ import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { debounce } from "lodash";
 import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilDnDStates } from "./useAnvilDnDStates";
@@ -29,6 +30,8 @@ const checkIfMousePositionIsInsideBlock = (
   );
 };
 
+const MAIN_CANVAS_BUFFER = 20;
+
 export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
   const {
     activateOverlayWidgetDrop,
@@ -52,6 +55,7 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
   const areZonesDragged = draggedBlocks.every(
     (each) => each.type === "ZONE_WIDGET",
   );
+  const debouncedSetDraggingCanvas = debounce(setDraggingCanvas);
   /**
    * boolean ref that indicates if the mouse position is outside of main canvas while dragging
    * this is being tracked in order to activate/deactivate canvas.
@@ -61,6 +65,7 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
     isMouseOutOfMainCanvas.current = true;
     setDraggingCanvas();
   };
+  const debouncedMouseOutOfCanvasArtBoard = debounce(mouseOutOfCanvasArtBoard);
 
   /**
    * all layouts registered on the position observer.
@@ -83,7 +88,7 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
    * layoutIds that are supported to drop while dragging.
    * when dragging an AnvilOverlayWidgetTypes widget only the main canvas is supported for dropping.
    */
-  const filteredLayoutIds = activateOverlayWidgetDrop
+  const filteredLayoutIds: string[] = activateOverlayWidgetDrop
     ? allLayoutIds.filter((each) => each === mainCanvasLayoutDomId)
     : allLayoutIds;
   /**
@@ -140,7 +145,13 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
       const hoveredCanvas = isMousePositionOutsideOfDraggingWidgets
         ? dragDetails.dragGroupActualParent
         : smallToLargeSortedDroppableLayoutIds.find((each) => {
-            const currentCanvasPositions = layoutElementPositions[each];
+            const currentCanvasPositions = { ...layoutElementPositions[each] };
+            if (each === mainCanvasLayoutId) {
+              currentCanvasPositions.left -= MAIN_CANVAS_BUFFER;
+              currentCanvasPositions.top -= MAIN_CANVAS_BUFFER;
+              currentCanvasPositions.width += 2 * MAIN_CANVAS_BUFFER;
+              currentCanvasPositions.height += 2 * MAIN_CANVAS_BUFFER;
+            }
             if (currentCanvasPositions) {
               return checkIfMousePositionIsInsideBlock(
                 e,
@@ -152,9 +163,9 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
       if (dragDetails.draggedOn !== hoveredCanvas) {
         if (hoveredCanvas) {
           isMouseOutOfMainCanvas.current = false;
-          setDraggingCanvas(hoveredCanvas);
+          debouncedSetDraggingCanvas(hoveredCanvas);
         } else {
-          mouseOutOfCanvasArtBoard();
+          debouncedMouseOutOfCanvasArtBoard();
         }
       }
     }
@@ -189,6 +200,6 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
     isDragging,
     onMouseMoveWhileDragging,
     onMouseUp,
-    mouseOutOfCanvasArtBoard,
+    debouncedMouseOutOfCanvasArtBoard,
   ]);
 };

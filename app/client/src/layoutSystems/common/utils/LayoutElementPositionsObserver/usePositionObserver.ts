@@ -22,6 +22,7 @@ export function usePositionObserver(
     widgetId?: string;
     layoutId?: string;
     canvasId?: string;
+    parentDropTarget?: string;
     isDropTarget?: boolean;
     layoutType?: LayoutComponentTypes;
   },
@@ -45,7 +46,7 @@ export function usePositionObserver(
         case "widget":
           if (ids.widgetId === undefined)
             throw Error("Failed to observe widget: widgetId is undefined");
-          positionObserver.observeWidget(ids.widgetId, ref);
+          positionObserver.observeWidget(ids.widgetId, ids.layoutId || "", ref);
           break;
         case "layout":
           if (ids.layoutId === undefined)
@@ -55,6 +56,7 @@ export function usePositionObserver(
           positionObserver.observeLayout(
             ids.layoutId,
             ids.canvasId,
+            ids.parentDropTarget || "",
             !!ids.isDropTarget,
             ids.layoutType || LayoutComponentTypes.WIDGET_ROW,
             ref,

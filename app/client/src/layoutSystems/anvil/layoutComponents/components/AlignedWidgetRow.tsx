@@ -36,6 +36,7 @@ class AlignedWidgetRow extends BaseLayoutComponent {
       layoutIndex,
       layoutStyle,
       layoutType,
+      parentDropTarget,
       renderMode,
     } = this.props;
 
@@ -49,6 +50,7 @@ class AlignedWidgetRow extends BaseLayoutComponent {
         layoutId={layoutId}
         layoutIndex={layoutIndex}
         layoutType={layoutType}
+        parentDropTarget={parentDropTarget}
         renderMode={renderMode}
         wrap="wrap"
         {...(layoutStyle || {})}

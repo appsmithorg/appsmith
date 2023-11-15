@@ -6,10 +6,10 @@ import {
   APP_SETTINGS_PANE_HEADER,
 } from "@appsmith/constants/messages";
 import { Tooltip } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Button } from "design-system";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 import classNames from "classnames";
+import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
 
 const StyledHeader = styled.div`
   height: 48px;
@@ -25,7 +25,7 @@ const StyledText = styled.div`
 
 function PaneHeader() {
   const dispatch = useDispatch();
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   return (
     <StyledHeader

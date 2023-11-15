@@ -42,6 +42,7 @@ class AlignedLayoutColumn extends BaseLayoutComponent {
       layoutIndex,
       layoutStyle,
       layoutType,
+      parentDropTarget,
       renderMode,
     } = this.props;
 
@@ -53,6 +54,7 @@ class AlignedLayoutColumn extends BaseLayoutComponent {
         layoutId={layoutId}
         layoutIndex={layoutIndex}
         layoutType={layoutType}
+        parentDropTarget={parentDropTarget}
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >

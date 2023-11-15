@@ -28,19 +28,14 @@ import type {
 } from "layoutSystems/common/types";
 
 export const deriveAlignedRowHighlights =
-  (
-    layoutProps: LayoutProps,
-    canvasId: string,
-    layoutOrder: string[],
-    parentDropTarget: string,
-  ) =>
+  (layoutProps: LayoutProps, canvasId: string, layoutOrder: string[]) =>
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
     isReorderingWidgets: boolean,
   ): AnvilHighlightInfo[] => {
     if (!draggedWidgets.length || !positions[layoutProps.layoutId]) return [];
-    const { isDropTarget, layout, layoutId, maxChildLimit } = layoutProps;
+    const { layout, maxChildLimit } = layoutProps;
 
     /**
      * Step 1: Check if draggedWidgets will exceed the maxChildLimit of the layout.
@@ -53,12 +48,8 @@ export const deriveAlignedRowHighlights =
       if (layout?.length + draggedWidgets.length > maxChildLimit) return [];
     }
 
-    const parentDropTargetId: string = isDropTarget
-      ? layoutId
-      : parentDropTarget;
-
     const getDimensions: (id: string) => LayoutElementPosition =
-      getRelativeDimensions(parentDropTargetId, positions);
+      getRelativeDimensions(positions);
 
     /**
      * Step 2: Construct a base highlight.

@@ -1,7 +1,6 @@
 import React from "react";
 import WidgetsEditorEntityExplorer from "../../WidgetsEditorEntityExplorer";
 import { useSelector } from "react-redux";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
@@ -17,6 +16,7 @@ import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
 
 const LeftPaneContainer = styled.div`
   height: 100%;
@@ -26,7 +26,7 @@ const LeftPaneContainer = styled.div`
 `;
 
 const LeftPane = () => {
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const { path } = useRouteMatch();
   const guidedTourEnabled = useSelector(inGuidedTour);
   if (!isAppSidebarEnabled || guidedTourEnabled) {

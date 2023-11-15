@@ -1,8 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
-import {
-  getIsAppSidebarAnnouncementEnabled,
-  getIsAppSidebarEnabled,
-} from "selectors/ideSelectors";
+import { getIsAppSidebarAnnouncementEnabled } from "selectors/ideSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import SidebarButton from "./SidebarButton";
@@ -20,6 +17,7 @@ import {
   Button,
 } from "design-system";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
 
 const Container = styled.div`
   width: 50px;
@@ -44,7 +42,7 @@ function Sidebar() {
   const dispatch = useDispatch();
   const appState = useCurrentAppState();
   const [isPopoverOpen, setIsPopoverOpen] = useState(true);
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const isAppSidebarAnnouncementEnabled = useSelector(
     getIsAppSidebarAnnouncementEnabled,
   );

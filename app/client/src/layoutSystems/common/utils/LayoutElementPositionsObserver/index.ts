@@ -23,10 +23,16 @@ import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes"
  * Whenever any of the registered elements changes size, the ResizeObserver triggers
  * This class then triggers a process call which is debounced.
  */
+type LayoutOrderArray = string[];
+
 class LayoutElementPositionObserver {
   // Objects to store registered elements
   private registeredWidgets: {
-    [widgetDOMId: string]: { ref: RefObject<HTMLDivElement>; id: string };
+    [widgetDOMId: string]: {
+      ref: RefObject<HTMLDivElement>;
+      id: string;
+      layoutId: string;
+    };
   } = {};
 
   private registeredLayouts: {
@@ -34,10 +40,13 @@ class LayoutElementPositionObserver {
       ref: RefObject<HTMLDivElement>;
       layoutId: string;
       canvasId: string;
+      parentDropTarget: string;
       isDropTarget: boolean;
       layoutType: LayoutComponentTypes;
     };
   } = {};
+
+  private dropTargetsDomIdsOrder: LayoutOrderArray = [];
 
   private mutationOptions: MutationObserverInit = {
     attributes: true,
@@ -77,11 +86,15 @@ class LayoutElementPositionObserver {
   );
 
   //Method to register widgets for resize observer changes
-  public observeWidget(widgetId: string, ref: RefObject<HTMLDivElement>) {
+  public observeWidget(
+    widgetId: string,
+    layoutId: string,
+    ref: RefObject<HTMLDivElement>,
+  ) {
     if (ref.current) {
       if (!this.registeredWidgets.hasOwnProperty(widgetId)) {
         const widgetDOMId = getAnvilWidgetDOMId(widgetId);
-        this.registeredWidgets[widgetDOMId] = { ref, id: widgetId };
+        this.registeredWidgets[widgetDOMId] = { ref, id: widgetId, layoutId };
         this.resizeObserver.observe(ref.current);
         this.mutationObserver.observe(ref.current, this.mutationOptions);
       }
@@ -107,6 +120,7 @@ class LayoutElementPositionObserver {
   public observeLayout(
     layoutId: string,
     canvasId: string,
+    parentDropTarget: string,
     isDropTarget: boolean,
     layoutType: LayoutComponentTypes,
     ref: RefObject<HTMLDivElement>,
@@ -119,9 +133,24 @@ class LayoutElementPositionObserver {
             ref,
             canvasId,
             layoutId,
+            parentDropTarget,
             isDropTarget,
             layoutType,
           };
+        if (
+          isDropTarget &&
+          !this.dropTargetsDomIdsOrder.includes(layoutDOMId)
+        ) {
+          const parentIndex = this.dropTargetsDomIdsOrder.findIndex(
+            (each) => each === parentDropTarget,
+          );
+          if (parentIndex === -1) {
+            // main canvas drop target
+            this.dropTargetsDomIdsOrder.push(layoutDOMId);
+          } else {
+            this.dropTargetsDomIdsOrder.splice(parentIndex, 0, layoutDOMId);
+          }
+        }
         this.resizeObserver.observe(ref.current);
         this.mutationObserver.observe(ref.current, this.mutationOptions);
       }
@@ -130,11 +159,20 @@ class LayoutElementPositionObserver {
 
   //Method to de register layouts for resize observer changes
   public unObserveLayout(layoutDOMId: string) {
-    const element = this.registeredLayouts[layoutDOMId]?.ref?.current;
+    const layoutObj = this.registeredLayouts[layoutDOMId];
+    const element = layoutObj?.ref?.current;
     if (element) {
       this.resizeObserver.unobserve(element);
     }
-
+    const { isDropTarget } = layoutObj;
+    if (isDropTarget) {
+      const layoutIndex = this.dropTargetsDomIdsOrder.findIndex(
+        (each) => each === layoutDOMId,
+      );
+      if (layoutIndex !== -1) {
+        this.dropTargetsDomIdsOrder.splice(layoutIndex, 1);
+      }
+    }
     delete this.registeredLayouts[layoutDOMId];
     store.dispatch(
       deleteLayoutElementPositions([
@@ -179,6 +217,10 @@ class LayoutElementPositionObserver {
   // Getters for registered elements
   public getRegisteredLayouts() {
     return this.registeredLayouts;
+  }
+
+  public getDropTargetDomIdsOrder() {
+    return this.dropTargetsDomIdsOrder;
   }
 
   private trackEntry(DOMId: string) {

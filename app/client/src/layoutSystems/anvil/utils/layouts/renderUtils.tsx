@@ -169,6 +169,7 @@ export function renderWidgetsInAlignedRow(
     flexGrow: 1,
     flexShrink: 1,
     layoutType: props.layoutType,
+    parentDropTarget: props.parentDropTarget,
     renderMode: props.renderMode,
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
   };
