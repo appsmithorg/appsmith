@@ -20,6 +20,7 @@ export function setPageUrl(path: string | undefined) {
 
 export function setAppUrl(path: string | undefined) {
   if (path) {
-    history.push(path);
+    const params = history.location.search;
+    history.push(`${path}${params}`);
   }
 }
