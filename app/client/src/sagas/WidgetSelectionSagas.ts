@@ -468,26 +468,32 @@ async function readJSONFile(file: File) {
 }
 
 function* partialImportWidgetsSaga(file: File) {
-  // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
-  const userUploadedJSON: { widgets: string } = yield call(readJSONFile, file);
-  if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
-    yield saveCopiedWidgets(userUploadedJSON.widgets);
-    yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-    yield put(pasteWidget(false, { x: 0, y: 0 }));
+  const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
+  try {
+    // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
+    const userUploadedJSON: { widgets: string } = yield call(
+      readJSONFile,
+      file,
+    );
+    if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
+      yield saveCopiedWidgets(userUploadedJSON.widgets);
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+      yield put(pasteWidget(false, { x: 0, y: 0 }));
+    }
+  } finally {
+    if (existingCopiedWidgets) {
+      yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
+    }
   }
 }
 
 export function* partialImportSaga(
   action: ReduxAction<{ applicationFile: File }>,
 ) {
-  // Cache existing copied widgets as we utilize copy paste functionality with partial import of widgets
-  // Step1: Get existing copied widgets
-  const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
-
   try {
-    // Step2: Import widgets from file, in parallel
+    // Step1: Import widgets from file, in parallel
     yield fork(partialImportWidgetsSaga, action.payload.applicationFile);
-    // Step3: Send backend request to import pending items.
+    // Step2: Send backend request to import pending items.
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const pageId: string = yield select(getCurrentPageId);
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -517,10 +523,5 @@ export function* partialImportSaga(
         error,
       },
     });
-  }
-
-  // Step4: Save existing copied widgets back to storage
-  if (existingCopiedWidgets) {
-    yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
   }
 }
