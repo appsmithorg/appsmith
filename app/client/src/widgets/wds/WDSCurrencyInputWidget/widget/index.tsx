@@ -216,6 +216,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     if (
       !(
         (e.key >= "0" && e.key <= "9") ||
+        // allow . or comma if decimals are allowed
+        (this.props.decimals &&
+          (e.key === getLocaleDecimalSeperator() ||
+            e.key === getLocaleThousandSeparator())) ||
         (e.key >= "0" && e.key <= "9" && e.code.includes("Numpad")) ||
         e.key === "Backspace" ||
         e.key === "Tab" ||
