@@ -39,7 +39,7 @@
       "configProperty": "actionConfiguration.formData.temperature",
       "controlType": "INPUT_TEXT",
       "dataType": "NUMBER",
-      "initialValue": "1",
+      "initialValue": "0",
       "isRequired": false
     },
     {
