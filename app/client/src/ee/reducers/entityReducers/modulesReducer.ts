@@ -55,6 +55,15 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
 
     return draftState;
   },
+  [ReduxActionTypes.UPDATE_MODULE_INPUTS_SUCCESS]: (
+    draftState: ModulesReducerState,
+    action: ReduxAction<Module>,
+  ) => {
+    const module = action.payload;
+    draftState[module.id].inputsForm = module.inputsForm;
+
+    return draftState;
+  },
   [ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_SUCCESS]: (
     draftState: ModulesReducerState,
     action: ReduxAction<FetchPackagesInWorkspaceResponse>,

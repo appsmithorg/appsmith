@@ -15,6 +15,10 @@ export interface FetchModuleActionsPayload {
   moduleId: string;
 }
 
+export interface SetupModulePayload {
+  moduleId: string;
+}
+
 export interface CreateQueryModulePayload {
   datasourceId?: string;
   type: MODULE_TYPE;
@@ -44,6 +48,11 @@ export const deleteModule = (payload: DeleteModulePayload) => {
 
 export const fetchModuleActions = (payload: FetchModuleActionsPayload) => ({
   type: ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
+  payload,
+});
+
+export const setupModule = (payload: SetupModulePayload) => ({
+  type: ReduxActionTypes.SETUP_MODULE_INIT,
   payload,
 });
 

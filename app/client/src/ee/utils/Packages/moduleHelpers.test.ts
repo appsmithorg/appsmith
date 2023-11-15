@@ -1,39 +1,34 @@
+import type { Module } from "@appsmith/constants/ModuleConstants";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { convertModulesToArray, selectAllQueryModules } from "./moduleHelpers"; // Import the functions to be tested
 
 // Mock data for testing
-const modules = {
+const modules: Record<string, Module> = {
   1: {
     id: "mod-1",
     type: MODULE_TYPE.QUERY,
     name: "module 1",
-    publicEntityId: "",
     packageId: "pkg-1",
     inputsForm: [],
-    whitelistedPublicEntitySettingsForModule: [],
-    whitelistedPublicEntitySettingsForModuleInstance: [],
+    settingsForm: [],
     userPermissions: [],
   },
   2: {
     id: "mod-2",
     type: MODULE_TYPE.UI,
     name: "module 2",
-    publicEntityId: "",
     packageId: "pkg-1",
     inputsForm: [],
-    whitelistedPublicEntitySettingsForModule: [],
-    whitelistedPublicEntitySettingsForModuleInstance: [],
+    settingsForm: [],
     userPermissions: [],
   },
   3: {
     id: "mod-3",
     type: MODULE_TYPE.QUERY,
     name: "module 3",
-    publicEntityId: "",
     packageId: "pkg-1",
     inputsForm: [],
-    whitelistedPublicEntitySettingsForModule: [],
-    whitelistedPublicEntitySettingsForModuleInstance: [],
+    settingsForm: [],
     userPermissions: [],
   },
 };

@@ -13,6 +13,7 @@ import type {
   DeleteModulePayload,
   FetchModuleActionsPayload,
   SaveModuleNamePayload,
+  SetupModulePayload,
   UpdateModuleInputsPayload,
 } from "@appsmith/actions/moduleActions";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -150,7 +151,7 @@ export function* updateModuleInputsSaga(
   }
 }
 
-export function* fetchModuleActionsSagas(
+export function* fetchModuleActionsSaga(
   action: ReduxAction<FetchModuleActionsPayload>,
 ) {
   try {
@@ -240,13 +241,39 @@ export function* createQueryModuleSaga(
   }
 }
 
+export function* setupModuleSaga(action: ReduxAction<SetupModulePayload>) {
+  try {
+    const { moduleId } = action.payload;
+
+    yield call(fetchModuleActionsSaga, {
+      payload: { moduleId: moduleId },
+      type: ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
+    });
+
+    yield put({
+      type: ReduxActionTypes.SET_CURRENT_MODULE,
+      payload: { id: moduleId },
+    });
+
+    // To start eval for new module
+    yield put({
+      type: ReduxActionTypes.FETCH_ALL_MODULE_ENTITY_COMPLETION,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SETUP_MODULE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 export default function* modulesSaga() {
   yield all([
     takeLatest(ReduxActionTypes.DELETE_QUERY_MODULE_INIT, deleteModuleSaga),
     takeLatest(ReduxActionTypes.SAVE_MODULE_NAME_INIT, saveModuleNameSaga),
     takeLatest(
       ReduxActionTypes.FETCH_MODULE_ACTIONS_INIT,
-      fetchModuleActionsSagas,
+      fetchModuleActionsSaga,
     ),
     takeLatest(
       ReduxActionTypes.CREATE_QUERY_MODULE_INIT,
@@ -256,5 +283,6 @@ export default function* modulesSaga() {
       ReduxActionTypes.UPDATE_MODULE_INPUTS_INIT,
       updateModuleInputsSaga,
     ),
+    takeLatest(ReduxActionTypes.SETUP_MODULE_INIT, setupModuleSaga),
   ]);
 }

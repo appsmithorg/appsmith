@@ -8,6 +8,7 @@ const DEFAULT_ACTIONS = [
     id: "65265ab24b7c8d700a10265e",
     name: "QueryModule1",
     moduleId: "652519c44b7c8d700a102643",
+    isPublic: true,
     actionConfiguration: {
       timeoutInMillisecond: 10000,
       paginationType: "NONE",
@@ -25,6 +26,7 @@ const DEFAULT_ACTIONS = [
     id: "6526621d4b7c8d700a102663",
     name: "Query2",
     moduleId: "652519c44b7c8d700a102643",
+    isPublic: false,
     actionConfiguration: {
       timeoutInMillisecond: 10000,
       paginationType: "NONE",
@@ -38,6 +40,7 @@ const DEFAULT_ACTIONS = [
     id: "6526621d4b7c8d450a102985",
     name: "QueryModule2",
     moduleId: "652519c44b7c8d700a102356",
+    isPublic: true,
     actionConfiguration: {
       timeoutInMillisecond: 10000,
       paginationType: "NONE",
@@ -105,7 +108,7 @@ describe("actionsReducer", () => {
       payload: [additionalAction],
     });
 
-    expect(updatedState.length).toBe(actionPayload.length + 1);
+    expect(updatedState.length).toBe(1);
 
     // Check if the additional action is present in the state
     expect(
@@ -117,7 +120,6 @@ describe("actionsReducer", () => {
     const initialState: ActionDataState = computeInitialState(DEFAULT_ACTIONS);
     const payload = {
       id: "652519c44b7c8d700a102643",
-      publicEntityId: "65265ab24b7c8d700a10265e",
       name: "GetUsers",
     };
 
@@ -129,10 +131,12 @@ describe("actionsReducer", () => {
     const updatedState: ActionDataState = actionsReducer(initialState, action);
 
     const updatedAction = updatedState.find(
-      (a) => a.config.id === payload.publicEntityId,
+      (a) => a.config.moduleId === payload.id && a.config.isPublic,
     );
+    // Other actions are is not the public action of the module.
+    // Private actions of current module and other actions are included.
     const otherActions = updatedState.filter(
-      (a) => a.config.id !== payload.publicEntityId,
+      (a) => a.config.moduleId !== payload.id || !a.config.isPublic,
     );
 
     expect(updatedState.length).toBe(initialState.length);

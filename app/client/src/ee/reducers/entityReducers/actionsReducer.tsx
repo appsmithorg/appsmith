@@ -5,7 +5,6 @@ import { handlers as CE_handlers } from "ce/reducers/entityReducers/actionsReduc
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { ActionDataState } from "ce/reducers/entityReducers/actionsReducer";
 import type { Action } from "entities/Action";
-import _ from "lodash";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 
 const handlers = {
@@ -15,29 +14,13 @@ const handlers = {
     action: ReduxAction<Action[]>,
   ) => {
     if (action.payload.length > 0) {
-      const stateActionMap = _.keyBy(draftMetaState, "config.id");
       const result: ActionDataState = [];
 
       action.payload.forEach((actionPayload: Action) => {
-        const stateAction = stateActionMap[actionPayload.id];
-        if (stateAction) {
-          result.push({
-            data: stateAction.data,
-            isLoading: false,
-            config: actionPayload,
-          });
-
-          delete stateActionMap[actionPayload.id];
-        } else {
-          result.push({
-            isLoading: false,
-            config: actionPayload,
-          });
-        }
-      });
-
-      Object.keys(stateActionMap).forEach((stateActionKey) => {
-        result.push(stateActionMap[stateActionKey]);
+        result.push({
+          isLoading: false,
+          config: actionPayload,
+        });
       });
 
       return result;
@@ -47,9 +30,9 @@ const handlers = {
     draftMetaState: ActionDataState,
     action: ReduxAction<Module>,
   ) => {
-    const { name, publicEntityId } = action.payload;
+    const { id, name } = action.payload;
     draftMetaState.forEach((a) => {
-      if (a.config.id === publicEntityId) {
+      if (a.config.moduleId === id && a.config.isPublic) {
         a.config.name = name;
       }
     });

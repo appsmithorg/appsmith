@@ -1,8 +1,9 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
 import { debounce } from "lodash";
 import { Text } from "design-system";
 import { useDispatch } from "react-redux";
+import { klona } from "klona";
 
 import Form from "@appsmith/components/InputsForm/Form";
 import SectionField from "@appsmith/components/InputsForm/Fields/SectionField";
@@ -10,6 +11,7 @@ import { updateModuleInputs } from "@appsmith/actions/moduleActions";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { generateDefaultInputSection } from "@appsmith/components/InputsForm/Fields/helper";
 import useEvalValues from "./hooks/useEvalValues";
+import equal from "fast-deep-equal/es6";
 
 const StyledHeading = styled(Text)`
   margin-bottom: var(--ads-v2-spaces-3);
@@ -53,17 +55,22 @@ const DEBOUNCE_TIMEOUT = 300;
 
 function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
   const dispatch = useDispatch();
+  const valuesRef = useRef(defaultValues?.inputsForm);
 
   const onUpdateInputsForm = useMemo(() => {
     const onUpdate = (values: { inputsForm: Module["inputsForm"] }) => {
       if (!moduleId) return;
 
-      dispatch(
-        updateModuleInputs({
-          id: moduleId,
-          inputsForm: values.inputsForm,
-        }),
-      );
+      if (!equal(values.inputsForm, valuesRef.current)) {
+        valuesRef.current = klona(values.inputsForm);
+
+        dispatch(
+          updateModuleInputs({
+            id: moduleId,
+            inputsForm: values.inputsForm,
+          }),
+        );
+      }
     };
 
     return debounce(onUpdate, DEBOUNCE_TIMEOUT);

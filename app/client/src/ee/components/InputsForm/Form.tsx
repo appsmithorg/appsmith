@@ -1,8 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 import { FormProvider, useForm } from "react-hook-form";
 import type { PropsWithChildren } from "react";
 import { InputsFormContextProvider } from "./InputsFormContext";
+import equal from "fast-deep-equal/es6";
+import { klona } from "klona";
 
 interface EvalValues {
   useWatchEvalAndSetForm: (methods: UseFormReturn<any, any>) => void;
@@ -21,6 +23,7 @@ function Form<TValues extends FieldValues>({
   onUpdateForm,
   useEvalValues,
 }: FormProps<TValues>) {
+  const currentValues = useRef<TValues>(defaultValues);
   const methods = useForm<TValues>({
     defaultValues: defaultValues as any,
   });
@@ -31,7 +34,10 @@ function Form<TValues extends FieldValues>({
 
   useEffect(() => {
     const subscription = watch((values) => {
-      onUpdateForm(values as TValues);
+      if (!equal(currentValues.current, values)) {
+        onUpdateForm(values as TValues);
+        currentValues.current = klona(values) as TValues;
+      }
     });
 
     return () => {

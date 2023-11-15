@@ -4,9 +4,8 @@ import type {
   ModuleInputSection as CE_ModuleInputSection,
   ModuleInput as CE_ModuleInput,
 } from "ce/constants/ModuleConstants";
+import type { ControlData } from "components/formControls/BaseControl";
 import type { Action } from "entities/Action";
-
-type ID = string;
 
 export enum MODULE_TYPE {
   QUERY = "QUERY_MODULE",
@@ -28,22 +27,20 @@ export interface ModuleInput extends CE_ModuleInput {
   controlType: string;
 }
 
+export interface PluginSettings {
+  id: number;
+  sectionName: string;
+  children: ControlData[];
+}
+
 export interface ModuleInputSection extends CE_ModuleInputSection {
   sectionName: string;
   children: ModuleInput[];
 }
 
 export interface Module extends CE_Module {
-  publicEntityId: ID;
-  // list of settings enabled for module
-  whitelistedPublicEntitySettingsForModule: string[];
   inputsForm: ModuleInputSection[];
-  /**
-   * list of settings enabled for module instance
-   * for JSObject as public, value => ["confirmBeforeExecute", "executeOnLoad"]
-   * for Actions/Queries as public, value would depend on plugin's settings
-   */
-  whitelistedPublicEntitySettingsForModuleInstance: string[];
+  settingsForm: PluginSettings[];
   type: MODULE_TYPE;
   userPermissions: string[];
 }

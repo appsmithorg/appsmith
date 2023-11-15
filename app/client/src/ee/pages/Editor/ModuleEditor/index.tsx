@@ -2,10 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 
-import {
-  fetchModuleActions,
-  setCurrentModule,
-} from "@appsmith/actions/moduleActions";
+import { setCurrentModule, setupModule } from "@appsmith/actions/moduleActions";
 import { SentryRoute } from "@appsmith/AppRouter";
 import ModuleQueryEditor from "./ModuleQueryEditor";
 import {
@@ -21,24 +18,18 @@ import {
   getIsModuleFetchingActions,
   getModuleById,
 } from "@appsmith/selectors/modulesSelector";
-import { Spinner } from "design-system";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import styled from "styled-components";
 import ModuleEditorDefaultRedirect from "./ModuleEditorDefaultRedirect";
 import IntegrationEditor from "pages/Editor/IntegrationEditor";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import Loader from "./Loader";
 
 interface RouteProps {
   moduleId: string;
 }
 
 export type ModuleEditorProps = RouteComponentProps<RouteProps>;
-
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
-`;
 
 function ModuleEditor({ match }: ModuleEditorProps) {
   const { moduleId } = match.params;
@@ -47,11 +38,10 @@ function ModuleEditor({ match }: ModuleEditorProps) {
   const module = useSelector((state) => getModuleById(state, moduleId));
 
   useEffect(() => {
-    dispatch(fetchModuleActions({ moduleId }));
+    dispatch(setupModule({ moduleId }));
   }, [moduleId]);
 
   useEffect(() => {
-    dispatch(setCurrentModule(moduleId));
     urlBuilder.setCurrentModuleId(moduleId);
 
     return () => {
@@ -63,11 +53,7 @@ function ModuleEditor({ match }: ModuleEditorProps) {
   if (!module) return null;
 
   if (isModuleFetchingActions) {
-    return (
-      <LoadingContainer>
-        <Spinner size={30} />
-      </LoadingContainer>
-    );
+    return <Loader />;
   }
 
   return (

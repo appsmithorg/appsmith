@@ -4,18 +4,15 @@ import type { RouteComponentProps } from "react-router";
 
 import ActionEditorContextMenu from "./ActionEditorContextMenu";
 import Editor from "pages/Editor/APIEditor/Editor";
+import ModuleInputsForm from "./ModuleInputsForm";
 import { getIsPackageEditorInitialized } from "@appsmith/selectors/packageSelectors";
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
-import {
-  getAction,
-  getPluginSettingConfigs,
-} from "@appsmith/selectors/entitiesSelector";
 import { noop } from "lodash";
 import { ApiEditorContextProvider } from "pages/Editor/APIEditor/ApiEditorContext";
-import { filterWhitelistedConfig } from "./helper";
 import { deleteModule, saveModuleName } from "@appsmith/actions/moduleActions";
 import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
-import ModuleInputsForm from "./ModuleInputsForm";
+import type { PaginationField } from "api/ActionAPI";
+import { runAction } from "actions/pluginActionActions";
 
 interface ModuleApiEditorRouteParams {
   packageId: string;
@@ -27,25 +24,10 @@ type ModuleApiEditorProps = RouteComponentProps<ModuleApiEditorRouteParams>;
 
 function ModuleApiEditor(props: ModuleApiEditorProps) {
   const dispatch = useDispatch();
-  const { apiId, moduleId } = props.match.params;
+  const { apiId = "", moduleId } = props.match.params;
 
   const isPackageEditorInitialized = useSelector(getIsPackageEditorInitialized);
   const module = useSelector((state) => getModuleById(state, moduleId));
-
-  const actionId = apiId || "";
-  const action = useSelector((state) => getAction(state, actionId));
-
-  const pluginId = action?.pluginId || "";
-  const settingsConfig = useSelector((state) =>
-    getPluginSettingConfigs(state, pluginId),
-  );
-
-  const whitelistedSettingsConfig = useMemo(() => {
-    return filterWhitelistedConfig(
-      settingsConfig,
-      module?.whitelistedPublicEntitySettingsForModule,
-    );
-  }, [module?.whitelistedPublicEntitySettingsForModule, settingsConfig]);
 
   const onDeleteModule = useCallback(() => {
     dispatch(deleteModule({ id: module?.id || "" }));
@@ -80,14 +62,21 @@ function ModuleApiEditor(props: ModuleApiEditorProps) {
     );
   }, [[module?.id, module?.inputsForm]]);
 
+  const handleRunClick = useCallback(
+    (paginationField?: PaginationField) => {
+      dispatch(runAction(apiId, paginationField));
+    },
+    [apiId],
+  );
+
   return (
     <ApiEditorContextProvider
       actionRightPaneAdditionSections={actionRightPaneAdditionSections}
       handleDeleteClick={noop}
-      handleRunClick={noop}
+      handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
       saveActionName={onSaveModuleName}
-      settingsConfig={whitelistedSettingsConfig}
+      settingsConfig={module?.settingsForm}
       showRightPaneTabbedSection={false}
     >
       <Editor {...props} isEditorInitialized={isPackageEditorInitialized} />
