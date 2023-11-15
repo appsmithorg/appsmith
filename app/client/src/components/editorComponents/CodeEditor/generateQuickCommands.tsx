@@ -235,7 +235,6 @@ export const generateQuickCommands = (
       displayText: APPSMITH_AI,
       shortcut: Shortcuts.ASK_AI,
       triggerCompletionsPostPick: true,
-      description: "Generate code using AI",
       isBeta: true,
       action: () => {
         executeCommand({
