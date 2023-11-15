@@ -33,6 +33,7 @@ import {
 import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
+import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
@@ -210,11 +211,28 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     this.props.updateWidgetMetaProperty("currencyCode", currencyCode);
   };
 
-  onKeyDown = (
-    e:
-      | React.KeyboardEvent<HTMLTextAreaElement>
-      | React.KeyboardEvent<HTMLInputElement>,
-  ) => {
+  onKeyDown = (e: KeyDownEvent) => {
+    // don't allow entering anything other than numbers. but allow backspace, arrows delete, tab, enter
+    if (
+      !(
+        (e.key >= "0" && e.key <= "9") ||
+        (e.key >= "0" && e.key <= "9" && e.code.includes("Numpad")) ||
+        e.key === "Backspace" ||
+        e.key === "Tab" ||
+        e.key === "Enter" ||
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown" ||
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowRight" ||
+        e.key === "Delete" ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey
+      )
+    ) {
+      e.preventDefault();
+    }
+
     super.onKeyDown(e);
   };
 
@@ -259,6 +277,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         label={this.props.label}
         onCurrencyChange={this.onCurrencyChange}
         onFocusChange={this.onFocusChange}
+        onKeyDown={this.onKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         tooltip={this.props.tooltip}
