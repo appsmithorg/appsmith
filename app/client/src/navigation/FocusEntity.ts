@@ -23,7 +23,6 @@ export enum FocusEntity {
   CANVAS = "CANVAS",
   DATASOURCE_LIST = "DATASOURCE_LIST",
   DATASOURCE = "DATASOURCE",
-  DATASOURCE_TEMP = "DATASOURCE_TEMP",
   DEBUGGER = "DEBUGGER",
   QUERY = "QUERY",
   JS_OBJECT = "JS_OBJECT",
@@ -119,7 +118,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
   if (match.params.datasourceId) {
     if (match.params.datasourceId == TEMP_DATASOURCE_ID) {
       return {
-        entity: FocusEntity.DATASOURCE_TEMP,
+        entity: FocusEntity.NONE,
         id: match.params.datasourceId,
         pageId: match.params.pageId,
         appState: AppState.DATA,
