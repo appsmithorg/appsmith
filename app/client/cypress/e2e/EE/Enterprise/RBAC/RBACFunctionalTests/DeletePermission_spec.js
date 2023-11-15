@@ -4,6 +4,7 @@ import {
   entityItems,
   homePage,
   agHelper,
+  dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
@@ -12,6 +13,9 @@ const datasources = require("../../../../../locators/DatasourcesEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Delete Permission flow ", function () {
   let appName;
@@ -270,19 +274,11 @@ describe("Delete Permission flow ", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    cy.CheckAndUnfoldEntityItem("Datasources");
-    cy.get(`.t--entity-name:contains(${datasourceName})`).trigger("mouseover");
-    entityExplorer.SelectEntityByName(datasourceName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: datasourceName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
-    assertHelper.AssertNetworkStatus("@deleteDatasource", 200);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName);
 
     featureFlagIntercept({ license_gac_enabled: true });
     cy.wait(2000);
-
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");

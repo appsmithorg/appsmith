@@ -11,8 +11,10 @@ import homePageLocators from "../../../../../locators/HomePage";
 import auditLogslocators from "../../../../../locators/AuditLogsLocators";
 const AppNavigation = require("../../../../../locators/AppNavigation.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
-const Explorer = require("../../../../../locators/explorerlocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../../support/Pages/EditorNavigation";
 let workspaceId, appid;
 
 describe("Create new workspace and invite group & validate all roles", () => {
@@ -116,14 +118,16 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.GetNClick(homePage._appHoverIcon("edit"));
     agHelper.Sleep(2000);
     onboarding.closeIntroModal();
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
     agHelper.AssertElementExist(dataSources._addNewDataSource);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
       "contain",
       "Connect new datasource",
     );
-    agHelper.GetNClick(".t--entity-name:contains('Postgres')");
+    dataSources.navigateToDatasource("Postgres");
     cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
     agHelper.ClickButton("Share");
     agHelper.Sleep();
@@ -175,14 +179,16 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.GetNClick(homePage._appHoverIcon("edit"));
     agHelper.Sleep(2000);
     onboarding.closeIntroModal();
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
     agHelper.AssertElementAbsence(dataSources._addNewDataSource);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
       "not.contain",
       "Connect new datasource",
     );
-    agHelper.GetNClick(".t--entity-name:contains('Postgres')");
+    dataSources.navigateToDatasource("Postgres");
     cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
     agHelper.ClickButton("Share");
     agHelper.Sleep();
@@ -234,14 +240,16 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.GetNClick(homePage._appHoverIcon("edit"));
     agHelper.Sleep(2000);
     onboarding.closeIntroModal();
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
     agHelper.AssertElementAbsence(dataSources._addNewDataSource);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
       "not.contain",
       "Connect new datasource",
     );
-    agHelper.GetNClick(".t--entity-name:contains('Postgres')");
+    dataSources.navigateToDatasource("Postgres");
     cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
     agHelper.Sleep(2000);
     deployMode.DeployApp();

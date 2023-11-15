@@ -84,7 +84,6 @@ describe(
       // Create query on staging only DS
       agHelper.Sleep(2000);
       entityExplorer.AddNewPage("New blank page");
-      dataSources.NavigateToActiveTab();
       dataSources.CreateQueryFromActiveTab(meDSStagingOnlyName);
       agHelper.RenameWithInPane(meStagingOnlyQueryName, true);
       dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
@@ -155,8 +154,8 @@ describe(
       agHelper.Sleep(2000);
       // verify genertae crud option is not present on prod
       multipleEnv.SwitchEnv(prodEnv);
-      dataSources.NavigateToActiveTab();
-      dataSources.AssertReconnectDS(meDSStagingOnlyName);
+      dataSources.navigateToDatasource(meDSStagingOnlyName);
+      cy.get(dataSources._datasourceCardGeneratePageBtn).should("not.exist");
     });
 
     it("5. Deploy the app, check for modal and check table response for both envs", function () {
