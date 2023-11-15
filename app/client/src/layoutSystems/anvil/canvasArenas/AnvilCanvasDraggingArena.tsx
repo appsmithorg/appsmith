@@ -18,7 +18,6 @@ interface AnvilCanvasDraggingArenaProps {
   deriveAllHighlightsFn: (
     layoutElementPositions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
-    isReorderingWidgets: boolean,
   ) => AnvilHighlightInfo[];
 }
 

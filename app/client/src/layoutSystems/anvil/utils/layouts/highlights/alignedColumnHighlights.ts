@@ -35,7 +35,6 @@ export const deriveAlignedColumnHighlights =
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
-    isReorderingWidgets: boolean,
   ): AnvilHighlightInfo[] => {
     if (
       !layoutProps ||
@@ -76,7 +75,6 @@ export const deriveAlignedColumnHighlights =
       layoutOrder,
       baseHighlight,
       parentDropTarget,
-      isReorderingWidgets,
       getInitialHighlights,
       getHighlightsForLayouts,
       getHighlightsForWidgets,

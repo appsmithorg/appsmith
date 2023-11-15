@@ -65,7 +65,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, draggedWidgets, false);
+      )(positions, draggedWidgets);
       expect(res.length).toEqual(3);
       // highlights should be horizontal.
       expect(res[0].width).toBeGreaterThan(res[0].height);
@@ -122,18 +122,14 @@ describe("columnHighlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(
-        positions,
-        [
-          ...draggedWidgets,
-          {
-            widgetId: buttonId,
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      )(positions, [
+        ...draggedWidgets,
+        {
+          widgetId: buttonId,
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       // One highlight is discounted on account of child button widget being dragged.
       expect(res.length).toEqual(2);
@@ -183,7 +179,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, draggedWidgets, false);
+      )(positions, draggedWidgets);
 
       /**
        * Horizontal highlights have top and bottom drop zones,
@@ -240,7 +236,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, draggedWidgets, false);
+      )(positions, draggedWidgets);
 
       expect(res[0].width).toEqual(positions[layout.layoutId].width);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
@@ -270,7 +266,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, draggedWidgets, false);
+      )(positions, draggedWidgets);
       expect(res).toBeDefined();
       expect(res[0].width).toEqual(positions[layout.layoutId].width);
       expect(res[0].posY).toEqual(
@@ -304,7 +300,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         layout.layoutId,
-      )(positions, draggedWidgets, false);
+      )(positions, draggedWidgets);
 
       expect(res[0].width).toEqual(positions[layout.layoutId].width);
       expect(res[0].posY).toEqual(
@@ -406,7 +402,7 @@ describe("columnHighlights", () => {
         "0",
         [],
         column.layoutId,
-      )(dimensions, draggedWidgets, false);
+      )(dimensions, draggedWidgets);
 
       /**
        * # of highlights:
