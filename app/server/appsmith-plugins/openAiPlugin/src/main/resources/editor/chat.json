@@ -56,7 +56,7 @@
           "label": "Role",
           "key": "role",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "\"user\" or \"system\"",
+          "placeholderText": "user OR system",
           "initialValue": "user"
         },
         {
