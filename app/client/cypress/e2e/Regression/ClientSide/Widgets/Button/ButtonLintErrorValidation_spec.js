@@ -44,6 +44,6 @@ describe("Linting warning validation with button widget", function () {
 
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
 
-    cy.get(commonlocators.debugErrorMsg).should("have.length", 3);
+    cy.get(commonlocators.debugErrorMsg).should("have.length", 6);
   });
 });
