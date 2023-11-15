@@ -100,7 +100,7 @@ function* addSuggestedWidgetsAnvilSaga(
   }
 }
 
-function* addNewChildToDSL(
+export function* addNewChildToDSL(
   highlight: AnvilHighlightInfo,
   newWidget: {
     width: number;
@@ -263,7 +263,16 @@ function addWidgetToSection(
     },
     canvasPreset[0],
   );
-  return res.canvasWidgets;
+  const sectionCanvas = res.canvasWidgets[highlight.canvasId];
+  const sectionWidget =
+    res.canvasWidgets[sectionCanvas.parentId || MAIN_CONTAINER_WIDGET_ID];
+  return {
+    ...res.canvasWidgets,
+    [sectionWidget.widgetId]: {
+      ...sectionWidget,
+      zoneCount: sectionCanvas.layout[0].layout.length,
+    },
+  };
 }
 
 function addWidgetToGenericLayout(

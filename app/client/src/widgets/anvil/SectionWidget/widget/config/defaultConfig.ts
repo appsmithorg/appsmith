@@ -19,6 +19,7 @@ export const defaultConfig: WidgetDefaultProps = {
   rows: 0,
   version: 1,
   widgetName: "Section",
+  zoneCount: 1,
   blueprint: {
     view: [
       {
