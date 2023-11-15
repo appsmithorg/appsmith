@@ -6,5 +6,5 @@ public enum QueryType {
     @SerializedName("text")
     TEXT,
     @SerializedName("image")
-    IMAGE;
+    IMAGE
 }
