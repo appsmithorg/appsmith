@@ -1,4 +1,4 @@
-import { Icon, Text, Button, Divider } from "design-system";
+import { Text, Button, Divider } from "design-system";
 import { showIndicator } from "pages/Editor/GuidedTour/utils";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -64,11 +64,6 @@ const InstructionsHeaderWrapper = styled.div`
   display: flex;
   p {
     flex-grow: 1;
-  }
-  span {
-    align-self: flex-start;
-    margin-top: 5px;
-    cursor: pointer;
   }
 `;
 
@@ -296,15 +291,18 @@ const InstructionsComponent = ({
         <Text kind="heading-s" renderAs="p">
           {details.title}
         </Text>
-        <Icon
+        <Button
           className="t--walkthrough-close"
-          color="black"
-          name="close"
+          isIconButton
+          kind="tertiary"
           onClick={onClose}
-          size="md"
+          size="sm"
+          startIcon="close-line"
         />
       </InstructionsHeaderWrapper>
-      <Text>{details.description}</Text>
+      {details.description && (
+        <div dangerouslySetInnerHTML={{ __html: details.description }} />
+      )}
       {details.imageURL && (
         <ImageWrapper>
           <img src={details.imageURL} />

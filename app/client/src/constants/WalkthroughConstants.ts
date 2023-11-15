@@ -11,4 +11,5 @@ export const FEATURE_WALKTHROUGH_KEYS = {
   create_query: "create_query",
   add_datasouce: "add_datasouce",
   connect_data: "connect_data",
+  customize_one_click_data: "customize_one_click_data",
 };

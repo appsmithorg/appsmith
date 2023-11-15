@@ -156,7 +156,6 @@ import { getDeleteLineShortcut } from "./utils/deleteLine";
 import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
-import { EMPTY_BINDING } from "../ActionCreator/constants";
 import {
   resetActiveEditorField,
   setActiveEditorField,
@@ -497,15 +496,13 @@ class CodeEditor extends Component<Props, State> {
         this.debounceEditorRefresh,
       ]);
     }
-    if (
-      this.props.positionCursorInsideBinding &&
-      this.props.input.value === EMPTY_BINDING
-    ) {
+    if (this.props.positionCursorInsideBinding) {
+      const value = this.editor.getValue();
+      const lastIndexOfBinding = value.lastIndexOf("}}");
+      if (lastIndexOfBinding === -1) return;
+      const pos = this.editor.getDoc().posFromIndex(lastIndexOfBinding);
       this.editor.focus();
-      this.editor.setCursor({
-        ch: 2,
-        line: 0,
-      });
+      this.editor.setCursor(pos);
     }
   }
 

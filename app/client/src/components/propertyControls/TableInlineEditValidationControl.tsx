@@ -95,7 +95,6 @@ export function InputText(props: InputTextProp) {
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
-        positionCursorInsideBinding
         promptMessage={<PromptMessage>{promptMessage}</PromptMessage>}
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
