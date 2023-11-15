@@ -468,12 +468,17 @@ function* forkTemplateToApplicationViaOnboardingFlowSaga(
   }>,
 ) {
   try {
+    const testBuildingBlock = {
+      templateId: "6530e343fa63b553e4be0266",
+      pageName: "Record Details",
+    };
+
     const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplateToApplication,
-      action.payload.templateId,
+      testBuildingBlock.templateId,
       action.payload.applicationId,
       action.payload.workspaceId,
-      action.payload.pageNames,
+      [testBuildingBlock.pageName],
     );
 
     const isValid: boolean = yield validateResponse(response);
