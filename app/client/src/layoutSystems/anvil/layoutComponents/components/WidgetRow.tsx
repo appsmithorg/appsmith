@@ -30,6 +30,7 @@ class WidgetRow extends BaseLayoutComponent {
       layoutId,
       layoutIndex,
       layoutStyle,
+      parentDropTarget,
       renderMode,
     } = this.props;
 
@@ -42,6 +43,7 @@ class WidgetRow extends BaseLayoutComponent {
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
         layoutIndex={layoutIndex}
+        parentDropTarget={parentDropTarget}
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >

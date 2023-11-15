@@ -42,9 +42,8 @@ const renderOverlayWidgetDropLayer = (slidingArena: HTMLDivElement) => {
 const renderBlocksOnCanvas = (
   stickyCanvas: HTMLCanvasElement,
   blockToRender: AnvilHighlightInfo,
-  topOffset: number,
 ) => {
-  // const topOffset = getAbsolutePixels(stickyCanvas.style.top);
+  const topOffset = getAbsolutePixels(stickyCanvas.style.top);
   const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
   const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
   canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
@@ -97,7 +96,7 @@ export const useCanvasDragging = (
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   props: AnvilHighlightingCanvasProps,
 ) => {
-  const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;
+  const { anvilDragStates, deriveAllHighlightsFn, onDrop } = props;
   const {
     activateOverlayWidgetDrop,
     draggedBlocks,
@@ -220,30 +219,6 @@ export const useCanvasDragging = (
           }
         };
 
-        const calculateTopOffset = () => {
-          if (stickyCanvasRef.current) {
-            const isWidgetScrolling =
-              scrollParent?.className.includes("appsmith_widget_");
-            const isMainContainer = layoutId === mainCanvasLayoutId;
-            const totalScrollTop = scrollParent?.scrollTop || 0;
-            let val = isMainContainer || isWidgetScrolling ? totalScrollTop : 0;
-            const topOffset = getAbsolutePixels(
-              stickyCanvasRef.current.style.top,
-            );
-
-            if (
-              !isMainContainer &&
-              totalScrollTop &&
-              topOffset &&
-              totalScrollTop > topOffset
-            ) {
-              val += totalScrollTop - topOffset;
-            }
-            return val;
-          }
-          return 0;
-        };
-
         const onMouseMove = (e: any) => {
           if (
             isDragging &&
@@ -265,11 +240,9 @@ export const useCanvasDragging = (
             );
             if (processedHighlight) {
               currentRectanglesToDraw = processedHighlight;
-              const topOffset = calculateTopOffset();
               renderBlocksOnCanvas(
                 stickyCanvasRef.current,
                 currentRectanglesToDraw,
-                topOffset,
               );
               scrollObj.lastMouseMoveEvent = {
                 offsetX: e.offsetX,
