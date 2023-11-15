@@ -11,7 +11,7 @@ import type { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 export const createNewJSCollection = (
   pageId: string,
   from: EventLocation,
-): ReduxAction<{ pageId: string; from: EventLocation; name?: string }> => ({
+): ReduxAction<{ pageId: string; from: EventLocation }> => ({
   type: ReduxActionTypes.CREATE_NEW_JS_ACTION,
   payload: { pageId: pageId, from: from },
 });
