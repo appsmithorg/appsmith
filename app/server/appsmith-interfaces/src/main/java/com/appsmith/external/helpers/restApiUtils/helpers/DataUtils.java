@@ -269,7 +269,9 @@ public class DataUtils {
         if (type.equals(List.class)) {
             parsedJson = (JSONArray) jsonParser.parse(jsonString);
         } else {
-            // We learned from issue #23456 that some use-cases required the  order of keys
+            // We learned from issue #23456 that some use-cases require the order of keys to be preserved
+            //  i.e. for AWS authorisation, one signature header is required whose value holds the hash
+            // of the body.
             JsonReader jsonReader = new JsonReader();
             TypeToken<LinkedHashMap<String, Object>> linkedHashMapTypeToken = new TypeToken<>() {};
             CollectionMapper.MapClass<LinkedHashMap<String, Object>> collectionMapper =
