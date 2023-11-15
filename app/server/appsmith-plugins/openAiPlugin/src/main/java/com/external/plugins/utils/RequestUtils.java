@@ -7,6 +7,7 @@ import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.CollectionUtils;
@@ -84,6 +85,7 @@ public class RequestUtils {
 
         return client.method(httpMethod)
                 .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(body)
                 .headers(
                         headers -> headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + bearerTokenAuth.getBearerToken()))
