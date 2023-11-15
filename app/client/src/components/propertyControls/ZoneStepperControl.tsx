@@ -8,8 +8,8 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
-import { updateZoneCountAction } from "layoutSystems/anvil/integrations/actions/sectionActions";
 import { useDispatch } from "react-redux";
+import { updateZoneCountAction } from "layoutSystems/anvil/integrations/actions/sectionActions";
 
 const MIN = 1;
 const MAX = 4;
@@ -36,6 +36,9 @@ const ZoneNumInput = ({
       min={min}
       onChange={(value: string | undefined) => {
         const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
+        if (v === zoneCount) {
+          return;
+        }
         dispatch(updateZoneCountAction(widgetId, v));
       }}
       ref={ref}
