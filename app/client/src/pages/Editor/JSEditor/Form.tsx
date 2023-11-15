@@ -170,12 +170,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     isFeatureEnabled,
     currentJSCollection?.userPermissions || [],
   );
-
   const isExecutePermitted = getHasExecuteActionPermission(
     isFeatureEnabled,
     currentJSCollection?.userPermissions || [],
   );
-
   const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
     currentJSCollection?.userPermissions || [],
