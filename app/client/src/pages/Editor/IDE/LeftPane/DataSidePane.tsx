@@ -104,6 +104,7 @@ const DataSidePane = () => {
             <Text kind="heading-xs">{key}</Text>
             <List
               items={value.map((data) => ({
+                className: "t--datasource",
                 title: data.name,
                 onClick: () => goToDatasource(data.id),
                 description: `${

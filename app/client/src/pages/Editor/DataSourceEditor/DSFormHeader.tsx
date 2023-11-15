@@ -24,6 +24,17 @@ import { useShowPageGenerationOnHeader } from "./hooks";
 import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history from "utils/history";
+import {
+  DB_NOT_SUPPORTED,
+  isEnvironmentConfigured,
+} from "@appsmith/utils/Environments";
+import { getHasCreatePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { AppState } from "@appsmith/reducers";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import type { PluginType } from "entities/Action";
 
 export const ActionWrapper = styled.div`
   display: flex;
@@ -114,6 +125,14 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
   const dispatch = useDispatch();
 
   const pageId = useSelector(getCurrentPageId);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const userAppPermissions = useSelector(
+    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
+  );
+  const canCreatePages = getHasCreatePagePermission(
+    isFeatureEnabled,
+    userAppPermissions,
+  );
 
   const deleteAction = () => {
     if (isDeleting) return;
@@ -152,6 +171,18 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
       </MenuItem>,
     ];
   };
+
+  const canGeneratePage = canCreateDatasourceActions && canCreatePages;
+
+  const currentEnv = useSelector(getCurrentEnvironmentId);
+  const envSupportedDs = !DB_NOT_SUPPORTED.includes(pluginType as PluginType);
+
+  const showReconnectButton = !(
+    isPluginAuthorized &&
+    (envSupportedDs
+      ? isEnvironmentConfigured(datasource as Datasource, currentEnv)
+      : true)
+  );
 
   const routeToGeneratePage = () => {
     if (!showGenerateButton) {
@@ -228,9 +259,10 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             eventFrom="datasource-pane"
             pluginType={pluginType}
           />
-          {showGenerateButton && (
+          {showGenerateButton && !showReconnectButton && (
             <Button
               className={"t--generate-template"}
+              isDisabled={!canGeneratePage}
               kind="secondary"
               onClick={(e: any) => {
                 e.stopPropagation();

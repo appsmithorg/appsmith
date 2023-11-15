@@ -460,7 +460,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   after("Deletes the datasource", () => {
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409); //since crud page is still active
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409); //since crud page is still active
   });
 
   function DeleteS3FileFromUI(
