@@ -247,7 +247,7 @@ function* getEntitiesForStore(previousPath: string, currentPath: string) {
 function* getEntitiesForSet(
   previousPath: string,
   currentPath: string,
-  state: AppsmithLocationState,
+  state?: AppsmithLocationState,
 ) {
   if (!shouldSetState(previousPath, currentPath, state)) {
     return [];
@@ -257,7 +257,7 @@ function* getEntitiesForSet(
   const currentEntityInfo = identifyEntityFromPath(currentPath);
   if (
     isAppStateChange(previousPath, currentPath) &&
-    state.invokedBy === NavigationMethod.AppSidebar
+    state?.invokedBy === NavigationMethod.AppSidebar
   ) {
     const currentAppId: string = yield select(getCurrentApplicationId);
     const key = `${currentEntityInfo.appState}.${currentAppId}#${branch}`;
