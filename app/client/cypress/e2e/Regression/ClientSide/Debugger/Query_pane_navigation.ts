@@ -41,7 +41,7 @@ describe("excludeForAirgap", "Query pane navigation", () => {
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
       "test",
     );
-    debuggerHelper.AssertErrorCount(1);
+    debuggerHelper.AssertErrorCount(2);
 
     cy.get("@dsName").then(($dsName) => {
       ds2Name = $dsName as unknown as string;
@@ -55,7 +55,7 @@ describe("excludeForAirgap", "Query pane navigation", () => {
       ".t--actionConfiguration\\.formData\\.path\\.data",
       "test",
     );
-    debuggerHelper.AssertErrorCount(2);
+    debuggerHelper.AssertErrorCount(4);
 
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClicklogEntityLink();
