@@ -30,18 +30,6 @@ const WidgetsExport = ({
 
 export default WidgetsExport;
 
-function selectAllNestedChildren(
-  node: CanvasStructure,
-  selectedNodes: string[],
-) {
-  node.children?.forEach((child) => {
-    if (!selectedNodes.includes(child.widgetId)) {
-      selectedNodes.push(child.widgetId);
-      child.children && selectAllNestedChildren(child, selectedNodes);
-    }
-  });
-}
-
 interface WidgetSelectorProps extends BaseProps {
   widgetList: CanvasStructure[];
 }
@@ -50,42 +38,42 @@ function WidgetSelector({
   updateSelectedWidgets,
   widgetList,
 }: WidgetSelectorProps) {
-  const toggleNode = (node: CanvasStructure, parentArray: string[]) => {
-    const prevSelectedWidgetIds = [...selectedWidgetIds];
-
-    if (prevSelectedWidgetIds.includes(node.widgetId)) {
-      // Node is already selected, so deselect it and its children
-      prevSelectedWidgetIds.splice(
-        prevSelectedWidgetIds.indexOf(node.widgetId),
-        1,
-      );
-      parentArray.forEach((parentId) => {
-        prevSelectedWidgetIds.includes(parentId) &&
-          prevSelectedWidgetIds.splice(
-            prevSelectedWidgetIds.indexOf(parentId),
-            1,
-          );
-      });
+  const toggleNestedChildrenSelection = (
+    node: CanvasStructure,
+    selectedWidgetIds: string[],
+    checked: boolean,
+  ) => {
+    const isSelected = selectedWidgetIds.includes(node.widgetId);
+    if (checked) {
+      !isSelected && selectedWidgetIds.push(node.widgetId);
     } else {
-      // Node is not selected, so select it and all its children
-      prevSelectedWidgetIds.push(node.widgetId);
-      selectAllNestedChildren(node, prevSelectedWidgetIds);
+      isSelected &&
+        selectedWidgetIds.splice(selectedWidgetIds.indexOf(node.widgetId), 1);
     }
+    node?.children?.forEach((child) => {
+      toggleNestedChildrenSelection(child, selectedWidgetIds, checked);
+    });
+  };
 
+  const toggleNode = (node: CanvasStructure, checked: boolean) => {
+    const prevSelectedWidgetIds = [...selectedWidgetIds];
+    toggleNestedChildrenSelection(node, prevSelectedWidgetIds, checked);
     updateSelectedWidgets(prevSelectedWidgetIds);
   };
+
   function renderWidget(
     widget: CanvasStructure,
-    parentArray: string[],
     level = 0,
+    isParentSelected: boolean,
   ) {
     const isSelected = selectedWidgetIds.includes(widget.widgetId);
     return (
       <div style={{ marginLeft: level + 8 }}>
         <CheckboxContainer>
           <Checkbox
+            isDisabled={isParentSelected}
             isSelected={isSelected}
-            onChange={() => toggleNode(widget, parentArray)}
+            onChange={(checked) => toggleNode(widget, checked)}
           >
             <div className="flex items-center">
               <WidgetIcon height={12} type={widget.type} width={12} />
@@ -95,7 +83,7 @@ function WidgetSelector({
           </Checkbox>
         </CheckboxContainer>
         {widget.children?.map((child) =>
-          renderWidget(child, [...parentArray, widget.widgetId], level + 1),
+          renderWidget(child, level + 1, isSelected),
         )}
       </div>
     );
@@ -103,7 +91,7 @@ function WidgetSelector({
 
   return (
     <CheckboxWrapper>
-      {widgetList.map((widget) => renderWidget(widget, [], 0))}
+      {widgetList.map((widget) => renderWidget(widget, 0, false))}
     </CheckboxWrapper>
   );
 }
