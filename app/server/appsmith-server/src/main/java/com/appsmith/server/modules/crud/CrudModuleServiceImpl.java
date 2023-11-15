@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.helpers.ObjectUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
@@ -25,9 +26,11 @@ import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.query.Update;
@@ -46,6 +49,7 @@ import java.util.Set;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
+@Slf4j
 public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl implements CrudModuleService {
     private final ModuleRepository moduleRepository;
     private final ModulePermission modulePermission;
@@ -57,6 +61,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     private final ModuleInstancePermissionChecker moduleInstancePermissionChecker;
     private final TransactionalOperator transactionalOperator;
     private static ObjectMapper objectMapper = new ObjectMapper();
+    private final PluginService pluginService;
 
     public CrudModuleServiceImpl(
             ModuleRepository moduleRepository,
@@ -67,7 +72,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             PackagePermissionChecker packagePermissionChecker,
             PackagePermission packagePermission,
             ModuleInstancePermissionChecker moduleInstancePermissionChecker,
-            TransactionalOperator transactionalOperator) {
+            TransactionalOperator transactionalOperator,
+            PluginService pluginService) {
         super(moduleRepository);
         this.moduleRepository = moduleRepository;
         this.modulePermission = modulePermission;
@@ -78,6 +84,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         this.packagePermission = packagePermission;
         this.moduleInstancePermissionChecker = moduleInstancePermissionChecker;
         this.transactionalOperator = transactionalOperator;
+        this.pluginService = pluginService;
     }
 
     @Override
@@ -90,14 +97,34 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                     } else {
                         moduleDTO = module.getPublishedModule();
                     }
-                    return setTransientFieldsFromModuleToModuleDTO(module, moduleDTO);
+                    return setTransientFieldsFromModuleToModuleDTO(module, moduleDTO)
+                            .flatMap(this::setModuleSettingsForCreator);
                 })
                 .collectList();
     }
 
+    private Mono<ModuleDTO> setModuleSettingsForCreator(ModuleDTO moduleDTO) {
+        Mono<NewAction> publicActionMono = newActionService.findPublicActionByModuleId(moduleDTO.getId());
+        return getSettingsFormForModuleInstance().zipWith(publicActionMono).flatMap(tuple2 -> pluginService
+                .getFormConfig(tuple2.getT2().getPluginId())
+                .flatMap(pluginConfigMap -> {
+                    Object pluginSettings = pluginConfigMap.get("setting");
+                    Object moduleInstanceSettings = tuple2.getT1();
+
+                    JsonNode pluginSettingsNode = objectMapper.valueToTree(pluginSettings);
+                    JsonNode moduleInstanceSettingsNode = objectMapper.valueToTree(moduleInstanceSettings);
+
+                    ModuleUtils.getSettingsForModuleCreator(pluginSettingsNode, moduleInstanceSettingsNode);
+
+                    moduleDTO.setSettingsForm(pluginSettingsNode);
+
+                    return Mono.just(moduleDTO);
+                }));
+    }
+
     private Mono<ModuleDTO> setTransientFieldsFromModuleToModuleDTO(Module module, ModuleDTO moduleDTO) {
 
-        return getSettingsForm().flatMap(settingsForm -> {
+        return getSettingsFormForModuleInstance().flatMap(settingsForm -> {
             moduleDTO.setModuleUUID(module.getModuleUUID());
             moduleDTO.setId(module.getId());
             moduleDTO.setType(module.getType());
@@ -151,7 +178,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         return setTransientFieldsFromModuleToModuleDTO(module, moduleDTO);
     }
 
-    private Mono<Object> getSettingsForm() {
+    private Mono<Object> getSettingsFormForModuleInstance() {
         try {
             ClassPathResource resource = new ClassPathResource("modules/setting.json");
             InputStream inputStream = resource.getInputStream();
