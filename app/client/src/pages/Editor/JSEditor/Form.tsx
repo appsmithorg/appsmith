@@ -29,7 +29,6 @@ import type { AppState } from "@appsmith/reducers";
 import {
   getActiveJSActionId,
   getIsExecutingJSAction,
-  getIsJsActionForWorkflowCreation,
   getJSActions,
   getJSCollectionParseErrors,
 } from "@appsmith/selectors/entitiesSelector";
@@ -165,10 +164,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     }
   }, [hash]);
 
-  const isJsActionForWorkflowCreation = useSelector((state) =>
-    getIsJsActionForWorkflowCreation(state, currentJSCollection.id),
-  );
-
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   const isChangePermitted = getHasManageActionPermission(
@@ -176,19 +171,15 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     currentJSCollection?.userPermissions || [],
   );
 
-  const isEditNameDisabled =
-    !isChangePermitted || isJsActionForWorkflowCreation;
-
   const isExecutePermitted = getHasExecuteActionPermission(
     isFeatureEnabled,
     currentJSCollection?.userPermissions || [],
   );
 
-  const isDeletePermitted =
-    getHasDeleteActionPermission(
-      isFeatureEnabled,
-      currentJSCollection?.userPermissions || [],
-    ) && !isJsActionForWorkflowCreation;
+  const isDeletePermitted = getHasDeleteActionPermission(
+    isFeatureEnabled,
+    currentJSCollection?.userPermissions || [],
+  );
 
   // Triggered when there is a change in the code editor
   const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
@@ -325,7 +316,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor
-                disabled={isEditNameDisabled}
+                disabled={!isChangePermitted}
                 page="JS_PANE"
               />
             </NameWrapper>

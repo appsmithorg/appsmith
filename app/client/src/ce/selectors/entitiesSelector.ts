@@ -1281,11 +1281,3 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
 export function getInputsForModule(): Module["inputsForm"] {
   return [];
 }
-
-export const getIsJsActionForWorkflowCreation = createSelector(
-  getJSCollection,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  (action) => {
-    return false;
-  },
-);
