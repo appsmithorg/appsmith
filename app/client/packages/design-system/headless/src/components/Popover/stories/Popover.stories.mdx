@@ -42,6 +42,21 @@ Based on the [headless Popover component](/?path=/docs/design-system-headless-po
 
 <ArgsTable of={PopoverContent} />
 
+# Modal
+
+A modal is a floating element that displays information that requires immediate attention, appearing over the page content and blocking interactions with the page until it is dismissed.
+
+<Canvas>
+  <Story name="Modal">
+    <Popover modal>
+      <PopoverTrigger>
+        <Button>Modal trigger</Button>
+      </PopoverTrigger>
+      <PopoverContent>My modal content</PopoverContent>
+    </Popover>
+  </Story>
+</Canvas>
+
 # Placement
 
 The placement of the popover can be changed by passing the `placement` prop.

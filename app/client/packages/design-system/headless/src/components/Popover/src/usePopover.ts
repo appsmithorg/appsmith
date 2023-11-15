@@ -1,3 +1,4 @@
+import type { UseFloatingOptions } from "@floating-ui/react/src/types";
 import React, { useState } from "react";
 import {
   autoUpdate,
@@ -16,9 +17,11 @@ const DEFAULT_POPOVER_OFFSET = 10;
 
 export function usePopover({
   defaultOpen = false,
+  duration = 0,
   isOpen: controlledOpen,
-  modal = true,
+  modal = false,
   offset: offsetProp = DEFAULT_POPOVER_OFFSET,
+  onClose,
   placement = "bottom",
   setOpen: setControlledOpen,
 }: PopoverProps = {}) {
@@ -29,10 +32,8 @@ export function usePopover({
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = setControlledOpen ?? setUncontrolledOpen;
 
-  const data = useFloating({
+  const config: Partial<UseFloatingOptions> = {
     placement,
-    open,
-    onOpenChange: setOpen,
     strategy: "fixed",
     whileElementsMounted: autoUpdate,
     middleware: [
@@ -42,6 +43,19 @@ export function usePopover({
         fallbackAxisSideDirection: "end",
       }),
     ],
+  };
+
+  const data = useFloating({
+    open,
+    onOpenChange: setOpen,
+    whileElementsMounted: () => {
+      return () => {
+        if (onClose) {
+          onClose();
+        }
+      };
+    },
+    ...(modal ? {} : config),
   });
 
   const context = data.context;
@@ -63,6 +77,7 @@ export function usePopover({
       descriptionId,
       setLabelId,
       setDescriptionId,
+      duration,
     }),
     [open, setOpen, interactions, data, modal, labelId, descriptionId],
   );

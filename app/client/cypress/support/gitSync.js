@@ -416,12 +416,12 @@ Cypress.Commands.add("gitDiscardChanges", () => {
     .should("have.text", "Are you sure?");
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
+  cy.validateToastMessage("Discarded changes successfully.");
   cy.wait(2000);
   assertHelper.AssertContains(
     "Unable to import application in workspace",
     "not.exist",
   );
-  cy.validateToastMessage("Discarded changes successfully.");
 });
 
 Cypress.Commands.add(

@@ -22,7 +22,7 @@ import { cloneDeep } from "lodash";
 import {
   ColumnTypes,
   FilterableColumnTypes,
-} from "widgets/TableWidgetV2/constants";
+} from "widgets/wds/WDSTableWidget/constants";
 import { generateReactKey } from "utils/generators";
 import { importRemixIcon } from "design-system-old";
 

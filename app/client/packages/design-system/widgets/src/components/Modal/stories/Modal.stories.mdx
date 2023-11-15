@@ -1,0 +1,149 @@
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ButtonGroup,
+  ButtonGroupItem,
+} from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
+import { ControlledModal } from "./ControlledModal";
+
+<Meta title="Design-system/Widgets/Modal" component={Modal} />
+
+export const Template = (args) => {
+  return (
+    <Modal {...args}>
+      <Button>My modal trigger</Button>
+      <div>My modal content</div>
+    </Modal>
+  );
+};
+
+# Modal
+
+A modal is a floating element that displays information that requires immediate attention, appearing over the page content and blocking interactions with the page until it is dismissed.
+
+Modal developed on basis of Popover headless component. Additional information about functionality of Modal component can be found in the [Popover story](/docs/design-system-headless-popover--docs).
+
+<Canvas>
+  <Story name="Modal">{Template.bind({})}</Story>
+</Canvas>
+
+## Modal props
+
+<ArgsTable story="Modal" of={Modal} />
+
+## ModalHeader props
+
+<ArgsTable of={ModalHeader} />
+
+## ModalBody props
+
+ModalBody component has no props, it is responsible for the correct layout and supports the built-in browser scroll.
+
+## ModalFooter props
+
+<ArgsTable of={ModalFooter} />
+
+# ModalExamples
+
+export const fakeSubmit = async () => {
+  return new Promise((resolve) =>
+    setTimeout(() => {
+      alert("Submitted");
+      resolve();
+    }, 500),
+  );
+};
+
+<Canvas>
+  <Story name="Modal Examples">
+    <ButtonGroup>
+    <Modal size="small">
+      <ButtonGroupItem>Small</ButtonGroupItem>
+      <ModalHeader title="Modal title" />
+      <ModalBody>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad amet
+        aperiam assumenda cupiditate dicta dolore error expedita explicabo ipsum
+        iure mollitia nam quo, reiciendis repellat reprehenderit vel vitae.
+        Delectus dolores illo labore laudantium nihil nobis placeat soluta.
+        Dolorum esse et laboriosam libero nesciunt non placeat similique? Alias
+        animi at commodi cum delectus, ducimus earum enim esse exercitationem
+        facere facilis fugit illo illum laborum laudantium modi numquam officia
+        pariatur praesentium quos rem suscipit vel voluptas. Ab adipisci
+        asperiores blanditiis corporis, cum eligendi et, incidunt laborum nulla
+        odit quaerat quibusdam ut, velit. Animi assumenda at doloremque eius
+        facilis harum, libero praesentium quo.
+      </ModalBody>
+      <ModalFooter onSubmit={fakeSubmit} />
+    </Modal>
+
+    <Modal size="medium">
+      <ButtonGroupItem>Medium</ButtonGroupItem>
+      <ModalHeader title="Modal title" />
+      <ModalBody>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad amet
+        aperiam assumenda cupiditate dicta dolore error expedita explicabo ipsum
+        iure mollitia nam quo, reiciendis repellat reprehenderit vel vitae.
+        Delectus dolores illo labore laudantium nihil nobis placeat soluta.
+        Dolorum esse et laboriosam libero nesciunt non placeat similique? Alias
+        animi at commodi cum delectus, ducimus earum enim esse exercitationem
+        facere facilis fugit illo illum laborum laudantium modi numquam officia
+        pariatur praesentium quos rem suscipit vel voluptas. Ab adipisci
+        asperiores blanditiis corporis, cum eligendi et, incidunt laborum nulla
+        odit quaerat quibusdam ut, velit. Animi assumenda at doloremque eius
+        facilis harum, libero praesentium quo.
+      </ModalBody>
+      <ModalFooter onSubmit={fakeSubmit} />
+    </Modal>
+
+    <Modal size="large">
+      <ButtonGroupItem>Large</ButtonGroupItem>
+      <ModalHeader title="Modal title" />
+      <ModalBody>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad amet
+        aperiam assumenda cupiditate dicta dolore error expedita explicabo ipsum
+        iure mollitia nam quo, reiciendis repellat reprehenderit vel vitae.
+        Delectus dolores illo labore laudantium nihil nobis placeat soluta.
+        Dolorum esse et laboriosam libero nesciunt non placeat similique? Alias
+        animi at commodi cum delectus, ducimus earum enim esse exercitationem
+        facere facilis fugit illo illum laborum laudantium modi numquam officia
+        pariatur praesentium quos rem suscipit vel voluptas. Ab adipisci
+        asperiores blanditiis corporis, cum eligendi et, incidunt laborum nulla
+        odit quaerat quibusdam ut, velit. Animi assumenda at doloremque eius
+        facilis harum, libero praesentium quo.
+      </ModalBody>
+      <ModalFooter onSubmit={fakeSubmit} />
+    </Modal>
+    </ButtonGroup>
+
+  </Story>
+</Canvas>
+
+# Controlled Modal
+
+<Canvas>
+  <Story name="Controlled Modal">
+    <ControlledModal />
+  </Story>
+</Canvas>
+
+<Source
+  dark
+  code={`
+export const ControlledModal = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Modal isOpen={isOpen} setOpen={setIsOpen}>
+      <Button>My modal trigger</Button>
+      <ModalBody>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Doloribus,
+        vero!
+      </ModalBody>
+    </Modal>
+  );
+};
+`}
+/>

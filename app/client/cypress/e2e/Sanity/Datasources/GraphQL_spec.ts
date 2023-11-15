@@ -248,7 +248,7 @@ describe("GraphQL Datasource Implementation", function () {
       RunNValidateGraphQL();
     });
     cy.get("@dsName").then(($dsName: any) => {
-      dataSources.DeleteDatasouceFromActiveTab($dsName);
+      dataSources.DeleteDatasourceFromWithinDS($dsName);
     });
   });
 

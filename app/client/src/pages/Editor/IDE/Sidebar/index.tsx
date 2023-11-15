@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
   getIsAppSidebarAnnouncementEnabled,
   getIsAppSidebarEnabled,
 } from "selectors/ideSelectors";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import SidebarButton from "./SidebarButton";
 import { builderURL } from "@appsmith/RouteBuilder";
@@ -11,12 +11,15 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { ButtonButtons, TopButtons } from "entities/IDE/constants";
 import useCurrentAppState from "../hooks";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import {
   AnnouncementPopover,
   AnnouncementPopoverTrigger,
   AnnouncementPopoverContent,
   Button,
 } from "design-system";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 
 const Container = styled.div`
   width: 50px;
@@ -38,6 +41,7 @@ const DummyTrigger = styled.div`
 `;
 
 function Sidebar() {
+  const dispatch = useDispatch();
   const appState = useCurrentAppState();
   const [isPopoverOpen, setIsPopoverOpen] = useState(true);
   const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
@@ -47,6 +51,14 @@ function Sidebar() {
   const isAppSidebarAnnouncementDismissed =
     localStorage.getItem("isAppSidebarAnnouncementDismissed") === "true";
   const pageId = useSelector(getCurrentPageId);
+
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const guidedTourEnabled = useSelector(inGuidedTour);
+
+  useEffect(() => {
+    dispatch(fetchWorkspace(currentWorkspaceId));
+  }, [currentWorkspaceId]);
+
   const onClick = useCallback(
     (suffix) => {
       history.push(
@@ -73,8 +85,12 @@ function Sidebar() {
     );
   };
 
+  if (guidedTourEnabled) {
+    return null;
+  }
+
   return (
-    <Container>
+    <Container className="t--sidebar">
       {isAppSidebarAnnouncementEnabled &&
         !isAppSidebarAnnouncementDismissed && (
           <AnnouncementPopover open={isPopoverOpen}>
@@ -103,7 +119,11 @@ function Sidebar() {
           <SidebarButton
             icon={b.icon}
             key={b.state}
-            onClick={() => onClick(b.urlSuffix)}
+            onClick={() => {
+              if (appState !== b.state) {
+                onClick(b.urlSuffix);
+              }
+            }}
             selected={appState === b.state}
             title={b.title}
           />
@@ -114,7 +134,11 @@ function Sidebar() {
           <SidebarButton
             icon={b.icon}
             key={b.state}
-            onClick={() => onClick(b.urlSuffix)}
+            onClick={() => {
+              if (appState !== b.state) {
+                onClick(b.urlSuffix);
+              }
+            }}
             selected={appState === b.state}
             tooltip={b.title}
           />
