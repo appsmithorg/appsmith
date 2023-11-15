@@ -4,7 +4,6 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { isEmpty, isEqual, xorWith } from "lodash";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 
 export interface ParsedJSSubAction {
   name: string;
@@ -203,9 +202,8 @@ export const pushLogsForObjectUpdate = (
 export const createDummyJSCollectionActions = (
   pageId: string,
   workspaceId: string,
-  from: EventLocation,
 ) => {
-  let body =
+  const body =
     "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1 () {\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t},\n\tasync myFun2 () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}\n}";
 
   const actions = [
@@ -234,25 +232,6 @@ export const createDummyJSCollectionActions = (
       clientSideExecution: true,
     },
   ];
-
-  if (from === "WORKFLOW_CREATION") {
-    actions.unshift({
-      name: "executeWorkflow",
-      pageId,
-      workspaceId,
-      executeOnLoad: false,
-      actionConfiguration: {
-        body: "async function () {\n  // use async-await or promises\n  // await storeValue('varName', 'hello world')\n};",
-        timeoutInMillisecond: 0,
-        jsArguments: [],
-      },
-      clientSideExecution: true,
-    });
-
-    body =
-      "export default {\n\tasync executeWorkflow() {\n\t\t//Main function that executes the workflow\n\t},\n\n\tmyFun1 () {\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t},\n\tasync myFun2 () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}\n}";
-  }
-
   return {
     actions,
     body,
