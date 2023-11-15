@@ -5,7 +5,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
   it("1. Collapsed field navigation", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.AUDIO);
     _.propPane.EnterJSContext("animateloading", "{{test}}", true, false);
-    _.debuggerHelper.AssertErrorCount(1);
+    _.debuggerHelper.AssertErrorCount(2);
     _.propPane.ToggleSection("general");
     _.agHelper.AssertElementAbsence("animateloading");
     _.debuggerHelper.ClickDebuggerIcon();
@@ -20,7 +20,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB);
     _.propPane.OpenTableColumnSettings("tab2");
     _.propPane.EnterJSContext("visible", "{{test}}", true, false);
-    _.debuggerHelper.AssertErrorCount(1);
+    _.debuggerHelper.AssertErrorCount(2);
     _.propPane.NavigateBackToPropertyPane();
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
@@ -40,7 +40,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.agHelper.GetNClick(_.propPane._tableEditColumnButton);
     _.propPane.MoveToTab("Style");
     _.propPane.EnterJSContext("icon", "{{test}}", true, false);
-    _.debuggerHelper.AssertErrorCount(1);
+    _.debuggerHelper.AssertErrorCount(2);
     _.propPane.NavigateBackToPropertyPane(false);
     _.propPane.NavigateBackToPropertyPane();
     _.debuggerHelper.ClickDebuggerIcon();
@@ -59,7 +59,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
     _.propPane.ToggleSection("general");
     _.propPane.MoveToTab("Style");
-    _.debuggerHelper.AssertErrorCount(1);
+    _.debuggerHelper.AssertErrorCount(2);
     _.propPane.NavigateBackToPropertyPane();
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
@@ -100,7 +100,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.MoveToTab("Style");
 
     _.propPane.EnterJSContext("borderradius", "{{test}}", true, false);
-    _.debuggerHelper.AssertErrorCount(1);
+    _.debuggerHelper.AssertErrorCount(2);
     _.propPane.ToggleSection("borderandshadow");
     _.propPane.MoveToTab("Content");
 
@@ -124,12 +124,12 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.OpenTableColumnSettings("menuItem1");
 
     _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
-    _.debuggerHelper.AssertErrorCount(1);
+    _.debuggerHelper.AssertErrorCount(2);
     _.propPane.NavigateBackToPropertyPane();
 
     _.propPane.OpenTableColumnSettings("menuItem2");
     _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
-    _.debuggerHelper.AssertErrorCount(2);
+    _.debuggerHelper.AssertErrorCount(4);
 
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink(true);
@@ -167,7 +167,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
 
     _.propPane.OpenTableColumnSettings("imdb_id");
     _.propPane.TypeTextIntoField("Regex", "{{test}}");
-    _.debuggerHelper.AssertErrorCount(1);
+    _.debuggerHelper.AssertErrorCount(2);
     _.propPane.ToggleSection("validation");
     _.propPane.NavigateBackToPropertyPane();
 
