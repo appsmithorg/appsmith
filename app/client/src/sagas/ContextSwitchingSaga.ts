@@ -21,7 +21,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import {
   getEntityParentUrl,
   isAppStateChange,
@@ -191,13 +190,12 @@ function shouldSetState(
 }
 
 function* getEntitiesForStore(previousPath: string, currentPath: string) {
-  const branch: string | undefined = yield select(getCurrentGitBranch);
   const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
   const prevFocusEntityInfo = identifyEntityFromPath(previousPath);
   if (isAppStateChange(previousPath, currentPath)) {
     const currentAppId: string = yield select(getCurrentApplicationId);
     entities.push({
-      key: `${prevFocusEntityInfo.appState}.${currentAppId}#${branch}`,
+      key: `${prevFocusEntityInfo.appState}.${currentAppId}`,
       entityInfo: {
         entity: FocusEntity.APP_STATE,
         id: prevFocusEntityInfo.appState,
@@ -208,7 +206,7 @@ function* getEntitiesForStore(previousPath: string, currentPath: string) {
   if (isPageChange(previousPath, currentPath)) {
     if (prevFocusEntityInfo.pageId) {
       entities.push({
-        key: `${prevFocusEntityInfo.pageId}#${branch}`,
+        key: prevFocusEntityInfo.pageId,
         entityInfo: {
           entity: FocusEntity.PAGE,
           id: prevFocusEntityInfo.pageId,
@@ -229,14 +227,14 @@ function* getEntitiesForStore(previousPath: string, currentPath: string) {
           pageId: prevFocusEntityInfo.pageId,
           appState: prevFocusEntityInfo.appState,
         },
-        key: `${parentPath}#${branch}`,
+        key: parentPath,
       });
     }
   }
 
   entities.push({
     entityInfo: prevFocusEntityInfo,
-    key: `${previousPath}#${branch}`,
+    key: previousPath,
   });
 
   return entities.filter(
@@ -252,7 +250,6 @@ function* getEntitiesForSet(
   if (!shouldSetState(previousPath, currentPath, state)) {
     return [];
   }
-  const branch: string | undefined = yield select(getCurrentGitBranch);
   const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
   const currentEntityInfo = identifyEntityFromPath(currentPath);
   if (
@@ -260,7 +257,7 @@ function* getEntitiesForSet(
     state?.invokedBy === NavigationMethod.AppSidebar
   ) {
     const currentAppId: string = yield select(getCurrentApplicationId);
-    const key = `${currentEntityInfo.appState}.${currentAppId}#${branch}`;
+    const key = `${currentEntityInfo.appState}.${currentAppId}`;
     entities.push({
       key,
       entityInfo: {
@@ -274,8 +271,8 @@ function* getEntitiesForSet(
       return entities;
     }
   }
-  if (isPageChange(previousPath, currentPath)) {
-    const key = `${currentEntityInfo.pageId}#${branch}`;
+  if (isPageChange(previousPath, currentPath) && currentEntityInfo.pageId) {
+    const key = currentEntityInfo.pageId;
     if (currentEntityInfo.pageId) {
       entities.push({
         key,
@@ -294,7 +291,7 @@ function* getEntitiesForSet(
 
   entities.push({
     entityInfo: currentEntityInfo,
-    key: `${currentPath}#${branch}`,
+    key: currentPath,
   });
   return entities.filter(
     (entity) => entity.entityInfo.entity !== FocusEntity.NONE,

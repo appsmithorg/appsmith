@@ -7,6 +7,7 @@ import {
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "../constants/routes";
 import { shouldStorePageURLForFocus } from "./FocusUtils";
+import { FocusEntity, identifyEntityFromPath } from "./FocusEntity";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {
   const match = matchPath<{ datasourceId?: string }>(path, [
@@ -28,5 +29,8 @@ export const getCurrentPageUrl = (path: string): string | undefined => {
 };
 
 export const getCurrentAppUrl = (path: string): string | undefined => {
-  return path;
+  const focusInfo = identifyEntityFromPath(path);
+  if (focusInfo.entity !== FocusEntity.NONE) {
+    return path;
+  }
 };
