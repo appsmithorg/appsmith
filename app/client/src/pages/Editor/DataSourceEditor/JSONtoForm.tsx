@@ -9,6 +9,7 @@ import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
 
 export const FormContainer = styled.div`
   display: flex;
@@ -48,13 +49,11 @@ export class JSONtoForm<
   SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
   renderForm = (formContent: any) => {
+    const isAppSidebarEnabled = useIsAppSidebarEnabled();
     return (
       // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
-        {this.props.featureFlags?.release_app_sidebar_enabled ===
-        true ? null : (
-          <CloseEditor />
-        )}
+        {isAppSidebarEnabled === true ? null : <CloseEditor />}
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>
