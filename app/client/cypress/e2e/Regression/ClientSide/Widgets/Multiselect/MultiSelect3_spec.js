@@ -29,7 +29,7 @@ describe("Dropdown Widget Functionality", function () {
       .find(widgetLocators.menuButton)
       .then(($menuButton) => {
         const outerWidth = Cypress.$($menuButton).outerWidth();
-        expect(parseInt(outerWidth)).to.equal(147);
+        expect(parseInt(outerWidth)).to.equal(137);
       });
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
@@ -41,7 +41,7 @@ describe("Dropdown Widget Functionality", function () {
     cy.get(".menu-button-popover")
       .invoke("outerWidth")
       .then((width) => {
-        expect(parseInt(width)).to.equal(147);
+        expect(parseInt(width)).to.equal(137);
       });
 
     // MultiSelect
