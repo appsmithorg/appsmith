@@ -1281,3 +1281,7 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
 export function getInputsForModule(): Module["inputsForm"] {
   return [];
 }
+
+export const getModuleInstances = (): Record<string, unknown> => {
+  return {};
+};

@@ -18,7 +18,7 @@ import type {
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
-
+import { generateModuleInstance } from "@appsmith/entities/DataTree/DataTreeModuleInstance";
 export class DataTreeFactory {
   static create({
     actions,
@@ -30,6 +30,7 @@ export class DataTreeFactory {
     loadingEntities,
     metaWidgets,
     moduleInputs,
+    moduleInstances,
     pluginDependencyConfig,
     theme,
     widgets,
@@ -71,6 +72,17 @@ export class DataTreeFactory {
         dataTree.inputs = unEvalEntity;
         configTree.inputs = configEntity;
       }
+    }
+
+    if (!isEmpty(moduleInstances)) {
+      Object.values(moduleInstances).forEach((moduleInstance: unknown) => {
+        const { configEntity, unEvalEntity } =
+          generateModuleInstance(moduleInstance);
+        if (!!configEntity && !!unEvalEntity) {
+          dataTree.inputs = unEvalEntity;
+          configTree.inputs = configEntity;
+        }
+      });
     }
 
     Object.values(widgets).forEach((widget) => {

@@ -187,6 +187,7 @@ export interface DataTreeSeed {
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
   moduleInputs: Module["inputsForm"];
+  moduleInstances: Record<string, unknown>;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;
 }

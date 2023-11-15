@@ -6,6 +6,7 @@ import {
   getPluginEditorConfigs,
   getCurrentJSCollections,
   getInputsForModule,
+  getModuleInstances,
 } from "@appsmith/selectors/entitiesSelector";
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
@@ -58,6 +59,17 @@ const getCurrentActionEntities = createSelector(
   },
 );
 
+const getModulesData = createSelector(
+  getInputsForModule,
+  getModuleInstances,
+  (moduleInputs, moduleInstances) => {
+    return {
+      moduleInputs: moduleInputs,
+      moduleInstances: moduleInstances,
+    };
+  },
+);
+
 export const getUnevaluatedDataTree = createSelector(
   getCurrentActionEntities,
   getWidgetsForEval,
@@ -68,7 +80,7 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
   getMetaWidgets,
-  getInputsForModule,
+  getModulesData,
   getLayoutSystemPayload,
   getLoadingEntities,
   (
@@ -81,7 +93,7 @@ export const getUnevaluatedDataTree = createSelector(
     pluginDependencyConfig,
     selectedAppThemeProperty,
     metaWidgets,
-    moduleInputs,
+    modulesData,
     layoutSystemPayload,
     loadingEntities,
   ) => {
@@ -96,7 +108,7 @@ export const getUnevaluatedDataTree = createSelector(
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
       metaWidgets,
-      moduleInputs,
+      ...modulesData,
       loadingEntities,
       ...layoutSystemPayload,
     });
