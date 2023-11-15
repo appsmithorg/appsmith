@@ -40,6 +40,7 @@ export function createSectionAndAddWidget(
     type: "SECTION_WIDGET",
     version: 1,
     widgetId: generateReactKey(),
+    zoneCount: 1,
     widgetName: "Section" + getRandomInt(1, 100), // TODO: Need the function to logically add the number.
   };
 
