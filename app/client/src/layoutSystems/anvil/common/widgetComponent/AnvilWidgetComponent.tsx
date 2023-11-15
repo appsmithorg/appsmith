@@ -19,7 +19,7 @@ export const AnvilWidgetComponent = (props: BaseWidgetProps) => {
     return <Skeleton />;
   }
 
-  if (!detachFromLayout) return <div>{props.children}</div>;
+  if (!detachFromLayout) return props.children;
 
   return (
     <ErrorBoundary>

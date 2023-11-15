@@ -63,7 +63,7 @@ export const deriveRowHighlights =
       : parentDropTarget;
 
     const getDimensions: (id: string) => LayoutElementPosition =
-      getRelativeDimensions(parentDropTargetId, positions);
+      getRelativeDimensions(positions);
 
     const baseHighlight: AnvilHighlightInfo = {
       alignment:
