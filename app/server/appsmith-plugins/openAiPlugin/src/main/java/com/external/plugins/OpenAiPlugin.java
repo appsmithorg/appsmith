@@ -96,6 +96,8 @@ public class OpenAiPlugin extends BasePlugin {
             URI uri = openAICommand.createExecutionUri();
             HttpMethod httpMethod = openAICommand.getExecutionMethod();
 
+            log.info("OpenAI request object DTO is {}", gson.toJson(openAIRequestDTO));
+
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
@@ -107,6 +109,7 @@ public class OpenAiPlugin extends BasePlugin {
                     .flatMap(responseEntity -> {
                         HttpStatusCode statusCode = responseEntity.getStatusCode();
                         HttpHeaders headers = responseEntity.getHeaders();
+                        log.info("OpenAI response object DTO is {}", new String(responseEntity.getBody()));
 
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setRequest(actionExecutionRequest);
