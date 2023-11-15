@@ -153,7 +153,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   }, [
     files,
     appWideDS,
-    libraries,
+    customJsLibraries,
     canvasWidgets,
     selectedParams,
     setSelectedParams,
