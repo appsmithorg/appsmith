@@ -57,6 +57,7 @@ class Zone extends AlignedLayoutColumn {
       layoutId,
       layoutIndex,
       layoutStyle,
+      parentDropTarget,
       renderMode,
     } = this.props;
 
@@ -70,6 +71,7 @@ class Zone extends AlignedLayoutColumn {
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
         layoutIndex={layoutIndex}
+        parentDropTarget={parentDropTarget}
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >
