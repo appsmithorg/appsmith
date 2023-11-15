@@ -609,275 +609,279 @@ const PropertyControl = memo((props: Props) => {
   const wasDynamic: boolean =
     usePrevious(widgetProperties?.isPropertyDynamicPath) ?? isDynamic;
 
-  if (!widgetProperties) return null;
-  // Do not render the control if it needs to be hidden
-  if (
-    (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
-    props.invisible ||
-    (childWidgetShouldHidePropertyFn &&
-      childWidgetShouldHidePropertyFn(widgetProperties, props.propertyName))
-  ) {
-    return null;
-  }
-
-  const label = isFunction(props.label)
-    ? props.label(widgetProperties, propertyName)
-    : props.label;
-
-  const helperText = isFunction(props.helperText)
-    ? props.helperText(widgetProperties)
-    : props.helperText;
-
-  dataTreePath =
-    props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
-
-  if (childWidgetDataTreePathEnhancementFn) {
-    dataTreePath = childWidgetDataTreePathEnhancementFn(dataTreePath) as string;
-  }
-
-  const evaluatedValue = _.get(
-    widgetProperties,
-    getEvalValuePath(dataTreePath, {
-      isPopulated: true,
-      fullPath: false,
-    }),
-  );
-
-  const { additionalAutoComplete, ...rest } = props;
-  const config: ControlData = {
-    ...rest,
-    propertyValue,
-    dataTreePath,
-    evaluatedValue,
-    widgetProperties,
-    parentPropertyName: propertyName,
-    parentPropertyValue: propertyValue,
-    additionalDynamicData: {},
-    label,
-  };
-  config.expected = getExpectedValue(props.validation);
-  if (widgetProperties.isPropertyDynamicTrigger) {
-    config.validationMessage = "";
-    config.expected = {
-      example: 'showAlert("There was an error!", "error")',
-      type: "Function",
-      autocompleteDataType: AutocompleteDataType.FUNCTION,
-    };
-    delete config.evaluatedValue;
-  }
-
-  const isConvertible = !!props.isJSConvertible;
-  const className = label.split(" ").join("").toLowerCase();
-
-  let additionAutocomplete: AdditionalDynamicDataTree | undefined;
-  if (additionalAutoComplete) {
-    additionAutocomplete = additionalAutoComplete(widgetProperties);
-  } else if (childWidgetAutoCompleteEnhancementFn) {
-    additionAutocomplete = childWidgetAutoCompleteEnhancementFn() as
-      | AdditionalDynamicDataTree
-      | undefined;
-  }
-
-  /**
-   * if the current widget requires a customJSControl, use that.
-   */
-  const getCustomJSControl = (): string | undefined => {
-    if (childWidgetCustomJSControlEnhancementFn) {
-      return childWidgetCustomJSControlEnhancementFn() as string | undefined;
-    }
-
-    return props.customJSControl;
-  };
-
-  /**
-   * should the property control hide evaluated popover
-   * @returns
-   */
-  const hideEvaluatedValue = (): boolean => {
-    if (childWidgetHideEvaluatedValueEnhancementFn) {
-      return childWidgetHideEvaluatedValueEnhancementFn() as boolean;
-    }
-
-    return false;
-  };
-
-  const handleOnFocus = () => {
-    if (!shouldFocusPropertyPath) {
-      hasDispatchedPropertyFocus.current = true;
-      setTimeout(() => {
-        dispatch(setFocusablePropertyPaneField(dataTreePath));
-      }, 0);
-    }
-  };
-
-  const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
-  const controlMethods = PropertyControlFactory.controlMethods.get(
-    config.controlType,
-  );
-
-  const customJSControl = getCustomJSControl();
-
-  let isToggleDisabled = false;
-  if (
-    isDynamic // JS toggle button is ON
-  ) {
+  if (widgetProperties) {
+    // Do not render the control if it needs to be hidden
     if (
-      // Check if value is not empty
-      propertyValue !== undefined &&
-      propertyValue !== ""
+      (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
+      props.invisible ||
+      (childWidgetShouldHidePropertyFn &&
+        childWidgetShouldHidePropertyFn(widgetProperties, props.propertyName))
     ) {
-      let value = propertyValue;
-      // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
-      if (customJSControl && isDynamicValue(value)) {
-        const extractValue =
-          PropertyControlFactory.inputComputedValueMap.get(customJSControl);
-        if (extractValue)
-          value = extractValue(value, widgetProperties.widgetName);
+      return null;
+    }
+
+    const label = isFunction(props.label)
+      ? props.label(widgetProperties, propertyName)
+      : props.label;
+
+    const helperText = isFunction(props.helperText)
+      ? props.helperText(widgetProperties)
+      : props.helperText;
+
+    dataTreePath =
+      props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
+
+    if (childWidgetDataTreePathEnhancementFn) {
+      dataTreePath = childWidgetDataTreePathEnhancementFn(
+        dataTreePath,
+      ) as string;
+    }
+
+    const evaluatedValue = _.get(
+      widgetProperties,
+      getEvalValuePath(dataTreePath, {
+        isPopulated: true,
+        fullPath: false,
+      }),
+    );
+
+    const { additionalAutoComplete, ...rest } = props;
+    const config: ControlData = {
+      ...rest,
+      propertyValue,
+      dataTreePath,
+      evaluatedValue,
+      widgetProperties,
+      parentPropertyName: propertyName,
+      parentPropertyValue: propertyValue,
+      additionalDynamicData: {},
+      label,
+    };
+    config.expected = getExpectedValue(props.validation);
+    if (widgetProperties.isPropertyDynamicTrigger) {
+      config.validationMessage = "";
+      config.expected = {
+        example: 'showAlert("There was an error!", "error")',
+        type: "Function",
+        autocompleteDataType: AutocompleteDataType.FUNCTION,
+      };
+      delete config.evaluatedValue;
+    }
+
+    const isConvertible = !!props.isJSConvertible;
+    const className = label.split(" ").join("").toLowerCase();
+
+    let additionAutocomplete: AdditionalDynamicDataTree | undefined;
+    if (additionalAutoComplete) {
+      additionAutocomplete = additionalAutoComplete(widgetProperties);
+    } else if (childWidgetAutoCompleteEnhancementFn) {
+      additionAutocomplete = childWidgetAutoCompleteEnhancementFn() as
+        | AdditionalDynamicDataTree
+        | undefined;
+    }
+
+    /**
+     * if the current widget requires a customJSControl, use that.
+     */
+    const getCustomJSControl = (): string | undefined => {
+      if (childWidgetCustomJSControlEnhancementFn) {
+        return childWidgetCustomJSControlEnhancementFn() as string | undefined;
       }
 
-      // disable button if value can't be represented in UI mode
-      if (!controlMethods?.canDisplayValueInUI?.(config, value))
-        isToggleDisabled = true;
-    }
-
-    // Enable button if the value is same as the one defined in theme stylesheet.
-    if (
-      typeof propertyStylesheetValue === "string" &&
-      THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
-      propertyStylesheetValue === propertyValue
-    ) {
-      isToggleDisabled = false;
-    }
-  }
-
-  const helpText =
-    config.controlType === "ACTION_SELECTOR"
-      ? `Configure one or chain multiple actions. ${props.helpText}. All nested actions run at the same time.`
-      : props.helpText;
-
-  if (config.controlType === "ACTION_SELECTOR") {
-    config.additionalControlData = {
-      ...config.additionalControlData,
-      showEmptyBlock,
-      setShowEmptyBlock,
+      return props.customJSControl;
     };
-  }
 
-  if (shouldSwitchToNormalMode) {
-    const switchMode = shouldSwitchToNormalMode(
-      isDynamic,
-      isToggleDisabled,
-      connectDataClicked,
+    /**
+     * should the property control hide evaluated popover
+     * @returns
+     */
+    const hideEvaluatedValue = (): boolean => {
+      if (childWidgetHideEvaluatedValueEnhancementFn) {
+        return childWidgetHideEvaluatedValueEnhancementFn() as boolean;
+      }
+
+      return false;
+    };
+
+    const handleOnFocus = () => {
+      if (!shouldFocusPropertyPath) {
+        hasDispatchedPropertyFocus.current = true;
+        setTimeout(() => {
+          dispatch(setFocusablePropertyPaneField(dataTreePath));
+        }, 0);
+      }
+    };
+
+    const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
+    const controlMethods = PropertyControlFactory.controlMethods.get(
+      config.controlType,
     );
-    if (switchMode) {
-      toggleDynamicProperty(propertyName, true);
+
+    const customJSControl = getCustomJSControl();
+
+    let isToggleDisabled = false;
+    if (
+      isDynamic // JS toggle button is ON
+    ) {
+      if (
+        // Check if value is not empty
+        propertyValue !== undefined &&
+        propertyValue !== ""
+      ) {
+        let value = propertyValue;
+        // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
+        if (customJSControl && isDynamicValue(value)) {
+          const extractValue =
+            PropertyControlFactory.inputComputedValueMap.get(customJSControl);
+          if (extractValue)
+            value = extractValue(value, widgetProperties.widgetName);
+        }
+
+        // disable button if value can't be represented in UI mode
+        if (!controlMethods?.canDisplayValueInUI?.(config, value))
+          isToggleDisabled = true;
+      }
+
+      // Enable button if the value is same as the one defined in theme stylesheet.
+      if (
+        typeof propertyStylesheetValue === "string" &&
+        THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+        propertyStylesheetValue === propertyValue
+      ) {
+        isToggleDisabled = false;
+      }
+    }
+
+    const helpText =
+      config.controlType === "ACTION_SELECTOR"
+        ? `Configure one or chain multiple actions. ${props.helpText}. All nested actions run at the same time.`
+        : props.helpText;
+
+    if (config.controlType === "ACTION_SELECTOR") {
+      config.additionalControlData = {
+        ...config.additionalControlData,
+        showEmptyBlock,
+        setShowEmptyBlock,
+      };
+    }
+
+    if (shouldSwitchToNormalMode) {
+      const switchMode = shouldSwitchToNormalMode(
+        isDynamic,
+        isToggleDisabled,
+        connectDataClicked,
+      );
+      if (switchMode) {
+        toggleDynamicProperty(propertyName, true);
+      }
+    }
+
+    try {
+      return (
+        <ControlWrapper
+          className={`t--property-control-wrapper t--property-control-${className} group relative`}
+          data-guided-tour-iid={propertyName}
+          id={uniqId}
+          key={config.id}
+          onFocus={handleOnFocus}
+          orientation={
+            config.controlType === "SWITCH" && !isDynamic
+              ? "HORIZONTAL"
+              : "VERTICAL"
+          }
+          ref={controlRef}
+        >
+          <div className="flex items-center gap-1">
+            <PropertyHelpLabel
+              label={label}
+              theme={props.theme}
+              tooltip={helpText}
+            />
+            {isConvertible && (
+              <Tooltip
+                content={JS_TOGGLE_DISABLED_MESSAGE}
+                isDisabled={!isToggleDisabled}
+              >
+                <span>
+                  <ToggleButton
+                    className={classNames("t--js-toggle", {
+                      "is-active": isDynamic,
+                    })}
+                    icon="js-toggle-v2"
+                    isDisabled={isToggleDisabled}
+                    isSelected={isDynamic}
+                    onClick={() =>
+                      toggleDynamicProperty(
+                        propertyName,
+                        isDynamic,
+                        controlMethods?.shouldValidateValueOnDynamicPropertyOff(
+                          config,
+                          propertyValue,
+                        ),
+                      )
+                    }
+                    size="sm"
+                  />
+                </span>
+              </Tooltip>
+            )}
+            {isPropertyDeviatedFromTheme && (
+              <>
+                <Tooltip content="Value deviated from theme">
+                  <StyledDeviated className="w-2 h-2 rounded-full" />
+                </Tooltip>
+                <button
+                  className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
+                  onClick={resetPropertyValueToTheme}
+                >
+                  <Tooltip content="Reset value" placement="topRight">
+                    <ResetIcon className="w-5 h-5" />
+                  </Tooltip>
+                </button>
+              </>
+            )}
+            {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
+              <Button
+                className={clsx(
+                  `${config.label}`,
+                  "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
+                  `t--add-action-${config.label}`,
+                )}
+                isIconButton
+                kind="tertiary"
+                onClick={() => setShowEmptyBlock(true)}
+                startIcon="plus"
+              />
+            )}
+          </div>
+          {PropertyControlFactory.createControl(
+            config,
+            {
+              onPropertyChange: onPropertyChange,
+              onBatchUpdateProperties: onBatchUpdateProperties,
+              openNextPanel: openPanel,
+              deleteProperties: onDeleteProperties,
+              onBatchUpdateWithAssociatedUpdates:
+                onBatchUpdateWithAssociatedWidgetUpdates,
+              theme: props.theme,
+            },
+            {
+              preferEditor: isDynamic,
+              customEditor: customJSControl,
+              shouldFocusOnJSControl: isDynamic && wasDynamic !== isDynamic,
+            },
+            additionAutocomplete,
+            hideEvaluatedValue(),
+          )}
+          <PropertyPaneHelperText helperText={helperText} />
+        </ControlWrapper>
+      );
+    } catch (e) {
+      log.error(e);
+      return null;
     }
   }
-
-  try {
-    return (
-      <ControlWrapper
-        className={`t--property-control-wrapper t--property-control-${className} group relative`}
-        data-guided-tour-iid={propertyName}
-        id={uniqId}
-        key={config.id}
-        onFocus={handleOnFocus}
-        orientation={
-          config.controlType === "SWITCH" && !isDynamic
-            ? "HORIZONTAL"
-            : "VERTICAL"
-        }
-        ref={controlRef}
-      >
-        <div className="flex items-center gap-1">
-          <PropertyHelpLabel
-            label={label}
-            theme={props.theme}
-            tooltip={helpText}
-          />
-          {isConvertible && (
-            <Tooltip
-              content={JS_TOGGLE_DISABLED_MESSAGE}
-              isDisabled={!isToggleDisabled}
-            >
-              <span>
-                <ToggleButton
-                  className={classNames("t--js-toggle", {
-                    "is-active": isDynamic,
-                  })}
-                  icon="js-toggle-v2"
-                  isDisabled={isToggleDisabled}
-                  isSelected={isDynamic}
-                  onClick={() =>
-                    toggleDynamicProperty(
-                      propertyName,
-                      isDynamic,
-                      controlMethods?.shouldValidateValueOnDynamicPropertyOff(
-                        config,
-                        propertyValue,
-                      ),
-                    )
-                  }
-                  size="sm"
-                />
-              </span>
-            </Tooltip>
-          )}
-          {isPropertyDeviatedFromTheme && (
-            <>
-              <Tooltip content="Value deviated from theme">
-                <StyledDeviated className="w-2 h-2 rounded-full" />
-              </Tooltip>
-              <button
-                className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
-                onClick={resetPropertyValueToTheme}
-              >
-                <Tooltip content="Reset value" placement="topRight">
-                  <ResetIcon className="w-5 h-5" />
-                </Tooltip>
-              </button>
-            </>
-          )}
-          {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
-            <Button
-              className={clsx(
-                `${config.label}`,
-                "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
-                `t--add-action-${config.label}`,
-              )}
-              isIconButton
-              kind="tertiary"
-              onClick={() => setShowEmptyBlock(true)}
-              startIcon="plus"
-            />
-          )}
-        </div>
-        {PropertyControlFactory.createControl(
-          config,
-          {
-            onPropertyChange: onPropertyChange,
-            onBatchUpdateProperties: onBatchUpdateProperties,
-            openNextPanel: openPanel,
-            deleteProperties: onDeleteProperties,
-            onBatchUpdateWithAssociatedUpdates:
-              onBatchUpdateWithAssociatedWidgetUpdates,
-            theme: props.theme,
-          },
-          {
-            preferEditor: isDynamic,
-            customEditor: customJSControl,
-            shouldFocusOnJSControl: isDynamic && wasDynamic !== isDynamic,
-          },
-          additionAutocomplete,
-          hideEvaluatedValue(),
-        )}
-        <PropertyPaneHelperText helperText={helperText} />
-      </ControlWrapper>
-    );
-  } catch (e) {
-    log.error(e);
-    return null;
-  }
+  return null;
 });
 
 PropertyControl.displayName = "PropertyControl";
