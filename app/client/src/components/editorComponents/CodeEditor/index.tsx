@@ -1694,7 +1694,6 @@ class CodeEditor extends Component<Props, State> {
                 <CodeEditorSignPosting
                   editorTheme={this.props.theme}
                   forComp="editor"
-                  isAIEnabled={this.AIEnabled}
                   isOpen={this.isBindingPromptOpen()}
                   mode={this.props.mode}
                   promptMessage={this.props.promptMessage}
