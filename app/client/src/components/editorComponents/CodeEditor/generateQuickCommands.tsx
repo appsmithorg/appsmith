@@ -100,8 +100,8 @@ export function Command(props: {
 }) {
   return (
     <div className="command-container">
-      <div className="command">
-        {props.icon}
+      <div className="command flex">
+        <div className="self-center">{props.icon}</div>
         <div className="flex flex-col gap-1">
           <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)]">
             {props.name}
