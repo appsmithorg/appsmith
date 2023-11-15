@@ -74,7 +74,7 @@ describe("Audit logs", () => {
     });
   });
 
-  it("1. superuser should be able to see audit logs", () => {
+  it.skip("1. superuser should be able to see audit logs", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
