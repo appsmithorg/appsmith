@@ -9,16 +9,25 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Array Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create DS, Add DS & setting theme", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
     agHelper.AddDsl("Datatypes/ArrayDTdsl");
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(-31, -27);
   });
@@ -30,10 +39,9 @@ describe("Array Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes");
-
     //Creating SELECT query - arraytypes + Bug 14493
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.arraytypes",
       "Select",
     );
@@ -65,7 +73,6 @@ describe("Array Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "dropTable"); //Creating query from EE overlay
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("2. Inserting record - arraytypes", () => {
@@ -519,17 +526,7 @@ describe("Array Datatype tests", function () {
     dataSources.RunQuery();
     dataSources.AssertQueryTableResponse(0, "0");
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.arraytypes"),
-    );
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes", false);
   });
 
   after(
@@ -537,6 +534,7 @@ describe("Array Datatype tests", function () {
     () => {
       //Verify Deletion of all created queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
       //Ds Deletion
@@ -544,6 +542,7 @@ describe("Array Datatype tests", function () {
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
     },
   );
 });

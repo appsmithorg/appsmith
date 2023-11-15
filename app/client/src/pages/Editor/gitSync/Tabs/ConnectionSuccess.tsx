@@ -20,7 +20,6 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getDefaultGitBranchName } from "selectors/gitSyncSelectors";
 
 const Container = styled.div``;
 
@@ -53,6 +52,18 @@ const FeatureIcon = styled(Icon)`
   margin-right: 4px;
 `;
 
+const BranchTag = styled(Tag)`
+  display: inline-flex;
+`;
+
+const DefaultBranchMessage = styled(Text)`
+  margin-bottom: 16px;
+`;
+
+const ProtectionRulesTitle = styled(Text)`
+  margin-bottom: 8px;
+`;
+
 const features = [
   createMessage(BRANCH_PROTECTION_RULE_1),
   createMessage(BRANCH_PROTECTION_RULE_2),
@@ -61,7 +72,6 @@ const features = [
 
 function ConnectionSuccess() {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
-  const defaultBranchName = useSelector(getDefaultGitBranchName);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -86,9 +96,57 @@ function ConnectionSuccess() {
         tab: GitSyncModalTab.SETTINGS,
       }),
     );
-    AnalyticsUtil.logEvent("GS_START_USING_GIT", {
+    AnalyticsUtil.logEvent("GS_OPEN_GIT_SETTINGS", {
       repoUrl: gitMetadata?.remoteUrl,
     });
+  };
+
+  const branchProtectionContent = () => {
+    return (
+      <>
+        <DefaultBranchMessage renderAs="p">
+          Right now,{" "}
+          <BranchTag isClosable={false}>
+            {gitMetadata?.defaultBranchName}
+          </BranchTag>{" "}
+          is set as the default branch and it is protected.
+        </DefaultBranchMessage>
+        <ProtectionRulesTitle renderAs="p">
+          {createMessage(BRANCH_PROTECTION_RULES_AS_FOLLOWS)}
+        </ProtectionRulesTitle>
+        <FeatureList>
+          {features.map((feature) => (
+            <FeatureItem key={feature}>
+              <FeatureIcon
+                color="var(--ads-v2-color-blue-600)"
+                name="oval-check"
+                size="md"
+              />
+              <Text>{feature}</Text>
+            </FeatureItem>
+          ))}
+        </FeatureList>
+        <Text>{createMessage(BRANCH_PROTECTION_CHANGE_RULE)}</Text>
+      </>
+    );
+  };
+
+  const branchProtectionActions = () => {
+    return (
+      <>
+        <Button
+          data-testid="t--start-using-git-button"
+          kind="secondary"
+          onClick={handleStartGit}
+          size="md"
+        >
+          {createMessage(START_USING_GIT)}
+        </Button>
+        <Button onClick={handleOpenSettings} size="md">
+          {createMessage(OPEN_GIT_SETTINGS)}
+        </Button>
+      </>
+    );
   };
 
   return (
@@ -101,44 +159,10 @@ function ConnectionSuccess() {
               {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
             </TitleText>
           </TitleContainer>
-          <Text renderAs="p" style={{ marginBottom: 16 }}>
-            Right now,{" "}
-            <Tag isClosable={false} style={{ display: "inline-flex" }}>
-              {defaultBranchName}
-            </Tag>{" "}
-            is set as the default branch and it is protected.
-          </Text>
-          <Text renderAs="p" style={{ marginBottom: 8 }}>
-            {createMessage(BRANCH_PROTECTION_RULES_AS_FOLLOWS)}
-          </Text>
-          <FeatureList>
-            {features.map((feature) => (
-              <FeatureItem key={feature}>
-                <FeatureIcon
-                  color="var(--ads-v2-color-blue-600)"
-                  name="oval-check"
-                  size="md"
-                />
-                <Text>{feature}</Text>
-              </FeatureItem>
-            ))}
-          </FeatureList>
-          <Text>{createMessage(BRANCH_PROTECTION_CHANGE_RULE)}</Text>
+          {branchProtectionContent()}
         </Container>
       </ModalBody>
-      <ModalFooter>
-        <Button
-          data-testid="t--start-using-git-button"
-          kind="secondary"
-          onClick={handleStartGit}
-          size="md"
-        >
-          {createMessage(START_USING_GIT)}
-        </Button>
-        <Button onClick={handleOpenSettings} size="md">
-          {createMessage(OPEN_GIT_SETTINGS)}
-        </Button>
-      </ModalFooter>
+      <ModalFooter>{branchProtectionActions()}</ModalFooter>
     </>
   );
 }

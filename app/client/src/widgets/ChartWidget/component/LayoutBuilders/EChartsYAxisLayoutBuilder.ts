@@ -16,13 +16,19 @@ export class EChartsYAxisLayoutBuilder {
   labelsWidth: number;
   nameGap: number;
   leftOffset: number;
+  paddingFromLabels = 10;
+  labelsPaddingFromXAxis = 8;
+  commaPadding = 10;
+  nameGapWidth = 30;
 
   constructor(props: YAxisLayoutBuilderParams) {
     this.props = props;
 
     this.labelsWidth = this.widthForLabels();
-    this.nameGap = this.labelsWidth + 10;
-    this.leftOffset = this.nameGap + 30;
+
+    this.nameGap =
+      this.labelsWidth + this.labelsPaddingFromXAxis + this.paddingFromLabels;
+    this.leftOffset = this.nameGap + this.nameGapWidth;
   }
 
   showYAxisConfig = () => {
@@ -57,10 +63,12 @@ export class EChartsYAxisLayoutBuilder {
 
   maxWidthForLabels = () => {
     const longestLabelKey = labelKeyForChart("yAxis", this.props.chartType);
+
     const labelWidthYAxis = getTextWidth(
       this.props.longestLabel[longestLabelKey],
       this.props.font,
     );
-    return labelWidthYAxis + 10;
+
+    return labelWidthYAxis;
   };
 }

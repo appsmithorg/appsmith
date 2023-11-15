@@ -20,3 +20,9 @@ export const isGACEnabled = (featureFlags: FeatureFlags) => {
 export const isMultipleEnvEnabled = (featureFlags: FeatureFlags) => {
   return featureFlags?.release_datasource_environments_enabled;
 };
+
+export const isBranchProtectionLicenseEnabled = (
+  featureFlags: FeatureFlags,
+) => {
+  return !!featureFlags?.license_git_branch_protection_enabled;
+};

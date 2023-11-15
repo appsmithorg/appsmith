@@ -54,7 +54,7 @@ export const Menu = <T extends object>(props: MenuProps<T>) => {
           ref,
         })}
       </PopoverTrigger>
-      <PopoverContent className={className}>
+      <PopoverContent contentClassName={className}>
         {cloneElement(menuList as ReactElement, {
           ...rest,
           ...menuProps,
