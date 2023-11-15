@@ -1,6 +1,5 @@
 import { TextInput, Text, Flex, IconButton } from "@design-system/widgets";
 import React from "react";
-import { TableHeaderContentWrapper } from "../../TableStyledWrappers";
 import { TableFilters } from "./filter";
 import type {
   ReactTableColumnProps,

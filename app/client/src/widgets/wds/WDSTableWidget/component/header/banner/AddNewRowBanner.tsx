@@ -46,7 +46,7 @@ function AddNewRowBannerComponent(props: AddNewRowBannerType) {
           );
         }}
       >
-        Discard
+        Save row
       </Button>
     </Flex>
   );

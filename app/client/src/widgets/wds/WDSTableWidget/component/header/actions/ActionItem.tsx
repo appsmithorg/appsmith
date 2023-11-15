@@ -27,19 +27,19 @@ export const _ActionItem = (props: ActionItemProps, ref: HeadlessButtonRef) => {
   const getIcon = () => {
     switch (icon) {
       case "download":
-        return <DownloadIcon />;
+        return DownloadIcon;
       case "filter":
-        return <FilterIcon />;
+        return FilterIcon;
       case "add":
-        return <AddIcon />;
+        return AddIcon;
       default:
-        return null;
+        return undefined;
     }
   };
 
   const item = (
     <Button
-      icon={getIcon}
+      icon={getIcon()}
       onPress={onPress}
       ref={ref}
       variant="ghost"

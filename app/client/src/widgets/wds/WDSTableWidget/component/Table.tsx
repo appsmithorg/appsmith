@@ -341,9 +341,9 @@ export function Table(props: TableProps) {
             }}
           >
             <Flex
-              gap="spacing-2"
+              gap="spacing-1"
               minWidth="676px"
-              padding="spacing-2"
+              padding="spacing-1"
               style={{
                 borderBottom: "var(--border-width-1) solid var(--color-bd)",
               }}

@@ -1,43 +1,17 @@
 import React, { memo } from "react";
-import { Classes } from "@blueprintjs/core";
 import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
 import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
-import styled from "styled-components";
 import { ActionItem } from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
 import zipcelx from "zipcelx";
 import { importSvg } from "design-system-old";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@design-system/widgets";
+import { Menu, MenuList, Item } from "@design-system/widgets";
 
 const DownloadIcon = importSvg(
   async () => import("assets/icons/control/download-data-icon.svg"),
 );
-
-const OptionWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  height: 32px;
-  box-sizing: border-box;
-  padding: 6px 12px;
-  color: var(--wds-color-text);
-  min-width: 200px;
-  cursor: pointer;
-  border-left: none;
-  border-radius: unset;
-  .option-title {
-    font-weight: 500;
-    font-size: 13px;
-    line-height: 20px;
-  }
-`;
 
 interface TableDataDownloadProps {
   data: Array<Record<string, unknown>>;
@@ -56,17 +30,17 @@ interface DataCellProps {
 
 interface DownloadOptionProps {
   label: string;
-  value: FileDownloadType;
+  key: FileDownloadType;
 }
 
-const dowloadOptions: DownloadOptionProps[] = [
+const downloadOptions: DownloadOptionProps[] = [
   {
     label: "Download as CSV",
-    value: "CSV",
+    key: "CSV",
   },
   {
     label: "Download as Excel",
-    value: "EXCEL",
+    key: "EXCEL",
   },
 ];
 
@@ -105,15 +79,12 @@ const downloadDataAsCSV = (props: {
 };
 
 function TableDataDownload(props: TableDataDownloadProps) {
-  const [selected, selectMenu] = React.useState(false);
-
-  const downloadFile = (type: string) => {
+  const downloadFile = (type: FileDownloadType) => {
     if (type === "CSV") {
       downloadTableDataAsCsv();
     } else if (type === "EXCEL") {
       downloadTableDataAsExcel();
     }
-    selectMenu(false);
   };
 
   const downloadTableDataAsExcel = () => {
@@ -156,7 +127,6 @@ function TableDataDownload(props: TableDataDownloadProps) {
         data: tableData,
       },
     });
-    selectMenu(false);
   };
 
   const downloadTableDataAsCsv = () => {
@@ -183,30 +153,17 @@ function TableDataDownload(props: TableDataDownloadProps) {
   }
 
   return (
-    <Popover onOpenChange={selectMenu} open={selected}>
-      <PopoverTrigger>
-        <ActionItem
-          icon="download"
-          onPress={() => selectMenu(!selected)}
-          title="Download"
-        />
-      </PopoverTrigger>
-      <PopoverContent>
-        {dowloadOptions.map((item: DownloadOptionProps, index: number) => {
-          return (
-            <OptionWrapper
-              className={`${Classes.POPOVER_DISMISS} t--table-download-data-option`}
-              key={index}
-              onClick={() => {
-                downloadFile(item.value);
-              }}
-            >
-              {item.label}
-            </OptionWrapper>
-          );
-        })}
-      </PopoverContent>
-    </Popover>
+    <Menu
+      items={downloadOptions}
+      onAction={(key) => downloadFile(key as FileDownloadType)}
+    >
+      <ActionItem icon="download" title="Download" />
+      <MenuList>
+        {(item: DownloadOptionProps) => (
+          <Item key={item.key}>{item.label}</Item>
+        )}
+      </MenuList>
+    </Menu>
   );
 }
 
