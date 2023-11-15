@@ -2,6 +2,8 @@
 
 set -e
 
+echo "Running as: $(id)"
+
 stacks_path=/appsmith-stacks
 
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
@@ -68,7 +70,7 @@ init_env_file() {
   TEMPLATES_PATH="/opt/appsmith/templates"
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
 
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
@@ -99,7 +101,7 @@ init_env_file() {
   echo "Load environment configuration"
   set -o allexport
   . "$ENV_PATH"
-  . "$TEMPLATES_PATH/pre-define.env"
+  . "$TMP/pre-define.env"
   set +o allexport
 }
 
@@ -345,7 +347,9 @@ configure_supervisord() {
       mkdir -p "$stacks_path/data/redis"
     fi
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-      cp "$supervisord_conf_source/cron.conf" "$SUPERVISORD_CONF_TARGET"
+      if [[ -n "${APPSMITH_CUSTOM_DOMAIN-}" ]]; then
+        cp "$supervisord_conf_source/cron.conf" "$SUPERVISORD_CONF_TARGET"
+      fi
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
