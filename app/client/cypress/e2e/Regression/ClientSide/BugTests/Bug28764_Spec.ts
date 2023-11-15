@@ -1,14 +1,8 @@
-import largeJSONData from "../../../../fixtures/largeJSONData.json";
 import {
   agHelper,
   locators,
   entityExplorer,
   jsEditor,
-  propPane,
-  deployMode,
-  table,
-  debuggerHelper,
-  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("JS Function Execution", function () {
