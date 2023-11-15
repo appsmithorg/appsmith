@@ -20,7 +20,6 @@ import com.external.plugins.commands.OpenAICommand;
 import com.external.plugins.models.OpenAIRequestDTO;
 import com.external.plugins.utils.OpenAIMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -96,15 +95,6 @@ public class OpenAiPlugin extends BasePlugin {
             OpenAIRequestDTO openAIRequestDTO = openAICommand.makeRequestBody(actionConfiguration);
             URI uri = openAICommand.createExecutionUri();
             HttpMethod httpMethod = openAICommand.getExecutionMethod();
-            log.debug("OpenAI request object DTO is {}", gson.toJson(openAIRequestDTO));
-            System.out.println(gson.toJson(openAIRequestDTO));
-            String requestBody;
-            try {
-                requestBody = objectMapper.writeValueAsString(openAIRequestDTO);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-            System.out.println("OpenAI request object as json string is " + requestBody);
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
@@ -116,8 +106,6 @@ public class OpenAiPlugin extends BasePlugin {
                     .flatMap(responseEntity -> {
                         HttpStatusCode statusCode = responseEntity.getStatusCode();
                         HttpHeaders headers = responseEntity.getHeaders();
-                        log.debug("OpenAI response object DTO is {}", new String(responseEntity.getBody()));
-                        System.out.println(new String(responseEntity.getBody()));
 
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setRequest(actionExecutionRequest);
