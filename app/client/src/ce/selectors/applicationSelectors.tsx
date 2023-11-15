@@ -41,7 +41,7 @@ const fuzzySearchOptions = {
  *    packages: []
  *  }
  */
-const injectPackagesAndWOrkflowsToWorkspacesList = (
+const injectPackagesAndWorkflowsToWorkspacesList = (
   workspacesList: Workspaces[] = [],
   packages: PackageMetadata[] = [],
   workflows: WorkflowMetadata[] = [],
@@ -128,7 +128,7 @@ export const getUserApplicationsWorkspacesList = createSelector(
     packages?: PackageMetadata[],
     workflows?: WorkflowMetadata[],
   ) => {
-    const workspacesList = injectPackagesAndWOrkflowsToWorkspacesList(
+    const workspacesList = injectPackagesAndWorkflowsToWorkspacesList(
       applicationsWorkspaces,
       packages,
       workflows,
