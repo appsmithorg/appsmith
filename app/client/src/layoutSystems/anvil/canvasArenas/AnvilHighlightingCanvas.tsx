@@ -12,6 +12,7 @@ export interface AnvilHighlightingCanvasProps {
   deriveAllHighlightsFn: (
     layoutElementPositions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
+    isReorderingWidgets: boolean,
   ) => AnvilHighlightInfo[];
   onDrop: (renderedBlock: AnvilHighlightInfo) => void;
 }

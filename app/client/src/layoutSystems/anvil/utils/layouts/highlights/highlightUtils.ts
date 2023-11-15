@@ -37,6 +37,7 @@ export function deriveHighlights(
   layoutOrder: string[],
   baseHighlight: AnvilHighlightInfo,
   parentDropTargetId: string,
+  isReorderingWidgets: boolean,
   getInitialHighlights: GetInitialHighlights,
   getHighlightsForLayouts: GetLayoutHighlights,
   getHighlightsForWidgets: GetWidgetHighlights,
@@ -47,7 +48,11 @@ export function deriveHighlights(
    * Step 1: Check if draggedWidgets will exceed the maxChildLimit of the layout.
    */
   const { layout, maxChildLimit } = layoutProps;
-  if (maxChildLimit !== undefined && maxChildLimit > 0) {
+  if (
+    !isReorderingWidgets &&
+    maxChildLimit !== undefined &&
+    maxChildLimit > 0
+  ) {
     if (layout?.length + draggedWidgets.length > maxChildLimit) return [];
   }
 
@@ -82,6 +87,7 @@ export function deriveHighlights(
       canvasId,
       layoutOrder,
       parentDropTargetId,
+      isReorderingWidgets,
       getDimensions,
       hasAlignments,
       hasFillWidget,

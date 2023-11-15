@@ -32,6 +32,7 @@ export const deriveAlignedRowHighlights =
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
+    isReorderingWidgets: boolean,
   ): AnvilHighlightInfo[] => {
     if (!draggedWidgets.length || !positions[layoutProps.layoutId]) return [];
     const { layout, maxChildLimit } = layoutProps;
@@ -39,7 +40,11 @@ export const deriveAlignedRowHighlights =
     /**
      * Step 1: Check if draggedWidgets will exceed the maxChildLimit of the layout.
      */
-    if (maxChildLimit !== undefined && maxChildLimit > 0) {
+    if (
+      !isReorderingWidgets &&
+      maxChildLimit !== undefined &&
+      maxChildLimit > 0
+    ) {
       if (layout?.length + draggedWidgets.length > maxChildLimit) return [];
     }
 
