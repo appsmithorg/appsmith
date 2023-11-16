@@ -35,8 +35,12 @@ import { TemplateView } from "pages/Templates/TemplateView";
 import {
   firstTimeUserOnboardingInit,
   resetCurrentApplicationIdForCreateNewApp,
+  resetCurrentPluginIdForCreateNewApp,
 } from "actions/onboardingActions";
-import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentPluginIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -174,6 +178,7 @@ const CreateNewAppsOption = ({
   const workspaceList = useSelector(getForkableWorkspaces);
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
+  const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(
       state,
@@ -302,11 +307,19 @@ const CreateNewAppsOption = ({
         goBackToInitialScreen();
       }
     } else if (useType === START_WITH_TYPE.DATA) {
-      // Going back from start from data screen
-      AnalyticsUtil.logEvent(
-        "ONBOARDING_FLOW_CLICK_BACK_BUTTON_START_FROM_DATA_PAGE",
-      );
-      goBackToInitialScreen();
+      if (createNewAppPluginId) {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_BACK_BUTTON_DATASOURCE_FORM_PAGE",
+          { pluginId: createNewAppPluginId },
+        );
+        dispatch(resetCurrentPluginIdForCreateNewApp());
+      } else {
+        // Going back from start from data screen
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_BACK_BUTTON_START_FROM_DATA_PAGE",
+        );
+        goBackToInitialScreen();
+      }
     } else {
       // Going back from create new app flow
       AnalyticsUtil.logEvent(
@@ -401,9 +414,13 @@ const CreateNewAppsOption = ({
           </TemplateWrapper>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
-        <WithDataWrapper>
-          <CreateNewDatasourceTab />
-        </WithDataWrapper>
+        createNewAppPluginId ? (
+          <div>{createNewAppPluginId}</div>
+        ) : (
+          <WithDataWrapper>
+            <CreateNewDatasourceTab />
+          </WithDataWrapper>
+        )
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">

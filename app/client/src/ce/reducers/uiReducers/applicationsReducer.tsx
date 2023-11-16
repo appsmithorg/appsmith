@@ -833,6 +833,23 @@ export const handlers = {
       currentApplicationIdForCreateNewApp: undefined,
     };
   },
+  [ReduxActionTypes.SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      currentPluginIdForCreateNewApp: action.payload,
+    };
+  },
+  [ReduxActionTypes.RESET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentPluginIdForCreateNewApp: undefined,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -876,6 +893,7 @@ export interface ApplicationsReduxState {
     isFetchingAllUsers: boolean;
   };
   currentApplicationIdForCreateNewApp?: string;
+  currentPluginIdForCreateNewApp?: string;
 }
 
 export interface Application {

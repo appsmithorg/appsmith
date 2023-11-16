@@ -304,3 +304,7 @@ export const getApplicationByIdFromWorkspaces = createSelector(
     return application;
   },
 );
+
+export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
+  return state.ui.applications.currentPluginIdForCreateNewApp;
+};
