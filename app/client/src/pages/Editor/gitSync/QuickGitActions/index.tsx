@@ -141,7 +141,7 @@ const getPullBtnStatus = (
   if (!isClean && !isProtected) {
     disabled = true;
     message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
-  } else if (!isClean && isProtected) {
+  } else if (!isClean && isProtected && behindCount > 0) {
     disabled = false;
     message = createMessage(PULL_CHANGES);
   } else if (pullFailed) {
