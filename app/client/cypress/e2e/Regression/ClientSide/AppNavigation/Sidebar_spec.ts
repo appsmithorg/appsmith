@@ -6,6 +6,9 @@ import {
   assertHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Test Sidebar navigation style", function () {
   before(() => {
@@ -26,7 +29,7 @@ describe("Test Sidebar navigation style", function () {
   });
 
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
@@ -60,7 +63,7 @@ describe("Test Sidebar navigation style", function () {
     );
     // Changing color style to theme should change navigation's background color
     deployMode.NavigateBacktoEditor();
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(appSettings.locators._colorStyleOptions._theme, 0, true);
     deployMode.DeployApp();

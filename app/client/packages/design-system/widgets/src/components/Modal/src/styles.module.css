@@ -1,0 +1,59 @@
+.overlay {
+  background: var(--color-bg-neutral-opacity);
+  display: grid;
+  place-items: center;
+  z-index: var(--z-index-99);
+}
+
+.content {
+  background: var(--color-bg);
+  border-radius: var(--border-radius-1);
+  box-shadow: var(--box-shadow-1);
+  max-width: calc(100vw - var(--outer-spacing-6));
+  max-height: calc(100vh - var(--outer-spacing-6));
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--outer-spacing-4);
+  padding-inline: var(--outer-spacing-4);
+  padding-block: var(--outer-spacing-4);
+}
+
+[data-size="small"] .content {
+  width: var(--sizing-120);
+}
+
+[data-size="medium"] .content {
+  width: var(--sizing-180);
+}
+
+[data-size="large"] .content {
+  width: 100%;
+  height: 100%;
+}
+
+.body {
+  overflow: auto;
+  max-height: 100%;
+  padding-inline: var(--outer-spacing-4);
+  margin-inline: calc(var(--outer-spacing-4) * -1);
+  flex: 1;
+}
+
+.overlay,
+.content {
+  transition-property: opacity;
+}
+.content[data-status="open"],
+.content[data-status="close"],
+.overlay[data-status="open"],
+.overlay[data-status="close"] {
+  /* don't forget to change the duration Modal.tsx as well */
+  transition-duration: 200ms;
+}
+.content[data-status="initial"],
+.content[data-status="close"],
+.overlay[data-status="initial"],
+.overlay[data-status="close"] {
+  opacity: 0;
+}

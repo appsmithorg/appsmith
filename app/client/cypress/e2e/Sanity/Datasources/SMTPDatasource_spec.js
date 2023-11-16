@@ -33,18 +33,23 @@ describe("SMTP datasource test cases using ted", function () {
     cy.get(queryLocators.queryFromEmail)
       .first()
       .type("{{From.text}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
     cy.get(queryLocators.queryFromEmail)
       .eq(1)
       .type("{{To.text}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
     cy.get(queryLocators.queryFromEmail)
       .eq(4)
       .type("{{Subject.text}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
     cy.get(queryLocators.queryFromEmail)
       .eq(5)
       .type("{{Body.text}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
     cy.get(queryLocators.queryFromEmail)
       .eq(6)
       .type("{{FilePicker.files}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });

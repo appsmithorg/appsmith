@@ -11,6 +11,9 @@ import {
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -23,6 +26,7 @@ describe("Table widget one click binding feature", () => {
     dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.NavigateToSwitcher("Widgets");
 
       entityExplorer.SelectEntityByName("Select1", "Widgets");
