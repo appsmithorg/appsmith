@@ -99,20 +99,20 @@ function* mergeZones(
 }
 
 function* mergeLastZonesOfSection(
-  sectionCanvas: FlattenedWidgetProps,
   numberOfZonesToMerge: number,
+  zoneOrder: string[],
 ) {
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-  if (numberOfZonesToMerge > 0 && sectionCanvas.children) {
+  if (numberOfZonesToMerge > 0 && zoneOrder) {
     let count = 0;
-    const currentZoneCount = sectionCanvas.children.length;
+    const currentZoneCount = zoneOrder.length;
     do {
       const widgetsPostMerge: CanvasWidgetsReduxState = yield call(
         mergeZones,
         updatedWidgets,
-        sectionCanvas.children[currentZoneCount - count - 2],
-        sectionCanvas.children[currentZoneCount - count - 1],
+        zoneOrder[currentZoneCount - count - 2],
+        zoneOrder[currentZoneCount - count - 1],
       );
       updatedWidgets = {
         ...widgetsPostMerge,
@@ -164,16 +164,17 @@ function* UpdateZonesCountOfSection(
       const sectionCanvasId = sectionWidget.children[0];
       if (sectionCanvasId) {
         const sectionCanvas = allWidgets[sectionCanvasId];
-        const currentZoneCount = sectionCanvas.children
-          ? sectionCanvas.children.length
-          : 0;
+        const zoneOrder = sectionCanvas.layout[0].layout.map(
+          (each: any) => each.widgetId,
+        );
+        const currentZoneCount = zoneOrder ? zoneOrder.length : 0;
         let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
 
         if (currentZoneCount > zoneCount) {
           updatedWidgets = yield call(
             mergeLastZonesOfSection,
-            sectionCanvas,
             currentZoneCount - zoneCount,
+            zoneOrder,
           );
         } else if (currentZoneCount < zoneCount) {
           updatedWidgets = yield call(
