@@ -10,6 +10,25 @@ import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEdito
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
+import type CodeMirror from "codemirror";
+
+jest.mock("utils/getCodeMirrorNamespace", () => {
+  const actual = jest.requireActual("utils/getCodeMirrorNamespace");
+  return {
+    ...actual,
+    getCodeMirrorNamespaceFromDoc: jest.fn((doc) => ({
+      ...actual.getCodeMirrorNamespaceFromDoc(doc),
+      innerMode: jest.fn(() => ({
+        mode: {
+          name: "",
+        },
+        state: {
+          lexical: {},
+        },
+      })),
+    })),
+  };
+});
 
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {
@@ -340,11 +359,14 @@ describe("Tern server sorting", () => {
   ];
 
   it("shows best match results", () => {
-    CodemirrorTernService.setEntityInformation({
-      entityName: "sameEntity",
-      entityType: ENTITY_TYPE_VALUE.WIDGET,
-      expectedType: AutocompleteDataType.OBJECT,
-    });
+    CodemirrorTernService.setEntityInformation(
+      MockCodemirrorEditor as unknown as CodeMirror.Editor,
+      {
+        entityName: "sameEntity",
+        entityType: ENTITY_TYPE_VALUE.WIDGET,
+        expectedType: AutocompleteDataType.OBJECT,
+      },
+    );
     CodemirrorTernService.defEntityInformation = defEntityInformation;
     const sortedCompletions = AutocompleteSorter.sort(
       _.shuffle(completions),

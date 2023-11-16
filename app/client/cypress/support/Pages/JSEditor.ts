@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import EditorNavigation, { SidebarButton } from "./EditorNavigation";
 
 export interface ICreateJSObjectOptions {
   paste: boolean;
@@ -128,7 +129,7 @@ export class JSEditor {
   //#region Page functions
   public NavigateToNewJSEditor() {
     this.agHelper.ClickOutside(); //to enable click of below!
-
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
 

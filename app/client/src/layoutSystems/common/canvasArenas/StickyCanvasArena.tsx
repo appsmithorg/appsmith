@@ -24,6 +24,61 @@ interface StickyCanvasArenaRef {
   slidingArenaRef: RefObject<HTMLDivElement>;
 }
 
+/**
+ * we use IntersectionObserver to detect the amount of canvas(stickyCanvasRef) that is interactable at any point of time
+ * and resize and reposition it wrt to the slider(slidingArenaRef).
+ * downside to this is it fires events everytime the widget is interactable which is a lot.
+ * in this function we process events to check for changes on which updating of the canvas styles is based upon in
+ * repositionSliderCanvas and rescaleSliderCanvas functions.
+ *
+ * if no changes are required then we could safely skip calling the repositionSliderCanvas and rescaleSliderCanvas.
+ * Why is it important to limit calling repositionSliderCanvas and rescaleSliderCanvas
+ * every time a canvas style is updated(even with the same values) or the canvas is scaled,
+ * the canvas loses context and has to be redrawn which is a costly operation if done very frequent.
+ */
+const shouldUpdateCanvas = (
+  currentEntry: IntersectionObserverEntry,
+  previousEntry?: IntersectionObserverEntry,
+) => {
+  if (previousEntry) {
+    const {
+      boundingClientRect: {
+        left: previousBoundingLeft,
+        top: previousBoundingTop,
+      },
+      intersectionRect: {
+        height: previousIntersectHeight,
+        left: previousIntersectLeft,
+        top: previousIntersectTop,
+        width: previousIntersectWidth,
+      },
+    } = previousEntry;
+    const {
+      boundingClientRect: {
+        left: currentBoundingLeft,
+        top: currentBoundingTop,
+      },
+      intersectionRect: {
+        height: currentIntersectHeight,
+        left: currentIntersectLeft,
+        top: currentIntersectTop,
+        width: currentIntersectWidth,
+      },
+    } = currentEntry;
+    if (
+      previousIntersectHeight === currentIntersectHeight &&
+      previousIntersectWidth === currentIntersectWidth &&
+      previousIntersectLeft === currentIntersectLeft &&
+      previousIntersectTop === currentIntersectTop &&
+      previousBoundingTop === currentBoundingTop &&
+      previousBoundingLeft === currentBoundingLeft
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   position: absolute;
   top: 0px;
@@ -49,7 +104,7 @@ export const StickyCanvasArena = forwardRef(
       sliderId,
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
-
+    const previousIntersectionEntry = useRef<IntersectionObserverEntry>();
     const interSectionObserver = useRef(
       new IntersectionObserver((entries) => {
         entries.forEach(updateCanvasStylesIntersection);
@@ -94,9 +149,14 @@ export const StickyCanvasArena = forwardRef(
             slidingArenaRef.current,
           );
 
-          if (parentCanvas && stickyCanvasRef.current) {
+          if (
+            parentCanvas &&
+            stickyCanvasRef.current &&
+            shouldUpdateCanvas(entry, previousIntersectionEntry.current)
+          ) {
             repositionSliderCanvas(entry);
             rescaleSliderCanvas(entry);
+            previousIntersectionEntry.current = entry;
           }
         });
       }

@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.services.ApplicationService;
@@ -12,12 +13,18 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -25,15 +32,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
+@DirtiesContext
 public class GitPrivateRepoCEImplTest {
 
     @Autowired
     GitPrivateRepoHelper gitPrivateRepoHelper;
 
-    @MockBean
+    @SpyBean
     GitCloudServicesUtils gitCloudServicesUtils;
 
-    @MockBean
+    @SpyBean
     ApplicationService applicationService;
 
     /**
@@ -87,5 +95,35 @@ public class GitPrivateRepoCEImplTest {
         StepVerifier.create(gitPrivateRepoHelper.isRepoLimitReached("workspaceId", false))
                 .assertNext(aBoolean -> assertEquals(true, aBoolean))
                 .verifyComplete();
+    }
+
+    boolean isBranchProtected(GitApplicationMetadata metaData, String branchName) {
+        return Boolean.TRUE.equals(
+                gitPrivateRepoHelper.isBranchProtected(metaData, branchName).block());
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void isBranchProtected() {
+        GitApplicationMetadata metaData = new GitApplicationMetadata();
+
+        assertFalse(isBranchProtected(null, "master"));
+        assertFalse(isBranchProtected(metaData, "master"));
+
+        metaData.setDefaultBranchName("master2");
+        assertFalse(isBranchProtected(metaData, "master"));
+
+        metaData.setDefaultBranchName("master");
+        assertFalse(isBranchProtected(metaData, "master"));
+
+        metaData.setBranchProtectionRules(List.of("dev"));
+        assertFalse(isBranchProtected(metaData, "master"));
+
+        metaData.setBranchProtectionRules(List.of("dev"));
+        assertFalse(isBranchProtected(metaData, "dev"));
+
+        metaData.setBranchProtectionRules(List.of("dev", "master"));
+        assertFalse(isBranchProtected(metaData, "dev"));
+        assertTrue(isBranchProtected(metaData, "master"));
     }
 }

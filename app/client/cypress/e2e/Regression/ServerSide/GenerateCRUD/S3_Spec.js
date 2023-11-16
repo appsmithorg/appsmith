@@ -73,21 +73,6 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
   });
 
   it("2. Generate CRUD page from datasource ACTIVE section", function () {
-    // cy.NavigateToQueryEditor();
-    // cy.get(pages.integrationActiveTab)
-    //   .should("be.visible")
-    //   .click({ force: true });
-    // cy.wait(1000);
-
-    // cy.get(datasourceEditor.datasourceCard)
-    //   .contains(datasourceName)
-    //   .scrollIntoView()
-    //   .should("be.visible")
-    //   .closest(datasourceEditor.datasourceCard)
-    //   .within(() => {
-    //     cy.get(datasourceEditor.datasourceCardGeneratePageBtn).click();
-    //   });
-
     cy.NavigateToDSGeneratePage(datasourceName);
 
     // fetch bucket

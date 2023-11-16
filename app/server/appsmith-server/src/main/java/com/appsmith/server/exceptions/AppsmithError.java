@@ -200,10 +200,11 @@ public enum AppsmithError {
                     + "  \"message\" : \"Binding path in the widget not found. Please reach out to Appsmith customer support to resolve this.\","
                     + "  \"widgetName\" : \"{1}\","
                     + "  \"widgetId\" : \"{2}\","
-                    + "  \"pageId\" : \"{4}\","
+                    + "  \"creatorId\" : \"{4}\","
                     + "  \"layoutId\" : \"{5}\","
                     + "  \"errorDetail\" : \"{8}\","
-                    + "  \"dynamicBinding\" : {6}",
+                    + "  \"dynamicBinding\" : {6},"
+                    + "  \"creatorType\" : \"{9}\"",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Invalid dynamic binding reference",
             ErrorType.BAD_REQUEST,
