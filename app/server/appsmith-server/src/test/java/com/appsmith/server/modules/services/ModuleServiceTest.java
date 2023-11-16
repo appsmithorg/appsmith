@@ -175,6 +175,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -197,6 +199,7 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
         moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
@@ -249,7 +252,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
-
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
         moduleDTO.setEntity(moduleActionDTO);
 
         Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
@@ -282,6 +286,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -321,6 +327,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -381,6 +389,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId.get());
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -460,6 +470,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId.get());
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 

@@ -16,5 +16,7 @@ public class DefaultResources {
 
     String collectionId;
 
+    String moduleInstanceId;
+
     String branchName;
 }

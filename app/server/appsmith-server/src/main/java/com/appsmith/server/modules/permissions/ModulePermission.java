@@ -7,4 +7,6 @@ public interface ModulePermission extends DomainPermission {
     AclPermission getDeletePermission();
 
     AclPermission getCreateExecutablesPermission();
+
+    AclPermission getCreateModuleInstancePermission();
 }
