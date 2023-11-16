@@ -8,20 +8,25 @@ import {
 
 <Meta title="Design-system/Theme/Tokens/Dimension" />
 
-# Dimension Tokens
+# Dimension
 
-WDS provides a set of dimensions scales defining things such as sizing, distances, corner radii etc. to define dimensions of UI in an application. Instead of switching between different tokens depending on the viewport size WDS opts out to provide fluid tokens, so the token values themselves are responsive to the viewport size (fluid).
+WDS provides a set of dimensions scales defining sizing, distances, corner radii etc. They define dimensions of UI in an application. Instead of switching between different tokens depending on the viewport size WDS opts out to provide fluid tokens, so the token values themselves are responsive to the viewport size and fluidly interpolate between minimum and maximum value.
 
-In addition to fluid scales WDS defines a few non-fluid scales that are always set to precise integer pixel values. These are used to optimize the quality of rendering, e.g. in icons.
+In addition to fluid scales WDS provides non-fluid scales. They always provide precise integer pixel values and switch between those based on viewport size. This is used to optimize the quality of rendering, e.g. rasterization of strokes in icons.
 
 ## Available Scales
 
-- Outer Spacing (fluid)
-- Inner Spacing (fluid)
-- Typography Sizing (fluid)
-- Border Radii (fluid)
-- Icon Sizing (non-fluid)
-- Border Thickness (non-fluid)
+### Fluid
+
+- Outer Spacing
+- Inner Spacing
+- Typography Sizing
+- Border Radii
+
+### Non-fluid
+
+- Icon Sizing
+- Border Thickness
 
 ## Fluid Sizing
 
@@ -89,7 +94,7 @@ const scales = calculateScales(
 );
 ```
 
-The `userDensityRatio` and `userSizingRatio` are different for each scale to achieve intuitive results, e.g. for `outerSpacing` the `userDensityRatio` is 1.5 and for `innerSpacing` it's 2.5. The achieved effect is that increasing and decreasing density has more pronounced effect on inner spacing than on outer spacing.
+The `userDensityRatio` and `userSizingRatio` are different for each scale, e.g. `userDensityRatio` is **1.5** for outer spacing and for **2.5** for inner spacing. The achieved effect is that increasing and decreasing density has more pronounced effect on inner spacing than on outer spacing.
 
 ## Scales
 
@@ -122,7 +127,7 @@ Outer spacing is used for distances between significant UI elements in a composi
 
 ### Inner Spacing
 
-Inner spacing is used inside individual UI elements (e.g. padding) or between micro-elements inside a UI element (e.g. icon and corresponding to it text element).
+Inner spacing is used inside individual UI elements, e.g. padding. It can be also used between micro-elements inside a UI element, e.g. distance between an icon and corresponding to it text element.
 
 <Spacing type="inner" />
 
@@ -131,12 +136,6 @@ Inner spacing is used inside individual UI elements (e.g. padding) or between mi
 Typography sizes are fluid tokens that are applied to text with step numbers corresponding to semantical prominence.
 
 [Table goes here]
-
-### Icon Sizing
-
-Icon size tokens are applied to icons and are affected by `sizing` theme prop as well as available viewport size.
-
-[Table will be here once scale is implemented]
 
 ### Border Radii
 
@@ -161,6 +160,12 @@ export const BorderRadius = () => {
 };
 
 <BorderRadius />
+
+### Icon Sizing
+
+Icon size tokens are applied to icons and are affected by `sizing` theme prop as well as available viewport size.
+
+[Table will be here once scale is implemented]
 
 ### Border Thickness
 
