@@ -28,25 +28,16 @@ import type {
 } from "layoutSystems/common/types";
 
 export const deriveAlignedRowHighlights =
-  (
-    layoutProps: LayoutProps,
-    canvasId: string,
-    layoutOrder: string[],
-    parentDropTarget: string,
-  ) =>
+  (layoutProps: LayoutProps, canvasId: string, layoutOrder: string[]) =>
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
   ): AnvilHighlightInfo[] => {
     if (!draggedWidgets.length || !positions[layoutProps.layoutId]) return [];
-    const { isDropTarget, layout, layoutId } = layoutProps;
-
-    const parentDropTargetId: string = isDropTarget
-      ? layoutId
-      : parentDropTarget;
+    const { layout } = layoutProps;
 
     const getDimensions: (id: string) => LayoutElementPosition =
-      getRelativeDimensions(parentDropTargetId, positions);
+      getRelativeDimensions(positions);
 
     /**
      * Step 1: Construct a base highlight.
