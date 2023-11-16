@@ -109,7 +109,7 @@ public class OpenAiPlugin extends BasePlugin {
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         actionExecutionResult.setStatusCode(statusCode.toString());
 
-                        if (statusCode.isSameCodeAs(HttpStatusCode.valueOf(401))) {
+                        if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
                             actionExecutionResult.setIsExecutionSuccess(false);
                             actionExecutionResult.setErrorInfo(
                                     new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
