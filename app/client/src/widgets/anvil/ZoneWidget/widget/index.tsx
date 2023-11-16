@@ -8,6 +8,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig } from "entities/AppTheming";
 import ContainerWidget from "widgets/ContainerWidget/widget";
 import { anvilConfig, baseConfig, defaultConfig } from "./config";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 class ZoneWidget extends ContainerWidget {
   static type = "ZONE_WIDGET";
@@ -22,6 +23,36 @@ class ZoneWidget extends ContainerWidget {
 
   static getPropertyPaneConfig() {
     return [];
+  }
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+    ];
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
