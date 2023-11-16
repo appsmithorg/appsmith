@@ -14,11 +14,11 @@ import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -43,11 +43,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.server.helpers.ce.EntitySorter.sortDomainsBasedOnOrderedDomainIds;
+
 @Slf4j
 @Service
 public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
-    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceService workspaceService;
     private final UserRepository userRepository;
     private final UserDataRepository userDataRepository;
     private final PolicySolution policySolution;
@@ -61,7 +63,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Autowired
     public UserWorkspaceServiceCEImpl(
             SessionUserService sessionUserService,
-            WorkspaceRepository workspaceRepository,
+            WorkspaceService workspaceService,
             UserRepository userRepository,
             UserDataRepository userDataRepository,
             PolicySolution policySolution,
@@ -72,7 +74,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             WorkspacePermission workspacePermission,
             PermissionGroupPermission permissionGroupPermission) {
         this.sessionUserService = sessionUserService;
-        this.workspaceRepository = workspaceRepository;
+        this.workspaceService = workspaceService;
         this.userRepository = userRepository;
         this.userDataRepository = userDataRepository;
         this.policySolution = policySolution;
@@ -87,7 +89,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Override
     public Mono<User> leaveWorkspace(String workspaceId) {
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository
+        Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
@@ -150,7 +152,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         }
 
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository
+        Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
@@ -388,7 +390,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     protected Flux<PermissionGroup> getPermissionGroupsForWorkspace(String workspaceId) {
-        Mono<Workspace> workspaceMono = workspaceRepository
+        Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
@@ -402,5 +404,21 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     public Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup) {
         return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
                 && permissionGroup.getAssignedToUserIds().size() == 1;
+    }
+
+    @Override
+    public Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder() {
+
+        Mono<UserData> userDataMono = userDataService.getForCurrentUser().defaultIfEmpty(new UserData());
+
+        Flux<Workspace> workspacesFromRepoFlux =
+                workspaceService.getAll(workspacePermission.getReadPermission()).cache();
+
+        return userDataMono.flatMap(userData -> workspacesFromRepoFlux
+                // sort transformation
+                .transform(domainFlux ->
+                        sortDomainsBasedOnOrderedDomainIds(domainFlux, userData.getRecentlyUsedWorkspaceIds()))
+                // collect to list to keep the order of the workspaces
+                .collectList());
     }
 }
