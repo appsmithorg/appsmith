@@ -6,7 +6,7 @@ import lombok.Data;
  * Includes **only** those fields that can be updated for a user, via an API call.
  */
 @Data
-public class UserUpdateDTO_CE {
+public class UserUpdateCE_DTO {
     private String name;
 
     private String role;

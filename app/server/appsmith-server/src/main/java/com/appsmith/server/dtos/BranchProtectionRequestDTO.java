@@ -1,4 +1,4 @@
-package com.appsmith.server.dtos.ce;
+package com.appsmith.server.dtos;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.appsmith.server.dtos.ce;
+package com.appsmith.server.dtos;
 
 import com.appsmith.server.domains.Layout;
 import jakarta.validation.Valid;
