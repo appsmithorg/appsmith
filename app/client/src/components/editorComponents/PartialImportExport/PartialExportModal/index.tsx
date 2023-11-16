@@ -29,10 +29,10 @@ import { useDispatch, useSelector } from "react-redux";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
 import { getCurrentPageName } from "selectors/editorSelectors";
-import styled from "styled-components";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
+import { Bar, ScrollableSection } from "./StyledSheet";
 import WidgetsExport from "./WidgetsExport";
 
 interface Props {
@@ -310,11 +310,3 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
 };
 
 export default PartiaExportModel;
-
-const ScrollableSection = styled.section`
-  overflow-y: auto;
-`;
-
-const Bar = styled.hr`
-  margin: 16px 0;
-`;

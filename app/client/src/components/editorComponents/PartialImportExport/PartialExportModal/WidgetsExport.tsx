@@ -2,8 +2,7 @@ import { Checkbox } from "design-system";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import React from "react";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import styled from "styled-components";
-import { CheckboxWrapper } from "./StyledSheet";
+import { CheckboxContainer, CheckboxWrapper } from "./StyledSheet";
 
 interface BaseProps {
   selectedWidgetIds: string[];
@@ -95,7 +94,3 @@ function WidgetSelector({
     </CheckboxWrapper>
   );
 }
-
-const CheckboxContainer = styled.div`
-  margin-bottom: 8px;
-`;
