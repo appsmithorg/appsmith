@@ -5,7 +5,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
+import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
