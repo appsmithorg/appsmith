@@ -1,11 +1,17 @@
-import { fetchAllPageEntityCompletion } from "actions/pageActions";
-import { executePageLoadActions } from "actions/pluginActionActions";
+import {
+  fetchAllPageEntityCompletion,
+  setupPublishedPage,
+} from "actions/pageActions";
+import {
+  executePageLoadActions,
+  fetchActionsForView,
+} from "actions/pluginActionActions";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
-import { call, put, select, spawn } from "redux-saga/effects";
+import { call, put, spawn } from "redux-saga/effects";
 import {
   failFastApiCalls,
   reportSWStatus,
@@ -22,11 +28,11 @@ import {
   waitForFetchUserSuccess,
 } from "@appsmith/sagas/userSagas";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
-import { getPagesActionsThemesForView } from "@appsmith/entities/Engine/actionHelpers";
+import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
-  getFeatureFlagsForEngine,
-  type DependentFeatureFlags,
-} from "@appsmith/selectors/engineSelectors";
+  fetchAppThemesAction,
+  fetchSelectedAppThemeAction,
+} from "actions/appThemingActions";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -73,11 +79,28 @@ export default class AppViewerEngine extends AppEngine {
   }
 
   *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    const featureFlags: DependentFeatureFlags = yield select(
-      getFeatureFlagsForEngine,
-    );
-    const { failureActionEffects, initActionsCalls, successActionEffects } =
-      getPagesActionsThemesForView(toLoadPageId, applicationId, featureFlags);
+    const initActionsCalls: any = [
+      fetchActionsForView({ applicationId }),
+      fetchJSCollectionsForView({ applicationId }),
+      fetchSelectedAppThemeAction(applicationId),
+      fetchAppThemesAction(applicationId),
+      setupPublishedPage(toLoadPageId, true, true),
+    ];
+
+    const successActionEffects = [
+      ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
+      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
+      ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
+      ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
+      ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,
+    ];
+    const failureActionEffects = [
+      ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
+      ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+      ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
+      ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
+      ReduxActionErrorTypes.SETUP_PUBLISHED_PAGE_ERROR,
+    ];
 
     initActionsCalls.push(fetchJSLibraries(applicationId));
     successActionEffects.push(ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS);

@@ -562,3 +562,16 @@ export const setupPage = (
     isFirstLoad,
   },
 });
+
+export const setupPublishedPage = (
+  pageId: string,
+  bustCache = false,
+  firstLoad = false,
+) => ({
+  type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
+  payload: {
+    pageId,
+    bustCache,
+    firstLoad,
+  },
+});

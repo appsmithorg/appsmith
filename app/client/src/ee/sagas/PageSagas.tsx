@@ -20,6 +20,7 @@ import {
   setPreviewModeInitSaga,
   refreshTheApp,
   setupPageSaga,
+  setupPublishedPageSaga,
 } from "ce/sagas/PageSagas";
 import {
   all,
@@ -67,5 +68,9 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.REFRESH_THE_APP, refreshTheApp),
     takeLatest(ReduxActionTypes.CLEAR_CACHE, clearEvalCache),
     takeLatest(ReduxActionTypes.SETUP_PAGE_INIT, setupPageSaga),
+    takeLatest(
+      ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
+      setupPublishedPageSaga,
+    ),
   ]);
 }

@@ -1397,9 +1397,39 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
       type: ReduxActionTypes.FETCH_PAGE_INIT,
       payload: { id, isFirstLoad },
     });
+
+    yield put({
+      type: ReduxActionTypes.SETUP_PAGE_SUCCESS,
+    });
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SETUP_PAGE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+export function* setupPublishedPageSaga(
+  action: ReduxAction<{
+    pageId: string;
+    bustCache: boolean;
+    firstLoad: boolean;
+  }>,
+) {
+  try {
+    const { bustCache, firstLoad, pageId } = action.payload;
+
+    yield call(fetchPublishedPageSaga, {
+      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
+      payload: { bustCache, firstLoad, pageId },
+    });
+
+    yield put({
+      type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SETUP_PUBLISHED_PAGE_ERROR,
       payload: { error },
     });
   }
