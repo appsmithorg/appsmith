@@ -107,6 +107,15 @@ public enum AppsmithPluginError implements BasePluginError {
             ErrorType.AUTHENTICATION_ERROR,
             "{0}",
             "{1}"),
+    PLUGIN_DATASOURCE_ERROR(
+            400,
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_ERROR.getCode(),
+            "Error with datasource request. Please check datasource configuration.",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource error",
+            ErrorType.BAD_REQUEST,
+            "{0}",
+            "{1}"),
     PLUGIN_IN_MEMORY_FILTERING_ERROR(
             500,
             AppsmithPluginErrorCode.PLUGIN_IN_MEMORY_FILTERING_ERROR.getCode(),
