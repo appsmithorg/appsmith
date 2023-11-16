@@ -51,6 +51,9 @@ export function PageContextMenu(props: {
 }) {
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const isAppSidebarEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_app_sidebar_enabled,
+  );
 
   /**
    * delete the page
@@ -178,7 +181,7 @@ export function PageContextMenu(props: {
         value: "setdefault",
         label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
       },
-    {
+    !isAppSidebarEnabled && {
       value: "settings",
       onSelect: openAppSettingsPane,
       label: createMessage(CONTEXT_SETTINGS),

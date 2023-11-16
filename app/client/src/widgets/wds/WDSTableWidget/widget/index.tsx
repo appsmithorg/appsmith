@@ -377,6 +377,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: true,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
