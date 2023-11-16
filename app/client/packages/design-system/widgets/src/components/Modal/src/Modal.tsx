@@ -1,9 +1,5 @@
-import React, { Children } from "react";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@design-system/headless";
+import React from "react";
+import { Popover, PopoverModalContent } from "@design-system/headless";
 import styles from "./styles.module.css";
 import type { ModalProps } from "./types";
 import clsx from "clsx";
@@ -11,23 +7,21 @@ import clsx from "clsx";
 export const Modal = (props: ModalProps) => {
   const {
     children,
-    contentClassName,
     overlayClassName,
     size = "medium",
+    triggerRef,
     ...rest
   } = props;
-  const [trigger, ...content] = Children.toArray(children);
 
   return (
-    <Popover duration={200} modal {...rest}>
-      <PopoverTrigger>{trigger}</PopoverTrigger>
-      <PopoverContent
-        contentClassName={clsx(styles.content, contentClassName)}
+    // don't forget to change the transition-duration CSS as well
+    <Popover duration={200} modal triggerRef={triggerRef} {...rest}>
+      <PopoverModalContent
         data-size={size}
         overlayClassName={clsx(styles.overlay, overlayClassName)}
       >
-        {content}
-      </PopoverContent>
+        {children}
+      </PopoverModalContent>
     </Popover>
   );
 };
