@@ -28,6 +28,10 @@ import { createNewApiAction } from "actions/apiPaneActions";
 import { PluginPackageName } from "entities/Action";
 import { Spinner } from "design-system";
 import PlusLogo from "assets/images/Plus-logo.svg";
+import {
+  createMessage,
+  CREATE_NEW_DATASOURCE_REST_API,
+} from "@appsmith/constants/messages";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -259,7 +263,9 @@ class DatasourceHomeScreen extends React.Component<Props> {
                   className="curlImage t--plusImage content-icon"
                   src={PlusLogo}
                 />
-                <p className="textBtn">REST API</p>
+                <p className="textBtn">
+                  {createMessage(CREATE_NEW_DATASOURCE_REST_API)}
+                </p>
               </CardContentWrapper>
               {isCreating && <Spinner className="cta" size={25} />}
             </ApiCard>
@@ -270,7 +276,10 @@ class DatasourceHomeScreen extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: any) => {
+const mapStateToProps = (
+  state: AppState,
+  props: { showMostPopularPlugins?: boolean },
+) => {
   const { datasources } = state.entities;
   return {
     pluginImages: getPluginImages(state),
