@@ -32,13 +32,15 @@
       }
     },
     {
-      "label": "Max Token",
-      "tooltipText": "Max tokens to use for this assistant requests",
+      "label": "Max Tokens",
+      "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+      "subtitle": "The maximum number of tokens to generate in the chat completion.",
       "Description": "Put a positive integer value",
       "configProperty": "actionConfiguration.formData.maxTokens",
       "controlType": "INPUT_TEXT",
       "initialValue": "16",
-      "isRequired": true
+      "isRequired": true,
+      "dataType": "NUMBER"
     },
     {
       "label": "Temperature",
@@ -47,12 +49,13 @@
       "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
       "configProperty": "actionConfiguration.formData.temperature",
       "controlType": "INPUT_TEXT",
-      "initialValue": "1",
+      "dataType": "NUMBER",
+      "initialValue": "0",
       "isRequired": false
     },
     {
       "label": "System Messages",
-      "tooltipText": "Provide instruction to assistant",
+      "tooltipText": "Provide system instructions to the assistant",
       "subtitle": "A list of messages for Assistant as instructions",
       "propertyName": "systemMessages",
       "isRequired": false,
@@ -97,7 +100,7 @@
           "label": "Content",
           "key": "content",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "\"{{Img1.image}} or {{Input1.text}}\""
+          "placeholderText": "{{Img1.image}} or {{Input1.text}}"
         }
       ]
     }
