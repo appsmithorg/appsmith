@@ -18,22 +18,23 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
+import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
-import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -396,8 +397,10 @@ public class ActionCollectionServiceTest {
         final ActionCollectionDTO createdActionCollectionDTO2 =
                 layoutCollectionService.createCollection(actionCollectionDTO2).block();
 
-        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        RefactorEntityNameDTO refactorActionNameDTO = new RefactorEntityNameDTO();
+        refactorActionNameDTO.setEntityType(EntityType.JS_ACTION);
         assert createdActionCollectionDTO1 != null;
+        refactorActionNameDTO.setActionCollection(createdActionCollectionDTO1);
         refactorActionNameDTO.setActionId(createdActionCollectionDTO1.getActions().stream()
                 .findFirst()
                 .get()
@@ -408,8 +411,9 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("testAction1");
         refactorActionNameDTO.setNewName("newTestAction1");
 
-        final LayoutDTO layoutDTO =
-                refactoringSolution.refactorActionName(refactorActionNameDTO).block();
+        final LayoutDTO layoutDTO = refactoringSolution
+                .refactorEntityName(refactorActionNameDTO, null)
+                .block();
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono =
@@ -485,8 +489,10 @@ public class ActionCollectionServiceTest {
         final ActionCollectionDTO createdActionCollectionDTO2 =
                 layoutCollectionService.createCollection(actionCollectionDTO2).block();
 
-        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        RefactorEntityNameDTO refactorActionNameDTO = new RefactorEntityNameDTO();
+        refactorActionNameDTO.setEntityType(EntityType.JS_ACTION);
         assert createdActionCollectionDTO1 != null;
+        refactorActionNameDTO.setActionCollection(createdActionCollectionDTO1);
         refactorActionNameDTO.setActionId(createdActionCollectionDTO1.getActions().stream()
                 .findFirst()
                 .get()
@@ -497,8 +503,9 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("run");
         refactorActionNameDTO.setNewName("newRun");
 
-        final LayoutDTO layoutDTO =
-                refactoringSolution.refactorActionName(refactorActionNameDTO).block();
+        final LayoutDTO layoutDTO = refactoringSolution
+                .refactorEntityName(refactorActionNameDTO, null)
+                .block();
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono =

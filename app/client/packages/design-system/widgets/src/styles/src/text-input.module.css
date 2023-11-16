@@ -5,9 +5,9 @@
     align-items: center;
     gap: var(--inner-spacing-1);
     border-radius: var(--border-radius-1);
-    box-shadow: inset 0 0 0 1px var(--color-bd-neutral);
-    padding-inline: var(--inner-spacing-2);
-    block-size: var(--sizing-8);
+    box-shadow: 0 0 0 1px var(--color-bd-neutral);
+    padding-inline: var(--inner-spacing-1);
+    padding-block: var(--inner-spacing-1);
   }
 
   & [data-field-input] :is(input, textarea) {
@@ -95,12 +95,25 @@
 
   /**
   * ----------------------------------------------------------------------------
-  * DISABleD
+  * DISABLED
   *-----------------------------------------------------------------------------
   */
   &[data-disabled],
   &[data-disabled] :is(input, textarea),
   &[data-disabled] label {
     cursor: not-allowed;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * START ICON AND END ICON
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-input-start-icon] {
+    width: max-content;
+  }
+
+  & [data-field-input-end-icon] {
+    width: max-content;
   }
 }

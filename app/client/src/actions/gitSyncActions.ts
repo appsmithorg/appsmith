@@ -196,8 +196,11 @@ export const fetchGitRemoteStatusSuccess = (payload: GitRemoteStatusData) => ({
   payload,
 });
 
-export const discardChanges = () => ({
+export const discardChanges = (
+  payload: { successToastMessage?: string } | undefined | null = {},
+) => ({
   type: ReduxActionTypes.GIT_DISCARD_CHANGES,
+  payload,
 });
 
 export const discardChangesSuccess = (payload: any) => ({
@@ -474,46 +477,11 @@ export const fetchGitProtectedBranchesInit = () => {
   };
 };
 
-export const fetchGitProtectedBranchesSuccess = (
-  protectedBranches: string[],
-) => {
-  return {
-    type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_SUCCESS,
-    payload: { protectedBranches },
-  };
-};
-
-export const fetchGitProtectedBranchesError = (
-  error: any,
-  show: boolean = true,
-) => {
-  return {
-    type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR,
-    payload: { error, show },
-  };
-};
-
 export const updateGitProtectedBranchesInit = (payload: {
   protectedBranches: string[];
 }) => {
   return {
     type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT,
     payload,
-  };
-};
-
-export const updateGitProtectedBranchesSuccess = () => {
-  return {
-    type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_SUCCESS,
-  };
-};
-
-export const updateGitProtectedBranchesError = (
-  error: any,
-  show: boolean = true,
-) => {
-  return {
-    type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR,
-    payload: { error, show },
   };
 };

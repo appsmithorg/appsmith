@@ -407,6 +407,7 @@ describe("JS Function Execution", function () {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
     agHelper.RefreshPage();
+    agHelper.Sleep(2000); //for confirmatiom modal to appear before clicking on "Yes" button for CI runs
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode

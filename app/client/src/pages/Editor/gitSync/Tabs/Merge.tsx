@@ -26,6 +26,7 @@ import {
   getIsMergeInProgress,
   getMergeError,
   getMergeStatus,
+  getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 import type { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
@@ -90,6 +91,7 @@ export default function Merge() {
   const mergeError = useSelector(getMergeError);
   const isMergeAble = mergeStatus?.isMergeAble && gitStatus?.isClean;
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
+  const protectedBranches = useSelector(getProtectedBranchesSelector);
   let mergeStatusMessage = !gitStatus?.isClean
     ? createMessage(CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES)
     : mergeStatus?.message;
@@ -115,7 +117,10 @@ export default function Merge() {
       if (index === gitBranches.length) break;
       const branchObj = gitBranches[index];
 
-      if (currentBranch !== branchObj.branchName) {
+      if (
+        currentBranch !== branchObj.branchName &&
+        !protectedBranches.includes(branchObj.branchName)
+      ) {
         if (!branchObj.default) {
           branchOptions.push({
             label: branchObj.branchName,

@@ -83,7 +83,7 @@ import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
+import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -107,6 +107,7 @@ export function EditorHeader() {
   const featureFlags = useSelector(selectFeatureFlags);
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -114,7 +115,6 @@ export function EditorHeader() {
   );
   const isPreviewingApp =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
-  const isProtectedMode = useSelector(protectedModeSelector);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
@@ -123,7 +123,7 @@ export function EditorHeader() {
     setShowPublishCommunityTemplateModal,
   ] = useState(false);
 
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   const showEntityExplorerLock = !isAppSidebarEnabled && !signpostingEnabled;
 
@@ -159,6 +159,7 @@ export function EditorHeader() {
         pageCount,
         ...navigationSettingsWithPrefix,
         isPublic: !!currentApplication?.isPublic,
+        templateTitle: currentApplication?.forkedFromTemplateTitle,
       });
     }
   };

@@ -50,8 +50,8 @@ export interface RefactorActionRequest extends RefactorAction {
   layoutId: string;
 }
 
-export interface UpdateCollectionActionNameRequest {
-  refactorAction: RefactorActionRequest;
+export interface UpdateCollectionActionNameRequest
+  extends RefactorActionRequest {
   actionCollection: JSCollection;
 }
 class JSActionAPI extends API {

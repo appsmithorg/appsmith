@@ -19,20 +19,38 @@ import type { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
 import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
 
+export const getDependencies: Record<
+  string,
+  (entity: IEntity) => TDependencyMap
+> = {
+  [ENTITY_TYPE_VALUE.ACTION]: (entity) =>
+    getActionDependencies(entity as ActionEntity),
+  [ENTITY_TYPE_VALUE.JSACTION]: (entity) =>
+    getJSDependencies(entity as JSEntity),
+  [ENTITY_TYPE_VALUE.WIDGET]: (entity) =>
+    getWidgetDependencies(entity as WidgetEntity),
+};
+
+export const getPathDependencies: Record<
+  string,
+  (entity: IEntity, fullPropertyPath: string) => TDependencyMap
+> = {
+  [ENTITY_TYPE_VALUE.ACTION]: (entity, fullPropertyPath) =>
+    getActionPropertyPathDependencies(entity as ActionEntity, fullPropertyPath),
+  [ENTITY_TYPE_VALUE.JSACTION]: (entity, fullPropertyPath) =>
+    getJSPropertyPathDependencies(entity as JSEntity, fullPropertyPath),
+  [ENTITY_TYPE_VALUE.WIDGET]: (entity, fullPropertyPath) =>
+    getWidgetPropertyPathDependencies(entity as WidgetEntity, fullPropertyPath),
+};
+
 export function getEntityDependencies(
   entity: IEntity,
 ): TDependencyMap | undefined {
-  switch (entity.getType()) {
-    case ENTITY_TYPE_VALUE.ACTION:
-      return getActionDependencies(entity as ActionEntity);
-    case ENTITY_TYPE_VALUE.JSACTION:
-      return getJSDependencies(entity as JSEntity);
-    case ENTITY_TYPE_VALUE.WIDGET:
-      return getWidgetDependencies(entity as WidgetEntity);
-    default:
-      return undefined;
-  }
+  const entityType = entity.getType();
+  const getDependenciesMethod = getDependencies[entityType];
+  return getDependenciesMethod && getDependenciesMethod(entity);
 }
+
 function getWidgetDependencies(widgetEntity: WidgetEntity): TDependencyMap {
   let dependencies: TDependencyMap = {};
   const widgetConfig = widgetEntity.getConfig();
@@ -141,27 +159,13 @@ export function getEntityPathDependencies(
   entity: IEntity,
   fullPropertyPath: string,
 ) {
-  switch (entity.getType()) {
-    case ENTITY_TYPE_VALUE.ACTION:
-      return getActionPropertyPathDependencies(
-        entity as ActionEntity,
-        fullPropertyPath,
-      );
-    case ENTITY_TYPE_VALUE.JSACTION:
-      return getJSPropertyPathDependencies(
-        entity as JSEntity,
-        fullPropertyPath,
-      );
-    case ENTITY_TYPE_VALUE.WIDGET:
-      return getWidgetPropertyPathDependencies(
-        entity as WidgetEntity,
-        fullPropertyPath,
-      );
-    default:
-      return undefined;
-  }
+  const entityType = entity.getType();
+  const getPathDependenciesMethod = getPathDependencies[entityType];
+  return (
+    getPathDependenciesMethod &&
+    getPathDependenciesMethod(entity, fullPropertyPath)
+  );
 }
-
 function getWidgetPropertyPathDependencies(
   widgetEntity: WidgetEntity,
   fullPropertyPath: string,
