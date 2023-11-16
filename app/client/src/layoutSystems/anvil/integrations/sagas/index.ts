@@ -1,6 +1,6 @@
 import { fork } from "redux-saga/effects";
 import anvilDraggingSagas from "./AnvilDraggingSagas";
-import anvilSectionOperationsSagas from "./AnvilSectionOperationSagas";
+import anvilSectionOperationsSagas from "./sections/AnvilSectionOperationSagas";
 
 export default function* anvilSagas() {
   yield fork(anvilDraggingSagas);

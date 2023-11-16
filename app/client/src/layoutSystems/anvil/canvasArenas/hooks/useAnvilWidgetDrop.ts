@@ -6,6 +6,8 @@ import {
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
+import { SectionWidget } from "widgets/anvil/SectionWidget";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 import type { AnvilDnDStates } from "./useAnvilDnDStates";
 
 export const useAnvilWidgetDrop = (
@@ -20,12 +22,14 @@ export const useAnvilWidgetDrop = (
   };
   const generateNewWidgetBlock = useCallback(() => {
     const { newWidget } = dragDetails;
+    const isSectionWidget = newWidget.type === SectionWidget.type;
+
     return {
       width: (newWidget.rows / GridDefaults.DEFAULT_GRID_COLUMNS) * 100,
       height: newWidget.columns * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       newWidgetId: newWidget.widgetId,
       parentId: canvasId,
-      type: newWidget.type,
+      type: isSectionWidget ? ZoneWidget.type : newWidget.type,
     };
   }, [dragDetails]);
   return (renderedBlock: AnvilHighlightInfo) => {
@@ -38,7 +42,7 @@ export const useAnvilWidgetDrop = (
       dispatch(
         moveAnvilWidgets(
           renderedBlock,
-          anvilDragStates.selectedWidgets,
+          anvilDragStates.draggedBlocks,
           dragMeta,
         ),
       );

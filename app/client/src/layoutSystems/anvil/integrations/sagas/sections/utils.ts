@@ -1,17 +1,22 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { updateAndSaveLayout } from "actions/pageActions";
-import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
+import type {
+  AnvilHighlightInfo,
+  LayoutProps,
+  WidgetLayoutProps,
+} from "layoutSystems/anvil/utils/anvilTypes";
+import { addWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { call, select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { generateReactKey } from "utils/generators";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-import { AnvilReduxActionTypes } from "../actions/actionTypes";
-import { addNewChildToDSL } from "./AnvilDraggingSagas";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { addNewChildToDSL } from "../AnvilDraggingSagas";
 
 function getSectionLastColumnHighlight(sectionCanvas: FlattenedWidgetProps) {
   const layoutId: string = sectionCanvas.layout[0].layoutId;
@@ -98,7 +103,7 @@ function* mergeZones(
   return updatedWidgets;
 }
 
-function* mergeLastZonesOfSection(
+export function* mergeLastZonesOfSection(
   numberOfZonesToMerge: number,
   zoneOrder: string[],
 ) {
@@ -123,13 +128,14 @@ function* mergeLastZonesOfSection(
   return updatedWidgets;
 }
 
-function* addNewZonesToSection(
+export function* addNewZonesToSection(
   sectionCanvasId: string,
   numberOfZonesToCreate: number,
 ) {
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let updatedWidgets = { ...allWidgets };
   let count = 0;
+  const createdZoneIds: string[] = [];
   do {
     const sectionCanvas = updatedWidgets[sectionCanvasId];
     const newWidget: any = {
@@ -145,59 +151,49 @@ function* addNewZonesToSection(
       false,
       false,
     );
+    createdZoneIds.push(newWidget.newWidgetId);
     count++;
   } while (count < numberOfZonesToCreate);
-  return updatedWidgets;
+  return { updatedWidgets, createdZoneIds };
 }
 
-function* UpdateZonesCountOfSection(
-  actionPayload: ReduxAction<{
-    zoneCount: number;
-    sectionWidgetId: string;
-  }>,
+export function addWidgetToSection(
+  allWidgets: CanvasWidgetsReduxState,
+  draggedWidgets: WidgetLayoutProps[],
+  highlight: AnvilHighlightInfo,
+  widgetId: string,
 ) {
-  const { sectionWidgetId, zoneCount } = actionPayload.payload;
-  if (zoneCount <= 4 && zoneCount > 0) {
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const sectionWidget = allWidgets[sectionWidgetId];
-    if (sectionWidget && sectionWidget.children) {
-      const sectionCanvasId = sectionWidget.children[0];
-      if (sectionCanvasId) {
-        const sectionCanvas = allWidgets[sectionCanvasId];
-        const zoneOrder = sectionCanvas.layout[0].layout.map(
-          (each: any) => each.widgetId,
-        );
-        const currentZoneCount = zoneOrder ? zoneOrder.length : 0;
-        let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-
-        if (currentZoneCount > zoneCount) {
-          updatedWidgets = yield call(
-            mergeLastZonesOfSection,
-            currentZoneCount - zoneCount,
-            zoneOrder,
-          );
-        } else if (currentZoneCount < zoneCount) {
-          updatedWidgets = yield call(
-            addNewZonesToSection,
-            sectionCanvas.widgetId,
-            zoneCount - currentZoneCount,
-          );
-        }
-        updatedWidgets[sectionWidgetId] = {
-          ...updatedWidgets[sectionWidgetId],
-          zoneCount,
-        };
-        yield put(updateAndSaveLayout(updatedWidgets));
-      }
-    }
-  }
-}
-
-export default function* anvilSectionOperationsSagas() {
-  yield all([
-    takeLatest(
-      AnvilReduxActionTypes.ANVIL_SECTION_ZONES_UPDATE,
-      UpdateZonesCountOfSection,
-    ),
-  ]);
+  /**
+   * Add new widgets to section.
+   */
+  const canvasWidget: WidgetProps = allWidgets[highlight.canvasId];
+  const canvasPreset: LayoutProps[] = canvasWidget.layout
+    ? canvasWidget.layout
+    : generateDefaultLayoutPreset();
+  const res: {
+    canvasWidgets: CanvasWidgetsReduxState;
+    section: WidgetProps;
+  } = addWidgetsToSection(
+    allWidgets,
+    draggedWidgets,
+    highlight,
+    allWidgets[canvasWidget.parentId || MAIN_CONTAINER_WIDGET_ID],
+    {
+      ...canvasWidget,
+      children: canvasWidget.children.filter(
+        (each: string) => each !== widgetId,
+      ),
+    },
+    canvasPreset[0],
+  );
+  const sectionCanvas = res.canvasWidgets[highlight.canvasId];
+  const sectionWidget =
+    res.canvasWidgets[sectionCanvas.parentId || MAIN_CONTAINER_WIDGET_ID];
+  return {
+    ...res.canvasWidgets,
+    [sectionWidget.widgetId]: {
+      ...sectionWidget,
+      zoneCount: sectionCanvas.layout[0].layout.length,
+    },
+  };
 }

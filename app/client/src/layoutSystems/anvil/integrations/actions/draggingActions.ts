@@ -1,5 +1,5 @@
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
+import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
 import { AnvilReduxActionTypes } from "./actionTypes";
 
 /**
@@ -33,7 +33,7 @@ export const addNewAnvilWidgetAction = (
  */
 export const moveAnvilWidgets = (
   highlight: AnvilHighlightInfo,
-  movedWidgets: string[],
+  movedWidgets: DraggedWidget[],
   meta: {
     isMainCanvas: boolean;
     isSection: boolean;

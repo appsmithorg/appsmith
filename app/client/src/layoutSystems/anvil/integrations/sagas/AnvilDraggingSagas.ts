@@ -11,7 +11,7 @@ import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import type {
   AnvilHighlightInfo,
-  LayoutProps,
+  DraggedWidget,
   WidgetLayoutProps,
 } from "../../utils/anvilTypes";
 import { getWidget, getWidgets } from "sagas/selectors";
@@ -21,7 +21,6 @@ import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { addWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 import { addWidgetsToMainCanvasLayout } from "layoutSystems/anvil/utils/layouts/update/mainCanvasLayoutUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -30,6 +29,9 @@ import {
 } from "constants/WidgetConstants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import { addWidgetToSection } from "./sections/utils";
+import { generateReactKey } from "utils/generators";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 
 export function* getMainCanvasLastRowHighlight() {
   const mainCanvas: WidgetProps = yield select(
@@ -135,7 +137,6 @@ export function* addNewChildToDSL(
       widgetId: canvasId,
     },
   );
-
   const draggedWidgets: WidgetLayoutProps[] = [
     {
       alignment,
@@ -234,47 +235,6 @@ function addWidgetToMainCanvas(
   );
 }
 
-function addWidgetToSection(
-  allWidgets: CanvasWidgetsReduxState,
-  draggedWidgets: WidgetLayoutProps[],
-  highlight: AnvilHighlightInfo,
-  widgetId: string,
-) {
-  /**
-   * Add new widgets to section.
-   */
-  const canvasWidget: WidgetProps = allWidgets[highlight.canvasId];
-  const canvasPreset: LayoutProps[] = canvasWidget.layout
-    ? canvasWidget.layout
-    : generateDefaultLayoutPreset();
-  const res: {
-    canvasWidgets: CanvasWidgetsReduxState;
-    section: WidgetProps;
-  } = addWidgetsToSection(
-    allWidgets,
-    draggedWidgets,
-    highlight,
-    allWidgets[canvasWidget.parentId || MAIN_CONTAINER_WIDGET_ID],
-    {
-      ...canvasWidget,
-      children: canvasWidget.children.filter(
-        (each: string) => each !== widgetId,
-      ),
-    },
-    canvasPreset[0],
-  );
-  const sectionCanvas = res.canvasWidgets[highlight.canvasId];
-  const sectionWidget =
-    res.canvasWidgets[sectionCanvas.parentId || MAIN_CONTAINER_WIDGET_ID];
-  return {
-    ...res.canvasWidgets,
-    [sectionWidget.widgetId]: {
-      ...sectionWidget,
-      zoneCount: sectionCanvas.layout[0].layout.length,
-    },
-  };
-}
-
 function addWidgetToGenericLayout(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
@@ -316,18 +276,59 @@ function addWidgetToGenericLayout(
 function* moveWidgetsSaga(
   actionPayload: ReduxAction<{
     highlight: AnvilHighlightInfo;
-    movedWidgets: string[];
+    movedWidgets: DraggedWidget[];
+    isMainCanvas: boolean;
+    isSection: boolean;
   }>,
 ) {
   try {
     const start = performance.now();
-    const { highlight, movedWidgets } = actionPayload.payload;
+    const { highlight, isMainCanvas, isSection, movedWidgets } =
+      actionPayload.payload;
+    const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const updatedWidgets: CanvasWidgetsReduxState = moveWidgets(
-      allWidgets,
-      movedWidgets,
-      highlight,
+    let updatedWidgets: CanvasWidgetsReduxState = {};
+    const draggedWidgets: WidgetLayoutProps[] = movedWidgets.map((each) => ({
+      alignment: highlight.alignment,
+      widgetId: each.widgetId,
+      widgetType: each.type,
+    }));
+    const areZonesBeingDragged = draggedWidgets.every(
+      (each) => each.widgetType === ZoneWidget.type,
     );
+    if (isSection && !areZonesBeingDragged) {
+      const createdZoneWidgetId = generateReactKey();
+      updatedWidgets = yield call(
+        addNewChildToDSL,
+        highlight,
+        {
+          width: 0,
+          height: 0,
+          newWidgetId: createdZoneWidgetId,
+          type: ZoneWidget.type,
+        },
+        !!isMainCanvas,
+        !!isSection,
+      );
+      const createdZoneWidget = updatedWidgets[createdZoneWidgetId];
+      const createdZoneCanvasId = createdZoneWidget.children
+        ? createdZoneWidget.children[0]
+        : MAIN_CONTAINER_WIDGET_ID;
+      const layoutOrder = [
+        updatedWidgets[createdZoneCanvasId].layout[0].layoutId,
+      ];
+      updatedWidgets = moveWidgets(updatedWidgets, movedWidgetIds, {
+        ...highlight,
+        layoutOrder,
+        alignment: FlexLayerAlignment.Start,
+        canvasId: createdZoneCanvasId,
+      });
+    } else if (isMainCanvas) {
+      // wrap widgets with a new section
+      updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
+    } else {
+      updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
+    }
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("Anvil : moving widgets took", performance.now() - start, "ms");
   } catch (error) {
