@@ -12,7 +12,8 @@ export interface ModuleInstance {
   type: MODULE_TYPE;
   moduleId: ModuleId;
   name: string;
-  pageId: string;
+  creatorId: string;
+  creatorType: ModuleInstanceCreatorType;
   inputs: {
     [key: string]: string;
   };
@@ -22,6 +23,7 @@ export interface ModuleInstance {
   jsonPathKeys: {
     [key: string]: any;
   };
+  userPermissions?: string[];
 }
 export interface QueryModuleInstance extends ModuleInstance {
   type: MODULE_TYPE.QUERY;

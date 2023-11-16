@@ -17,7 +17,17 @@ export interface UpdateModuleInstancePayload {
 
 export interface FetchModuleInstancesPayload {
   creatorId: string;
-  creatorType: string;
+  creatorType: ModuleInstanceCreatorType;
+}
+
+export interface FetchModuleInstanceEntitiesPayload {
+  creatorId: string;
+  creatorType: ModuleInstanceCreatorType;
+}
+
+export interface SetupModuleInstancePayload {
+  creatorId: string;
+  creatorType: ModuleInstanceCreatorType;
 }
 
 export const createQueryModuleInstance = (
@@ -39,5 +49,31 @@ export const updateModuleInstance = (payload: UpdateModuleInstancePayload) => ({
 
 export const fetchModuleInstances = (payload: FetchModuleInstancesPayload) => ({
   type: ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_INIT,
+  payload,
+});
+
+export const fetchModuleInstancesForView = (
+  payload: FetchModuleInstancesPayload,
+) => ({
+  type: ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_VIEW_MODE_INIT,
+  payload,
+});
+
+export const setupModuleInstances = (payload: SetupModuleInstancePayload) => ({
+  type: ReduxActionTypes.SETUP_MODULE_INSTANCE_INIT,
+  payload,
+});
+
+export const setupModuleInstancesForView = (
+  payload: SetupModuleInstancePayload,
+) => ({
+  type: ReduxActionTypes.SETUP_MODULE_INSTANCE_FOR_VIEW_INIT,
+  payload,
+});
+
+export const fetchModuleInstanceEntities = (
+  payload: FetchModuleInstanceEntitiesPayload,
+) => ({
+  type: ReduxActionTypes.FETCH_MODULE_INSTANCE_ENTITIES_INIT,
   payload,
 });

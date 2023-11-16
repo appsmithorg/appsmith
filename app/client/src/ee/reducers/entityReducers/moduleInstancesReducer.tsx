@@ -51,6 +51,19 @@ export const handlers = {
 
     return draftState;
   },
+
+  [ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_VIEW_MODE_SUCCESS]: (
+    draftState: ModuleInstanceReducerState,
+    action: ReduxAction<QueryModuleInstance[]>,
+  ) => {
+    const moduleInstances = action.payload;
+
+    moduleInstances.forEach((moduleInstance: QueryModuleInstance) => {
+      draftState[moduleInstance.id] = moduleInstance;
+    });
+
+    return draftState;
+  },
 };
 
 const moduleInstanceReducer = createImmerReducer(initialState, handlers);

@@ -2,14 +2,14 @@ import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembl
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 export * from "ce/RouteBuilder";
 
-export const moduleInstanceQueryEditorIdURL = (
+export const moduleInstanceEditorURL = (
   props: URLBuilderParams & {
-    queryId: string;
+    moduleInstanceId: string;
   },
 ) =>
   urlBuilder.build({
     ...props,
-    suffix: `moduleInstance/${props.queryId}`,
+    suffix: `module-instance/${props.moduleInstanceId}`,
   });
 
 export const moduleEditorURL = ({ moduleId }: URLBuilderParams): string =>

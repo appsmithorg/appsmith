@@ -1,5 +1,19 @@
 export * from "ce/sagas/PageSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  setupModuleInstances,
+  setupModuleInstancesForView,
+} from "@appsmith/actions/moduleInstanceActions";
+import { ModuleInstanceCreatorType } from "@appsmith/constants/ModuleInstanceConstants";
+import {
+  type ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import {
+  getFeatureFlagsForEngine,
+  type DependentFeatureFlags,
+} from "@appsmith/selectors/engineSelectors";
+import type { FetchPageRequest } from "api/PageApi";
 import {
   fetchPageSaga,
   fetchPublishedPageSaga,
@@ -19,17 +33,88 @@ import {
   deleteCanvasCardsStateSaga,
   setPreviewModeInitSaga,
   refreshTheApp,
-  setupPageSaga,
-  setupPublishedPageSaga,
 } from "ce/sagas/PageSagas";
 import {
   all,
+  call,
   debounce,
+  put,
+  select,
   takeEvery,
   takeLatest,
   takeLeading,
 } from "redux-saga/effects";
 import { clearEvalCache } from "sagas/EvaluationsSaga";
+
+export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
+  try {
+    const { id, isFirstLoad } = action.payload;
+    const featureFlags: DependentFeatureFlags = yield select(
+      getFeatureFlagsForEngine,
+    );
+
+    if (featureFlags.showQueryModule) {
+      yield put(
+        setupModuleInstances({
+          creatorId: id,
+          creatorType: ModuleInstanceCreatorType.PAGE,
+        }),
+      );
+    }
+
+    yield call(fetchPageSaga, {
+      type: ReduxActionTypes.FETCH_PAGE_INIT,
+      payload: { id, isFirstLoad },
+    });
+
+    yield put({
+      type: ReduxActionTypes.SETUP_PAGE_SUCCESS,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SETUP_PAGE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+export function* setupPublishedPageSaga(
+  action: ReduxAction<{
+    pageId: string;
+    bustCache: boolean;
+    firstLoad: boolean;
+  }>,
+) {
+  try {
+    const { bustCache, firstLoad, pageId } = action.payload;
+    const featureFlags: DependentFeatureFlags = yield select(
+      getFeatureFlagsForEngine,
+    );
+
+    if (featureFlags.showQueryModule) {
+      yield put(
+        setupModuleInstancesForView({
+          creatorId: pageId,
+          creatorType: ModuleInstanceCreatorType.PAGE,
+        }),
+      );
+    }
+
+    yield call(fetchPublishedPageSaga, {
+      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
+      payload: { bustCache, firstLoad, pageId },
+    });
+
+    yield put({
+      type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SETUP_PUBLISHED_PAGE_ERROR,
+      payload: { error },
+    });
+  }
+}
 
 export default function* pageSagas() {
   yield all([

@@ -167,6 +167,7 @@ const QueryModuleExplorer = () => {
             openMenu={isMenuOpen}
             query={query}
             setQuery={setQuery}
+            tooltipText={createMessage(ADD_QUERY_MODULE_TOOLTIP)}
           />
         }
         entityId={createMessage(QUERY_MODULES_TITLE)}

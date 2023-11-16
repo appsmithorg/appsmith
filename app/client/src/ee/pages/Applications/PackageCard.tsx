@@ -26,7 +26,11 @@ import Card from "components/common/Card";
 import history from "utils/history";
 import { generateEditedByText } from "pages/Applications/helpers";
 import { BASE_PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
-import type { Package } from "@appsmith/constants/PackageConstants";
+import {
+  DEFAULT_PACKAGE_COLOR,
+  DEFAULT_PACKAGE_ICON,
+  type Package,
+} from "@appsmith/constants/PackageConstants";
 import type { ModifiedMenuItemProps } from "pages/Applications/ApplicationCard";
 import { useDispatch, useSelector } from "react-redux";
 import { hasDeletePackagePermission } from "@appsmith/utils/permissionHelpers";
@@ -54,9 +58,6 @@ interface ContextMenuProps {
   setLastUpdatedValue: (val: string) => void;
   updateColor: (color: string) => void;
 }
-
-const DEFAULT_BACKGROUND_COLOR = "#9747FF1A";
-const DEFAULT_ICON = "package";
 
 const ContextMenu = ({
   handleMenuOnClose,
@@ -265,11 +266,11 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
 
   return (
     <Card
-      backgroundColor={pkg.color || DEFAULT_BACKGROUND_COLOR}
+      backgroundColor={pkg.color || DEFAULT_PACKAGE_COLOR}
       contextMenu={contextMenu}
       editedByText={editedByText}
       hasReadPermission
-      icon={pkg.icon || DEFAULT_ICON}
+      icon={pkg.icon || DEFAULT_PACKAGE_ICON}
       isContextMenuOpen={false}
       isFetching={isFetchingPackages}
       isMobile={isMobile}

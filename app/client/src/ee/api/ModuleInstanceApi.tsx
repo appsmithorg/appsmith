@@ -4,20 +4,16 @@ import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { ActionResponse } from "api/ActionAPI";
 import type { AxiosPromise } from "axios";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
-
-interface GetModuleInstancePayload {
-  creatorId: string;
-  creatorType: string;
-}
+import type {
+  CreateQueryModuleInstancePayload,
+  FetchModuleInstanceEntitiesPayload,
+  FetchModuleInstancesPayload,
+} from "@appsmith/actions/moduleInstanceActions";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 interface RunModuleInstancePayload {
   moduleInstanceId: string;
   actionId: string;
-}
-
-interface CreateModuleInstancePayload {
-  moduleId: string;
-  creatorId: string;
-  creatorType: string;
 }
 
 interface UpdateModuleInstancePayload {
@@ -25,7 +21,7 @@ interface UpdateModuleInstancePayload {
   moduleInstance: ModuleInstance;
 }
 
-export interface GetModuleInstancesResponse {
+export interface FetchModuleInstancesResponse {
   moduleInstances: ModuleInstance[];
   modules: Module[];
 }
@@ -43,13 +39,25 @@ export interface DeleteModuleInstanceResponse {
   id: string;
 }
 
+export interface FetchModuleInstanceEntitiesResponse {
+  actions: ActionData[];
+  actionCollections: JSCollectionData[];
+}
+
 class ModuleInstancesApi extends Api {
   static moduleInstancesUrl = "v1/moduleInstances";
 
-  static async getModuleInstances(
-    payload: GetModuleInstancePayload,
-  ): Promise<AxiosPromise<ApiResponse<GetModuleInstancesResponse>>> {
+  static async fetchModuleInstances(
+    payload: FetchModuleInstancesPayload,
+  ): Promise<AxiosPromise<ApiResponse<FetchModuleInstancesResponse>>> {
     const url = ModuleInstancesApi.moduleInstancesUrl;
+    return Api.get(url, payload);
+  }
+
+  static async fetchModuleInstancesForView(
+    payload: FetchModuleInstancesPayload,
+  ): Promise<AxiosPromise<ApiResponse<FetchModuleInstancesResponse>>> {
+    const url = `${ModuleInstancesApi.moduleInstancesUrl}/view`;
     return Api.get(url, payload);
   }
 
@@ -61,7 +69,7 @@ class ModuleInstancesApi extends Api {
   }
 
   static async createModuleInstance(
-    payload: CreateModuleInstancePayload,
+    payload: CreateQueryModuleInstancePayload,
   ): Promise<AxiosPromise<ApiResponse<CreateModuleInstanceResponse>>> {
     const url = ModuleInstancesApi.moduleInstancesUrl;
     return Api.post(url, payload);
@@ -79,6 +87,13 @@ class ModuleInstancesApi extends Api {
   ): Promise<AxiosPromise<ApiResponse<DeleteModuleInstanceResponse>>> {
     const url = `${ModuleInstancesApi.moduleInstancesUrl}/${moduleInstanceId}`;
     return Api.delete(url);
+  }
+
+  static async fetchModuleInstanceEntities(
+    payload: FetchModuleInstanceEntitiesPayload,
+  ): Promise<AxiosPromise<ApiResponse<FetchModuleInstanceEntitiesResponse>>> {
+    const url = `${ModuleInstancesApi.moduleInstancesUrl}/entities`;
+    return Api.get(url, payload);
   }
 }
 
