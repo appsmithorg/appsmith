@@ -43,7 +43,7 @@ public class ChatCommand implements OpenAICommand {
 
     private final Gson gson;
 
-    private final String regex = "(ft:)?(gpt).*";
+    private final String regex = "^(?!.*vision)(ft:)?gpt.*";
     private final Pattern pattern = Pattern.compile(regex);
 
     public ChatCommand(Gson gson) {
