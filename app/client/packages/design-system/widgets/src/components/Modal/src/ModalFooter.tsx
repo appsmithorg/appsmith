@@ -26,7 +26,7 @@ export const ModalFooter = (props: ModalFooterProps) => {
       </Button>
 
       {onSubmit && (
-        <Button autoFocus isLoading={isLoading} onPress={handleSubmit}>
+        <Button isLoading={isLoading} onPress={handleSubmit}>
           {submitText}
         </Button>
       )}
