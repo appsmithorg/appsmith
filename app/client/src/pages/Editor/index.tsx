@@ -26,7 +26,7 @@ import type { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
-import { fetchPage, updateCurrentPage } from "actions/pageActions";
+import { setupPage, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getSearchQuery } from "utils/helpers";
 import { loading } from "selectors/onboardingSelectors";
@@ -57,7 +57,7 @@ interface EditorProps {
   user?: User;
   lightTheme: Theme;
   resetEditorRequest: () => void;
-  fetchPage: (pageId: string) => void;
+  setupPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
   handleBranchChange: (branch: string) => void;
   currentPageId?: string;
@@ -133,7 +133,7 @@ class Editor extends Component<Props> {
        */
       if (prevPageId && pageId && isPageIdUpdated) {
         this.props.updateCurrentPage(pageId);
-        this.props.fetchPage(pageId);
+        this.props.setupPage(pageId);
         urlBuilder.setCurrentPageId(pageId);
       }
     }
@@ -200,7 +200,7 @@ const mapDispatchToProps = (dispatch: any) => {
     initEditor: (payload: InitializeEditorPayload) =>
       dispatch(initEditor(payload)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
-    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
+    setupPage: (pageId: string) => dispatch(setupPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
     widgetConfigBuildSuccess: () => dispatch(widgetInitialisationSuccess()),
   };

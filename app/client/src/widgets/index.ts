@@ -65,6 +65,7 @@ import { WDSTextWidget } from "./wds/WDSTextWidget";
 import type BaseWidget from "./BaseWidget";
 import ExternalWidget from "./ExternalWidget";
 import { WDSTableWidget } from "./wds/WDSTableWidget";
+import { WDSCurrencyInputWidget } from "./wds/WDSCurrencyInputWidget";
 import { WDSButtonGroupWidget } from "./wds/WDSButtonGroupWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
 import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
@@ -126,6 +127,7 @@ const Widgets = [
   WDSIconButtonWidget,
   WDSTextWidget,
   WDSTableWidget,
+  WDSCurrencyInputWidget,
   WDSButtonGroupWidget,
   WDSCheckboxGroupWidget,
   WDSSwitchWidget,

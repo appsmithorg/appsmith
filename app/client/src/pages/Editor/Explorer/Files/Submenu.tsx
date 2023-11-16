@@ -12,10 +12,6 @@ import keyBy from "lodash/keyBy";
 import type { AppState } from "@appsmith/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import { AddButtonWrapper, EntityClassNames } from "../Entity";
-import {
-  ADD_QUERY_JS_TOOLTIP,
-  createMessage,
-} from "@appsmith/constants/messages";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import {
@@ -47,6 +43,7 @@ interface SubMenuProps {
   fileOperations: ActionOperation[] | undefined;
   setQuery: (val: string) => void;
   query: string;
+  tooltipText: string;
 }
 
 export default function ExplorerSubMenu({
@@ -58,6 +55,7 @@ export default function ExplorerSubMenu({
   openMenu,
   query,
   setQuery,
+  tooltipText,
 }: SubMenuProps) {
   const [show, setShow] = useState(openMenu);
 
@@ -98,7 +96,7 @@ export default function ExplorerSubMenu({
             content={
               (
                 <>
-                  {createMessage(ADD_QUERY_JS_TOOLTIP)} (
+                  {tooltipText} (
                   {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
                 </>
               ) as unknown as string
