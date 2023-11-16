@@ -333,7 +333,18 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
 
         } else {
             // update existing entry
-
+            final String sql =
+                    """
+                UPDATE %s SET (%s) = (%s)
+                WHERE oid = ?
+                """
+                            .formatted(
+                                    tableName,
+                                    StringUtils.join(valueMap.keySet(), ", "),
+                                    StringUtils.repeat("?", ", ", valueMap.size()));
+            final Collection<Object> values = new ArrayList<>(valueMap.values());
+            values.add(entity.getId());
+            dbConnection.execute(sql, values);
         }
     }
 
