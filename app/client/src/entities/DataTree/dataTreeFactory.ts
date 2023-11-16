@@ -1,5 +1,5 @@
-import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
-import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
+import { generateDataTreeAction } from "@appsmith/entities/DataTree/dataTreeAction";
+import { generateDataTreeJSAction } from "@appsmith/entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import log from "loglevel";
 import {

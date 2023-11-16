@@ -64,6 +64,9 @@ export interface ActionEntityConfig extends EntityConfig {
   pluginId: PluginId;
   actionId: string;
   name: string;
+  moduleId?: string;
+  moduleInstanceId?: string;
+  isPublic?: boolean;
 }
 
 // JSAction (JSObject) entity Types
