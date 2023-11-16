@@ -59,7 +59,7 @@ import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { getAllPageIds } from "./selectors";
-import { fetchPageDSLSaga } from "sagas/PageSagas";
+import { fetchPageDSLSaga } from "@appsmith/sagas/PageSagas";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";

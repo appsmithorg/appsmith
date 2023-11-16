@@ -63,6 +63,9 @@ export function PageContextMenu(props: {
   const [showPartialExportModal, setShowPartialExportModal] = useState(false);
   const [showPartialImportModal, setShowPartialImportModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const isAppSidebarEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_app_sidebar_enabled,
+  );
 
   const partialImportExportLoadingState = useSelector(
     getPartialImportExportLoadingState,
@@ -217,7 +220,7 @@ export function PageContextMenu(props: {
         onSelect: openPartialImportModal,
         label: createMessage(CONTEXT_PARTIAL_IMPORT),
       },
-    {
+    !isAppSidebarEnabled && {
       value: "settings",
       onSelect: openAppSettingsPane,
       label: createMessage(CONTEXT_SETTINGS),
