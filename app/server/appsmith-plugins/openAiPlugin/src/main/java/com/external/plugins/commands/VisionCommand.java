@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.external.plugins.constants.OpenAIConstants.CONTENT;
+import static com.external.plugins.constants.OpenAIConstants.DEFAULT_MAX_TOKEN;
 import static com.external.plugins.constants.OpenAIConstants.ID;
 import static com.external.plugins.constants.OpenAIConstants.IMAGE_TYPE;
 import static com.external.plugins.constants.OpenAIConstants.LABEL;
@@ -178,18 +179,16 @@ public class VisionCommand implements OpenAICommand {
     }
 
     private int getMaxTokenFromFormData(Map<String, Object> formData) {
-        int defaultMaxToken = 1000;
-
         String maxTokenAsString = RequestUtils.extractValueFromFormData(formData, MAX_TOKENS);
 
         if (!StringUtils.hasText(maxTokenAsString)) {
-            return defaultMaxToken;
+            return DEFAULT_MAX_TOKEN;
         }
 
         try {
             return Integer.parseInt(maxTokenAsString);
         } catch (IllegalArgumentException illegalArgumentException) {
-            return defaultMaxToken;
+            return DEFAULT_MAX_TOKEN;
         } catch (Exception exception) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
