@@ -391,10 +391,10 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromActiveTab(dsName, 409); //Since page was deployed in testcase #2
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since page was deployed in testcase #2
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitForTableEmpty("v2");
     deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
   });
 });

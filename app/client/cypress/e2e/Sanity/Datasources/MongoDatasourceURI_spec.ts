@@ -21,7 +21,7 @@ describe("Create, test, save then delete a mongo datasource using URI", function
 
       dataSources.FillMongoDatasourceFormWithURI();
       dataSources.TestSaveDatasource(true);
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -37,7 +37,7 @@ describe("Create, test, save then delete a mongo datasource using URI", function
 
       dataSources.FillMongoDSForm(dataManager.defaultEnviorment, true);
       dataSources.TestSaveDatasource();
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 });
