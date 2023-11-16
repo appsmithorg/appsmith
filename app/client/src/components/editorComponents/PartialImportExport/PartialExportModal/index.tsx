@@ -39,16 +39,19 @@ interface Props {
   handleModalClose: () => void;
   isModalOpen: boolean;
 }
+const selectedParamsInitValue: PartialExportParams = {
+  jsObjects: [],
+  datasources: [],
+  customJSLibs: [],
+  widgets: [],
+  queries: [],
+};
 const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   const [customJsLibraries, setCustomJsLibraries] = useState<JSLibrary[]>([]);
   const dispatch = useDispatch();
-  const [selectedParams, setSelectedParams] = useState<PartialExportParams>({
-    jsObjects: [],
-    datasources: [],
-    customJSLibs: [],
-    widgets: [],
-    queries: [],
-  });
+  const [selectedParams, setSelectedParams] = useState<PartialExportParams>(
+    selectedParamsInitValue,
+  );
   const files = useSelector(selectFilesForExplorer);
   const { appWideDS } = useAppWideAndOtherDatasource();
   const libraries = useSelector(selectLibrariesForExplorer);
@@ -82,9 +85,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
 
     return [
       {
-        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.jsObjects),
-        icon: <Icon name="js" size="md" />,
-        children: jsObjects ? (
+        content: jsObjects ? (
           <EntityCheckboxSelector
             entities={jsObjects}
             onEntityChecked={(id, selected) =>
@@ -93,11 +94,19 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
             selectedIds={selectedParams.jsObjects}
           />
         ) : null,
+        icon: <Icon name="js" size="md" />,
+        shouldShowReset: !!selectedParams.jsObjects.length,
+        onResetClick: (event: React.MouseEvent<HTMLElement>) => {
+          setSelectedParams((prev) => ({
+            ...prev,
+            jsObjects: [],
+          }));
+          event.preventDefault();
+        },
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.jsObjects),
       },
       {
-        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.databases),
-        icon: <Icon name="database-2-line" size="md" />,
-        children:
+        content:
           appWideDS.length > 0 ? (
             <EntityCheckboxSelector
               entities={appWideDS}
@@ -107,11 +116,19 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
               selectedIds={selectedParams.datasources}
             />
           ) : null,
+        icon: <Icon name="database-2-line" size="md" />,
+        shouldShowReset: !!selectedParams.datasources.length,
+        onResetClick: (event: React.MouseEvent<HTMLElement>) => {
+          setSelectedParams((prev) => ({
+            ...prev,
+            datasources: [],
+          }));
+          event.stopPropagation();
+        },
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.databases),
       },
       {
-        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.queries),
-        icon: <MenuIcons.GROUP_QUERY_ICON height={16} keepColors width={16} />,
-        children: groupedData ? (
+        content: groupedData ? (
           <JSObjectsNQueriesExport
             appDS={appWideDS}
             data={groupedData}
@@ -121,11 +138,19 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
             }
           />
         ) : null,
+        icon: <MenuIcons.GROUP_QUERY_ICON height={16} keepColors width={16} />,
+        shouldShowReset: !!selectedParams.queries.length,
+        onResetClick: (event: React.MouseEvent<HTMLElement>) => {
+          setSelectedParams((prev) => ({
+            ...prev,
+            queries: [],
+          }));
+          event.stopPropagation();
+        },
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.queries),
       },
       {
-        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.customLibs),
-        icon: <MenuIcons.LIBRARY_ICON height={16} keepColors width={16} />,
-        children:
+        content:
           customJsLibraries.length > 0 ? (
             <EntityCheckboxSelector
               entities={customJsLibraries}
@@ -135,11 +160,19 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
               selectedIds={selectedParams.customJSLibs}
             />
           ) : null,
+        icon: <MenuIcons.LIBRARY_ICON height={16} keepColors width={16} />,
+        shouldShowReset: !!selectedParams.customJSLibs.length,
+        onResetClick: (event: React.MouseEvent<HTMLElement>) => {
+          setSelectedParams((prev) => ({
+            ...prev,
+            customJSLibs: [],
+          }));
+          event.stopPropagation();
+        },
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.customLibs),
       },
       {
-        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.widgets),
-        icon: <ControlIcons.GROUP_CONTROL height={16} keepColors width={16} />,
-        children: canvasWidgets ? (
+        content: canvasWidgets ? (
           <WidgetsExport
             selectedWidgetIds={selectedParams.widgets}
             updateSelectedWidgets={(widgets) =>
@@ -148,6 +181,16 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
             widgets={canvasWidgets}
           />
         ) : null,
+        icon: <ControlIcons.GROUP_CONTROL height={16} keepColors width={16} />,
+        shouldShowReset: !!selectedParams.widgets.length,
+        onResetClick: (event: React.MouseEvent<HTMLElement>) => {
+          setSelectedParams((prev) => ({
+            ...prev,
+            widgets: [],
+          }));
+          event.stopPropagation();
+        },
+        title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.widgets),
       },
     ];
   }, [
@@ -215,26 +258,42 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
           {createMessage(PARTIAL_IMPORT_EXPORT.export.modalSubHeading)}
         </Text>
         <ScrollableSection>
-          {entities.map(({ children, icon, title }) => (
-            <>
-              <Collapsible className="mt-4" key={title}>
-                <CollapsibleHeader>
-                  <Text
-                    kind="heading-s"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    {icon} {title}
-                  </Text>
-                </CollapsibleHeader>
-                <CollapsibleContent>{children}</CollapsibleContent>
-              </Collapsible>
-              <Bar />
-            </>
-          ))}
+          {entities.map(
+            ({ content, icon, onResetClick, shouldShowReset, title }) => (
+              <>
+                <Collapsible className="mt-4" key={title}>
+                  <CollapsibleHeader>
+                    <div className="w-full flex justify-between">
+                      <Text
+                        kind="heading-s"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        {icon} {title}
+                      </Text>
+
+                      {shouldShowReset && (
+                        <Button
+                          className="mr-2"
+                          endIcon="restart-line"
+                          kind="tertiary"
+                          onClick={onResetClick}
+                          size="sm"
+                        >
+                          Reset
+                        </Button>
+                      )}
+                    </div>
+                  </CollapsibleHeader>
+                  <CollapsibleContent>{content}</CollapsibleContent>
+                </Collapsible>
+                <Bar />
+              </>
+            ),
+          )}
         </ScrollableSection>
         <ModalFooter>
           <Button
