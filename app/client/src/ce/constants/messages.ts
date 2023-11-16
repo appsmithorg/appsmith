@@ -508,7 +508,6 @@ export const PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES = (
 export const POST = () => "Post";
 export const CANCEL = () => "Cancel";
 export const REMOVE = () => "Remove";
-export const CREATE = () => "Create";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -843,6 +842,7 @@ export const COMMITTING_AND_PUSHING_CHANGES = () =>
 export const DISCARDING_AND_PULLING_CHANGES = () =>
   "Discarding and pulling changes...";
 export const DISCARD_SUCCESS = () => "Discarded changes successfully.";
+export const DISCARD_AND_PULL_SUCCESS = () => "Pulled from remote successfully";
 
 export const IS_MERGING = () => "Merging changes...";
 
@@ -1033,7 +1033,7 @@ export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
 export const HOW_TO_ADD_DEPLOY_KEY = () =>
   "How to paste SSH Key in repo and give write access?";
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
-  "I've added deploy key and gave it write access";
+  "I've added the deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
 export const GIT_CONNECT_SUCCESS_TITLE = () =>
   "Successfully connected to your Git remote repository";
@@ -1082,13 +1082,16 @@ export const BRANCH_PROTECTION_CHANGE_RULE = () =>
   "You can remove protection on your default branch in Git settings.";
 export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
 export const BRANCH_TOOLTIP_MESSAGE = () =>
-  "You can remove protection on your default branch in Git settings.";
+  "Please create a new branch or checkout an existing one to edit the app.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
 export const APPSMITH_ENTERPRISE = () => "Appsmith Enterprise";
 export const PROTECT_BRANCH_SUCCESS = () => "Changed protected branches";
-export const UPDATE_DEFAULT_BRANCH_SUCCESS = () => "Updated default branch";
+export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
+  `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
+export const CONTACT_ADMIN_FOR_GIT = () =>
+  "Please contact your workspace admin to connect your app to a git repo";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
