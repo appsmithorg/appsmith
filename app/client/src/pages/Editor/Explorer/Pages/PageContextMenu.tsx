@@ -58,8 +58,9 @@ export function PageContextMenu(props: {
   isHidden: boolean;
 }) {
   const dispatch = useDispatch();
-  const isPartialImportExportEnabled = true;
-  useFeatureFlag(FEATURE_FLAG.release_show_partial_import_export_enabled);
+  const isPartialImportExportEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_partial_import_export_enabled,
+  );
   const [showPartialExportModal, setShowPartialExportModal] = useState(false);
   const [showPartialImportModal, setShowPartialImportModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
