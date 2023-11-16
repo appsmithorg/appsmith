@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
@@ -8,7 +9,7 @@ import java.util.Iterator;
 
 public class ModuleUtils {
     public static boolean isModuleContext(ActionDTO action) {
-        return action.getContext() == ActionDTO.ActionContext.MODULE;
+        return action.getContextType() == CreatorContextType.MODULE;
     }
 
     public static void getSettingsForModuleCreator(JsonNode pluginSettingsNode, JsonNode moduleInstanceSettingsNode) {

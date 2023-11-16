@@ -1,5 +1,6 @@
 package com.appsmith.server.packages.services.crud;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Module;
@@ -43,6 +44,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.Boolean.FALSE;
@@ -411,6 +413,10 @@ public class PackageServiceTest {
                 .assertNext(publishedActions -> {
                     assertThat(publishedActions).isNotNull();
                     assertThat(publishedActions.size()).isEqualTo(EXPECTED_ENTITY_SIZE);
+                    publishedActions.forEach(publishedAction -> {
+                        assertThat(publishedAction.getPublishedAction().getContextType())
+                                .isEqualTo(CreatorContextType.MODULE);
+                    });
                 })
                 .verifyComplete();
 
@@ -547,6 +553,8 @@ public class PackageServiceTest {
 
         AtomicReference<String> packageId = new AtomicReference<>();
         AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
+        AtomicReference<String> firstSourceModuleIdRef = new AtomicReference<>();
+        AtomicReference<String> secondSourceModuleIdRef = new AtomicReference<>();
 
         // create package
         Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, secondWorkspaceId);
@@ -575,6 +583,7 @@ public class PackageServiceTest {
         StepVerifier.create(createModuleMono)
                 .assertNext(createdModule -> {
                     assertThat(createdModule.getId()).isNotEmpty();
+                    firstSourceModuleIdRef.set(createdModule.getId());
                 })
                 .verifyComplete();
 
@@ -593,6 +602,7 @@ public class PackageServiceTest {
         StepVerifier.create(createAnotherModuleMono)
                 .assertNext(createdModule -> {
                     assertThat(createdModule.getId()).isNotEmpty();
+                    secondSourceModuleIdRef.set(createdModule.getId());
                 })
                 .verifyComplete();
 
@@ -602,6 +612,37 @@ public class PackageServiceTest {
         StepVerifier.create(publishPackageMono)
                 .assertNext(publishPackageStatus -> {
                     assertThat(publishPackageStatus).isTrue();
+                })
+                .verifyComplete();
+
+        PublishingMetaDTO publishingMetaDTO = new PublishingMetaDTO();
+        publishingMetaDTO.setOldModuleIdToNewModuleIdMap(Map.of(
+                firstSourceModuleIdRef.get(), new ObjectId().toString(),
+                secondSourceModuleIdRef.get(), new ObjectId().toString()));
+        publishingMetaDTO.setSourcePackageId(packageId.get());
+
+        Mono<List<NewAction>> newActionPublishableEntitiesMono =
+                newActionPackagePublishableService.getPublishableEntities(publishingMetaDTO);
+
+        StepVerifier.create(newActionPublishableEntitiesMono)
+                .assertNext(publishedActions -> {
+                    assertThat(publishedActions.size()).isEqualTo(2);
+                    publishedActions.forEach(publishedAction -> {
+                        assertThat(publishedAction.getUnpublishedAction().getModuleId())
+                                .isNull();
+                        assertThat(publishedAction.getUnpublishedAction().getContextType())
+                                .isNull();
+                        assertThat(publishedAction.getPublishedAction().getContextType())
+                                .isEqualTo(CreatorContextType.MODULE);
+                        assertThat(publishedAction.getPublishedAction().getOwningModuleInstanceId())
+                                .isNull();
+                        assertThat(publishedAction.getPublishedAction().getModuleId())
+                                .isNotNull();
+                        assertThat(publishedAction.getPublishedAction().getRootModuleInstanceId())
+                                .isNull();
+                        assertThat(publishedAction.getPublishedAction().getModuleInstanceId())
+                                .isNull();
+                    });
                 })
                 .verifyComplete();
 

@@ -1,5 +1,6 @@
 package com.appsmith.server.modules.services;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.ModuleInput;
@@ -233,6 +234,7 @@ public class ModuleServiceTest {
                         ModuleActionDTO moduleAction = (ModuleActionDTO) moduleConsumable;
                         assertThat(moduleAction.getDatasource()).isNotNull();
                         assertThat(moduleAction.getDatasource().getName()).isEqualTo(datasource.getName());
+                        assertThat(moduleAction.getContextType()).isEqualTo(CreatorContextType.MODULE);
                     });
                 })
                 .verifyComplete();
@@ -339,6 +341,13 @@ public class ModuleServiceTest {
                 .assertNext(moduleConsumables -> {
                     assertThat(moduleConsumables).isNotNull();
                     assertThat(moduleConsumables).size().isGreaterThanOrEqualTo(1);
+                    moduleConsumables.forEach(moduleConsumable -> {
+                        ModuleActionDTO moduleActionDTO1 = (ModuleActionDTO) moduleConsumable;
+                        assertThat(moduleActionDTO1.getContextType()).isEqualTo(CreatorContextType.MODULE);
+                        assertThat(moduleActionDTO1.getModuleId()).isEqualTo(moduleIdRef.get());
+                        assertThat(moduleActionDTO1.getRootModuleInstanceId()).isNull();
+                        assertThat(moduleActionDTO1.getOwningModuleInstanceId()).isNull();
+                    });
                 })
                 .verifyComplete();
     }

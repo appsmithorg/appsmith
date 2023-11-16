@@ -28,30 +28,31 @@ public class ModuleInstanceDTO implements Identifiable {
     ModuleType type;
 
     @Transient
-    @JsonView(Views.Public.class)
-    String moduleId;
-
-    @Transient
     @JsonView(Views.Export.class)
     String moduleUUID;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    String sourceModuleId;
 
     @JsonView(Views.Public.class)
     String name;
 
     @Transient
     @JsonView(Views.Public.class)
-    String creatorId;
+    CreatorContextType contextType;
 
     @Transient
     @JsonView(Views.Public.class)
-    ModuleInstanceCreatorType creatorType;
+    String pageId;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    String moduleId;
 
     // We will look for dynamic bindings only in the `value` field of the `inputs` map
     @JsonView(Views.Public.class)
     Map<String, String> inputs;
-
-    @JsonView(Views.Public.class)
-    Map<String, ModuleActionConfig> settings;
 
     @JsonView(Views.Public.class)
     List<Property> dynamicBindingPathList;

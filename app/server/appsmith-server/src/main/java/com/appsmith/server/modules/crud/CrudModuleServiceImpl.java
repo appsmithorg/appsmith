@@ -1,6 +1,7 @@
 package com.appsmith.server.modules.crud;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -273,7 +274,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         unpublishedAction.setName(moduleDTO.getName());
         unpublishedAction.setModuleId(moduleDTO.getId());
         unpublishedAction.setDefaultResources(new DefaultResources());
-        unpublishedAction.setContext(ActionDTO.ActionContext.MODULE);
+        unpublishedAction.setContextType(CreatorContextType.MODULE);
 
         moduleAction.setUnpublishedAction(unpublishedAction);
         moduleAction.setPublishedAction(new ActionDTO());
@@ -334,7 +335,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                     .findPublicActionByModuleId(moduleId)
                                     .flatMap(newAction -> {
                                         ActionDTO updateActionDTO = new ActionDTO();
-                                        updateActionDTO.setContext(ActionDTO.ActionContext.MODULE);
+                                        updateActionDTO.setContextType(CreatorContextType.MODULE);
                                         updateActionDTO.setName(moduleDTO.getName());
                                         updateActionDTO.setDatasource(
                                                 newAction.getUnpublishedAction().getDatasource());

@@ -2,14 +2,15 @@ package com.appsmith.server.newactions.publish;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PublishingMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.publish.publishable.PackagePublishableService;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.solutions.ActionPermission;
 import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
@@ -23,12 +24,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class NewActionPublishableServiceImpl implements PackagePublishableService<NewAction> {
-    private final NewActionRepository newActionRepository;
     private final ActionPermission actionPermission;
+    private final NewActionService newActionService;
 
-    public NewActionPublishableServiceImpl(NewActionRepository newActionRepository, ActionPermission actionPermission) {
-        this.newActionRepository = newActionRepository;
+    public NewActionPublishableServiceImpl(ActionPermission actionPermission, NewActionService newActionService) {
         this.actionPermission = actionPermission;
+        this.newActionService = newActionService;
     }
 
     @Override
@@ -36,11 +37,12 @@ public class NewActionPublishableServiceImpl implements PackagePublishableServic
 
         return Flux.fromIterable(
                         publishingMetaDTO.getOldModuleIdToNewModuleIdMap().keySet())
-                .flatMap(sourceModuleId -> newActionRepository.findAllNonJSActionsByModuleId(sourceModuleId))
+                .flatMap(sourceModuleId -> newActionService.findAllActionsByContextIdAndContextTypeAndViewMode(
+                        sourceModuleId, CreatorContextType.MODULE, actionPermission.getEditPermission(), false, false))
                 .flatMap(sourceAction -> Mono.just(getNewAction(publishingMetaDTO, sourceAction)))
                 .collectList()
                 .flatMap(publicPrivateActions ->
-                        newActionRepository.saveAll(publicPrivateActions).collectList());
+                        newActionService.saveAll(publicPrivateActions).collectList());
     }
 
     @NotNull private NewAction getNewAction(PublishingMetaDTO publishingMetaDTO, NewAction sourceNewAction) {

@@ -1,6 +1,8 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QNewAction;
@@ -88,5 +90,68 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         criteria.add(nonJsTypeCriteria);
         criteria.add(isPublicCriteria);
         return queryOne(criteria);
+    }
+
+    @Override
+    public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
+        if (contextType == CreatorContextType.PAGE) {
+            return super.findAllUnpublishedActionsByContextIdAndContextType(
+                    contextId, contextType, permission, includeJs);
+        }
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        String contextIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
+        String contextTypePath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+
+        criteriaList.add(contextIdAndContextTypeCriteria);
+
+        Criteria jsInclusionOrExclusionCriteria;
+        if (includeJs) {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
+        } else {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        }
+
+        criteriaList.add(jsInclusionOrExclusionCriteria);
+
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+    }
+
+    @Override
+    public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
+        if (contextType == CreatorContextType.PAGE) {
+            return super.findAllPublishedActionsByContextIdAndContextType(
+                    contextId, contextType, permission, includeJs);
+        }
+        List<Criteria> criteriaList = new ArrayList<>();
+        String contextIdPath = fieldName(QNewAction.newAction.publishedAction) + "."
+                + fieldName(QNewAction.newAction.publishedAction.moduleId);
+        String contextTypePath = fieldName(QNewAction.newAction.publishedAction) + "."
+                + fieldName(QNewAction.newAction.publishedAction.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+
+        criteriaList.add(contextIdAndContextTypeCriteria);
+
+        Criteria jsInclusionOrExclusionCriteria;
+        if (includeJs) {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
+        } else {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        }
+
+        criteriaList.add(jsInclusionOrExclusionCriteria);
+
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
     }
 }
