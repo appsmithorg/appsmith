@@ -138,7 +138,7 @@ const HomepageHeaderAction = ({
 
   if (!isHomePage) return null;
   return (
-    <div>
+    <div className="flex items-center">
       {<ShowUpgradeMenuItem />}
       {getShowAdminSettings(isFeatureEnabled, user) && (
         <Button
