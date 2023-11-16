@@ -1,20 +1,21 @@
 import React from "react";
-import type { WidgetState } from "widgets/BaseWidget";
-import { PhoneInputComponent } from "../component";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import log from "loglevel";
 import merge from "lodash/merge";
-import derivedProperties from "./parsedDerivedProperties";
+import * as Sentry from "@sentry/react";
 import { mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
-import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
-import * as Sentry from "@sentry/react";
-import log from "loglevel";
+import type { WidgetState } from "widgets/BaseWidget";
+import derivedProperties from "./parsedDerivedProperties";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
+import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+
 import {
   anvilConfig,
   autocompleteConfig,
@@ -24,9 +25,10 @@ import {
   settersConfig,
 } from "./config";
 import { metaConfig } from "./config/metaConfig";
-import { getCountryCode, validateInput } from "./helpers";
+import { PhoneInputComponent } from "../component";
 import type { PhoneInputWidgetProps } from "./types";
-import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
+import { getCountryCode, validateInput } from "./helpers";
+import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
 class WDSPhoneInputWidget extends WDSBaseInputWidget<
   PhoneInputWidgetProps,
@@ -90,6 +92,10 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
 
   static getStylesheetConfig(): Stylesheet {
     return {};
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return settersConfig;
   }
 
   getFormattedPhoneNumber(value: string) {
@@ -218,11 +224,28 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     super.onFocusChange(focusState);
   };
 
-  onKeyDown = (
-    e:
-      | React.KeyboardEvent<HTMLTextAreaElement>
-      | React.KeyboardEvent<HTMLInputElement>,
-  ) => {
+  onKeyDown = (e: KeyDownEvent) => {
+    // don't allow entering anything other than numbers. but allow backspace, arrows delete, tab, enter
+    if (
+      !(
+        (e.key >= "0" && e.key <= "9") ||
+        (e.key >= "0" && e.key <= "9" && e.code.includes("Numpad")) ||
+        e.key === "Backspace" ||
+        e.key === "Tab" ||
+        e.key === "Enter" ||
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown" ||
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowRight" ||
+        e.key === "Delete" ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey
+      )
+    ) {
+      e.preventDefault();
+    }
+
     super.onKeyDown(e);
   };
 
@@ -230,10 +253,6 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     super.resetWidgetText();
     this.props.updateWidgetMetaProperty("value", undefined);
   };
-
-  static getSetterConfig(): SetterConfig {
-    return settersConfig;
-  }
 
   getWidgetView() {
     const value = this.props.text ?? "";
