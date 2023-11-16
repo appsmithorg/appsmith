@@ -50,6 +50,8 @@ public class DataUtils {
         TEXT,
         FILE,
         ARRAY,
+        // this is application/json
+        JSON,
     }
 
     public DataUtils() {
@@ -192,6 +194,39 @@ public class DataUtils {
                             }
                         } else {
                             bodyBuilder.part(key, property.getValue());
+                        }
+                        break;
+                    case JSON:
+                        if (property.getValue() == null) {
+                            // Should we throw out an error over here?, We don't expect this to be the case
+                            break;
+                        }
+
+                        if (!(property.getValue() instanceof String jsonString)) {
+                            bodyBuilder.part(key, property.getValue());
+                            break;
+                        }
+
+                        if (!StringUtils.hasText(jsonString)) {
+                            // this doesn't have any text
+                            bodyBuilder.part(key, "");
+                            break;
+                        }
+
+                        Object objectFromJson;
+                        try {
+                            objectFromJson = objectFromJson(jsonString);
+                        } catch (JsonSyntaxException | ParseException e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    jsonString,
+                                    "Malformed JSON: " + e.getMessage());
+                        }
+
+                        if (objectFromJson == null) {
+                            bodyBuilder.part(key, "");
+                        } else {
+                            bodyBuilder.part(key, objectFromJson, MediaType.APPLICATION_JSON);
                         }
                         break;
                 }
