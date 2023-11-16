@@ -1,7 +1,10 @@
-package com.appsmith.server.helpers;
+package com.appsmith.server.helpers.ee;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.GitCloudServicesUtils;
+import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.FeatureFlagService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,16 +20,21 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
 @SpringBootTest
-public class GitPrivateRepoImplTest {
+public class GitPrivateRepoHelperImplTest {
 
     @SpyBean
     CommonConfig commonConfig;
@@ -132,5 +140,38 @@ public class GitPrivateRepoImplTest {
         StepVerifier.create(gitPrivateRepoHelper.isRepoLimitReached("", true))
                 .assertNext(isRepoLimit -> assertEquals(true, isRepoLimit))
                 .verifyComplete();
+    }
+
+    boolean isBranchProtected(GitApplicationMetadata metaData, String branchName) {
+        return Boolean.TRUE.equals(
+                gitPrivateRepoHelper.isBranchProtected(metaData, branchName).block());
+    }
+
+    @Test
+    public void isBranchProtected() {
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_git_branch_protection_enabled)))
+                .thenReturn(Mono.just(true));
+        Mockito.when(commonConfig.isCloudHosting()).thenReturn(true);
+
+        GitApplicationMetadata metaData = new GitApplicationMetadata();
+
+        assertFalse(isBranchProtected(null, "master"));
+        assertFalse(isBranchProtected(metaData, "master"));
+
+        metaData.setDefaultBranchName("master2");
+        assertFalse(isBranchProtected(metaData, "master"));
+
+        metaData.setDefaultBranchName("master");
+        assertFalse(isBranchProtected(metaData, "master"));
+
+        metaData.setBranchProtectionRules(List.of("dev"));
+        assertFalse(isBranchProtected(metaData, "master"));
+
+        metaData.setBranchProtectionRules(List.of("dev"));
+        assertTrue(isBranchProtected(metaData, "dev"));
+
+        metaData.setBranchProtectionRules(List.of("dev", "master"));
+        assertTrue(isBranchProtected(metaData, "master"));
+        assertTrue(isBranchProtected(metaData, "dev"));
     }
 }

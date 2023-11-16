@@ -843,6 +843,7 @@ export const COMMITTING_AND_PUSHING_CHANGES = () =>
 export const DISCARDING_AND_PULLING_CHANGES = () =>
   "Discarding and pulling changes...";
 export const DISCARD_SUCCESS = () => "Discarded changes successfully.";
+export const DISCARD_AND_PULL_SUCCESS = () => "Pulled from remote successfully";
 
 export const IS_MERGING = () => "Merging changes...";
 
@@ -1033,7 +1034,7 @@ export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
 export const HOW_TO_ADD_DEPLOY_KEY = () =>
   "How to paste SSH Key in repo and give write access?";
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
-  "I've added deploy key and gave it write access";
+  "I've added the deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
 export const GIT_CONNECT_SUCCESS_TITLE = () =>
   "Successfully connected to your Git remote repository";
@@ -1082,13 +1083,16 @@ export const BRANCH_PROTECTION_CHANGE_RULE = () =>
   "You can remove protection on your default branch in Git settings.";
 export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
 export const BRANCH_TOOLTIP_MESSAGE = () =>
-  "You can remove protection on your default branch in Git settings.";
+  "Please create a new branch or checkout an existing one to edit the app.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
 export const APPSMITH_ENTERPRISE = () => "Appsmith Enterprise";
 export const PROTECT_BRANCH_SUCCESS = () => "Changed protected branches";
-export const UPDATE_DEFAULT_BRANCH_SUCCESS = () => "Updated default branch";
+export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
+  `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
+export const CONTACT_ADMIN_FOR_GIT = () =>
+  "Please contact your workspace admin to connect your app to a git repo";
 // Git Branch Protection end
 
 export const NAV_DESCRIPTION = () =>
@@ -2234,3 +2238,14 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
   dragAndDrop: () => "Drag and Drop Widgets",
   importLoadingText: () => "Importing template",
 };
+
+// Create New Apps Intermediary step
+export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";
+export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
+  "Choose an option that fits your approach, and let's shape your app together.";
+export const START_FROM_TEMPLATE_TITLE = () => "Start with use-case";
+export const START_FROM_TEMPLATE_SUBTITLE = () =>
+  "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
+export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
+export const START_FROM_SCRATCH_SUBTITLE = () =>
+  "Create an app from the ground up. Design every detail of your app on a blank canvas.";

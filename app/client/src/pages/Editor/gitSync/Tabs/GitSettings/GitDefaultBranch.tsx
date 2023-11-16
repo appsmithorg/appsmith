@@ -14,6 +14,7 @@ import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useAppsmithEnterpriseLink } from "./hooks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -70,6 +71,10 @@ function GitDefaultBranch() {
 
   const handleUpdate = () => {
     if (selectedValue) {
+      AnalyticsUtil.logEvent("GS_DEFAULT_BRANCH_UPDATE", {
+        old_branch: currentDefaultBranch,
+        new_branch: selectedValue,
+      });
       dispatch(updateGitDefaultBranch({ branchName: selectedValue }));
     }
   };
@@ -103,6 +108,8 @@ function GitDefaultBranch() {
       <BodyContainer>
         <StyledSelect
           data-testid="t--git-default-branch-select"
+          dropdownMatchSelectWidth
+          getPopupContainer={(triggerNode) => triggerNode.parentNode}
           isDisabled={!isGitProtectedFeatureLicensed}
           onChange={(v) => setSelectedValue(v)}
           value={selectedValue}

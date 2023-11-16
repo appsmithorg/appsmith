@@ -96,7 +96,7 @@ describe("RBAC for git connected apps tests", function () {
   it("2. Discard changes on master branch and verify , discarded page don't show on Roles screen", function () {
     cy.switchGitBranch(mainBranch);
     cy.Createpage("page4");
-    cy.gitDiscardChanges();
+    gitSync.DiscardChanges();
     cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify new page is deleted after discarding changes

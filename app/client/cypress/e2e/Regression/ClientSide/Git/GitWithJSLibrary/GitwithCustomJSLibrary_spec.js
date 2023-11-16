@@ -44,7 +44,7 @@ describe("excludeForAirgap", "Tests JS Library with Git", () => {
     installer.uninstallLibrary("uuidjs");
     installer.assertUnInstall("uuidjs");
     // discard js library uninstallation
-    cy.gitDiscardChanges();
+    gitSync.DiscardChanges();
     // verify js library is present
     entityExplorer.ExpandCollapseEntity("Libraries");
     installer.AssertLibraryinExplorer("uuidjs");
