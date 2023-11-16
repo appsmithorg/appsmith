@@ -45,6 +45,7 @@ import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1282,6 +1283,6 @@ export function getInputsForModule(): Module["inputsForm"] {
   return [];
 }
 
-export const getModuleInstances = (): Record<string, unknown> => {
+export const getModuleInstances = (): Record<string, ModuleInstance> => {
   return {};
 };

@@ -75,12 +75,12 @@ export class DataTreeFactory {
     }
 
     if (!isEmpty(moduleInstances)) {
-      Object.values(moduleInstances).forEach((moduleInstance: unknown) => {
+      Object.values(moduleInstances).forEach((moduleInstance) => {
         const { configEntity, unEvalEntity } =
           generateModuleInstance(moduleInstance);
         if (!!configEntity && !!unEvalEntity) {
-          dataTree.inputs = unEvalEntity;
-          configTree.inputs = configEntity;
+          dataTree[moduleInstance.name] = unEvalEntity;
+          configTree[moduleInstance.name] = configEntity;
         }
       });
     }
