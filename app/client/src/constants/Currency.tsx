@@ -9,7 +9,7 @@ export interface CurrencyOptionProps {
   symbol_native: string;
 }
 
-export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
+export const CurrencyTypeOptions = [
   {
     code: "AD",
     currency: "EUR",
@@ -1594,4 +1594,4 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     phone: "260",
     symbol_native: "ZK",
   },
-];
+] as const;
