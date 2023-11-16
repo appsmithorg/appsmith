@@ -316,8 +316,17 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     Layout layout = page.getLayouts().get(0);
                     JSONObject layoutDsl = layout.getDsl();
-                    int currentDslVersion = layoutDsl.getAsNumber("version").intValue();
-                    if (currentDslVersion < latestDslVersion) {
+                    boolean isMigrationRequired = true;
+                    String versionKey = "version";
+                    if (layoutDsl.containsKey(versionKey)) {
+                        int currentDslVersion =
+                                layoutDsl.getAsNumber(versionKey).intValue();
+                        if (currentDslVersion >= latestDslVersion) {
+                            isMigrationRequired = false;
+                        }
+                    }
+
+                    if (isMigrationRequired) {
                         return dslMigrationUtils
                                 .migratePageDsl(layoutDsl)
                                 .onErrorMap(throwable -> {

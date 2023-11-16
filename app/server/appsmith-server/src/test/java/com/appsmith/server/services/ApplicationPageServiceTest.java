@@ -264,6 +264,58 @@ public class ApplicationPageServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * This test is to ensure that the DSL migration is triggered when DSL does not have version
+     */
+    @Test
+    @WithUserDetails("api_user")
+    public void getPageAndMigrateDslByBranchAndDefaultPageId_WhenDSLHasNotVersion_DslMigratedToLatest() {
+        String uuid = UUID.randomUUID().toString();
+        NewPage newPage = createApplication("App_" + uuid)
+                .flatMap(application ->
+                        newPageService.getById(application.getPages().get(0).getId()))
+                .flatMap(page -> {
+                    Layout layout = page.getUnpublishedPage().getLayouts().get(0);
+                    JSONObject unpublishedDsl = layout.getDsl();
+                    unpublishedDsl.remove("version"); // removing version from DSL
+                    return newPageService.save(page);
+                })
+                .block();
+
+        // update the page to set older version dsl in edit mode
+        newPageService.save(newPage).block();
+
+        int latestDslVersion = 999;
+
+        // mock the dsMigrationUtils to return the latestDslVersion
+        Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(latestDslVersion));
+
+        // the dsl that'll be returned by RTS after migration
+        JSONObject dslAfterMigration = new JSONObject();
+        dslAfterMigration.put("version", latestDslVersion);
+        dslAfterMigration.put("testKey", "testValue");
+
+        Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
+
+        Mono<NewPage> newPageMono = applicationPageService
+                .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, false, true)
+                .then(newPageService.getById(newPage.getId()));
+
+        StepVerifier.create(newPageMono)
+                .assertNext(newpage -> {
+                    // the edit mode dsl should be same as the dslAfterMigration
+                    JSONObject unpublishedDslAfterMigration =
+                            newpage.getUnpublishedPage().getLayouts().get(0).getDsl();
+                    assertThat(unpublishedDslAfterMigration
+                                    .getAsNumber("version")
+                                    .intValue())
+                            .isEqualTo(latestDslVersion);
+                    assertThat(unpublishedDslAfterMigration.getAsString("testKey"))
+                            .isEqualTo("testValue");
+                })
+                .verifyComplete();
+    }
+
     @Test
     @WithUserDetails("api_user")
     public void getPageAndMigrateDslByBranchAndDefaultPageId_WhenViewModeDslIsNotLatest_ViewModeDslMigrated() {
