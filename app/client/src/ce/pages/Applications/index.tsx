@@ -78,7 +78,6 @@ import { Indices } from "constants/Layers";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
@@ -376,7 +375,6 @@ export function LeftPane(props: LeftPaneProps) {
               />
             ))}
         </WorkpsacesNavigator>
-        <LeftPaneBottomSection />
       </LeftPaneSection>
     </LeftPaneWrapper>
   );
