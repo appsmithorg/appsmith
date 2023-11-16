@@ -25,7 +25,7 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
     cy.dragAndDropToCanvas("codescannerwidget", { x: 100, y: 200 });
     cy.dragAndDropToCanvas("listwidgetv2", { x: 620, y: 820 });
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 620, y: 820 });
-    cy.dragAndDropToCanvas("tabswidget", { x: 770, y: 770 });
+    cy.dragAndDropToCanvas("tabswidget", { x: 670, y: 770 });
     cy.wait(2000);
     _.deployMode.DeployApp();
     cy.wait(2000);

@@ -23,13 +23,21 @@ import {
 } from "@appsmith/constants/messages";
 import history from "utils/history";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { INTEGRATION_TABS } from "constants/routes";
 import { Colors } from "constants/Colors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { STARTER_BUILDING_BLOCK_TEMPLATE_NAME } from "constants/TemplatesConstants";
 
 function DatasourceStarterLayoutPrompt() {
   const dispatch = useDispatch();
 
+  const currentApplicationId = useSelector(getCurrentApplicationId);
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const pageId = useSelector(getCurrentPageId);
   const showDatasourcePrompt = useSelector(
     starterBuildingBlockDatasourcePromptSelector,
@@ -52,6 +60,15 @@ function DatasourceStarterLayoutPrompt() {
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
+
+    AnalyticsUtil.logEvent("STARTER_BUILDING_BLOCK_CONNECT_DATA_CLICK", {
+      applicationId: currentApplicationId,
+      workspaceId: currentWorkspaceId,
+      source: "canvas",
+      eventData: {
+        templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
+      },
+    });
   }, [pageId]);
 
   return (

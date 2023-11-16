@@ -9,6 +9,9 @@ import {
   propPane,
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
   let dsName: any;
@@ -41,6 +44,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     dataSources.CreateDataSource("MySql", true, false);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
       //Selecting paintings table from MySQL DS
       //Initialize new JSObject with custom code

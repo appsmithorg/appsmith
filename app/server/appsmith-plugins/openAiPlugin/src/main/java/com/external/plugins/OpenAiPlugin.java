@@ -95,7 +95,6 @@ public class OpenAiPlugin extends BasePlugin {
             OpenAIRequestDTO openAIRequestDTO = openAICommand.makeRequestBody(actionConfiguration);
             URI uri = openAICommand.createExecutionUri();
             HttpMethod httpMethod = openAICommand.getExecutionMethod();
-
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
@@ -114,8 +113,12 @@ public class OpenAiPlugin extends BasePlugin {
 
                         if (statusCode.is4xxClientError()) {
                             actionExecutionResult.setIsExecutionSuccess(false);
-                            actionExecutionResult.setErrorInfo(
-                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
+                            String errorMessage = "";
+                            if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
+                                errorMessage = new String(responseEntity.getBody());
+                            }
+                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR, errorMessage));
                             return Mono.just(actionExecutionResult);
                         }
 

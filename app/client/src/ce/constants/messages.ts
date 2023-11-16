@@ -1494,7 +1494,7 @@ export const WELCOME_FORM_GENERIC_ERROR_MESSAGE = () =>
   "This field is required.";
 
 export const WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE = () =>
-  "TPasswords don't match.";
+  "Passwords don't match.";
 
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   `Are you sure you want to run `;
