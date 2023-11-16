@@ -296,7 +296,7 @@ function* moveWidgetsSaga(
     const areZonesBeingDragged = draggedWidgets.every(
       (each) => each.widgetType === ZoneWidget.type,
     );
-    if (isSection && !areZonesBeingDragged) {
+    if (isMainCanvas || (isSection && !areZonesBeingDragged)) {
       const createdZoneWidgetId = generateReactKey();
       updatedWidgets = yield call(
         addNewChildToDSL,
@@ -323,9 +323,6 @@ function* moveWidgetsSaga(
         alignment: FlexLayerAlignment.Start,
         canvasId: createdZoneCanvasId,
       });
-    } else if (isMainCanvas) {
-      // wrap widgets with a new section
-      updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
     } else {
       updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
     }
