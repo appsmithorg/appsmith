@@ -450,7 +450,8 @@ setup-custom-ca-certificates() (
 
   # Add the custom CA certificates to the store.
   find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
-    -exec keytool -import -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+    -print \
+    -exec keytool -import -alias '{}' -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
 
   {
     echo "-Djavax.net.ssl.trustStore=$store"
