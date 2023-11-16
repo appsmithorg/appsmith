@@ -270,11 +270,11 @@ class DatasourceHomeScreen extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
+const mapStateToProps = (state: AppState, props: any) => {
   const { datasources } = state.entities;
   return {
     pluginImages: getPluginImages(state),
-    plugins: props.showMostPopularPlugins
+    plugins: !!props?.showMostPopularPlugins
       ? getMostPopularPlugins(state)
       : getDBPlugins(state),
     currentApplication: getCurrentApplication(state),
