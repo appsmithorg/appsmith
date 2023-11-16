@@ -130,13 +130,20 @@ function QuickActionButton({
   );
 }
 
-const getPullBtnStatus = (gitStatus: any, pullFailed: boolean) => {
+const getPullBtnStatus = (
+  gitStatus: any,
+  pullFailed: boolean,
+  isProtected: boolean,
+) => {
   const { behindCount, isClean } = gitStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
   let disabled = behindCount === 0;
-  if (!isClean) {
+  if (!isClean && !isProtected) {
     disabled = true;
     message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
+  } else if (!isClean && isProtected) {
+    disabled = false;
+    message = createMessage(PULL_CHANGES);
   } else if (pullFailed) {
     message = createMessage(CONFLICTS_FOUND);
   } else if (behindCount > 0) {
@@ -315,7 +322,7 @@ export default function QuickGitActions() {
   const isProtectedMode = useSelector(protectedModeSelector);
 
   const { disabled: pullDisabled, message: pullTooltipMessage } =
-    getPullBtnStatus(gitStatus, !!pullFailed);
+    getPullBtnStatus(gitStatus, !!pullFailed, isProtectedMode);
 
   const isPullInProgress = useSelector(getPullInProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
