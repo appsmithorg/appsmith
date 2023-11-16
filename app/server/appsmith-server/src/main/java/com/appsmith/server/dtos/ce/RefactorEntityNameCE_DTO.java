@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RefactorEntityNameDTO_CE {
+public class RefactorEntityNameCE_DTO {
     String pageId;
     String layoutId;
     String oldName;
