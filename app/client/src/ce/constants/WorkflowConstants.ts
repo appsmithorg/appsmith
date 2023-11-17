@@ -1,5 +1,6 @@
 type ID = string;
 
+// Type for the workflow object.
 export interface Workflow {
   id: ID;
   name: string; // Name of the workflow.
@@ -9,6 +10,8 @@ export interface Workflow {
   modifiedBy: string;
   modifiedAt: string;
   userPermissions: string[];
+  new: boolean;
+  slug: string; // Slug of the workflow (Not in use currently).
 }
 
 export type WorkflowMetadata = Workflow;
