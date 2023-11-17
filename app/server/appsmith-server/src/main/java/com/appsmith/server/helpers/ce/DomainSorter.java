@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class EntitySorter {
+public class DomainSorter {
 
     /**
      * Sorts a Flux of domains based on the provided list of ordered domain IDs.

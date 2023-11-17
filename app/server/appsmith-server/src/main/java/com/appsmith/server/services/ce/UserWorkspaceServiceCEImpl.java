@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.server.helpers.ce.EntitySorter.sortDomainsBasedOnOrderedDomainIds;
+import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 
 @Slf4j
 @Service
@@ -411,10 +411,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         Mono<UserData> userDataMono = userDataService.getForCurrentUser().defaultIfEmpty(new UserData());
 
-        Flux<Workspace> workspacesFromRepoFlux =
-                workspaceService.getAll(workspacePermission.getReadPermission()).cache();
-
-        return userDataMono.flatMap(userData -> workspacesFromRepoFlux
+        return userDataMono.flatMap(userData -> workspaceService
+                .getAll(workspacePermission.getReadPermission())
                 // sort transformation
                 .transform(domainFlux ->
                         sortDomainsBasedOnOrderedDomainIds(domainFlux, userData.getRecentlyUsedWorkspaceIds()))

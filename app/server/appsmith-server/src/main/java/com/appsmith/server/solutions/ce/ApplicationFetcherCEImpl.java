@@ -43,11 +43,10 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.helpers.ce.EntitySorter.sortDomainsBasedOnOrderedDomainIds;
+import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 
 @Slf4j
 @RequiredArgsConstructor
-@Deprecated
 public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
     /**
@@ -68,6 +67,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
 
+    // TODO: Remove this method once the new homepage is ready
     /**
      * For the current user, it first fetches all the workspaces user has read permission on. For each workspace, in turn all
      * the readable applications are fetched. These applications are then returned grouped by Workspaces in a special DTO and returned
