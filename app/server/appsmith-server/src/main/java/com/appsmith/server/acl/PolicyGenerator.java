@@ -57,6 +57,7 @@ import static com.appsmith.server.acl.AclPermission.PUBLISH_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_APPROVAL_REQUESTS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_MODULES;
 import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
@@ -68,6 +69,8 @@ import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.RESOLVE_APPROVAL_REQUESTS;
+import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ADD_USER_TO_ALL_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_DELETE_ALL_USERS;
@@ -107,6 +110,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_RESOLVE_WORKFLOWS;
 
 @Component
 public class PolicyGenerator extends PolicyGeneratorCE {
@@ -122,6 +126,11 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         createModulePolicyGraph();
         createModuleInstancePolicyGraph();
         createWorkflowPolicyGraph();
+        createApprovalRequestPolicyGraph();
+    }
+
+    private void createApprovalRequestPolicyGraph() {
+        lateralGraph.addEdge(RESOLVE_APPROVAL_REQUESTS, READ_APPROVAL_REQUESTS);
     }
 
     private void createWorkflowPolicyGraph() {
@@ -130,6 +139,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_DELETE_WORKFLOWS, DELETE_WORKFLOWS);
         hierarchyGraph.addEdge(WORKSPACE_PUBLISH_WORKFLOWS, PUBLISH_WORKFLOWS);
         hierarchyGraph.addEdge(WORKSPACE_EXPORT_WORKFLOWS, EXPORT_WORKFLOWS);
+        hierarchyGraph.addEdge(WORKSPACE_RESOLVE_WORKFLOWS, RESOLVE_WORKFLOWS);
 
         lateralGraph.addEdge(MANAGE_WORKFLOWS, READ_WORKFLOWS);
         lateralGraph.addEdge(MANAGE_WORKFLOWS, EXECUTE_WORKFLOWS);

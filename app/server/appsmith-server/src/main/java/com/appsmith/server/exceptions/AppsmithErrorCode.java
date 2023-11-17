@@ -153,7 +153,10 @@ public enum AppsmithErrorCode {
     UPDATE_ACCESS_TOKEN_FAILED("AE-OIDC-4000", "Updating access token failed"),
     PACKAGE_CANNOT_BE_PUBLISHED("AE-PKG-4000", "Package cannot be published"),
     DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
-            "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed");
+            "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
+    INVALID_APPROVAL_REQUEST_RESOLUTION("AE-APP-4029", "Invalid approval request resolution"),
+    INVALID_APPROVAL_REQUEST_CREATION("AE-APP-4030", "Invalid approval request creation"),
+    ;
     private final String code;
     private final String description;
 

@@ -6,6 +6,7 @@ import com.appsmith.external.models.Environment;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApprovalRequest;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Module;
@@ -125,6 +126,7 @@ public enum AclPermission {
     WORKSPACE_PUBLISH_WORKFLOWS("publish:workspaceWorkflows", Workspace.class),
     WORKSPACE_EXPORT_WORKFLOWS("export:workspaceWorkflows", Workspace.class),
     WORKSPACE_DELETE_WORKFLOWS("delete:workspaceWorkflows", Workspace.class),
+    WORKSPACE_RESOLVE_WORKFLOWS("resolve:workspaceWorkflows", Workspace.class),
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
@@ -227,6 +229,11 @@ public enum AclPermission {
     DELETE_WORKFLOWS("delete:workflows", Workflow.class),
     EXPORT_WORKFLOWS("export:workflows", Workflow.class),
     EXECUTE_WORKFLOWS("execute:workflows", Workflow.class),
+    RESOLVE_WORKFLOWS("resolve:workflows", Workflow.class),
+
+    // Approval Request Permissions
+    RESOLVE_APPROVAL_REQUESTS("resolve:approvalRequests", ApprovalRequest.class),
+    READ_APPROVAL_REQUESTS("read:approvalRequests", ApprovalRequest.class),
     ;
 
     private final String value;
