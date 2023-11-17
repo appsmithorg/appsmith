@@ -274,16 +274,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .map(Tuple2::getT2);
     }
 
-    @Override
-    public Mono<UserData> addTemplateIdToLastUsedList(String templateId) {
-        return this.getForCurrentUser().flatMap(userData -> {
-            // set recently used template ids
-            userData.setRecentlyUsedTemplateIds(
-                    addIdToRecentList(userData.getRecentlyUsedTemplateIds(), templateId, 5));
-            return repository.save(userData);
-        });
-    }
-
     private List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
         if (srcIdList == null) {
             srcIdList = new ArrayList<>();
