@@ -37,7 +37,7 @@ import static com.external.plugins.utils.RequestUtils.extractDataFromFormData;
 public class EmbeddingsCommand implements OpenAICommand {
 
     private final Gson gson;
-    private final String regex = "(ft:)?(text-embedding-ada-002).*";
+    private final String regex = "(ft:)?(text-embedding).*";
     private final Pattern pattern = Pattern.compile(regex);
 
     public EmbeddingsCommand(Gson gson) {
