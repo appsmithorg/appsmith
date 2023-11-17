@@ -273,7 +273,7 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
   try {
     const start = performance.now();
     const {
-      dragMeta: { draggedOn },
+      dragMeta: { draggedOn, draggedWidgetTypes },
       highlight,
       movedWidgets,
     } = actionPayload.payload;
@@ -282,21 +282,15 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
     const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     let updatedWidgets: CanvasWidgetsReduxState = {};
-    const draggedWidgets: WidgetLayoutProps[] = movedWidgets.map((each) => ({
-      alignment: highlight.alignment,
-      widgetId: each.widgetId,
-      widgetType: each.type,
-    }));
-    const areZonesBeingDragged = draggedWidgets.every(
-      (each) => each.widgetType === ZoneWidget.type,
-    );
-    const areSectionsBeingDragged = draggedWidgets.every(
-      (each) => each.widgetType === SectionWidget.type,
-    );
-    if (
-      (isMainCanvas && !(areZonesBeingDragged || areSectionsBeingDragged)) ||
-      isSection
-    ) {
+    const areZonesBeingDragged = draggedWidgetTypes === "ZONE";
+    const areSectionsBeingDragged = draggedWidgetTypes === "SECTION";
+    const movingWidgetToMainCanvas =
+      isMainCanvas && !(areZonesBeingDragged || areSectionsBeingDragged);
+    if (movingWidgetToMainCanvas || isSection) {
+      /**
+       * this same code block creates just a zone when the target is a section
+       * however it creates a section and a zone when the target is main canvas
+       * */
       const createdZoneWidgetId = generateReactKey();
       updatedWidgets = yield call(
         addNewChildToDSL,
@@ -324,6 +318,10 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
         canvasId: createdZoneCanvasId,
       });
     } else if (isMainCanvas && areZonesBeingDragged) {
+      /**
+       * when a zone is dragged we create a new section using generic method of creation on the main canvas
+       * and then we move zones into the newly created sections canvas
+       */
       const createdSectionWidgetId = generateReactKey();
       const newSectionWidget = {
         width: 0,
