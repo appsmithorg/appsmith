@@ -297,7 +297,13 @@ function* moveWidgetsSaga(
     const areZonesBeingDragged = draggedWidgets.every(
       (each) => each.widgetType === ZoneWidget.type,
     );
-    if ((isMainCanvas && !areZonesBeingDragged) || isSection) {
+    const areSectionsBeingDragged = draggedWidgets.every(
+      (each) => each.widgetType === SectionWidget.type,
+    );
+    if (
+      (isMainCanvas && !(areZonesBeingDragged || areSectionsBeingDragged)) ||
+      isSection
+    ) {
       const createdZoneWidgetId = generateReactKey();
       updatedWidgets = yield call(
         addNewChildToDSL,
