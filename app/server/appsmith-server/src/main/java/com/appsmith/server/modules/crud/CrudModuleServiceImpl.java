@@ -257,7 +257,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                     .save(fetchedModule)
                                     .flatMap(moduleRepository::setUserPermissionsInObject)
                                     .then(setTransientFieldsFromModuleToModuleDTO(
-                                            fetchedModule, fetchedModule.getUnpublishedModule())));
+                                                    fetchedModule, fetchedModule.getUnpublishedModule())
+                                            .flatMap(this::setModuleSettingsForCreator)));
                 }));
     }
 
@@ -351,7 +352,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                             .flatMap(updatedModule -> {
                                                 ModuleDTO unpublishedModule = updatedModule.getUnpublishedModule();
                                                 return setTransientFieldsFromModuleToModuleDTO(
-                                                        updatedModule, unpublishedModule);
+                                                                updatedModule, unpublishedModule)
+                                                        .flatMap(this::setModuleSettingsForCreator);
                                             }));
                         }));
     }
