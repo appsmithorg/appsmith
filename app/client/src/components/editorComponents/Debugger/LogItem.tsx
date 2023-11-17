@@ -6,13 +6,14 @@ import type { PropsWithChildren } from "react";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
-import EntityLink, { DebuggerLinkUI } from "./EntityLink";
+import EntityLink from "./EntityLink";
 import { getLogIcon } from "./helpers";
 import { Classes, getTypographyByKey } from "design-system-old";
 import ContextualMenu from "./ContextualMenu";
 import { Button, Icon } from "design-system";
 import moment from "moment";
 import classNames from "classnames";
+import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;

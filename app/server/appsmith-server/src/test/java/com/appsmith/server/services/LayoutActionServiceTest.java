@@ -22,7 +22,7 @@ import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
-import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
+import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;

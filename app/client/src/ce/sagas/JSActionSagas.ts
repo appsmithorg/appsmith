@@ -1,24 +1,24 @@
 import type {
-  ReduxAction,
   EvaluationReduxAction,
+  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { put, select, call } from "redux-saga/effects";
 import type { FetchActionsPayload } from "actions/pluginActionActions";
-import type { JSCollection, JSAction } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
-  createJSCollectionSuccess,
-  deleteJSCollectionSuccess,
-  deleteJSCollectionError,
-  copyJSCollectionSuccess,
   copyJSCollectionError,
-  moveJSCollectionSuccess,
-  moveJSCollectionError,
+  copyJSCollectionSuccess,
+  createJSCollectionSuccess,
+  deleteJSCollectionError,
+  deleteJSCollectionSuccess,
   fetchJSCollectionsForPage,
   fetchJSCollectionsForPageSuccess,
+  moveJSCollectionError,
+  moveJSCollectionSuccess,
 } from "actions/jsActionActions";
 import {
   getJSCollection,
@@ -30,17 +30,17 @@ import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 import {
   createMessage,
-  JS_ACTION_COPY_SUCCESS,
   ERROR_JS_ACTION_COPY_FAIL,
-  JS_ACTION_DELETE_SUCCESS,
-  JS_ACTION_MOVE_SUCCESS,
   ERROR_JS_ACTION_MOVE_FAIL,
   ERROR_JS_COLLECTION_RENAME_FAIL,
+  JS_ACTION_COPY_SUCCESS,
+  JS_ACTION_DELETE_SUCCESS,
+  JS_ACTION_MOVE_SUCCESS,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "../../sagas/ErrorSagas";
 import type { FetchPageResponse, PageLayout } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
