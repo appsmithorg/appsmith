@@ -1,6 +1,7 @@
 package com.appsmith.server.constants;
 
 import com.appsmith.server.constants.ce.FieldNameCE;
+import com.appsmith.server.domains.ApprovalRequest;
 
 public class FieldName extends FieldNameCE {
 
@@ -130,4 +131,10 @@ public class FieldName extends FieldNameCE {
     public static final String WORKFLOW_ID = "workflowId";
     public static final String LICENSE = "license";
     public static final String ADDED = "added";
+    public static final String WORKFLOW = "workflow";
+    public static final String REQUEST_ID = "requestId";
+    public static final String REQUEST = "request";
+    public static final String ASCENDING = "ASC";
+
+    public static final String APPROVAL_REQUEST_ROLE_PREFIX = ApprovalRequest.class.getSimpleName() + " Role: %s";
 }

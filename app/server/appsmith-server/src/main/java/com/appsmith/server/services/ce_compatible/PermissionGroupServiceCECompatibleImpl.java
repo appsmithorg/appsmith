@@ -169,6 +169,12 @@ public class PermissionGroupServiceCECompatibleImpl extends PermissionGroupServi
     }
 
     @Override
+    public Mono<Boolean> bulkAssignUsersAndUserGroupsToPermissionGroupsWithoutPermission(
+            List<User> users, List<UserGroup> groups, List<PermissionGroup> roles) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
     public Flux<PermissionGroup> findAllByAssignedToGroupIdsInWithoutPermission(Set<String> groupIds) {
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }

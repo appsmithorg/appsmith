@@ -1175,7 +1175,22 @@ public enum AppsmithError {
             "Package cannot be published",
             ErrorType.BAD_REQUEST,
             null),
-    ;
+    INVALID_APPROVAL_REQUEST_RESOLUTION(
+            400,
+            AppsmithErrorCode.INVALID_APPROVAL_REQUEST_RESOLUTION.getCode(),
+            "Invalid approval request resolution. {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid approval request resolution",
+            ErrorType.APPROVAL_REQUEST_ERROR,
+            null),
+    INVALID_APPROVAL_REQUEST_CREATION(
+            400,
+            AppsmithErrorCode.INVALID_APPROVAL_REQUEST_CREATION.getCode(),
+            "Invalid approval request creation. {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid approval request creation",
+            ErrorType.BAD_REQUEST,
+            null);
 
     private final Integer httpErrorCode;
     private final String appErrorCode;

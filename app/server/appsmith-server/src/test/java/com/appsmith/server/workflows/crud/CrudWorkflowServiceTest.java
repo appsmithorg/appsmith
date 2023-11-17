@@ -30,6 +30,7 @@ import static com.appsmith.server.acl.AclPermission.EXPORT_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -84,7 +85,8 @@ public class CrudWorkflowServiceTest {
                             PUBLISH_WORKFLOWS.getValue(),
                             DELETE_WORKFLOWS.getValue(),
                             EXPORT_WORKFLOWS.getValue(),
-                            EXECUTE_WORKFLOWS.getValue());
+                            EXECUTE_WORKFLOWS.getValue(),
+                            RESOLVE_WORKFLOWS.getValue());
 
                     assertThat(userPermissions).containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
                 })
