@@ -37,9 +37,8 @@ import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import GeneratePage from "pages/Editor/GeneratePage";
-import { useSelector } from "react-redux";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
 import type { RouteProps } from "react-router";
+import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
 
 export interface RouteReturnType extends RouteProps {
   key: string;
@@ -51,7 +50,7 @@ export interface RouteReturnType extends RouteProps {
  */
 
 function useRoutes(path: string): RouteReturnType[] {
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   return [
     {
