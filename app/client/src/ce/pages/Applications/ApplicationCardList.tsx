@@ -59,7 +59,7 @@ function ApplicationCardList({
     <CardList
       isLoading={isFetchingApplications}
       isMobile={isMobile}
-      title="Apps"
+      title="Applications"
     >
       {applications.map((application: any) => {
         return (

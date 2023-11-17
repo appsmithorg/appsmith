@@ -35,7 +35,6 @@ import PageWrapper from "pages/common/PageWrapper";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   AppIconCollection,
   Classes,
@@ -44,7 +43,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { Divider, Icon } from "design-system";
+import { Button, Divider, Icon, Text as NewText } from "design-system";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
@@ -145,7 +144,7 @@ export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
       ${(props) => (props.isBannerVisible ? "48px" : "0px")}
   );
   border-right: 1px solid var(--ads-v2-color-border);
-  padding: 0 16px;
+  padding: 0 12px;
 `;
 export const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
   ${({ isMobile }) =>
@@ -231,9 +230,39 @@ export function LeftPaneSection(props: {
   isFetchingApplications: boolean;
   isBannerVisible?: boolean;
 }) {
+  const dispatch = useDispatch();
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const tenantPermissions = useSelector(getTenantPermissions);
+  const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
+
+  const canCreateWorkspace = getHasCreateWorkspacePermission(
+    isFeatureEnabled,
+    tenantPermissions,
+  );
+
   return (
     <LeftPaneDataSection isBannerVisible={props.isBannerVisible}>
-      <Item label={props.heading} textType={TextType.SIDE_HEAD} />
+      <div className="flex items-center py-3 justify-between">
+        <NewText kind="heading-xs">{props.heading}</NewText>
+        {canCreateWorkspace && (
+          <Button
+            data-testid="t--workspace-new-workspace-auto-create"
+            kind="tertiary"
+            onClick={async () =>
+              submitCreateWorkspaceForm(
+                {
+                  name: getNextEntityName(
+                    "Untitled workspace ",
+                    fetchedUserWorkspaces.map((el: any) => el.workspace.name),
+                  ),
+                },
+                dispatch,
+              )
+            }
+            startIcon="add-line"
+          />
+        )}
+      </div>
       {props.children}
     </LeftPaneDataSection>
   );
@@ -290,10 +319,10 @@ export function WorkspaceMenuItem({
         isFetchingApplications ? BlueprintClasses.SKELETON : ""
       }
       ellipsize={
-        isFetchingApplications ? 100 : 19
+        isFetchingApplications ? 100 : 25
       } /* this is to avoid showing tooltip for loaders */
       href={`${window.location.pathname}#${workspace.workspace.id}`}
-      icon="workspace"
+      icon="group-2-line"
       key={workspace.workspace.id}
       ref={menuRef}
       selected={selected}
@@ -314,11 +343,9 @@ export interface LeftPaneProps {
 
 export function LeftPane(props: LeftPaneProps) {
   const { isBannerVisible = false } = props;
-  const dispatch = useDispatch();
   const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   let userWorkspaces;
   if (!isFetchingApplications) {
@@ -326,13 +353,6 @@ export function LeftPane(props: LeftPaneProps) {
   } else {
     userWorkspaces = loadingUserWorkspaces as any;
   }
-
-  const tenantPermissions = useSelector(getTenantPermissions);
-  const canCreateWorkspace = getHasCreateWorkspacePermission(
-    isFeatureEnabled,
-    tenantPermissions,
-  );
-
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
@@ -346,25 +366,6 @@ export function LeftPane(props: LeftPaneProps) {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-testid="t--left-panel">
-          {canCreateWorkspace && (
-            <ListItem
-              color="var(--ads-v2-color-fg-emphasis)"
-              data-testid="t--workspace-new-workspace-auto-create"
-              icon="plus"
-              onSelect={async () =>
-                submitCreateWorkspaceForm(
-                  {
-                    name: getNextEntityName(
-                      "Untitled workspace ",
-                      fetchedUserWorkspaces.map((el: any) => el.workspace.name),
-                    ),
-                  },
-                  dispatch,
-                )
-              }
-              text={CREATE_WORKSPACE_FORM_NAME}
-            />
-          )}
           {userWorkspaces &&
             userWorkspaces.map((workspace: any) => (
               <WorkspaceMenuItem
@@ -384,11 +385,9 @@ export const CreateNewLabel = styled(Text)`
   margin-top: 18px;
 `;
 
-export const WorkspaceNameElement = styled(Text)<{ isMobile?: boolean }>`
+export const WorkspaceNameElement = styled.div<{ isMobile?: boolean }>`
   max-width: ${({ isMobile }) => (isMobile ? 220 : 500)}px;
   ${truncateTextUsingEllipsis};
-  color: var(--ads-v2-color-fg);
-  font-weight: var(--ads-font-weight-bold-xl);
 `;
 
 export const WorkspaceNameHolder = styled(Text)`
@@ -535,9 +534,10 @@ export function ApplicationsSection(props: any) {
           <WorkspaceNameElement
             className={isLoadingResources ? BlueprintClasses.SKELETON : ""}
             isMobile={isMobile}
-            type={TextType.H4}
           >
-            {workspaceName}
+            <NewText className="!font-semibold" kind="heading-l">
+              {workspaceName}
+            </NewText>
           </WorkspaceNameElement>
         </WorkspaceNameHolder>
       </WorkspaceNameWrapper>

@@ -22,6 +22,7 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   align-items: baseline;
   justify-content: center;
+  flex: 0;
   width: ${(props) => props.theme.card.minWidth}px;
 
   @media screen and (min-width: 1500px) {
