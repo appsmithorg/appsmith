@@ -63,10 +63,14 @@ export function deleteWidgetFromLayout(
       )
       .filter((each: LayoutProps) => Object.keys(each).length),
   };
-
-  return updatedLayout.isPermanent || updatedLayout.layout?.length
-    ? updatedLayout
-    : undefined;
+  /**
+   * Removing this check for now need to figure out how to recurrsively remove the parent temporary section as well.
+   * currently when a zone empties it just removes the entry on the layout props but the children continue to carry the zone as a child.
+   */
+  // return updatedLayout.isPermanent || updatedLayout.layout?.length
+  //   ? updatedLayout
+  //   : undefined;
+  return updatedLayout;
 }
 
 /**
