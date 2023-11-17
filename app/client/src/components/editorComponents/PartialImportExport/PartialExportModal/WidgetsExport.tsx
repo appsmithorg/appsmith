@@ -10,13 +10,17 @@ import {
 
 interface BaseProps {
   selectedWidgetIds: string[];
+  selectAllchecked: boolean;
   updateSelectedWidgets: (widgetIds: string[]) => void;
+  updateSelectAllChecked: (checked: boolean) => void;
 }
 interface Props extends BaseProps {
   widgets: CanvasStructure;
 }
 const WidgetsExport = ({
+  selectAllchecked,
   selectedWidgetIds,
+  updateSelectAllChecked,
   updateSelectedWidgets,
   widgets,
 }: Props) => {
@@ -24,7 +28,9 @@ const WidgetsExport = ({
     return null;
   return (
     <WidgetSelector
+      selectAllchecked={selectAllchecked}
       selectedWidgetIds={selectedWidgetIds}
+      updateSelectAllChecked={updateSelectAllChecked}
       updateSelectedWidgets={updateSelectedWidgets}
       widgetList={widgets.children}
     />
@@ -37,7 +43,9 @@ interface WidgetSelectorProps extends BaseProps {
   widgetList: CanvasStructure[];
 }
 function WidgetSelector({
+  selectAllchecked,
   selectedWidgetIds,
+  updateSelectAllChecked,
   updateSelectedWidgets,
   widgetList,
 }: WidgetSelectorProps) {
@@ -62,6 +70,7 @@ function WidgetSelector({
     const prevSelectedWidgetIds = [...selectedWidgetIds];
     toggleNestedChildrenSelection(node, prevSelectedWidgetIds, checked);
     updateSelectedWidgets(prevSelectedWidgetIds);
+    if (!checked) updateSelectAllChecked(false);
   };
 
   function renderWidget(
@@ -98,11 +107,16 @@ function WidgetSelector({
       toggleNestedChildrenSelection(widget, prevSelectedWidgetIds, checked);
     });
     updateSelectedWidgets(prevSelectedWidgetIds);
+    updateSelectAllChecked(checked);
   };
   return (
     <CheckboxWrapper>
-      <Checkbox className="mb-4" onChange={handleSelectAllClick}>
-        <Text kind="heading-xs" renderAs="p">
+      <Checkbox
+        className="mb-4"
+        isSelected={selectAllchecked}
+        onChange={handleSelectAllClick}
+      >
+        <Text kind="body-m" renderAs="p">
           Select All
         </Text>
       </Checkbox>

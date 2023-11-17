@@ -60,7 +60,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
     getPartialImportExportLoadingState,
   );
   const currentPageName = useSelector(getCurrentPageName);
-
+  const [widgetSelectAllChecked, setWidgetSelectAllChecked] = useState(false);
   useEffect(() => {
     setCustomJsLibraries(libraries.filter((lib) => !!lib.url));
   }, [libraries]);
@@ -174,7 +174,9 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
       {
         content: canvasWidgets ? (
           <WidgetsExport
+            selectAllchecked={widgetSelectAllChecked}
             selectedWidgetIds={selectedParams.widgets}
+            updateSelectAllChecked={setWidgetSelectAllChecked}
             updateSelectedWidgets={(widgets) =>
               setSelectedParams((prev) => ({ ...prev, widgets }))
             }
@@ -188,6 +190,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
             ...prev,
             widgets: [],
           }));
+          setWidgetSelectAllChecked(false);
           event.stopPropagation();
         },
         title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.widgets),
