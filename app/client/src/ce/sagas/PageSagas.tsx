@@ -59,17 +59,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  all,
-  call,
-  debounce,
-  delay,
-  put,
-  select,
-  takeEvery,
-  takeLatest,
-  takeLeading,
-} from "redux-saga/effects";
+import { all, call, delay, put, select } from "redux-saga/effects";
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -79,8 +69,11 @@ import {
   getDefaultPageId,
   getEditorConfigs,
   getWidgets,
-} from "./selectors";
-import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
+} from "../../sagas/selectors";
+import {
+  IncorrectBindingError,
+  validateResponse,
+} from "../../sagas/ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
@@ -101,7 +94,7 @@ import {
 } from "actions/pluginActionActions";
 import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
-import { clearEvalCache } from "./EvaluationsSaga";
+import { clearEvalCache } from "../../sagas/EvaluationsSaga";
 import { getQueryParams } from "utils/URLUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -126,9 +119,12 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { failFastApiCalls, waitForWidgetConfigBuild } from "./InitSagas";
-import { resizePublishedMainCanvasToLowestWidget } from "./WidgetOperationUtils";
-import { checkAndLogErrorsIfCyclicDependency } from "./helper";
+import {
+  failFastApiCalls,
+  waitForWidgetConfigBuild,
+} from "../../sagas/InitSagas";
+import { resizePublishedMainCanvasToLowestWidget } from "../../sagas/WidgetOperationUtils";
+import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
@@ -138,7 +134,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { UserCancelledActionExecutionError } from "./ActionExecution/errorUtils";
+import { UserCancelledActionExecutionError } from "../../sagas/ActionExecution/errorUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -154,9 +150,9 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
 
-const WidgetTypes = WidgetFactory.widgetTypes;
+export const WidgetTypes = WidgetFactory.widgetTypes;
 
-const getWidgetName = (state: AppState, widgetId: string) =>
+export const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
 
 export function* fetchPageListSaga(
@@ -357,7 +353,7 @@ export function* handleFetchedPage({
   }
 }
 
-const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
+export const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
   pageResponse.data.lastUpdatedTime;
 
 export function* fetchPageSaga(
@@ -493,7 +489,7 @@ export function* fetchAllPublishedPagesSaga() {
   }
 }
 
-function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
+export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const editorConfigs:
     | {
@@ -658,7 +654,7 @@ export function* saveAllPagesSaga(pageLayouts: PageLayoutsRequest[]) {
   }
 }
 
-function getLayoutSavePayload(
+export function getLayoutSavePayload(
   widgets: {
     [widgetId: string]: FlattenedWidgetProps;
   },
@@ -1348,7 +1344,7 @@ export function* generateTemplatePageSaga(
   }
 }
 
-function* deleteCanvasCardsStateSaga() {
+export function* deleteCanvasCardsStateSaga() {
   const currentPageId: string = yield select(getCurrentPageId);
   const state = JSON.parse(
     localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
@@ -1360,7 +1356,7 @@ function* deleteCanvasCardsStateSaga() {
   );
 }
 
-function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
+export function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
   const state = localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE);
   const stateObject = JSON.parse(state ?? "{}");
   stateObject[action.payload] = true;
@@ -1370,7 +1366,7 @@ function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
   );
 }
 
-function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
+export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   const currentPageId: string = yield select(getCurrentPageId);
   const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
   if (action.payload) {
@@ -1393,41 +1389,48 @@ function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   }
 }
 
-export default function* pageSagas() {
-  yield all([
-    takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
-    takeLatest(
-      ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-      fetchPublishedPageSaga,
-    ),
-    takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
-    takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
-    takeLeading(
-      ReduxActionTypes.CREATE_NEW_PAGE_FROM_ENTITIES,
-      createNewPageFromEntity,
-    ),
-    takeLeading(ReduxActionTypes.CLONE_PAGE_INIT, clonePageSaga),
-    takeLatest(ReduxActionTypes.UPDATE_PAGE_INIT, updatePageSaga),
-    takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
-    debounce(500, ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
-    takeLatest(ReduxActionTypes.UPDATE_WIDGET_NAME_INIT, updateWidgetNameSaga),
-    takeLatest(
-      ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
-      fetchAllPublishedPagesSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT,
-      generateTemplatePageSaga,
-    ),
-    takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
-    takeLatest(ReduxActionTypes.POPULATE_PAGEDSLS_INIT, populatePageDSLsSaga),
-    takeEvery(ReduxActionTypes.SET_CANVAS_CARDS_STATE, setCanvasCardsStateSaga),
-    takeEvery(
-      ReduxActionTypes.DELETE_CANVAS_CARDS_STATE,
-      deleteCanvasCardsStateSaga,
-    ),
-    takeEvery(ReduxActionTypes.SET_PREVIEW_MODE_INIT, setPreviewModeInitSaga),
-    takeLatest(ReduxActionTypes.REFRESH_THE_APP, refreshTheApp),
-    takeLatest(ReduxActionTypes.CLEAR_CACHE, clearEvalCache),
-  ]);
+export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
+  try {
+    const { id, isFirstLoad } = action.payload;
+
+    yield call(fetchPageSaga, {
+      type: ReduxActionTypes.FETCH_PAGE_INIT,
+      payload: { id, isFirstLoad },
+    });
+
+    yield put({
+      type: ReduxActionTypes.SETUP_PAGE_SUCCESS,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SETUP_PAGE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+export function* setupPublishedPageSaga(
+  action: ReduxAction<{
+    pageId: string;
+    bustCache: boolean;
+    firstLoad: boolean;
+  }>,
+) {
+  try {
+    const { bustCache, firstLoad, pageId } = action.payload;
+
+    yield call(fetchPublishedPageSaga, {
+      type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
+      payload: { bustCache, firstLoad, pageId },
+    });
+
+    yield put({
+      type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_SUCCESS,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SETUP_PUBLISHED_PAGE_ERROR,
+      payload: { error },
+    });
+  }
 }
