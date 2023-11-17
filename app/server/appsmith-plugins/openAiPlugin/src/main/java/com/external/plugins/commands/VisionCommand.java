@@ -188,14 +188,16 @@ public class VisionCommand implements OpenAICommand {
         try {
             return Integer.parseInt(maxTokenAsString);
         } catch (IllegalArgumentException illegalArgumentException) {
-
             return DEFAULT_MAX_TOKEN;
-
         } catch (Exception exception) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, BAD_MAX_TOKEN_CONFIGURATION));
+        }
     }
+
+    private Float getTemperatureFromFormData(Map<String, Object> formData) {
+        float defaultFloatValue = 1.0f;
         String temperatureString = RequestUtils.extractValueFromFormData(formData, TEMPERATURE);
 
         if (!StringUtils.hasText(temperatureString)) {
