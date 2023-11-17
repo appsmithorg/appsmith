@@ -31,6 +31,7 @@ public class PermissionGroup extends BaseDomain {
     String defaultWorkspaceId;
 
     String defaultDomainId;
+
     String defaultDomainType;
 
     @Deprecated
