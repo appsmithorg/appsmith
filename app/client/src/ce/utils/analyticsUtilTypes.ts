@@ -12,8 +12,7 @@ export type EventLocation =
   | "JS_OBJECT_GUTTER_RUN_BUTTON" // Gutter: https://codemirror.net/examples/gutter/
   | "JS_OBJECT_MAIN_RUN_BUTTON"
   | "JS_OBJECT_RESPONSE_RUN_BUTTON"
-  | "ONE_CLICK_BINDING"
-  | "WORKFLOW_CREATION";
+  | "ONE_CLICK_BINDING";
 
 export type EventName =
   | "APP_CRASH"
