@@ -2,7 +2,6 @@ import type { ChangeEvent } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import type { DropdownOnSelect } from "design-system-old";
 import {
   CodeEditorBorder,
@@ -19,8 +18,7 @@ import {
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useParams } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import { useLocation } from "react-router";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
@@ -67,13 +65,13 @@ import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasDeleteActionPermission,
   getHasExecuteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface JSFormProps {
   jsCollection: JSCollection;
+  contextMenu: React.ReactNode;
 }
 
 type Props = JSFormProps;
@@ -98,10 +96,12 @@ const SecondaryWrapper = styled.div`
   }
 `;
 
-function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
+function JSEditorForm({
+  contextMenu,
+  jsCollection: currentJSCollection,
+}: Props) {
   const theme = EditorTheme.LIGHT;
   const dispatch = useDispatch();
-  const { pageId } = useParams<ExplorerURLParams>();
   const { hash } = useLocation();
 
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
@@ -171,10 +171,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     currentJSCollection?.userPermissions || [],
   );
   const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    currentJSCollection?.userPermissions || [],
-  );
-  const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
     currentJSCollection?.userPermissions || [],
   );
@@ -319,14 +315,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
               />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              <MoreJSCollectionsMenu
-                className="t--more-action-menu"
-                id={currentJSCollection.id}
-                isChangePermitted={isChangePermitted}
-                isDeletePermitted={isDeletePermitted}
-                name={currentJSCollection.name}
-                pageId={pageId}
-              />
+              {contextMenu}
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}
