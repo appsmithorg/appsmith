@@ -338,6 +338,134 @@ function* deleteEnvironmentSaga(
   }
 }
 
+// Saga to handle creating a new environment
+function* createEnvironmentSaga(
+  action: ReduxAction<{
+    environmentName: string;
+    workspaceId: string;
+  }>,
+) {
+  try {
+    const response: ApiResponse<EnvironmentType> = yield call(
+      EnvironmentApi.createEnvironment,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.CREATE_ENVIRONMENT_SUCCESS,
+        payload: response.data,
+      });
+      toast.show(`Environment ${response.data.name} created successfully`, {
+        kind: "success",
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.CREATE_ENVIRONMENT_FAILED,
+        payload: response?.responseMeta,
+      });
+      toast.show(`Environment creation failed`, {
+        kind: "error",
+      });
+    }
+  } catch {
+    yield put({
+      type: ReduxActionTypes.CREATE_ENVIRONMENT_FAILED,
+      payload: {
+        error: "failed",
+      },
+    });
+    toast.show(`Environment creation failed`, {
+      kind: "error",
+    });
+  }
+}
+
+// Saga to handle updating an existing environment
+function* updateEnvironmentSaga(
+  action: ReduxAction<{
+    newEnvironmentName: string;
+    environmentId: string;
+  }>,
+) {
+  try {
+    const response: ApiResponse<EnvironmentType> = yield call(
+      EnvironmentApi.updateEnvironment,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ENVIRONMENT_SUCCESS,
+        payload: response.data,
+      });
+      toast.show(
+        `Environment ${action.payload.newEnvironmentName} updated successfully`,
+        {
+          kind: "success",
+        },
+      );
+    } else {
+      yield put({
+        type: ReduxActionTypes.UPDATE_ENVIRONMENT_FAILED,
+        payload: response?.responseMeta,
+      });
+      toast.show(`Environment updation failed`, {
+        kind: "error",
+      });
+    }
+  } catch {
+    yield put({
+      type: ReduxActionTypes.UPDATE_ENVIRONMENT_FAILED,
+      payload: {
+        error: "failed",
+      },
+    });
+    toast.show(`Environment updation failed`, {
+      kind: "error",
+    });
+  }
+}
+
+// Saga to handle deleting an existing environment
+function* deleteEnvironmentSaga(
+  action: ReduxAction<{
+    environmentId: string;
+  }>,
+) {
+  try {
+    const response: ApiResponse<EnvironmentType> = yield call(
+      EnvironmentApi.deleteEnvironment,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.DELETE_ENVIRONMENT_SUCCESS,
+        payload: response.data,
+      });
+      toast.show(`Environment deleted successfully`, {
+        kind: "success",
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.DELETE_ENVIRONMENT_FAILED,
+        payload: response?.responseMeta,
+      });
+    }
+  } catch {
+    yield put({
+      type: ReduxActionTypes.DELETE_ENVIRONMENT_FAILED,
+      payload: {
+        error: "failed",
+      },
+    });
+    toast.show(`Environment deletion failed`, {
+      kind: "error",
+    });
+  }
+}
+
 export function* waitForFetchEnvironments() {
   const environments: EnvironmentType[] | undefined =
     yield select(getEnvironments);
