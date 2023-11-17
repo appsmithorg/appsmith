@@ -1,8 +1,12 @@
-import { Checkbox } from "design-system";
+import { Checkbox, Text } from "design-system";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import React from "react";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { CheckboxContainer, CheckboxWrapper } from "./StyledSheet";
+import {
+  CheckBoxGrid,
+  CheckboxContainer,
+  CheckboxWrapper,
+} from "./StyledSheet";
 
 interface BaseProps {
   selectedWidgetIds: string[];
@@ -67,7 +71,7 @@ function WidgetSelector({
   ) {
     const isSelected = selectedWidgetIds.includes(widget.widgetId);
     return (
-      <div style={{ marginLeft: level + 8 }}>
+      <div style={{ marginLeft: level > 0 ? level + 8 : level }}>
         <CheckboxContainer>
           <Checkbox
             isDisabled={isParentSelected}
@@ -88,9 +92,23 @@ function WidgetSelector({
     );
   }
 
+  const handleSelectAllClick = (checked: boolean) => {
+    const prevSelectedWidgetIds = [...selectedWidgetIds];
+    widgetList.forEach((widget) => {
+      toggleNestedChildrenSelection(widget, prevSelectedWidgetIds, checked);
+    });
+    updateSelectedWidgets(prevSelectedWidgetIds);
+  };
   return (
     <CheckboxWrapper>
-      {widgetList.map((widget) => renderWidget(widget, 0, false))}
+      <Checkbox className="mb-4" onChange={handleSelectAllClick}>
+        <Text kind="heading-xs" renderAs="p">
+          Select All
+        </Text>
+      </Checkbox>
+      <CheckBoxGrid>
+        {widgetList.map((widget) => renderWidget(widget, 0, false))}
+      </CheckBoxGrid>
     </CheckboxWrapper>
   );
 }
