@@ -9,9 +9,10 @@ import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,8 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
             ExportableService<Plugin> pluginExportableService,
             ExportableService<NewAction> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
-            Gson gson) {
+            SessionUserService sessionUserService,
+            AnalyticsService analyticsService) {
         super(
                 applicationService,
                 applicationPermission,
@@ -41,6 +43,7 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
                 pluginExportableService,
                 newActionExportableService,
                 actionCollectionExportableService,
-                gson);
+                sessionUserService,
+                analyticsService);
     }
 }
