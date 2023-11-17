@@ -88,6 +88,8 @@ public enum AnalyticsEvents {
 
     PARTIAL_IMPORT,
 
+    PARTIAL_EXPORT,
+
     SCIM_DISABLED("scim_disabled"),
     SCIM_LINKED("scim_linked"),
 

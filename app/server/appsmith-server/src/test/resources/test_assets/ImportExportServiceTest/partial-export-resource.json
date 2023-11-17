@@ -1,0 +1,766 @@
+{
+  "clientSchemaVersion": 1,
+  "serverSchemaVersion": 7,
+  "actionList": [
+    {
+      "id": "Send Messages_SendEmail",
+      "pluginType": "DB",
+      "pluginId": "smtp-plugin",
+      "unpublishedAction": {
+        "name": "SendEmail",
+        "datasource": {
+          "userPermissions": [],
+          "pluginId": "smtp-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Send Messages",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "{{EmailText.text}}",
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "command": "SEND",
+            "send": {
+              "from": "appsmithtemp@gmail.com",
+              "to": "kocharrahul8@gmail.com,{{Utils.get()}}",
+              "subject": "Communication Sent Via Appsmith"
+            }
+          }
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          },
+          {
+            "key": "formData.send.to"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "EmailText.text",
+          "Utils.get()"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "SendEmail",
+        "configurationPath": "SendEmail.actionConfiguration",
+        "executableConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "{{EmailText.text}}",
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "command": "SEND",
+            "send": {
+              "from": "appsmithtemp@gmail.com",
+              "to": "kocharrahul8@gmail.com,{{Utils.get()}}",
+              "subject": "Communication Sent Via Appsmith"
+            }
+          }
+        },
+        "selfReferencingDataPaths": [],
+        "dslExecutable": {
+          "name": "SendEmail",
+          "confirmBeforeExecute": false,
+          "jsonPathKeys": [
+            "EmailText.text",
+            "Utils.get()"
+          ],
+          "timeoutInMillisecond": 10000
+        }
+      },
+      "publishedAction": {
+        "name": "SendEmail",
+        "datasource": {
+          "userPermissions": [],
+          "pluginId": "smtp-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Send Messages",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "{{EmailText.text}}",
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "command": "SEND",
+            "send": {
+              "from": "appsmithtemp@gmail.com",
+              "to": "kocharrahul8@gmail.com,{{Utils.get()}}",
+              "subject": "Communication Sent Via Appsmith"
+            }
+          }
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          },
+          {
+            "key": "formData.send.to"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "EmailText.text",
+          "Utils.get()"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "SendEmail",
+        "configurationPath": "SendEmail.actionConfiguration",
+        "executableConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "{{EmailText.text}}",
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "command": "SEND",
+            "send": {
+              "from": "appsmithtemp@gmail.com",
+              "to": "kocharrahul8@gmail.com,{{Utils.get()}}",
+              "subject": "Communication Sent Via Appsmith"
+            }
+          }
+        },
+        "selfReferencingDataPaths": [],
+        "dslExecutable": {
+          "name": "SendEmail",
+          "confirmBeforeExecute": false,
+          "jsonPathKeys": [
+            "EmailText.text",
+            "Utils.get()"
+          ],
+          "timeoutInMillisecond": 10000
+        }
+      },
+      "new": false
+    },
+    {
+      "id": "Send Messages_DiscordAPI",
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "DiscordAPI",
+        "datasource": {
+          "userPermissions": [],
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "datasourceConfiguration": {
+            "url": "{{List1.selectedItem.Discord_Webhook}}"
+          },
+          "invalids": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Send Messages",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "path": "",
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "encodeParamsToggle": true,
+          "queryParameters": [],
+          "body": "{\n\"content\" : {{DiscordText.text}}\n}",
+          "httpMethod": "POST",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ]
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          },
+          {
+            "key": "datasourceUrl"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "DiscordText.text",
+          "List1.selectedItem.Discord_Webhook"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "DiscordAPI",
+        "configurationPath": "DiscordAPI.actionConfiguration",
+        "executableConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "path": "",
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "encodeParamsToggle": true,
+          "queryParameters": [],
+          "body": "{\n\"content\" : {{DiscordText.text}}\n}",
+          "httpMethod": "POST",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ]
+        },
+        "selfReferencingDataPaths": [],
+        "dslExecutable": {
+          "name": "DiscordAPI",
+          "confirmBeforeExecute": false,
+          "jsonPathKeys": [
+            "DiscordText.text",
+            "List1.selectedItem.Discord_Webhook"
+          ],
+          "timeoutInMillisecond": 10000
+        }
+      },
+      "publishedAction": {
+        "name": "DiscordAPI",
+        "datasource": {
+          "userPermissions": [],
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "datasourceConfiguration": {
+            "url": "{{List1.selectedItem.Discord_Webhook}}"
+          },
+          "invalids": [],
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Send Messages",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "path": "",
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "encodeParamsToggle": true,
+          "queryParameters": [],
+          "body": "{\n\"content\" : {{DiscordText.text}}\n}",
+          "httpMethod": "POST",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ]
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [
+          {
+            "key": "body"
+          },
+          {
+            "key": "datasourceUrl"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "DiscordText.text",
+          "List1.selectedItem.Discord_Webhook"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "DiscordAPI",
+        "configurationPath": "DiscordAPI.actionConfiguration",
+        "executableConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "path": "",
+          "headers": [
+            {
+              "key": "content-type",
+              "value": "application/json"
+            }
+          ],
+          "encodeParamsToggle": true,
+          "queryParameters": [],
+          "body": "{\n\"content\" : {{DiscordText.text}}\n}",
+          "httpMethod": "POST",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ]
+        },
+        "selfReferencingDataPaths": [],
+        "dslExecutable": {
+          "name": "DiscordAPI",
+          "confirmBeforeExecute": false,
+          "jsonPathKeys": [
+            "DiscordText.text",
+            "List1.selectedItem.Discord_Webhook"
+          ],
+          "timeoutInMillisecond": 10000
+        }
+      },
+      "new": false
+    },
+    {
+      "id": "Send Messages_AddNewList",
+      "pluginType": "DB",
+      "pluginId": "mongo-plugin",
+      "unpublishedAction": {
+        "name": "AddNewList",
+        "datasource": {
+          "userPermissions": [],
+          "pluginId": "mongo-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Send Messages",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "insert": {
+              "documents": {
+                "data": "\n{\"Discord_Webhook\":{{Webhook.text}}\n\"Mailinglist\":{{List_Name.text}}\n\"MailinglistID\":{{List_ID.text}}\n\"Icon\":{{Icon.text}}\n\"Users\":{{Table2.selectedRows.map(a => a.CustomerID)}}\n\"CreationDate\": ISODate({{moment().format('YYYY-MM-DDT00:00:00.000Z')}})\n}",
+                "viewType": "component",
+                "componentData": "\n{\"Discord_Webhook\":{{Webhook.text}}\n\"Mailinglist\":{{List_Name.text}}\n\"MailinglistID\":{{List_ID.text}}\n\"Icon\":{{Icon.text}}\n\"Users\":{{Table2.selectedRows.map(a => a.CustomerID)}}\n\"CreationDate\": ISODate({{moment().format('YYYY-MM-DDT00:00:00.000Z')}})\n}"
+              }
+            },
+            "collection": {
+              "data": "MailingList",
+              "viewType": "component",
+              "componentData": "MailingList"
+            },
+            "command": {
+              "data": "INSERT",
+              "viewType": "component",
+              "componentData": "INSERT"
+            },
+            "smartSubstitution": {
+              "data": true,
+              "viewType": "component",
+              "componentData": true
+            }
+          }
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [
+          {
+            "key": "formData.insert.documents.data"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "List_Name.text",
+          "List_ID.text",
+          "Webhook.text",
+          "Table2.selectedRows.map(a => a.CustomerID)",
+          "Icon.text",
+          "moment().format('YYYY-MM-DDT00:00:00.000Z')"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "AddNewList",
+        "configurationPath": "AddNewList.actionConfiguration",
+        "executableConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "insert": {
+              "documents": {
+                "data": "\n{\"Discord_Webhook\":{{Webhook.text}}\n\"Mailinglist\":{{List_Name.text}}\n\"MailinglistID\":{{List_ID.text}}\n\"Icon\":{{Icon.text}}\n\"Users\":{{Table2.selectedRows.map(a => a.CustomerID)}}\n\"CreationDate\": ISODate({{moment().format('YYYY-MM-DDT00:00:00.000Z')}})\n}",
+                "viewType": "component",
+                "componentData": "\n{\"Discord_Webhook\":{{Webhook.text}}\n\"Mailinglist\":{{List_Name.text}}\n\"MailinglistID\":{{List_ID.text}}\n\"Icon\":{{Icon.text}}\n\"Users\":{{Table2.selectedRows.map(a => a.CustomerID)}}\n\"CreationDate\": ISODate({{moment().format('YYYY-MM-DDT00:00:00.000Z')}})\n}"
+              }
+            },
+            "collection": {
+              "data": "MailingList",
+              "viewType": "component",
+              "componentData": "MailingList"
+            },
+            "command": {
+              "data": "INSERT",
+              "viewType": "component",
+              "componentData": "INSERT"
+            },
+            "smartSubstitution": {
+              "data": true,
+              "viewType": "component",
+              "componentData": true
+            }
+          }
+        },
+        "selfReferencingDataPaths": [],
+        "dslExecutable": {
+          "name": "AddNewList",
+          "confirmBeforeExecute": false,
+          "jsonPathKeys": [
+            "List_Name.text",
+            "List_ID.text",
+            "Webhook.text",
+            "Table2.selectedRows.map(a => a.CustomerID)",
+            "Icon.text",
+            "moment().format('YYYY-MM-DDT00:00:00.000Z')"
+          ],
+          "timeoutInMillisecond": 10000
+        }
+      },
+      "publishedAction": {
+        "name": "AddNewList",
+        "datasource": {
+          "userPermissions": [],
+          "pluginId": "mongo-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Send Messages",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "insert": {
+              "documents": {
+                "data": "\n{\"Discord_Webhook\":{{Webhook.text}}\n\"Mailinglist\":{{List_Name.text}}\n\"MailinglistID\":{{List_ID.text}}\n\"Icon\":{{Icon.text}}\n\"Users\":{{Table2.selectedRows.map(a => a.CustomerID)}}\n\"CreationDate\": ISODate({{moment().format('YYYY-MM-DDT00:00:00.000Z')}})\n}",
+                "viewType": "component",
+                "componentData": "\n{\"Discord_Webhook\":{{Webhook.text}}\n\"Mailinglist\":{{List_Name.text}}\n\"MailinglistID\":{{List_ID.text}}\n\"Icon\":{{Icon.text}}\n\"Users\":{{Table2.selectedRows.map(a => a.CustomerID)}}\n\"CreationDate\": ISODate({{moment().format('YYYY-MM-DDT00:00:00.000Z')}})\n}"
+              }
+            },
+            "collection": {
+              "data": "MailingList",
+              "viewType": "component",
+              "componentData": "MailingList"
+            },
+            "command": {
+              "data": "INSERT",
+              "viewType": "component",
+              "componentData": "INSERT"
+            },
+            "smartSubstitution": {
+              "data": true,
+              "viewType": "component",
+              "componentData": true
+            }
+          }
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [
+          {
+            "key": "formData.insert.documents.data"
+          }
+        ],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "List_Name.text",
+          "List_ID.text",
+          "Webhook.text",
+          "Table2.selectedRows.map(a => a.CustomerID)",
+          "Icon.text",
+          "moment().format('YYYY-MM-DDT00:00:00.000Z')"
+        ],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "AddNewList",
+        "configurationPath": "AddNewList.actionConfiguration",
+        "executableConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "insert": {
+              "documents": {
+                "data": "\n{\"Discord_Webhook\":{{Webhook.text}}\n\"Mailinglist\":{{List_Name.text}}\n\"MailinglistID\":{{List_ID.text}}\n\"Icon\":{{Icon.text}}\n\"Users\":{{Table2.selectedRows.map(a => a.CustomerID)}}\n\"CreationDate\": ISODate({{moment().format('YYYY-MM-DDT00:00:00.000Z')}})\n}",
+                "viewType": "component",
+                "componentData": "\n{\"Discord_Webhook\":{{Webhook.text}}\n\"Mailinglist\":{{List_Name.text}}\n\"MailinglistID\":{{List_ID.text}}\n\"Icon\":{{Icon.text}}\n\"Users\":{{Table2.selectedRows.map(a => a.CustomerID)}}\n\"CreationDate\": ISODate({{moment().format('YYYY-MM-DDT00:00:00.000Z')}})\n}"
+              }
+            },
+            "collection": {
+              "data": "MailingList",
+              "viewType": "component",
+              "componentData": "MailingList"
+            },
+            "command": {
+              "data": "INSERT",
+              "viewType": "component",
+              "componentData": "INSERT"
+            },
+            "smartSubstitution": {
+              "data": true,
+              "viewType": "component",
+              "componentData": true
+            }
+          }
+        },
+        "selfReferencingDataPaths": [],
+        "dslExecutable": {
+          "name": "AddNewList",
+          "confirmBeforeExecute": false,
+          "jsonPathKeys": [
+            "List_Name.text",
+            "List_ID.text",
+            "Webhook.text",
+            "Table2.selectedRows.map(a => a.CustomerID)",
+            "Icon.text",
+            "moment().format('YYYY-MM-DDT00:00:00.000Z')"
+          ],
+          "timeoutInMillisecond": 10000
+        }
+      },
+      "new": false
+    },
+    {
+      "id": "Send Messages_doNotDisturbCount",
+      "pluginType": "DB",
+      "pluginId": "mongo-plugin",
+      "unpublishedAction": {
+        "name": "doNotDisturbCount",
+        "datasource": {
+          "userPermissions": [],
+          "pluginId": "mongo-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Send Messages",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "count": {
+              "query": {
+                "data": "{\"UsersDoNotDisturb\": 1}",
+                "viewType": "component",
+                "componentData": "{\"UsersDoNotDisturb\": 1}"
+              }
+            },
+            "collection": {
+              "data": "Customers",
+              "viewType": "component",
+              "componentData": "Customers"
+            },
+            "body": {
+              "data": "{\n  \"count\": \"customers\",\n  \"filter\": {\n    \"UsersDoNotDisturb\": 1\n\t}\n}\n",
+              "viewType": "component",
+              "componentData": "{\n  \"count\": \"customers\",\n  \"filter\": {\n    \"UsersDoNotDisturb\": 1\n\t}\n}\n"
+            },
+            "command": {
+              "data": "COUNT",
+              "viewType": "component",
+              "componentData": "COUNT"
+            }
+          }
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "doNotDisturbCount",
+        "configurationPath": "doNotDisturbCount.actionConfiguration",
+        "executableConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "count": {
+              "query": {
+                "data": "{\"UsersDoNotDisturb\": 1}",
+                "viewType": "component",
+                "componentData": "{\"UsersDoNotDisturb\": 1}"
+              }
+            },
+            "collection": {
+              "data": "Customers",
+              "viewType": "component",
+              "componentData": "Customers"
+            },
+            "body": {
+              "data": "{\n  \"count\": \"customers\",\n  \"filter\": {\n    \"UsersDoNotDisturb\": 1\n\t}\n}\n",
+              "viewType": "component",
+              "componentData": "{\n  \"count\": \"customers\",\n  \"filter\": {\n    \"UsersDoNotDisturb\": 1\n\t}\n}\n"
+            },
+            "command": {
+              "data": "COUNT",
+              "viewType": "component",
+              "componentData": "COUNT"
+            }
+          }
+        },
+        "selfReferencingDataPaths": [],
+        "dslExecutable": {
+          "name": "doNotDisturbCount",
+          "confirmBeforeExecute": false,
+          "jsonPathKeys": [],
+          "timeoutInMillisecond": 10000
+        }
+      },
+      "publishedAction": {
+        "name": "doNotDisturbCount",
+        "datasource": {
+          "userPermissions": [],
+          "pluginId": "mongo-plugin",
+          "messages": [],
+          "isValid": true,
+          "new": true
+        },
+        "pageId": "Send Messages",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "count": {
+              "query": {
+                "data": "{\"UsersDoNotDisturb\": 1}",
+                "viewType": "component",
+                "componentData": "{\"UsersDoNotDisturb\": 1}"
+              }
+            },
+            "collection": {
+              "data": "Customers",
+              "viewType": "component",
+              "componentData": "Customers"
+            },
+            "body": {
+              "data": "{\n  \"count\": \"customers\",\n  \"filter\": {\n    \"UsersDoNotDisturb\": 1\n\t}\n}\n",
+              "viewType": "component",
+              "componentData": "{\n  \"count\": \"customers\",\n  \"filter\": {\n    \"UsersDoNotDisturb\": 1\n\t}\n}\n"
+            },
+            "command": {
+              "data": "COUNT",
+              "viewType": "component",
+              "componentData": "COUNT"
+            }
+          }
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "confirmBeforeExecute": false,
+        "userPermissions": [],
+        "validName": "doNotDisturbCount",
+        "configurationPath": "doNotDisturbCount.actionConfiguration",
+        "executableConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "selfReferencingDataPaths": [],
+          "formData": {
+            "count": {
+              "query": {
+                "data": "{\"UsersDoNotDisturb\": 1}",
+                "viewType": "component",
+                "componentData": "{\"UsersDoNotDisturb\": 1}"
+              }
+            },
+            "collection": {
+              "data": "Customers",
+              "viewType": "component",
+              "componentData": "Customers"
+            },
+            "body": {
+              "data": "{\n  \"count\": \"customers\",\n  \"filter\": {\n    \"UsersDoNotDisturb\": 1\n\t}\n}\n",
+              "viewType": "component",
+              "componentData": "{\n  \"count\": \"customers\",\n  \"filter\": {\n    \"UsersDoNotDisturb\": 1\n\t}\n}\n"
+            },
+            "command": {
+              "data": "COUNT",
+              "viewType": "component",
+              "componentData": "COUNT"
+            }
+          }
+        },
+        "selfReferencingDataPaths": [],
+        "dslExecutable": {
+          "name": "doNotDisturbCount",
+          "confirmBeforeExecute": false,
+          "jsonPathKeys": [],
+          "timeoutInMillisecond": 10000
+        }
+      },
+      "new": false
+    }
+  ],
+  "actionCollectionList": [
+    {
+      "id": "Send Messages_Utils",
+      "unpublishedCollection": {
+        "name": "Utils",
+        "pageId": "Send Messages",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tsendMessages: () => {\n\t\tif(DiscordSwitch.isSwitchedOn){\n\t\t\tDiscordAPI.run();\n\t\t\tconst successMessage1 =\"Discord Message sent to \".concat(List1.selectedItem.Mailinglist).concat(\" server\") \n\t\t\tshowAlert(successMessage1,'success');\n\t\t\t}\n\t\tif(EmailSwitch.isSwitchedOn){\n\t\t\tSendEmail.run();\n\t\t\tconst successMessage2 =\"Email sent to users on \".concat(List1.selectedItem.Mailinglist).concat(\" list\") \n\t\t\tshowAlert(successMessage2,'success');\n\t\t}\n\t\tresetWidget(\"MessageModal\");\n\t\tcloseModal(\"MessageModal\");\n\t},\n\tgetEmails: () => {\n\t\tvar nameArray = Table1.selectedRows.map(function (el) { return el.CustomerEmailID; });\n\t\treturn nameArray.toString();\n\t},\n\taddList: () => {\n\t\tconst a =\"We have created a new list\".concat(List_Name.text);\n\t\tAddNewList.run();\n\t\tshowAlert(a,'success');\n\t\tresetWidget(\"mailingListModal\");\n\t\tGetMarketingList.run();\n\t\tcloseModal(\"mailingListModal\");\n\t}\n}",
+        "variables": [],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "Utils",
+        "pageId": "Send Messages",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tsendMessages: () => {\n\t\tif(DiscordSwitch.isSwitchedOn){\n\t\t\tDiscordAPI.run();\n\t\t\tconst successMessage1 =\"Discord Message sent to \".concat(List1.selectedItem.Mailinglist).concat(\" server\") \n\t\t\tshowAlert(successMessage1,'success');\n\t\t\t}\n\t\tif(EmailSwitch.isSwitchedOn){\n\t\t\tSendEmail.run();\n\t\t\tconst successMessage2 =\"Email sent to users on \".concat(List1.selectedItem.Mailinglist).concat(\" list\") \n\t\t\tshowAlert(successMessage2,'success');\n\t\t}\n\t\tresetWidget(\"MessageModal\");\n\t\tcloseModal(\"MessageModal\");\n\t},\n\tgetEmails: () => {\n\t\tvar nameArray = Table1.selectedRows.map(function (el) { return el.CustomerEmailID; });\n\t\treturn nameArray.toString();\n\t},\n\taddList: () => {\n\t\tconst a =\"We have created a new list\".concat(List_Name.text);\n\t\tAddNewList.run();\n\t\tshowAlert(a,'success');\n\t\tresetWidget(\"mailingListModal\");\n\t\tGetMarketingList.run();\n\t\tcloseModal(\"mailingListModal\");\n\t}\n}",
+        "variables": [],
+        "userPermissions": []
+      },
+      "new": false
+    }
+  ],
+  "widgets": "{\"widgets\":[{\"widgetId\":\"n4j5niuf3l\",\"list\":[{\"boxShadow\":\"none\",\"widgetName\":\"Container6CopyCopyCopy\",\"borderColor\":\"transparent\",\"isCanvas\":true,\"displayName\":\"Container\",\"iconSVG\":\"/static/media/icon.1977dca3.svg\",\"topRow\":15,\"bottomRow\":27,\"parentRowSpace\":10,\"type\":\"CONTAINER_WIDGET\",\"hideCard\":false,\"animateLoading\":true,\"parentColumnSpace\":18.0625,\"dynamicTriggerPathList\":[],\"leftColumn\":23,\"dynamicBindingPathList\":[],\"children\":[\"fd8c2u1eha\"],\"borderWidth\":\"0\",\"key\":\"p5ueindstb\",\"backgroundColor\":\"#FFFFFF\",\"rightColumn\":36,\"widgetId\":\"n4j5niuf3l\",\"containerStyle\":\"card\",\"isVisible\":true,\"version\":1,\"parentId\":\"0\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"borderRadius\":\"15px\",\"dynamicPropertyPathList\":[{\"key\":\"borderRadius\"}],\"labelTextSize\":\"0.875rem\",\"minDynamicHeight\":4,\"maxDynamicHeight\":9000,\"dynamicHeight\":\"FIXED\"},{\"widgetName\":\"Canvas9CopyCopyCopy\",\"rightColumn\":433.5,\"detachFromLayout\":true,\"displayName\":\"Canvas\",\"widgetId\":\"fd8c2u1eha\",\"containerStyle\":\"none\",\"topRow\":0,\"bottomRow\":120,\"parentRowSpace\":1,\"isVisible\":true,\"type\":\"CANVAS_WIDGET\",\"canExtend\":false,\"version\":1,\"hideCard\":true,\"parentId\":\"n4j5niuf3l\",\"minHeight\":400,\"renderMode\":\"CANVAS\",\"isLoading\":false,\"parentColumnSpace\":1,\"leftColumn\":0,\"children\":[\"r03q89gxpz\"],\"key\":\"he8asa5zlk\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"labelTextSize\":\"0.875rem\"},{\"widgetName\":\"Statbox1CopyCopyCopy\",\"backgroundColor\":\"#FFFFFF\",\"rightColumn\":64,\"isCanvas\":true,\"displayName\":\"Stats Box\",\"iconSVG\":\"/static/media/icon.382a7c7b.svg\",\"widgetId\":\"r03q89gxpz\",\"topRow\":0,\"bottomRow\":10,\"parentRowSpace\":10,\"isVisible\":true,\"type\":\"STATBOX_WIDGET\",\"hideCard\":false,\"parentId\":\"fd8c2u1eha\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"animateLoading\":true,\"parentColumnSpace\":18.0625,\"dynamicTriggerPathList\":[],\"leftColumn\":0,\"dynamicBindingPathList\":[],\"children\":[\"0tbog0qb4e\"],\"key\":\"e50ggjmboq\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"labelTextSize\":\"0.875rem\",\"minDynamicHeight\":4,\"maxDynamicHeight\":9000,\"dynamicHeight\":\"FIXED\"},{\"widgetName\":\"Canvas8CopyCopyCopy\",\"rightColumn\":289,\"detachFromLayout\":true,\"displayName\":\"Canvas\",\"widgetId\":\"0tbog0qb4e\",\"containerStyle\":\"none\",\"topRow\":0,\"bottomRow\":100,\"parentRowSpace\":1,\"isVisible\":true,\"type\":\"CANVAS_WIDGET\",\"canExtend\":false,\"version\":1,\"hideCard\":true,\"parentId\":\"r03q89gxpz\",\"minHeight\":140,\"renderMode\":\"CANVAS\",\"isLoading\":false,\"parentColumnSpace\":1,\"leftColumn\":0,\"children\":[\"p4ieqw603v\",\"yt0hi52if6\",\"8ouo8d7pqy\"],\"key\":\"he8asa5zlk\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"labelTextSize\":\"0.875rem\"},{\"widgetName\":\"Text6Copy4CopyCopy\",\"displayName\":\"Text\",\"iconSVG\":\"/static/media/icon.97c59b52.svg\",\"topRow\":0,\"bottomRow\":4,\"type\":\"TEXT_WIDGET\",\"hideCard\":false,\"animateLoading\":true,\"dynamicTriggerPathList\":[],\"overflow\":\"NONE\",\"leftColumn\":0,\"dynamicBindingPathList\":[],\"truncateButtonColor\":\"#FFC13D\",\"text\":\"Reachable Customers\",\"key\":\"deco66gubs\",\"rightColumn\":64,\"textAlign\":\"LEFT\",\"widgetId\":\"p4ieqw603v\",\"isVisible\":true,\"fontStyle\":\"\",\"textColor\":\"#2E3D49\",\"version\":1,\"parentId\":\"0tbog0qb4e\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"fontSize\":\"0.875rem\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"labelTextSize\":\"0.875rem\",\"fontFamily\":\"System Default\",\"minDynamicHeight\":4,\"maxDynamicHeight\":9000,\"dynamicHeight\":\"FIXED\"},{\"widgetName\":\"Text7Copy3CopyCopy\",\"displayName\":\"Text\",\"iconSVG\":\"/static/media/icon.97c59b52.svg\",\"topRow\":4,\"bottomRow\":8,\"type\":\"TEXT_WIDGET\",\"hideCard\":false,\"animateLoading\":true,\"dynamicTriggerPathList\":[],\"overflow\":\"NONE\",\"leftColumn\":1,\"dynamicBindingPathList\":[{\"key\":\"text\"}],\"truncateButtonColor\":\"#FFC13D\",\"text\":\"{{allCustomerList.data.length}}\",\"key\":\"deco66gubs\",\"rightColumn\":37,\"textAlign\":\"LEFT\",\"widgetId\":\"yt0hi52if6\",\"isVisible\":true,\"fontStyle\":\"BOLD\",\"textColor\":\"#2E3D49\",\"version\":1,\"parentId\":\"0tbog0qb4e\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"fontSize\":\"1.5rem\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"dynamicPropertyPathList\":[{\"key\":\"fontSize\"}],\"labelTextSize\":\"0.875rem\",\"fontFamily\":\"System Default\",\"minDynamicHeight\":4,\"maxDynamicHeight\":9000,\"dynamicHeight\":\"FIXED\"},{\"boxShadow\":\"none\",\"widgetName\":\"IconButton2CopyCopy\",\"buttonColor\":\"#64508C\",\"displayName\":\"Icon Button\",\"iconSVG\":\"/static/media/icon.1a0c634a.svg\",\"topRow\":4,\"bottomRow\":8,\"type\":\"ICON_BUTTON_WIDGET\",\"hideCard\":false,\"animateLoading\":true,\"dynamicTriggerPathList\":[],\"leftColumn\":51,\"dynamicBindingPathList\":[],\"isDisabled\":false,\"key\":\"1vdnabqlfq\",\"rightColumn\":64,\"iconName\":\"new-person\",\"widgetId\":\"8ouo8d7pqy\",\"buttonStyle\":\"PRIMARY\",\"isVisible\":true,\"version\":1,\"parentId\":\"0tbog0qb4e\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"borderRadius\":\"0.375rem\",\"buttonVariant\":\"PRIMARY\",\"labelTextSize\":\"0.875rem\"}],\"parentId\":\"0\"},{\"widgetId\":\"6yn34g8ujl\",\"list\":[{\"boxShadow\":\"none\",\"widgetName\":\"Container6CopyCopy\",\"borderColor\":\"transparent\",\"isCanvas\":true,\"displayName\":\"Container\",\"iconSVG\":\"/static/media/icon.1977dca3.svg\",\"topRow\":15,\"bottomRow\":27,\"parentRowSpace\":10,\"type\":\"CONTAINER_WIDGET\",\"hideCard\":false,\"animateLoading\":true,\"parentColumnSpace\":18.0625,\"dynamicTriggerPathList\":[],\"leftColumn\":36,\"dynamicBindingPathList\":[],\"children\":[\"ykizpmhpsg\"],\"borderWidth\":\"0\",\"key\":\"p5ueindstb\",\"backgroundColor\":\"#FFFFFF\",\"rightColumn\":49,\"widgetId\":\"6yn34g8ujl\",\"containerStyle\":\"card\",\"isVisible\":true,\"version\":1,\"parentId\":\"0\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"borderRadius\":\"15px\",\"dynamicPropertyPathList\":[{\"key\":\"borderRadius\"}],\"labelTextSize\":\"0.875rem\",\"minDynamicHeight\":4,\"maxDynamicHeight\":9000,\"dynamicHeight\":\"FIXED\"},{\"widgetName\":\"Canvas9CopyCopy\",\"rightColumn\":433.5,\"detachFromLayout\":true,\"displayName\":\"Canvas\",\"widgetId\":\"ykizpmhpsg\",\"containerStyle\":\"none\",\"topRow\":0,\"bottomRow\":120,\"parentRowSpace\":1,\"isVisible\":true,\"type\":\"CANVAS_WIDGET\",\"canExtend\":false,\"version\":1,\"hideCard\":true,\"parentId\":\"6yn34g8ujl\",\"minHeight\":400,\"renderMode\":\"CANVAS\",\"isLoading\":false,\"parentColumnSpace\":1,\"leftColumn\":0,\"children\":[\"8vz0i9q06h\"],\"key\":\"he8asa5zlk\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"labelTextSize\":\"0.875rem\"},{\"widgetName\":\"Statbox1CopyCopy\",\"backgroundColor\":\"#FFFFFF\",\"rightColumn\":64,\"isCanvas\":true,\"displayName\":\"Stats Box\",\"iconSVG\":\"/static/media/icon.382a7c7b.svg\",\"widgetId\":\"8vz0i9q06h\",\"topRow\":0,\"bottomRow\":10,\"parentRowSpace\":10,\"isVisible\":true,\"type\":\"STATBOX_WIDGET\",\"hideCard\":false,\"parentId\":\"ykizpmhpsg\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"animateLoading\":true,\"parentColumnSpace\":18.0625,\"dynamicTriggerPathList\":[],\"leftColumn\":0,\"dynamicBindingPathList\":[],\"children\":[\"0y0vy0g8hm\"],\"key\":\"e50ggjmboq\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"labelTextSize\":\"0.875rem\",\"minDynamicHeight\":4,\"maxDynamicHeight\":9000,\"dynamicHeight\":\"FIXED\"},{\"widgetName\":\"Canvas8CopyCopy\",\"rightColumn\":289,\"detachFromLayout\":true,\"displayName\":\"Canvas\",\"widgetId\":\"0y0vy0g8hm\",\"containerStyle\":\"none\",\"topRow\":0,\"bottomRow\":100,\"parentRowSpace\":1,\"isVisible\":true,\"type\":\"CANVAS_WIDGET\",\"canExtend\":false,\"version\":1,\"hideCard\":true,\"parentId\":\"8vz0i9q06h\",\"minHeight\":140,\"renderMode\":\"CANVAS\",\"isLoading\":false,\"parentColumnSpace\":1,\"leftColumn\":0,\"children\":[\"j3z2ve8ag5\",\"kwtiaoo3ks\",\"fubfdyc3va\"],\"key\":\"he8asa5zlk\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"labelTextSize\":\"0.875rem\"},{\"widgetName\":\"Text6Copy4Copy\",\"displayName\":\"Text\",\"iconSVG\":\"/static/media/icon.97c59b52.svg\",\"topRow\":0,\"bottomRow\":4,\"type\":\"TEXT_WIDGET\",\"hideCard\":false,\"animateLoading\":true,\"dynamicTriggerPathList\":[],\"overflow\":\"NONE\",\"leftColumn\":1,\"dynamicBindingPathList\":[],\"truncateButtonColor\":\"#FFC13D\",\"text\":\"Do not Disturb Customers\",\"key\":\"deco66gubs\",\"rightColumn\":64,\"textAlign\":\"LEFT\",\"widgetId\":\"j3z2ve8ag5\",\"isVisible\":true,\"fontStyle\":\"\",\"textColor\":\"#2E3D49\",\"version\":1,\"parentId\":\"0y0vy0g8hm\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"fontSize\":\"0.875rem\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"labelTextSize\":\"0.875rem\",\"fontFamily\":\"System Default\",\"minDynamicHeight\":4,\"maxDynamicHeight\":9000,\"dynamicHeight\":\"FIXED\"},{\"widgetName\":\"Text7Copy3Copy\",\"displayName\":\"Text\",\"iconSVG\":\"/static/media/icon.97c59b52.svg\",\"topRow\":4,\"bottomRow\":8,\"type\":\"TEXT_WIDGET\",\"hideCard\":false,\"animateLoading\":true,\"dynamicTriggerPathList\":[],\"overflow\":\"NONE\",\"leftColumn\":1,\"dynamicBindingPathList\":[{\"key\":\"text\"}],\"truncateButtonColor\":\"#FFC13D\",\"text\":\"{{doNotDisturbCount.data.n}}\",\"key\":\"deco66gubs\",\"rightColumn\":37,\"textAlign\":\"LEFT\",\"widgetId\":\"kwtiaoo3ks\",\"isVisible\":true,\"fontStyle\":\"BOLD\",\"textColor\":\"#2E3D49\",\"version\":1,\"parentId\":\"0y0vy0g8hm\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"fontSize\":\"1.5rem\",\"borderRadius\":\"0px\",\"boxShadow\":\"none\",\"dynamicPropertyPathList\":[{\"key\":\"fontSize\"}],\"labelTextSize\":\"0.875rem\",\"fontFamily\":\"System Default\",\"minDynamicHeight\":4,\"maxDynamicHeight\":9000,\"dynamicHeight\":\"FIXED\"},{\"boxShadow\":\"none\",\"widgetName\":\"IconButton2Copy\",\"buttonColor\":\"#64508C\",\"displayName\":\"Icon Button\",\"iconSVG\":\"/static/media/icon.1a0c634a.svg\",\"topRow\":4,\"bottomRow\":8,\"type\":\"ICON_BUTTON_WIDGET\",\"hideCard\":false,\"animateLoading\":true,\"dynamicTriggerPathList\":[],\"leftColumn\":51,\"dynamicBindingPathList\":[],\"isDisabled\":false,\"key\":\"1vdnabqlfq\",\"rightColumn\":64,\"iconName\":\"blocked-person\",\"widgetId\":\"fubfdyc3va\",\"buttonStyle\":\"PRIMARY\",\"isVisible\":true,\"version\":1,\"parentId\":\"0y0vy0g8hm\",\"renderMode\":\"CANVAS\",\"isLoading\":false,\"borderRadius\":\"0.375rem\",\"buttonVariant\":\"PRIMARY\",\"labelTextSize\":\"0.875rem\"}],\"parentId\":\"0\"}],\"flexLayers\":[]}"
+}
+}
