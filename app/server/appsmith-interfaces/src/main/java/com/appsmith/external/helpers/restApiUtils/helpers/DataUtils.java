@@ -50,7 +50,7 @@ public class DataUtils {
         TEXT,
         FILE,
         ARRAY,
-        // this is application/json
+        // this is for allowing application/json in Multipart from data
         JSON,
     }
 
