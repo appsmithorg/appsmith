@@ -32,6 +32,7 @@ import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
 import { addWidgetToSection } from "./sections/utils";
 import { generateReactKey } from "utils/generators";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { SectionWidget } from "widgets/anvil/SectionWidget";
 
 export function* getMainCanvasLastRowHighlight() {
   const mainCanvas: WidgetProps = yield select(
@@ -296,7 +297,7 @@ function* moveWidgetsSaga(
     const areZonesBeingDragged = draggedWidgets.every(
       (each) => each.widgetType === ZoneWidget.type,
     );
-    if (isMainCanvas || (isSection && !areZonesBeingDragged)) {
+    if ((isMainCanvas && !areZonesBeingDragged) || isSection) {
       const createdZoneWidgetId = generateReactKey();
       updatedWidgets = yield call(
         addNewChildToDSL,
@@ -322,6 +323,34 @@ function* moveWidgetsSaga(
         layoutOrder,
         alignment: FlexLayerAlignment.Start,
         canvasId: createdZoneCanvasId,
+      });
+    } else if (isMainCanvas && areZonesBeingDragged) {
+      const createdSectionWidgetId = generateReactKey();
+      const newSectionWidget = {
+        width: 0,
+        height: 0,
+        newWidgetId: createdSectionWidgetId,
+        type: SectionWidget.type,
+      };
+      updatedWidgets = yield call(
+        addNewChildToDSL,
+        highlight,
+        newSectionWidget,
+        false,
+        false,
+      );
+      const createdSectionWidget = updatedWidgets[createdSectionWidgetId];
+      const createdSectionCanvasId = createdSectionWidget.children
+        ? createdSectionWidget.children[0]
+        : MAIN_CONTAINER_WIDGET_ID;
+      const layoutOrder = [
+        updatedWidgets[createdSectionCanvasId].layout[0].layoutId,
+      ];
+      updatedWidgets = moveWidgets(updatedWidgets, movedWidgetIds, {
+        ...highlight,
+        layoutOrder,
+        alignment: FlexLayerAlignment.Start,
+        canvasId: createdSectionCanvasId,
       });
     } else {
       updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
