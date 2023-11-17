@@ -6,7 +6,7 @@ import { APP_MODE } from "entities/App";
 import { useDispatch } from "react-redux";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
-import { getCanvasWidgetsPayload } from "sagas/PageSagas";
+import { getCanvasWidgetsPayload } from "@appsmith/sagas/PageSagas";
 import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";

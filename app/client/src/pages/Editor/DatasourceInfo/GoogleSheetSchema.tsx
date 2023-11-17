@@ -168,7 +168,7 @@ function GoogleSheetSchema(props: Props) {
     );
     scrollIntoView(
       `#${CSS.escape(`entity-${datasource?.id}-${option.value}`)}`,
-      ".t--gsheet-structure",
+      ".t--gsheet-structure .t--gsheet-structure-list",
     );
     setSelectedSpreadsheet(option);
     fetchSheetsList({
@@ -196,7 +196,7 @@ function GoogleSheetSchema(props: Props) {
       `#${CSS.escape(
         `entity-${datasource?.id}-${selectedSpreadsheet.value}-${option.value}`,
       )}`,
-      ".t--gsheet-structure",
+      ".t--gsheet-structure .t--gsheet-structure-list",
       -30,
     );
     setSelectedSheet(option);
@@ -377,7 +377,7 @@ function GoogleSheetSchema(props: Props) {
   return (
     <ViewModeSchemaContainer>
       <DataWrapperContainer>
-        <StructureContainer>
+        <StructureContainer data-testId="datasource-schema-container">
           {datasource && (
             <DatasourceStructureHeader
               datasource={datasource}

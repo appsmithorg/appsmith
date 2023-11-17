@@ -39,18 +39,19 @@ import type { Action } from "redux";
 import {
   EVAL_AND_LINT_REDUX_ACTIONS,
   FIRST_EVAL_REDUX_ACTIONS,
+  getRequiresLinting,
+} from "@appsmith/actions/evaluationActionsList";
+import {
   setDependencyMap,
   setEvaluatedTree,
   shouldForceEval,
   shouldLog,
   shouldProcessAction,
   shouldTriggerEvaluation,
-  getRequiresLinting,
-} from "@appsmith/actions/evaluationActions";
+} from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
   dynamicTriggerErrorHandler,
-  evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
   logJSVarCreatedEvent,
   logSuccessfulBindings,
@@ -100,6 +101,8 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
+import { evalErrorHandler } from "./EvalErrorHandler";
+
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(

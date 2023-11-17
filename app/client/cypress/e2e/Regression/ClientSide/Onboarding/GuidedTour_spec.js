@@ -39,7 +39,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
     dataSources.RunQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
-    entityExplorer.SelectEntityByName("CustomersTable");
+    cy.get(".t--entity-name").contains("CustomersTable").click({ force: true });
 
     // Step 3: Add binding to the tableData property
     propPane.UpdatePropertyFieldValue(
@@ -106,7 +106,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
-      x: 800,
+      x: 845,
       y: 750,
     });
     cy.get(guidedTourLocators.successButton).click();

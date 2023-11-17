@@ -1,7 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType } from "../../propertyUtils";
+import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { hideByColumnType } from "../../propertyUtils";
 
 export default {
   sectionName: "Alignment",
@@ -53,6 +53,7 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
+          ColumnTypes.CURRENCY,
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
           ColumnTypes.SWITCH,
@@ -98,6 +99,7 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
+          ColumnTypes.CURRENCY,
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
           ColumnTypes.SWITCH,

@@ -83,7 +83,7 @@ import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
+import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -123,7 +123,7 @@ export function EditorHeader() {
     setShowPublishCommunityTemplateModal,
   ] = useState(false);
 
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   const showEntityExplorerLock = !isAppSidebarEnabled && !signpostingEnabled;
 
@@ -159,6 +159,7 @@ export function EditorHeader() {
         pageCount,
         ...navigationSettingsWithPrefix,
         isPublic: !!currentApplication?.isPublic,
+        templateTitle: currentApplication?.forkedFromTemplateTitle,
       });
     }
   };

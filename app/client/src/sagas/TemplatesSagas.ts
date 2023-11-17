@@ -59,10 +59,11 @@ import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { getAllPageIds } from "./selectors";
-import { fetchPageDSLSaga } from "sagas/PageSagas";
+import { fetchPageDSLSaga } from "@appsmith/sagas/PageSagas";
 import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -457,6 +458,66 @@ function* getTemplateFiltersSaga() {
   }
 }
 
+function* forkTemplateToApplicationViaOnboardingFlowSaga(
+  action: ReduxAction<{
+    pageNames?: string[];
+    templateId: string;
+    templateName: string;
+    applicationId: string;
+    workspaceId: string;
+  }>,
+) {
+  try {
+    const response: ImportTemplateResponse = yield call(
+      TemplatesAPI.importTemplateToApplication,
+      action.payload.templateId,
+      action.payload.applicationId,
+      action.payload.workspaceId,
+      action.payload.pageNames,
+    );
+
+    const isValid: boolean = yield validateResponse(response);
+    if (isValid) {
+      const application = response.data.application;
+      urlBuilder.updateURLParams(
+        {
+          applicationSlug: application.slug,
+          applicationVersion: application.applicationVersion,
+          applicationId: application.id,
+        },
+        application.pages.map((page) => ({
+          pageSlug: page.slug,
+          customSlug: page.customSlug,
+          pageId: page.id,
+        })),
+      );
+      history.push(
+        builderURL({
+          pageId: application.pages[0].id,
+        }),
+      );
+
+      yield put({
+        type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW_SUCCESS,
+        payload: response.data.application,
+      });
+      toast.show(
+        `Pages from '${action.payload.templateName}' template added successfully`,
+        {
+          kind: "success",
+        },
+      );
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 // TODO: Refactor and handle this airgap check in a better way - posssibly in root sagas (sangeeth)
 export default function* watchActionSagas() {
   if (!isAirgappedInstance)
@@ -490,6 +551,10 @@ export default function* watchActionSagas() {
       takeEvery(
         ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT,
         forkStarterBuildingBlockToApplicationSaga,
+      ),
+      takeEvery(
+        ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW,
+        forkTemplateToApplicationViaOnboardingFlowSaga,
       ),
     ]);
 }

@@ -8,6 +8,7 @@ import type { ThemeToken } from "../../token";
 export type Theme = ThemeToken & {
   typography?: Typography;
   fontFamily?: FontFamily;
+  colorMode?: ColorMode;
 };
 
 export interface ThemeProviderProps {

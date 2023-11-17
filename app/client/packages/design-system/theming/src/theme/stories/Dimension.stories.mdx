@@ -1,0 +1,174 @@
+import { Meta } from "@storybook/addon-docs";
+import { useTheme, ThemeProvider } from "@design-system/theming";
+import {
+  TokenTable,
+  StyledLinePreview,
+  StyledSquarePreview,
+} from "@design-system/storybook";
+
+<Meta title="Design-system/Theme/Tokens/Dimension" />
+
+# Dimension
+
+WDS provides a set of dimensions scales defining sizing, distances, corner radii etc. They define dimensions of UI in an application. Instead of switching between different tokens depending on the viewport size WDS opts out to provide fluid tokens, so the token values themselves are responsive to the viewport size and fluidly interpolate between minimum and maximum value.
+
+In addition to fluid scales WDS provides non-fluid scales. They always provide precise integer pixel values and switch between those based on viewport size. This is used to optimize the quality of rendering, e.g. rasterization of strokes in icons.
+
+## Available Scales
+
+### Fluid
+
+- [Outer Spacing](#outer-spacing)
+- [Inner Spacing](#inner-spacing)
+- [Typography Sizing](#typography-sizing)
+- [Border Radii](#border-radii)
+
+### Non-fluid
+
+- [Icon Sizing](#icon-sizing)
+- [Border Thickness](#border-thickness)
+
+## Fluid Sizing
+
+The base formula for the minimum token size looks like this:
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mi>MinSize</mi>
+  <mo>=</mo>
+  <mi>MinV</mi>
+  <mo>×</mo>
+  <mi>
+    <msup>
+      <mi>MinR</mi>
+      <mn>
+        <mfrac>
+          <mi>i</mi>
+          <mi>MinN</mi>
+        </mfrac>
+      </mn>
+    </msup>
+  </mi>
+</math>
+
+In here `MinV`, `MinR`, and `MinN` are configuration defined values and `i` is step numerator.
+
+For maximum value the formula is nearly identical:
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mi>MaxSize</mi>
+  <mo>=</mo>
+  <mi>MaxV</mi>
+  <mo>×</mo>
+  <mi>
+    <msup>
+      <mi>MaxR</mi>
+      <mn>
+        <mfrac>
+          <mi>i</mi>
+          <mi>MaxN</mi>
+        </mfrac>
+      </mn>
+    </msup>
+  </mi>
+</math>
+
+In between these two values the value of the token is interpolated using CSS `clamp` function and vieport-relative `vw` units, e.g.: `--outer-spacing-1: clamp(4.6px, calc(0.29vw + 3.54px), 9.2px)`.
+
+## User Sizing and Density Coefficient Adjustments
+
+Token values are further adjusted based on theme-set parameters of `sizing` and `density` that apply to different scales using different coefficients.
+
+Generally it looks likes this:
+
+```language=javascript
+const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
+
+const scales = calculateScales(
+ {
+  minV: minV * ratio,
+  maxV: maxV * ratio,
+  ...rest,
+ },
+ minVw,
+ maxVw,
+);
+```
+
+The `userDensityRatio` and `userSizingRatio` are different for each scale, e.g. `userDensityRatio` is **1.5** for outer spacing and for **2.5** for inner spacing. The achieved effect is that increasing and decreasing density has more pronounced effect on inner spacing than on outer spacing.
+
+## Scales
+
+export const Spacing = ({ type }) => {
+  const { theme } = useTheme();
+  const { outerSpacing, innerSpacing } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable
+        prefix={`${type}-spacing`}
+        tokens={type === "inner" ? innerSpacing : outerSpacing}
+      >
+        {(cssVar) => (
+          <StyledLinePreview
+            style={{
+              width: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+### Outer Spacing
+
+Outer spacing is used for distances between significant UI elements in a composition, e.g. between multiple inputs in a form.
+
+<Spacing type="outer" />
+
+### Inner Spacing
+
+Inner spacing is used inside individual UI elements, e.g. padding. It can be also used between micro-elements inside a UI element, e.g. distance between an icon and corresponding to it text element.
+
+<Spacing type="inner" />
+
+### Typography Sizing
+
+Typography sizes are fluid tokens that are applied to text with step numbers corresponding to semantical prominence.
+
+[Table goes here]
+
+### Border Radii
+
+Border radii on various elements are fluid and additionally adjusted by theme corner radius setting: `sharp | rounded | pill`.
+
+export const BorderRadius = () => {
+  const { theme } = useTheme();
+  const { borderRadius } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="border-radius" tokens={borderRadius}>
+        {(cssVar) => (
+          <StyledSquarePreview
+            style={{
+              borderRadius: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<BorderRadius />
+
+### Icon Sizing
+
+Icon size tokens are applied to icons and are affected by `sizing` theme prop as well as available viewport size.
+
+[Table will be here once scale is implemented]
+
+### Border Thickness
+
+Border thickness tokens are applied to various borders and separators and are affected by `sizing` and `density` theme props as well as available viewport size.
+
+[Table will be here once scale is implemented]

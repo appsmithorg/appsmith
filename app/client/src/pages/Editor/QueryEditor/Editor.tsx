@@ -34,7 +34,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { initFormEvaluations } from "@appsmith/actions/evaluationActions";
+import { initFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "./helpers";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
