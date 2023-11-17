@@ -13,6 +13,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static type = "CUSTOM_WIDGET";
@@ -20,6 +21,9 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static getConfig() {
     return {
       name: "Custom",
+      hideCard: !super.getFeatureFlag(
+        FEATURE_FLAG.release_custom_widgets_enabled,
+      ),
       iconSVG: IconSVG,
       needsMeta: false,
       isCanvas: false,

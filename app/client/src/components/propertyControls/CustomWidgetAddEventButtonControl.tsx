@@ -64,7 +64,7 @@ class ButtonControl extends BaseControl<
 
   render() {
     return (
-      <div className="mt-1">
+      <div className={`mt-1 ${this.state.showInput ? "" : "flex justify-end"}`}>
         {this.state.showInput ? (
           <div>
             <div>
@@ -89,42 +89,30 @@ class ButtonControl extends BaseControl<
                 value={this.state.eventName}
               />
             </div>
-            <div className="flex justify-between mt-4">
-              <div className="grow pr-2">
+            <div className="flex justify-end mt-4">
+              <div className="pr-2">
+                <Button kind="secondary" onClick={this.onCancel} size="sm">
+                  Cancel
+                </Button>
+              </div>
+              <div className="pl-2">
                 <Button
                   isDisabled={this.hasError()}
                   kind="primary"
                   onClick={this.onSave}
-                  size="md"
-                  style={{
-                    width: "100%",
-                  }}
+                  size="sm"
                 >
                   Add
-                </Button>
-              </div>
-              <div className="grow pl-2">
-                <Button
-                  kind="secondary"
-                  onClick={this.onCancel}
-                  size="md"
-                  style={{
-                    width: "100%",
-                  }}
-                >
-                  Cancel
                 </Button>
               </div>
             </div>
           </div>
         ) : (
           <Button
-            kind="secondary"
+            kind="tertiary"
             onClick={() => this.setState({ showInput: true })}
-            size="md"
-            style={{
-              width: "100%",
-            }}
+            size="sm"
+            startIcon="plus"
           >
             Add Event
           </Button>

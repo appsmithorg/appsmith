@@ -6,13 +6,12 @@ import { Button } from "design-system";
 
 interface ButtonControlState {
   isSourceEditorOpen: boolean;
-  sourceEditor: Window | null;
+  sourceEditor?: Window;
 }
 
 class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
-  state = {
+  state: ButtonControlState = {
     isSourceEditorOpen: false,
-    sourceEditor: null,
   };
 
   onCTAClick = () => {
