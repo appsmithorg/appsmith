@@ -46,7 +46,7 @@ server {
 $(
 if [[ $use_https == 1 ]]; then
   echo "
-  listen 80;
+  listen 80 http2;
   server_name $custom_domain;
 
   location /.well-known/acme-challenge/ {
@@ -68,7 +68,7 @@ server {
 "
 else
   echo "
-  listen ${PORT:-80} default_server;
+  listen ${PORT:-80} default_server http2;
   server_name $custom_domain;
 "
 fi
