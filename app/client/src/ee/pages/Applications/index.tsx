@@ -17,6 +17,7 @@ import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededE
 import PageWrapper from "pages/common/PageWrapper";
 import { fetchAllPackages } from "@appsmith/actions/packageActions";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
+import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 
 export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
   fetchAllPackages: () => void;
@@ -50,7 +51,14 @@ export class Applications extends CE_AppClass<
       ? SEARCH_APPS_AND_PACKAGES
       : SEARCH_APPS;
 
-    return (
+    return this.props.currentApplicationIdForCreateNewApp ? (
+      <CreateNewAppsOption
+        currentApplicationIdForCreateNewApp={
+          this.props.currentApplicationIdForCreateNewApp
+        }
+        onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
+      />
+    ) : (
       <PageWrapper displayName="Applications">
         <CE_Applications.LeftPane
           isBannerVisible={this.props.showWarningBanner}
