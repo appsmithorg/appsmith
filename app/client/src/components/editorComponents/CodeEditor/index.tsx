@@ -474,11 +474,7 @@ class CodeEditor extends Component<Props, State> {
 
         this.lintCode(editor);
 
-        setTimeout(() => {
-          if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
-            editor.focus();
-          }
-        }, 200);
+        this.focusOnMount();
       }.bind(this);
       sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
 
@@ -496,15 +492,20 @@ class CodeEditor extends Component<Props, State> {
         this.debounceEditorRefresh,
       ]);
     }
-    if (this.props.positionCursorInsideBinding) {
-      const value = this.editor.getValue();
-      const lastIndexOfBinding = value.lastIndexOf("}}");
-      if (lastIndexOfBinding === -1) return;
-      const pos = this.editor.getDoc().posFromIndex(lastIndexOfBinding);
-      this.editor.focus();
-      this.editor.setCursor(pos);
-    }
   }
+
+  focusOnMount = debounce(() => {
+    if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
+      this.editor.focus();
+    }
+    if (!this.props.positionCursorInsideBinding) return;
+    const value = this.editor.getValue();
+    const lastIndexOfBinding = value.lastIndexOf("}}");
+    if (lastIndexOfBinding === -1) return;
+    const pos = this.editor.getDoc().posFromIndex(lastIndexOfBinding);
+    if (!this.editor.hasFocus()) this.editor.focus();
+    this.editor.setCursor(pos);
+  }, 200);
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     if (this.props.dynamicData !== nextProps.dynamicData) {
