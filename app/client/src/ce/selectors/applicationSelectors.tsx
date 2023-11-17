@@ -38,7 +38,8 @@ const fuzzySearchOptions = {
  *    workspace: {},
  *    applications: [],
  *    users:[],
- *    packages: []
+ *    packages: [],
+ *    workflows: [],
  *  }
  */
 const injectPackagesAndWorkflowsToWorkspacesList = (
