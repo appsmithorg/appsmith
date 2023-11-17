@@ -1,5 +1,10 @@
+import type { AnvilDragMeta } from "layoutSystems/anvil/canvasArenas/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
+import type {
+  AnvilMoveWidgetsPayload,
+  AnvilNewWidgetsPayload,
+} from "./actionTypes";
 import { AnvilReduxActionTypes } from "./actionTypes";
 
 /**
@@ -13,18 +18,16 @@ export const addNewAnvilWidgetAction = (
     type: string;
   },
   highlight: AnvilHighlightInfo,
-  meta: {
-    isMainCanvas: boolean;
-    isSection: boolean;
-  },
+  dragMeta: AnvilDragMeta,
 ) => {
+  const payload: AnvilNewWidgetsPayload = {
+    highlight,
+    newWidget,
+    dragMeta,
+  };
   return {
     type: AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET,
-    payload: {
-      highlight,
-      newWidget,
-      ...meta,
-    },
+    payload,
   };
 };
 
@@ -34,18 +37,16 @@ export const addNewAnvilWidgetAction = (
 export const moveAnvilWidgets = (
   highlight: AnvilHighlightInfo,
   movedWidgets: DraggedWidget[],
-  meta: {
-    isMainCanvas: boolean;
-    isSection: boolean;
-  },
+  dragMeta: AnvilDragMeta,
 ) => {
+  const payload: AnvilMoveWidgetsPayload = {
+    highlight,
+    movedWidgets,
+    dragMeta,
+  };
   return {
     type: AnvilReduxActionTypes.ANVIL_MOVE_WIDGET,
-    payload: {
-      highlight,
-      movedWidgets,
-      ...meta,
-    },
+    payload,
   };
 };
 

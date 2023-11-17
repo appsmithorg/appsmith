@@ -15,11 +15,7 @@ export const useAnvilWidgetDrop = (
   anvilDragStates: AnvilDnDStates,
 ) => {
   const dispatch = useDispatch();
-  const { dragDetails, isMainCanvas, isNewWidget, isSection } = anvilDragStates;
-  const dragMeta = {
-    isMainCanvas,
-    isSection,
-  };
+  const { dragDetails, dragMeta, isNewWidget } = anvilDragStates;
   const generateNewWidgetBlock = useCallback(() => {
     const { newWidget } = dragDetails;
     const isSectionWidget = newWidget.type === SectionWidget.type;

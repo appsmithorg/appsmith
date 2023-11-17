@@ -36,7 +36,7 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
   const {
     activateOverlayWidgetDrop,
     dragDetails,
-    draggedBlocks,
+    dragMeta: { draggedWidgetTypes },
     isDragging,
     isMainCanvas,
     isNewWidget,
@@ -49,12 +49,8 @@ export const useCanvasActivation = (anvilDragStates: AnvilDnDStates) => {
   const draggedWidgetPositions = anvilDragStates.selectedWidgets.map((each) => {
     return layoutElementPositions[each];
   });
-  const areSectionsDragged = draggedBlocks.every(
-    (each) => each.type === "SECTION_WIDGET",
-  );
-  const areZonesDragged = draggedBlocks.every(
-    (each) => each.type === "ZONE_WIDGET",
-  );
+  const areSectionsDragged = draggedWidgetTypes === "SECTION";
+  const areZonesDragged = draggedWidgetTypes === "ZONE";
   const debouncedSetDraggingCanvas = debounce(setDraggingCanvas);
   /**
    * boolean ref that indicates if the mouse position is outside of main canvas while dragging

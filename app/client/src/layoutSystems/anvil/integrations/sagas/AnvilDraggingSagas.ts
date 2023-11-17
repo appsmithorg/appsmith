@@ -11,12 +11,15 @@ import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import type {
   AnvilHighlightInfo,
-  DraggedWidget,
   WidgetLayoutProps,
 } from "../../utils/anvilTypes";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
 import { moveWidgets } from "../../utils/layouts/update/moveUtils";
+import type {
+  AnvilMoveWidgetsPayload,
+  AnvilNewWidgetsPayload,
+} from "../actions/actionTypes";
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -171,24 +174,16 @@ export function* addNewChildToDSL(
   return updatedWidgets;
 }
 
-function* addWidgetsSaga(
-  actionPayload: ReduxAction<{
-    highlight: AnvilHighlightInfo;
-    isMainCanvas?: boolean;
-    isSection?: boolean;
-    newWidget: {
-      width: number;
-      height: number;
-      newWidgetId: string;
-      type: string;
-    };
-  }>,
-) {
+function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
   try {
     const start = performance.now();
-    const { highlight, isMainCanvas, isSection, newWidget } =
-      actionPayload.payload;
-
+    const {
+      dragMeta: { draggedOn },
+      highlight,
+      newWidget,
+    } = actionPayload.payload;
+    const isMainCanvas = draggedOn === "MAIN_CANVAS";
+    const isSection = draggedOn === "SECTION";
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       addNewChildToDSL,
       highlight,
@@ -274,18 +269,16 @@ function addWidgetToGenericLayout(
  * Remove widgets from current parents and layouts.
  * Add to new parent and layout.
  */
-function* moveWidgetsSaga(
-  actionPayload: ReduxAction<{
-    highlight: AnvilHighlightInfo;
-    movedWidgets: DraggedWidget[];
-    isMainCanvas: boolean;
-    isSection: boolean;
-  }>,
-) {
+function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
   try {
     const start = performance.now();
-    const { highlight, isMainCanvas, isSection, movedWidgets } =
-      actionPayload.payload;
+    const {
+      dragMeta: { draggedOn },
+      highlight,
+      movedWidgets,
+    } = actionPayload.payload;
+    const isMainCanvas = draggedOn === "MAIN_CANVAS";
+    const isSection = draggedOn === "SECTION";
     const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     let updatedWidgets: CanvasWidgetsReduxState = {};

@@ -15,6 +15,13 @@ import WidgetFactory from "WidgetProvider/factory";
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
+import type {
+  AnvilDragMeta,
+  AnvilDropTargetType,
+  DraggedWidgetTypes,
+} from "../types";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { SectionWidget } from "widgets/anvil/SectionWidget";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -38,6 +45,7 @@ export interface AnvilDnDStates {
   isNewWidgetInitialTargetCanvas: boolean;
   isResizing: boolean;
   layoutElementPositions: LayoutElementPositions;
+  dragMeta: AnvilDragMeta;
   mainCanvasLayoutId: string;
 }
 
@@ -177,11 +185,38 @@ export const useAnvilDnDStates = ({
     isNewWidget && AnvilOverlayWidgetTypes.includes(newWidget.type);
   const isMainCanvas: boolean = layoutId === mainCanvasLayoutId;
   const isSection: boolean = layoutType === LayoutComponentTypes.SECTION;
+  const extractWidgetTypesDragged: string[] = draggedBlocks.reduce(
+    (widgetTypesArray, each) => {
+      if (!widgetTypesArray.includes(each.type)) {
+        widgetTypesArray.push(each.type);
+      }
+      return widgetTypesArray;
+    },
+    [] as string[],
+  );
+  const draggedWidgetTypes: DraggedWidgetTypes =
+    extractWidgetTypesDragged.length > 1
+      ? "WIDGETS"
+      : extractWidgetTypesDragged[0] === ZoneWidget.type
+      ? "ZONE"
+      : extractWidgetTypesDragged[0] === SectionWidget.type
+      ? "SECTION"
+      : "WIDGETS";
+  const draggedOn: AnvilDropTargetType = isMainCanvas
+    ? "MAIN_CANVAS"
+    : isSection
+    ? "SECTION"
+    : "ZONE";
+
   return {
     activateOverlayWidgetDrop,
     allowToDrop,
     draggedBlocks,
     dragDetails,
+    dragMeta: {
+      draggedWidgetTypes,
+      draggedOn,
+    },
     selectedWidgets,
     isChildOfLayout,
     isCurrentDraggedCanvas,
