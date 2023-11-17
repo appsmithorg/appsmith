@@ -21,10 +21,3 @@ export interface ModuleInstance {
     [key: string]: any;
   };
 }
-export interface QueryModuleInstance extends ModuleInstance {
-  type: MODULE_TYPE.QUERY;
-  jsonPathKeys: string[];
-  dynamicBindingPathList: Record<string, true>;
-  data: string;
-  run: string;
-}
