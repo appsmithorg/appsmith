@@ -31,8 +31,6 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.BUTTON),
     );
-    agHelper.AssertElementVisibility(
-      locators._visibleTextSpan("Build the tools"),
-    );
+    cy.url().should("eq", testdata.externalPage);
   });
 });
