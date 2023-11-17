@@ -128,23 +128,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         return clientResponse.createException().flatMapMany(Flux::error);
                     }
                 })
-                .collectList()
-                .map(applicationTemplateList -> {
-                    // Add sporting via sortPriority
-                    // Add createdTime
-                    applicationTemplateList.sort((t1, t2) -> {
-                        if (t1.getSortPriority() == null || t2.getSortPriority() == null) {
-                            return 0;
-                        } else {
-                            return t1.getSortPriority().compareTo(t2.getSortPriority());
-                        }
-                    });
-                    int size = applicationTemplateList.stream()
-                            .filter(applicationTemplate -> applicationTemplate.getCreatedAt() == null)
-                            .toList()
-                            .size();
-                    return applicationTemplateList;
-                });
+                .collectList();
     }
 
     @Override
@@ -168,9 +152,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
-        /* using a custom url builder factory because default builder always encodes URL.
-        It's expected that the appDataUrl is already encoded, so we don't need to encode that again.
-        Encoding an encoded URL will not work and end up resulting a 404 error */
+        /*
+         * using a custom url builder factory because default builder always encodes
+         * URL.
+         * It's expected that the appDataUrl is already encoded, so we don't need to
+         * encode that again.
+         * Encoding an encoded URL will not work and end up resulting a 404 error
+         */
         final int size = 4 * 1024 * 1024; // 4 MB
         final ExchangeStrategies strategies = ExchangeStrategies.builder()
                 .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
@@ -201,8 +189,15 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId) {
         return getApplicationJsonFromTemplate(templateId)
-                .flatMap(applicationJson ->
-                        importApplicationService.importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson))
+                .flatMap(applicationJson -> Mono.zip(
+                        importApplicationService.importNewApplicationInWorkspaceFromJson(workspaceId, applicationJson),
+                        Mono.just(applicationJson.getExportedApplication().getName())))
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    String templateTitle = tuple.getT2();
+                    application.setForkedFromTemplateTitle(templateTitle);
+                    return applicationService.save(application).thenReturn(application);
+                })
                 .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application))
                 .flatMap(applicationImportDTO -> {
@@ -251,12 +246,17 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     /**
-     * Merge Template API is slow today because it needs to communicate with ImportExport Service, CloudService and/or serialise and de-serialise the
-     * application. This process takes time and the client may cancel the request. This leads to the flow getting stopped
+     * Merge Template API is slow today because it needs to communicate with
+     * ImportExport Service, CloudService and/or serialise and de-serialise the
+     * application. This process takes time and the client may cancel the request.
+     * This leads to the flow getting stopped
      * midway producing corrupted states.
-     * We use the synchronous sink to ensure that even though the client may have cancelled the flow, git operations should
-     * proceed uninterrupted and whenever the user refreshes the page, we will have the sane state. Synchronous sink does
-     * not take subscription cancellations into account. This means that even if the subscriber has cancelled its
+     * We use the synchronous sink to ensure that even though the client may have
+     * cancelled the flow, git operations should
+     * proceed uninterrupted and whenever the user refreshes the page, we will have
+     * the sane state. Synchronous sink does
+     * not take subscription cancellations into account. This means that even if the
+     * subscriber has cancelled its
      * subscription, the create method still generates its event.
      */
     @Override

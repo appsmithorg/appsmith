@@ -5,6 +5,8 @@ import {
   propPane,
   deployMode,
   debuggerHelper,
+  locators,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("storeValue Action test", () => {
@@ -52,6 +54,9 @@ describe("storeValue Action test", () => {
     });
 
     deployMode.DeployApp();
+    agHelper.AssertElementVisibility(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
+    );
     agHelper.ClickButton("StoreTest");
     agHelper.AssertContains(
       JSON.stringify({

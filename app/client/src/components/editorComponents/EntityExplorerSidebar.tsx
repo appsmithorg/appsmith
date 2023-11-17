@@ -32,7 +32,7 @@ import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import moment from "moment";
 import AnalyticsUtil from "../../utils/AnalyticsUtil";
-import { getIsAppSidebarEnabled } from "../../selectors/ideSelectors";
+import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
@@ -60,7 +60,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   /**
    * on entity explorer sidebar width change
@@ -206,7 +206,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   return (
     <div
       className={classNames({
-        "js-entity-explorer t--entity-explorer transition-transform transform  flex h-[inherit] duration-400":
+        "js-entity-explorer t--entity-explorer transition-transform transform  flex h-full duration-400":
           true,
         "border-r": !isAppSidebarEnabled,
         relative: pinned,
@@ -219,7 +219,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
     >
       {/* SIDEBAR */}
       <div
-        className="flex flex-col p-0 bg-white t--sidebar min-w-52 max-w-96 group"
+        className="flex flex-col p-0 bg-white min-w-52 max-w-96 group"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         ref={sidebarRef}

@@ -43,6 +43,9 @@ export const initialState: any = {
     },
   },
   ui: {
+    gitSync: {
+      protectedBranches: [],
+    },
     editor: {
       isPreviewMode: false,
     },

@@ -29,6 +29,7 @@ import { Icon, Tooltip } from "design-system";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
 import { setPreviewModeInitAction } from "actions/editorActions";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -69,6 +70,7 @@ function PrimaryCTA(props: Props) {
   const canEdit = isPermitted(userPermissions, permissionRequired);
   const [isForkModalOpen, setIsForkModalOpen] = useState(false);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const dispatch = useDispatch();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -141,7 +143,7 @@ function PrimaryCTA(props: Props) {
    * 2. if forking app is enabled and app is public but the user is not logged  -> fork button
    */
   const PrimaryCTA = useMemo(() => {
-    if (url && canEdit) {
+    if (url && canEdit && !isProtectedMode) {
       return (
         <Tooltip
           content={createMessage(EDIT_APP)}

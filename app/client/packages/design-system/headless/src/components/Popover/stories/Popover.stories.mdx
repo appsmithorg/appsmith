@@ -2,6 +2,7 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
+  PopoverModalContent,
   Button,
 } from "@design-system/headless";
 import { ControlledPopover } from "./ControlledPopover";
@@ -41,6 +42,36 @@ Based on the [headless Popover component](/?path=/docs/design-system-headless-po
 ## PopoverContent props
 
 <ArgsTable of={PopoverContent} />
+
+# Modal
+
+A modal is a floating element that displays information that requires immediate attention, appearing over the page content and blocking interactions with the page until it is dismissed.
+
+## PopoverModalContent props
+
+<ArgsTable of={PopoverModalContent} />
+
+<Source
+  dark
+  code={`
+export const Modal = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef(null);
+
+    return (
+      <>
+        <Button onPress={() => setIsOpen(!isOpen)} ref={ref}>
+          Controlled popover
+        </Button>
+        <Popover isOpen={isOpen} setOpen={setIsOpen} triggerRef={ref}>
+          <PopoverContent>Controlled popover content</PopoverContent>
+        </Popover>
+      </>
+    );
+
+};
+`}
+/>
 
 # Placement
 

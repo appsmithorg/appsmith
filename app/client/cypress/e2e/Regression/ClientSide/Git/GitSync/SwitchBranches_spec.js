@@ -120,12 +120,9 @@ describe("Git sync:", function () {
       "ParentPageRenamed",
       true,
     );
-    entityExplorer.SelectEntityByName("ParentApi1", "Queries/JS");
-    entityExplorer.RenameEntityFromExplorer(
-      "ParentApi1",
-      "ParentApiRenamed",
-      true,
-    );
+    agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
     cy.switchGitBranch(parentBranchKey);
 

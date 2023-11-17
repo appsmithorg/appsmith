@@ -30,11 +30,17 @@ export function SignupSuccess() {
   const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
   );
+  const isEnabledForCreateNew = useFeatureFlag(
+    FEATURE_FLAG.ab_create_new_apps_enabled,
+  );
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     user?.email && setUserSignedUpFlag(user?.email);
   }, []);
+
+  const isNonInvitedAndNonAdminUser =
+    !user?.isSuperUser && shouldEnableFirstTimeUserOnboarding === "true";
 
   const redirectUsingQueryParam = useCallback(
     () =>
@@ -44,6 +50,7 @@ export function SignupSuccess() {
         validLicense,
         dispatch,
         showStarterTemplatesInsteadofBlankCanvas,
+        isNonInvitedAndNonAdminUser && isEnabledForCreateNew,
       ),
     [],
   );

@@ -4,5 +4,8 @@ public enum EntityType {
     WIDGET,
     JS_ACTION,
     ACTION,
-    JS_OBJECT
+    JS_OBJECT,
+
+    // EE-only entities
+    MODULE_INSTANCE,
 }
