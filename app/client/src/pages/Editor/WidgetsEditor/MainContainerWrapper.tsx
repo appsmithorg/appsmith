@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useState } from "react";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 
@@ -13,7 +14,7 @@ import { getCanvasClassName } from "utils/generators";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import classNames from "classnames";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { Spinner } from "design-system";
+import { Button, Flex, Spinner } from "design-system";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { useDispatch } from "react-redux";
@@ -144,6 +145,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
   const { canShowResizer, enableMainContainerResizer } =
     useMainContainerResizer();
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
     return () => {
@@ -173,6 +175,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         canvasWidth={props.canvasWidth}
         enableMainCanvasResizer={enableMainContainerResizer}
         pageId={params.pageId}
+        scale={scale}
         widgetsStructure={widgetsStructure}
       />
     );
@@ -253,6 +256,41 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
           </div>
         )}
         {node}
+        <Flex
+          backgroundColor="var(--ads-v2-color-bg)"
+          border="1px solid var(--ads-v2-color-border)"
+          borderRadius="var(--ads-v2-border-radius)"
+          bottom="var(--ads-v2-spaces-4)"
+          left="var(--ads-v2-spaces-5)"
+          position="sticky"
+          px="spaces-3"
+          py="spaces-2"
+          style={{ boxShadow: "var(--ads-v2-shadow-popovers)" }}
+          width="120px"
+        >
+          <Button
+            isIconButton
+            kind="tertiary"
+            onClick={() => setScale(scale - 0.1)}
+            size="sm"
+            startIcon="subtract-line"
+          />
+          <Flex
+            alignItems="center"
+            flex="1"
+            justifyContent="center"
+            px="spaces-2"
+          >
+            {Math.round(scale * 100)}%
+          </Flex>
+          <Button
+            isIconButton
+            kind="tertiary"
+            onClick={() => setScale(scale + 0.1)}
+            size="sm"
+            startIcon="add-line"
+          />
+        </Flex>
       </Wrapper>
       <MainContainerResizer
         currentPageId={currentPageId}
