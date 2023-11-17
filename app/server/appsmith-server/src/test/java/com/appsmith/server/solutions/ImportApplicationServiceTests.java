@@ -899,14 +899,11 @@ public class ImportApplicationServiceTests {
                 importApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(
-                        throwable -> throwable instanceof AppsmithException
-                                && throwable
-                                        .getMessage()
-                                        .equals(
-                                                AppsmithError.VALIDATION_FAILURE.getMessage(
-                                                        "Field '" + FieldName.APPLICATION
-                                                                + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page.")))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage(
+                                        "Field '" + FieldName.APPLICATION + "' is missing in the JSON.")))
                 .verify();
     }
 

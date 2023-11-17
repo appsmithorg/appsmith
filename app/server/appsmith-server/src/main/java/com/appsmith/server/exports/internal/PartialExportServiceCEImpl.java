@@ -1,6 +1,5 @@
 package com.appsmith.server.exports.internal;
 
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.acl.AclPermission;
@@ -12,7 +11,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
@@ -24,17 +22,15 @@ import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
@@ -54,8 +50,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private final ExportableService<Plugin> pluginExportableService;
     private final ExportableService<NewAction> newActionExportableService;
     private final ExportableService<ActionCollection> actionCollectionExportableService;
-    private final SessionUserService sessionUserService;
-    private final AnalyticsService analyticsService;
+    private final Gson gson;
 
     @Override
     public Mono<ApplicationJson> getPartialExportResources(
@@ -163,26 +158,12 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
                                 applicationJson,
                                 SerialiseApplicationObjective.SHARE);
                     }
-                    return Mono.just(applicationJson).zipWith(sessionUserService.getCurrentUser());
+                    return Mono.just(applicationJson);
                 })
-                .flatMap(tuple -> {
-                    ApplicationJson applicationJson1 = tuple.getT1();
-                    Application application = applicationJson1.getExportedApplication();
-
+                .map(exportedJson -> {
                     applicationJson.setWidgets(partialExportFileDTO.getWidget());
                     applicationJson.setExportedApplication(null);
-
-                    User user = tuple.getT2();
-                    final Map<String, Object> eventData = Map.of(FieldName.APPLICATION, application);
-
-                    final Map<String, Object> data = Map.of(
-                            FieldName.APPLICATION_ID, application.getId(),
-                            FieldName.WORKSPACE_ID, application.getWorkspaceId(),
-                            FieldName.EVENT_DATA, eventData);
-
-                    return analyticsService
-                            .sendEvent(AnalyticsEvents.PARTIAL_EXPORT.getEventName(), user.getUsername(), data)
-                            .thenReturn(applicationJson);
+                    return applicationJson;
                 });
     }
 
