@@ -64,6 +64,7 @@ import { toast } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -198,22 +199,25 @@ function* getTemplateSaga(action: ReduxAction<string>) {
   }
 }
 
-function* postPageAdditionSaga(applicationId: string) {
+export function* postPageAdditionSaga(applicationId: string) {
   const afterActionsFetch: boolean = yield failFastApiCalls(
     [
       fetchActions({ applicationId }, []),
       fetchJSCollections({ applicationId }),
       fetchDatasources(),
+      fetchJSLibraries(applicationId),
     ],
     [
       ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
       ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+      ReduxActionTypes.FETCH_JS_LIBRARIES_SUCCESS,
     ],
     [
       ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
       ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
       ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
+      ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
     ],
   );
 
