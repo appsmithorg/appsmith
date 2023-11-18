@@ -8,8 +8,8 @@ describe("Datasource structure schema preview data", () => {
   });
 
   it(
-    "excludeForAirgap",
     "1. Verify if the schema table accordions is collapsed in case of search",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       agHelper.TypeText(
         dataSources._datasourceStructureSearchInput,

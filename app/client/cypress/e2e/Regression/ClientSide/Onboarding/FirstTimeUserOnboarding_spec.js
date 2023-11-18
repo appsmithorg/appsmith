@@ -35,8 +35,8 @@ describe("FirstTimeUserOnboarding", function () {
   });
 
   it(
-    "excludeForAirgap",
     "2. onboarding flow - should check the checklist actions",
+    { tags: [Tag.excludeForAirgap] },
     function () {
       agHelper.GetNAssertContains(OnboardingLocator.checklistStatus, "0 of 5");
       agHelper.AssertElementExist(OnboardingLocator.checklistDatasourceBtn);
@@ -109,8 +109,8 @@ describe("FirstTimeUserOnboarding", function () {
   );
 
   it(
-    "airgap",
     "2. onboarding flow - should check the checklist page actions - airgap",
+    { tags: [Tag.airgap] },
     function () {
       cy.get(OnboardingLocator.introModal).should("be.visible");
 

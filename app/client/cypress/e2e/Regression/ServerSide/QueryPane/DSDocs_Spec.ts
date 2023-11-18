@@ -89,18 +89,22 @@ describe("Check datasource doc links", { tags: [Tag.Datasource] }, function () {
     });
   });
 
-  it("excludeForAirgap", "7. Verify Airtable documentation opens", function () {
-    CreateDummyDSNSave(DataSourceKVP["Airtable"]);
-    cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
-      dataSources.CreateQueryAfterDSSaved();
-      deployMode.StubWindowNAssert(
-        dataSources._queryDoc,
-        "airtable#create-queries",
-        "getPluginForm",
-      );
-    });
-  });
+  it(
+    "7. Verify Airtable documentation opens",
+    { tags: [Tag.excludeForAirgap] },
+    function () {
+      CreateDummyDSNSave(DataSourceKVP["Airtable"]);
+      cy.get("@dsName").then(($dsName) => {
+        dsName = $dsName;
+        dataSources.CreateQueryAfterDSSaved();
+        deployMode.StubWindowNAssert(
+          dataSources._queryDoc,
+          "airtable#create-queries",
+          "getPluginForm",
+        );
+      });
+    },
+  );
 
   it("8. Verify Oracle documentation opens", function () {
     dataSources.CreateDataSource(

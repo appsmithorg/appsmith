@@ -11,7 +11,7 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("excludeForAirgap", "Guided Tour", function () {
+describe("Guided Tour", { tags: [Tag.excludeForAirgap] }, function () {
   it("1. Guided tour should work when started from the editor", function () {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmith.com`, uid);

@@ -1,6 +1,6 @@
 import { agHelper, templates } from "../../../../support/Objects/ObjectsCore";
 
-describe("excludeForAirgap", "Templates page", () => {
+describe("Templates page", { tags: [Tag.excludeForAirgap] }, () => {
   it("1. Templates tab should have no impact of 'allowPageImport:true'", () => {
     agHelper.RefreshPage(); //is important for below intercept to go thru!
     cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {

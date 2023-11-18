@@ -6,7 +6,7 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("excludeForAirgap", "JSObjects", () => {
+describe("JSObjects", { tags: [Tag.excludeForAirgap] }, () => {
   it("1. Switch to settings pane when clicked on update logs", () => {
     jsEditor.NavigateToNewJSEditor();
     jsEditor.EnableDisableAsyncFuncSettings("myFun2");

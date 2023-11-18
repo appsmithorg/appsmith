@@ -62,8 +62,8 @@ describe("Datasource form related tests", function () {
   });
 
   it(
-    "excludeForAirgap",
     "3. Verify if schema (table and column) exist in query editor and searching works",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       agHelper.RefreshPage();
       dataSources.CreateMockDB("Users");
@@ -79,8 +79,8 @@ describe("Datasource form related tests", function () {
   );
 
   it(
-    "excludeForAirgap",
     "4. Verify if collapsible opens when refresh button is opened.",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       agHelper.RefreshPage();
       dataSources.CreateMockDB("Users");

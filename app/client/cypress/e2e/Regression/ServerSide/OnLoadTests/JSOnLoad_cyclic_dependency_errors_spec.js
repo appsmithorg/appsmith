@@ -32,8 +32,8 @@ describe("Cyclic Dependency Informational Error Messages", function () {
   });
 
   it(
-    "excludeForAirgap",
     "1. Create Users Sample DB Query & Simulate cyclic depedency",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       //Step1 : Create Mock Users DB
       dataSources.CreateMockDB("Users").then(() => {
@@ -56,8 +56,8 @@ describe("Cyclic Dependency Informational Error Messages", function () {
   );
 
   it(
-    "airgap",
     "1. Create Users Sample DB Query & Simulate cyclic depedency - airgap",
+    { tags: [Tag.airgap] },
     () => {
       //Step1 : Create postgres DB
       dataSources.CreateDataSource("Postgres");

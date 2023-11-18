@@ -4,7 +4,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("excludeForAirgap", "Tests JS Libraries", () => {
+describe("Tests JS Libraries", { tags: [Tag.excludeForAirgap] }, () => {
   it("1. Validates Library install/uninstall", () => {
     EditorNavigation.ViaSidebar(SidebarButton.Libraries);
     _.installer.OpenInstaller();

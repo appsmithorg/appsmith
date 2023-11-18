@@ -3,60 +3,63 @@ const queryLocators = require("../../../../../locators/QueryEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let dsname;
-describe("Chart Widget Skeleton Loading Functionality", { tags: [Tag.Widget] }, function () {
-  before(() => {
-    _.agHelper.AddDsl("ChartLoadingDsl");
-  });
+describe(
+  "Chart Widget Skeleton Loading Functionality",
+  { tags: [Tag.Widget] },
+  function () {
+    before(() => {
+      _.agHelper.AddDsl("ChartLoadingDsl");
+    });
 
-  it(
-    "excludeForAirgap",
-    "1. Test case while reloading and on submission",
-    function () {
-      /**
-       * Use case:
-       * 1. Open Datasource editor
-       * 2. Click on sample(mock) user database.
-       * 3. Choose the first data source which consists of users keyword
-       * 4. Click on the "New query +"" button
-       * 5. Name the Query as "Query1"
-       * 6. Write the query as "SELECT * FROM users ORDER BY id LIMIT 10;"
-       * 7. Run the Query
-       * 8. Go to Widgets
-       * 9. Click on the Submit Button
-       * 10. Check if we get "bp3-skeleton" class
-       * 11. Reload the page
-       * 12. Do step 10.
-       * 13. Remove the datasource*
-       */
+    it(
+      "1. Test case while reloading and on submission",
+      { tags: [Tag.excludeForAirgap] },
+      function () {
+        /**
+         * Use case:
+         * 1. Open Datasource editor
+         * 2. Click on sample(mock) user database.
+         * 3. Choose the first data source which consists of users keyword
+         * 4. Click on the "New query +"" button
+         * 5. Name the Query as "Query1"
+         * 6. Write the query as "SELECT * FROM users ORDER BY id LIMIT 10;"
+         * 7. Run the Query
+         * 8. Go to Widgets
+         * 9. Click on the Submit Button
+         * 10. Check if we get "bp3-skeleton" class
+         * 11. Reload the page
+         * 12. Do step 10.
+         * 13. Remove the datasource*
+         */
 
-      //Step1
-      cy.wait(2000);
-      _.dataSources.CreateMockDB("Users").then(() => {
-        _.dataSources.CreateQueryAfterDSSaved();
-        _.dataSources.ToggleUsePreparedStatement(false);
-      });
+        //Step1
+        cy.wait(2000);
+        _.dataSources.CreateMockDB("Users").then(() => {
+          _.dataSources.CreateQueryAfterDSSaved();
+          _.dataSources.ToggleUsePreparedStatement(false);
+        });
 
-      // Step6.2: writing query to get the schema
-      _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
-      cy.WaitAutoSave();
+        // Step6.2: writing query to get the schema
+        _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
+        cy.WaitAutoSave();
 
-      //Step7:
-      cy.runQuery();
+        //Step7:
+        cy.runQuery();
 
-      //Step8:
-      cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+        //Step8:
+        cy.get('.t--entity-name:contains("Page1")').click({ force: true });
 
-      cy.wait(1000);
+        cy.wait(1000);
 
-      //Step9:
-      cy.get(".bp3-button-text").first().click({ force: true });
+        //Step9:
+        cy.get(".bp3-button-text").first().click({ force: true });
 
-      //Step10:
-      cy.get(".t--widget-chartwidget div[class*='bp3-skeleton']").should(
-        "exist",
-      );
+        //Step10:
+        cy.get(".t--widget-chartwidget div[class*='bp3-skeleton']").should(
+          "exist",
+        );
 
-      /* This section is flaky hence commenting out
+        /* This section is flaky hence commenting out
     //Step11:
     cy.reload();
 
@@ -91,41 +94,42 @@ describe("Chart Widget Skeleton Loading Functionality", { tags: [Tag.Widget] }, 
       .click({ force: true });
     cy.wait(150);
     cy.get(".t--datasource-option-delete").click({ force: true }); */
-    },
-  );
-  it(
-    "airgap",
-    "1. Test case while reloading and on submission - airgap",
-    function () {
-      cy.wait(2000);
-      _.dataSources.CreateDataSource("Postgres");
-      cy.get("@saveDatasource").then((httpResponse) => {
-        dsname = httpResponse.response.body.data.name;
-      });
-      cy.wait(1000);
-      cy.get(datasource.createQuery).click();
+      },
+    );
+    it(
+      "1. Test case while reloading and on submission - airgap",
+      { tags: [Tag.airgap] },
+      function () {
+        cy.wait(2000);
+        _.dataSources.CreateDataSource("Postgres");
+        cy.get("@saveDatasource").then((httpResponse) => {
+          dsname = httpResponse.response.body.data.name;
+        });
+        cy.wait(1000);
+        cy.get(datasource.createQuery).click();
 
-      cy.get(".t--action-name-edit-field").click({ force: true });
+        cy.get(".t--action-name-edit-field").click({ force: true });
 
-      cy.get(queryLocators.queryNameField).type("Query1");
+        cy.get(queryLocators.queryNameField).type("Query1");
 
-      cy.get(queryLocators.switch).last().click({ force: true });
+        cy.get(queryLocators.switch).last().click({ force: true });
 
-      _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
+        _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
 
-      cy.WaitAutoSave();
+        cy.WaitAutoSave();
 
-      cy.runQuery();
+        cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+        cy.get('.t--entity-name:contains("Page1")').click({ force: true });
 
-      cy.wait(1000);
+        cy.wait(1000);
 
-      cy.get(".bp3-button-text").first().click({ force: true });
+        cy.get(".bp3-button-text").first().click({ force: true });
 
-      cy.get(".t--widget-chartwidget div[class*='bp3-skeleton']").should(
-        "exist",
-      );
-    },
-  );
-});
+        cy.get(".t--widget-chartwidget div[class*='bp3-skeleton']").should(
+          "exist",
+        );
+      },
+    );
+  },
+);

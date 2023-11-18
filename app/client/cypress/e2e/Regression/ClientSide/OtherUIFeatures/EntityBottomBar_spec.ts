@@ -69,8 +69,49 @@ describe("Entity bottom bar", () => {
     _.debuggerHelper.AssertClosed();
   });
 
-  it("excludeForAirgap", "5. Query bottom bar should be collapsable", () => {
-    _.dataSources.CreateMockDB("Users").then((dbName) => {
+  it(
+    "5. Query bottom bar should be collapsable",
+    { tags: [Tag.excludeForAirgap] },
+    () => {
+      _.dataSources.CreateMockDB("Users").then((dbName) => {
+        //Verify if bottom bar remain open on shifting to active datasource page.
+        _.debuggerHelper.AssertOpen(PageType.DataSources);
+        //Verify if selected tab is errors and error count is
+        //Verify if selected tab is errors in tab title.
+        _.debuggerHelper.AssertSelectedTab("Errors");
+        //Verify if bottom bar is closed on clicking close icon in active datasource page.
+        _.debuggerHelper.CloseBottomBar();
+        _.debuggerHelper.AssertClosed();
+        //Verify if bottom bar opens on clicking debugger icon in query page.
+        _.dataSources.CreateQueryAfterDSSaved();
+        _.debuggerHelper.ClickDebuggerIcon();
+        _.debuggerHelper.AssertOpen(PageType.Query);
+        //Verify if bottom bar is closed on clicking close icon in query page.
+        _.debuggerHelper.CloseBottomBar();
+        _.debuggerHelper.AssertClosed();
+        //Create and run query.
+
+        _.dataSources.EnterQuery(
+          "SELECT * FROM users ORDER BY id LIMIT 10;",
+          1000,
+        );
+        _.dataSources.RunQuery();
+        //Verify if bottom bar is open on executing query.
+        _.debuggerHelper.AssertOpen(PageType.Query);
+        //Verify if response atb is selected on executing query.
+        _.debuggerHelper.AssertSelectedTab("Response");
+        // clean up
+        _.dataSources.DeleteQuery("Query1");
+        _.dataSources.DeleteDatasourceFromWithinDS(dbName);
+      });
+    },
+  );
+
+  it(
+    "5. Query bottom bar should be collapsable - airgap",
+    { tags: [Tag.airgap] },
+    () => {
+      _.dataSources.CreateDataSource("Postgres");
       //Verify if bottom bar remain open on shifting to active datasource page.
       _.debuggerHelper.AssertOpen(PageType.DataSources);
       //Verify if selected tab is errors and error count is
@@ -80,14 +121,13 @@ describe("Entity bottom bar", () => {
       _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
       //Verify if bottom bar opens on clicking debugger icon in query page.
-      _.dataSources.CreateQueryAfterDSSaved();
+      cy.get(datasource.createQuery).click();
       _.debuggerHelper.ClickDebuggerIcon();
       _.debuggerHelper.AssertOpen(PageType.Query);
       //Verify if bottom bar is closed on clicking close icon in query page.
       _.debuggerHelper.CloseBottomBar();
       _.debuggerHelper.AssertClosed();
       //Create and run query.
-
       _.dataSources.EnterQuery(
         "SELECT * FROM users ORDER BY id LIMIT 10;",
         1000,
@@ -99,38 +139,9 @@ describe("Entity bottom bar", () => {
       _.debuggerHelper.AssertSelectedTab("Response");
       // clean up
       _.dataSources.DeleteQuery("Query1");
-      _.dataSources.DeleteDatasourceFromWithinDS(dbName);
-    });
-  });
-
-  it("airgap", "5. Query bottom bar should be collapsable - airgap", () => {
-    _.dataSources.CreateDataSource("Postgres");
-    //Verify if bottom bar remain open on shifting to active datasource page.
-    _.debuggerHelper.AssertOpen(PageType.DataSources);
-    //Verify if selected tab is errors and error count is
-    //Verify if selected tab is errors in tab title.
-    _.debuggerHelper.AssertSelectedTab("Errors");
-    //Verify if bottom bar is closed on clicking close icon in active datasource page.
-    _.debuggerHelper.CloseBottomBar();
-    _.debuggerHelper.AssertClosed();
-    //Verify if bottom bar opens on clicking debugger icon in query page.
-    cy.get(datasource.createQuery).click();
-    _.debuggerHelper.ClickDebuggerIcon();
-    _.debuggerHelper.AssertOpen(PageType.Query);
-    //Verify if bottom bar is closed on clicking close icon in query page.
-    _.debuggerHelper.CloseBottomBar();
-    _.debuggerHelper.AssertClosed();
-    //Create and run query.
-    _.dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;", 1000);
-    _.dataSources.RunQuery();
-    //Verify if bottom bar is open on executing query.
-    _.debuggerHelper.AssertOpen(PageType.Query);
-    //Verify if response atb is selected on executing query.
-    _.debuggerHelper.AssertSelectedTab("Response");
-    // clean up
-    _.dataSources.DeleteQuery("Query1");
-    cy.get("@dsName").then(($dsName) => {
-      _.dataSources.DeleteDatasourceFromWithinDS($dsName as any);
-    });
-  });
+      cy.get("@dsName").then(($dsName) => {
+        _.dataSources.DeleteDatasourceFromWithinDS($dsName as any);
+      });
+    },
+  );
 });

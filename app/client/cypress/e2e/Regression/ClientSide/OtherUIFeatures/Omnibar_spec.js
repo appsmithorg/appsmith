@@ -86,8 +86,8 @@ describe("Omnibar functionality test cases", () => {
   });
 
   it(
-    "excludeForAirgap",
     "4. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab",
+    { tags: [Tag.excludeForAirgap] },
     function () {
       // typing a random string in search bar
       cy.get(omnibar.globalSearch).click({ force: true });

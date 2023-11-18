@@ -8,7 +8,7 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("excludeForAirgap", "Api pane navigation", () => {
+describe("Api pane navigation", { tags: [Tag.excludeForAirgap] }, () => {
   it("1. Navigation to Grapql pagination field", () => {
     apiPage.CreateGraphqlApi("Api1");
     apiPage.SelectPaneTab("Pagination");

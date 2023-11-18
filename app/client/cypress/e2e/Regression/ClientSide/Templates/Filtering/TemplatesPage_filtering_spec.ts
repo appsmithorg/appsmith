@@ -4,7 +4,7 @@ import {
   templates,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("excludeForAirgap", "Templates page filtering", () => {
+describe("Templates page filtering", { tags: [Tag.excludeForAirgap] }, () => {
   const FUNCTIONS_FILTER = ["Operations", "Customer Support"];
   const NAME_FILTER = "order";
 

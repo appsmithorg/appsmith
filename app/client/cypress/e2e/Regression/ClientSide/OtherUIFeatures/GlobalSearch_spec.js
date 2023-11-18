@@ -167,8 +167,8 @@ describe("GlobalSearch", function () {
   // updated test so that when user clicks on google sheet and searches for the same datasource, no
   // results found will be shown
   it(
-    "excludeForAirgap",
     "8. navigatesToGoogleSheetsQuery does not break again: Bug 15012",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       cy.createGoogleSheetsDatasource();
       cy.renameDatasource("XYZ");

@@ -90,8 +90,8 @@ describe("Autocomplete bug fixes", function () {
   });
 
   it(
-    "excludeForAirgap",
     "7. Installed library should show up in autocomplete",
+    { tags: [Tag.excludeForAirgap] },
     function () {
       EditorNavigation.ViaSidebar(SidebarButton.Libraries);
       installer.OpenInstaller();
@@ -105,8 +105,8 @@ describe("Autocomplete bug fixes", function () {
   );
 
   it(
-    "excludeForAirgap",
     "8. No autocomplete for Removed libraries",
+    { tags: [Tag.excludeForAirgap] },
     function () {
       entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
       EditorNavigation.ViaSidebar(SidebarButton.Libraries);

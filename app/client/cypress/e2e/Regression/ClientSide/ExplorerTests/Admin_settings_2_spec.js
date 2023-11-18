@@ -35,8 +35,8 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
   });
 
   it(
-    "excludeForAirgap",
     "2. should test that authentication page redirects",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -55,8 +55,8 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
   );
 
   it(
-    "airgap",
     "2. should test that authentication page redirects and google and github auth doesn't exist - airgap",
+    { tags: [Tag.airgap] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -69,8 +69,8 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
   );
 
   it(
-    "excludeForAirgap",
     "3. should test that configure link redirects to google signup setup doc",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -89,8 +89,8 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
   );
 
   it(
-    "excludeForAirgap",
     "4. should test that configure link redirects to github signup setup doc",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -109,8 +109,8 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
   );
 
   it(
-    "excludeForAirgap",
     "5. should test that read more on version opens up release notes",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.versionTab).click();
@@ -133,8 +133,8 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
   );
 
   it(
-    "airgap",
     "5. should test that read more on version is hidden for airgap",
+    { tags: [Tag.airgap] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.versionTab).click();

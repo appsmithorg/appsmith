@@ -12,7 +12,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("excludeForAirgap", "Query pane navigation", () => {
+describe("Query pane navigation", { tags: [Tag.excludeForAirgap] }, () => {
   let ds1Name: string;
   let ds2Name: string;
 

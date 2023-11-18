@@ -52,8 +52,8 @@ describe("Canvas context Property Pane", { tags: [Tag.IDE] }, function () {
   });
 
   it(
-    "excludeForAirgap",
     "3. Code Editor should have focus while switching between widgets, pages and Editor Panes",
+    { tags: [Tag.excludeForAirgap] },
     function () {
       // TODO: Since google recaptcha is not possible in airgap mode, skipping this test for now for airgapped version.
       //Will modify the dsl to have maybe phone input widget to have a dropdown property control - Sangeeth

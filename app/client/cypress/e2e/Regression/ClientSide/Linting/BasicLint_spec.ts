@@ -330,8 +330,8 @@ describe("Linting", () => {
   });
 
   it(
-    "excludeForAirgap",
     "9. Shows lint errors for usage of library that are not installed yet",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       const JS_OBJECT_WITH_LIB_API = `export default {
       myFun1: () => {

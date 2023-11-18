@@ -2,8 +2,8 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Help Button on editor", function () {
   it(
-    "excludeForAirgap",
     "1. Chat with us and Intercom consent should be visible on Help Menu",
+    { tags: [Tag.excludeForAirgap] },
     () => {
       _.agHelper.GetNClick(
         _.debuggerHelper.locators._helpButton,

@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
-describe("excludeForAirgap", "Widget property navigation", () => {
+describe("Widget property navigation", { tags: [Tag.excludeForAirgap] }, () => {
   it("1. Collapsed field navigation", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.AUDIO);
     _.propPane.EnterJSContext("animateloading", "{{test}}", true, false);
