@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Property pane js enabled field", function () {
+describe("Property pane js enabled field", { tags: [Tag.IDE] }, function () {
   before(() => {
     _.agHelper.AddDsl("jsonFormDslWithSchema");
   });

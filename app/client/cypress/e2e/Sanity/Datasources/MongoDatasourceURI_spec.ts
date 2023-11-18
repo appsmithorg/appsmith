@@ -8,7 +8,7 @@ let dsName: any;
 
 // TODO: add another test case to test URI with username and password when the following issue is fixed:
 //  https://github.com/appsmithorg/TestEventDriver/issues/40
-describe("Create, test, save then delete a mongo datasource using URI", function () {
+describe("Create, test, save then delete a mongo datasource using URI", { tags: [Tag.Datasource] }, function () {
   it("1. Create, test, save then delete a mongo datasource using URI without username and password - #24897 ", function () {
     dataSources.NavigateToDSCreateNew();
     agHelper.GenerateUUID();

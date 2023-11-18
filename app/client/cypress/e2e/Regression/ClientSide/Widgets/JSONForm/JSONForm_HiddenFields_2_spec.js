@@ -86,7 +86,7 @@ function removeCustomField() {
   cy.deleteJSONFormField("customField1");
 }
 
-describe("JSON Form Hidden fields", () => {
+describe("JSON Form Hidden fields", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   before(() => {
     agHelper.AddDsl("jsonFormDslWithSchema");
     cy.openPropertyPane("jsonformwidget");

@@ -27,7 +27,7 @@ const mainBranch = "master";
 let datasourceName;
 let repoName;
 
-describe("Git sync apps", function () {
+describe("Git sync apps", { tags: [Tag.Git] }, function () {
   before(() => {
     // homePage.NavigateToHome();
     // cy.createWorkspace();

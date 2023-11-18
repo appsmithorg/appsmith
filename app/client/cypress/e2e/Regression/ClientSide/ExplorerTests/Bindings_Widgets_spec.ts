@@ -4,7 +4,7 @@ import {
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Entity explorer tests related to widgets and validation", function () {
+describe("Entity explorer tests related to widgets and validation", { tags: [Tag.IDE] }, function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

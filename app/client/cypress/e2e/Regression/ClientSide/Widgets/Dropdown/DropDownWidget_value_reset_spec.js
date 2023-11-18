@@ -5,7 +5,7 @@ import EditorNavigation, {
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Dropdown Widget Check value does not reset on navigation", function () {
+describe("Dropdown Widget Check value does not reset on navigation", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     _.agHelper.AddDsl("dropDownWidget_reset_check_dsl");
   });

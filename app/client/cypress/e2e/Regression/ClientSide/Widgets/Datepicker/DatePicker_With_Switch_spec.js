@@ -3,7 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const dayjs = require("dayjs");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Switch Widget within Form widget Functionality", function () {
+describe("Switch Widget within Form widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("datepicker_switchDsl");
   });

@@ -2,7 +2,7 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 import { agHelper } from "../../../support/Objects/ObjectsCore";
 
-describe("SMTP datasource test cases using ted", function () {
+describe("SMTP datasource test cases using ted", { tags: [Tag.Datasource] }, function () {
   let SMTPDatasourceName;
   beforeEach(() => {
     cy.startRoutesForDatasource();

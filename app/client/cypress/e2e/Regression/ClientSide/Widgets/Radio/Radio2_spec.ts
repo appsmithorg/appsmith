@@ -11,7 +11,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Radio Widget test cases", function () {
+describe("Radio Widget test cases", { tags: [Tag.Widget] }, function () {
   it("1. Validate radio widget bindings", () => {
     //JS Object
     jsEditor.CreateJSObject(

@@ -9,7 +9,7 @@ import {
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Tabs widget Tests", function () {
+describe("Tabs widget Tests", { tags: [Tag.Widget, Tag.Tab] }, function () {
   before(() => {
     agHelper.AddDsl("tabsDsl");
   });

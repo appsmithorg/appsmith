@@ -102,7 +102,7 @@ const TABLE_DATA_2 = `[
       "updatedAt": "2019-09-07T16:35:48.000Z"
     }]`;
 
-describe("Table widget v2: tableData change test", function () {
+describe("Table widget v2: tableData change test", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     agHelper.ClearLocalStorageCache();
   });

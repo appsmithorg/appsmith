@@ -4,7 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Select Widget Functionality", function () {
+describe("Select Widget Functionality", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     _.agHelper.AddDsl("formSelectDsl");
   });

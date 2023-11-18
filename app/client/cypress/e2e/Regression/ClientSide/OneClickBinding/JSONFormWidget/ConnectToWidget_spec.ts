@@ -13,7 +13,7 @@ import {
 
 const oneClickBinding = new OneClickBinding();
 
-describe("JSONForm widget one click binding feature", () => {
+describe("JSONForm widget one click binding feature", { tags: [Tag.Binding] }, () => {
   let datasourceName: string;
 
   it("1.Connect to a table widget", () => {

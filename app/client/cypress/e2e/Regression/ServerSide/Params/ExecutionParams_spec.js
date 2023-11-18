@@ -7,7 +7,7 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("API Panel Test Functionality", function () {
+describe("API Panel Test Functionality", { tags: [Tag.JS] }, function () {
   let datasourceName;
   before(() => {
     agHelper.AddDsl("executionParamsDsl");

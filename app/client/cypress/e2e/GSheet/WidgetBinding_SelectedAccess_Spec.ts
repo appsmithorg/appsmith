@@ -17,7 +17,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-selected";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
-describe("GSheet-widget binding for selected sheet access", function () {
+describe("GSheet-widget binding for selected sheet access", { tags: [Tag.Datasource] }, function () {
   before("Setup app and spreadsheet", function () {
     //Setting up the app name
     const uuid = Cypress._.random(0, 10000);

@@ -7,7 +7,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget property pane feature validation", function () {
+describe("Table Widget property pane feature validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     agHelper.AddDsl("tableNewDslWithPagination");
   });

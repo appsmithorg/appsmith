@@ -3,7 +3,7 @@ const Layoutpage = require("../../../../../locators/Layout.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("File Picker Widget V2 Functionality", function () {
+describe("File Picker Widget V2 Functionality", { tags: [Tag.Widget, Tag.Filepicker] }, function () {
   before(() => {
     _.agHelper.AddDsl("filePickerV2_reset_check_dsl");
   });

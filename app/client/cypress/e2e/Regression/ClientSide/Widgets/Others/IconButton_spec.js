@@ -3,7 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Icon button Widget Functionality", function () {
+describe("Icon button Widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.ICONBUTTON);
   });

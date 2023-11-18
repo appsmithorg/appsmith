@@ -16,7 +16,7 @@ import {
 const pageid = "MyPage";
 let datasourceName;
 
-describe("Entity explorer tests related to query and datasource", function () {
+describe("Entity explorer tests related to query and datasource", { tags: [Tag.IDE] }, function () {
   before(() => {
     cy.generateUUID().then((uid) => {
       datasourceName = uid;

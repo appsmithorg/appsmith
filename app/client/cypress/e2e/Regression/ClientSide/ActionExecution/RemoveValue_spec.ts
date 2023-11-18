@@ -6,7 +6,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("removeValue Action test", () => {
+describe("removeValue Action test", { tags: [Tag.JS] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
     entityExplorer.NavigateToSwitcher("Explorer");

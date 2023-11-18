@@ -9,7 +9,7 @@ import {
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test Create Api and Bind to List widget", function () {
+describe("Test Create Api and Bind to List widget", { tags: [Tag.Binding] }, function () {
   let valueToTest;
   before(() => {
     agHelper.AddDsl("listwidgetdsl");

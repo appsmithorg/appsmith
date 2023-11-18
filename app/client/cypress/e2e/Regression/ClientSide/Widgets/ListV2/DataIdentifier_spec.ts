@@ -30,7 +30,7 @@ const data = [
   },
 ];
 
-describe("List v2 - Data Identifier property", () => {
+describe("List v2 - Data Identifier property", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
     agHelper.Sleep(3000); //for List to load for CI flakyness

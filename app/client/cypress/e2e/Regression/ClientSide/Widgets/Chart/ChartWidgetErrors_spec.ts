@@ -5,7 +5,7 @@ import {
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Chart renders widget errors", () => {
+describe("Chart renders widget errors", { tags: [Tag.Widget] }, () => {
   it("1. If there are syntax errors, the errors are displayed inside the chart widget", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHART);
 

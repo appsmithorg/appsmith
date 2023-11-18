@@ -4,7 +4,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Select widget", () => {
+describe("Select widget", { tags: [Tag.Widget, Tag.Select] }, () => {
   it("1. Drag and drop Select/Text widgets", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });

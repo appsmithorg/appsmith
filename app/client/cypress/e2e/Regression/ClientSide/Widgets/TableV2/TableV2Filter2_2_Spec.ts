@@ -10,7 +10,7 @@ import {
   homePage,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Verify various Table_Filter combinations", function () {
+describe("Verify various Table_Filter combinations", { tags: [Tag.Widget, Tag.Table] }, function () {
   it("1. Verify Full table data - download csv and download Excel", function () {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
     table.AddSampleTableData();

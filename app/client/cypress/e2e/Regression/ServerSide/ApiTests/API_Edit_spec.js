@@ -11,7 +11,7 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("API Panel Test Functionality", function () {
+describe("API Panel Test Functionality", { tags: [Tag.Datasource] }, function () {
   before(() => {
     agHelper.AddDsl("uiBindDsl");
   });

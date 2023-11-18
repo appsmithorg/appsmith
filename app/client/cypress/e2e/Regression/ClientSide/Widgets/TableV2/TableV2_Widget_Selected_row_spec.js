@@ -3,7 +3,7 @@ import {
   entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget v2 property pane feature validation", function () {
+describe("Table Widget v2 property pane feature validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     agHelper.AddDsl("tableV2AndTextDsl");
   });

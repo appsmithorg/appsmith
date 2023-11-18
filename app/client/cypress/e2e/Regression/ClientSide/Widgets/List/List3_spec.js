@@ -1,6 +1,6 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Binding the list widget with text widget", function () {
+describe("Binding the list widget with text widget", { tags: [Tag.Widget, Tag.List] }, function () {
   before(() => {
     _.agHelper.AddDsl("listRegression3Dsl");
   });

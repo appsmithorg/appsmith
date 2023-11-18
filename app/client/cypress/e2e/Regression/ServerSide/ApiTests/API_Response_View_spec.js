@@ -8,7 +8,7 @@ import apiEditor from "../../../../locators/ApiEditor";
 const testUrl1 =
   "http://host.docker.internal:5001/v1/dynamicrecords/getstudents";
 
-describe("Bug 14666: Api Response Test Functionality ", function () {
+describe("Bug 14666: Api Response Test Functionality ", { tags: [Tag.Datasource] }, function () {
   it("1. Test table loading when data is in array format", function () {
     cy.log("Login Successful");
     apiPage.CreateAndFillApi(testUrl1, "TableTestAPI");

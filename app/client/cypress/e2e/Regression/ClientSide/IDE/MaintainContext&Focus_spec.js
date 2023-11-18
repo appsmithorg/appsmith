@@ -14,7 +14,7 @@ import EditorNavigation, {
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
-describe("MaintainContext&Focus", function () {
+describe("MaintainContext&Focus", { tags: [Tag.IDE] }, function () {
   before("Import the test application", () => {
     homePage.CreateNewWorkspace("MaintainContext&Focus", true);
     homePage.ImportApp("ContextSwitching.json");

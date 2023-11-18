@@ -7,7 +7,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Text-Chart Binding Functionality", function () {
+describe("Text-Chart Binding Functionality", { tags: [Tag.Binding] }, function () {
   before(() => {
     agHelper.AddDsl("ChartTextDsl");
   });

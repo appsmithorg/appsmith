@@ -10,7 +10,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
 let locators = ObjectsRegistry.CommonLocators;
 
-describe("JSON Form Widget AutoGenerate Enabled", () => {
+describe("JSON Form Widget AutoGenerate Enabled", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

@@ -4,7 +4,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Entity explorer tests related to widgets and validation", function () {
+describe("Entity explorer tests related to widgets and validation", { tags: [Tag.IDE] }, function () {
   // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
   const WIDGET_TAGS: Record<string, string> = {
     SUGGESTED_WIDGETS: "Suggested",

@@ -13,7 +13,7 @@ import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlag
 
 const ALERT_SUCCESS_MSG = "Table data filtered";
 
-describe("Table widget v2: test server side filtering", function () {
+describe("Table widget v2: test server side filtering", { tags: [Tag.Widget, Tag.Table] }, function () {
   /**
    * Initialization flow:
    * 1. DnD Table widget
@@ -113,7 +113,7 @@ describe("Table widget v2: test server side filtering", function () {
   });
 });
 
-describe("Table v2: Server side filtering hidden behind feature flag", () => {
+describe("Table v2: Server side filtering hidden behind feature flag", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     featureFlagIntercept({ release_table_serverside_filtering_enabled: false });
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 700, 300);

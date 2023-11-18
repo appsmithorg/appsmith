@@ -15,7 +15,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
 let locators = ObjectsRegistry.CommonLocators;
 
-describe("JSONForm Select field - filterText update action trigger ", () => {
+describe("JSONForm Select field - filterText update action trigger ", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

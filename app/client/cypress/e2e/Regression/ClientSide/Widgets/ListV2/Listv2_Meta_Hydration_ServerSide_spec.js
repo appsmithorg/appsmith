@@ -69,7 +69,7 @@ function testJsontextClear(endp) {
     .type(`{${modifierKey}}{del}`, { force: true });
 }
 
-describe("List widget v2 - meta hydration tests", () => {
+describe("List widget v2 - meta hydration tests", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     _.agHelper.AddDsl("Listv2/MetaHydrationDSL");
   });

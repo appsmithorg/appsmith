@@ -9,7 +9,7 @@ import {
 
 const fieldPrefix = ".t--jsonformfield";
 
-describe("Text Field Property Control", () => {
+describe("Text Field Property Control", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

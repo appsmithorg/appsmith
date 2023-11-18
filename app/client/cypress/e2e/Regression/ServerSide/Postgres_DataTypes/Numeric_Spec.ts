@@ -10,7 +10,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Numeric Datatype tests", function () {
+describe("Numeric Datatype tests", { tags: [Tag.Datasource] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS, set Theme", () => {

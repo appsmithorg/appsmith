@@ -9,7 +9,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget and Navigate to functionality validation", function () {
+describe("Table Widget and Navigate to functionality validation", { tags: [Tag.Binding] }, function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

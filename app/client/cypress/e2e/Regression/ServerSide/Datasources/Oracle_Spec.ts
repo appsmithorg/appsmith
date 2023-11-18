@@ -18,7 +18,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Validate Oracle DS", () => {
+describe("Validate Oracle DS", { tags: [Tag.Datasource] }, () => {
   let dataSourceName: string, guid: any, query: string, selectQuery: string;
 
   before("Generate GUID", () => {

@@ -9,7 +9,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 const locators = ObjectsRegistry.CommonLocators;
 
-describe("JSON Form Widget Form Bindings", () => {
+describe("JSON Form Widget Form Bindings", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

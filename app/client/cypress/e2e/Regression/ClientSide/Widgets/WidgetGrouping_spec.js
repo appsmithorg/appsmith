@@ -1,7 +1,7 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Widget Grouping", function () {
+describe("Widget Grouping", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("widgetSelection");
   });

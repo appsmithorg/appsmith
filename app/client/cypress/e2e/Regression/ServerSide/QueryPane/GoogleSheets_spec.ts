@@ -8,9 +8,9 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe(
-  "excludeForAirgap",
+describe(, 
   "Google Sheets datasource row objects placeholder",
+  { tags: [Tag.Datasource, Tag.excludeForAirgap] }
   function () {
     let pluginName = "Google Sheets";
 

@@ -33,7 +33,7 @@ function clearOptionsProperty() {
     });
 }
 
-describe("JSONForm RadioGroup Field", () => {
+describe("JSONForm RadioGroup Field", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

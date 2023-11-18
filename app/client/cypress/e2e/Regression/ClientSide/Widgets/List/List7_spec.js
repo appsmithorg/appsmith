@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Binding the list widget with text widget", function () {
+describe("Binding the list widget with text widget", { tags: [Tag.Widget, Tag.List] }, function () {
   before(() => {
     _.agHelper.AddDsl("ListVulnerabilityDSL");
   });

@@ -5,7 +5,7 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("MultiSelectTree Widget Functionality", function () {
+describe("MultiSelectTree Widget Functionality", { tags: [Tag.Widget, Tag.Multiselect] }, function () {
   before(() => {
     _.agHelper.AddDsl("TreeSelectDsl");
   });

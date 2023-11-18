@@ -6,7 +6,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Phone Input widget Tests", function () {
+describe("Phone Input widget Tests", { tags: [Tag.Widget] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("phoneinputwidget", 550, 100);
   });

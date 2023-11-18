@@ -15,7 +15,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-selected";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
-describe("GSheet-Functional Tests With Selected Access", function () {
+describe("GSheet-Functional Tests With Selected Access", { tags: [Tag.Datasource] }, function () {
   before("Setup app", function () {
     //Setting up app name
     const uuid = Cypress._.random(0, 10000);

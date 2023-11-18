@@ -5,7 +5,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Form Widget Functionality", function () {
+describe("Form Widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("formdsl");
   });

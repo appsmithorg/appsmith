@@ -1,7 +1,7 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
-describe("Arango datasource test cases", function () {
+describe("Arango datasource test cases", { tags: [Tag.Datasource] }, function () {
   it("1. Create, test, save then delete a Arango datasource", function () {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("ArangoDB");

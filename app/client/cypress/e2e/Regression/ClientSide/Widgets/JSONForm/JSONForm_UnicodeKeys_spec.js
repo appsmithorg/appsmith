@@ -9,7 +9,7 @@ const propPane = ObjectsRegistry.PropertyPane;
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = "[data-testid='t--property-pane-back-btn']";
 
-describe("JSON Form Widget Unicode keys", () => {
+describe("JSON Form Widget Unicode keys", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

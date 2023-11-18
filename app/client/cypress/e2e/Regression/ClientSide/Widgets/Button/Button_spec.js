@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const iconAlignmentProperty = ".t--property-control-position";
 
-describe("Button Widget Functionality", function () {
+describe("Button Widget Functionality", { tags: [Tag.Widget, Tag.Button] }, function () {
   before(() => {
     _.agHelper.AddDsl("newFormDsl");
   });

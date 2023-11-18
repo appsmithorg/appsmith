@@ -5,7 +5,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Rich Text Editor widget Tests", function () {
+describe("Rich Text Editor widget Tests", { tags: [Tag.Widget, Tag.RichTextEditor] }, function () {
   before(() => {
     agHelper.AddDsl("richTextEditorDsl");
     entityExplorer.SelectEntityByName("RichTextEditor1", "Widgets");

@@ -10,7 +10,7 @@ import {
 
 const containerShadowElement = `${widgetsPage.containerWidget}`;
 
-describe("App Theming funtionality", function () {
+describe("App Theming funtionality", { tags: [Tag.Theme] }, function () {
   let themesSection = (sectionName, themeName) =>
     "//*[text()='" +
     sectionName +

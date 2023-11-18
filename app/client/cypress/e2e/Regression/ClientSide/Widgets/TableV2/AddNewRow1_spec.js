@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Basic flow ", () => {
+describe("Basic flow ", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     _.agHelper.RestoreLocalStorageCache();
     _.agHelper.AddDsl("Table/InlineEditingDSL");

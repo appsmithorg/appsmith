@@ -9,7 +9,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test Create Api and Bind to Button widget", function () {
+describe("Test Create Api and Bind to Button widget", { tags: [Tag.JS] }, function () {
   before("Test_Add users api and execute api", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     entityExplorer.NavigateToSwitcher("Explorer");

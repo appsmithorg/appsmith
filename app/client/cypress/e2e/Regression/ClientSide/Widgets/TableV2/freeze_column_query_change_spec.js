@@ -10,7 +10,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("1. Check frozen common and/or custom columns retain position on query change", () => {
+describe("1. Check frozen common and/or custom columns retain position on query change", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 600, y: 200 });
     cy.wait(2000);

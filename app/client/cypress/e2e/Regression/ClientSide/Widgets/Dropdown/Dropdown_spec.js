@@ -4,7 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Dropdown Widget Functionality", function () {
+describe("Dropdown Widget Functionality", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

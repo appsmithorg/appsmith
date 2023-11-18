@@ -4,7 +4,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Validate basic binding of Input widget to Input widget", () => {
+describe("Validate basic binding of Input widget to Input widget", { tags: [Tag.Binding] }, () => {
   before(() => {
     agHelper.AddDsl("Select_table_dsl");
   });

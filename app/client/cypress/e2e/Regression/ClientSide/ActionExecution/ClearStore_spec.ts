@@ -6,7 +6,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("clearStore Action test", () => {
+describe("clearStore Action test", { tags: [Tag.JS] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
     entityExplorer.NavigateToSwitcher("Explorer");

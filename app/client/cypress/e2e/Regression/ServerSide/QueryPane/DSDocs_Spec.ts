@@ -10,7 +10,7 @@ import { DataSourceKVP } from "../../../../support/Pages/DataSources";
 
 let dsName: any;
 
-describe("Check datasource doc links", function () {
+describe("Check datasource doc links", { tags: [Tag.Datasource] }, function () {
   it("1. Verify Postgres documentation opens", function () {
     CreateDummyDSNSave(DataSourceKVP["Postgres"]);
     cy.get("@dsName").then(($dsName) => {

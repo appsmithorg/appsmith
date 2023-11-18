@@ -6,7 +6,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Disable JS toggle when Action selector code is not parsable", () => {
+describe("Disable JS toggle when Action selector code is not parsable", { tags: [Tag.JS] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
     entityExplorer.NavigateToSwitcher("Explorer");

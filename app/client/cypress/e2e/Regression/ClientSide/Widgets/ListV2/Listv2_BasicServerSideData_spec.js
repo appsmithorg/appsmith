@@ -10,7 +10,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
-describe("List widget v2 - Basic server side data tests", () => {
+describe("List widget v2 - Basic server side data tests", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     _.agHelper.AddDsl("Listv2/listWithServerSideData");
     // Open Datasource editor

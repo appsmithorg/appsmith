@@ -1,4 +1,4 @@
-describe("List widget v2 Evaluated Popup", () => {
+describe("List widget v2 Evaluated Popup", { tags: [Tag.Widget, Tag.List] }, () => {
   it("1. List widget V2 with currentItem", () => {
     cy.dragAndDropToCanvas("listwidgetv2", {
       x: 300,

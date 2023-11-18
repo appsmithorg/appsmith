@@ -3,7 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const { modifierKey } = require("../../../../../support/Constants");
 
-describe("Menu button Widget Functionality", () => {
+describe("Menu button Widget Functionality", { tags: [Tag.Widget] }, () => {
   before(() => {
     _.agHelper.AddDsl("menuButtonDsl");
   });

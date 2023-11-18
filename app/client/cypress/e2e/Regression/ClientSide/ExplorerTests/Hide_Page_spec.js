@@ -4,7 +4,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 const pageOne = "MyPage1";
 const pageTwo = "MyPage2";
 
-describe("Hide / Show page test functionality", function () {
+describe("Hide / Show page test functionality", { tags: [Tag.IDE] }, function () {
   it("1. Hide/Show page test ", function () {
     cy.Createpage(pageOne);
     cy.Createpage(pageTwo);

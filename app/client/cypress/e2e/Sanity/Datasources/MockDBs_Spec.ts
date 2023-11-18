@@ -14,6 +14,7 @@ import EditorNavigation, {
 describe(
   "excludeForAirgap",
   "Validate Mock Query Active Ds querying & count",
+  { tags: [Tag.Datasource] },
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {
       dataSources.CreateMockDB("Users").then((mockDBName) => {

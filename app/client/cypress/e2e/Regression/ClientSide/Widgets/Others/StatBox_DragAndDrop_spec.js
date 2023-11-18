@@ -4,7 +4,7 @@ import {
   entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Statbox Widget Functionality", function () {
+describe("Statbox Widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     agHelper.AddDsl("dynamicHeightStatboxdsl");
   });

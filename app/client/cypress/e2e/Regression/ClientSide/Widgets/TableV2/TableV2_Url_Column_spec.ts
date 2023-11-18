@@ -4,7 +4,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("16108 - Verify Table URL column bugs", function () {
+describe("16108 - Verify Table URL column bugs", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     agHelper.AddDsl("tableV2WithUrlColumnDsl");
   });

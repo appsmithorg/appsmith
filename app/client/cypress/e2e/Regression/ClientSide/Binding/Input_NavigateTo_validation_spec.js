@@ -11,7 +11,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
+describe("Binding the multiple Widgets and validating NavigateTo Page", { tags: [Tag.Binding] }, function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

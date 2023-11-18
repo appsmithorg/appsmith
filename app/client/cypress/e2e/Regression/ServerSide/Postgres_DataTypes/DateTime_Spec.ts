@@ -11,7 +11,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("DateTime Datatype tests", function () {
+describe("DateTime Datatype tests", { tags: [Tag.Datasource] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {

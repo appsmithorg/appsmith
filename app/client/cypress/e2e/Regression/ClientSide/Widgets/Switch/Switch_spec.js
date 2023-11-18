@@ -4,7 +4,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Switch Widget Functionality", function () {
+describe("Switch Widget Functionality", { tags: [Tag.Widget, Tag.Switch] }, function () {
   before(() => {
     _.agHelper.AddDsl("newFormDsl");
   });

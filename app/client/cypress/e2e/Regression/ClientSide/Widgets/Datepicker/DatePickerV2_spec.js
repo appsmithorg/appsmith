@@ -3,7 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("DatePicker Widget Property pane tests with js bindings", function () {
+describe("DatePicker Widget Property pane tests with js bindings", { tags: [Tag.Widget] }, function () {
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
   });
@@ -189,7 +189,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 });
 
-describe("DatePicker Widget Property tests onFocus and onBlur", function () {
+describe("DatePicker Widget Property tests onFocus and onBlur", { tags: [Tag.Widget] }, function () {
   it("onBlur and onFocus should be triggered from the datePicker widget", () => {
     cy.Createpage("New Page");
     cy.dragAndDropToCanvas("datepickerwidget2", { x: 300, y: 600 });

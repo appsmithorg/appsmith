@@ -32,7 +32,7 @@ const checkFormModalValues = (value) => {
   cy.get(".t--modal-widget").should("not.exist");
 };
 
-describe("JSONForm in Modal", () => {
+describe("JSONForm in Modal", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   it("should show the JSONForm with default values from Table widget", () => {
     const tableData = [
       {

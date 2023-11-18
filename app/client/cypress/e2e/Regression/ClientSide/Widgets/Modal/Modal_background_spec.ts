@@ -4,7 +4,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal Widget background color spec", () => {
+describe("Modal Widget background color spec", { tags: [Tag.Widget, Tag.Modal] }, () => {
   before(() => {
     agHelper.AddDsl("modalWidgetBGcolorDSL");
   });

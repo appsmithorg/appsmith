@@ -3,7 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Input Widget Functionality", function () {
+describe("Input Widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("newFormDsl");
   });

@@ -10,7 +10,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal Widget test cases", function () {
+describe("Modal Widget test cases", { tags: [Tag.Widget, Tag.Modal] }, function () {
   const image = (src: string) => 'img[src="' + src + '"]';
   const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
   const gifImg =

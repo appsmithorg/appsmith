@@ -6,7 +6,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("CUrrency Input widget Tests", function () {
+describe("CUrrency Input widget Tests", { tags: [Tag.Widget, Tag.CurrencyInput] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 550, 100);
   });

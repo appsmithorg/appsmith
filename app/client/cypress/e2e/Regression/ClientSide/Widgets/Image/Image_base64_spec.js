@@ -1,7 +1,7 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Image Widget Functionality with base64", function () {
+describe("Image Widget Functionality with base64", { tags: [Tag.Widget, Tag.Image] }, function () {
   before(() => {
     _.agHelper.AddDsl("base64imagedsl");
   });

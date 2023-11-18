@@ -9,7 +9,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Table Widget V2 property pane feature validation", function () {
+describe("Table Widget V2 property pane feature validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     agHelper.AddDsl("tableV2NewDslWithPagination");
   });

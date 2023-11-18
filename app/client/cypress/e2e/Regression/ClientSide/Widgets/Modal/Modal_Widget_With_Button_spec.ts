@@ -1,6 +1,6 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal Widget with auto-layout usecases", function () {
+describe("Modal Widget with auto-layout usecases", { tags: [Tag.Widget, Tag.Modal] }, function () {
   it("1. Add new Modal widget with other widgets and validate with auto-layout", () => {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MODAL, 300, 300);

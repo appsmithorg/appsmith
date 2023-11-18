@@ -8,7 +8,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { TABLE_DATA_STATIC } from "../../../../../support/Constants";
 
-describe("Table widget v2", function () {
+describe("Table widget v2", { tags: [Tag.Widget, Tag.Table] }, function () {
   it("1. Bug id #24005: should test that header menu should be hidden when sorting and freezing is disabled", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 500, 300);
     propPane.EnterJSContext("Table data", TABLE_DATA_STATIC);

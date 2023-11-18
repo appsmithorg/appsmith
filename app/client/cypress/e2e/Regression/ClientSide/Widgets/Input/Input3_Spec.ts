@@ -8,7 +8,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("InputV2 widget tests - continuation", function () {
+describe("InputV2 widget tests - continuation", { tags: [Tag.Widget] }, function () {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2);
   });

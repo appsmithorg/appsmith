@@ -49,7 +49,7 @@ function setUpDataSource() {
   agHelper.Sleep(200);
 }
 
-describe("List widget v2 defaultSelectedItem", () => {
+describe("List widget v2 defaultSelectedItem", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     agHelper.AddDsl("Listv2/ListV2_Reset_dsl");
   });
@@ -157,7 +157,7 @@ describe("List widget v2 defaultSelectedItem", () => {
   });
 });
 
-describe("List widget v2 Reset List widget and Refresh Data", () => {
+describe("List widget v2 Reset List widget and Refresh Data", { tags: [Tag.Widget, Tag.List] }, () => {
   it("1. Setup List Widget", () => {
     entityExplorer.SelectEntityByName("List1");
     propPane.UpdatePropertyFieldValue(

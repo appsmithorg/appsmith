@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Validation flow", () => {
+describe("Validation flow", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     cy.startServerAndRoutes();
     _.agHelper.RestoreLocalStorageCache();

@@ -11,7 +11,7 @@ import {
 } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("MultiSelect Widget Functionality", function () {
+describe("MultiSelect Widget Functionality", { tags: [Tag.Widget, Tag.Multiselect] }, function () {
   before(() => {
     _.agHelper.AddDsl("multiSelectDsl");
   });

@@ -11,7 +11,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 let dsName: any, newCallsign: any;
 
-describe("Validate Postgres Generate CRUD with JSON Form", () => {
+describe("Validate Postgres Generate CRUD with JSON Form", { tags: [Tag.GenerateCRUD] }, () => {
   before("Create DS for generate CRUD template test", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

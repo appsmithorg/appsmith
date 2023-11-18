@@ -1,6 +1,6 @@
 import { apiPage, dataManager } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validate API URL Evaluated value", () => {
+describe("Validate API URL Evaluated value", { tags: [Tag.Datasource] }, () => {
   it("1. Check if url object does not crash App", () => {
     apiPage.CreateApi("FirstAPI");
     apiPage.EnterURL(`{{{"key": "value"}}}`, `{"key":"value"}`);

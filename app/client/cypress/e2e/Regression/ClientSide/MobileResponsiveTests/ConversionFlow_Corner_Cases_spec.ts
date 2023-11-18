@@ -8,7 +8,7 @@ import {
 import template from "../../../../locators/TemplatesLocators.json";
 import widgetLocators from "../../../../locators/Widgets.json";
 
-describe("Handle Cases while conversion", () => {
+describe("Handle Cases while conversion", { tags: [Tag.MobileResponsive] }, () => {
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.CONTAINER, 100, 200);
 

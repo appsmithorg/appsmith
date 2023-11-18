@@ -11,7 +11,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Button Widget Functionality", function () {
+describe("Button Widget Functionality", { tags: [Tag.Widget, Tag.Button] }, function () {
   before(() => {
     agHelper.AddDsl("newFormDsl");
   });

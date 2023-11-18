@@ -14,7 +14,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Json & JsonB Datatype tests", function () {
+describe("Json & JsonB Datatype tests", { tags: [Tag.Datasource] }, function () {
   let dsName: any, query: string;
 
   before("Importing App & setting theme", () => {

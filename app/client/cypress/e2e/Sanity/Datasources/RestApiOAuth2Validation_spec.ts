@@ -8,7 +8,7 @@ import {
   dataManager,
 } from "../../../support/Objects/ObjectsCore";
 
-describe("Datasource form OAuth2 client credentials related tests", function () {
+describe("Datasource form OAuth2 client credentials related tests", { tags: [Tag.Datasource] }, function () {
   let clientId, clientSecret;
 
   it("1. Create an API with app url and save as Datasource for Authorization code details test", function () {

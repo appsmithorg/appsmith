@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 const oneClickBinding = new OneClickBinding();
 
-describe("Table widget one click binding feature", () => {
+describe("Table widget one click binding feature", { tags: [Tag.Binding] }, () => {
   it("should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);
 

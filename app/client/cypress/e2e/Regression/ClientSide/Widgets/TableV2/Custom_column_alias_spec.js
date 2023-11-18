@@ -12,7 +12,7 @@ const data = [
   },
 ];
 
-describe("Custom column alias functionality", () => {
+describe("Custom column alias functionality", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     _.agHelper.AddDsl("tableV2NewDsl");
   });

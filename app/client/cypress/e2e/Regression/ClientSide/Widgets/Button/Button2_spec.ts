@@ -14,7 +14,7 @@ import {
 
 import clocators from "../../../../../locators/commonlocators.json";
 
-describe("Button widget testcases", () => {
+describe("Button widget testcases", { tags: [Tag.Widget, Tag.Button] }, () => {
   before(() => {
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,

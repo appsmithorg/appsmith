@@ -15,7 +15,7 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validate MySQL Generate CRUD with JSON Form", () => {
+describe("Validate MySQL Generate CRUD with JSON Form", { tags: [Tag.GenerateCRUD] }, () => {
   // beforeEach(function() {
   //   if (INTERCEPT.MYSQL) {
   //     cy.log("MySQL DB is not found. Using intercept");

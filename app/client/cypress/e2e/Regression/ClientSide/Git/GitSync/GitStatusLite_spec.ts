@@ -5,7 +5,7 @@ let wsName: string;
 let appName: string;
 let repoName: any;
 
-describe("Git Connect V2", function () {
+describe("Git Connect V2", { tags: [Tag.Git] }, function () {
   before(() => {
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

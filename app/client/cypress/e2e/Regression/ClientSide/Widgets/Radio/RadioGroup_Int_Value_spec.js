@@ -10,7 +10,7 @@ function checkSelectedRadioValue(selector, value) {
   cy.get(`${selector} input:checked`).should("have.value", value);
 }
 
-describe("RadioGroup widget testing", function () {
+describe("RadioGroup widget testing", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("radioGroup_int_value_dsl");
   });

@@ -5,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
-describe("Binding the multiple widgets and validating default data", function () {
+describe("Binding the multiple widgets and validating default data", { tags: [Tag.Binding] }, function () {
   before(() => {
     _.agHelper.AddDsl("rundsl");
   });

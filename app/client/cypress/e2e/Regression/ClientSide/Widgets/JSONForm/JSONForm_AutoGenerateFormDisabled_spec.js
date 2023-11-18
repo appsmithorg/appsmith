@@ -7,7 +7,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("JSON Form Widget AutoGenerate Disabled", () => {
+describe("JSON Form Widget AutoGenerate Disabled", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   before(() => {
     agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");
   });

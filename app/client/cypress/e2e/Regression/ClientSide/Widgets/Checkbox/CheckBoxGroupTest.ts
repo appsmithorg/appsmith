@@ -8,7 +8,7 @@ import {
   entityItems,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Checkbox Tests", function () {
+describe("Checkbox Tests", { tags: [Tag.Widget] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("checkboxgroupwidget", 550, 100);
   });

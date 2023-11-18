@@ -7,7 +7,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Video Widget Functionality", function () {
+describe("Video Widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
   });

@@ -16,7 +16,7 @@ let dsName: any,
   newCityPath: any,
   createCity: any,
   cityName = "LA_";
-describe("Validate Firestore DS", () => {
+describe("Validate Firestore DS", { tags: [Tag.Datasource] }, () => {
   before("Generate GUID for new Firestore DS", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

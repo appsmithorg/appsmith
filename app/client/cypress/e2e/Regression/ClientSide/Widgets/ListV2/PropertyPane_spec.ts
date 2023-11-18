@@ -7,7 +7,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("List widget V2 PropertyPane", () => {
+describe("List widget V2 PropertyPane", { tags: [Tag.Widget, Tag.List] }, () => {
   it("1. Validate isVisible", () => {
     entityExplorer.DragDropWidgetNVerify("listwidgetv2", 300, 300);
     propPane.TogglePropertyState("Visible", "Off");

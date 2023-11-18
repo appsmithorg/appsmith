@@ -24,7 +24,7 @@ const simpleListData1 = [
   },
 ];
 
-describe("List widget v2 - Basic client side data tests", () => {
+describe("List widget v2 - Basic client side data tests", { tags: [Tag.Widget, Tag.List] }, () => {
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
   });

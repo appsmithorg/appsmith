@@ -4,7 +4,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Property Pane Search", function () {
+describe("Property Pane Search", { tags: [Tag.IDE] }, function () {
   before(() => {
     agHelper.AddDsl("swtchTableV2Dsl");
   });

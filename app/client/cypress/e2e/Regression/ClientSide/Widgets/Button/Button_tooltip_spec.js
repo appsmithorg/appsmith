@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Button Widget Functionality - Validate tooltip visibility", function () {
+describe("Button Widget Functionality - Validate tooltip visibility", { tags: [Tag.Widget, Tag.Button] }, function () {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 300, 300);
   });

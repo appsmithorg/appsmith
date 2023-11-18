@@ -1,7 +1,7 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
 import { dataSources } from "../../../support/Objects/ObjectsCore";
 
-describe("MySQL datasource test cases", function () {
+describe("MySQL datasource test cases", { tags: [Tag.Datasource] }, function () {
   let datasourceName;
   it("1. Create, test, save then delete a MySQL datasource", function () {
     cy.NavigateToDatasourceEditor();

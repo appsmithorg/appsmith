@@ -8,7 +8,7 @@ import {
   dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Statbox Widget", function () {
+describe("Statbox Widget", { tags: [Tag.Widget] }, function () {
   before(() => {
     agHelper.AddDsl("StatboxDsl");
   });

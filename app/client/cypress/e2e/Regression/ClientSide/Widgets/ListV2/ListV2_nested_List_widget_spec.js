@@ -19,7 +19,7 @@ function checkAutosuggestion(label, type) {
       expect(afterContent).eq(`"${type}"`);
     });
 }
-describe(" Nested List Widgets ", function () {
+describe(" Nested List Widgets ", { tags: [Tag.Widget, Tag.List] }, function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();

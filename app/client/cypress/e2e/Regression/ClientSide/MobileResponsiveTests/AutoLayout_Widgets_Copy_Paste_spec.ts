@@ -5,7 +5,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Copy paste widget related tests for Auto layout", () => {
+describe("Copy paste widget related tests for Auto layout", { tags: [Tag.MobileResponsive] }, () => {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {

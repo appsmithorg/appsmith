@@ -7,7 +7,7 @@ import {
   dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Multi Select widget Tests", function () {
+describe("Multi Select widget Tests", { tags: [Tag.Widget, Tag.Multiselect] }, function () {
   before(() => {
     agHelper.AddDsl("multiTreeSelectDsl");
   });

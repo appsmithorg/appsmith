@@ -6,7 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "filepickerwidgetv2";
 
-describe("File picker widget v2", () => {
+describe("File picker widget v2", { tags: [Tag.Widget, Tag.Filepicker] }, () => {
   it("1. Drag & drop FilePicker/Text widgets", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });

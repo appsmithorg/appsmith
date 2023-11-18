@@ -13,7 +13,7 @@ function updateCellValue(value) {
   _.agHelper.Sleep(500);
 }
 
-describe("Currency column", () => {
+describe("Currency column", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 300, 400);
     _.propPane.UpdatePropertyFieldValue(

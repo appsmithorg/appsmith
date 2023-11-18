@@ -20,7 +20,7 @@ const jpgImage =
 const pdf =
   "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf";
 
-describe("DocumentViewer Widget Functionality", () => {
+describe("DocumentViewer Widget Functionality", { tags: [Tag.Widget] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("filepickerwidgetv2", 400, 900);
     entityExplorer.DragDropWidgetNVerify("documentviewerwidget", 300, 300);

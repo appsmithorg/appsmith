@@ -9,7 +9,7 @@ let ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
   homePage = ObjectsRegistry.HomePage;
 
-describe("Entity explorer API pane related testcases", function () {
+describe("Entity explorer API pane related testcases", { tags: [Tag.IDE] }, function () {
   it("1. Empty Message validation for Widgets/API/Queries", function () {
     homePage.CreateNewWorkspace("EmptyMsgCheck", true);
     homePage.CreateAppInWorkspace("EmptyMsgCheck");

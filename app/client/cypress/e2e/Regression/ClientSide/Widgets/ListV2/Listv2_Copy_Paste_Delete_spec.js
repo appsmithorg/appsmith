@@ -2,7 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-describe("List widget v2 Copy and Paste", () => {
+describe("List widget v2 Copy and Paste", { tags: [Tag.Widget, Tag.List] }, () => {
   it("1. Validate Copy paste action", () => {
     cy.dragAndDropToCanvas("listwidgetv2", {
       x: 300,

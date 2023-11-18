@@ -6,7 +6,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Select Widget Functionality", function () {
+describe("Select Widget Functionality", { tags: [Tag.Widget, Tag.Select] }, function () {
   it("Validate select widget data - source data , label key , value key, default selected value ", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {

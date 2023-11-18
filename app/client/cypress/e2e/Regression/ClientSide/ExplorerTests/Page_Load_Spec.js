@@ -5,7 +5,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Page Load tests", () => {
+describe("Page Load tests", { tags: [Tag.IDE] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

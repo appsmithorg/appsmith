@@ -4,7 +4,7 @@ import { dataSources } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
-describe("Add widget - Postgress DataSource", function () {
+describe("Add widget - Postgress DataSource", { tags: [Tag.Datasource] }, function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();

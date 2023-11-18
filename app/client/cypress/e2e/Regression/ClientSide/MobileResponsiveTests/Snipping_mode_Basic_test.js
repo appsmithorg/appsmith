@@ -6,7 +6,7 @@ import EditorNavigation, {
 
 let datasourceName;
 
-describe("Add widget - Postgress DataSource", function () {
+describe("Add widget - Postgress DataSource", { tags: [Tag.MobileResponsive] }, function () {
   beforeEach(() => {
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

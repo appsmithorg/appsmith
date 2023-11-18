@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
-describe("Table Widget property pane feature validation", function () {
+describe("Table Widget property pane feature validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     agHelper.AddDsl("tableNewDsl");
   });

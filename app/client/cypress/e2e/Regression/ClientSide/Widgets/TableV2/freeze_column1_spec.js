@@ -7,7 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Column freeze & unfreeze in canavs mode", () => {
+describe("Column freeze & unfreeze in canavs mode", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });
     _.table.AddSampleTableData();
@@ -31,7 +31,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
       }
     });
   });
-  describe("1.1 Column freeze and unfreeze testing via propertypane", () => {
+  describe("1.1 Column freeze and unfreeze testing via propertypane", { tags: [Tag.Widget, Tag.Table] }, () => {
     it("1.1.1 Freeze column to left", () => {
       cy.openPropertyPane(_.draggableWidgets.TABLE);
       cy.openFieldConfiguration("step");
@@ -103,7 +103,7 @@ describe("Column freeze & unfreeze in canavs mode", () => {
     });
   });
 
-  describe("1.2 Column freeze and unfreeze testing via dropdown", () => {
+  describe("1.2 Column freeze and unfreeze testing via dropdown", { tags: [Tag.Widget, Tag.Table] }, () => {
     it("1.2.1 Check if column freeze for user mode is enabled", () => {
       cy.openPropertyPane(_.draggableWidgets.TABLE);
 

@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Widget Grouping", function () {
+describe("Widget Grouping", { tags: [Tag.Binding] }, function () {
   before(() => {
     _.agHelper.AddDsl("buttonGroupDsl");
   });

@@ -9,7 +9,7 @@ import {
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test Create Api and Bind to Table widget", function () {
+describe("Test Create Api and Bind to Table widget", { tags: [Tag.Binding] }, function () {
   before(() => {
     agHelper.AddDsl("tableV2TextPaginationDsl");
   });

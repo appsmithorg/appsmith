@@ -2,7 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table widget inline editing validation functionality", () => {
+describe("Table widget inline editing validation functionality", { tags: [Tag.Widget, Tag.Table] }, () => {
   afterEach(() => {
     _.agHelper.SaveLocalStorageCache();
   });
@@ -70,7 +70,7 @@ describe("Table widget inline editing validation functionality", () => {
     );
   });
 
-  describe("5. should check validation property for plain text column", () => {
+  describe("5. should check validation property for plain text column", { tags: [Tag.Widget, Tag.Table] }, () => {
     it("a. Regex", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
@@ -116,7 +116,7 @@ describe("Table widget inline editing validation functionality", () => {
     });
   });
 
-  describe("6. should check validation property for number column", () => {
+  describe("6. should check validation property for number column", { tags: [Tag.Widget, Tag.Table] }, () => {
     it("a. Min", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
@@ -188,7 +188,7 @@ describe("Table widget inline editing validation functionality", () => {
     );
   });
 
-  describe("8. should check the editable cell actions when there is a validation error", () => {
+  describe("8. should check the editable cell actions when there is a validation error", { tags: [Tag.Widget, Tag.Table] }, () => {
     it("a. save should only work when there is no error", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");

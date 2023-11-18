@@ -4,7 +4,7 @@ import { dataSources } from "../../../support/Objects/ObjectsCore";
 
 let elasticSearchName;
 
-describe("Elastic search datasource tests", function () {
+describe("Elastic search datasource tests", { tags: [Tag.Datasource] }, function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });

@@ -10,7 +10,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
-describe("Validate MySQL query UI flows - Bug 14054", () => {
+describe("Validate MySQL query UI flows - Bug 14054", { tags: [Tag.Datasource] }, () => {
   let dsName: any;
 
   before("Create a new MySQL DS", () => {

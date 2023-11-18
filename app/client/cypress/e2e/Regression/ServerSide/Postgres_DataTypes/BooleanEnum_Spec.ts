@@ -11,7 +11,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Boolean & Enum Datatype tests", function () {
+describe("Boolean & Enum Datatype tests", { tags: [Tag.Datasource] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS, Add dsl, Appply theme", () => {

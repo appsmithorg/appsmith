@@ -6,7 +6,7 @@ import {
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
+describe("Test API execution with dynamic binding in URL - Bug #24218", { tags: [Tag.Datasource] }, () => {
   it("1. Test API execution with dynamic binding in URL", () => {
     // Create JS Object to set Appsmith store variable to mockApiUrl
     jsEditor.CreateJSObject(

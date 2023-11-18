@@ -9,7 +9,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 const dsl = require("../../../../../fixtures/listdsl.json");
 
-describe("List Widget Functionality", function () {
+describe("List Widget Functionality", { tags: [Tag.Widget, Tag.List] }, function () {
   const items = JSON.parse(dsl.dsl.children[0].listData);
 
   before(() => {

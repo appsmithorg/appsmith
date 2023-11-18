@@ -1,9 +1,9 @@
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe(
-  "excludeForAirgap",
+describe(, 
   "Binding the Button widget with Text widget using Recpatcha v3",
+  { tags: [Tag.Binding, Tag.excludeForAirgap] }
   function () {
     before(() => {
       _.agHelper.AddDsl("buttonRecaptchaDsl");

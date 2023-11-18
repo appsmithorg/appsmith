@@ -4,7 +4,7 @@ import EditorNavigation, {
 } from "../../../support/Pages/EditorNavigation";
 
 let dsName;
-describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
+describe("excludeForAirgap", "Validate Datasource Panel Styles", { tags: [Tag.Datasource] }, function () {
   const backgroundColorGray700 = "rgb(76, 86, 100)";
   const backgroundColorGray1 = "rgb(241, 245, 249)";
   const backgroundColorGray2 = "rgba(0, 0, 0, 0)";

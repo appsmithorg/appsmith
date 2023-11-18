@@ -14,7 +14,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 let jsName: any, dsName: any;
 
-describe("Bug #10784 - Passing params from JS to SQL query should not break", () => {
+describe("Bug #10784 - Passing params from JS to SQL query should not break", { tags: [Tag.JS] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 500, 100);

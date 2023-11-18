@@ -8,7 +8,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("List v2 - Data Identifier property", () => {
+describe("List v2 - Data Identifier property", { tags: [Tag.Widget, Tag.List] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

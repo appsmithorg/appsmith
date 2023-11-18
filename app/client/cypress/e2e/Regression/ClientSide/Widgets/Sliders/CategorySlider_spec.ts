@@ -10,7 +10,7 @@ import {
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Category Slider spec", () => {
+describe("Category Slider spec", { tags: [Tag.Widget, Tag.Slider] }, () => {
   const options = `[
     {
       "label": "xs",

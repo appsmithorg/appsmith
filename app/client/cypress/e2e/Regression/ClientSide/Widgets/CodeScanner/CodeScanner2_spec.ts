@@ -9,7 +9,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Code scanner widget tests", () => {
+describe("Code scanner widget tests", { tags: [Tag.Widget] }, () => {
   before(() => {
     //Reset video source to default
     cy.task("resetVideoSource");

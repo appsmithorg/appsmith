@@ -9,7 +9,7 @@ import {
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Radio Widget Functionality", function () {
+describe("Radio Widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     agHelper.AddDsl("newFormDsl");
   });

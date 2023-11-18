@@ -9,7 +9,7 @@ import {
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Tree Select widget Tests", function () {
+describe("Tree Select widget Tests", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("formwidget", 500, 100);
     entityExplorer.DragDropWidgetNVerify("singleselecttreewidget", 350, 300);

@@ -5,7 +5,7 @@ const themelocators = require("../../../../../locators/ThemeLocators.json");
 const widgetName = "currencyinputwidget";
 const widgetInput = `.t--widget-${widgetName} input`;
 
-describe("Currency widget - ", () => {
+describe("Currency widget - ", { tags: [Tag.Widget, Tag.CurrencyInput] }, () => {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

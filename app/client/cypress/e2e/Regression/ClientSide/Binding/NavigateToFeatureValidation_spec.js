@@ -8,7 +8,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget with Input Widget and Navigate to functionality validation", function () {
+describe("Table Widget with Input Widget and Navigate to functionality validation", { tags: [Tag.Binding] }, function () {
   before(() => {
     agHelper.AddDsl("navigateTotabledsl");
   });

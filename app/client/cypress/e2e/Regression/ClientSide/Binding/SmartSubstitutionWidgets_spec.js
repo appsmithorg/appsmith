@@ -8,7 +8,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Text-Table Binding Functionality", function () {
+describe("Text-Table Binding Functionality", { tags: [Tag.Binding] }, function () {
   const updateData = `[
   {
     "x": "Product1",

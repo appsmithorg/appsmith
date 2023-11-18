@@ -36,7 +36,7 @@ function validateToastDoestExist() {
   cy.get(commonlocators.toastmsg, { timeout: 100 }).should("not.exist");
 }
 
-describe("List widget v2 onItemClick", () => {
+describe("List widget v2 onItemClick", { tags: [Tag.Widget, Tag.List] }, () => {
   it("1. List widget V2 with onItemClick", () => {
     cy.dragAndDropToCanvas("listwidgetv2", {
       x: 300,

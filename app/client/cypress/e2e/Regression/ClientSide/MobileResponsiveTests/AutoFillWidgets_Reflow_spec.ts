@@ -6,7 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import HomePage from "../../../../locators/HomePage";
 
-describe("Copy paste widget related tests for Auto layout", () => {
+describe("Copy paste widget related tests for Auto layout", { tags: [Tag.MobileResponsive] }, () => {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
     agHelper.Sleep(2000);

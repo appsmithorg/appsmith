@@ -17,7 +17,7 @@ import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spe
 
 const oneClickBinding = new OneClickBinding();
 
-describe("Validate MsSQL connection & basic querying with UI flows", () => {
+describe("Validate MsSQL connection & basic querying with UI flows", { tags: [Tag.Datasource] }, () => {
   let dsName: any,
     query: string,
     containerName = "mssqldb";

@@ -16,7 +16,7 @@ const firstButton = ".t--buttongroup-widget > div > button > div";
 const menuButton =
   ".t--buttongroup-widget .bp3-popover2-target > div > button > div";
 
-describe("Button Group Widget Functionality", function () {
+describe("Button Group Widget Functionality", { tags: [Tag.Widget, Tag.Button] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON_GROUP);
     agHelper

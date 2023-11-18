@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Test Create Api and Bind to Table widget", function () {
+describe("Test Create Api and Bind to Table widget", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableTextPaginationDsl");
   });

@@ -10,7 +10,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Test Top + Stacked navigation style", function () {
+describe("Test Top + Stacked navigation style", { tags: [Tag.IDE] }, function () {
   before(() => {
     // Import an application
     homePage.NavigateToHome();

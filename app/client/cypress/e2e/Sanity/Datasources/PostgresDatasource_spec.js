@@ -2,7 +2,7 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 import { dataSources } from "../../../support/Objects/ObjectsCore";
 let datasourceName;
 
-describe("Postgres datasource test cases", function () {
+describe("Postgres datasource test cases", { tags: [Tag.Datasource] }, function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });

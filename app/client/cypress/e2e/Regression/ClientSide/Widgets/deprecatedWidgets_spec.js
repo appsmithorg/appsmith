@@ -1,7 +1,7 @@
 const dsl = require("../../../../fixtures/deprecatedWidgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Deprecation warning feature", function () {
+describe("Deprecation warning feature", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("deprecatedWidgets");
   });

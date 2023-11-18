@@ -3,7 +3,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Tab widget test", function () {
+describe("Tab widget test", { tags: [Tag.Widget, Tag.Tab] }, function () {
   before(() => {
     _.agHelper.AddDsl("tabsWithWidgetDsl");
   });

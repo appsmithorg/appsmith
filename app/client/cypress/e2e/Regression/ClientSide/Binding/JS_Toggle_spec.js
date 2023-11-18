@@ -3,7 +3,7 @@ import {
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("JS Toggle tests", () => {
+describe("JS Toggle tests", { tags: [Tag.Binding] }, () => {
   before(() => {
     agHelper.AddDsl("Js_toggle_dsl");
   });

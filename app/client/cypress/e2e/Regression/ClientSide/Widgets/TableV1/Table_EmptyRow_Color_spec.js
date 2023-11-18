@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Table Widget empty row color validation", function () {
+describe("Table Widget empty row color validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableNewDsl");
   });

@@ -7,7 +7,7 @@ import {
 
 const widgetName = "phoneinputwidget";
 
-describe("Phone input widget - ", () => {
+describe("Phone input widget - ", { tags: [Tag.Widget] }, () => {
   before(() => {
     agHelper.AddDsl("PhoneInputDynamic");
   });

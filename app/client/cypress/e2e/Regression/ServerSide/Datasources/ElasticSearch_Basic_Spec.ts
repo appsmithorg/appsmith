@@ -5,7 +5,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validate Elasticsearch DS", () => {
+describe("Validate Elasticsearch DS", { tags: [Tag.Datasource] }, () => {
   let dsName: any,
     books: any,
     containerName = "elasticsearch";

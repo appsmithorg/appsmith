@@ -4,7 +4,7 @@ import {
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget condtional formatting to remain consistent", function () {
+describe("Table Widget condtional formatting to remain consistent", { tags: [Tag.Binding] }, function () {
   before(() => {
     agHelper.AddDsl("tableWidgetCondnFormatDsl");
   });

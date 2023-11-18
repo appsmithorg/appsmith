@@ -11,7 +11,7 @@ const {
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 const fieldPrefix = ".t--jsonformfield";
 
-describe("JSON Form Widget Field Change", () => {
+describe("JSON Form Widget Field Change", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   before(() => {
     cy.addDsl(dslWithSchema);
   });

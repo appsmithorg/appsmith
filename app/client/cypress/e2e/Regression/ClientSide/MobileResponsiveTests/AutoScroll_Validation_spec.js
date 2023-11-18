@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 let theight;
 let twidth;
 
-describe("Validating Mobile View related usecases for Autoscroll", function () {
+describe("Validating Mobile View related usecases for Autoscroll", { tags: [Tag.MobileResponsive] }, function () {
   it("1. Capture the height/width of autofill widgets in webview", function () {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
 

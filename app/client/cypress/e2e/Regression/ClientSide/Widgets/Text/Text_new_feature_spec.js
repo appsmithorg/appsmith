@@ -6,7 +6,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Text Widget color/font/alignment Functionality", function () {
+describe("Text Widget color/font/alignment Functionality", { tags: [Tag.Widget, Tag.Text] }, function () {
   before(() => {
     agHelper.AddDsl("textDsl");
   });

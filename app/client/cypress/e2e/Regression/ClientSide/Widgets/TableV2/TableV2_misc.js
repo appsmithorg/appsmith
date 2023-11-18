@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { DEFAULT_COLUMN_NAME } from "../../../../../support/Constants";
 
-describe("tests bug 20663 TypeError: Cannot read properties of undefined", function () {
+describe("tests bug 20663 TypeError: Cannot read properties of undefined", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableV2NewDsl");
   });

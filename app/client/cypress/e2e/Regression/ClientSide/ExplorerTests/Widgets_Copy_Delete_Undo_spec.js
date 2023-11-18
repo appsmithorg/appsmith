@@ -10,7 +10,7 @@ before(() => {
   agHelper.AddDsl("formWidgetdsl");
 });
 
-describe("Test Suite to validate copy/delete/undo functionalites", function () {
+describe("Test Suite to validate copy/delete/undo functionalites", { tags: [Tag.IDE] }, function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   it("1. Drag and drop form widget and validate copy widget via toast message", function () {

@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
-describe("Table Widget V2 Sorting", function () {
+describe("Table Widget V2 Sorting", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableV2NewDslWithPagination");
   });

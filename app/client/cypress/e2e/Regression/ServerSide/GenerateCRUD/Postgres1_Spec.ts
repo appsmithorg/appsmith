@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 let dsName: any;
 
-describe("Postgres Generate CRUD with JSON Form", () => {
+describe("Postgres Generate CRUD with JSON Form", { tags: [Tag.GenerateCRUD] }, () => {
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {

@@ -8,7 +8,7 @@ import {
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Icon Button widget Tests", function () {
+describe("Icon Button widget Tests", { tags: [Tag.Widget] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.ICONBUTTON);
     entityExplorer.DragDropWidgetNVerify(

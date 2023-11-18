@@ -2,7 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("RichTextEditor Widget Validation", function () {
+describe("RichTextEditor Widget Validation", { tags: [Tag.Widget, Tag.RichTextEditor] }, function () {
   before(() => {
     _.agHelper.AddDsl("formdsl1");
   });

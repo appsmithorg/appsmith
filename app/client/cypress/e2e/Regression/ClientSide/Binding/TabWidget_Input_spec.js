@@ -2,7 +2,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the input Widget with tab Widget", function () {
+describe("Binding the input Widget with tab Widget", { tags: [Tag.Binding] }, function () {
   before(() => {
     _.agHelper.AddDsl("tabInputDsl");
   });

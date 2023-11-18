@@ -11,7 +11,7 @@ const data = [
   },
 ];
 
-describe("Non ASCII character functionality", () => {
+describe("Non ASCII character functionality", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     _.agHelper.AddDsl("tableV2NewDsl");
   });

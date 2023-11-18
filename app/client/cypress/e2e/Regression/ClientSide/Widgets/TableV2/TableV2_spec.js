@@ -3,7 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget V2 Functionality", function () {
+describe("Table Widget V2 Functionality", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableV2WidgetDsl");
   });

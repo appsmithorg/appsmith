@@ -16,7 +16,7 @@ import EditorNavigation, {
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 let dsName: any;
 
-describe("Validate MySQL Generate CRUD with JSON Form", () => {
+describe("Validate MySQL Generate CRUD with JSON Form", { tags: [Tag.GenerateCRUD] }, () => {
   before(() => {
     featureFlagIntercept({
       ab_gsheet_schema_enabled: true,

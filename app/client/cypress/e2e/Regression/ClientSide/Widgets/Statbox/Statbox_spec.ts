@@ -10,7 +10,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Statbox spec", () => {
+describe("Statbox spec", { tags: [Tag.Widget, Tag.Statbox] }, () => {
   before(() => {
     /**
      * On the canvas we have a Statbox Widget

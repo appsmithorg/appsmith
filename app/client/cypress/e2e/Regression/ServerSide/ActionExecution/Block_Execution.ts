@@ -5,7 +5,7 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Block Action Execution when no field is present", () => {
+describe("Block Action Execution when no field is present", { tags: [Tag.Datasource] }, () => {
   const url = "https://www.google.com";
   it("1. Ensure API Run button is disabled when no url is present", () => {
     apiPage.CreateApi("FirstAPI", "GET");

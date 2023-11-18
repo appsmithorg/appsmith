@@ -6,7 +6,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Verify file picker widget", () => {
+describe("Verify file picker widget", { tags: [Tag.Widget, Tag.Filepicker] }, () => {
   before(() => {
     agHelper.AddDsl("filepickerDsl");
   });

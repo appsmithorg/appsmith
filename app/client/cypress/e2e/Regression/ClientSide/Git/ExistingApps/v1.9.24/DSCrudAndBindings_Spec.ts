@@ -13,7 +13,7 @@ import {
   table,
 } from "../../../../../../support/Objects/ObjectsCore";
 
-describe("Import and validate older app (app created in older versions of Appsmith) from Gitea", function () {
+describe("Import and validate older app (app created in older versions of Appsmith) from Gitea", { tags: [Tag.Git] }, function () {
   let appRepoName = "TestMigration",
     appName = "UpgradeAppToLatestVersion",
     keyId: any,

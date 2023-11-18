@@ -4,7 +4,7 @@ import {
   ROW_GAP,
 } from "../../../../../src/layoutSystems/common/utils/constants";
 
-describe("Validating use cases for Auto Dimension", () => {
+describe("Validating use cases for Auto Dimension", { tags: [Tag.MobileResponsive] }, () => {
   before(() => {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     _.entityExplorer.DragDropWidgetNVerify(

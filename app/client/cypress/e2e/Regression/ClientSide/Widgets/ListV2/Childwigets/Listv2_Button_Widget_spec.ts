@@ -1,6 +1,6 @@
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
-describe("List v2- Tabs Widget", () => {
+describe("List v2- Tabs Widget", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     _.agHelper.AddDsl("Listv2/simpleListWithInputAndButton");
   });

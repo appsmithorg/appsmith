@@ -12,7 +12,7 @@ let repoName;
 let generatedKey;
 let windowOpenSpy;
 const owner = Cypress.env("TEST_GITHUB_USER_NAME");
-describe("Git sync modal: connect tab", function () {
+describe("Git sync modal: connect tab", { tags: [Tag.Git] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();

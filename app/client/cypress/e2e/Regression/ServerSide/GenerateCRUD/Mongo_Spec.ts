@@ -12,7 +12,7 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validate Mongo CRUD with JSON Form", () => {
+describe("Validate Mongo CRUD with JSON Form", { tags: [Tag.GenerateCRUD] }, () => {
   let dsName: any;
 
   beforeEach(function () {

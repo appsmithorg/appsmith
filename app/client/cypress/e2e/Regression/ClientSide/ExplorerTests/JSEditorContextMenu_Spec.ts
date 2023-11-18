@@ -4,7 +4,7 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validate basic operations on Entity explorer JSEditor structure", () => {
+describe("Validate basic operations on Entity explorer JSEditor structure", { tags: [Tag.IDE] }, () => {
   const pageId = "Page1";
 
   it("1. Validate JSObject creation & Run", () => {

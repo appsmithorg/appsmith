@@ -10,7 +10,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Rating widet testcases", () => {
+describe("Rating widet testcases", { tags: [Tag.Widget] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.RATING);
   });

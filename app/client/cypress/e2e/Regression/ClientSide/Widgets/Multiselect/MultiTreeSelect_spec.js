@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Multi Tree Select Widget", function () {
+describe("Multi Tree Select Widget", { tags: [Tag.Widget, Tag.Multiselect] }, function () {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 import explorer from "../../../../../locators/explorerlocators.json";
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 
-describe("Tree Select Widget", function () {
+describe("Tree Select Widget", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

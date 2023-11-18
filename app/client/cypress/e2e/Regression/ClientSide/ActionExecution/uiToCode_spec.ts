@@ -8,7 +8,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("UI to Code", () => {
+describe("UI to Code", { tags: [Tag.JS] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     entityExplorer.NavigateToSwitcher("Explorer");

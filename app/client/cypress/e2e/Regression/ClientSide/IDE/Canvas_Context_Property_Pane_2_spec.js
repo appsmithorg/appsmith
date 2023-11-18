@@ -8,7 +8,7 @@ const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
 
-describe("Canvas context Property Pane", function () {
+describe("Canvas context Property Pane", { tags: [Tag.IDE] }, function () {
   before(() => {
     _.agHelper.AddDsl("editorContextdsl");
     _.entityExplorer.AddNewPage("New blank page");

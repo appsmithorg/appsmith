@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Validating Mobile Views for Hug Widget", function () {
+describe("Validating Mobile Views for Hug Widget", { tags: [Tag.MobileResponsive] }, function () {
   it("1. Validate change with height width for hug widget - image widget", function () {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("imagewidget", { x: 300, y: 600 });

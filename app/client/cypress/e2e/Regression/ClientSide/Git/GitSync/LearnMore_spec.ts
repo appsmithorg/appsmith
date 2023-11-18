@@ -8,7 +8,7 @@ const invalidURL = "test";
 let repoName: string;
 let generatedKey;
 let windowOpenSpy: any;
-describe("Git sync modal: Learn more links", function () {
+describe("Git sync modal: Learn more links", { tags: [Tag.Git] }, function () {
   it("1. validates repo URL", function () {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click({ force: true });

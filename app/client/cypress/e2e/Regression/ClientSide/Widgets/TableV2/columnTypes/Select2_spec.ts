@@ -6,7 +6,7 @@ import {
   table,
 } from "../../../../../../support/Objects/ObjectsCore";
 
-describe("Table widget v2: select column type test", function () {
+describe("Table widget v2: select column type test", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);
     table.AddSampleTableData();

@@ -4,7 +4,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget V2 property pane feature validation", function () {
+describe("Table Widget V2 property pane feature validation", { tags: [Tag.Binding] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableV2NewDsl");
   });

@@ -7,7 +7,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Post window message", () => {
+describe("Post window message", { tags: [Tag.JS] }, () => {
   it("1. Posts message to an iframe within Appsmith", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.IFRAME, 200, 300);

@@ -7,7 +7,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Loadash basic test with input Widget", () => {
+describe("Loadash basic test with input Widget", { tags: [Tag.Binding] }, () => {
   before(() => {
     agHelper.AddDsl("inputBindingdsl");
   });

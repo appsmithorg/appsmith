@@ -6,7 +6,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Resizing Behaviour in auto-layout", function () {
+describe("Resizing Behaviour in auto-layout", { tags: [Tag.MobileResponsive] }, function () {
   before(() => {
     cy.get(commonlocators.autoConvert).click({
       force: true,

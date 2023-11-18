@@ -10,7 +10,7 @@ const pageid = "MyPage";
 let updatedName;
 let datasourceName;
 
-describe("Entity explorer tests related to copy query", function () {
+describe("Entity explorer tests related to copy query", { tags: [Tag.IDE] }, function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });

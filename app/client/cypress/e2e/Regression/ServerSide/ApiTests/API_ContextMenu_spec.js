@@ -6,7 +6,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("API Panel Test Functionality ", function () {
+describe("API Panel Test Functionality ", { tags: [Tag.Datasource] }, function () {
   it("1. Test API copy/Move/delete feature", function () {
     cy.Createpage("SecondPage");
     cy.CreateAPI("FirstAPI");

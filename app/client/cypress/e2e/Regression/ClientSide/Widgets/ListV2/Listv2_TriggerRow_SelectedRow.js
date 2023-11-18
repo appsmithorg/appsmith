@@ -37,7 +37,7 @@ const data = [
   },
 ];
 
-describe("List widget v2; TriggeredRow, SelectedRow", () => {
+describe("List widget v2; TriggeredRow, SelectedRow", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     _.agHelper.AddDsl("Listv2/ListWithInputForSelectedAndTriggerRow");
   });

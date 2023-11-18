@@ -8,7 +8,7 @@ import {
 
 import testdata from "../../../../../fixtures/testdata.json";
 
-describe("Iframe widget Tests", function () {
+describe("Iframe widget Tests", { tags: [Tag.Widget] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("iframewidget", 550, 100);
   });

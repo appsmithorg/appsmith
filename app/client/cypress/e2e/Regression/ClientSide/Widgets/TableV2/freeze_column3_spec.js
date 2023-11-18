@@ -3,7 +3,7 @@ import { TABLE_DATA_DYNAMIC } from "../../../../../support/Constants";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Server-side pagination when turned on test of re-ordering columns", () => {
+describe("Server-side pagination when turned on test of re-ordering columns", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 500, y: 200 });
     _.propPane.EnterJSContext("Table data", TABLE_DATA_DYNAMIC);

@@ -4,7 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
-describe("Listv2 - Event bindings spec", () => {
+describe("Listv2 - Event bindings spec", { tags: [Tag.Widget, Tag.List] }, () => {
   it("1. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {
     cy.addDsl(nestedListDSL);
     cy.wait(4000);

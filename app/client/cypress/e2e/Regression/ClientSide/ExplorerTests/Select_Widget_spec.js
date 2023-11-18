@@ -3,7 +3,7 @@ import widgets from "../../../../locators/Widgets.json";
 const widgetLocators = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Explorer hidden widget Selection", () => {
+describe("Explorer hidden widget Selection", { tags: [Tag.IDE] }, () => {
   before(() => {
     _.agHelper.AddDsl("explorerHiddenWidgets");
   });

@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Linting warning validation with text widget", function () {
+describe("Linting warning validation with text widget", { tags: [Tag.Widget, Tag.Text] }, function () {
   before(() => {
     _.agHelper.AddDsl("textLintErrorDsl");
   });

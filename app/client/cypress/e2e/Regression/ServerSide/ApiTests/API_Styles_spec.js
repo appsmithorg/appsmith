@@ -12,7 +12,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Validate API Panel CSS Styles", function () {
+describe("Validate API Panel CSS Styles", { tags: [Tag.Datasource] }, function () {
   const backgroundColorGray200 = "rgb(227, 232, 239)";
   const backgroundColorwhite = "rgb(255, 255, 255)";
   const hover = "rgb(241, 245, 249)";

@@ -5,7 +5,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("List Widget V2 Functionality", function () {
+describe("List Widget V2 Functionality", { tags: [Tag.Widget, Tag.List] }, function () {
   before(() => {
     agHelper.AddDsl("Listv2/simpleLargeListv2");
   });

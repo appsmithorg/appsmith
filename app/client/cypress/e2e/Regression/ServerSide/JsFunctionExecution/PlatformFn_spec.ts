@@ -8,7 +8,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Tests functionality of platform function", () => {
+describe("Tests functionality of platform function", { tags: [Tag.JS] }, () => {
   it("1. Tests access to outer variable", () => {
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,

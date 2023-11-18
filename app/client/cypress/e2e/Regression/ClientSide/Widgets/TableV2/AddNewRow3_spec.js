@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Actions flow (save, discard)", () => {
+describe("Actions flow (save, discard)", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     cy.startServerAndRoutes();
     _.agHelper.RestoreLocalStorageCache();

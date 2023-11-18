@@ -8,7 +8,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Navigate To feature", () => {
+describe("Navigate To feature", { tags: [Tag.JS] }, () => {
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
     entityExplorer.AddNewPage(); // page 2
     entityExplorer.SelectEntityByName("Page1");

@@ -5,7 +5,7 @@ import {
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Moustache test Functionality", function () {
+describe("Moustache test Functionality", { tags: [Tag.Datasource] }, function () {
   beforeEach(() => {
     agHelper.AddDsl("commondsl");
   });

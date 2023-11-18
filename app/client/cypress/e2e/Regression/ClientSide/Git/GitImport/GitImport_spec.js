@@ -16,7 +16,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Git import flow ", function () {
+describe("Git import flow ", { tags: [Tag.Git] }, function () {
   before(() => {
     homePage.NavigateToHome();
     homePage.CreateNewWorkspace();

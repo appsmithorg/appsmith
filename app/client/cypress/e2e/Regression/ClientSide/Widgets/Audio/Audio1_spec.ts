@@ -9,7 +9,7 @@ import {
 
 const URL = "https://assets.appsmith.com/widgets/birds_chirping.mp3";
 
-describe("excludeForAirgap", "Audio Widget functionality tests", () => {
+describe("excludeForAirgap", "Audio Widget functionality tests", { tags: [Tag.Widget, Tag.Audio] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.AUDIO, 200, 200);
   });

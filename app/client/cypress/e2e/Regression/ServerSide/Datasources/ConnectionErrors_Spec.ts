@@ -6,7 +6,7 @@ import {
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validate Empty DS error messages", () => {
+describe("Validate Empty DS error messages", { tags: [Tag.Datasource] }, () => {
   let dataSourceName: string;
 
   afterEach("Delete DS", () => {

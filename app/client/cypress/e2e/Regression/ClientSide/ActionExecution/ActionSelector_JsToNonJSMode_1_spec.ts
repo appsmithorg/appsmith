@@ -7,7 +7,7 @@ import {
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("JS to non-JS mode in Action Selector", () => {
+describe("JS to non-JS mode in Action Selector", { tags: [Tag.JS] }, () => {
   it("1. should not show any fields with a blank JS field", () => {
     agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     entityExplorer.SelectEntityByName("Button1", "Widgets");

@@ -13,7 +13,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 let dsName: any;
 
-describe("Validate Mongo Query Pane Validations", () => {
+describe("Validate Mongo Query Pane Validations", { tags: [Tag.Datasource] }, () => {
   before(() => {
     //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
   });

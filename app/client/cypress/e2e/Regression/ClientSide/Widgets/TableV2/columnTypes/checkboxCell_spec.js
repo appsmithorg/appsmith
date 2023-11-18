@@ -28,7 +28,7 @@ const tableData = `[
   ]`;
 
 const checkboxSelector = " .bp3-checkbox input[type='checkbox']";
-describe("Checkbox column type funtionality test", () => {
+describe("Checkbox column type funtionality test", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
     _.propPane.EnterJSContext("Table data", tableData);

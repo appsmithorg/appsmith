@@ -6,7 +6,7 @@ import {
 } from "../../../../../locators/WidgetLocators";
 import homePage from "../../../../../locators/HomePage";
 
-describe("Input Widget Multiline feature", function () {
+describe("Input Widget Multiline feature", { tags: [Tag.Widget] }, function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   it("1. Single-line text with different heights i.e. Auto height and Fixed", () => {
     const textMsg = "Dynamic panel validation for input widget wrt height";

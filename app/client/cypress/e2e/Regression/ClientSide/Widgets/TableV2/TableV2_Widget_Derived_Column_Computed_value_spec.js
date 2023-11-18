@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
-describe("Table Widget V2 property pane feature validation", function () {
+describe("Table Widget V2 property pane feature validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableV2NewDsl");
   });

@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgets = require("../../../../../locators/Widgets.json");
 
-describe("Modal Widget Functionality", function () {
+describe("Modal Widget Functionality", { tags: [Tag.Widget, Tag.Modal] }, function () {
   before(() => {
     _.agHelper.AddDsl("modalOnTableFilterPaneDsl");
   });

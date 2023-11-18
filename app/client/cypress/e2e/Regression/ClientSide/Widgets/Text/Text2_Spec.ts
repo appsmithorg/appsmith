@@ -9,7 +9,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Text widget tests", function () {
+describe("Text widget tests", { tags: [Tag.Widget, Tag.Text] }, function () {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.TEXT);
   });

@@ -3,7 +3,7 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the Datepicker and Text Widget", function () {
+describe("Binding the Datepicker and Text Widget", { tags: [Tag.Binding] }, function () {
   let nextDay;
   let dateDp2;
 

@@ -11,7 +11,7 @@ import {
 import { format } from "date-fns";
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 
-describe("Date picker widget testcases", () => {
+describe("Date picker widget testcases", { tags: [Tag.Widget] }, () => {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.DATEPICKER);
   });

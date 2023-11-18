@@ -4,7 +4,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
-describe("Select Widget Functionality", function () {
+describe("Select Widget Functionality", { tags: [Tag.Widget, Tag.Multiselect] }, function () {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

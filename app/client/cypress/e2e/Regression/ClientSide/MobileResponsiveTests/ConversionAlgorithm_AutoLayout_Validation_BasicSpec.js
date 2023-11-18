@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let testHeight;
 
-describe("Auto conversion algorithm usecases for auto-layout", function () {
+describe("Auto conversion algorithm usecases for auto-layout", { tags: [Tag.MobileResponsive] }, function () {
   it("1. Validate basic conversion algorithm usecases", function () {
     _.agHelper.AddDsl("conversionFrAutoLayoutDsl");
     //cy.openPropertyPane("containerwidget");

@@ -18,7 +18,7 @@ const data = [
   },
 ];
 
-describe("Table V2 sort & filter using display text functionality", () => {
+describe("Table V2 sort & filter using display text functionality", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
     propPane.EnterJSContext("Table data", JSON.stringify(data));

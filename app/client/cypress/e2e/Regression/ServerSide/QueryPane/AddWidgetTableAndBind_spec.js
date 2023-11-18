@@ -9,7 +9,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
-describe("Addwidget from Query and bind with other widgets", function () {
+describe("Addwidget from Query and bind with other widgets", { tags: [Tag.Datasource] }, function () {
   before(() => {
     agHelper.AddDsl("inputdsl");
   });

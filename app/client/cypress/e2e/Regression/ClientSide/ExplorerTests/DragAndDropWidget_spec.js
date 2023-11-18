@@ -5,7 +5,7 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Entity explorer Drag and Drop widgets testcases", function () {
+describe("Entity explorer Drag and Drop widgets testcases", { tags: [Tag.IDE] }, function () {
   it("1. Drag and drop form widget and validate", function () {
     cy.get(explorer.addWidget).click({ force: true });
     cy.get(commonlocators.entityExplorersearch).should("be.visible");

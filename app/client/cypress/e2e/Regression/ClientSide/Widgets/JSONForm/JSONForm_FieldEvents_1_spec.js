@@ -15,7 +15,7 @@ import {
 const fieldPrefix = ".t--jsonformfield";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
-describe("Radio Group Field", () => {
+describe("Radio Group Field", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

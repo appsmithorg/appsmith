@@ -1,6 +1,6 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Verify various Table_Filter combinations", function () {
+describe("Verify various Table_Filter combinations", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("tablev1NewDsl");
   });

@@ -45,7 +45,7 @@ const GRAPHQL_LIMIT_DATA = [
   },
 ];
 
-describe("GraphQL Datasource Implementation", function () {
+describe("GraphQL Datasource Implementation", { tags: [Tag.Datasource] }, function () {
   before(() => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

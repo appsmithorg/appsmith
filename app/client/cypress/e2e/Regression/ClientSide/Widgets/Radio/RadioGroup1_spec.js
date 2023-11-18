@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Radiogroup Widget Functionality", function () {
+describe("Radiogroup Widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

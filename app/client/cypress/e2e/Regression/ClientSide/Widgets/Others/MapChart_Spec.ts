@@ -13,7 +13,7 @@ const _mapChartCaption = "g[class*='-caption'] text";
 const _mapChartPlot = (text: string) =>
   "//text()[contains(., '" + text + "')]/..";
 
-describe("Map Chart Widget Functionality", function () {
+describe("Map Chart Widget Functionality", { tags: [Tag.Widget] }, function () {
   it("1. Drag and drop a Map Chart widget and verify", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAPCHART, 200, 200);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));

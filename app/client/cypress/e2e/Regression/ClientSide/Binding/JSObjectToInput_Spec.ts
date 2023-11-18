@@ -7,7 +7,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane;
 
-describe("Validate JSObjects binding to Input widget", () => {
+describe("Validate JSObjects binding to Input widget", { tags: [Tag.Binding] }, () => {
   before(() => {
     agHelper.AddDsl("formInputTableDsl");
   });

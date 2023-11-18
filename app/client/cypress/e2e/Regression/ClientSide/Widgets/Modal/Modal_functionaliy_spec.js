@@ -3,7 +3,7 @@ const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal Widget Functionality", function () {
+describe("Modal Widget Functionality", { tags: [Tag.Widget, Tag.Modal] }, function () {
   afterEach(() => {
     _.agHelper.SaveLocalStorageCache();
   });

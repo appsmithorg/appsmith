@@ -6,7 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
-describe("Check Suggested Widgets Feature in auto-layout", function () {
+describe("Check Suggested Widgets Feature in auto-layout", { tags: [Tag.MobileResponsive] }, function () {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
     agHelper.RefreshPage();

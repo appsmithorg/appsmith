@@ -8,7 +8,7 @@ const defaultValue = `[
         }
       ]`;
 
-describe("MultiSelect Widget Functionality", function () {
+describe("MultiSelect Widget Functionality", { tags: [Tag.Widget, Tag.Multiselect] }, function () {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

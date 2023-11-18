@@ -17,7 +17,7 @@ const oneClickBinding = new OneClickBinding();
 
 const upfrontContentCount = 4;
 
-describe("excludeForAirgap", "One click binding control", () => {
+describe("excludeForAirgap", "One click binding control", { tags: [Tag.Binding] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
   });

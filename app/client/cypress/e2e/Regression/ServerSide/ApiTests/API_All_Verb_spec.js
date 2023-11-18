@@ -12,7 +12,7 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("API Panel Test Functionality", function () {
+describe("API Panel Test Functionality", { tags: [Tag.Datasource] }, function () {
   afterEach(function () {
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",

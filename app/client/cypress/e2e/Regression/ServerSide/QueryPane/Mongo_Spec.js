@@ -19,7 +19,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let datasourceName;
 
-describe("Validate Mongo query commands", function () {
+describe("Validate Mongo query commands", { tags: [Tag.Datasource] }, function () {
   // afterEach(function() {
   //   if (this.currentTest.state === "failed") {
   //     Cypress.runner.stop();

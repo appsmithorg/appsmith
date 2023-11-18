@@ -1,7 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe("Chart Widget Functionality around custom chart data", function () {
+describe("Chart Widget Functionality around custom chart data", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("chartCustomDataDsl");
   });

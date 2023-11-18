@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("FilePicker Widget Functionality", function () {
+describe("FilePicker Widget Functionality", { tags: [Tag.Widget, Tag.Filepicker] }, function () {
   afterEach(() => {
     _.agHelper.SaveLocalStorageCache();
   });

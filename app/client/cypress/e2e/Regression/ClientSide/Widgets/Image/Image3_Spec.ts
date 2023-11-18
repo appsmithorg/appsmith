@@ -8,7 +8,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Image widget - Rotation & Download", function () {
+describe("Image widget - Rotation & Download", { tags: [Tag.Widget, Tag.Image] }, function () {
   const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.IMAGE);

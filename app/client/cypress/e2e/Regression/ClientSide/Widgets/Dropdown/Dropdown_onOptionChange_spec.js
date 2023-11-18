@@ -10,7 +10,7 @@ import {
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Dropdown Widget", function () {
+describe("Dropdown Widget", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     agHelper.AddDsl("newFormDsl");
   });

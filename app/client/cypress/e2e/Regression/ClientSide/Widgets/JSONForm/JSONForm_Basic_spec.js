@@ -10,7 +10,7 @@ const {
   propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
 
-describe("JsonForm widget basis c usecases", function () {
+describe("JsonForm widget basis c usecases", { tags: [Tag.Widget, Tag.JSONForm] }, function () {
   before(() => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("jsonformwidget", { x: 200, y: 200 });

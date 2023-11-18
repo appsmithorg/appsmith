@@ -5,7 +5,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Tab widget test", function () {
+describe("Tab widget test", { tags: [Tag.IDE] }, function () {
   const tabname = "UpdatedTab";
   before(() => {
     agHelper.AddDsl("tabdsl");

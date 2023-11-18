@@ -2,7 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Switch Group Widget Functionality", function () {
+describe("Switch Group Widget Functionality", { tags: [Tag.Widget, Tag.Switch] }, function () {
   before(() => {
     _.agHelper.AddDsl("SwitchGroupWidgetDsl");
     _.propPane.RenameWidget("SwitchGroup1", "SwitchGroupTest");

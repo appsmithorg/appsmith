@@ -5,7 +5,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("JS to non-JS mode in Action Selector", () => {
+describe("JS to non-JS mode in Action Selector", { tags: [Tag.JS] }, () => {
   before(() => {
     agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
   });

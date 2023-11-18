@@ -9,7 +9,7 @@ const defaultValue = `
         }
       `;
 
-describe("Select Widget Functionality", function () {
+describe("Select Widget Functionality", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

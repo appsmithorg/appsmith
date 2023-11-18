@@ -5,7 +5,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("FilePicker Widget Functionality", function () {
+describe("FilePicker Widget Functionality", { tags: [Tag.Widget, Tag.Filepicker] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.FILEPICKER);
   });

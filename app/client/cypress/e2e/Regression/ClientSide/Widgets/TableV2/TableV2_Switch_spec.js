@@ -1,7 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget V2 and Switch binding Functionality", function () {
+describe("Table Widget V2 and Switch binding Functionality", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("swtchTableV2Dsl");
   });

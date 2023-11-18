@@ -12,7 +12,7 @@ const widgetLocators = require("../../../../../locators/Widgets.json");
 
 let dataSet: any, dsl: any;
 
-describe("Input widget test with default value from chart datapoint", () => {
+describe("Input widget test with default value from chart datapoint", { tags: [Tag.Widget] }, () => {
   //beforeEach - to enable re-attempt passing!
   beforeEach(() => {
     agHelper.AddDsl("ChartDsl");

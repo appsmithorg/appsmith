@@ -15,7 +15,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
-describe("GSheet-Functional Tests With All Access", function () {
+describe("GSheet-Functional Tests With All Access", { tags: [Tag.Datasource] }, function () {
   before("Setup app and spreadsheet", function () {
     //Add a new app and an add new spreadsheet query
     //Setting up the spreadsheet name

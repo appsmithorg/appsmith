@@ -5,7 +5,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Tests fetch calls", () => {
+describe("Tests fetch calls", { tags: [Tag.JS] }, () => {
   it("1. Ensures that cookies are not passed with fetch calls", function () {
     jsEditor.CreateJSObject(
       `export default {

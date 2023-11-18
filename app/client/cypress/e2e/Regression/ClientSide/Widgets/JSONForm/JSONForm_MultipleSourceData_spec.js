@@ -3,7 +3,7 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const jsonText = require("../../../../../fixtures/jsonTextDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Verify syntax to create Datpicker field type", () => {
+describe("Verify syntax to create Datpicker field type", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
   });

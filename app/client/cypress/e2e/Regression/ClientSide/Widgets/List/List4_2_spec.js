@@ -5,7 +5,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/listdsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Container Widget Functionality", function () {
+describe("Container Widget Functionality", { tags: [Tag.Widget, Tag.List] }, function () {
   const items = JSON.parse(dsl.dsl.children[0].listData);
 
   before(() => {

@@ -19,7 +19,7 @@ let width = {
   tabswidget: 0,
 };
 
-describe("Validating Mobile Views for Auto Fill Widgets", function () {
+describe("Validating Mobile Views for Auto Fill Widgets", { tags: [Tag.MobileResponsive] }, function () {
   it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("codescannerwidget", { x: 100, y: 200 });

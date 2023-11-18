@@ -1,7 +1,7 @@
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Autocomplete using slash command and mustache tests", function () {
+describe("Autocomplete using slash command and mustache tests", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("slashcommandDsl");
   });

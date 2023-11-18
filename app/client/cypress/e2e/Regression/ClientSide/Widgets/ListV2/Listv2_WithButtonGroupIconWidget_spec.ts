@@ -7,7 +7,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("List widget V2 functionality with button, button group and icon button widgets", () => {
+describe("List widget V2 functionality with button, button group and icon button widgets", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     agHelper.AddDsl("listV2ButtonsDsl", locators._buttonByText("Submit"));
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 500);

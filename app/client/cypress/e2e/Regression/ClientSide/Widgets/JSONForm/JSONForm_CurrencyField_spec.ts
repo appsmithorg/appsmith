@@ -8,7 +8,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal Widget background color spec", () => {
+describe("Modal Widget background color spec", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   const schema = {
     name: "John",
     date_of_birth: "20/02/1990",

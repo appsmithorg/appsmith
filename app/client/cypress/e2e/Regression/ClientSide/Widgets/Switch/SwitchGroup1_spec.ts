@@ -16,7 +16,7 @@ import widgetsLoc from "../../../../../locators/Widgets.json";
 import widgets from "../../../../../locators/publishWidgetspage.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
 
-describe("Switchgroup Widget Functionality", function () {
+describe("Switchgroup Widget Functionality", { tags: [Tag.Widget, Tag.Switch] }, function () {
   /**
    * Adding switch group, checkbox group and text widgets
    */

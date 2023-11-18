@@ -5,7 +5,7 @@ import {
   apiPage,
 } from "../../../support/Objects/ObjectsCore";
 
-describe("Create a rest datasource", function () {
+describe("Create a rest datasource", { tags: [Tag.Datasource] }, function () {
   it("1. Create a rest datasource + Bug 14566", function () {
     apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods);
     cy.get(".t--store-as-datasource").click();

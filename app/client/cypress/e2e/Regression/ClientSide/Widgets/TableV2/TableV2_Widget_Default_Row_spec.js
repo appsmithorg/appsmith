@@ -6,7 +6,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget V2 property pane deafult feature validation", function () {
+describe("Table Widget V2 property pane deafult feature validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     agHelper.AddDsl("defaultTableV2Dsl");
   });

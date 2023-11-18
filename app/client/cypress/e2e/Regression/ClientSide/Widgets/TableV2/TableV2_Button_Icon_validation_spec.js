@@ -4,7 +4,7 @@ const testdata = require("../../../../../fixtures/testdata.json");
 const color = "rgb(151, 0, 0)";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget V2 property pane feature validation", function () {
+describe("Table Widget V2 property pane feature validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableV2NewDsl");
   });

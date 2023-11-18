@@ -7,7 +7,7 @@ import {
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Image Widget Functionality", function () {
+describe("Image Widget Functionality", { tags: [Tag.Widget, Tag.Image] }, function () {
   before(() => {
     agHelper.AddDsl("displayWidgetDsl");
   });

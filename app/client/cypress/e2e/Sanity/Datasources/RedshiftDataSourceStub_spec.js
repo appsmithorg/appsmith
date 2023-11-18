@@ -2,7 +2,7 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 let datasourceName;
 import { dataSources } from "../../../support/Objects/ObjectsCore";
 
-describe("Redshift datasource test cases", function () {
+describe("Redshift datasource test cases", { tags: [Tag.Datasource] }, function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });

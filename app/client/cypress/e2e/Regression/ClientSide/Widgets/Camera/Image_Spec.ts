@@ -9,7 +9,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Camera widget - Image test", () => {
+describe("Camera widget - Image test", { tags: [Tag.Widget] }, () => {
   before(() => {
     //Reset video source to default incase it got changed in other specs
     cy.task("resetVideoSource");

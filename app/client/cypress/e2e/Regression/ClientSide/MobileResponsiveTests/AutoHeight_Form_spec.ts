@@ -15,7 +15,7 @@ import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 let childHeight = 0;
 let containerHeight = 0;
 let inputHeight = 0;
-describe("validate auto height for form widget on auto layout canvas", () => {
+describe("validate auto height for form widget on auto layout canvas", { tags: [Tag.MobileResponsive] }, () => {
   it("1. form widget height should update on adding or deleting child widgets", () => {
     /**
      * Convert app to AutoLayout

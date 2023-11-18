@@ -10,7 +10,7 @@ import {
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Generate New CRUD Page Inside from entity explorer", function () {
+describe("Generate New CRUD Page Inside from entity explorer", { tags: [Tag.GenerateCRUD] }, function () {
   let datasourceName;
 
   beforeEach(() => {

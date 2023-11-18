@@ -8,7 +8,7 @@ import {
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Range Slider spec", () => {
+describe("Range Slider spec", { tags: [Tag.Widget, Tag.Slider] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("rangesliderwidget", 550, 100);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);

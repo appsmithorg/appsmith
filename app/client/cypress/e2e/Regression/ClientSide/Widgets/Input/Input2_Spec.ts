@@ -8,7 +8,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("InputV2 widget tests", function () {
+describe("InputV2 widget tests", { tags: [Tag.Widget] }, function () {
   let testcases,
     multilineData = `[
     {

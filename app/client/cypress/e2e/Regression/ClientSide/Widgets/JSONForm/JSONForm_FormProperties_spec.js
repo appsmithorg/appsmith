@@ -16,7 +16,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("JSON Form Widget Form Bindings", () => {
+describe("JSON Form Widget Form Bindings", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

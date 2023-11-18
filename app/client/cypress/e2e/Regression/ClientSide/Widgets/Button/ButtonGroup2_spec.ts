@@ -10,7 +10,7 @@ import {
 
 import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
 
-describe("Button Group Widget Test", function () {
+describe("Button Group Widget Test", { tags: [Tag.Widget, Tag.Button] }, function () {
   before("Login to the app and navigate to the workspace", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON_GROUP);
   });

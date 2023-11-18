@@ -5,7 +5,7 @@ const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-describe("Widget Copy paste", function () {
+describe("Widget Copy paste", { tags: [Tag.Widget] }, function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   before(() => {
     _.agHelper.AddDsl("WidgetCopyPaste");

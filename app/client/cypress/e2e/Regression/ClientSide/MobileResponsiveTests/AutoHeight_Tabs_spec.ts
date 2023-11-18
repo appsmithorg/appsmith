@@ -17,7 +17,7 @@ let childHeight = 0;
 let containerHeight = 0;
 let inputHeight = 0;
 const tabsMinHeight = 300 - WIDGET_PADDING;
-describe("validate auto height for tabs widget on auto layout canvas", () => {
+describe("validate auto height for tabs widget on auto layout canvas", { tags: [Tag.MobileResponsive] }, () => {
   it("1. tabs widget should maintain a minHeight of 30 rows", () => {
     /**
      * Convert app to AutoLayout

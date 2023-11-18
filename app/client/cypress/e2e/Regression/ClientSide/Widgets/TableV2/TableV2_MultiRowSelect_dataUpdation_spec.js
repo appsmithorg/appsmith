@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 Selected row stays selected after data updation
 if the primary column value isn't updated.
 */
-describe("Table Widget V2 row multi select validation", function () {
+describe("Table Widget V2 row multi select validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("multiSelectedRowUpdationTableV2Dsl");
   });

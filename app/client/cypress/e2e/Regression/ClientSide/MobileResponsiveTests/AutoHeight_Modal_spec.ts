@@ -20,7 +20,7 @@ let containerHeight = 0;
 let inputHeight = 0;
 let iconHeight = 0;
 let dropTargetClass = "";
-describe("validate auto height for modal widget on auto layout canvas", () => {
+describe("validate auto height for modal widget on auto layout canvas", { tags: [Tag.MobileResponsive] }, () => {
   it("1. modal widget height should update on adding or deleting child widgets", () => {
     /**
      * Convert app to AutoLayout

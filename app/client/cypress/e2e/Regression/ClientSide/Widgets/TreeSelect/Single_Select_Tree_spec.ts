@@ -11,7 +11,7 @@ import {
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
-describe("Single Select Widget Functionality", function () {
+describe("Single Select Widget Functionality", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     agHelper.AddDsl("TreeSelectDsl");
   });

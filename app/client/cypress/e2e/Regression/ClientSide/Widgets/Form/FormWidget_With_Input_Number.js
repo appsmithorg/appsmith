@@ -1,7 +1,7 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Form Widget with Input Functionality", function () {
+describe("Form Widget with Input Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("formWidgetWithInputValCheckDsl");
   });

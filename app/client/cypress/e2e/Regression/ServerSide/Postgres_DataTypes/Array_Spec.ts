@@ -14,7 +14,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Array Datatype tests", function () {
+describe("Array Datatype tests", { tags: [Tag.Datasource] }, function () {
   let dsName: any, query: string;
 
   before("Create DS, Add DS & setting theme", () => {

@@ -2,7 +2,7 @@ const LayoutPage = require("../../../../locators/Layout.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Tabs widget resetting", function () {
+describe("Tabs widget resetting", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("tabsWidgetReset");
   });

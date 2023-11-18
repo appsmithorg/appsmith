@@ -12,7 +12,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("JSON Form Widget Array Field", () => {
+describe("JSON Form Widget Array Field", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

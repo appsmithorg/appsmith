@@ -2,7 +2,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("RichTextEditor Widget Functionality in Form", function () {
+describe("RichTextEditor Widget Functionality in Form", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("formWithRTEDsl");
   });

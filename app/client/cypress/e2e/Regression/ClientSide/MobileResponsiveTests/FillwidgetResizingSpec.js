@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 let theight;
 let twidth;
 
-describe("Validating Mobile Views for Fill Widget", function () {
+describe("Validating Mobile Views for Fill Widget", { tags: [Tag.MobileResponsive] }, function () {
   it("Validate change with height width for fill widget - Input widget", function () {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 100, y: 200 });

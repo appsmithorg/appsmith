@@ -5,7 +5,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the Table and input Widget", function () {
+describe("Binding the Table and input Widget", { tags: [Tag.Binding] }, function () {
   before(() => {
     agHelper.AddDsl("formInputTableV2Dsl");
   });

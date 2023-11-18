@@ -17,7 +17,7 @@ const themelocator = require("../../../../locators/ThemeLocators.json");
 let themeBackgroudColor;
 let themeFont;
 
-describe("Theme validation usecases", function () {
+describe("Theme validation usecases", { tags: [Tag.Theme] }, function () {
   it("1. Drag and drop form widget and validate Default font and list of font validation", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.FORM);
     agHelper.GetNClick(locators._canvas);

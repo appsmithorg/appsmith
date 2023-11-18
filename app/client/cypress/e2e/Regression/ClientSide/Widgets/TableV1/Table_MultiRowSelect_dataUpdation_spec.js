@@ -11,7 +11,7 @@ import {
 Selected row stays selected after data updation
 if the primary column value isn't updated.
 */
-describe("Table Widget row multi select validation", function () {
+describe("Table Widget row multi select validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     agHelper.AddDsl("multiSelectedRowUpdationDsl");
   });

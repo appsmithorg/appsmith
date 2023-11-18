@@ -9,7 +9,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Select widget tests", function () {
+describe("Select widget tests", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.SELECT);
   });

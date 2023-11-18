@@ -5,7 +5,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("List widget V2 functionality with audio and video widgets", () => {
+describe("List widget V2 functionality with audio and video widgets", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     agHelper.AddDsl("listV2AudioVideoDsl");
     entityExplorer.DragDropWidgetNVerify("audiowidget", 700, 500);

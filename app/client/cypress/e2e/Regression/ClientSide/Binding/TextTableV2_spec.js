@@ -7,7 +7,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Text-Table v2 Binding Functionality", function () {
+describe("Text-Table v2 Binding Functionality", { tags: [Tag.Binding] }, function () {
   Cypress.on("uncaught:exception", (err, runnable) => {
     // returning false here prevents Cypress from
     // failing the test

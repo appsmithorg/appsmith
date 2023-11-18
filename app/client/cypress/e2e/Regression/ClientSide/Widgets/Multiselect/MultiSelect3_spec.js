@@ -3,7 +3,7 @@ const widgetLocators = require("../../../../../locators/Widgets.json");
 
 import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Dropdown Widget Functionality", function () {
+describe("Dropdown Widget Functionality", { tags: [Tag.Widget, Tag.Multiselect] }, function () {
   before(() => {
     agHelper.AddDsl("widgetPopupDsl");
   });

@@ -5,7 +5,7 @@ const testdata = require("../../../fixtures/testdata.json");
 
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
-describe("Authenticated API Datasource", function () {
+describe("Authenticated API Datasource", { tags: [Tag.Datasource] }, function () {
   const URL = datasourceFormData["authenticatedApiUrl"];
   const headers = "Headers";
   const queryParams = "Query Params";

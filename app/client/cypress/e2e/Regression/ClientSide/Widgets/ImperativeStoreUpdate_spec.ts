@@ -12,7 +12,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Linting warning for imperative store update", function () {
+describe("Linting warning for imperative store update", { tags: [Tag.Widget] }, function () {
   it("Shows lint error for imperative store update", function () {
     entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
     entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 400, 400);

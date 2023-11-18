@@ -6,7 +6,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validating use cases for Auto Dimension", () => {
+describe("Validating use cases for Auto Dimension", { tags: [Tag.MobileResponsive] }, () => {
   before(() => {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
   });

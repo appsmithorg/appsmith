@@ -12,7 +12,7 @@ import {
 
 const oneClickBinding = new OneClickBinding();
 
-describe("JSONForm widget one click binding feature", () => {
+describe("JSONForm widget one click binding feature", { tags: [Tag.Binding] }, () => {
   let datasourceName: string;
   it("1.Create flow: should check that queries are created and bound to jsonform widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 450, 200);

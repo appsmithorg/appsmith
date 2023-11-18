@@ -7,7 +7,7 @@ import {
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Rest Bugs tests", function () {
+describe("Rest Bugs tests", { tags: [Tag.Datasource] }, function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

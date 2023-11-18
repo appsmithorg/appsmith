@@ -11,7 +11,7 @@ import {
   appSettings,
 } from "../../support/Objects/ObjectsCore";
 
-describe("GSheet-Functional Tests With Read/Write Access", function () {
+describe("GSheet-Functional Tests With Read/Write Access", { tags: [Tag.Datasource] }, function () {
   const workspaceName = "gsheet apps";
   const dataSourceName = {
     allAccess: "gsheet",

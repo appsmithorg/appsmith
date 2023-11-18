@@ -32,7 +32,7 @@ const testCursorPoistion = (textValueLen, tinyMceId) => {
   });
 };
 
-describe("RichTextEditor Widget Functionality", function () {
+describe("RichTextEditor Widget Functionality", { tags: [Tag.Widget, Tag.RichTextEditor] }, function () {
   before(() => {
     _.agHelper.AddDsl("formdsl1");
   });

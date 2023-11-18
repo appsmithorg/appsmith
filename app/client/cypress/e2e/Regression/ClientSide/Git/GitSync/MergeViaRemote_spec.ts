@@ -25,7 +25,7 @@ let applicationId: any;
 let applicationName: any;
 let repoName: any;
 
-describe("Git sync: Merge changes via remote", function () {
+describe("Git sync: Merge changes via remote", { tags: [Tag.Git] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     _.homePage.CreateNewWorkspace();

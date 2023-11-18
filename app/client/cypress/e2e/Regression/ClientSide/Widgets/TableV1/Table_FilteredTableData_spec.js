@@ -4,7 +4,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const dsl = require("../../../../../fixtures/tableAndTextDsl.json");
 
-describe("Table Widget Filtered Table data in autocomplete", function () {
+describe("Table Widget Filtered Table data in autocomplete", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableAndTextDsl");
   });

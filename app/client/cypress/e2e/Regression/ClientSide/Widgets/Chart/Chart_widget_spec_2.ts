@@ -7,7 +7,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("", () => {
+describe("", { tags: [Tag.Widget] }, () => {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.CHART);
   });

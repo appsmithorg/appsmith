@@ -16,7 +16,7 @@ const testUrl2 =
 const testUrl3 =
   "http://host.docker.internal:5001//v1/dynamicrecords/getrecordsArray";
 
-describe("API Panel Test Functionality ", function () {
+describe("API Panel Test Functionality ", { tags: [Tag.Datasource] }, function () {
   it("1. Test Search API fetaure", function () {
     cy.log("Login Successful");
     cy.generateUUID().then((uid) => {

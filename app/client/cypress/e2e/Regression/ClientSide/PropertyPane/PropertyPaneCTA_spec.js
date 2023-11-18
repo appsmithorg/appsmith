@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Property pane CTA to add an action", function () {
+describe("Property pane CTA to add an action", { tags: [Tag.IDE] }, function () {
   before(() => {
     _.agHelper.AddDsl("TextTabledsl");
   });

@@ -1,7 +1,7 @@
 const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Listv2 - Container widget", () => {
+describe("Listv2 - Container widget", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     cy.addDsl(simpleListDSL);
   });

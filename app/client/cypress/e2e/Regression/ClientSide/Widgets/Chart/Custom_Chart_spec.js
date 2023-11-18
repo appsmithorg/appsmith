@@ -3,7 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe("Chart Widget Functionality around custom chart feature", function () {
+describe("Chart Widget Functionality around custom chart feature", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("chartUpdatedDsl");
   });

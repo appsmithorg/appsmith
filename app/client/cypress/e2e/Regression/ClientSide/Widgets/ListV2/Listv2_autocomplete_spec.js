@@ -10,7 +10,7 @@ function checkAutosuggestion(label, type) {
     });
 }
 
-describe("List v2 - Property autocomplete", () => {
+describe("List v2 - Property autocomplete", { tags: [Tag.Widget, Tag.List] }, () => {
   before(() => {
     cy.addDsl(level3NestedList);
   });

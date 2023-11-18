@@ -5,7 +5,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the multiple widgets and validating default data", function () {
+describe("Binding the multiple widgets and validating default data", { tags: [Tag.Binding] }, function () {
   before(() => {
     agHelper.AddDsl("Invalid_binding_dsl");
   });

@@ -11,7 +11,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Binary Datatype tests", function () {
+describe("Binary Datatype tests", { tags: [Tag.Datasource] }, function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Create DS, Importing App & setting theme", () => {

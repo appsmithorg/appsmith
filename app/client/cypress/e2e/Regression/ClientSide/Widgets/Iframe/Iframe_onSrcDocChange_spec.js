@@ -4,7 +4,7 @@ const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const page1 = "Page1";
 
-describe("Iframe Widget functionality", function () {
+describe("Iframe Widget functionality", { tags: [Tag.Widget] }, function () {
   it("1.Import application json", function () {
     cy.visit("/applications", { timeout: 60000 });
     homePage.ImportApp("IframeOnSrcDocChange.json");

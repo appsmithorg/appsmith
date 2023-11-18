@@ -8,7 +8,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Divider Widget functionality tests", () => {
+describe("Divider Widget functionality tests", { tags: [Tag.Widget, Tag.Divider] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.DIVIDER, 200, 200);
   });

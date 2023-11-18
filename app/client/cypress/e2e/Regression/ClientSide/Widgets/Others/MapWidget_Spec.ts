@@ -26,7 +26,7 @@ const location = [
   },
 ];
 
-describe("Map Widget", function () {
+describe("Map Widget", { tags: [Tag.Widget] }, function () {
   it("1.Drag Map Widget and Verify the Map Widget with Initial Location", () => {
     //Add map and verify
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAP, 200, 200);

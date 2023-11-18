@@ -1,6 +1,6 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget Image Resize feature validation", function () {
+describe("Table Widget Image Resize feature validation", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     _.agHelper.AddDsl("Table/ImageResizeDSL");
   });

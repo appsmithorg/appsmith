@@ -1,7 +1,7 @@
 import { agHelper, autoLayout } from "../../../../support/Objects/ObjectsCore";
 let testHeight;
 
-describe("Auto conversion algorithm usecases for fixed Layout", function () {
+describe("Auto conversion algorithm usecases for fixed Layout", { tags: [Tag.MobileResponsive] }, function () {
   it("1. Validate basic conversion algorithm usecases fixed layout usecase Mobile", function () {
     agHelper.AddDsl("conversionFrAutoLayoutDsl");
     //cy.openPropertyPane("containerwidget");

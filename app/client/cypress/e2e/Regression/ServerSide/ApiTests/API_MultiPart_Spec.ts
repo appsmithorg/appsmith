@@ -13,7 +13,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Validate API request body panel", () => {
+describe("Validate API request body panel", { tags: [Tag.Datasource] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

@@ -1,7 +1,7 @@
 const explorer = require("../../../../locators/explorerlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Disabled Widgets drag Functionality", function () {
+describe("Disabled Widgets drag Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("disabledWidgetsDsl");
   });

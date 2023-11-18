@@ -4,7 +4,7 @@ import {
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("API Panel request body", function () {
+describe("API Panel request body", { tags: [Tag.Datasource] }, function () {
   it("1. Check whether input exists when form-encoded is selected", function () {
     apiPage.CreateApi("FirstAPI");
     apiPage.SelectAPIVerb("POST");

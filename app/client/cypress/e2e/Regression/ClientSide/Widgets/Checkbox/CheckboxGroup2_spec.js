@@ -8,7 +8,7 @@ import {
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Checkbox Group Widget Functionality", function () {
+describe("Checkbox Group Widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     agHelper.AddDsl("checkboxgroupDsl");
   });

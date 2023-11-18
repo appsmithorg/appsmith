@@ -5,7 +5,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const dayjs = require("dayjs");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("DatePicker Widget Functionality", function () {
+describe("DatePicker Widget Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("newFormDsl");
   });

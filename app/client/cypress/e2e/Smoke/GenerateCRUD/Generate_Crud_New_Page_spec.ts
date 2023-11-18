@@ -1,6 +1,6 @@
 import * as _ from "../../../support/Objects/ObjectsCore";
 
-describe("Validate generate CRUD operation by creating a datasource from generate CRUD form", () => {
+describe("Validate generate CRUD operation by creating a datasource from generate CRUD form", { tags: [Tag.GenerateCRUD] }, () => {
   it(
     "excludeForAirgap",
     "1. Generated CRUD app should work when there are no entities in the page & when there are entities in the current page",

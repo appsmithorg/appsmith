@@ -11,7 +11,7 @@ let agHelper = ObjectsRegistry.AggregateHelper;
 let locators = ObjectsRegistry.CommonLocators;
 let propPane = ObjectsRegistry.PropertyPane;
 
-describe("JSONForm select field", () => {
+describe("JSONForm select field", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

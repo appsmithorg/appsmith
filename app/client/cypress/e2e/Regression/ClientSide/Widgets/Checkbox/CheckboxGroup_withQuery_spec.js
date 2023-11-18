@@ -6,7 +6,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Checkbox Group Widget Functionality", function () {
+describe("Checkbox Group Widget Functionality", { tags: [Tag.Widget] }, function () {
   let dsName;
   before(() => {
     _.dataSources.CreateDataSource("Postgres");

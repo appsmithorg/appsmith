@@ -6,7 +6,7 @@ import {
 
 let dsName: any;
 
-describe("Validate Redis DS", () => {
+describe("Validate Redis DS", { tags: [Tag.Datasource] }, () => {
   before("Create a new Redis DS", () => {
     dataSources.CreateDataSource("Redis");
     cy.get("@dsName").then(($dsName) => {

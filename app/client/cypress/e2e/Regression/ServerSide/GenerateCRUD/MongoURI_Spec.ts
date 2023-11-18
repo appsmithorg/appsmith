@@ -14,7 +14,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Validate Mongo URI CRUD with JSON Form", () => {
+describe("Validate Mongo URI CRUD with JSON Form", { tags: [Tag.GenerateCRUD] }, () => {
   let dsName: any;
 
   it("1. Create DS & Generate CRUD template", () => {

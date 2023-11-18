@@ -7,7 +7,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 let mockDBNameUsers: string, mockDBNameMovies: string;
 
-describe("Entity explorer context menu should hide on scrolling", function () {
+describe("Entity explorer context menu should hide on scrolling", { tags: [Tag.IDE] }, function () {
   it(
     "excludeForAirgap",
     "1. Bug #15474 - Entity explorer menu must close on scroll",

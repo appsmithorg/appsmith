@@ -1,7 +1,7 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Image Widget Validation Image Urls", function () {
+describe("Image Widget Validation Image Urls", { tags: [Tag.Widget, Tag.Image] }, function () {
   before(() => {
     _.agHelper.AddDsl("displayWidgetDsl");
   });

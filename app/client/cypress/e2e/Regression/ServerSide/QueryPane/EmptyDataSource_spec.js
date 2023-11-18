@@ -4,7 +4,7 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Create a query with a empty datasource, run, save the query", function () {
+describe("Create a query with a empty datasource, run, save the query", { tags: [Tag.Datasource] }, function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });

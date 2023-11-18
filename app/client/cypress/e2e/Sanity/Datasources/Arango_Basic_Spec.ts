@@ -10,7 +10,7 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 
-describe("Validate Arango & CURL Import Datasources", () => {
+describe("Validate Arango & CURL Import Datasources", { tags: [Tag.Datasource] }, () => {
   let dsName: any,
     collectionName = "countries_places_to_visit",
     containerName = "arangodb";

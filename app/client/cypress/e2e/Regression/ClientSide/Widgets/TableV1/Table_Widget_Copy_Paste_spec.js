@@ -6,7 +6,7 @@ import {
   entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Test Suite to validate copy/paste table Widget", function () {
+describe("Test Suite to validate copy/paste table Widget", { tags: [Tag.Widget, Tag.Table] }, function () {
   before(() => {
     agHelper.AddDsl("tableNewDsl");
   });

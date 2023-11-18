@@ -9,7 +9,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { progressWidgetProgress } from "../../../../../locators/WidgetLocators";
 
-describe("Progress Widget", function () {
+describe("Progress Widget", { tags: [Tag.Widget] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.PROGRESS);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 200);

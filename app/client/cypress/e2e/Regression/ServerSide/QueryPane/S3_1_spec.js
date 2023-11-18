@@ -14,7 +14,7 @@ import {
 
 let datasourceName;
 
-describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function () {
+describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", { tags: [Tag.Datasource] }, function () {
   let fileName;
 
   before(() => {

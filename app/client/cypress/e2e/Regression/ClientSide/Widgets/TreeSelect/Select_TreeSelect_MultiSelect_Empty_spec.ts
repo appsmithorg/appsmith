@@ -1,6 +1,6 @@
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-describe("MultiSelect, Tree Select and Multi Tree Select Widget Empty Options Functionality", function () {
+describe("MultiSelect, Tree Select and Multi Tree Select Widget Empty Options Functionality", { tags: [Tag.Widget, Tag.Select] }, function () {
   before(() => {
     _.agHelper.AddDsl("SelectDslWithEmptyOptions");
   });

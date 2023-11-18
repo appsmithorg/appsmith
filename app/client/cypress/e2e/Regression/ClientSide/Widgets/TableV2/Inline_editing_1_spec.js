@@ -2,7 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table widget inline editing functionality", () => {
+describe("Table widget inline editing functionality", { tags: [Tag.Widget, Tag.Table] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

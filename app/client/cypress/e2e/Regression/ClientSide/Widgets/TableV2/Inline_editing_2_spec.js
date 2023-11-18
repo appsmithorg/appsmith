@@ -9,7 +9,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
-describe("Table widget inline editing functionality", () => {
+describe("Table widget inline editing functionality", { tags: [Tag.Widget, Tag.Table] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

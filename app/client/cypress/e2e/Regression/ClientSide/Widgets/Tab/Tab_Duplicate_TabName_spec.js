@@ -1,6 +1,6 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Tab widget test duplicate tab name validation", function () {
+describe("Tab widget test duplicate tab name validation", { tags: [Tag.Widget, Tag.Tab] }, function () {
   before(() => {
     _.agHelper.AddDsl("tabsWidgetDsl");
   });

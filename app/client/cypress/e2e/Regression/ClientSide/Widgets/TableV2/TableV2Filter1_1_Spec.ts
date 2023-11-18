@@ -8,7 +8,7 @@ import {
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Verify various Table_Filter combinations", function () {
+describe("Verify various Table_Filter combinations", { tags: [Tag.Widget, Tag.Table] }, function () {
   it("1. Adding Data to Table Widget", function () {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
     //propPane.EnterJSContext("Table data", JSON.stringify(this.dataSet.TableInput));

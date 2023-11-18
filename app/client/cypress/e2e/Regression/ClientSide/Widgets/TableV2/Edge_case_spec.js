@@ -7,7 +7,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table widget v2 edge case scenario testing", function () {
+describe("Table widget v2 edge case scenario testing", { tags: [Tag.Widget, Tag.Table] }, function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

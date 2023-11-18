@@ -9,7 +9,7 @@ import {
 
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 
-describe("Table widget date column inline editing functionality", () => {
+describe("Table widget date column inline editing functionality", { tags: [Tag.Widget, Tag.Table] }, () => {
   before(() => {
     agHelper.AddDsl("Table/DateCellEditingDSL");
   });

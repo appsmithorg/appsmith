@@ -11,7 +11,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Validating multiple widgets in auto layout mode with App navigation settings", function () {
+describe("Validating multiple widgets in auto layout mode with App navigation settings", { tags: [Tag.IDE] }, function () {
   it("1. Drag and Drop multiple widgets in auto layout mode", function () {
     autoLayout.ConvertToAutoLayoutAndVerify(false);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 200);

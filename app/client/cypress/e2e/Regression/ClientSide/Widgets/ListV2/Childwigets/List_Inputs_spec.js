@@ -12,7 +12,7 @@ import {
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
 
-describe("Input Widgets", function () {
+describe("Input Widgets", { tags: [Tag.Widget, Tag.List] }, function () {
   before(() => {
     agHelper.AddDsl("Listv2/simpleLargeListv2");
   });

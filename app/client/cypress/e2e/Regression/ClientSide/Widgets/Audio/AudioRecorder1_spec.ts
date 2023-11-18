@@ -8,7 +8,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Audio Recorder functionality tests", () => {
+describe("Audio Recorder functionality tests", { tags: [Tag.Widget, Tag.Audio] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.AUDIORECORDER,

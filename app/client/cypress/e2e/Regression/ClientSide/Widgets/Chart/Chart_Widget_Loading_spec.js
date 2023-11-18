@@ -3,7 +3,7 @@ const queryLocators = require("../../../../../locators/QueryEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let dsname;
-describe("Chart Widget Skeleton Loading Functionality", function () {
+describe("Chart Widget Skeleton Loading Functionality", { tags: [Tag.Widget] }, function () {
   before(() => {
     _.agHelper.AddDsl("ChartLoadingDsl");
   });

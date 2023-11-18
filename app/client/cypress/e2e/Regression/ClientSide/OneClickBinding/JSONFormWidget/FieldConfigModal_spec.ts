@@ -10,7 +10,7 @@ import {
 
 const oneClickBinding = new OneClickBinding();
 
-describe("JSONForm widget one click binding feature", () => {
+describe("JSONForm widget one click binding feature", { tags: [Tag.Binding] }, () => {
   it("1.tests select/unselect fields for json form widget", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 450, 200);
 

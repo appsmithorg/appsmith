@@ -10,7 +10,7 @@ import {
   deployMode,
   autoLayout,
 } from "../../../../../support/Objects/ObjectsCore";
-describe("Number Slider spec", () => {
+describe("Number Slider spec", { tags: [Tag.Widget, Tag.Slider] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("numbersliderwidget", 550, 100);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);

@@ -9,7 +9,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("storeValue Action test", () => {
+describe("storeValue Action test", { tags: [Tag.JS] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
     entityExplorer.NavigateToSwitcher("Explorer");

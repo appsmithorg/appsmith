@@ -13,7 +13,7 @@ import {
 
 let themeFont;
 
-describe("Theme validation usecase for multi-select widget", function () {
+describe("Theme validation usecase for multi-select widget", { tags: [Tag.Theme] }, function () {
   it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MULTISELECT, 300, 80);
     agHelper.GetNClick(locators._canvas);

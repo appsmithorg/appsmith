@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 const oneClickBinding = new OneClickBinding();
 
-describe("one click binding mongodb datasource", function () {
+describe("one click binding mongodb datasource", { tags: [Tag.Binding] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
   });

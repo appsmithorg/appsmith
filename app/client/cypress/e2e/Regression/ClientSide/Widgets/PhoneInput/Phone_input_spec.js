@@ -14,7 +14,7 @@ const searchAndSelectOption = (optionValue) => {
     .contains(optionValue)
     .click({ force: true });
 };
-describe("Phone input widget - ", () => {
+describe("Phone input widget - ", { tags: [Tag.Widget] }, () => {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

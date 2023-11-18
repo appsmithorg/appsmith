@@ -7,7 +7,7 @@ const widgetName = "codescannerwidget";
 const codeScannerVideoOnPublishPage = `${publish.codescannerwidget} ${commonlocators.codeScannerVideo}`;
 const codeScannerDisabledSVGIconOnPublishPage = `${publish.codescannerwidget} ${commonlocators.codeScannerDisabledSVGIcon}`;
 
-describe("Code Scanner widget's functionality", () => {
+describe("Code Scanner widget's functionality", { tags: [Tag.Widget] }, () => {
   it("1 => Check if code scanner widget can be dropped on the canvas", () => {
     // Drop the widget
     cy.get(explorer.addWidget).click();
@@ -33,9 +33,9 @@ describe("Code Scanner widget's functionality", () => {
     cy.get(commonlocators.TextInside).should("have.text", "ALWAYS_ON");
   });
 
-  describe("3 => Checks for the 'Always On' Scanner Layout", () => {
-    describe("3.1 => Checks for the disabled property", () => {
-      describe("3.1.1 => Check if the scanner can be disabled", () => {
+  describe("3 => Checks for the 'Always On' Scanner Layout", { tags: [Tag.Widget] }, () => {
+    describe("3.1 => Checks for the disabled property", { tags: [Tag.Widget] }, () => {
+      describe("3.1.1 => Check if the scanner can be disabled", { tags: [Tag.Widget] }, () => {
         it("3.1.1.1 => Disabled icon should be visible", () => {
           cy.openPropertyPane(widgetName);
           cy.moveToContentTab();
@@ -57,7 +57,7 @@ describe("Code Scanner widget's functionality", () => {
         });
       });
 
-      describe("3.1.2 => Check if the scanner can be enabled", () => {
+      describe("3.1.2 => Check if the scanner can be enabled", { tags: [Tag.Widget] }, () => {
         it("3.1.2.1 => Disabled icon should not be visible", () => {
           cy.openPropertyPane(widgetName);
           cy.moveToContentTab();
@@ -80,7 +80,7 @@ describe("Code Scanner widget's functionality", () => {
       });
     });
 
-    describe("3.2 => Checks for the visible property", () => {
+    describe("3.2 => Checks for the visible property", { tags: [Tag.Widget] }, () => {
       it("3.2.1 => Widget should be invisible on the canvas", () => {
         cy.openPropertyPane(widgetName);
         cy.moveToContentTab();
@@ -113,7 +113,7 @@ describe("Code Scanner widget's functionality", () => {
     });
   });
 
-  describe("4 => Checks for 'Click to Scan' Scanner Layout", () => {
+  describe("4 => Checks for 'Click to Scan' Scanner Layout", { tags: [Tag.Widget] }, () => {
     it("4.1 => Check if scanner layout can be changed from Always On to Click to Scan", () => {
       cy.openPropertyPane(widgetName);
       cy.moveToContentTab();
@@ -145,7 +145,7 @@ describe("Code Scanner widget's functionality", () => {
       _.deployMode.NavigateBacktoEditor();
     });
 
-    describe("4.2 => Checks for the disabled property", () => {
+    describe("4.2 => Checks for the disabled property", { tags: [Tag.Widget] }, () => {
       it("4.2.1 => Button on the canvas should be disabled", () => {
         cy.openPropertyPane(widgetName);
         cy.moveToContentTab();
@@ -179,7 +179,7 @@ describe("Code Scanner widget's functionality", () => {
       });
     });
 
-    describe("4.3 => Checks for the visible property", () => {
+    describe("4.3 => Checks for the visible property", { tags: [Tag.Widget] }, () => {
       it("4.3.1 => Button on the canvas should be invisible", () => {
         cy.openPropertyPane(widgetName);
         cy.moveToContentTab();
