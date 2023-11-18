@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "currencyinputwidget";

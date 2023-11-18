@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 

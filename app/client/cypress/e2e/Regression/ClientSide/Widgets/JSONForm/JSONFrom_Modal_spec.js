@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const jsonFormInModalDsl = require("../../../../../fixtures/jsonFormInModalDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 

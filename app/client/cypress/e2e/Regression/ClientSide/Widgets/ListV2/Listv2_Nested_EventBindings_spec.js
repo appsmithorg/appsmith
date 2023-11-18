@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const nestedListDSL = require("../../../../../fixtures/Listv2/nestedList.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 

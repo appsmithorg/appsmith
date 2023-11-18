@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dynamicInput = require("../../../../locators/DynamicInput.json");
 import {

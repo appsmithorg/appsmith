@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 /**
  * This spec test the working of select and multiselect within an
  * Object or Array field

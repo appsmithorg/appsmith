@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 /**
  * Spec to test the filterText update action trigger in Select and MultiSelect widget
  */

@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../../tags";
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 describe("List v2- Tabs Widget", { tags: [Tag.Widget, Tag.List] }, () => {

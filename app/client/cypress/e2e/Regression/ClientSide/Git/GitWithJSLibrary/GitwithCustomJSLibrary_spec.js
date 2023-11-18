@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import HomePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {

@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const themeLocator = require("../../../../../locators/ThemeLocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";

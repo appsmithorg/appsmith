@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 
 const homePage = ObjectsRegistry.HomePage;

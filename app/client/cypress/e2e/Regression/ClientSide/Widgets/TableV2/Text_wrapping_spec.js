@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
 

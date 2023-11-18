@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 import generatePage from "../../../../locators/GeneratePage.json";

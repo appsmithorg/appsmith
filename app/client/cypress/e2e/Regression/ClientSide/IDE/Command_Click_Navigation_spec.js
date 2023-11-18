@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import { PROPERTY_SELECTOR } from "../../../../locators/WidgetLocators";
 import {

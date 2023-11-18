@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../../tags";
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../../locators/FormWidgets.json");

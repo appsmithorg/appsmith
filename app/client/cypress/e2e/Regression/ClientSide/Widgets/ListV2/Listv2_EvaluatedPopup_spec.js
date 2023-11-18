@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 describe(
   "List widget v2 Evaluated Popup",
   { tags: [Tag.Widget, Tag.List] },

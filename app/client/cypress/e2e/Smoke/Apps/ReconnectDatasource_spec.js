@@ -1,3 +1,4 @@
+import { Tag } from "../../../tags";
 import homePageLocators from "../../../locators/HomePage";
 import * as _ from "../../../support/Objects/ObjectsCore";
 import { homePage, dataSources } from "../../../support/Objects/ObjectsCore";

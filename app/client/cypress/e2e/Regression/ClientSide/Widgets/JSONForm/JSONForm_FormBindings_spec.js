@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 

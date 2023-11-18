@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {

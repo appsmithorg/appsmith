@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import { RATING_WIDGET } from "../../../../../locators/RatingWidgetLocators";
 
 import {

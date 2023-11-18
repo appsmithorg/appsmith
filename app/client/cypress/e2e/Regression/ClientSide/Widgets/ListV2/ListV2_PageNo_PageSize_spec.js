@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");

@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 /// <reference types="cypress-tags" />
 import adminsSettings from "../../../../locators/AdminsSettings";
 

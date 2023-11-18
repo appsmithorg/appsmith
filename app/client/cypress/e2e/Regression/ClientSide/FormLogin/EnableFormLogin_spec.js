@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import adminSettings from "../../../../locators/AdminsSettings";
 import homePage from "../../../../locators/HomePage";
 

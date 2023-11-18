@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const pages = require("../../../../locators/Pages.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 

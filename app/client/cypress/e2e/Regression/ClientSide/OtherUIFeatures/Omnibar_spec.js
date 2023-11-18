@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const omnibar = require("../../../../locators/Omnibar.json");
 import {
   agHelper,

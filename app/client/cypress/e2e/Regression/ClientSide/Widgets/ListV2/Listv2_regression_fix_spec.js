@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;

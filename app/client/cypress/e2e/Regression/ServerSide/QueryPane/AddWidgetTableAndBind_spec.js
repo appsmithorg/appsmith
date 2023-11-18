@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const queryEditor = require("../../../../locators/QueryEditor.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");

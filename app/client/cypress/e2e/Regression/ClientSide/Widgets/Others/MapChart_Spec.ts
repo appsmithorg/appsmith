@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 /// <reference types="Cypress" />
 import viewWidgetsPage from "../../../../../locators/ViewWidgets.json";
 import {

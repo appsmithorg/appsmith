@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import { apiPage } from "../../../../support/Objects/ObjectsCore";
 
 describe("Name uniqueness test", { tags: [Tag.Datasource] }, function () {

@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import { INTERCEPT } from "../../../../fixtures/variables";
 
 import {

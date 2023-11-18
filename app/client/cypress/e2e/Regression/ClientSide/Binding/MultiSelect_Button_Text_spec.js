@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 const explorer = require("../../../../locators/explorerlocators.json");

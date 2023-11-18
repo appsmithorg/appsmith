@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 /* eslint-disable cypress/no-unnecessary-waiting */
 import EditorNavigation, {
   SidebarButton,

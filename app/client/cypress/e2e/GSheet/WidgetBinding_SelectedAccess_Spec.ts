@@ -1,3 +1,4 @@
+import { Tag } from "../../tags";
 /// <reference types="Cypress" />
 import { GSHEET_DATA } from "../../fixtures/test-data-gsheet";
 import {

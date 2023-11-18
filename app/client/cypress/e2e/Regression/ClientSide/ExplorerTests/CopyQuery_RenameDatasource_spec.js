@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import {

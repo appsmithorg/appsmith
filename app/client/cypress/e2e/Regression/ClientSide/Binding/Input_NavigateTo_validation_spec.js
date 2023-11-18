@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 const commonlocators = require("../../../../locators/commonlocators.json");

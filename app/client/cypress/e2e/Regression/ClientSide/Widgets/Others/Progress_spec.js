@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const widgets = require("../../../../../locators/Widgets.json");
 import {
   agHelper,

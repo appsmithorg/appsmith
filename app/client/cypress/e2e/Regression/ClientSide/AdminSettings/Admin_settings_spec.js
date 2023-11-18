@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import adminsSettings from "../../../../locators/AdminsSettings";
 import { agHelper } from "../../../../support/Objects/ObjectsCore";
 

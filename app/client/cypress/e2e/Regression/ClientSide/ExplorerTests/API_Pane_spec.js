@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pageid = "MyPage";

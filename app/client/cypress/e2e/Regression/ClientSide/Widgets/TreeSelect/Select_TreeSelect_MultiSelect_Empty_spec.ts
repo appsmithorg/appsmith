@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 describe(

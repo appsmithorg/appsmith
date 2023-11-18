@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");

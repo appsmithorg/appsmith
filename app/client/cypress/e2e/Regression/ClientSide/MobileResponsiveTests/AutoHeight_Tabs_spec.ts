@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import { WIDGET_PADDING } from "../../../../../src/constants/WidgetConstants";
 import {
   MOBILE_ROW_GAP,

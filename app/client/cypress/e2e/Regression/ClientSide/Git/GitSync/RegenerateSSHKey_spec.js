@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
   agHelper,

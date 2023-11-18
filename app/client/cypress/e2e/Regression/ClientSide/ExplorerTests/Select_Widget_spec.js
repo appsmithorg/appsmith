@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import commonLocators from "../../../../locators/commonlocators.json";
 import widgets from "../../../../locators/Widgets.json";
 const widgetLocators = require("../../../../locators/Widgets.json");

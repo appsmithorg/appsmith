@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import template from "../../../../locators/TemplatesLocators.json";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import widgetLocators from "../../../../locators/Widgets.json";

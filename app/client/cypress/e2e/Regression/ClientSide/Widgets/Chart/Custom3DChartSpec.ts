@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const publicWidgetsPage = require("../../../../../locators/publishWidgetspage.json");

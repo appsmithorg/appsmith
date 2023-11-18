@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 

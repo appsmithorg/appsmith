@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const level3NestedList = require("../../../../../fixtures/Listv2/level3NestedList.json");
 
 function checkAutosuggestion(label, type) {

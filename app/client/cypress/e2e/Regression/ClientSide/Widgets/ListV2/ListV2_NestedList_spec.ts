@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,

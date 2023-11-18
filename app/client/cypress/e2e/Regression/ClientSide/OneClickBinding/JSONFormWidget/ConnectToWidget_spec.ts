@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import { OneClickBinding } from "../spec_utility";
 import {

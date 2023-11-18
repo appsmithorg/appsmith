@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
 describe("Switch datasource", { tags: [Tag.Datasource] }, function () {

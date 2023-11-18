@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 import {

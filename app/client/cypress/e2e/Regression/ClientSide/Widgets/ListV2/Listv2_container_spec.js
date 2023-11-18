@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 

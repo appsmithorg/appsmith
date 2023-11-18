@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import HomePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {

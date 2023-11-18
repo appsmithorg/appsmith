@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import ApiEditor from "../../../../locators/ApiEditor";
 import DynamicInput from "../../../../locators/DynamicInput";
 import HomePage from "../../../../locators/HomePage";

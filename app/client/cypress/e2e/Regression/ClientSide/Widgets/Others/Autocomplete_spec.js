@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 

@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const locators = ObjectsRegistry.CommonLocators;

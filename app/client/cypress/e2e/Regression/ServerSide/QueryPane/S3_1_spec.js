@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 const queryLocators = require("../../../../locators/QueryEditor.json");

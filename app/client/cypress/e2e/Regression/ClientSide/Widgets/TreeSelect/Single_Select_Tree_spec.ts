@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import publish from "../../../../../locators/publishWidgetspage.json";
 import commonlocators from "../../../../../locators/commonlocators.json";

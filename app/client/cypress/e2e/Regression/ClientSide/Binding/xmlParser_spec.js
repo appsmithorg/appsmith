@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 

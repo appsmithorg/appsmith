@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 const widgetsPage = require("../../../../locators/Widgets.json");

@@ -1,3 +1,4 @@
+import { Tag } from "../../../tags";
 const datasource = require("../../../locators/DatasourcesEditor.json");
 let datasourceName;
 import { dataSources } from "../../../support/Objects/ObjectsCore";

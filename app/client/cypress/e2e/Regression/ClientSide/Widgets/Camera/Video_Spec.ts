@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import widgetLocators from "../../../../../locators/Widgets.json";
 import {
   agHelper,

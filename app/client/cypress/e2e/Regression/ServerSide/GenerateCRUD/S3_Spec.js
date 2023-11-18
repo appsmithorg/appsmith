@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const commonlocators = require("../../../../locators/commonlocators.json");

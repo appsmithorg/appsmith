@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 
 describe(

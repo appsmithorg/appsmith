@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";

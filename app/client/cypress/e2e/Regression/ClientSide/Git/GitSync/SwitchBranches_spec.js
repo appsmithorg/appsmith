@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import commonLocators from "../../../../../locators/commonlocators.json";
 import explorer from "../../../../../locators/explorerlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";

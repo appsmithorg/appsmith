@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 /**
  * Spec to test the events made available by each field type
  */

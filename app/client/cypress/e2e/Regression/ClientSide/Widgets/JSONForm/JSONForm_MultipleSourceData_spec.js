@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonText = require("../../../../../fixtures/jsonTextDsl.json");

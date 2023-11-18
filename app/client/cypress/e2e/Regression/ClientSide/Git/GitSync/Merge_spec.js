@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import commonLocators from "../../../../../locators/commonlocators.json";
 import * as _ from "../../../../../support/Objects/ObjectsCore";

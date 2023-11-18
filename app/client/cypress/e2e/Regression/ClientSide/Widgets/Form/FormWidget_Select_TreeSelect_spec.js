@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import { agHelper } from "../../../../../support/Objects/ObjectsCore";

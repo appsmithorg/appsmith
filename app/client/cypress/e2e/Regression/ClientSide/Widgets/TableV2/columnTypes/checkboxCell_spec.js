@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../../tags";
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const publishPage = require("../../../../../../locators/publishWidgetspage.json");
 const commonLocators = require("../../../../../../locators/commonlocators.json");

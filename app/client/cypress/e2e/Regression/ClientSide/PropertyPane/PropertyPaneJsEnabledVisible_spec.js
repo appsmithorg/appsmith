@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Property pane js enabled field", { tags: [Tag.IDE] }, function () {

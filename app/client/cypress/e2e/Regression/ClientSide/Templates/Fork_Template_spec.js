@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const templateLocators = require("../../../../locators/TemplatesLocators.json");
 import reconnectDatasourceLocators from "../../../../locators/ReconnectLocators.js";

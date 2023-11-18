@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import {
   dataSources,

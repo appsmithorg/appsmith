@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/containerdsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";

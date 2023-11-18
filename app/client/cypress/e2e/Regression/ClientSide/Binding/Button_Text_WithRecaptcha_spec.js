@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 

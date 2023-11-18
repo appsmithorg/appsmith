@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import homePageLocators from "../../../../../locators/HomePage";

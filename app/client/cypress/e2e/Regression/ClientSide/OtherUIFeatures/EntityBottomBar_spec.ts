@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
 const datasource = require("../../../../locators/DatasourcesEditor.json");

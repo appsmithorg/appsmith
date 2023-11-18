@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const { AggregateHelper: agHelper, CommonLocators } = ObjectsRegistry;
 

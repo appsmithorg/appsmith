@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../../tags";
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const dslWithCurrencyWidget = require("../../../../../../fixtures/Listv2/simpleListWithCurrencyWidget.json");
 import {

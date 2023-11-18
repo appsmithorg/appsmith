@@ -1,3 +1,4 @@
+import { Tag } from "../../../tags";
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 import { agHelper } from "../../../support/Objects/ObjectsCore";

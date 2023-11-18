@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import {

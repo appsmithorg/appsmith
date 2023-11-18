@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");

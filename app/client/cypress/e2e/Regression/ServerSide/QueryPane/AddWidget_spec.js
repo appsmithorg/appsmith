@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 import { dataSources } from "../../../../support/Objects/ObjectsCore";

@@ -1,3 +1,4 @@
+import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { DEFAULT_COLUMN_NAME } from "../../../../../support/Constants";
 

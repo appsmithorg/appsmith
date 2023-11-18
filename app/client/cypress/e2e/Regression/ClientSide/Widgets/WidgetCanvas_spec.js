@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 const dsl = require("../../../../fixtures/longCanvasDsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 

@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import * as commonlocators from "../../../../locators/commonlocators.json";
 import {
   agHelper,

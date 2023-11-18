@@ -1,3 +1,4 @@
+import { Tag } from "../../../../tags";
 import { apiPage, dataManager } from "../../../../support/Objects/ObjectsCore";
 
 describe("Validate API URL Evaluated value", { tags: [Tag.Datasource] }, () => {
