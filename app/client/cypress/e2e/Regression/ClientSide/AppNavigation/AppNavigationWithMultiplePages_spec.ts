@@ -14,54 +14,58 @@ import EditorNavigation, {
 
 let currentUrl: string;
 
-describe("Page orientation and navigation related usecases ", { tags: [Tag.IDE] }, function () {
-  it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
-    EditorNavigation.ViaSidebar(SidebarButton.Settings);
-    agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
-    agHelper.GetNClick(
-      appSettings.locators._navigationSettings._orientationOptions._side,
-    );
-    agHelper.AssertElementExist(appSettings.locators._sideNavbar);
-    agHelper.GetNClick(locators._canvas);
-  });
-
-  it("2. Validate change with height width for fill widget - Input widget", function () {
-    autoLayout.ConvertToAutoLayoutAndVerify(false);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 200);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
-    agHelper.Sleep();
-    cy.url().then((url) => {
-      currentUrl = url;
+describe(
+  "Page orientation and navigation related usecases ",
+  { tags: [Tag.IDE] },
+  function () {
+    it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
+      EditorNavigation.ViaSidebar(SidebarButton.Settings);
+      agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
+      agHelper.GetNClick(
+        appSettings.locators._navigationSettings._orientationOptions._side,
+      );
+      agHelper.AssertElementExist(appSettings.locators._sideNavbar);
+      agHelper.GetNClick(locators._canvas);
     });
-    for (let i = 0; i < 25; i++) {
-      entityExplorer.AddNewPage();
-    }
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
-    propPane.NavigateToPage("Page1", "onClick");
-    deployMode.DeployApp();
-    agHelper.Sleep();
-    agHelper.GetNClickByContains("button", "Submit");
-    agHelper.AssertElementVisibility(
-      appSettings.locators._getActivePage("Page1"),
-    );
-    deployMode.NavigateBacktoEditor();
-  });
 
-  it("3. Navigate to widget url and validate", () => {
-    agHelper.VisitNAssert(currentUrl);
-    agHelper.Sleep();
-    agHelper.AssertElementExist(
-      locators._widgetInCanvas(draggableWidgets.INPUT_V2),
-    );
-    agHelper.AssertElementExist(
-      locators._widgetInCanvas(draggableWidgets.INPUT_V2),
-      1,
-    );
-    agHelper.AssertAttribute(
-      locators._widgetInCanvas(draggableWidgets.INPUT_V2),
-      "data-testid",
-      "t--selected",
-      1,
-    );
-  });
-});
+    it("2. Validate change with height width for fill widget - Input widget", function () {
+      autoLayout.ConvertToAutoLayoutAndVerify(false);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 200);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+      agHelper.Sleep();
+      cy.url().then((url) => {
+        currentUrl = url;
+      });
+      for (let i = 0; i < 25; i++) {
+        entityExplorer.AddNewPage();
+      }
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
+      propPane.NavigateToPage("Page1", "onClick");
+      deployMode.DeployApp();
+      agHelper.Sleep();
+      agHelper.GetNClickByContains("button", "Submit");
+      agHelper.AssertElementVisibility(
+        appSettings.locators._getActivePage("Page1"),
+      );
+      deployMode.NavigateBacktoEditor();
+    });
+
+    it("3. Navigate to widget url and validate", () => {
+      agHelper.VisitNAssert(currentUrl);
+      agHelper.Sleep();
+      agHelper.AssertElementExist(
+        locators._widgetInCanvas(draggableWidgets.INPUT_V2),
+      );
+      agHelper.AssertElementExist(
+        locators._widgetInCanvas(draggableWidgets.INPUT_V2),
+        1,
+      );
+      agHelper.AssertAttribute(
+        locators._widgetInCanvas(draggableWidgets.INPUT_V2),
+        "data-testid",
+        "t--selected",
+        1,
+      );
+    });
+  },
+);

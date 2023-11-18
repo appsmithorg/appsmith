@@ -16,207 +16,211 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("JSON Form Widget Form Bindings", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  before("Add dsl and check fields under field configuration", () => {
-    cy.addDsl(dslWithSchema);
-    cy.openPropertyPane("jsonformwidget");
-    const fieldNames = [
-      "name",
-      "age",
-      "dob",
-      "migrant",
-      "address",
-      "education",
-      "hobbies",
-    ];
-
-    fieldNames.forEach((fieldName) => {
-      cy.get(`[data-rbd-draggable-id='${fieldName}']`).should("exist");
-    });
-  });
-
-  it("1. Field Configuration - adds new custom field", () => {
-    cy.openPropertyPane("jsonformwidget");
-
-    // Add new field
-    cy.get(commonlocators.jsonFormAddNewCustomFieldBtn).click({
-      force: true,
+describe(
+  "JSON Form Widget Form Bindings",
+  { tags: [Tag.Widget, Tag.JSONForm] },
+  () => {
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
     });
 
-    deployMode.DeployApp();
-    // Check for the presence of newly added custom field
-    cy.get(`.t--jsonformfield-customField1`).should("exist");
-
-    deployMode.NavigateBacktoEditor();
-  });
-
-  it("2. Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
-
-    cy.get("button")
-      .contains("Submit")
-      .parent("button")
-      .should("not.have.attr", "disabled");
-
-    // make name field required
-    cy.openFieldConfiguration("name");
-    propPane.TogglePropertyState("Required", "On");
-    deployMode.DeployApp();
-
-    cy.get(`${fieldPrefix}-name input`).clear().wait(300);
-    cy.get("button")
-      .contains("Submit")
-      .parent("button")
-      .should("have.attr", "disabled");
-
-    cy.get(`${fieldPrefix}-name input`).type("JOHN").wait(300);
-
-    cy.get("button")
-      .contains("Submit")
-      .parent("button")
-      .should("not.have.attr", "disabled");
-    deployMode.NavigateBacktoEditor();
-  });
-
-  it("3. Should set isValid to false when form is invalid", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
-    cy.openPropertyPane("textwidget");
-    cy.testJsontext("text", "{{JSONForm1.isValid}}");
-    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
-    cy.get(`${fieldPrefix}-name input`).clear().wait(300);
-    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("false");
-    cy.get(`${fieldPrefix}-name input`).type("JOHN").wait(300);
-    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
-  });
-
-  it("4. show show icon select when a collapsed section is opened", () => {
-    cy.openPropertyPane("jsonformwidget");
-    cy.moveToStyleTab();
-
-    // Click Icon property
-    cy.get(submitButtonStylesSection).contains("(none)").parent().click({
-      force: true,
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
     });
 
-    // Check if icon selector opened
-    cy.get(".bp3-select-popover .virtuoso-grid-item").should("be.visible");
-  });
+    before("Add dsl and check fields under field configuration", () => {
+      cy.addDsl(dslWithSchema);
+      cy.openPropertyPane("jsonformwidget");
+      const fieldNames = [
+        "name",
+        "age",
+        "dob",
+        "migrant",
+        "address",
+        "education",
+        "hobbies",
+      ];
 
-  it("5. Should set isValid to false on first load when form is invalid", () => {
-    cy.addDsl(dslWithoutSchema);
+      fieldNames.forEach((fieldName) => {
+        cy.get(`[data-rbd-draggable-id='${fieldName}']`).should("exist");
+      });
+    });
 
-    const schema = {
-      name: "",
-    };
+    it("1. Field Configuration - adds new custom field", () => {
+      cy.openPropertyPane("jsonformwidget");
 
-    cy.openPropertyPane("textwidget");
-    cy.testJsontext("text", "{{JSONForm1.isValid}}");
+      // Add new field
+      cy.get(commonlocators.jsonFormAddNewCustomFieldBtn).click({
+        force: true,
+      });
 
-    cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+      deployMode.DeployApp();
+      // Check for the presence of newly added custom field
+      cy.get(`.t--jsonformfield-customField1`).should("exist");
 
-    // make name field required
-    cy.openFieldConfiguration("name");
-    cy.togglebar(`${propertyControlPrefix}-required input`);
+      deployMode.NavigateBacktoEditor();
+    });
 
-    deployMode.DeployApp();
+    it("2. Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
+      entityExplorer.SelectEntityByName("JSONForm1");
 
-    cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
+      cy.get("button")
+        .contains("Submit")
+        .parent("button")
+        .should("not.have.attr", "disabled");
 
-    deployMode.NavigateBacktoEditor();
-  });
+      // make name field required
+      cy.openFieldConfiguration("name");
+      propPane.TogglePropertyState("Required", "On");
+      deployMode.DeployApp();
 
-  it("6. Should set isValid to false on reset when form is invalid", () => {
-    cy.addDsl(dslWithoutSchema);
+      cy.get(`${fieldPrefix}-name input`).clear().wait(300);
+      cy.get("button")
+        .contains("Submit")
+        .parent("button")
+        .should("have.attr", "disabled");
 
-    const schema = {
-      name: "",
-    };
+      cy.get(`${fieldPrefix}-name input`).type("JOHN").wait(300);
 
-    cy.openPropertyPane("textwidget");
-    cy.testJsontext("text", "{{JSONForm1.isValid}}");
+      cy.get("button")
+        .contains("Submit")
+        .parent("button")
+        .should("not.have.attr", "disabled");
+      deployMode.NavigateBacktoEditor();
+    });
 
-    cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+    it("3. Should set isValid to false when form is invalid", () => {
+      entityExplorer.SelectEntityByName("JSONForm1");
+      cy.openPropertyPane("textwidget");
+      cy.testJsontext("text", "{{JSONForm1.isValid}}");
+      cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
+      cy.get(`${fieldPrefix}-name input`).clear().wait(300);
+      cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("false");
+      cy.get(`${fieldPrefix}-name input`).type("JOHN").wait(300);
+      cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
+    });
 
-    // make name field required
-    cy.openFieldConfiguration("name");
-    cy.togglebar(`${propertyControlPrefix}-required input`);
+    it("4. show show icon select when a collapsed section is opened", () => {
+      cy.openPropertyPane("jsonformwidget");
+      cy.moveToStyleTab();
 
-    deployMode.DeployApp();
+      // Click Icon property
+      cy.get(submitButtonStylesSection).contains("(none)").parent().click({
+        force: true,
+      });
 
-    cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
+      // Check if icon selector opened
+      cy.get(".bp3-select-popover .virtuoso-grid-item").should("be.visible");
+    });
 
-    // Click reset button
-    cy.get("button").contains("Reset").click({ force: true });
-    cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
+    it("5. Should set isValid to false on first load when form is invalid", () => {
+      cy.addDsl(dslWithoutSchema);
 
-    // Type JOHN in name field
-    cy.get(`${fieldPrefix}-name input`).type("JOHN");
-    cy.get(".t--widget-textwidget .bp3-ui-text").contains("true");
+      const schema = {
+        name: "",
+      };
 
-    // Click reset button
-    cy.get("button").contains("Reset").click({ force: true });
-    cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
+      cy.openPropertyPane("textwidget");
+      cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
-    deployMode.NavigateBacktoEditor();
-  });
+      cy.openPropertyPane("jsonformwidget");
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-  it("7. Form value should contain hidden fields value if useSourceData is set to true", () => {
-    cy.addDsl(dslWithoutSchema);
+      // make name field required
+      cy.openFieldConfiguration("name");
+      cy.togglebar(`${propertyControlPrefix}-required input`);
 
-    const schema = {
-      name: "",
-      age: 10,
-    };
+      deployMode.DeployApp();
 
-    cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+      cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
-    cy.togglebar(`${propertyControlPrefix}-hiddenfieldsindata input`);
+      deployMode.NavigateBacktoEditor();
+    });
 
-    cy.openFieldConfiguration("age");
-    cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+    it("6. Should set isValid to false on reset when form is invalid", () => {
+      cy.addDsl(dslWithoutSchema);
 
-    cy.openPropertyPane("textwidget");
-    cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
+      const schema = {
+        name: "",
+      };
 
-    cy.get(".t--widget-textwidget .bp3-ui-text").contains(
-      JSON.stringify(schema),
-    );
-  });
+      cy.openPropertyPane("textwidget");
+      cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
-  it("8. Form value should not contain hidden fields value if useSourceData is set to false", () => {
-    cy.addDsl(dslWithoutSchema);
+      cy.openPropertyPane("jsonformwidget");
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-    const name = "JOHN";
+      // make name field required
+      cy.openFieldConfiguration("name");
+      cy.togglebar(`${propertyControlPrefix}-required input`);
 
-    const schema = {
-      name,
-      age: 10,
-    };
+      deployMode.DeployApp();
 
-    cy.openPropertyPane("jsonformwidget");
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+      cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
-    cy.togglebarDisable(`${propertyControlPrefix}-hiddenfieldsindata input`);
+      // Click reset button
+      cy.get("button").contains("Reset").click({ force: true });
+      cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
-    cy.openFieldConfiguration("age");
-    cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+      // Type JOHN in name field
+      cy.get(`${fieldPrefix}-name input`).type("JOHN");
+      cy.get(".t--widget-textwidget .bp3-ui-text").contains("true");
 
-    cy.openPropertyPane("textwidget");
-    cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
+      // Click reset button
+      cy.get("button").contains("Reset").click({ force: true });
+      cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
-    cy.get(".t--widget-textwidget .bp3-ui-text").contains(
-      JSON.stringify({ name }),
-    );
-  });
-});
+      deployMode.NavigateBacktoEditor();
+    });
+
+    it("7. Form value should contain hidden fields value if useSourceData is set to true", () => {
+      cy.addDsl(dslWithoutSchema);
+
+      const schema = {
+        name: "",
+        age: 10,
+      };
+
+      cy.openPropertyPane("jsonformwidget");
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
+      cy.togglebar(`${propertyControlPrefix}-hiddenfieldsindata input`);
+
+      cy.openFieldConfiguration("age");
+      cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+
+      cy.openPropertyPane("textwidget");
+      cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
+
+      cy.get(".t--widget-textwidget .bp3-ui-text").contains(
+        JSON.stringify(schema),
+      );
+    });
+
+    it("8. Form value should not contain hidden fields value if useSourceData is set to false", () => {
+      cy.addDsl(dslWithoutSchema);
+
+      const name = "JOHN";
+
+      const schema = {
+        name,
+        age: 10,
+      };
+
+      cy.openPropertyPane("jsonformwidget");
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
+      cy.togglebarDisable(`${propertyControlPrefix}-hiddenfieldsindata input`);
+
+      cy.openFieldConfiguration("age");
+      cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+
+      cy.openPropertyPane("textwidget");
+      cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
+
+      cy.get(".t--widget-textwidget .bp3-ui-text").contains(
+        JSON.stringify({ name }),
+      );
+    });
+  },
+);

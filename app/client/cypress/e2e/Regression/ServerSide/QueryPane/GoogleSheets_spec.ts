@@ -8,9 +8,9 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe(, 
+describe(
   "Google Sheets datasource row objects placeholder",
-  { tags: [Tag.Datasource, Tag.excludeForAirgap] }
+  { tags: [Tag.Datasource, Tag.excludeForAirgap] },
   function () {
     let pluginName = "Google Sheets";
 

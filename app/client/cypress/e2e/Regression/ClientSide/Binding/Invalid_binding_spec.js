@@ -5,19 +5,26 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the multiple widgets and validating default data", { tags: [Tag.Binding] }, function () {
-  before(() => {
-    agHelper.AddDsl("Invalid_binding_dsl");
-  });
+describe(
+  "Binding the multiple widgets and validating default data",
+  { tags: [Tag.Binding] },
+  function () {
+    before(() => {
+      agHelper.AddDsl("Invalid_binding_dsl");
+    });
 
-  it("1. Dropdown widget test with invalid binding value", function () {
-    entityExplorer.SelectEntityByName("Dropdown1");
-    propPane.ToggleJSMode("sourcedata");
-    cy.testJsontext("sourcedata", JSON.stringify(testdata.defaultdataBinding));
-    cy.evaluateErrorMessage(testdata.dropdownErrorMsg);
-    //Table widget test with invalid binding value
-    entityExplorer.SelectEntityByName("Table1");
-    cy.testJsontext("tabledata", JSON.stringify(testdata.defaultdataBinding));
-    cy.evaluateErrorMessage(testdata.tableWidgetErrorMsg);
-  });
-});
+    it("1. Dropdown widget test with invalid binding value", function () {
+      entityExplorer.SelectEntityByName("Dropdown1");
+      propPane.ToggleJSMode("sourcedata");
+      cy.testJsontext(
+        "sourcedata",
+        JSON.stringify(testdata.defaultdataBinding),
+      );
+      cy.evaluateErrorMessage(testdata.dropdownErrorMsg);
+      //Table widget test with invalid binding value
+      entityExplorer.SelectEntityByName("Table1");
+      cy.testJsontext("tabledata", JSON.stringify(testdata.defaultdataBinding));
+      cy.evaluateErrorMessage(testdata.tableWidgetErrorMsg);
+    });
+  },
+);

@@ -9,88 +9,94 @@ import {
 
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 
-describe("Table widget date column inline editing functionality", { tags: [Tag.Widget, Tag.Table] }, () => {
-  before(() => {
-    agHelper.AddDsl("Table/DateCellEditingDSL");
-  });
+describe(
+  "Table widget date column inline editing functionality",
+  { tags: [Tag.Widget, Tag.Table] },
+  () => {
+    before(() => {
+      agHelper.AddDsl("Table/DateCellEditingDSL");
+    });
 
-  it("1. should check visible property control functionality", () => {
-    entityExplorer.SelectEntityByName("Table1");
-    table.EditColumn("release_date", "v2");
-    propPane.TogglePropertyState("Visible", "Off");
-    agHelper.Sleep(1000);
-    table.AssertHiddenColumns(["release_date"]);
-    entityExplorer.SelectEntityByName("Table1");
-    propPane.NavigateBackToPropertyPane();
-    table.EditColumn("release_date", "v2");
-    propPane.TogglePropertyState("Visible", "On");
-    agHelper.Sleep(1000);
-    table.AssertVisibleColumns(["release_date"]);
-  });
+    it("1. should check visible property control functionality", () => {
+      entityExplorer.SelectEntityByName("Table1");
+      table.EditColumn("release_date", "v2");
+      propPane.TogglePropertyState("Visible", "Off");
+      agHelper.Sleep(1000);
+      table.AssertHiddenColumns(["release_date"]);
+      entityExplorer.SelectEntityByName("Table1");
+      propPane.NavigateBackToPropertyPane();
+      table.EditColumn("release_date", "v2");
+      propPane.TogglePropertyState("Visible", "On");
+      agHelper.Sleep(1000);
+      table.AssertVisibleColumns(["release_date"]);
+    });
 
-  it("2. should check min date and max date property control functionality", () => {
-    entityExplorer.SelectEntityByName("Table1");
-    propPane.TogglePropertyState("Editable", "On");
-    agHelper.AssertElementExist(
-      propPane._propertyPanePropertyControl("validation", "mindate"),
-    );
-    agHelper.AssertElementExist(
-      propPane._propertyPanePropertyControl("validation", "maxdate"),
-    );
-    agHelper.GetNClick(locators._existingFieldTextByName("Min Date"));
-    agHelper.GetNClick(datePickerlocators.calendarHeader, 2);
-    agHelper.GetNClick(datePickerlocators.year("2022"), 0, true);
-    agHelper.GetNClick(datePickerlocators.calendarHeader, 1);
-    agHelper.GetNClick(dataSources._visibleTextSpan("May"), 0, true);
-    agHelper.GetNClick(datePickerlocators.date("005"));
-    agHelper.PressEnter();
-    agHelper.GetNClick(locators._existingFieldTextByName("Min Date"));
-    agHelper.GetNClick(datePickerlocators.calendarHeader, 2);
-    agHelper.GetNClick(datePickerlocators.year("2022"), 0, true);
-    agHelper.GetNClick(datePickerlocators.date("030"));
-    table.ClickOnEditIcon(0, 2);
-    agHelper
-      .GetText(table._popoverErrorMsg("Date out of range"))
-      .then(($textData) => expect($textData).to.eq("Date out of range"));
-
-    agHelper.GetNClick(locators._existingFieldTextByName("Min Date"));
-    agHelper.ClickButton("Clear");
-
-    agHelper.GetNClick(locators._existingFieldTextByName("Max Date"));
-    agHelper.ClickButton("Clear");
-
-    table.ClickOnEditIcon(0, 2);
-    agHelper.AssertElementAbsence(table._popoverErrorMsg("Date out of range"));
-  });
-
-  it("3. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
-    entityExplorer.SelectEntityByName("Table1");
-    propPane.NavigateBackToPropertyPane();
-    propPane.UpdatePropertyFieldValue(
-      "Table data",
-      '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',
-    );
-    agHelper.Sleep(3000);
-    table.ChangeColumnType("dateValue", "Date", "v2");
-    table.EditColumn("dateValue", "v2");
-    propPane.SelectPropertiesDropDown("Date format", "ISO 8601");
-    // we should not see an error after selecting the ISO 8061 format
-    agHelper.AssertElementAbsence(
-      `${propPane._propertyDateFormat} ${table._codeMirrorError}`,
-    );
-    propPane.ToggleJSMode("Date format", true);
-    agHelper
-      .GetText(locators._existingFieldTextByName("Date format"))
-      .then(($textData) =>
-        expect($textData).to.include("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+    it("2. should check min date and max date property control functionality", () => {
+      entityExplorer.SelectEntityByName("Table1");
+      propPane.TogglePropertyState("Editable", "On");
+      agHelper.AssertElementExist(
+        propPane._propertyPanePropertyControl("validation", "mindate"),
       );
-    propPane.UpdatePropertyFieldValue(
-      "Date format",
-      "YYYY-MM-DDTHH:mm:ss.SSSsZ",
-    );
-    //we should now see an error when an incorrect date format
-    agHelper.AssertElementVisibility(
-      `${propPane._propertyDateFormat} ${table._codeMirrorError}`,
-    );
-  });
-});
+      agHelper.AssertElementExist(
+        propPane._propertyPanePropertyControl("validation", "maxdate"),
+      );
+      agHelper.GetNClick(locators._existingFieldTextByName("Min Date"));
+      agHelper.GetNClick(datePickerlocators.calendarHeader, 2);
+      agHelper.GetNClick(datePickerlocators.year("2022"), 0, true);
+      agHelper.GetNClick(datePickerlocators.calendarHeader, 1);
+      agHelper.GetNClick(dataSources._visibleTextSpan("May"), 0, true);
+      agHelper.GetNClick(datePickerlocators.date("005"));
+      agHelper.PressEnter();
+      agHelper.GetNClick(locators._existingFieldTextByName("Min Date"));
+      agHelper.GetNClick(datePickerlocators.calendarHeader, 2);
+      agHelper.GetNClick(datePickerlocators.year("2022"), 0, true);
+      agHelper.GetNClick(datePickerlocators.date("030"));
+      table.ClickOnEditIcon(0, 2);
+      agHelper
+        .GetText(table._popoverErrorMsg("Date out of range"))
+        .then(($textData) => expect($textData).to.eq("Date out of range"));
+
+      agHelper.GetNClick(locators._existingFieldTextByName("Min Date"));
+      agHelper.ClickButton("Clear");
+
+      agHelper.GetNClick(locators._existingFieldTextByName("Max Date"));
+      agHelper.ClickButton("Clear");
+
+      table.ClickOnEditIcon(0, 2);
+      agHelper.AssertElementAbsence(
+        table._popoverErrorMsg("Date out of range"),
+      );
+    });
+
+    it("3. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
+      entityExplorer.SelectEntityByName("Table1");
+      propPane.NavigateBackToPropertyPane();
+      propPane.UpdatePropertyFieldValue(
+        "Table data",
+        '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',
+      );
+      agHelper.Sleep(3000);
+      table.ChangeColumnType("dateValue", "Date", "v2");
+      table.EditColumn("dateValue", "v2");
+      propPane.SelectPropertiesDropDown("Date format", "ISO 8601");
+      // we should not see an error after selecting the ISO 8061 format
+      agHelper.AssertElementAbsence(
+        `${propPane._propertyDateFormat} ${table._codeMirrorError}`,
+      );
+      propPane.ToggleJSMode("Date format", true);
+      agHelper
+        .GetText(locators._existingFieldTextByName("Date format"))
+        .then(($textData) =>
+          expect($textData).to.include("YYYY-MM-DDTHH:mm:ss.SSSZ"),
+        );
+      propPane.UpdatePropertyFieldValue(
+        "Date format",
+        "YYYY-MM-DDTHH:mm:ss.SSSsZ",
+      );
+      //we should now see an error when an incorrect date format
+      agHelper.AssertElementVisibility(
+        `${propPane._propertyDateFormat} ${table._codeMirrorError}`,
+      );
+    });
+  },
+);

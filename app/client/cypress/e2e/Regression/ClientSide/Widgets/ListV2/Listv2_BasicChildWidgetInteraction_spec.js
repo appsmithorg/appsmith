@@ -46,190 +46,196 @@ function checkSelectedRadioValue(selector, value) {
   cy.get(`${selector} input:checked`).should("have.value", value);
 }
 
-describe("List widget v2 - Basic Child Widget Interaction", { tags: [Tag.Widget, Tag.List] }, () => {
-  before(() => {
-    _.agHelper.AddDsl("Listv2/emptyList");
-    cy.get(publishLocators.containerWidget).should("have.length", 3);
-  });
-
-  it("1. Child widgets", () => {
-    // Drop Input widget
-    dragAndDropToWidget("inputwidgetv2", "containerwidget", {
-      x: 250,
-      y: 50,
+describe(
+  "List widget v2 - Basic Child Widget Interaction",
+  { tags: [Tag.Widget, Tag.List] },
+  () => {
+    before(() => {
+      _.agHelper.AddDsl("Listv2/emptyList");
+      cy.get(publishLocators.containerWidget).should("have.length", 3);
     });
 
-    // Verify drop
-    cy.get(publishLocators.inputWidget).should("exist");
+    it("1. Child widgets", () => {
+      // Drop Input widget
+      dragAndDropToWidget("inputwidgetv2", "containerwidget", {
+        x: 250,
+        y: 50,
+      });
 
-    // Type value
-    cy.get(publishLocators.inputWidget).find("input").type("abcd");
+      // Verify drop
+      cy.get(publishLocators.inputWidget).should("exist");
 
-    // Verify if the value got typed
-    cy.get(publishLocators.inputWidget)
-      .find("input")
-      .should("have.value", "abcd");
+      // Type value
+      cy.get(publishLocators.inputWidget).find("input").type("abcd");
 
-    deleteAllWidgetsInContainer();
+      // Verify if the value got typed
+      cy.get(publishLocators.inputWidget)
+        .find("input")
+        .should("have.value", "abcd");
 
-    // Drop Select widget
-    dragAndDropToWidget("selectwidget", "containerwidget", {
-      x: 250,
-      y: 50,
+      deleteAllWidgetsInContainer();
+
+      // Drop Select widget
+      dragAndDropToWidget("selectwidget", "containerwidget", {
+        x: 250,
+        y: 50,
+      });
+
+      // Verify drop
+      cy.get(publishLocators.selectwidget).should("exist");
+
+      _.deployMode.DeployApp();
+
+      cy.waitUntil(() =>
+        cy
+          .get(
+            `${widgetSelector("List1")} ${containerWidgetSelector} ${
+              publishLocators.selectwidget
+            }`,
+          )
+          .should("have.length", 3),
+      );
+
+      // open the select widget
+      cy.get(publishLocators.selectwidget)
+        .eq(0)
+        .find(widgetLocators.dropdownSingleSelect)
+        .click({ force: true });
+      // Select the Red option from dropdown list
+      cy.get(commonlocators.singleSelectWidgetMenuItem)
+        .contains("Red")
+        .click({ force: true });
+
+      // Assert if the select widget has Red as the selected value
+      cy.get(publishLocators.selectwidget).contains("Red");
+      _.deployMode.NavigateBacktoEditor();
+      deleteAllWidgetsInContainer();
+
+      // Drop Checkbox widget
+      dragAndDropToWidget("checkboxgroupwidget", "containerwidget", {
+        x: 250,
+        y: 50,
+      });
+
+      // Verify drop
+      cy.get(publishLocators.checkboxGroupWidget).should("exist");
+
+      _.deployMode.DeployApp();
+
+      cy.waitUntil(() =>
+        cy
+          .get(
+            `${widgetSelector("List1")} ${containerWidgetSelector} ${
+              publishLocators.checkboxGroupWidget
+            }`,
+          )
+          .should("have.length", 3),
+      );
+
+      cy.wait(2000); //for widgets to settle
+
+      // select green & Verify Green selected
+
+      cy.get(publishLocators.checkboxGroupWidget)
+        .find(".bp3-checkbox")
+        .contains("Green")
+        .click({ force: true })
+        .wait(500)
+        .siblings("input")
+        .should("be.checked");
+
+      // Verify Blue selected
+      cy.get(publishLocators.checkboxGroupWidget)
+        .find(".bp3-checkbox")
+        .contains("Blue")
+        .siblings("input")
+        .should("be.checked");
+      _.deployMode.NavigateBacktoEditor();
+      deleteAllWidgetsInContainer();
+
+      // Drop Switch widget
+      dragAndDropToWidget("switchwidget", "containerwidget", {
+        x: 250,
+        y: 50,
+      });
+
+      // Verify drop
+      cy.get(publishLocators.switchwidget).should("exist");
+
+      _.deployMode.DeployApp();
+
+      cy.waitUntil(() =>
+        cy
+          .get(
+            `${widgetSelector("List1")} ${containerWidgetSelector} ${
+              publishLocators.switchwidget
+            }`,
+          )
+          .should("have.length", 3),
+      );
+
+      // Verify checked
+      cy.get(publishLocators.switchwidget).find("input").should("be.checked");
+      cy.wait(1000);
+      cy.waitUntil(() =>
+        cy
+          .get(
+            `${widgetSelector("List1")} ${containerWidgetSelector} ${
+              publishLocators.switchwidget
+            }`,
+          )
+          .should("have.length", 3),
+      );
+      // Uncheck & Verify unchecked
+      cy.get(publishLocators.switchwidget)
+        .find("label")
+        .first()
+        .click()
+        .wait(500)
+        .should("not.be.checked");
+
+      _.deployMode.NavigateBacktoEditor();
+      deleteAllWidgetsInContainer();
+
+      // Drop Radio widget
+      dragAndDropToWidget("radiogroupwidget", "containerwidget", {
+        x: 250,
+        y: 50,
+      });
+
+      // Verify drop
+      cy.get(publishLocators.radioWidget).should("exist");
+
+      _.deployMode.DeployApp();
+
+      cy.waitUntil(() =>
+        cy
+          .get(
+            `${widgetSelector("List1")} ${containerWidgetSelector} ${
+              publishLocators.radioWidget
+            }`,
+          )
+          .should("have.length", 3),
+      );
+
+      // Check radio with value=1 is selected
+      checkSelectedRadioValue(publishLocators.radioWidget, "Y");
+      cy.wait(1000);
+      cy.waitUntil(() =>
+        cy
+          .get(
+            `${widgetSelector("List1")} ${containerWidgetSelector} ${
+              publishLocators.radioWidget
+            }`,
+          )
+          .should("have.length", 3),
+      );
+      // Check option 2 and then check it's value:
+      cy.get(`${publishLocators.radioWidget} input`).check("N", {
+        force: true,
+      });
+      checkSelectedRadioValue(publishLocators.radioWidget, "N");
+      _.deployMode.NavigateBacktoEditor();
     });
-
-    // Verify drop
-    cy.get(publishLocators.selectwidget).should("exist");
-
-    _.deployMode.DeployApp();
-
-    cy.waitUntil(() =>
-      cy
-        .get(
-          `${widgetSelector("List1")} ${containerWidgetSelector} ${
-            publishLocators.selectwidget
-          }`,
-        )
-        .should("have.length", 3),
-    );
-
-    // open the select widget
-    cy.get(publishLocators.selectwidget)
-      .eq(0)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
-    // Select the Red option from dropdown list
-    cy.get(commonlocators.singleSelectWidgetMenuItem)
-      .contains("Red")
-      .click({ force: true });
-
-    // Assert if the select widget has Red as the selected value
-    cy.get(publishLocators.selectwidget).contains("Red");
-    _.deployMode.NavigateBacktoEditor();
-    deleteAllWidgetsInContainer();
-
-    // Drop Checkbox widget
-    dragAndDropToWidget("checkboxgroupwidget", "containerwidget", {
-      x: 250,
-      y: 50,
-    });
-
-    // Verify drop
-    cy.get(publishLocators.checkboxGroupWidget).should("exist");
-
-    _.deployMode.DeployApp();
-
-    cy.waitUntil(() =>
-      cy
-        .get(
-          `${widgetSelector("List1")} ${containerWidgetSelector} ${
-            publishLocators.checkboxGroupWidget
-          }`,
-        )
-        .should("have.length", 3),
-    );
-
-    cy.wait(2000); //for widgets to settle
-
-    // select green & Verify Green selected
-
-    cy.get(publishLocators.checkboxGroupWidget)
-      .find(".bp3-checkbox")
-      .contains("Green")
-      .click({ force: true })
-      .wait(500)
-      .siblings("input")
-      .should("be.checked");
-
-    // Verify Blue selected
-    cy.get(publishLocators.checkboxGroupWidget)
-      .find(".bp3-checkbox")
-      .contains("Blue")
-      .siblings("input")
-      .should("be.checked");
-    _.deployMode.NavigateBacktoEditor();
-    deleteAllWidgetsInContainer();
-
-    // Drop Switch widget
-    dragAndDropToWidget("switchwidget", "containerwidget", {
-      x: 250,
-      y: 50,
-    });
-
-    // Verify drop
-    cy.get(publishLocators.switchwidget).should("exist");
-
-    _.deployMode.DeployApp();
-
-    cy.waitUntil(() =>
-      cy
-        .get(
-          `${widgetSelector("List1")} ${containerWidgetSelector} ${
-            publishLocators.switchwidget
-          }`,
-        )
-        .should("have.length", 3),
-    );
-
-    // Verify checked
-    cy.get(publishLocators.switchwidget).find("input").should("be.checked");
-    cy.wait(1000);
-    cy.waitUntil(() =>
-      cy
-        .get(
-          `${widgetSelector("List1")} ${containerWidgetSelector} ${
-            publishLocators.switchwidget
-          }`,
-        )
-        .should("have.length", 3),
-    );
-    // Uncheck & Verify unchecked
-    cy.get(publishLocators.switchwidget)
-      .find("label")
-      .first()
-      .click()
-      .wait(500)
-      .should("not.be.checked");
-
-    _.deployMode.NavigateBacktoEditor();
-    deleteAllWidgetsInContainer();
-
-    // Drop Radio widget
-    dragAndDropToWidget("radiogroupwidget", "containerwidget", {
-      x: 250,
-      y: 50,
-    });
-
-    // Verify drop
-    cy.get(publishLocators.radioWidget).should("exist");
-
-    _.deployMode.DeployApp();
-
-    cy.waitUntil(() =>
-      cy
-        .get(
-          `${widgetSelector("List1")} ${containerWidgetSelector} ${
-            publishLocators.radioWidget
-          }`,
-        )
-        .should("have.length", 3),
-    );
-
-    // Check radio with value=1 is selected
-    checkSelectedRadioValue(publishLocators.radioWidget, "Y");
-    cy.wait(1000);
-    cy.waitUntil(() =>
-      cy
-        .get(
-          `${widgetSelector("List1")} ${containerWidgetSelector} ${
-            publishLocators.radioWidget
-          }`,
-        )
-        .should("have.length", 3),
-    );
-    // Check option 2 and then check it's value:
-    cy.get(`${publishLocators.radioWidget} input`).check("N", { force: true });
-    checkSelectedRadioValue(publishLocators.radioWidget, "N");
-    _.deployMode.NavigateBacktoEditor();
-  });
-});
+  },
+);
