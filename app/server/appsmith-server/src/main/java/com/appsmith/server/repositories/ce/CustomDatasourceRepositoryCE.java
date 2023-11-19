@@ -12,17 +12,17 @@ import java.util.Set;
 
 public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasource> {
 
-    Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission);
+    List<Datasource> findAllByWorkspaceId(Long workspaceId);
 
-    Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission);
+    // List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission);
 
-    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission);
+    // List<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission);
 
-    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
+    Datasource findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission);
 
-    Mono<Datasource> findById(String id, AclPermission aclPermission);
+    Datasource findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
 
-    Flux<Datasource> findAllByIds(Set<String> ids, AclPermission permission);
+    List<Datasource> findAllByIds(Set<String> ids, AclPermission permission);
 
-    Flux<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
+    List<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
 }

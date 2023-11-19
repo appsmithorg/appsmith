@@ -1,11 +1,11 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
@@ -13,16 +13,12 @@ import java.util.List;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class Collection extends BaseDomain {
 
     String name;
 
     String applicationId;
-
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
-    String organizationId;
 
     String workspaceId;
 

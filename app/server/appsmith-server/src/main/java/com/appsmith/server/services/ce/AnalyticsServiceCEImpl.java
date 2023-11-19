@@ -313,7 +313,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", id);
-                    analyticsProperties.put("oid", ((Identifiable) object).getId());
+                    analyticsProperties.put("oid", ((BaseDomain) object).getId());
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                         // To avoid sending extra event data to analytics

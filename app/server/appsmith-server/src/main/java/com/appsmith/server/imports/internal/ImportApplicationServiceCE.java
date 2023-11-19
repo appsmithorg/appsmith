@@ -88,7 +88,7 @@ public interface ImportApplicationServiceCE {
     Mono<Application> restoreSnapshot(
             String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName);
 
-    Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId);
+    Mono<List<Datasource>> findDatasourceByApplicationId(Long applicationId, Long orgId);
 
     Mono<ApplicationImportDTO> getApplicationImportDTO(
             String applicationId, String workspaceId, Application application);

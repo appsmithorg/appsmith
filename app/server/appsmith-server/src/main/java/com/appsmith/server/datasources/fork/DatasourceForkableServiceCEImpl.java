@@ -61,6 +61,7 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
             ForkingMetaDTO sourceMeta,
             ForkingMetaDTO targetMeta,
             Mono<List<Datasource>> existingDatasourcesInNewWorkspaceMono) {
+        return Mono.empty();/*
 
         return existingDatasourcesInNewWorkspaceMono.flatMap(existingDatasourcesWithoutStorages -> {
             if (datasourceToFork.getWorkspaceId().equals(targetMeta.getWorkspaceId())) {
@@ -118,7 +119,7 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
                         newDs.getDatasourceStorages().put(targetMeta.getEnvironmentId(), storageDTO);
                         return createSuffixedDatasource(newDs);
                     }));
-        });
+        });//*/
     }
 
     /**

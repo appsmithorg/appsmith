@@ -1,26 +1,28 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * TODO :
@@ -29,13 +31,14 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
+@MappedSuperclass
+public abstract class BaseDomain implements AppsmithDomain, Serializable {
 
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
-    @JsonView(Views.Public.class)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    protected String id;
 
     @JsonView(Views.Internal.class)
     @Indexed
@@ -54,26 +57,22 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     protected String modifiedBy;
 
-    // Deprecating this so we can move on to using `deletedAt` for all domain models.
-    @Deprecated(forRemoval = true)
-    @JsonView(Views.Public.class)
-    protected Boolean deleted = false;
-
     @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
+    @OneToMany
     @JsonView(Views.Internal.class)
-    protected Set<Policy> policies = new HashSet<>();
+    @ToString.Exclude
+    protected Set<Policy> policies;
 
-    @Override
     @JsonView(Views.Public.class)
     public boolean isNew() {
         return this.getId() == null;
     }
 
-    @JsonView(Views.Internal.class)
+    @JsonView(Views.Internal.class) // todo: should this be public?
     public boolean isDeleted() {
-        return this.getDeletedAt() != null || Boolean.TRUE.equals(getDeleted());
+        return deletedAt != null;
     }
 
     @Transient
@@ -114,7 +113,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
      */
     public void updateForBulkWriteOperation() {
         if (this.getId() == null) {
-            this.setId(new ObjectId().toString());
+            // this.setId(new ObjectId().toString());
         }
         if (this.getCreatedAt() == null) {
             this.setCreatedAt(Instant.now());

@@ -67,6 +67,7 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
 
     @Override
     public Mono<Layout> findAndUpdateLayout(String creatorId, String layoutId, Layout layout) {
+        return Mono.empty();/*
         Mono<PageDTO> pageDTOMono = newPageService
                 .findByIdAndLayoutsId(creatorId, layoutId, pagePermission.getEditPermission(), false)
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -103,6 +104,6 @@ public class ExecutableOnPageLoadServiceCEImpl implements ExecutableOnLoadServic
                         }
                     }
                     return Mono.empty();
-                });
+                });*/
     }
 }

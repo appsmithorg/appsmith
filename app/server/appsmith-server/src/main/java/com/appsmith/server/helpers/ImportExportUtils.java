@@ -62,12 +62,12 @@ public class ImportExportUtils {
             }
             if (ds.getId() != null) {
                 // Mapping ds name in id field
-                ds.setId(datasourceMap.get(ds.getId()));
+                // ds.setId(datasourceMap.get(ds.getId()));
                 ds.setWorkspaceId(null);
                 if (ds.getPluginId() != null) {
                     ds.setPluginId(pluginMap.get(ds.getPluginId()));
                 }
-                return ds.getId();
+                // return ds.getId();
             } else {
                 // This means we don't have regular datasource it can be simple REST_API and will also be used when
                 // importing the action to populate the data
@@ -116,7 +116,7 @@ public class ImportExportUtils {
         // would be confusing to user
         // when it is reset to false during importing where the
         // application already is present in DB
-        importedApplication.setIsPublic(null);
+        // importedApplication.setIsPublic(null);
         importedApplication.setPolicies(null);
         // These properties are not present in the application when it is created, hence the initial commit
         // to git doesn't contain these keys and if we want to discard the changes, the function
@@ -168,10 +168,11 @@ public class ImportExportUtils {
             Map<String, Instant> datasourceNameToUpdatedAtMap,
             ActionDTO actionDTO,
             Instant applicationLastCommittedAt) {
+        return false;/*
         String datasourceName = actionDTO.getDatasource().getId();
         Instant datasourceUpdatedAt = datasourceName != null ? datasourceNameToUpdatedAtMap.get(datasourceName) : null;
         return datasourceUpdatedAt != null
                 && applicationLastCommittedAt != null
-                && datasourceUpdatedAt.isAfter(applicationLastCommittedAt);
+                && datasourceUpdatedAt.isAfter(applicationLastCommittedAt);*/
     }
 }

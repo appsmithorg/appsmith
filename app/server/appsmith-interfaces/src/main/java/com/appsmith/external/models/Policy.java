@@ -1,34 +1,43 @@
 package com.appsmith.external.models;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @ToString
-@Builder
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Builder
 public class Policy implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     String permission;
 
+    @Type(JsonType.class)
     @Deprecated
-    @Builder.Default
-    Set<String> users = new HashSet<>();
+    private Set<String> users;
 
+    @Type(JsonType.class)
     @Deprecated
-    @Builder.Default
-    Set<String> groups = new HashSet<>();
+    private Set<String> groups;
 
-    @Builder.Default
-    Set<String> permissionGroups = new HashSet<>();
+    @Type(JsonType.class)
+    private Set<String> permissionGroups;
 }

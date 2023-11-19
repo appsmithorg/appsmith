@@ -2,7 +2,6 @@ package com.appsmith.server.plugins.exports;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -34,6 +33,7 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
+        return Mono.empty();/*
         return workspaceService
                 .getById(applicationJson.getExportedApplication().getWorkspaceId())
                 .map(workspace -> workspace.getPlugins().stream()
@@ -41,7 +41,7 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
                         .collect(Collectors.toSet()))
                 .flatMapMany(pluginIds -> pluginService.findAllByIdsWithoutPermission(
                         pluginIds,
-                        List.of(fieldName(QPlugin.plugin.pluginName), fieldName(QPlugin.plugin.packageName))))
+                        List.of("pluginName", "packageName")))
                 .map(plugin -> {
                     mappedExportableResourcesDTO
                             .getPluginMap()
@@ -51,6 +51,6 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
                     return plugin;
                 })
                 .collectList()
-                .then();
+                .then();*/
     }
 }

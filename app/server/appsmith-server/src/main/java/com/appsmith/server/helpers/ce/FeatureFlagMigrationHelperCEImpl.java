@@ -58,7 +58,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
          *  3. Get the diff and update the flags with pending migrations to be used to run migrations selectively
          */
         return cacheableFeatureFlagHelper
-                .fetchCachedTenantFeatures(tenant.getId())
+                .fetchCachedTenantFeatures(String.valueOf(tenant.getId()))
                 .zipWhen(existingCachedFlags -> {
                     if (existingCachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
                                     < TENANT_FEATURES_CACHE_TIME_MIN
@@ -88,7 +88,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
             b. Fetch and save latest flags from CS
         2. In case the tenant is unable to fetch the latest flags save the existing flags from step 1 to cache (fallback)
          */
-        String tenantId = tenant.getId();
+        String tenantId = String.valueOf(tenant.getId());
         return cacheableFeatureFlagHelper
                 .evictCachedTenantFeatures(tenantId)
                 .then(cacheableFeatureFlagHelper.fetchCachedTenantFeatures(tenantId))
@@ -238,7 +238,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
             return Mono.just(FALSE);
         }
         return cacheableFeatureFlagHelper
-                .fetchCachedTenantFeatures(tenant.getId())
+                .fetchCachedTenantFeatures(String.valueOf(tenant.getId()))
                 .map(cachedFeatures -> {
                     Map<String, Boolean> featureFlags = cachedFeatures.getFeatures();
                     if (featureFlags.containsKey(featureFlagEnum.name())) {

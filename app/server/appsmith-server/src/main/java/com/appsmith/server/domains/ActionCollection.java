@@ -4,11 +4,11 @@ import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * This class represents a collection of actions that may or may not belong to the same plugin.
@@ -18,17 +18,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class ActionCollection extends BranchAwareDomain {
     // Default resources from BranchAwareDomain will be used to store branchName, defaultApplicationId and
     // defaultActionCollectionId
     @JsonView(Views.Public.class)
     String applicationId;
-
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
 
     @JsonView(Views.Public.class)
     String workspaceId;
@@ -50,7 +45,6 @@ public class ActionCollection extends BranchAwareDomain {
         if (publishedCollection != null) {
             publishedCollection.sanitiseForExport();
         }
-        this.setOrganizationId(null);
         super.sanitiseToExportDBObject();
     }
 }

@@ -1,19 +1,19 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Document
+@Entity
 public class GitConfig implements AppsmithDomain {
 
     String authorName;

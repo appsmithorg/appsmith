@@ -9,7 +9,6 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -167,7 +166,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         Mono<Datasource> datasourceMono = Mono.just(datasource);
 
         // First check if this is an existing datasource or whether we need to create one
-        if (!hasText(datasource.getId())) {
+        if (datasource.isNew()) {
             // We need to create the datasource as well
 
             // Determine valid name for datasource
@@ -209,7 +208,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return datasourceMono.flatMap(savedDatasource -> this.organiseDatasourceStorages(savedDatasource)
                 .flatMap(datasourceStorage -> {
                     // Make sure that we are creating entries only if the id is not already populated
-                    if (hasText(datasourceStorage.getId())) {
+                    if (!datasourceStorage.isNew()) {
                         return Mono.just(datasourceStorage);
                     }
 
@@ -277,8 +276,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> updateDatasource(
-            String id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
-        if (!hasText(id)) {
+            Long id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
+        if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
@@ -288,13 +287,14 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         // check method docstring for description
         datasource.nullifyStorageReplicaFields();
 
-        Mono<Datasource> datasourceMono = repository
-                .findById(id, datasourcePermission.getEditPermission())
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+        Optional<Datasource> datasourceOpt = repository.findById(id/*, datasourcePermission.getEditPermission()*/);
+        if (datasourceOpt.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id));
+        }
+        return Mono.justOrEmpty(datasourceOpt.get());
 
-        // This is meant to be an update for just the datasource - like a renamed
-        return datasourceMono
+        /*/ This is meant to be an update for just the datasource - like a renamed
+        return datasourceOpt
                 .map(datasourceInDb -> {
                     copyNestedNonNullProperties(datasource, datasourceInDb);
                     return datasourceInDb;
@@ -311,7 +311,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     Boolean userInvokedUpdate = TRUE.equals(isUserRefreshedUpdate) ? TRUE : FALSE;
                     analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, userInvokedUpdate);
                     return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
-                });
+                });*/
     }
 
     @Override
@@ -320,10 +320,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             String activeEnvironmentId,
             Boolean isUserRefreshedUpdate) {
 
-        String datasourceId = datasourceStorageDTO.getDatasourceId();
+        final Long datasourceId = datasourceStorageDTO.getDatasourceId();
         String environmentId = datasourceStorageDTO.getEnvironmentId();
 
-        if (!hasText(datasourceId)) {
+        if (datasourceId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE_ID));
         }
 
@@ -334,7 +334,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         }
 
         // querying for each of the datasource
-        Mono<Datasource> datasourceMonoCached = findById(datasourceId, datasourcePermission.getEditPermission())
+        Mono<Datasource> datasourceMonoCached = findById(String.valueOf(datasourceId), datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
 
@@ -366,22 +366,20 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             datasource.setGitSyncId(
                     datasource.getWorkspaceId() + "_" + Instant.now().toString());
         }
-        return repository.save(datasource);
+        return Mono.justOrEmpty(repository.save(datasource));
     }
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
 
-        return Mono.just(datasource)
-                .flatMap(this::validateDatasource)
-                .flatMap(unsavedDatasource -> {
-                    return repository.save(unsavedDatasource).map(savedDatasource -> {
-                        // datasource.pluginName is a transient field. It was set by validateDatasource method
-                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
-                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                        return savedDatasource;
-                    });
+        return validateDatasource(datasource)
+                .map(unsavedDatasource -> {
+                    final Datasource savedDatasource = repository.save(unsavedDatasource);
+                    // datasource.pluginName is a transient field. It was set by validateDatasource method
+                    // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                    savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                    return savedDatasource;
                 })
-                .flatMap(repository::setUserPermissionsInObject);
+                .map(repository::setUserPermissionsInObject);
     }
 
     @Override
@@ -445,7 +443,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 // however since we are falling back to default this step is not required here.
 
                 // Cases where the datasource hasn't been saved yet
-                if (!hasText(datasourceStorage.getDatasourceId())) {
+                if (datasourceStorage.isNew()) {
 
                     if (!hasText(datasourceStorage.getWorkspaceId())) {
                         return Mono.error(
@@ -464,7 +462,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 } else {
 
                     datasourceStorageMono = findById(
-                                    datasourceStorage.getDatasourceId(), datasourcePermission.getExecutePermission())
+                        datasourceStorage.getDatasourceId(), datasourcePermission.getExecutePermission())
                             .zipWhen(dbDatasource -> getTrueEnvironmentId(
                                     dbDatasource.getWorkspaceId(),
                                     datasourceStorage.getEnvironmentId(),
@@ -495,7 +493,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 // changes are present in the encrypted field, because encrypted fields are not sent
                                 // over the network after encryption back to the client
 
-                                if (!hasText(datasourceStorage.getId())) {
+                                if (datasourceStorage.isNew()) {
                                     return Mono.just(datasourceStorage);
                                 }
 
@@ -678,30 +676,23 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<Datasource> findByNameAndWorkspaceId(
             String name, String workspaceId, Optional<AclPermission> permission) {
-        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
+        return Mono.justOrEmpty(repository.findByNameAndWorkspaceId(name, workspaceId, permission));
     }
 
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission);
+        return Mono.justOrEmpty(repository.findById(Long.valueOf(id)/*, aclPermission*/));
     }
 
     @Override
     public Mono<Datasource> findByIdWithStorages(String id) {
-        return repository.findById(id).flatMap(datasource -> {
-            return datasourceStorageService
-                    .findByDatasource(datasource)
-                    .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
-                    .collectMap(DatasourceStorageDTO::getEnvironmentId)
-                    .map(storages -> {
-                        datasource.setDatasourceStorages(storages);
-                        return datasource;
-                    });
-        });
+        return findById(id);
     }
 
     @Override
     public Mono<Datasource> findByIdAndEnvironmentId(String id, String environmentId) {
+        return Mono.empty();
+        /*
         return repository.findById(id).flatMap(datasource -> {
             return datasourceStorageService
                     .findByDatasourceAndEnvironmentId(datasource, environmentId)
@@ -713,12 +704,12 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         datasource.setDatasourceStorages(storages);
                         return datasource;
                     });
-        });
+        });//*/
     }
 
     @Override
     public Mono<Datasource> findById(String id) {
-        return repository.findById(id);
+        return Mono.justOrEmpty(repository.findById(Long.valueOf(id)));
     }
 
     @Override
@@ -732,7 +723,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params) {
-        String workspaceId = params.getFirst(fieldName(QDatasource.datasource.workspaceId));
+        String workspaceId = params.getFirst("workspaceId");
         if (workspaceId != null) {
             return this.getAllByWorkspaceIdWithStorages(
                     workspaceId, Optional.of(datasourcePermission.getReadPermission()));
@@ -742,15 +733,15 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission) {
-        return repository.findAllByWorkspaceId(workspaceId, permission);
+    public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(Long workspaceId, Optional<AclPermission> permission) {
+        return Flux.fromIterable(repository.findAllByWorkspaceId(workspaceId/*, permission*/));
     }
 
     @Override
     public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission) {
 
         return repository
-                .findAllByWorkspaceId(workspaceId, permission)
+                .findAllByWorkspaceId(workspaceId/*, permission*/)
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(datasource -> datasourceStorageService
                         .findByDatasource(datasource)
@@ -775,11 +766,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .filter(datasource -> datasource.getGitSyncId() == null)
                 .forEach(datasource -> datasource.setGitSyncId(
                         datasource.getWorkspaceId() + "_" + Instant.now().toString()));
-        return repository.saveAll(datasourceList);
+        return Flux.empty();
+        // return repository.saveAll(datasourceList);
     }
 
     @Override
     public Mono<Datasource> archiveById(String id) {
+        return Mono.empty();/*
         return repository
                 .findById(id, datasourcePermission.getDeletePermission())
                 .switchIfEmpty(
@@ -813,7 +806,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(datasource);
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
-                });
+                });//*/
     }
 
     /**

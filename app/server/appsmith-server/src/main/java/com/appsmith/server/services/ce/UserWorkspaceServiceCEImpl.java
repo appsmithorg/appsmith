@@ -86,6 +86,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     @Override
     public Mono<User> leaveWorkspace(String workspaceId) {
+        return Mono.empty();/*
         // Read the workspace
         Mono<Workspace> workspaceMono = workspaceRepository
                 .findById(workspaceId, workspacePermission.getReadPermission())
@@ -105,7 +106,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                  * The below switchIfEmpty will be invoked in 2 cases.
                  * 1. Explicit Backend Invocation: The user actually didn't have access to the Workspace.
                  * 2. User Interaction: User who is part of a UserGroup.
-                 */
+                 * /
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Workspace is not assigned to the user.")))
                 // User must be assigned to a single default role of the workspace. We can safely use single() here.
@@ -129,7 +130,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         Mono<Boolean> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono.flatMap(
                 permissionGroup -> permissionGroupService.leaveExplicitlyAssignedSelfRole(permissionGroup.getId()));
 
-        return removeUserFromOldPermissionGroupMono.then(updateUserDataMono).then(userMono);
+        return removeUserFromOldPermissionGroupMono.then(updateUserDataMono).then(userMono);*/
     }
 
     /**
@@ -145,6 +146,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Override
     public Mono<MemberInfoDTO> updatePermissionGroupForMember(
             String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader) {
+        return Mono.empty();/*
         if (changeUserGroupDTO.getUsername() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAME));
         }
@@ -187,7 +189,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
          * But here, since 2 DB operations were happening in parallel, we were observing an intermittent exception: "Command failed with error 251 (NoSuchTransaction)".
          *
          * The below operation is responsible for the first DB operation, if a user is removed from the workspace.
-         */
+         * /
         // Unassigned old permission group from user
         Mono<PermissionGroup> permissionGroupUnassignedMono = userMono.zipWhen(user -> oldDefaultPermissionGroupMono)
                 .flatMap(pair -> permissionGroupService.unAssignFromUserAndSendEvent(pair.getT2(), pair.getT1()));
@@ -219,7 +221,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         /*
          * The below operation is responsible for the first DB operation, if workspace role is changed ƒor the user,
          * hence we need to make this operation sequential as well.
-         */
+         * /
         return userMono.zipWhen(user -> changePermissionGroupsMono).map(pair -> {
             User user = pair.getT1();
             PermissionGroup role = pair.getT2();
@@ -231,11 +233,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     .name(user.getName())
                     .roles(List.of(roleInfoDTO))
                     .build();
-        });
+        });*/
     }
 
     @Override
     public Mono<List<MemberInfoDTO>> getWorkspaceMembers(String workspaceId) {
+        return Mono.empty();/*
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = this.getPermissionGroupsForWorkspace(workspaceId);
@@ -291,11 +294,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             return userAndPermissionGroupDTOS;
         });
 
-        return sortedListMono;
+        return sortedListMono;*/
     }
 
     @Override
     public Mono<Map<String, List<MemberInfoDTO>>> getWorkspaceMembers(Set<String> workspaceIds) {
+        return Mono.empty();/*
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = permissionGroupService
@@ -362,11 +366,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 })
                 .collectMap(Tuple2::getT1, Tuple2::getT2);
 
-        return workspaceMembersMono;
+        return workspaceMembersMono;*/
     }
 
     private List<MemberInfoDTO> mapPermissionGroupListToUserAndPermissionGroupDTOList(
             List<PermissionGroup> permissionGroupList) {
+        return Collections.emptyList();/*
         Set<String> userIds = new HashSet<>(); // Set of already collected users
         List<MemberInfoDTO> userAndGroupDTOList = new ArrayList<>();
         permissionGroupList.forEach(permissionGroup -> {
@@ -384,10 +389,11 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                         userIds.add(userId); // update set of already collected users
                     });
         });
-        return userAndGroupDTOList;
+        return userAndGroupDTOList;*/
     }
 
     protected Flux<PermissionGroup> getPermissionGroupsForWorkspace(String workspaceId) {
+        return Flux.empty();/*
         Mono<Workspace> workspaceMono = workspaceRepository
                 .findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
@@ -395,12 +401,13 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Get default permission groups
         return workspaceMono.flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(
-                workspace, permissionGroupPermission.getMembersReadPermission()));
+                workspace, permissionGroupPermission.getMembersReadPermission()));*/
     }
 
     @Override
     public Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup) {
+        return false;/*
         return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
-                && permissionGroup.getAssignedToUserIds().size() == 1;
+                && permissionGroup.getAssignedToUserIds().size() == 1;*/
     }
 }

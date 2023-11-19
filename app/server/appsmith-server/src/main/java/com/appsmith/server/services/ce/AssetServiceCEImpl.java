@@ -50,7 +50,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     @Override
     public Mono<Asset> getById(String id) {
-        return repository.findById(id);
+        return Mono.justOrEmpty(repository.findById(id));
     }
 
     private Boolean checkImageTypeValidation(DataBuffer dataBuffer, MediaType contentType) throws IOException {
@@ -73,6 +73,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     @Override
     public Mono<Asset> upload(List<Part> fileParts, int maxFileSizeKB, boolean isThumbnail) {
+        return Mono.empty();/*
         fileParts = fileParts.stream().filter(Objects::nonNull).collect(Collectors.toList());
 
         if (fileParts.isEmpty()) {
@@ -110,7 +111,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
                         return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Upload image"));
                     }
                 })
-                .flatMap(analyticsService::sendCreateEvent);
+                .flatMap(analyticsService::sendCreateEvent);*/
     }
 
     /**
@@ -123,12 +124,13 @@ public class AssetServiceCEImpl implements AssetServiceCE {
      */
     @Override
     public Mono<Void> remove(String assetId) {
+        return Mono.empty();/*
         final Asset tempAsset = new Asset();
         tempAsset.setId(assetId);
         return repository
                 .deleteById(assetId)
                 .then(analyticsService.sendDeleteEvent(tempAsset))
-                .then();
+                .then();*/
     }
 
     private Asset createAsset(DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail)

@@ -101,7 +101,7 @@ public class DatasourceControllerCE {
             @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to update resource from datasource controller with id: {}", id);
         return datasourceService
-                .updateDatasource(id, datasource, environmentId, Boolean.TRUE)
+                .updateDatasource(Long.valueOf(id), datasource, environmentId, Boolean.TRUE)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

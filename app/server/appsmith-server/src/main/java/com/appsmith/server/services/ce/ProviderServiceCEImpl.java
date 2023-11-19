@@ -80,6 +80,7 @@ public class ProviderServiceCEImpl extends BaseService<ProviderRepository, Provi
 
     @Override
     public Flux<Provider> get(MultiValueMap<String, String> params) {
+        return Flux.empty();/*
 
         // Remove branch name as providers are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
@@ -103,7 +104,7 @@ public class ProviderServiceCEImpl extends BaseService<ProviderRepository, Provi
 
         providerExample.setSortOrder(null);
 
-        return repository.findAll(Example.of(providerExample), sort);
+        return repository.findAll(Example.of(providerExample), sort);*/
     }
 
     @Override

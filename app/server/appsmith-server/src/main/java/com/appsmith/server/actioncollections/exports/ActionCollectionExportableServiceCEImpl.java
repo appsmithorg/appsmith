@@ -122,7 +122,7 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                         actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
                 mappedExportableResourcesDTO
                         .getCollectionIdToNameMap()
-                        .put(actionCollection.getId(), updatedCollectionId);
+                        .put(actionCollection.getId().toString(), updatedCollectionId);
                 actionCollection.setId(updatedCollectionId);
             }
             if (actionCollection.getPublishedCollection() != null) {
@@ -137,7 +137,7 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                             actionCollectionDTO.getPageId() + "_" + actionCollectionDTO.getName();
                     mappedExportableResourcesDTO
                             .getCollectionIdToNameMap()
-                            .put(actionCollection.getId(), updatedCollectionId);
+                            .put(actionCollection.getId().toString(), updatedCollectionId);
                     actionCollection.setId(updatedCollectionId);
                 }
             }

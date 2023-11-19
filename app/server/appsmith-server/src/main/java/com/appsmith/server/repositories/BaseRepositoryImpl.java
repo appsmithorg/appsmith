@@ -5,17 +5,18 @@ import com.appsmith.server.blasphemy.DBConnection;
 import com.appsmith.server.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.jpa.repository.support.JpaEntityInformation;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.mongodb.repository.query.MongoEntityInformation;
 import org.springframework.data.mongodb.repository.support.SimpleReactiveMongoRepository;
 import org.springframework.data.util.ParsingUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -29,11 +30,12 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -69,19 +71,18 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  */
 @Slf4j
 public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
-        extends SimpleReactiveMongoRepository<T, ID> implements BaseRepository<T, ID> {
+        extends SimpleJpaRepository<T, ID> implements BaseRepository<T, ID> {
 
-    protected final MongoEntityInformation<T, ID> entityInformation;
-    protected final ReactiveMongoOperations mongoOperations;
+    protected final @NonNull JpaEntityInformation<T, ID> entityInformation;
+    protected final @NonNull EntityManager entityManager;
 
     protected final DBConnection dbConnection;
 
     public BaseRepositoryImpl(
-            @NonNull MongoEntityInformation<T, ID> entityInformation, @NonNull ReactiveMongoOperations mongoOperations)
-            throws SQLException {
-        super(entityInformation, mongoOperations);
+        @NonNull JpaEntityInformation<T, ID> entityInformation, @NonNull EntityManager entityManager) {
+        super(entityInformation, entityManager);
         this.entityInformation = entityInformation;
-        this.mongoOperations = mongoOperations;
+        this.entityManager = entityManager;
         this.dbConnection = DBConnection.getInstance();
     }
 
@@ -99,7 +100,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     private Criteria getIdCriteria(Object id) {
-        return where(entityInformation.getIdAttribute()).is(id);
+        return null;/*
+        return where(entityInformation.getIdAttribute()).is(id);*/
     }
 
     /**
@@ -108,6 +110,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
      */
     @Override
     public Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames) {
+        return Mono.empty();/*
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
@@ -124,35 +127,37 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                         });
                     }
 
-                    return mongoOperations
+                    return entityManager
                             .query(entityInformation.getJavaType())
                             .inCollection(entityInformation.getCollectionName())
                             .matching(query)
                             .one();
-                });
+                });*/
     }
 
     @Override
     public Mono<T> retrieveById(ID id) {
+        return Mono.empty();/*
         Query query = new Query(getIdCriteria(id));
         query.addCriteria(notDeleted());
 
-        return mongoOperations
+        return entityManager
                 .query(entityInformation.getJavaType())
                 .inCollection(entityInformation.getCollectionName())
                 .matching(query)
-                .one();
+                .one();*/
     }
 
     @Override
-    public Mono<T> findById(ID id) {
-        return this.findByIdAndFieldNames(id, null);
+    public Optional<T> findById(ID id) {
+        return Optional.empty();/*
+        return this.findByIdAndFieldNames(id, null);*/
     }
 
     @Override
     public Mono<T> findByIdAndBranchName(ID id, String branchName) {
         // branchName will be ignored and this method is overridden for the services which are shared across branches
-        return this.findById(id);
+        return Mono.justOrEmpty(this.findById(id));
     }
 
     /**
@@ -160,6 +165,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
      */
     @Override
     public Mono<UpdateResult> updateByIdAndFieldNames(@NotNull ID id, @NotNull Map<String, Object> fieldNameValueMap) {
+        return Mono.empty();/*
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
@@ -172,26 +178,28 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                         update.set(fieldName, fieldValue);
                     });
 
-                    return mongoOperations.updateFirst(query, update, entityInformation.getJavaType());
-                });
+                    return entityManager.updateFirst(query, update, entityInformation.getJavaType());
+                });*/
     }
 
     @Override
-    public Flux<T> findAll() {
+    public List<T> findAll() {
+        return Collections.emptyList();/*
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
                 .flatMapMany(principal -> {
                     Query query = new Query(notDeleted());
-                    return mongoOperations.find(
+                    return entityManager.find(
                             query.cursorBatchSize(10000),
                             entityInformation.getJavaType(),
                             entityInformation.getCollectionName());
-                });
+                });*/
     }
 
     @Override
-    public Flux<T> findAll(Example example, Sort sort) {
+    public List<T> findAll(Example example, Sort sort) {
+        return Collections.emptyList();/*
         Assert.notNull(example, "Sample must not be null!");
         Assert.notNull(sort, "Sort must not be null!");
 
@@ -218,12 +226,12 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                             .collation(entityInformation.getCollation()) //
                             .with(sort);
 
-                    return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
-                });
+                    return entityManager.find(query, example.getProbeType(), entityInformation.getCollectionName());
+                });*/
     }
 
     @Override
-    public Flux<T> findAll(Example example) {
+    public List<T> findAll(Example example) {
 
         Assert.notNull(example, "Example must not be null!");
         return findAll(example, Sort.unsorted());
@@ -231,6 +239,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
 
     @Override
     public Mono<T> archive(T entity) {
+        return Mono.empty();/*
         Assert.notNull(entity, "The given entity must not be null!");
         Assert.notNull(entity.getId(), "The given entity's id must not be null!");
         // Entity is already deleted
@@ -238,13 +247,13 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
             return Mono.just(entity);
         }
 
-        entity.setDeleted(true);
         entity.setDeletedAt(Instant.now());
-        return mongoOperations.save(entity, entityInformation.getCollectionName());
+        return entityManager.save(entity, entityInformation.getCollectionName());*/
     }
 
     @Override
     public Mono<Boolean> archiveById(ID id) {
+        return Mono.empty();/*
         Assert.notNull(id, "The given id must not be null!");
 
         return ReactiveSecurityContextHolder.getContext()
@@ -254,10 +263,10 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(notDeleted());
 
-                    return mongoOperations
+                    return entityManager
                             .updateFirst(query, getForArchive(), entityInformation.getJavaType())
                             .map(result -> result.getModifiedCount() > 0 ? true : false);
-                });
+                });*/
     }
 
     public Update getForArchive() {
@@ -269,6 +278,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
 
     @Override
     public Mono<Boolean> archiveAllById(Collection<ID> ids) {
+        return Mono.empty();/*
         Assert.notNull(ids, "The given ids must not be null!");
         Assert.notEmpty(ids, "The given list of ids must not be empty!");
 
@@ -280,14 +290,15 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                     query.addCriteria(new Criteria().where(FieldName.ID).in(ids));
                     query.addCriteria(notDeleted());
 
-                    return mongoOperations
+                    return entityManager
                             .updateMulti(query, getForArchive(), entityInformation.getJavaType())
                             .map(result -> result.getModifiedCount() > 0 ? true : false);
-                });
+                });*/
     }
 
     @Override
-    public <S extends T> Mono<S> save(S entity) {
+    public <S extends T> S save(S entity) {
+        return entity;/*
         final boolean isInsert = entity.getId() == null;
         return super.save(entity).map(savedEntity -> {
             try {
@@ -296,7 +307,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                 throw new RuntimeException(e);
             }
             return savedEntity;
-        });
+        });*/
     }
 
     private <S extends T> void saveToPostgres(S entity, boolean isInsert)

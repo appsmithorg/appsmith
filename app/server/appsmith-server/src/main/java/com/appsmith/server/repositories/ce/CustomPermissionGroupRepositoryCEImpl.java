@@ -3,9 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -38,14 +36,15 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
-        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+        return Flux.empty();/*
+        Criteria assignedToUserIdCriteria = where("assignedToUserIds")
                 .in(userId);
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
+        Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
                 .is(workspaceId);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
+        Criteria defaultDomainTypeCriteria = where("defaultDomainType")
                 .is(Workspace.class.getSimpleName());
         return queryAll(
-                List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);
+                List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);*/
     }
 
     @Override
@@ -59,20 +58,22 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
+        return Flux.empty();/*
+        Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
                 .is(workspaceId);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
+        Criteria defaultDomainTypeCriteria = where("defaultDomainType")
                 .is(Workspace.class.getSimpleName());
-        return queryAll(List.of(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);
+        return queryAll(List.of(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);*/
     }
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
+        return Flux.empty();/*
+        Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
                 .in(workspaceIds);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
+        Criteria defaultDomainTypeCriteria = where("defaultDomainType")
                 .is(Workspace.class.getSimpleName());
-        return queryAll(List.of(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);
+        return queryAll(List.of(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria), permission);*/
     }
 
     @Override
@@ -98,7 +99,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
-        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+        Criteria assignedToUserIdCriteria = where("assignedToUserIds")
                 .in(userIds);
         return queryAll(
                 List.of(assignedToUserIdCriteria), includeFields, permission, Optional.empty(), NO_RECORD_LIMIT);

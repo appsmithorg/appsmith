@@ -6,7 +6,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
+
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
@@ -244,7 +244,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     assignedToUserIds.removeAll(userIds);
 
                     Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+                    String path = "assignedToUserIds";
 
                     updateObj.set(path, assignedToUserIds);
 
@@ -412,7 +412,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     assignedToUserIds.remove(userId);
 
                     Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+                    String path = "assignedToUserIds";
 
                     updateObj.set(path, assignedToUserIds);
 

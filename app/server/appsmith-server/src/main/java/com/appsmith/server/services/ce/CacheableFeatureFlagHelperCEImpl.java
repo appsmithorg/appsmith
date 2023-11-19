@@ -110,6 +110,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     }
 
     private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(String userIdentifier, User user) {
+        return Mono.empty();/*
         Mono<String> instanceIdMono = configService.getInstanceId();
         // TODO: Convert to current tenant when the feature is enabled
         Mono<Tenant> defaultTenantMono = tenantRepository.findBySlug(DEFAULT);
@@ -119,7 +120,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                     return this.getRemoteFeatureFlagsByIdentity(new FeatureFlagIdentityTraits(
                             objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3()));
                 })
-                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));
+                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));*/
     }
 
     /**

@@ -69,7 +69,7 @@ public class RedirectHelper {
                         String pageId = null;
                         for (final ApplicationPage page : application.getPages()) {
                             if (pageId == null || page.isDefault()) {
-                                pageId = page.getId();
+                                // pageId = page.getId();
                             }
                             if (page.isDefault()) {
                                 break;

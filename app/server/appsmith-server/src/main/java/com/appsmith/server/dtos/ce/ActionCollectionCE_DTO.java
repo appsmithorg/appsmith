@@ -145,7 +145,7 @@ public class ActionCollectionCE_DTO {
     }
 
     public void populateTransientFields(ActionCollection actionCollection) {
-        this.setId(actionCollection.getId());
+        // this.setId(actionCollection.getId());
         this.setApplicationId(actionCollection.getApplicationId());
         this.setWorkspaceId(actionCollection.getWorkspaceId());
         this.setUserPermissions(actionCollection.userPermissions);

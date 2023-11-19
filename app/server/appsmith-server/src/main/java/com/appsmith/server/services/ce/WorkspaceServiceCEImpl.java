@@ -8,7 +8,7 @@ import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QWorkspace;
+
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -461,7 +461,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .flatMap(this::validateObject)
                 .then(Mono.defer(() -> {
                     Query query = new Query(
-                            Criteria.where(fieldName(QWorkspace.workspace.id)).is(id));
+                            Criteria.where("id").is(id));
                     DBObject update = getDbObject(resource);
                     Update updateObj = new Update();
                     Map<String, Object> updateMap = update.toMap();

@@ -13,23 +13,21 @@ import java.util.Set;
 
 public interface AppsmithRepository<T> {
 
-    Mono<T> findById(String id, AclPermission permission);
+    Optional<T> findById(Long id, AclPermission permission);
 
-    Mono<T> findById(String id, Optional<AclPermission> permission);
+    Optional<T> findById(Long id, List<String> projectionFieldNames, AclPermission permission);
 
-    Mono<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
+    // T updateById(Long id, T resource, AclPermission permission);
 
-    Mono<T> updateById(String id, T resource, AclPermission permission);
+    List<T> queryAll(List<Criteria> criterias, AclPermission permission);
 
-    Flux<T> queryAll(List<Criteria> criterias, AclPermission permission);
+    List<T> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort);
 
-    Flux<T> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort);
+    List<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
 
-    Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
+    T setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
-    Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
+    T setUserPermissionsInObject(T obj);
 
-    Mono<T> setUserPermissionsInObject(T obj);
-
-    Mono<T> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission);
+    T updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission);
 }

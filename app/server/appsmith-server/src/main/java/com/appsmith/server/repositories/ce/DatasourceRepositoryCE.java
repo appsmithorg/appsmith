@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface DatasourceRepositoryCE extends BaseRepository<Datasource, String>, CustomDatasourceRepository {
+public interface DatasourceRepositoryCE extends BaseRepository<Datasource, Long>, CustomDatasourceRepository {
 
     Flux<Datasource> findByIdIn(List<String> ids);
 

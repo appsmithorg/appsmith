@@ -2,8 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.QLayout;
-import com.appsmith.server.domains.QPage;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -29,7 +27,7 @@ public class CustomPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Page>
     public Mono<Page> findByIdAndLayoutsId(String id, String layoutId, AclPermission aclPermission) {
 
         Criteria idCriteria = getIdCriteria(id);
-        String layoutsIdKey = fieldName(QPage.page.layouts) + "." + fieldName(QLayout.layout.id);
+        String layoutsIdKey = "layouts" + "." + "id";
         Criteria layoutCriteria = where(layoutsIdKey).is(layoutId);
 
         List<Criteria> criterias = List.of(idCriteria, layoutCriteria);
@@ -38,22 +36,23 @@ public class CustomPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Page>
 
     @Override
     public Mono<Page> findByName(String name, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QPage.page.name)).is(name);
+        Criteria nameCriteria = where("name").is(name);
         return queryOne(List.of(nameCriteria), aclPermission);
     }
 
     @Override
     public Flux<Page> findByApplicationId(String applicationId, AclPermission aclPermission) {
+        return Flux.empty();/*
         Criteria applicationIdCriteria =
-                where(fieldName(QPage.page.applicationId)).is(applicationId);
-        return queryAll(List.of(applicationIdCriteria), aclPermission);
+                where("applicationId").is(applicationId);
+        return queryAll(List.of(applicationIdCriteria), aclPermission);*/
     }
 
     @Override
     public Mono<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QPage.page.name)).is(name);
+        Criteria nameCriteria = where("name").is(name);
         Criteria applicationIdCriteria =
-                where(fieldName(QPage.page.applicationId)).is(applicationId);
+                where("applicationId").is(applicationId);
         return queryOne(List.of(nameCriteria, applicationIdCriteria), aclPermission);
     }
 }

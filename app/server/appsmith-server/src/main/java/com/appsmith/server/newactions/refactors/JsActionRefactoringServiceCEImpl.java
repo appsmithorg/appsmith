@@ -56,6 +56,7 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
 
     @Override
     public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
+        return Mono.empty();/*
         ActionCollectionDTO defaultActionCollection = refactorEntityNameDTO.getActionCollection();
 
         // Fetch branched action as client only knows about the default action IDs
@@ -105,6 +106,6 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
             return updatedActionMono
                     .then(Mono.defer(() -> updatedActionCollectionMono))
                     .then();
-        });
+        });*/
     }
 }

@@ -6,6 +6,8 @@ import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,8 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -33,31 +35,30 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @ToString
 @NoArgsConstructor
 @QueryEntity
-@Document
+@Entity
 public class Application extends BaseDomain {
 
-    @NotNull @JsonView(Views.Public.class)
+    @NotNull
+    @JsonView(Views.Public.class)
     String name;
 
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
+    @ManyToOne
+    @JoinColumn(name = "workspace_id", referencedColumnName = "id")
     @JsonView(Views.Public.class)
-    String organizationId;
+    private Workspace workspace;
 
+    @Column(name = "workspace_id")
+    private Long workspaceId;
+
+    @OneToMany
     @JsonView(Views.Public.class)
-    String workspaceId;
+    @ToString.Exclude
+    private List<ApplicationPage> pages;
 
-    // TODO: remove default values from application
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @Deprecated(forRemoval = true)
-    @JsonView(Views.Public.class)
-    Boolean isPublic = false;
-
-    @JsonView(Views.Public.class)
-    List<ApplicationPage> pages;
-
+    @OneToMany
     @JsonView(Views.Internal.class)
-    List<ApplicationPage> publishedPages;
+    @ToString.Exclude
+    private List<ApplicationPage> publishedPages;
 
     @JsonView(Views.Internal.class)
     @Transient
@@ -72,13 +73,15 @@ public class Application extends BaseDomain {
     long unreadCommentThreads;
 
     @JsonView(Views.Internal.class)
-    String clonedFromApplicationId;
+    String clonedFromApplicationId; // todo: turn this into foreign key as well?
 
+    @OneToOne
     @JsonView(Views.Internal.class)
-    ApplicationDetail unpublishedApplicationDetail;
+    private ApplicationDetail unpublishedApplicationDetail;
 
+    @OneToOne
     @JsonView(Views.Internal.class)
-    ApplicationDetail publishedApplicationDetail;
+    private ApplicationDetail publishedApplicationDetail;
 
     @JsonView(Views.Public.class)
     String color;
@@ -95,14 +98,17 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     AppLayout publishedAppLayout;
 
+    @Type(JsonType.class)
     @JsonView(Views.Public.class)
-    Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+    private Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
 
+    @Type(JsonType.class)
     @JsonView(Views.Public.class)
-    Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
+    private Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
+    @Type(JsonType.class)
     @JsonView(Views.Public.class)
-    GitApplicationMetadata gitApplicationMetadata;
+    private GitApplicationMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
@@ -130,8 +136,9 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
+    @Type(JsonType.class)
     @JsonView(Views.Public.class)
-    EmbedSetting embedSetting;
+    private EmbedSetting embedSetting;
 
     Boolean collapseInvisibleWidgets;
 
@@ -210,18 +217,18 @@ public class Application extends BaseDomain {
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
         super();
-        this.workspaceId = application.getWorkspaceId();
+        this.workspace = application.getWorkspace();
         this.pages = new ArrayList<>();
         this.publishedPages = new ArrayList<>();
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null
-                ? null
-                : new AppLayout(application.getUnpublishedAppLayout().type);
+            ? null
+            : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null
-                ? null
-                : new AppLayout(application.getPublishedAppLayout().type);
+            ? null
+            : new AppLayout(application.getPublishedAppLayout().type);
         this.setUnpublishedApplicationDetail(new ApplicationDetail());
         this.setPublishedApplicationDetail(new ApplicationDetail());
         if (application.getUnpublishedApplicationDetail() == null) {
@@ -231,46 +238,45 @@ public class Application extends BaseDomain {
             application.setPublishedApplicationDetail(new ApplicationDetail());
         }
         AppPositioning unpublishedAppPositioning =
-                application.getUnpublishedApplicationDetail().getAppPositioning() == null
-                        ? null
-                        : new AppPositioning(
-                                application.getUnpublishedApplicationDetail().getAppPositioning().type);
+            application.getUnpublishedApplicationDetail().getAppPositioning() == null
+                ? null
+                : new AppPositioning(
+                application.getUnpublishedApplicationDetail().getAppPositioning().type);
         this.getUnpublishedApplicationDetail().setAppPositioning(unpublishedAppPositioning);
         AppPositioning publishedAppPositioning =
-                application.getPublishedApplicationDetail().getAppPositioning() == null
-                        ? null
-                        : new AppPositioning(
-                                application.getPublishedApplicationDetail().getAppPositioning().type);
+            application.getPublishedApplicationDetail().getAppPositioning() == null
+                ? null
+                : new AppPositioning(
+                application.getPublishedApplicationDetail().getAppPositioning().type);
         this.getPublishedApplicationDetail().setAppPositioning(publishedAppPositioning);
         this.getUnpublishedApplicationDetail()
-                .setNavigationSetting(
-                        application.getUnpublishedApplicationDetail().getNavigationSetting() == null
-                                ? null
-                                : new NavigationSetting());
+            .setNavigationSetting(
+                application.getUnpublishedApplicationDetail().getNavigationSetting() == null
+                    ? null
+                    : new NavigationSetting());
         this.getPublishedApplicationDetail()
-                .setNavigationSetting(
-                        application.getPublishedApplicationDetail().getNavigationSetting() == null
-                                ? null
-                                : new NavigationSetting());
+            .setNavigationSetting(
+                application.getPublishedApplicationDetail().getNavigationSetting() == null
+                    ? null
+                    : new NavigationSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
 
-    public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
+    public void exportApplicationPages(final Map<String, Integer> pageIdToNameMap) {
         for (ApplicationPage applicationPage : this.getPages()) {
-            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
+            applicationPage.setId(pageIdToNameMap.get("" + applicationPage.getId() + EDIT));
             applicationPage.setDefaultPageId(null);
         }
         for (ApplicationPage applicationPage : this.getPublishedPages()) {
-            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
+            applicationPage.setId(pageIdToNameMap.get("" + applicationPage.getId() + VIEW));
             applicationPage.setDefaultPageId(null);
         }
     }
 
     @Override
     public void sanitiseToExportDBObject() {
-        this.setWorkspaceId(null);
-        this.setOrganizationId(null);
+        this.setWorkspace(null);
         this.setModifiedBy(null);
         this.setCreatedBy(null);
         this.setLastDeployedAt(null);

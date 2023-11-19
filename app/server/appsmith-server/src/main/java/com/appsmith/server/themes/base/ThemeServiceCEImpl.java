@@ -59,7 +59,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> create(Theme resource) {
-        return repository.save(resource).flatMap(analyticsService::sendCreateEvent);
+        return Mono.justOrEmpty(repository.save(resource)).flatMap(analyticsService::sendCreateEvent);
     }
 
     @Override
@@ -82,6 +82,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName) {
+        return Mono.empty();/*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
@@ -99,15 +100,16 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     } else { // theme id is not present, return default theme
                         return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
                     }
-                });
+                });*/
     }
 
     @Override
     public Flux<Theme> getApplicationThemes(String applicationId, String branchName) {
+        return Flux.empty();/*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
-                .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));
+                .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));*/
     }
 
     @Override
@@ -131,6 +133,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId, String branchName) {
+        return Mono.empty();/*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getEditPermission())
@@ -183,22 +186,24 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                                     })
                                     .flatMap(savedTheme ->
                                             analyticsService.sendObjectEvent(AnalyticsEvents.APPLY, savedTheme));
-                        }));
+                        }));*/
     }
 
     @Override
     public Mono<String> getDefaultThemeId() {
+        return Mono.empty();/*
         if (StringUtils.isEmpty(defaultThemeId)) {
             return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
                 defaultThemeId = theme.getId();
                 return theme.getId();
             });
         }
-        return Mono.just(defaultThemeId);
+        return Mono.just(defaultThemeId);*/
     }
 
     @Override
     public Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication) {
+        return Mono.empty();/*
         return repository.findById(srcThemeId, READ_THEMES).flatMap(theme -> {
             if (theme.isSystemTheme()) { // it's a system theme, no need to copy
                 return Mono.just(theme);
@@ -210,7 +215,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         destApplication.getPolicies(), Application.class, Theme.class));
                 return repository.save(theme);
             }
-        });
+        });*/
     }
 
     /**
@@ -221,6 +226,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      */
     @Override
     public Mono<Theme> publishTheme(String applicationId) {
+        return Mono.empty();/*
         // fetch application to make sure user has permission to manage this application
         return applicationRepository
                 .findById(applicationId, applicationPermission.getEditPermission())
@@ -254,7 +260,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                                     ApplicationMode.PUBLISHED);
                         }
                     });
-                });
+                });*/
     }
 
     /**
@@ -273,6 +279,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             Theme targetThemeResource,
             Application application,
             ApplicationMode applicationMode) {
+        return Mono.empty();/*
         return repository
                 .findById(currentThemeId, READ_THEMES)
                 .flatMap(currentTheme -> {
@@ -327,11 +334,12 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     } else {
                         return Mono.just(theme); // old theme overwritten, no need to update application
                     }
-                });
+                });*/
     }
 
     @Override
     public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
+        return Mono.empty();/*
 
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
@@ -371,7 +379,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     }
                     return repository.save(theme);
                 })
-                .flatMap(theme -> analyticsService.sendObjectEvent(AnalyticsEvents.FORK, theme));
+                .flatMap(theme -> analyticsService.sendObjectEvent(AnalyticsEvents.FORK, theme));*/
     }
 
     /**
@@ -385,6 +393,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      * @return deleted theme mono
      */
     private Mono<Theme> deletePublishedCustomizedThemeCopy(String themeId) {
+        return Mono.empty();/*
         if (!StringUtils.hasLength(themeId)) {
             return Mono.empty();
         }
@@ -393,11 +402,12 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 return repository.deleteById(themeId).thenReturn(theme);
             }
             return Mono.just(theme);
-        });
+        });*/
     }
 
     @Override
     public Mono<Theme> archiveById(String themeId) {
+        return Mono.empty();/*
         return repository
                 .findById(themeId, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(
@@ -410,7 +420,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                     }
                 })
-                .flatMap(analyticsService::sendDeleteEvent);
+                .flatMap(analyticsService::sendDeleteEvent);*/
     }
 
     @Override
@@ -420,16 +430,17 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> getThemeById(String themeId, AclPermission permission) {
-        return repository.findById(themeId, permission);
+        return Mono.justOrEmpty(repository.findById(Long.valueOf(themeId), permission));
     }
 
     @Override
     public Mono<Theme> save(Theme theme) {
-        return repository.save(theme);
+        return Mono.justOrEmpty(repository.save(theme));
     }
 
     @Override
     public Mono<Theme> updateName(String id, Theme themeDto) {
+        return Mono.empty();/*
         return repository
                 .findById(id, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.THEME, id)))
@@ -442,7 +453,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         theme.setDisplayName(themeDto.getDisplayName());
                     }
                     return repository.save(theme);
-                });
+                });*/
     }
 
     @Override
@@ -464,7 +475,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             newTheme.setName(theme.getName());
             newTheme.setDisplayName(theme.getDisplayName());
             newTheme.setSystemTheme(false);
-            return repository.save(newTheme);
+            return Mono.justOrEmpty(repository.save(newTheme));
         }
     }
 
@@ -478,7 +489,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     @Override
     public Mono<Application> archiveApplicationThemes(Application application) {
         return repository
-                .archiveByApplicationId(application.getId())
+                .archiveByApplicationId(String.valueOf(application.getId()))
                 .then(repository.archiveDraftThemesById(
                         application.getEditModeThemeId(), application.getPublishedModeThemeId()))
                 .thenReturn(application);

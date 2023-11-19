@@ -128,10 +128,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             List<ActionCollection> importedActionCollectionList,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        return Mono.empty();/*
 
         /* Mono.just(application) is created to avoid the eagerly fetching of existing actionCollections
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
-         */
+         * /
         return Mono.just(application)
                 .flatMap(importedApplication -> {
                     ImportActionCollectionResultDTO resultDTO = new ImportActionCollectionResultDTO();
@@ -314,7 +315,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                 .onErrorResume(e -> {
                     log.error("Error saving action collections", e);
                     return Mono.error(e);
-                });
+                });*/
     }
 
     private NewPage updatePageInActionCollection(ActionCollectionDTO collectionDTO, Map<String, NewPage> pageNameMap) {
@@ -322,7 +323,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         if (parentPage == null) {
             return null;
         }
-        collectionDTO.setPageId(parentPage.getId());
+        collectionDTO.setPageId(parentPage.getId().toString());
 
         // Update defaultResources in actionCollectionDTO
         DefaultResources defaultResources = new DefaultResources();

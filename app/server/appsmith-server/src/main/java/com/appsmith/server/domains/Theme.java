@@ -4,18 +4,18 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Map;
 
 @Getter
 @Setter
-@Document
+@Entity
 public class Theme extends BaseDomain {
     public static final String LEGACY_THEME_NAME = "classic";
     public static final String DEFAULT_THEME_NAME = "default-new";
@@ -31,11 +31,6 @@ public class Theme extends BaseDomain {
 
     @JsonView(Views.Public.class)
     private String applicationId;
-
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private String organizationId;
 
     @JsonView(Views.Public.class)
     String workspaceId;

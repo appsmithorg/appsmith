@@ -102,7 +102,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
         Mono<DatasourceStorageStructure> configurationStructureMono =
                 datasourceStructureService.getByDatasourceIdAndEnvironmentId(
-                        datasourceStorage.getDatasourceId(), datasourceStorage.getEnvironmentId());
+                    String.valueOf(datasourceStorage.getDatasourceId()), datasourceStorage.getEnvironmentId());
 
         Mono<Boolean> flagMono = featureFlagService.check(FeatureFlagEnum.ab_mock_mongo_schema_enabled);
 
@@ -159,7 +159,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                                         datasourceStorage, false, error, environmentName)))
                         .then(Mono.error(error)))
                 .flatMap(structure -> {
-                    String datasourceId = datasourceStorage.getDatasourceId();
+                    String datasourceId = String.valueOf(datasourceStorage.getDatasourceId());
                     String environmentId = datasourceStorage.getEnvironmentId();
 
                     return environmentNameMonoCached

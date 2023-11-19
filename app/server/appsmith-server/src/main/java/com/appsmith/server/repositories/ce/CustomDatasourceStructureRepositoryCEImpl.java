@@ -2,7 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.QDatasourceStorageStructure;
+
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
@@ -29,9 +29,9 @@ public class CustomDatasourceStructureRepositoryCEImpl extends BaseAppsmithRepos
     public static Criteria getDatasourceIdAndEnvironmentIdCriteria(String datasourceId, String environmentId) {
         return new Criteria()
                 .andOperator(
-                        where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.datasourceId))
+                        where("datasourceId")
                                 .is(datasourceId),
-                        where(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.environmentId))
+                        where("environmentId")
                                 .is(environmentId));
     }
 
@@ -40,7 +40,7 @@ public class CustomDatasourceStructureRepositoryCEImpl extends BaseAppsmithRepos
             String datasourceId, String environmentId, DatasourceStructure structure) {
         return mongoOperations.upsert(
                 new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
-                Update.update(fieldName(QDatasourceStorageStructure.datasourceStorageStructure.structure), structure),
+                Update.update("structure", structure),
                 DatasourceStorageStructure.class);
     }
 }

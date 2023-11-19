@@ -191,6 +191,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
      */
     public Mono<CRUDPageResponseDTO> createPageFromDBTable(
             String defaultPageId, CRUDPageResourceDTO pageResourceDTO, String environmentId, String branchName) {
+        return Mono.empty();/*
 
         /*
            1. Fetch page from the application
@@ -199,7 +200,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
            4. Map template datasource columns with resource datasource
            5. Clone layout from template application page and update using the column map created in step 4
            6. Clone and update actions in page from the template application
-        */
+        * /
 
         // All SQL datasources will be mapped to postgresql as actionBody will be same and the same logic is used
         // in template application resource file : CRUD-DB-Table-Template-Application.json
@@ -226,7 +227,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         Mono<NewPage> pageMono = getOrCreatePage(defaultApplicationId, defaultPageId, tableName, branchName);
 
         Mono<DatasourceStorage> datasourceStorageMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getActionCreatePermission())
+                .findById(Long.valueOf(datasourceId), datasourcePermission.getActionCreatePermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentIdForExecution(
@@ -397,7 +398,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                      * `sanitizeGenerateCRUDPageTemplateInfo` method in the respective plugin. In the default case no
                      * changes are made to the template. e.g. please check the sanitizeGenerateCRUDPageTemplateInfo
                      * method defined in AmazonS3Plugin.java .
-                     */
+                     * /
                     Mono<Void> sanitizeTemplateInfoMono = pluginExecutorHelper
                             .getPluginExecutorFromPackageName(plugin.getPackageName())
                             .flatMap(pluginExecutor -> pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(
@@ -453,7 +454,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                                     return crudPage;
                                                 });
                                     }));
-                });
+                });*/
     }
 
     /**

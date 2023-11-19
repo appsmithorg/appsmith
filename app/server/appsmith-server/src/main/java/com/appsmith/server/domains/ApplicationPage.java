@@ -2,6 +2,10 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +17,11 @@ import org.springframework.data.annotation.Transient;
 @Setter
 @ToString
 @NoArgsConstructor
-@EqualsAndHashCode
+@Entity
 public class ApplicationPage {
-
-    @JsonView({Views.Public.class, Views.Export.class})
-    String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Integer id;
 
     @JsonView(Views.Public.class)
     Boolean isDefault;

@@ -41,6 +41,7 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
      * In case the user doesn't exist, create and save the user.
      */
     private Mono<User> checkAndCreateUser(OAuth2User oAuth2User, OAuth2UserRequest userRequest) {
+        return Mono.empty();/*
 
         String username = oAuth2User.getName();
 
@@ -65,6 +66,6 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
                         return repository.save(user);
                     }
                     return Mono.just(user);
-                });
+                });*/
     }
 }

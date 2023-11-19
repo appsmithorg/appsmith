@@ -10,7 +10,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QUser;
+
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -51,7 +51,7 @@ public class MigrationHelperMethods {
     public static void migrateActionFormDataToObject(ApplicationJson applicationJson) {
         final List<NewAction> actionList = applicationJson.getActionList();
 
-        if (!CollectionUtils.isNullOrEmpty(actionList)) {
+        /*if (!CollectionUtils.isNullOrEmpty(actionList)) {
             actionList.parallelStream().forEach(newAction -> {
                 // determine plugin
                 final String pluginName = newAction.getPluginId();
@@ -63,7 +63,7 @@ public class MigrationHelperMethods {
                     DatabaseChangelog2.migrateFirestoreActionsFormData(newAction);
                 }
             });
-        }
+        }*/
     }
 
     // Method to embed application pages in imported application object as per modified serialization format where we
@@ -71,24 +71,24 @@ public class MigrationHelperMethods {
     public static void arrangeApplicationPagesAsPerImportedPageOrder(ApplicationJson applicationJson) {
 
         Map<ResourceModes, List<ApplicationPage>> applicationPages = Map.of(
-                EDIT, new ArrayList<>(),
-                VIEW, new ArrayList<>());
+            EDIT, new ArrayList<>(),
+            VIEW, new ArrayList<>());
         // Reorder the pages based on edit mode page sequence
         List<String> pageOrderList;
         if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageOrder())) {
             pageOrderList = applicationJson.getPageOrder();
         } else {
             pageOrderList = applicationJson.getPageList().parallelStream()
-                    .filter(newPage -> newPage.getUnpublishedPage() != null
-                            && newPage.getUnpublishedPage().getDeletedAt() == null)
-                    .map(newPage -> newPage.getUnpublishedPage().getName())
-                    .collect(Collectors.toList());
+                .filter(newPage -> newPage.getUnpublishedPage() != null
+                    && newPage.getUnpublishedPage().getDeletedAt() == null)
+                .map(newPage -> newPage.getUnpublishedPage().getName())
+                .collect(Collectors.toList());
         }
         for (String pageName : pageOrderList) {
             ApplicationPage unpublishedAppPage = new ApplicationPage();
-            unpublishedAppPage.setId(pageName);
+            // unpublishedAppPage.setId(pageName);
             unpublishedAppPage.setIsDefault(
-                    StringUtils.equals(pageName, applicationJson.getUnpublishedDefaultPageName()));
+                StringUtils.equals(pageName, applicationJson.getUnpublishedDefaultPageName()));
             applicationPages.get(EDIT).add(unpublishedAppPage);
         }
 
@@ -98,14 +98,14 @@ public class MigrationHelperMethods {
             pageOrderList = applicationJson.getPublishedPageOrder();
         } else {
             pageOrderList = applicationJson.getPageList().parallelStream()
-                    .filter(newPage -> newPage.getPublishedPage() != null
-                            && !StringUtils.isEmpty(newPage.getPublishedPage().getName()))
-                    .map(newPage -> newPage.getPublishedPage().getName())
-                    .collect(Collectors.toList());
+                .filter(newPage -> newPage.getPublishedPage() != null
+                    && !StringUtils.isEmpty(newPage.getPublishedPage().getName()))
+                .map(newPage -> newPage.getPublishedPage().getName())
+                .collect(Collectors.toList());
         }
         for (String pageName : pageOrderList) {
             ApplicationPage publishedAppPage = new ApplicationPage();
-            publishedAppPage.setId(pageName);
+            // publishedAppPage.setId(pageName);
             publishedAppPage.setIsDefault(StringUtils.equals(pageName, applicationJson.getPublishedDefaultPageName()));
             applicationPages.get(VIEW).add(publishedAppPage);
         }
@@ -116,22 +116,23 @@ public class MigrationHelperMethods {
     // Method to embed mongo escaped widgets in imported layouts as per modified serialization format where we are
     // serialising JsonIgnored fields to keep the relevant data with domain objects only
     public static void updateMongoEscapedWidget(ApplicationJson applicationJson) {
+        /*
         Map<String, Set<String>> unpublishedMongoEscapedWidget =
-                CollectionUtils.isNullOrEmpty(applicationJson.getUnpublishedLayoutmongoEscapedWidgets())
-                        ? new HashMap<>()
-                        : applicationJson.getUnpublishedLayoutmongoEscapedWidgets();
+            CollectionUtils.isNullOrEmpty(applicationJson.getUnpublishedLayoutmongoEscapedWidgets())
+                ? new HashMap<>()
+                : applicationJson.getUnpublishedLayoutmongoEscapedWidgets();
 
         Map<String, Set<String>> publishedMongoEscapedWidget =
-                CollectionUtils.isNullOrEmpty(applicationJson.getPublishedLayoutmongoEscapedWidgets())
-                        ? new HashMap<>()
-                        : applicationJson.getPublishedLayoutmongoEscapedWidgets();
+            CollectionUtils.isNullOrEmpty(applicationJson.getPublishedLayoutmongoEscapedWidgets())
+                ? new HashMap<>()
+                : applicationJson.getPublishedLayoutmongoEscapedWidgets();
 
         applicationJson.getPageList().parallelStream().forEach(newPage -> {
             if (newPage.getUnpublishedPage() != null
-                    && unpublishedMongoEscapedWidget.containsKey(
-                            newPage.getUnpublishedPage().getName())
-                    && !CollectionUtils.isNullOrEmpty(
-                            newPage.getUnpublishedPage().getLayouts())) {
+                && unpublishedMongoEscapedWidget.containsKey(
+                newPage.getUnpublishedPage().getName())
+                && !CollectionUtils.isNullOrEmpty(
+                newPage.getUnpublishedPage().getLayouts())) {
 
                 newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                     layout.setMongoEscapedWidgetNames(unpublishedMongoEscapedWidget.get(layout.getId()));
@@ -139,15 +140,15 @@ public class MigrationHelperMethods {
             }
 
             if (newPage.getPublishedPage() != null
-                    && publishedMongoEscapedWidget.containsKey(
-                            newPage.getPublishedPage().getName())
-                    && !CollectionUtils.isNullOrEmpty(newPage.getPublishedPage().getLayouts())) {
+                && publishedMongoEscapedWidget.containsKey(
+                newPage.getPublishedPage().getName())
+                && !CollectionUtils.isNullOrEmpty(newPage.getPublishedPage().getLayouts())) {
 
                 newPage.getPublishedPage().getLayouts().forEach(layout -> {
                     layout.setMongoEscapedWidgetNames(publishedMongoEscapedWidget.get(layout.getId()));
                 });
             }
-        });
+        });*/
     }
 
     // Method to embed userSetOnLoad in imported actions as per modified serialization format where we are serialising
@@ -158,17 +159,17 @@ public class MigrationHelperMethods {
             applicationJson.getActionList().parallelStream().forEach(newAction -> {
                 if (newAction.getUnpublishedAction() != null) {
                     newAction
-                            .getUnpublishedAction()
-                            .setUserSetOnLoad(invisibleActionFieldsMap
-                                    .get(newAction.getId())
-                                    .getUnpublishedUserSetOnLoad());
+                        .getUnpublishedAction()
+                        .setUserSetOnLoad(invisibleActionFieldsMap
+                            .get(newAction.getId())
+                            .getUnpublishedUserSetOnLoad());
                 }
                 if (newAction.getPublishedAction() != null) {
                     newAction
-                            .getPublishedAction()
-                            .setUserSetOnLoad(invisibleActionFieldsMap
-                                    .get(newAction.getId())
-                                    .getPublishedUserSetOnLoad());
+                        .getPublishedAction()
+                        .setUserSetOnLoad(invisibleActionFieldsMap
+                            .get(newAction.getId())
+                            .getPublishedUserSetOnLoad());
                 }
             });
         }
@@ -182,14 +183,14 @@ public class MigrationHelperMethods {
                 // Determine plugin
                 final String pluginName = newAction.getPluginId();
                 if ("google-sheets-plugin".equals(pluginName)) {
-                    DatabaseChangelog2.migrateGoogleSheetsToUqi(newAction);
+                    // DatabaseChangelog2.migrateGoogleSheetsToUqi(newAction);
                 }
             });
         }
     }
 
     public static void evictPermissionCacheForUsers(
-            Set<String> userIds, MongoTemplate mongoTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        Set<String> userIds, MongoTemplate mongoTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
 
         if (userIds == null || userIds.isEmpty()) {
             // Nothing to do here.
@@ -197,13 +198,13 @@ public class MigrationHelperMethods {
         }
 
         userIds.forEach(userId -> {
-            Query query = new Query(new Criteria(fieldName(QUser.user.id)).is(userId));
+            Query query = new Query(new Criteria("id").is(userId));
             User user = mongoTemplate.findOne(query, User.class);
             if (user != null) {
                 // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
-                cacheableRepositoryHelper
-                        .evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
-                        .block();
+                // cacheableRepositoryHelper
+                //     .evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
+                //     .block();
             }
         });
     }
@@ -221,9 +222,9 @@ public class MigrationHelperMethods {
      * .newAction.id, type=NewAction.class
      */
     public static <T extends BaseDomain> T fetchDomainObjectUsingId(
-            String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
+        String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
         final T domainObject =
-                mongoTemplate.findOne(query(where(fieldName(path)).is(id)), type);
+            mongoTemplate.findOne(query(where(fieldName(path)).is(id)), type);
         return domainObject;
     }
 
@@ -234,9 +235,9 @@ public class MigrationHelperMethods {
      * .newAction.id, type=NewAction.class
      */
     public static <T extends BaseDomain> List<T> fetchAllDomainObjectsUsingId(
-            String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
+        String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
         final List<T> domainObject =
-                mongoTemplate.find(query(where(fieldName(path)).is(id)), type);
+            mongoTemplate.find(query(where(fieldName(path)).is(id)), type);
         return domainObject;
     }
 
@@ -246,17 +247,17 @@ public class MigrationHelperMethods {
      */
     public static Criteria notDeleted() {
         return new Criteria()
-                .andOperator(
-                        // Older check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED).exists(false),
-                                        where(FieldName.DELETED).is(false)),
-                        // New check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED_AT).exists(false),
-                                        where(FieldName.DELETED_AT).is(null)));
+            .andOperator(
+                // Older check for deleted
+                new Criteria()
+                    .orOperator(
+                        where(FieldName.DELETED).exists(false),
+                        where(FieldName.DELETED).is(false)),
+                // New check for deleted
+                new Criteria()
+                    .orOperator(
+                        where(FieldName.DELETED_AT).exists(false),
+                        where(FieldName.DELETED_AT).is(null)));
     }
 
     /**

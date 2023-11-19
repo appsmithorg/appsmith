@@ -54,6 +54,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
+        return Mono.empty();/*
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
             // appending to existing app, theme should not change
             return Mono.empty().then();
@@ -81,11 +82,12 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                                 applicationPermission.getEditPermission());
                     })
                     .then();
-        });
+        });*/
     }
 
     private Mono<Theme> updateExistingAppThemeFromJSON(
             Application destinationApp, String existingThemeId, Theme themeFromJson) {
+        return Mono.empty();/*
         if (!StringUtils.hasLength(existingThemeId)) {
             return themeService.getOrSaveTheme(themeFromJson, destinationApp);
         }
@@ -110,6 +112,6 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                             return repository.updateById(existingThemeId, themeFromJson, MANAGE_THEMES);
                         }
                     }
-                });
+                });*/
     }
 }

@@ -34,8 +34,6 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
-    private String tenantId = null;
-
     private final ConfigService configService;
 
     private final EnvManager envManager;
@@ -60,6 +58,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<String> getDefaultTenantId() {
+        return Mono.empty();/*
 
         // If the value exists in cache, return it as is
         if (StringUtils.hasLength(tenantId)) {
@@ -70,11 +69,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             // Set the cache value before returning.
             this.tenantId = tenantId;
             return tenantId;
-        });
+        });*/
     }
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
+        return Mono.empty();/*
         return repository
                 .findById(tenantId, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
@@ -103,15 +103,16 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
                     tenant.setTenantConfiguration(oldConfig);
                     return repository.updateById(tenantId, tenant, MANAGE_TENANT);
-                });
+                });*/
     }
 
     @Override
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
+        return Mono.empty();/*
         return repository
                 .findById(tenantId, permission)
                 .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));*/
     }
 
     /*
@@ -152,6 +153,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
+        return Mono.empty();/*
         // Get the default tenant object from the DB and then populate the relevant user permissions in that
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
         return repository
@@ -162,7 +164,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     }
                     return tenant;
                 })
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));*/
     }
 
     @Override
@@ -195,7 +197,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> save(Tenant tenant) {
-        return repository.save(tenant);
+        return Mono.justOrEmpty(repository.save(tenant));
     }
 
     /**

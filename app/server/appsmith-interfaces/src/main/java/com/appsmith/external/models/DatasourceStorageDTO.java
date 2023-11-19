@@ -14,7 +14,7 @@ import java.util.Set;
 public class DatasourceStorageDTO {
 
     String id;
-    String datasourceId;
+    Long datasourceId;
     String environmentId;
     DatasourceConfiguration datasourceConfiguration;
     Boolean isConfigured;
@@ -32,7 +32,7 @@ public class DatasourceStorageDTO {
      * @param datasourceConfiguration
      */
     public DatasourceStorageDTO(
-            String datasourceId, String environmentId, DatasourceConfiguration datasourceConfiguration) {
+            Long datasourceId, String environmentId, DatasourceConfiguration datasourceConfiguration) {
         this.datasourceId = datasourceId;
         this.environmentId = environmentId;
         this.datasourceConfiguration = datasourceConfiguration;

@@ -84,12 +84,14 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 if (!TRUE.equals(emailVerificationEnabled)) {
                     return userMono.flatMap(user -> {
                         user.setEmailVerificationRequired(FALSE);
-                        return userRepository.save(user).then(Mono.just(FALSE));
+                        userRepository.save(user);
+                        return Mono.just(FALSE);
                     });
                 } else {
                     return userMono.flatMap(user -> {
                         user.setEmailVerificationRequired(TRUE);
-                        return userRepository.save(user).then(Mono.just(TRUE));
+                        userRepository.save(user);
+                        return Mono.just(TRUE);
                     });
                 }
             });
@@ -104,7 +106,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // email verification not enabled at the tenant
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             user.setEmailVerificationRequired(FALSE);
-                            return userRepository.save(user).then(Mono.just(FALSE));
+                            userRepository.save(user);
+                            return Mono.just(FALSE);
                         } else {
                             // scenario when at the time of signup, the email verification was disabled at the tenant
                             // but later on turned on, now when this user logs in, it will not be prompted to verify
@@ -114,7 +117,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 return Mono.just(FALSE);
                             } else {
                                 user.setEmailVerificationRequired(TRUE);
-                                return userRepository.save(user).then(Mono.just(TRUE));
+                                userRepository.save(user);
+                                return Mono.just(TRUE);
                             }
                         }
                     });
@@ -279,8 +283,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 // Update the user in separate thread
                 userRepository
                         .save(user)
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .subscribe();
+                        ;// .subscribeOn(Schedulers.boundedElastic())
+                        // .subscribe();
             }
             if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
@@ -365,7 +369,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
         // need to create default application
         Application application = new Application();
-        application.setWorkspaceId(defaultWorkspaceId);
+        // application.setWorkspaceId(defaultWorkspaceId);
         application.setName("My first application");
         Mono<Application> applicationMono = Mono.just(application);
         if (defaultWorkspaceId == null) {
@@ -379,7 +383,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // workspace user has access to, and would be user's default workspace. Hence, we use this
                         // workspace to create the application.
                         if (workspaces.size() == 1) {
-                            application.setWorkspaceId(workspaces.get(0).getId());
+                            // application.setWorkspaceId(workspaces.get(0).getId());
                             return Mono.just(application);
                         }
 
@@ -390,7 +394,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 .findByEmail(email)
                                 .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                                 .map(workspace -> {
-                                    application.setWorkspaceId(workspace.getId());
+                                    // application.setWorkspaceId(workspace.getId());
                                     return application;
                                 });
                     });

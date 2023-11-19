@@ -2,6 +2,8 @@ package com.appsmith.server.repositories;
 
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 import reactor.core.publisher.Mono;
 
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @NoRepositoryBean
-public interface BaseRepository<T, ID extends Serializable> extends ReactiveMongoRepository<T, ID> {
+public interface BaseRepository<T, ID extends Serializable> extends CrudRepository<T, ID>, QuerydslPredicateExecutor<T> {
 
     /**
      * This function should be used to get an object from the DB without applying any ACL rules
@@ -24,7 +26,7 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
     /**
      * This function sets the deleted flag to true and then saves the modified document.
      *
-     * @param T The entity which needs to be archived
+     * @param entity The entity which needs to be archived
      * @return Mono<T>
      */
     Mono<T> archive(T entity);

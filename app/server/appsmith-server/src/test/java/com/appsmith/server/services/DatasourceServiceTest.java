@@ -1830,7 +1830,7 @@ public class DatasourceServiceTest {
                 );
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
+        params.add("workspaceId", workspaceId);
 
         Mono<List<Datasource>> listMono =
                 datasourceService.getAllWithStorages(params).collectList();

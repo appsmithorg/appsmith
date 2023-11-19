@@ -146,7 +146,7 @@ public class UserRepositoryTest {
                 .block();
         assertEquals(countOfUsersToBeCreated, allCreatedUsers.size());
 
-        Sort sortByEmailAsc = Sort.by(Sort.Direction.ASC, fieldName(QUser.user.email));
+        Sort sortByEmailAsc = Sort.by(Sort.Direction.ASC, "email");
         final int skip1 = 0;
         int limit1 = 10;
         List<User> usersFrom0To10 = userRepository

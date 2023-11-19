@@ -4,12 +4,15 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +21,7 @@ import java.util.Map;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class Plugin extends BaseDomain {
 
     public enum ResponseType {
@@ -50,11 +53,15 @@ public class Plugin extends BaseDomain {
     @JsonView(Views.Public.class)
     ResponseType responseType;
 
+    @OneToMany
     @JsonView(Views.Public.class)
-    List<PluginParameterType> datasourceParams;
+    @ToString.Exclude
+    private List<PluginParameterType> datasourceParams;
 
+    @OneToMany
     @JsonView(Views.Public.class)
-    List<PluginParameterType> actionParams;
+    @ToString.Exclude
+    private List<PluginParameterType> actionParams;
 
     @JsonView(Views.Public.class)
     String minAppsmithVersionSupported;
@@ -95,10 +102,12 @@ public class Plugin extends BaseDomain {
     boolean isRemotePlugin = false;
 
     // Stores the equivalent of editor.json for remote plugins
+    @Type(JsonType.class)
     @JsonView(Views.Public.class)
     Map actionUiConfig;
 
     // Stores the equivalent of form.json for remote plugins
+    @Type(JsonType.class)
     @JsonView(Views.Public.class)
     Map datasourceUiConfig;
 

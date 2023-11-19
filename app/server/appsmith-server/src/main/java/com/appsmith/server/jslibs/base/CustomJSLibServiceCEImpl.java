@@ -73,6 +73,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     @Override
     public Mono<CustomJSLibApplicationDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
+        return Mono.empty();/*
         return repository
                 .findByUidString(jsLib.getUidString())
                 .flatMap(foundJSLib -> {
@@ -80,7 +81,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
                        The second check provides us with a backdoor to overwrite any faulty data that would have come in any time earlier.
                        Currently, once a custom JS lib data gets persisted there is no way to update it - the isForceInstall flag will allow a way to update this data.
-                    */
+                    * /
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
                         return repository.save(jsLib).then(Mono.just(getDTOFromCustomJSLib(jsLib)));
@@ -91,7 +92,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 // Read more why Mono.defer is used here.
                 // https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
                 .switchIfEmpty(
-                        Mono.defer(() -> repository.save(jsLib).map(savedJsLib -> getDTOFromCustomJSLib(savedJsLib))));
+                        Mono.defer(() -> repository.save(jsLib).map(savedJsLib -> getDTOFromCustomJSLib(savedJsLib))));*/
     }
 
     @Override

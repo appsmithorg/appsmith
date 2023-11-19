@@ -2,16 +2,16 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.Permission;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Document
+@Entity
 @NoArgsConstructor
 @Getter
 @Setter
@@ -19,7 +19,8 @@ public class PermissionGroup extends BaseDomain {
 
     @NotNull String name;
 
-    String tenantId;
+    @ManyToOne
+    Tenant tenant;
 
     String description;
 
@@ -31,10 +32,13 @@ public class PermissionGroup extends BaseDomain {
     String defaultDomainId;
     String defaultDomainType;
 
+    @OneToMany
     @Deprecated
-    Set<Permission> permissions = new HashSet<>();
+    private Set<Permission> permissions;
 
-    Set<String> assignedToUserIds = new HashSet<>();
+    @OneToMany
+    private Set<User> assignedToUsers;
 
-    Set<String> assignedToGroupIds = new HashSet<>();
+    @OneToMany
+    private Set<User> assignedToGroupIds;
 }

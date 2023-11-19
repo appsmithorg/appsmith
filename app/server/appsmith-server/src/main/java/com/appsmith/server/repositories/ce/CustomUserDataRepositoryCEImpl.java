@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.domains.QUserData;
+
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -34,21 +34,21 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     public Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
         return mongoOperations.upsert(
-                query(where(fieldName(QUserData.userData.userId)).is(userId)),
-                Update.update(fieldName(QUserData.userData.releaseNotesViewedVersion), version)
-                        .setOnInsert(fieldName(QUserData.userData.userId), userId),
+                query(where("userId").is(userId)),
+                Update.update("releaseNotesViewedVersion", version)
+                        .setOnInsert("userId", userId),
                 UserData.class);
     }
 
     @Override
     public Mono<UpdateResult> removeIdFromRecentlyUsedList(
             String userId, String workspaceId, List<String> applicationIds) {
-        Update update = new Update().pull(fieldName(QUserData.userData.recentlyUsedWorkspaceIds), workspaceId);
+        Update update = new Update().pull("recentlyUsedWorkspaceIds", workspaceId);
         if (!CollectionUtils.isEmpty(applicationIds)) {
-            update = update.pullAll(fieldName(QUserData.userData.recentlyUsedAppIds), applicationIds.toArray());
+            update = update.pullAll("recentlyUsedAppIds", applicationIds.toArray());
         }
         return mongoOperations.updateFirst(
-                query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class);
+                query(where("userId").is(userId)), update, UserData.class);
     }
 
     /**
@@ -61,17 +61,17 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     public Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
         // need to convert from Iterable to ArrayList because the "in" method of criteria takes a collection as input
-        Criteria criteria = where(fieldName(QUserData.userData.userId)).in(Lists.newArrayList(userId));
+        Criteria criteria = where("userId").in(Lists.newArrayList(userId));
         List<String> fieldsToInclude =
-                List.of(fieldName(QUserData.userData.profilePhotoAssetId), fieldName(QUserData.userData.userId));
+                List.of("profilePhotoAssetId", "userId");
         return queryAll(List.of(criteria), Optional.of(fieldsToInclude), Optional.empty(), Optional.empty());
     }
 
     @Override
     public Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
-        final Query query = query(where(fieldName(QUserData.userData.userId)).is(userId));
+        final Query query = query(where("userId").is(userId));
 
-        query.fields().include(fieldName(QUserData.userData.recentlyUsedWorkspaceIds));
+        query.fields().include("recentlyUsedWorkspaceIds");
 
         return mongoOperations.findOne(query, UserData.class).map(userData -> {
             final List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();

@@ -1,20 +1,29 @@
 package com.appsmith.server.domains;
 
-import lombok.EqualsAndHashCode;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+@NoArgsConstructor
+@Entity
 public class ApplicationDetail {
-    Application.AppPositioning appPositioning;
-    Application.NavigationSetting navigationSetting;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public ApplicationDetail() {
-        this.appPositioning = null;
-        this.navigationSetting = null;
-    }
+    @Type(JsonType.class)
+    private Application.AppPositioning appPositioning;
+
+    @Type(JsonType.class)
+    private Application.NavigationSetting navigationSetting;
 }

@@ -71,6 +71,7 @@ public abstract class BaseService<
     }
 
     public Mono<T> update(ID id, T resource, String key) {
+        return Mono.empty();/*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -95,10 +96,11 @@ public abstract class BaseService<
                 .updateFirst(query, updateObj, resource.getClass())
                 .flatMap(obj -> repository.findById(id))
                 .flatMap(savedResource ->
-                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
+                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));*/
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
+        return Flux.empty();/*
         List<Criteria> criterias = new ArrayList<>();
 
         if (params != null && !params.isEmpty()) {
@@ -110,35 +112,38 @@ public abstract class BaseService<
                     })
                     .collect(Collectors.toList());
         }
-        return repository.queryAll(criterias, aclPermission);
+        return repository.queryAll(criterias, aclPermission);*/
     }
 
     @Override
     public Flux<T> get(MultiValueMap<String, String> params) {
+        return Flux.empty();/*
         // In the base service we aren't handling the query parameters. In order to filter records using the query
         // params,
         // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
-        return repository.findAll();
+        return repository.findAll();*/
     }
 
     @Override
     public Mono<T> getById(ID id) {
+        return Mono.empty();/*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
         return repository
                 .findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));*/
     }
 
     @Override
     public Mono<T> create(T object) {
+        return Mono.empty();/*
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
                 .flatMap(savedResource ->
-                        analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
+                        analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));*/
     }
 
     protected DBObject getDbObject(Object o) {

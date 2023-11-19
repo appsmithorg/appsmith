@@ -1811,7 +1811,7 @@ public class WorkspaceServiceTest {
 
         Update updateAddAdditionalField = new Update().set(additionalField, true);
         Query queryWorkspace =
-                new Query(Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()));
+                new Query(Criteria.where("id").is(createdWorkspace.getId()));
         UpdateResult updateResult =
                 mongoTemplate.updateMulti(queryWorkspace, updateAddAdditionalField, Workspace.class);
 
@@ -1821,7 +1821,7 @@ public class WorkspaceServiceTest {
 
         Criteria criteriaAdditionalField = new Criteria()
                 .andOperator(
-                        Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()),
+                        Criteria.where("id").is(createdWorkspace.getId()),
                         Criteria.where(additionalField).exists(true));
         Query queryWorkspaceWithAdditionalField = new Query(criteriaAdditionalField);
 

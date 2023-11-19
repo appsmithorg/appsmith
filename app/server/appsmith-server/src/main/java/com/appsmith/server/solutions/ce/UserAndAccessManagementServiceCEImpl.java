@@ -83,6 +83,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
      */
     @Override
     public Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader) {
+        return Mono.empty();/*
 
         if (originHeader == null || originHeader.isBlank()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
@@ -212,11 +213,12 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         return bulkAddUserResultMono
                 .then(sendAnalyticsEventMono)
                 .then(sendEmailsMono)
-                .then(inviteUsersMono);
+                .then(inviteUsersMono);*/
     }
 
     private Mono<Boolean> throwErrorIfUserAlreadyExistsInWorkspace(
             User user, List<PermissionGroup> defaultPermissionGroups) {
+        return Mono.empty();/*
 
         return Flux.fromIterable(defaultPermissionGroups)
                 .map(permissionGroup -> {
@@ -228,6 +230,6 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                     }
                     return TRUE;
                 })
-                .then(Mono.just(TRUE));
+                .then(Mono.just(TRUE));*/
     }
 }

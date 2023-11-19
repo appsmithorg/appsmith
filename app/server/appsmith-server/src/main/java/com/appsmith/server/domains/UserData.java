@@ -4,11 +4,11 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT;
 @Getter
 @Setter
 @ToString
-@Document
+@Entity
 @NoArgsConstructor
 public class UserData extends BaseDomain {
 

@@ -1,11 +1,8 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QLayout;
-import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -55,28 +52,30 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
+        return Flux.empty();/*
         Criteria applicationIdCriteria =
-                where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
-        return queryAll(List.of(applicationIdCriteria), aclPermission);
+                where("applicationId").is(applicationId);
+        return queryAll(List.of(applicationIdCriteria), aclPermission);*/
     }
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         Criteria applicationIdCriteria =
-                where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
+                where("applicationId").is(applicationId);
         return queryAll(List.of(applicationIdCriteria), permission);
     }
 
     @Override
     public Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
+        return Flux.empty();/*
         Criteria applicationIdCriteria =
-                where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
+                where("applicationId").is(applicationId);
         // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist.
         // To handle this, only fetch non-deleted pages
-        Criteria activeEditModeCriteria = where(fieldName(QNewPage.newPage.unpublishedPage) + "."
-                        + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
+        Criteria activeEditModeCriteria = where("unpublishedPage" + "."
+                        + "deletedAt")
                 .is(null);
-        return queryAll(List.of(applicationIdCriteria, activeEditModeCriteria), aclPermission);
+        return queryAll(List.of(applicationIdCriteria, activeEditModeCriteria), aclPermission);*/
     }
 
     @Override
@@ -91,19 +90,19 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         if (Boolean.TRUE.equals(viewMode)) {
             layoutsKey =
-                    fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.publishedPage.layouts);
+                    "publishedPage" + "." + "layouts";
         } else {
-            layoutsKey = fieldName(QNewPage.newPage.unpublishedPage) + "."
-                    + fieldName(QNewPage.newPage.unpublishedPage.layouts);
+            layoutsKey = "unpublishedPage" + "."
+                    + "layouts";
 
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
             // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriterion = where(fieldName(QNewPage.newPage.unpublishedPage) + "."
-                            + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
+            Criteria deletedCriterion = where("unpublishedPage" + "."
+                            + "deletedAt")
                     .is(null);
             criteria.add(deletedCriterion);
         }
-        layoutsIdKey = layoutsKey + "." + fieldName(QLayout.layout.id);
+        layoutsIdKey = layoutsKey + "." + "id";
 
         Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
         criteria.add(layoutCriterion);
@@ -122,8 +121,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         if (Boolean.FALSE.equals(viewMode)) {
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
             // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriterion = where(fieldName(QNewPage.newPage.unpublishedPage) + "."
-                            + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
+            Criteria deletedCriterion = where("unpublishedPage" + "."
+                            + "deletedAt")
                     .is(null);
             criteria.add(deletedCriterion);
         }
@@ -141,14 +140,14 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         criteria.add(nameCriterion);
 
         Criteria applicationIdCriterion =
-                where(fieldName(QNewPage.newPage.applicationId)).is(applicationId);
+                where("applicationId").is(applicationId);
         criteria.add(applicationIdCriterion);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
             // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriteria = where(fieldName(QNewPage.newPage.unpublishedPage) + "."
-                            + fieldName(QNewPage.newPage.unpublishedPage.deletedAt))
+            Criteria deletedCriteria = where("unpublishedPage" + "."
+                            + "deletedAt")
                     .is(null);
             criteria.add(deletedCriteria);
         }
@@ -158,38 +157,39 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
+        return Flux.empty();/*
         ArrayList<String> includedFields = new ArrayList<>(List.of(
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
-                fieldName(QNewPage.newPage.policies),
-                (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.name)),
-                (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.icon)),
-                (fieldName(QNewPage.newPage.unpublishedPage) + "."
-                        + fieldName(QNewPage.newPage.unpublishedPage.isHidden)),
-                (fieldName(QNewPage.newPage.unpublishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.slug)),
-                (fieldName(QNewPage.newPage.unpublishedPage) + "."
-                        + fieldName(QNewPage.newPage.unpublishedPage.customSlug)),
-                (fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.name)),
-                (fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.icon)),
-                (fieldName(QNewPage.newPage.publishedPage) + "."
-                        + fieldName(QNewPage.newPage.unpublishedPage.isHidden)),
-                (fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.unpublishedPage.slug)),
-                (fieldName(QNewPage.newPage.publishedPage) + "."
-                        + fieldName(QNewPage.newPage.unpublishedPage.customSlug))));
+                "policies",
+                ("unpublishedPage" + "." + "name"),
+                ("unpublishedPage" + "." + "icon"),
+                ("unpublishedPage" + "."
+                        + "isHidden"),
+                ("unpublishedPage" + "." + "slug"),
+                ("unpublishedPage" + "."
+                        + "customSlug"),
+                ("publishedPage" + "." + "name"),
+                ("publishedPage" + "." + "icon"),
+                ("publishedPage" + "."
+                        + "isHidden"),
+                ("publishedPage" + "." + "slug"),
+                ("publishedPage" + "."
+                        + "customSlug")));
 
         Criteria idsCriterion = where("id").in(ids);
 
-        return this.queryAll(new ArrayList<>(List.of(idsCriterion)), includedFields, aclPermission, null);
+        return this.queryAll(new ArrayList<>(List.of(idsCriterion)), includedFields, aclPermission, null);*/
     }
 
     private Criteria getNameCriterion(String name, Boolean viewMode) {
         String nameKey;
 
         if (Boolean.TRUE.equals(viewMode)) {
-            nameKey = fieldName(QNewPage.newPage.publishedPage) + "." + fieldName(QNewPage.newPage.publishedPage.name);
+            nameKey = "publishedPage" + "." + "name";
         } else {
-            nameKey = fieldName(QNewPage.newPage.unpublishedPage) + "."
-                    + fieldName(QNewPage.newPage.unpublishedPage.name);
+            nameKey = "unpublishedPage" + "."
+                    + "name";
         }
         return where(nameKey).is(name);
     }
@@ -199,7 +199,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return mongoOperations
                 .query(NewPage.class)
                 .matching(Query.query(
-                        Criteria.where(fieldName(QNewPage.newPage.id)).is(pageId)))
+                        Criteria.where("id").is(pageId)))
                 .one()
                 .map(p -> {
                     PageDTO page = (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage());
@@ -214,7 +214,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Mono<NewPage> findPageByBranchNameAndDefaultPageId(
             String branchName, String defaultPageId, AclPermission permission) {
-        final String defaultResources = fieldName(QNewPage.newPage.defaultResources);
+        final String defaultResources = "defaultResources";
         Criteria defaultPageIdCriteria =
                 where(defaultResources + "." + FieldName.PAGE_ID).is(defaultPageId);
         Criteria branchCriteria =
@@ -224,19 +224,20 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
+        return Flux.empty();/*
         Criteria applicationIdCriteria =
-                where(fieldName(QNewPage.newPage.applicationId)).in(applicationIds);
+                where("applicationId").in(applicationIds);
         String unpublishedSlugFieldPath = String.format(
-                "%s.%s", fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.slug));
+                "%s.%s", "unpublishedPage", "slug");
         String unpublishedCustomSlugFieldPath = String.format(
                 "%s.%s",
-                fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.customSlug));
+                "unpublishedPage", "customSlug");
         String publishedSlugFieldPath = String.format(
-                "%s.%s", fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.slug));
+                "%s.%s", "publishedPage", "slug");
         String publishedCustomSlugFieldPath = String.format(
                 "%s.%s",
-                fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.customSlug));
-        String applicationIdFieldPath = fieldName(QNewPage.newPage.applicationId);
+                "publishedPage", "customSlug");
+        String applicationIdFieldPath = "applicationId";
 
         return queryAll(
                 List.of(applicationIdCriteria),
@@ -247,7 +248,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                         publishedCustomSlugFieldPath,
                         applicationIdFieldPath),
                 aclPermission,
-                null);
+                null);*/
     }
 
     @Override
@@ -259,7 +260,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        final String defaultResources = "defaultResources";
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
@@ -268,7 +269,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
-        Criteria applicationIdCriteria = where(fieldName(QNewPage.newPage.id)).in(pageIds);
+        Criteria applicationIdCriteria = where("id").in(pageIds);
 
         Mono<Set<String>> permissionGroupsMono =
                 getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
@@ -284,8 +285,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
             AggregationOperation wholeProjection = Aggregation.project(NewPage.class);
             AggregationOperation addFieldsOperation = Aggregation.addFields()
-                    .addField(fieldName(QNewPage.newPage.publishedPage))
-                    .withValueOf(Fields.field(fieldName(QNewPage.newPage.unpublishedPage)))
+                    .addField("publishedPage")
+                    .withValueOf(Fields.field("unpublishedPage"))
                     .build();
             Aggregation combinedAggregation = Aggregation.newAggregation(
                     matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
@@ -297,6 +298,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages) {
+        return Mono.empty();/*
         if (CollectionUtils.isEmpty(newPages)) {
             return Mono.just(Collections.emptyList());
         }
@@ -316,7 +318,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(NewPage.class))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
-                .collectList();
+                .collectList();*/
     }
 
     @Override

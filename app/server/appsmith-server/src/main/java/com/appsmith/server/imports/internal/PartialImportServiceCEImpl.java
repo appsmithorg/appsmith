@@ -152,7 +152,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                         .then(newPageImportableService.updateImportedEntities(
                                                 application, importingMetaDTO, mappedImportableResourcesDTO))
                                         .flatMap(
-                                                newPage -> applicationService.update(application.getId(), application));
+                                                newPage -> applicationService.update(String.valueOf(application.getId()), application));
                             }));
                 })
                 .as(transactionalOperator::transactional);
@@ -242,6 +242,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             Mono<String> branchedPageIdMono,
             ApplicationJson applicationJson,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        return Mono.empty();/*
         return branchedPageIdMono.flatMap(
                 pageId -> newPageService.findById(pageId, Optional.empty()).flatMap(newPage -> {
                     String pageName = newPage.getUnpublishedPage().getName();
@@ -275,6 +276,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         actionCollection.setGitSyncId(null);
                     });
                     return Mono.just(pageName);
-                }));
+                }));*/
     }
 }

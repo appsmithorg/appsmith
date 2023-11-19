@@ -158,11 +158,11 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                 .map(perm -> {
                     Policy policyWithCurrentPermission = Policy.builder()
                             .permission(perm.getAclPermission().getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId()))
+                            .permissionGroups(Set.of(String.valueOf(permissionGroup.getId())))
                             .build();
                     // Generate any and all lateral policies that might come with the current permission
                     Set<Policy> policiesForPermissionGroup = policyGenerator.getLateralPolicies(
-                            perm.getAclPermission(), Set.of(permissionGroup.getId()), null);
+                            perm.getAclPermission(), Set.of(String.valueOf(permissionGroup.getId())), null);
                     policiesForPermissionGroup.add(policyWithCurrentPermission);
                     return policiesForPermissionGroup;
                 })
@@ -210,7 +210,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
 
         return datasourceRepository
                 // fetch datasources with execute permissions so that app viewers can invite other app viewers
-                .findAllByWorkspaceId(workspaceId, datasourcePermission.getExecutePermission())
+                .findAllByWorkspaceId(workspaceId/*, datasourcePermission.getExecutePermission()*/)
                 // In case we have come across a datasource for this workspace that the current user is not allowed to
                 // manage, move on.
                 .switchIfEmpty(Mono.empty())
@@ -221,12 +221,13 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                         return removePoliciesFromExistingObject(newPoliciesMap, datasource);
                     }
                 })
-                .collectList()
-                .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));
+                ;/*.collectList()
+                .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));*/
     }
 
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(
             Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
+        return Flux.empty();/*
 
         return datasourceRepository
                 .findAllByIds(ids, datasourcePermission.getEditPermission())
@@ -243,12 +244,13 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     return Mono.just(updatedDatasource);
                 })
                 .collectList()
-                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
+                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));*/
     }
 
     @Override
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
             Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
+        return Flux.empty();/*
 
         // Find all the datasources without permission to update the policies.
         return datasourceRepository
@@ -265,11 +267,12 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     return Mono.just(updatedDatasource);
                 })
                 .collectList()
-                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
+                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));*/
     }
 
     public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(
             String workspaceId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
+        return Flux.empty();/*
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
@@ -285,12 +288,13 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
+                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));*/
     }
 
     @Override
     public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(
             String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
+        return Flux.empty();/*
 
         // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures
         // that all the published
@@ -311,12 +315,13 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedPages -> newPageRepository.saveAll(updatedPages));
+                .flatMapMany(updatedPages -> newPageRepository.saveAll(updatedPages));*/
     }
 
     @Override
     public Flux<Theme> updateThemePolicies(
             Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
+        return Flux.empty();/*
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
         if (StringUtils.hasLength(application.getEditModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
@@ -336,7 +341,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(themeRepository::saveAll);
+                .flatMapMany(themeRepository::saveAll);*/
     }
 
     /**
@@ -354,6 +359,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<NewAction> updateWithPagePermissionsToAllItsActions(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+        return Flux.empty();/*
 
         return newActionRepository
                 .findByApplicationId(applicationId)
@@ -366,12 +372,13 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(newActionRepository::saveAll);
+                .flatMapMany(newActionRepository::saveAll);*/
     }
 
     @Override
     public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+        return Flux.empty();/*
 
         return actionCollectionRepository
                 .findByApplicationId(applicationId)
@@ -384,7 +391,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(actionCollectionRepository::saveAll);
+                .flatMapMany(actionCollectionRepository::saveAll);*/
     }
 
     @Override

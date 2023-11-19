@@ -69,6 +69,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
      * @return : The DSL after refactor updates
      */
     Mono<Tuple2<LayoutDTO, Set<String>>> refactorName(RefactorEntityNameDTO refactorEntityNameDTO) {
+        return Mono.empty();/*
         String pageId = refactorEntityNameDTO.getPageId();
         String layoutId = refactorEntityNameDTO.getLayoutId();
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
@@ -116,7 +117,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 }
             }
             return Mono.empty();
-        }));
+        }));*/
     }
 
     protected Mono<Void> refactorAllReferences(
@@ -136,6 +137,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
     @Override
     public Mono<LayoutDTO> refactorEntityName(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
+        return Mono.empty();/*
 
         EntityRefactoringService<?> service = getEntityRefactoringService(refactorEntityNameDTO);
 
@@ -192,7 +194,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                                         .thenReturn(tuple2.getT1());
                             });
                 })
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
+                .map(responseUtils::updateLayoutDTOWithDefaultResources);*/
     }
 
     protected EntityRefactoringService<?> getEntityRefactoringService(RefactorEntityNameDTO refactorEntityNameDTO) {
@@ -206,10 +208,11 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     }
 
     private Mono<String> getBranchedPageIdMono(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
+        return Mono.empty();/*
         return newPageService
                 .findByBranchNameAndDefaultPageId(
                         branchName, refactorEntityNameDTO.getPageId(), pagePermission.getEditPermission())
-                .map(newPage -> newPage.getId());
+                .map(newPage -> newPage.getId());*/
     }
 
     private Mono<Void> sendRefactorAnalytics(

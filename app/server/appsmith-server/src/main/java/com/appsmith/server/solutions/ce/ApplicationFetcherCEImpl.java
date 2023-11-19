@@ -93,6 +93,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
      * @return List of UserHomepageDTO
      */
     public Mono<UserHomepageDTO> getAllApplications() {
+        return Mono.empty();/*
 
         Mono<User> userMono = sessionUserService
                 .getCurrentUser()
@@ -146,7 +147,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             .map(responseUtils::updateApplicationWithDefaultResources);
 
                     Mono<Map<String, Collection<Application>>> applicationsMapMono =
-                            applicationFlux.collectMultimap(Application::getWorkspaceId, Function.identity());
+                            applicationFlux.collectMultimap(a -> a.getWorkspace().toString(), Function.identity());
 
                     Flux<Workspace> workspacesFromRepoFlux = workspaceService
                             .getAll(workspacePermission.getReadPermission())
@@ -160,7 +161,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             .cache();
 
                     Mono<Map<String, List<MemberInfoDTO>>> userAndPermissionGroupMapDTO = workspacesFromRepoFlux
-                            .map(Workspace::getId)
+                            .map(w -> w.getId().toString())
                             .collect(Collectors.toSet())
                             .flatMap(workspaceIds -> userWorkspaceService.getWorkspaceMembers(workspaceIds));
 
@@ -228,7 +229,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                                 }
                                 return userHomepageDTO;
                             });
-                });
+                });*/
     }
 
     public Mono<ReleaseItemsDTO> getReleaseItems() {

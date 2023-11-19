@@ -426,7 +426,6 @@ public class GitFileUtils {
         // Don't commit application name as while importing we are using the repoName as application name
         application.setName(null);
         application.setPublishedPages(null);
-        application.setIsPublic(null);
         application.setSlug(null);
         application.setPublishedApplicationDetail(null);
     }

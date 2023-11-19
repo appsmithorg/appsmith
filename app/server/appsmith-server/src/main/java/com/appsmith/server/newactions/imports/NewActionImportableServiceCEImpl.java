@@ -107,7 +107,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         Set<String> invalidActionIds = new HashSet<>();
                         for (NewAction action : importActionResultDTO.getExistingActions()) {
                             if (!importActionResultDTO.getImportedActionIds().contains(action.getId())) {
-                                invalidActionIds.add(action.getId());
+                                // invalidActionIds.add(action.getId());
                             }
                         }
                         log.info("Deleting {} actions which are no more used", invalidActionIds.size());
@@ -163,7 +163,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         for (ActionCollection collection :
                                 importActionCollectionResultDTO.getExistingActionCollections()) {
                             if (!savedCollectionIds.contains(collection.getId())) {
-                                invalidCollectionIds.add(collection.getId());
+                                // invalidCollectionIds.add(collection.getId());
                             }
                         }
                         log.info("Deleting {} action collections which are no more used", invalidCollectionIds.size());
@@ -215,9 +215,10 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             Application application,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        return Mono.empty();/*
         /* Mono.just(application) is created to avoid the eagerly fetching of existing actions
          * during the pipeline construction. It should be fetched only when the pipeline is subscribed/executed.
-         */
+         * /
         return Mono.just(application)
                 .flatMap(importedApplication -> {
                     Mono<Map<String, NewAction>> actionsInCurrentAppMono = repository
@@ -412,7 +413,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             tuple.getT2().getImportedActionIds().size(),
                             tuple.getT1());
                     return tuple.getT2();
-                });
+                });*/
     }
 
     private NewPage updatePageInAction(
@@ -422,7 +423,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             return null;
         }
         actionIdMap.put(action.getValidName() + parentPage.getId(), action.getId());
-        action.setPageId(parentPage.getId());
+        // action.setPageId(parentPage.getId());
 
         // Update defaultResources in actionDTO
         DefaultResources defaultResources = new DefaultResources();
@@ -451,12 +452,12 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 .getUnpublishedAction()
                 .setDeletedAt(actionToImport.getUnpublishedAction().getDeletedAt());
         existingAction.setDeletedAt(actionToImport.getDeletedAt());
-        existingAction.setDeleted(actionToImport.getDeleted());
+        // existingAction.setDeleted(actionToImport.getDeleted());
         existingAction.setPolicies(existingPolicy);
     }
 
     private void putActionIdInMap(NewAction newAction, ImportActionResultDTO importActionResultDTO) {
-        // Populate actionIdsMap to associate the appropriate actions to run on page load
+        /*/ Populate actionIdsMap to associate the appropriate actions to run on page load
         if (newAction.getUnpublishedAction() != null) {
             ActionDTO unpublishedAction = newAction.getUnpublishedAction();
             importActionResultDTO
@@ -496,6 +497,6 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         .get(publishedAction.getCollectionId());
                 actionIds.put(newAction.getDefaultResources().getActionId(), newAction.getId());
             }
-        }
+        }*/
     }
 }

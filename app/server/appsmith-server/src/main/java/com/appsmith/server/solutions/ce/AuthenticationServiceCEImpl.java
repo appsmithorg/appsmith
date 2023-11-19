@@ -36,7 +36,6 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -54,6 +53,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -106,6 +106,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
             String pageId,
             String branchName,
             ServerHttpRequest httpRequest) {
+        return Mono.empty();/*
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
 
@@ -158,7 +159,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     }
 
                     return Mono.just(uriComponentsBuilder.toUriString());
-                });
+                });*/
     }
 
     private Mono<DatasourceStorage> validateRequiredFieldsForGenericOAuth2(DatasourceStorage datasourceStorage) {
@@ -189,6 +190,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
      * @return url for redirecting client to including a response_status
      */
     public Mono<String> getAccessTokenForGenericOAuth2(AuthorizationCodeCallbackDTO callbackDTO) {
+        return Mono.empty();/*
         final String error = callbackDTO.getError();
         String code = callbackDTO.getCode();
         final String state = callbackDTO.getState();
@@ -249,7 +251,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         }
                     } else if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
                         byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
-                        final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
+                        final String authorizationHeader = "Basic " + Base64.getEncoder().encodeToString(clientCredentials);
                         builder.defaultHeader("Authorization", authorizationHeader);
                     } else {
                         return Mono.error(
@@ -321,10 +323,11 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         e -> {
                             log.debug("Error while retrieving access token: ", e);
                             return this.getPageRedirectUrl(state, "appsmith_error");
-                        });
+                        });*/
     }
 
     private Mono<String> getPageRedirectUrl(String state, String error) {
+        return Mono.empty();/*
         final String[] splitState = state.split(",");
 
         final String pageId = splitState[0];
@@ -352,7 +355,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         + (StringUtils.hasText(branchName) ? "&branch=" + branchName : ""))
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
-                        + responseStatus + "&view_mode=true"));
+                        + responseStatus + "&view_mode=true"));*/
     }
 
     @Override
@@ -363,6 +366,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
             String branchName,
             ServerHttpRequest request,
             String importForGit) {
+        return Mono.empty();/*
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
         // If successful, then request for appsmithToken
@@ -471,11 +475,12 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             return datasourceStorageService
                                     .save(datasourceStorage)
                                     .then(Mono.error(error));
-                        }));
+                        }));*/
     }
 
     public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
             String datasourceId, String environmentId, String appsmithToken) {
+        return Mono.empty();/*
         // Check if user has access to manage datasource
         // If yes, check if datasource is in intermediate state
         // If yes, request for token and store in datasource
@@ -623,7 +628,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             return datasourceStorageService
                                     .save(datasourceStorage)
                                     .then(Mono.error(error));
-                        }));
+                        }));*/
     }
 
     public Mono<DatasourceStorage> refreshAuthentication(DatasourceStorage datasourceStorage) {

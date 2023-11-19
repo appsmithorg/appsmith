@@ -30,7 +30,7 @@ public class DefaultResourcesUtils {
                     : actionDefaultResources.getApplicationId();
 
             final String defaultActionId = StringUtils.isEmpty(actionDefaultResources.getActionId())
-                    ? action.getId()
+                    ? String.valueOf(action.getId())
                     : actionDefaultResources.getActionId();
             actionDefaultResources.setApplicationId(defaultApplicationId);
             actionDefaultResources.setActionId(defaultActionId);
@@ -71,11 +71,11 @@ public class DefaultResourcesUtils {
             }
 
             final String defaultApplicationId = StringUtils.isEmpty(pageDefaultResources.getApplicationId())
-                    ? page.getApplicationId()
+                    ? String.valueOf(page.getApplicationId())
                     : pageDefaultResources.getApplicationId();
 
             final String defaultPageId = StringUtils.isEmpty(pageDefaultResources.getPageId())
-                    ? page.getId()
+                    ? String.valueOf(page.getId())
                     : pageDefaultResources.getPageId();
             pageDefaultResources.setApplicationId(defaultApplicationId);
             pageDefaultResources.setPageId(defaultPageId);
@@ -103,7 +103,7 @@ public class DefaultResourcesUtils {
 
             final String defaultActionCollectionId =
                     StringUtils.isEmpty(actionCollectionDefaultResources.getCollectionId())
-                            ? actionCollection.getId()
+                            ? String.valueOf(actionCollection.getId())
                             : actionCollectionDefaultResources.getCollectionId();
             actionCollectionDefaultResources.setApplicationId(defaultApplicationId);
             actionCollectionDefaultResources.setCollectionId(defaultActionCollectionId);

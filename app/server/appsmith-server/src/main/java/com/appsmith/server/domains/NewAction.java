@@ -6,27 +6,24 @@ import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class NewAction extends BranchAwareDomain {
 
     // Fields in action that are not allowed to change between published and unpublished versions
     @JsonView(Views.Public.class)
     String applicationId;
-
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
 
     @JsonView(Views.Public.class)
     String workspaceId;
@@ -43,13 +40,16 @@ public class NewAction extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String providerId; // If action is created via a template, store the template's provider id here.
 
+    @Type(JsonType.class)
     @JsonView(Views.Public.class)
     Documentation documentation; // Documentation for the template using which this action was created
 
     // Action specific fields that are allowed to change between published and unpublished versions
+    @Type(JsonType.class)
     @JsonView(Views.Public.class)
     ActionDTO unpublishedAction;
 
+    @Type(JsonType.class)
     @JsonView(Views.Public.class)
     ActionDTO publishedAction;
 
@@ -57,7 +57,6 @@ public class NewAction extends BranchAwareDomain {
     public void sanitiseToExportDBObject() {
         this.setTemplateId(null);
         this.setApplicationId(null);
-        this.setOrganizationId(null);
         this.setWorkspaceId(null);
         this.setProviderId(null);
         this.setDocumentation(null);

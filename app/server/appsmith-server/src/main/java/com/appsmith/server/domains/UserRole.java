@@ -3,6 +3,10 @@ package com.appsmith.server.domains;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.acl.AppsmithRole;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,20 +16,25 @@ import lombok.ToString;
 @Setter
 @NoArgsConstructor
 @ToString
+@Entity
 @Deprecated
 public class UserRole {
-    @JsonView(Views.Internal.class)
-    String userId;
-
-    @JsonView(Views.Public.class)
-    String username;
-
-    @JsonView(Views.Public.class)
-    String name;
-
-    @JsonView(Views.Public.class)
-    String roleName;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
 
     @JsonView(Views.Internal.class)
-    AppsmithRole role;
+    private String userId;
+
+    @JsonView(Views.Public.class)
+    private String username;
+
+    @JsonView(Views.Public.class)
+    private String name;
+
+    @JsonView(Views.Public.class)
+    private String roleName;
+
+    @JsonView(Views.Internal.class)
+    private AppsmithRole role;
 }

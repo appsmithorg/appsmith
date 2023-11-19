@@ -3,17 +3,22 @@ package com.appsmith.external.models;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,7 +26,7 @@ import java.util.Set;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class Datasource extends BranchAwareDomain {
 
     @Transient
@@ -39,11 +44,6 @@ public class Datasource extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String pluginName;
 
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
-
     @JsonView(Views.Public.class)
     String workspaceId;
 
@@ -51,16 +51,23 @@ public class Datasource extends BranchAwareDomain {
     String templateName;
 
     // This is only kept public for embedded datasource
+    @OneToOne
     @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
+
+    @OneToMany(mappedBy = "datasourceId")
+    @JsonView(Views.Internal.class)
+    @ToString.Exclude
+    private List<DatasourceStorage> storages;
 
     @Transient
     @JsonView(Views.Public.class)
     Map<String, DatasourceStorageDTO> datasourceStorages = new HashMap<>();
 
+    @Type(JsonType.class)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
-    Set<String> invalids;
+    private Set<String> invalids;
 
     /*
      * - To return useful hints to the user.

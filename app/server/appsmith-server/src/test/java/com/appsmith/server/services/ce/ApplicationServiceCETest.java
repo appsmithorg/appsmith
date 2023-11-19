@@ -402,9 +402,9 @@ public class ApplicationServiceCETest {
         Query query = new Query(where("id").is(id));
 
         final Query actionQuery = query(
-                        where(fieldName(QNewAction.newAction.applicationId)).exists(true))
-                .addCriteria(where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                + fieldName(QNewAction.newAction.unpublishedAction.archivedAt))
+                        where("applicationId").exists(true))
+                .addCriteria(where("unpublishedAction" + "."
+                                + "archivedAt")
                         .exists(true));
 
         return mongoOperations.findOne(query, domainClass);

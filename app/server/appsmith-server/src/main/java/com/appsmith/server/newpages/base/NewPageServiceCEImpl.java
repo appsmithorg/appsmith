@@ -88,6 +88,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> getPageByViewMode(NewPage newPage, Boolean viewMode) {
+        return Mono.empty();/*
 
         PageDTO page = null;
         if (Boolean.TRUE.equals(viewMode)) {
@@ -118,12 +119,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         }
 
         // We shouldn't reach here.
-        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));*/
     }
 
     @Override
     public Mono<NewPage> findById(String pageId, AclPermission aclPermission) {
-        return repository.findById(pageId, aclPermission);
+        return Mono.empty();/*
+        return repository.findById(pageId, aclPermission);*/
     }
 
     @Override
@@ -133,7 +135,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
-        return repository.findById(pageId, aclPermission);
+        return Mono.empty();/*
+        return repository.findById(pageId, aclPermission);*/
     }
 
     @Override
@@ -149,6 +152,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<PageDTO> saveUnpublishedPage(PageDTO page) {
+        return Mono.empty();/*
 
         return findById(page.getId(), pagePermission.getEditPermission())
                 .flatMap(newPage -> {
@@ -159,11 +163,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return repository.save(newPage);
                 })
-                .flatMap(savedPage -> getPageByViewMode(savedPage, false));
+                .flatMap(savedPage -> getPageByViewMode(savedPage, false));*/
     }
 
     @Override
     public Mono<PageDTO> createDefault(PageDTO object) {
+        return Mono.empty();/*
         NewPage newPage = new NewPage();
         newPage.setUnpublishedPage(object);
         newPage.setApplicationId(object.getApplicationId());
@@ -191,7 +196,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     return Mono.just(savedPage);
                 })
                 .flatMap(repository::setUserPermissionsInObject)
-                .flatMap(page -> getPageByViewMode(page, false));
+                .flatMap(page -> getPageByViewMode(page, false));*/
     }
 
     @Override
@@ -211,7 +216,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Layout createDefaultLayout() {
         Layout layout = new Layout();
         String id = new ObjectId().toString();
-        layout.setId(id);
+        // layout.setId(id);
         try {
             layout.setDsl((JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT));
             layout.setWidgetNames(Set.of(FieldName.DEFAULT_WIDGET_NAME));
@@ -223,12 +228,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<Void> deleteAll() {
-        return repository.deleteAll();
+        return Mono.empty();/*
+        return repository.deleteAll();*/
     }
 
     @Override
     public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(
             String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed) {
+        return Mono.empty();/*
 
         AclPermission permission;
         if (view) {
@@ -383,7 +390,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             applicationPagesDTO.setPages(nameIdDTOList);
             applicationPagesDTO.setApplication(application);
             return applicationPagesDTO;
-        });
+        });*/
     }
 
     public Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewModeAndBranch(
@@ -408,6 +415,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view) {
+        return Mono.empty();/*
 
         AclPermission permission;
         if (view) {
@@ -433,10 +441,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
             applicationPagesDTO.setPages(nameIdDTOList);
             return applicationPagesDTO;
-        });
+        });*/
     }
 
     private Flux<PageNameIdDTO> findNamesByApplication(Application application, Boolean viewMode) {
+        return Flux.empty();/*
         List<ApplicationPage> pages;
 
         if (Boolean.TRUE.equals(viewMode)) {
@@ -460,7 +469,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         }
                     }
                     return pageNameIdDTO;
-                });
+                });*/
     }
 
     @Override
@@ -492,6 +501,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     // Remove if not used
     public Mono<List<String>> findAllPageIdsInApplication(
             String applicationId, AclPermission aclPermission, Boolean view) {
+        return Mono.empty();/*
         return findNewPagesByApplicationId(applicationId, aclPermission)
                 .flatMap(newPage -> {
                     // Look if the page is migrated
@@ -508,11 +518,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     // Looks like the page has been deleted in the `view` mode. Don't return the id for this page.
                     return Mono.empty();
                 })
-                .collectList();
+                .collectList();*/
     }
 
     @Override
     public Mono<PageDTO> updatePage(String pageId, PageDTO page) {
+        return Mono.empty();/*
         return repository
                 .findById(pageId, pagePermission.getEditPermission())
                 .switchIfEmpty(
@@ -526,24 +537,26 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 })
                 .flatMap(savedPage -> applicationService
                         .saveLastEditInformation(savedPage.getApplicationId())
-                        .then(getPageByViewMode(savedPage, false)));
+                        .then(getPageByViewMode(savedPage, false)));*/
     }
 
     @Override
     public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
+        return Mono.empty();/*
         return repository
                 .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(newPage -> updatePage(newPage.getId(), page))
-                .map(responseUtils::updatePageDTOWithDefaultResources);
+                .map(responseUtils::updatePageDTOWithDefaultResources);*/
     }
 
     @Override
     public Mono<NewPage> save(NewPage page) {
+        return Mono.empty();/*
         // gitSyncId will be used to sync resource across instances
         if (page.getGitSyncId() == null) {
             page.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
         }
-        return repository.save(page);
+        return repository.save(page);*/
     }
 
     @Override
@@ -577,10 +590,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Flux<NewPage> saveAll(List<NewPage> pages) {
+        return Flux.empty();/*
         pages.stream()
                 .filter(newPage -> newPage.getGitSyncId() == null)
                 .forEach(newPage -> newPage.setGitSyncId(newPage.getId() + "_" + new ObjectId()));
-        return repository.saveAll(pages);
+        return repository.saveAll(pages);*/
     }
 
     @Override
@@ -607,6 +621,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
+        return Mono.empty();/*
         if (!StringUtils.hasText(branchName)) {
             if (!StringUtils.hasText(defaultPageId)) {
                 return Mono.error(
@@ -618,11 +633,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName)))
-                .map(NewPage::getId);
+                .map(NewPage::getId);*/
     }
 
     @Override
     public Mono<String> findRootApplicationIdFromNewPage(String branchName, String defaultPageId) {
+        return Mono.empty();/*
         Mono<NewPage> getPageMono;
         if (!StringUtils.hasLength(branchName)) {
             if (!StringUtils.hasLength(defaultPageId)) {
@@ -646,7 +662,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     } else {
                         return newPage.getApplicationId();
                     }
-                });
+                });*/
     }
 
     // Remove the code

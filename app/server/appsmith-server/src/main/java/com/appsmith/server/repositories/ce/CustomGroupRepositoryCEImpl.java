@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.Group;
-import com.appsmith.server.domains.QGroup;
+
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class CustomGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Grou
     @Override
     public Flux<Group> getAllByWorkspaceId(String workspaceId) {
         Criteria workspaceIdCriteria =
-                where(fieldName(QGroup.group.workspaceId)).is(workspaceId);
+                where("workspaceId").is(workspaceId);
 
         return queryAll(List.of(workspaceIdCriteria), Optional.empty());
     }

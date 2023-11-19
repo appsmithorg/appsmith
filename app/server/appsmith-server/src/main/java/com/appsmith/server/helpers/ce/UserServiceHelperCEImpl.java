@@ -25,6 +25,7 @@ public class UserServiceHelperCEImpl implements UserServiceHelperCE {
 
     @Override
     public Mono<User> addPoliciesToUser(User user) {
+        return Mono.just(user);/*
         // Create user management permission group
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
         userManagementPermissionGroup.setName(user.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
@@ -43,6 +44,6 @@ public class UserServiceHelperCEImpl implements UserServiceHelperCE {
             User updatedWithPolicies = policySolution.addPoliciesToExistingObject(crudUserPolicies, user);
 
             return updatedWithPolicies;
-        });
+        });*/
     }
 }

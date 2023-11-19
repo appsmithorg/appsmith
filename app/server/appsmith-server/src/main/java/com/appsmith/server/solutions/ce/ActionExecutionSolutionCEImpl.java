@@ -176,7 +176,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         .findByBranchNameAndDefaultActionId(
                                 branchName, executeActionDTO.getActionId(), actionPermission.getExecutePermission())
                         .flatMap(branchedAction -> {
-                            executeActionDTO.setActionId(branchedAction.getId());
+                            executeActionDTO.setActionId(String.valueOf(branchedAction.getId()));
 
                             boolean isEmbedded;
                             if (executeActionDTO.getViewMode()) {
@@ -583,7 +583,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         return datasourceStorageMono
                 .flatMap(datasourceStorage -> {
-                    if (!StringUtils.hasLength(datasourceStorage.getDatasourceId())) {
+                    if (!StringUtils.hasLength(String.valueOf(datasourceStorage.getDatasourceId()))) {
                         return Mono.just(new HashMap<>());
                     }
 

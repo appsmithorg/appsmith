@@ -13,7 +13,7 @@ public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>
 
     Mono<Workspace> findByName(String name);
 
-    Mono<Void> updateUserRoleNames(String userId, String userName);
+    Mono<Void> updateUserRoleNames(Long userId, String userName);
 
     Mono<Long> countByDeletedAtNull();
 }

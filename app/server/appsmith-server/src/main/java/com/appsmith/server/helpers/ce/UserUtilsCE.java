@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -66,6 +65,7 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> makeSuperUser(List<User> users) {
+        return Mono.empty();/*
         return getSuperAdminPermissionGroup()
                 .flatMap(permissionGroup -> {
                     Set<String> assignedToUserIds = new HashSet<>();
@@ -75,7 +75,7 @@ public class UserUtilsCE {
                     }
                     assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+                    String path = "assignedToUserIds";
 
                     updateObj.set(path, assignedToUserIds);
                     // Make Super User is called before the first administrator is created.
@@ -85,10 +85,11 @@ public class UserUtilsCE {
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(
                         user.getEmail(), user.getTenantId()))
-                .then(Mono.just(Boolean.TRUE));
+                .then(Mono.just(Boolean.TRUE));//*/
     }
 
     public Mono<Boolean> removeSuperUser(List<User> users) {
+        return Mono.empty();/*
         return getSuperAdminPermissionGroup()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getAssignedToUserIds() == null) {
@@ -104,7 +105,7 @@ public class UserUtilsCE {
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(
                         user.getEmail(), user.getTenantId()))
-                .then(Mono.just(Boolean.TRUE));
+                .then(Mono.just(Boolean.TRUE));//*/
     }
 
     protected Mono<Config> createInstanceConfigForSuperUser() {
@@ -117,6 +118,7 @@ public class UserUtilsCE {
     }
 
     protected Mono<Tuple2<PermissionGroup, Config>> createConfigAndPermissionGroupForSuperAdmin() {
+        return Mono.empty();/*
         return Mono.zip(createInstanceAdminConfigObject(), createInstanceAdminPermissionGroupWithoutPermissions())
                 .flatMap(tuple -> {
                     Config savedInstanceConfig = tuple.getT1();
@@ -144,17 +146,19 @@ public class UserUtilsCE {
                     return Mono.zip(
                             addPermissionsToPermissionGroup(savedPermissionGroup, configPermissions),
                             configRepository.save(savedInstanceConfig));
-                });
+                });//*/
     }
 
     private Mono<Config> createInstanceAdminConfigObject() {
+        return Mono.empty();/*
         Config instanceAdminConfiguration = new Config();
         instanceAdminConfiguration.setName(FieldName.INSTANCE_CONFIG);
 
-        return configRepository.save(instanceAdminConfiguration);
+        return configRepository.save(instanceAdminConfiguration);//*/
     }
 
     private Mono<PermissionGroup> createInstanceAdminPermissionGroupWithoutPermissions() {
+        return Mono.empty();/*
         PermissionGroup instanceAdminPermissionGroup = new PermissionGroup();
         instanceAdminPermissionGroup.setName(FieldName.INSTANCE_ADMIN_ROLE);
 
@@ -184,15 +188,16 @@ public class UserUtilsCE {
                     Set.of(readPermissionGroupPolicy, assignPermissionGroupPolicy, unassignPermissionGroupPolicy));
 
             return permissionGroupRepository.save(savedPermissionGroup);
-        });
+        });*/
     }
 
     protected Mono<PermissionGroup> addPermissionsToPermissionGroup(
             PermissionGroup permissionGroup, Set<Permission> permissions) {
+        return Mono.empty();/*
         Set<Permission> existingPermissions = new HashSet<>(permissionGroup.getPermissions());
         existingPermissions.addAll(permissions);
         permissionGroup.setPermissions(existingPermissions);
-        return permissionGroupRepository.save(permissionGroup);
+        return permissionGroupRepository.save(permissionGroup);*/
     }
 
     public Mono<PermissionGroup> getSuperAdminPermissionGroup() {

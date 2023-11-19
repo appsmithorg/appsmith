@@ -69,6 +69,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
+        return Mono.empty();/*
 
         List<NewPage> importedNewPageList = applicationJson.getPageList();
 
@@ -106,7 +107,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         mappedImportableResourcesDTO)
                 .cache();
 
-        return updatedApplicationMono.then(importedNewPagesMono).then();
+        return updatedApplicationMono.then(importedNewPagesMono).then();*/
     }
 
     @Override
@@ -215,6 +216,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Mono<List<NewPage>> existingPagesMono,
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        return Mono.empty();/*
 
         List<ApplicationPage> editModeApplicationPages = importedApplication.getPages();
         List<ApplicationPage> publishedModeApplicationPages = importedApplication.getPublishedPages();
@@ -347,7 +349,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             application.setPages(applicationPages.get(EDIT));
             application.setPublishedPages(applicationPages.get(VIEW));
             return application;
-        });
+        });*/
     }
 
     /**
@@ -369,6 +371,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             String branchName,
             Mono<List<NewPage>> existingPages,
             ImportApplicationPermissionProvider permissionProvider) {
+        return Flux.empty();/*
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
@@ -480,17 +483,18 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 .onErrorResume(error -> {
                     log.error("Error importing page", error);
                     return Mono.error(error);
-                });
+                });*/
     }
 
     private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
+        return Mono.empty();/*
         NewPage update = new NewPage();
         return newPageService.save(newPage).flatMap(page -> {
             update.setDefaultResources(
                     DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(page, branchName)
                             .getDefaultResources());
             return newPageService.update(page.getId(), update);
-        });
+        });*/
     }
 
     private Map<String, String> updateNewPagesBeforeMerge(List<NewPage> existingPages, List<NewPage> importedPages) {
@@ -527,6 +531,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             boolean appendToApp,
             Mono<Application> importApplicationMono,
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono) {
+        return Mono.empty();/*
         Mono<List<ApplicationPage>> unpublishedPagesMono = Mono.just(editModeApplicationPages);
         if (appendToApp) {
             unpublishedPagesMono = unpublishedPagesMono
@@ -557,7 +562,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         return unpublishedPages;
                     });
         }
-        return unpublishedPagesMono;
+        return unpublishedPagesMono;*/
     }
 
     // This method will update the action id in saved page for layoutOnLoadAction
@@ -566,6 +571,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Map<String, String> actionIdMap,
             Map<String, List<String>> unpublishedActionIdToCollectionIdsMap,
             Map<String, List<String>> publishedActionIdToCollectionIdsMap) {
+        return Mono.empty();/*
 
         Set<String> layoutOnLoadActionsForPage = getLayoutOnLoadActionsForPage(
                 newPage, actionIdMap, unpublishedActionIdToCollectionIdsMap, publishedActionIdToCollectionIdsMap);
@@ -621,7 +627,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 .onErrorResume(error -> {
                     log.error("Error while updating action collection id in page layout", error);
                     return Mono.error(error);
-                });
+                });*/
     }
 
     private Set<String> getLayoutOnLoadActionsForPage(

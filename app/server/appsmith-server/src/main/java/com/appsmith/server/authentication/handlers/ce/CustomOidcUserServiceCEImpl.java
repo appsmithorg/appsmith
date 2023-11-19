@@ -45,6 +45,7 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
      * In case the user doesn't exist, create and save the user.
      */
     public Mono<User> checkAndCreateUser(OidcUser oidcUser, OidcUserRequest userRequest) {
+        return Mono.empty();/*
 
         String username = (!StringUtils.isEmpty(oidcUser.getEmail())) ? oidcUser.getEmail() : oidcUser.getName();
 
@@ -77,6 +78,6 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
                 .onErrorMap(
                         AppsmithException.class,
                         error -> new OAuth2AuthenticationException(
-                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")));
+                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")));*/
     }
 }

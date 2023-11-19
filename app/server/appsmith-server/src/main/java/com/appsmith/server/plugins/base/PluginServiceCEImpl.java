@@ -114,6 +114,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Flux<Plugin> get(MultiValueMap<String, String> params) {
+        return Flux.empty();/*
 
         // Remove branch name as plugins are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
@@ -153,7 +154,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     return mongoTemplate.find(query, Plugin.class);
                 })
                 .flatMap(plugin ->
-                        getTemplates(plugin).doOnSuccess(plugin::setTemplates).thenReturn(plugin));
+                        getTemplates(plugin).doOnSuccess(plugin::setTemplates).thenReturn(plugin));*/
     }
 
     @Override
@@ -162,7 +163,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
         }
 
-        plugin.setDeleted(false);
+        plugin.setDeletedAt(null);
         return super.create(plugin);
     }
 
@@ -190,6 +191,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Flux<Workspace> installDefaultPlugins(List<Plugin> plugins) {
+        return Flux.empty();/*
         final List<WorkspacePlugin> newWorkspacePlugins = plugins.stream()
                 .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
                 .map(plugin -> {
@@ -209,7 +211,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 workspace.getPlugins().addAll(newWorkspacePlugins);
                 return workspaceService.save(workspace);
             }
-        });
+        });*/
     }
 
     @Override
@@ -243,6 +245,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     private Mono<Workspace> storeWorkspacePlugin(PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
+        return Mono.empty();/*
 
         Mono<Workspace> pluginInWorkspaceMono =
                 workspaceService.findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());
@@ -280,7 +283,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                         }
 
                         WorkspacePlugin workspacePlugin = new WorkspacePlugin();
-                        workspacePlugin.setPluginId(pluginDTO.getPluginId());
+                        // workspacePlugin.setPluginId(pluginDTO.getPluginId());
                         workspacePlugin.setStatus(status);
                         workspacePluginList.add(workspacePlugin);
                         workspace.setPlugins(workspacePluginList);
@@ -290,7 +293,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
                         return workspaceService.save(workspace);
                     });
-        }));
+        }));*/
     }
 
     public Mono<Plugin> findByName(String name) {
@@ -303,7 +306,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Mono<Plugin> findById(String id) {
-        return repository.findById(id);
+        return Mono.justOrEmpty(repository.findById(id));
     }
 
     @Override
@@ -314,6 +317,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
+        return null;/*
         Mono<Plugin> pluginMono = repository.findById(
                 installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
         return pluginMono
@@ -324,7 +328,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                             installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
                     return Mono.just(new Plugin());
                 }))
-                .block();
+                .block();*/
     }
 
     private Mono<Plugin> downloadAndStartPlugin(String workspaceId, Plugin plugin) {
@@ -456,7 +460,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     private Mono<Map<String, String>> getTemplates(Plugin plugin) {
-        final String pluginId = plugin.getId();
+        final String pluginId = plugin.getId().toString();
 
         if (!templateCache.containsKey(pluginId)) {
             final Mono<Map<String, String>> mono = Mono.fromSupplier(() -> loadTemplatesFromPlugin(plugin))
@@ -625,7 +629,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Flux<Plugin> saveAll(Iterable<Plugin> plugins) {
-        return repository.saveAll(plugins);
+        return Flux.empty();/*
+        return repository.saveAll(plugins);*/
     }
 
     @Override

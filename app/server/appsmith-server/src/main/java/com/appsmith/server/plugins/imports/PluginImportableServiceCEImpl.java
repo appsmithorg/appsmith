@@ -2,7 +2,7 @@ package com.appsmith.server.plugins.imports;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QPlugin;
+
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -34,13 +34,14 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
+        return Mono.empty();/*
         return workspaceMono
                 .map(workspace -> workspace.getPlugins().stream()
                         .map(WorkspacePlugin::getPluginId)
                         .collect(Collectors.toSet()))
                 .flatMapMany(pluginIds -> pluginService.findAllByIdsWithoutPermission(
                         pluginIds,
-                        List.of(fieldName(QPlugin.plugin.pluginName), fieldName(QPlugin.plugin.packageName))))
+                        List.of("pluginName", "packageName")))
                 .map(plugin -> {
                     mappedImportableResourcesDTO
                             .getPluginMap()
@@ -52,6 +53,6 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
                 .collectList()
                 .elapsed()
                 .doOnNext(tuples -> log.debug("time to get plugin map: {}", tuples.getT1()))
-                .then();
+                .then();*/
     }
 }

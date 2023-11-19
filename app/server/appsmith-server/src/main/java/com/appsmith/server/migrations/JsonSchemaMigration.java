@@ -8,15 +8,15 @@ import com.appsmith.server.helpers.CollectionUtils;
 public class JsonSchemaMigration {
     private static boolean checkCompatibility(ApplicationJson applicationJson) {
         return (applicationJson.getClientSchemaVersion() <= JsonSchemaVersions.clientVersion)
-                && (applicationJson.getServerSchemaVersion() <= JsonSchemaVersions.serverVersion);
+            && (applicationJson.getServerSchemaVersion() <= JsonSchemaVersions.serverVersion);
     }
 
     public static ApplicationJson migrateApplicationToLatestSchema(ApplicationJson applicationJson) {
         // Check if the schema versions are available and set to initial version if not present
         Integer serverSchemaVersion =
-                applicationJson.getServerSchemaVersion() == null ? 0 : applicationJson.getServerSchemaVersion();
+            applicationJson.getServerSchemaVersion() == null ? 0 : applicationJson.getServerSchemaVersion();
         Integer clientSchemaVersion =
-                applicationJson.getClientSchemaVersion() == null ? 0 : applicationJson.getClientSchemaVersion();
+            applicationJson.getClientSchemaVersion() == null ? 0 : applicationJson.getClientSchemaVersion();
 
         applicationJson.setClientSchemaVersion(clientSchemaVersion);
         applicationJson.setServerSchemaVersion(serverSchemaVersion);
@@ -55,7 +55,7 @@ public class JsonSchemaMigration {
             case 4:
                 // Remove unwanted fields from DTO and allow serialization for JsonIgnore fields
                 if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageList())
-                        && applicationJson.getExportedApplication() != null) {
+                    && applicationJson.getExportedApplication() != null) {
                     MigrationHelperMethods.arrangeApplicationPagesAsPerImportedPageOrder(applicationJson);
                     MigrationHelperMethods.updateMongoEscapedWidget(applicationJson);
                 }

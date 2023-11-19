@@ -102,6 +102,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
      */
     public Mono<List<String>> forkApplications(
             String toWorkspaceId, Application application, String sourceEnvironmentId) {
+        return Mono.empty();/*
 
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
@@ -391,11 +392,12 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .then(Mono.just(newApplicationIds))
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(appId -> applicationPageService.publish(appId, false).thenReturn(appId))
-                .collectList();
+                .collectList();//*/
     }
 
     private Flux<NewPage> updateActionAndCollectionsIdsInForkedPages(
             List<NewPage> clonedPages, Map<String, String> actionIdsMap, Map<String, String> actionCollectionIdsMap) {
+        return Flux.empty();/*
         final List<Mono<NewPage>> pageSaveMonos = new ArrayList<>();
 
         for (final NewPage page : clonedPages) {
@@ -419,7 +421,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
             }
         }
 
-        return Flux.concat(pageSaveMonos);
+        return Flux.concat(pageSaveMonos);//*/
     }
 
     private boolean updateOnLoadActionsWithNewActionAndCollectionIds(
@@ -461,6 +463,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
      */
     private Flux<NewPage> doOnlyForkApplicationObjectWithoutItsDependenciesAndReturnNonDeletedPages(
             Application application, List<String> applicationIds) {
+        return Flux.empty();/*
         final String templateApplicationId = application.getId();
         return forkApplicationDocument(application).flatMapMany(savedApplication -> {
             applicationIds.add(savedApplication.getId());
@@ -476,10 +479,11 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                 newPage.setApplicationId(savedApplication.getId());
                                 return newPage;
                             }));
-        });
+        });//*/
     }
 
     private Mono<UpdateResult> forkThemes(Application srcApplication, Application destApplication) {
+        return Mono.empty();/*
         return Mono.zip(
                         themeService.cloneThemeToApplication(srcApplication.getEditModeThemeId(), destApplication),
                         themeService.cloneThemeToApplication(srcApplication.getPublishedModeThemeId(), destApplication))
@@ -491,10 +495,11 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             editModeTheme.getId(),
                             publishedModeTheme.getId(),
                             applicationPermission.getEditPermission());
-                });
+                });//*/
     }
 
     private Mono<Application> forkApplicationDocument(Application application) {
+        return Mono.empty();/*
         if (!org.springframework.util.StringUtils.hasText(application.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
@@ -516,12 +521,13 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         return applicationPageService
                 .setApplicationPolicies(userMono, workspaceId, application)
-                .flatMap(applicationService::createDefaultApplication);
+                .flatMap(applicationService::createDefaultApplication);//*/
     }
 
     @Override
     public Mono<Application> forkApplicationToWorkspaceWithEnvironment(
             String srcApplicationId, String targetWorkspaceId, String sourceEnvironmentId) {
+        return Mono.empty();/*
         final Mono<Application> sourceApplicationMono = applicationService
                 .findById(srcApplicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -583,7 +589,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
         return Mono.create(
-                sink -> forkApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+                sink -> forkApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));//*/
     }
 
     public Mono<ApplicationImportDTO> forkApplicationToWorkspace(
@@ -619,6 +625,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     branchName, srcApplicationId, applicationPermission.getReadPermission());
         }
 
+        return Mono.empty();/*
         return checkPermissionsForForking(srcApplicationId, targetWorkspaceId, branchName)
                 .then(applicationMono)
                 // We will be forking to the default environment in the new workspace
@@ -631,7 +638,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             .map(responseUtils::updateApplicationWithDefaultResources)
                             .flatMap(application -> importApplicationService.getApplicationImportDTO(
                                     application.getId(), application.getWorkspaceId(), application));
-                });
+                });//*/
     }
 
     private Mono<Application> sendForkApplicationAnalyticsEvent(
@@ -659,6 +666,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
     private Mono<Boolean> checkPermissionsForForking(
             String srcApplicationId, String targetWorkspaceId, String branchName) {
+        return Mono.empty();/*
         Optional<String> optionalBranchName = Optional.ofNullable(branchName);
         Optional<AclPermission> optionalAclPermission = Optional.empty();
         Mono<Application> applicationMonoWithOutPermission = applicationService
@@ -743,7 +751,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             workspaceValidatedForCreateApplicationPermission,
                             workspaceValidatedForCreateDatasourcePermission)
                     .thenReturn(Boolean.TRUE);
-        });
+        });//*/
     }
 
     private Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {

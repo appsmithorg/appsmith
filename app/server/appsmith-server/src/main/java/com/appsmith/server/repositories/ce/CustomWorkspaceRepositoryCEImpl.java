@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -38,7 +37,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QWorkspace.workspace.name)).is(name);
+        Criteria nameCriteria = where("name").is(name);
 
         return queryOne(List.of(nameCriteria), aclPermission);
     }
@@ -46,11 +45,12 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<Workspace> findByIdsIn(
             Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
-        Criteria workspaceIdCriteria = where(fieldName(QWorkspace.workspace.id)).in(workspaceIds);
+        return Flux.empty();/*
+        Criteria workspaceIdCriteria = where("id").in(workspaceIds);
         Criteria tenantIdCriteria =
-                where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId);
+                where("tenantId").is(tenantId);
 
-        return queryAll(List.of(workspaceIdCriteria, tenantIdCriteria), aclPermission, sort);
+        return queryAll(List.of(workspaceIdCriteria, tenantIdCriteria), aclPermission, sort);*/
     }
 
     @Override
@@ -70,10 +70,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Workspace> findAll(AclPermission permission) {
+        return Flux.empty();/*
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
             Criteria tenantIdCriteria =
-                    where(fieldName(QWorkspace.workspace.tenantId)).is(user.getTenantId());
+                    where("tenantId").is(user.getTenantId());
             return queryAll(List.of(tenantIdCriteria), permission);
-        });
+        });*/
     }
 }

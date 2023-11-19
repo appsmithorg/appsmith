@@ -72,6 +72,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
      */
     public Mono<ApplicationJson> exportApplicationById(
             String applicationId, SerialiseApplicationObjective serialiseFor) {
+        return Mono.empty();/*
 
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
@@ -82,7 +83,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
            4. Fetch actions from the application
            5. Filter out relevant datasources using actions reference
            6. Fetch action collections from the application
-        */
+        * /
         ApplicationJson applicationJson = new ApplicationJson();
         final MappedExportableResourcesDTO mappedResourcesDTO = new MappedExportableResourcesDTO();
         final ExportingMetaDTO exportingMetaDTO = new ExportingMetaDTO();
@@ -179,7 +180,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             .thenReturn(applicationJson);
                 })
                 .flatMap(unused -> sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
-                .thenReturn(applicationJson);
+                .thenReturn(applicationJson);*/
     }
 
     private Mono<Void> sanitizeEntities(
@@ -301,6 +302,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
      * @return The application which is imported or exported
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
+        return Mono.empty();/*
         return applicationService.findById(applicationId).flatMap(application -> workspaceService
                 .getById(application.getWorkspaceId())
                 .flatMap(workspace -> {
@@ -314,6 +316,6 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
                             FieldName.EVENT_DATA, eventData);
 
                     return analyticsService.sendObjectEvent(event, application, data);
-                }));
+                }));*/
     }
 }

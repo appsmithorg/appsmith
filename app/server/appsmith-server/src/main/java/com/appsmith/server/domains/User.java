@@ -2,13 +2,14 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.dtos.Permission;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -25,7 +26,7 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@Document
+@Entity
 public class User extends BaseDomain implements UserDetails, OidcUser {
 
     @JsonView(Views.Public.class)
@@ -36,10 +37,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     @JsonView(Views.Public.class)
     private String hashedEmail;
-
-    // TODO: This is deprecated in favour of groups
-    @JsonView(Views.Public.class)
-    private Set<Role> roles;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JsonView(Views.Public.class)
@@ -63,41 +60,33 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     private Boolean emailVerified;
 
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private String currentOrganizationId;
-
     @JsonView(Views.Public.class)
     private String currentWorkspaceId;
 
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
+    @OneToMany
     @JsonView(Views.Public.class)
-    private Set<String> organizationIds;
+    @ToString.Exclude
+    private Set<Workspace> workspaces;
 
+    @OneToOne
     @JsonView(Views.Public.class)
-    private Set<String> workspaceIds;
-
-    // Organizations migrated to workspaces, kept the field as depricated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private String examplesOrganizationId;
-
-    @JsonView(Views.Public.class)
-    private String examplesWorkspaceId;
+    private Workspace examplesWorkspace;
 
     // There is a many-to-many relationship with groups. If this value is modified, please also modify the list of
     // users in that particular group document as well.
+    @ManyToMany
     @JsonView(Views.Public.class)
-    private Set<String> groupIds = new HashSet<>();
+    @ToString.Exclude
+    private Set<Group> groups;
 
     // These permissions are in addition to the privileges provided by the groupIds. We can assign individual
     // permissions
     // to users instead of creating a group for them. To be used only for one-off permissions.
     // During evaluation a union of the group permissions and user-specific permissions will take effect.
+    @ManyToMany
     @JsonView(Views.Public.class)
-    private Set<String> permissions = new HashSet<>();
+    @ToString.Exclude
+    private Set<Permission> permissions;
 
     // This field is used when a user is invited to appsmith. This inviteToken is used to confirm the identity in verify
     // token flow.
@@ -107,8 +96,14 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     Boolean isAnonymous = false;
 
+    @ManyToOne
+    @JoinColumn(name = "tenant_id", referencedColumnName = "id")
+    @JsonView(Views.Internal.class)
+    private Tenant tenant;
+
+    @Column(name = "tenant_id", insertable = false, updatable = false)
     @JsonView(Views.Public.class)
-    private String tenantId;
+    private Long tenantId;
 
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override

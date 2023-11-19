@@ -44,6 +44,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
+        return Mono.empty();/*
         Optional<AclPermission> optionalPermission = Optional.ofNullable(pagePermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
@@ -114,7 +115,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
 
                     return newPageList;
                 })
-                .then();
+                .then();*/
     }
 
     @Override
@@ -137,11 +138,11 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
 
         applicationJson
                 .getExportedApplication()
-                .exportApplicationPages(mappedExportableResourcesDTO.getPageIdToNameMap());
+                ;//.exportApplicationPages(mappedExportableResourcesDTO.getPageIdToNameMap());
     }
 
     private void updateIdsForLayoutOnLoadAction(
-            PageDTO page, Map<String, String> actionIdToNameMap, Map<String, String> collectionIdToNameMap) {
+            PageDTO page, Map<Long, String> actionIdToNameMap, Map<String, String> collectionIdToNameMap) {
 
         if (page != null && !CollectionUtils.isEmpty(page.getLayouts())) {
             for (Layout layout : page.getLayouts()) {

@@ -81,7 +81,7 @@ public class ItemServiceCEImpl implements ItemServiceCE {
         ActionDTO action = new ActionDTO();
         action.setName(addItemToPageDTO.getName());
         action.setPageId(addItemToPageDTO.getPageId());
-        action.setTemplateId(apiTemplate.getId());
+        action.setTemplateId(String.valueOf(apiTemplate.getId()));
         action.setProviderId(apiTemplate.getProviderId());
 
         Documentation documentation = new Documentation();
@@ -112,7 +112,7 @@ public class ItemServiceCEImpl implements ItemServiceCE {
                     Datasource datasource = new Datasource();
                     datasource.setDatasourceConfiguration(apiTemplate.getDatasourceConfiguration());
                     datasource.setName(apiTemplate.getDatasourceConfiguration().getUrl());
-                    datasource.setPluginId(plugin.getId());
+                    datasource.setPluginId(String.valueOf(plugin.getId()));
                     datasource.setWorkspaceId(addItemToPageDTO.getWorkspaceId());
                     action.setDatasource(datasource);
                     action.setPluginType(plugin.getType());

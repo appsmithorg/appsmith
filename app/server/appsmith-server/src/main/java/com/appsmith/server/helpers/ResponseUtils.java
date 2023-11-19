@@ -69,14 +69,14 @@ public class ResponseUtils {
                 return newPage;
             }
             if (StringUtils.isEmpty(defaultResourceIds.getApplicationId())) {
-                defaultResourceIds.setApplicationId(newPage.getApplicationId());
+                // defaultResourceIds.setApplicationId(newPage.getApplicationId());
             }
             if (StringUtils.isEmpty(defaultResourceIds.getPageId())) {
-                defaultResourceIds.setPageId(newPage.getId());
+                // defaultResourceIds.setPageId(newPage.getId());
             }
         }
-        newPage.setId(defaultResourceIds.getPageId());
-        newPage.setApplicationId(defaultResourceIds.getApplicationId());
+        // newPage.setId(defaultResourceIds.getPageId());
+        // newPage.setApplicationId(defaultResourceIds.getApplicationId());
         if (newPage.getUnpublishedPage() != null) {
             newPage.setUnpublishedPage(this.updatePageDTOWithDefaultResources(newPage.getUnpublishedPage()));
         }
@@ -207,11 +207,11 @@ public class ResponseUtils {
                 defaultResourceIds.setApplicationId(newAction.getApplicationId());
             }
             if (StringUtils.isEmpty(defaultResourceIds.getActionId())) {
-                defaultResourceIds.setActionId(newAction.getId());
+                // defaultResourceIds.setActionId(newAction.getId());
             }
         }
 
-        newAction.setId(defaultResourceIds.getActionId());
+        // newAction.setId(defaultResourceIds.getActionId());
         newAction.setApplicationId(defaultResourceIds.getApplicationId());
         if (newAction.getUnpublishedAction() != null) {
             newAction.setUnpublishedAction(this.updateActionDTOWithDefaultResources(newAction.getUnpublishedAction()));
@@ -240,10 +240,10 @@ public class ResponseUtils {
                 defaultResourceIds.setApplicationId(actionCollection.getApplicationId());
             }
             if (StringUtils.isEmpty(defaultResourceIds.getCollectionId())) {
-                defaultResourceIds.setCollectionId(actionCollection.getId());
+                // defaultResourceIds.setCollectionId(actionCollection.getId());
             }
         }
-        actionCollection.setId(defaultResourceIds.getCollectionId());
+        // actionCollection.setId(defaultResourceIds.getCollectionId());
         actionCollection.setApplicationId(defaultResourceIds.getApplicationId());
         if (actionCollection.getUnpublishedCollection() != null) {
             actionCollection.setUnpublishedCollection(
@@ -317,19 +317,19 @@ public class ResponseUtils {
     public Application updateApplicationWithDefaultResources(Application application) {
         if (application.getGitApplicationMetadata() != null
                 && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
-            application.setId(application.getGitApplicationMetadata().getDefaultApplicationId());
+            // application.setId(application.getGitApplicationMetadata().getDefaultApplicationId());
         }
         if (!CollectionUtils.isEmpty(application.getPages())) {
             application.getPages().forEach(page -> {
                 if (!StringUtils.isEmpty(page.getDefaultPageId())) {
-                    page.setId(page.getDefaultPageId());
+                    // page.setId(page.getDefaultPageId());
                 }
             });
         }
         if (!CollectionUtils.isEmpty(application.getPublishedPages())) {
             application.getPublishedPages().forEach(page -> {
                 if (!StringUtils.isEmpty(page.getDefaultPageId())) {
-                    page.setId(page.getDefaultPageId());
+                    // page.setId(page.getDefaultPageId());
                 }
             });
         }
