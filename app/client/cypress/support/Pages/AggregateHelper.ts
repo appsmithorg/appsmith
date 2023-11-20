@@ -282,10 +282,10 @@ export class AggregateHelper extends ReusableHelper {
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
           ? cy.xpath(selector, {
-              timeout: timeout,
+              timeout,
             })
           : cy.get(selector, {
-              timeout: timeout,
+              timeout,
             });
     } else locator = cy.wrap(selector);
     if (exists === "exist") {
