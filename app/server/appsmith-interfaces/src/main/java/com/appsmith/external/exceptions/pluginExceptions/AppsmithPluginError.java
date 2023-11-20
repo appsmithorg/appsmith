@@ -107,6 +107,15 @@ public enum AppsmithPluginError implements BasePluginError {
             ErrorType.AUTHENTICATION_ERROR,
             "{0}",
             "{1}"),
+    PLUGIN_DATASOURCE_AUTHENTICATION_ERROR(
+            400,
+            AppsmithPluginErrorCode.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR.getCode(),
+            "Invalid authentication credentials. Please check datasource configuration.",
+            AppsmithErrorAction.DEFAULT,
+            "Datasource authentication error",
+            ErrorType.DATASOURCE_CONFIGURATION_ERROR,
+            "{0}",
+            "{1}"),
     PLUGIN_DATASOURCE_ERROR(
             400,
             AppsmithPluginErrorCode.PLUGIN_DATASOURCE_ERROR.getCode(),

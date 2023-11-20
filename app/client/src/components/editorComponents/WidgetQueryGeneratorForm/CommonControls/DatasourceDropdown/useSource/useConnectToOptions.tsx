@@ -13,7 +13,10 @@ import type { DropdownOptionType } from "../../../types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
 import { PluginPackageName } from "entities/Action";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type {
+  ActionData,
+  ActionDataState,
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -60,6 +63,16 @@ function sortQueries(queries: ActionDataState, expectedDatatype: string) {
   });
 }
 
+function getBindingValue(widget: WidgetProps, query: ActionData) {
+  const defaultBindingValue = `{{${query.config.name}.data}}`;
+  const querySuggestedWidgets = query.data?.suggestedWidgets;
+  if (!querySuggestedWidgets) return defaultBindingValue;
+  const suggestedWidget = querySuggestedWidgets.find(
+    (suggestedWidget) => suggestedWidget.type === widget.type,
+  );
+  if (!suggestedWidget) return defaultBindingValue;
+  return `{{${query.config.name}.${suggestedWidget.bindingQuery}}}`;
+}
 interface ConnectToOptionsProps {
   pluginImages: Record<string, string>;
   widget: WidgetProps;
@@ -97,7 +110,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     return sortQueries(filteredQueries, expectedType).map((query) => ({
       id: query.config.id,
       label: query.config.name,
-      value: `{{${query.config.name}.data}}`,
+      value: getBindingValue(widget, query),
       icon: (
         <ImageWrapper>
           <DatasourceImage
@@ -127,7 +140,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
         });
       },
     }));
-  }, [filteredQueries, pluginImages, addBinding]);
+  }, [filteredQueries, pluginImages, addBinding, widget]);
 
   const currentPageWidgets = useSelector(getCurrentPageWidgets);
 
