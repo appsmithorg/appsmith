@@ -1,0 +1,72 @@
+.referrences {
+  flex-basis: 33%;
+  border-left: #cdd5df 1px solid;
+  overflow: auto;
+  height: calc(100vh - 90px);
+}
+
+.collapsible {
+  border-bottom: 1px solid #cdd5df;
+}
+
+.collapsibleHeader {
+  display: flex;
+  padding: 0.5rem 1rem;
+  justify-content: space-between;
+}
+
+.collapsibleBody {
+  display: flex;
+  padding: 0px 1rem;
+  padding-bottom: 1rem;
+}
+
+.collapsibleTitle {
+  flex-basis: calc(100% - 24px);
+  font-weight: 500;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.collapsibleIcon {
+  flex-basis: 24px;
+  cursor: pointer;
+}
+
+.marginTop {
+  margin-top: 1rem;
+}
+
+.events {
+  width: 100%;
+}
+
+.event {
+  margin-bottom: 12px;
+}
+
+.eventName {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.eventLabel {
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.eventControl {
+  cursor: pointer;
+}
+
+.eventValue {
+  width: 100%;
+}
+
+.eventValueDefault {
+  color: #9ba4b2;
+}

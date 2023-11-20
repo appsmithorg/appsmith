@@ -1,0 +1,17 @@
+.editor {
+}
+
+.editorHeader {
+  border-bottom: 1px solid #cdd5df;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-top: 1px solid #cdd5df;
+}
+
+.editorHeaderTitle {
+}
+
+.editorBody {
+}

@@ -14,6 +14,7 @@ import type { SetterConfig } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static type = "CUSTOM_WIDGET";
@@ -41,6 +42,11 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       version: 1,
       events: [],
       isVisible: true,
+      srcDoc: {
+        html: "",
+        js: "",
+        css: "",
+      },
     };
   }
 
@@ -73,6 +79,8 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
             isJSConvertible: false,
             isBindProperty: false,
             isTriggerProperty: false,
+            dependencies: ["srcDoc", "events"],
+            evaluatedDependencies: ["defaultModel"],
           },
         ],
       },
@@ -80,7 +88,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         sectionName: "Model variables",
         children: [
           {
-            propertyName: "model",
+            propertyName: "defaultModel",
             helperText: (
               <div style={{ marginTop: "10px" }}>
                 This model exposes Appsmith data to the widget editor.{" "}
@@ -187,15 +195,49 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
+    return {
+      model: "defaultModel",
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    return {};
+    return {
+      model: undefined,
+    };
   }
 
+  execute = (eventName: string) => {
+    if (this.props.hasOwnProperty(eventName)) {
+      const eventString = this.props[eventName];
+
+      super.executeAction({
+        triggerPropertyName: eventName,
+        dynamicString: eventString,
+        event: {
+          type: EventType.CUSTOM_WIDGET_EVENT,
+        },
+      });
+    }
+  };
+
+  update = (data: Record<string, unknown>) => {
+    this.props.updateWidgetMetaProperty("model", {
+      ...this.props.model,
+      ...data,
+    });
+  };
+
   getWidgetView() {
-    return <CustomComponent />;
+    return (
+      <CustomComponent
+        execute={(eventName: string) => this.execute(eventName)}
+        height={this.props.componentHeight}
+        model={this.props.model}
+        srcDoc={this.props.srcDoc}
+        update={(data: any) => this.update(data)}
+        width={this.props.componentWidth}
+      />
+    );
   }
 }
 

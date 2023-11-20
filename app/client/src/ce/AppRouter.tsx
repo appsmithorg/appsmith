@@ -14,6 +14,8 @@ import {
   BUILDER_PATCH_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  CUSTOM_WIDGETS_EDITOR_ID_PATH,
+  CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
   PROFILE,
   SETUP,
   SIGNUP_SUCCESS_URL,
@@ -74,6 +76,7 @@ import WidgetBuilder from "pages/WidgetBuilder";
 import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import CustomWidgetBuilder from "pages/Editor/CustomWidgetBuilder";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -127,6 +130,16 @@ export function Routes() {
       />
       <SentryRoute component={EditorLoader} path={BUILDER_PATH_DEPRECATED} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH_DEPRECATED} />
+      <SentryRoute
+        component={CustomWidgetBuilder}
+        exact
+        path={CUSTOM_WIDGETS_EDITOR_ID_PATH}
+      />
+      <SentryRoute
+        component={CustomWidgetBuilder}
+        exact
+        path={CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM}
+      />
       {/*
        * Note: When making changes to the order of these paths
        * Be sure to check if it is sync with the order of checks in getUpdatedRoute helper method

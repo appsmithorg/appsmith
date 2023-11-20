@@ -1,0 +1,32 @@
+.widgetName {
+  font-weight: 500;
+}
+.headerControlsRight {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+  flex-basis: 33%;
+  border-left: 1px solid #cdd5df;
+  height: 48px;
+}
+
+.headerControlsLeft {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 0.5rem;
+  padding-right: 1rem;
+  flex-basis: 67%;
+}
+
+.referrenceTrigger {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}

@@ -1,0 +1,20 @@
+.contentRight {
+  display: flex;
+  flex-basis: 50%;
+  flex-direction: column;
+  border-width: 1px;
+}
+
+.contentRightBody {
+  display: flex;
+  flex-grow: 1;
+}
+
+.headerControls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  border-bottom: 1px solid #cdd5df;
+}

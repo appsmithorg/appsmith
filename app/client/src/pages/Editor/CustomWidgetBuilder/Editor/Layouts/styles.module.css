@@ -1,0 +1,7 @@
+.editorLayoutFullWidth {
+  flex-basis: 100%;
+}
+
+.editorLayoutPartialWidth {
+  flex-basis: 67%;
+}

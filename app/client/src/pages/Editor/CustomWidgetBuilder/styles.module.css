@@ -1,0 +1,28 @@
+.headerWrapper.headerWrapper {
+  padding: 0 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.headerControls {
+  gap: 1rem;
+  justify-content: right !important;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 40px);
+}
+
+.contentLeft {
+  flex-basis: 50%;
+  border-width: 1px;
+}
+
+.loader {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+}
