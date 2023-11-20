@@ -134,7 +134,7 @@ export class DeployMode {
     //     window.location.href = url;
     //   }); //only reload page to get new url
     // });
-    //cy.get("@windowStub").should("be.calledOnce");
+    //cy.get("@windowStub").should("be.calledOnce");//commenting since page load is not consistent
     cy.url().should("contain", expectedUrl);
     this.agHelper.Sleep(2000); //stay in the page a bit before navigating back
     //this.assertHelper.AssertDocumentReady();
