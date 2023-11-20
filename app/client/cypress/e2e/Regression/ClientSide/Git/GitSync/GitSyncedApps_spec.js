@@ -241,7 +241,7 @@ describe("Git sync apps", function () {
     });
     cy.wait(3000);
     // commit and push the changes
-    cy.commitAndPush();
+    gitSync.CommitAndPush(true);
     cy.wait(2000);
     // verify data binding on all pages in deploy mode
     cy.latestDeployPreview();
