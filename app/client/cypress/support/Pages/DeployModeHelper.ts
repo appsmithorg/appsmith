@@ -141,7 +141,7 @@ export class DeployMode {
     cy.window({ timeout: 60000 }).then((win) => {
       win.history.back();
     });
-    cy.wait(4000); //wait for page to settle
+    this.agHelper.Sleep(2000); //wait for page to settle
     this.assertHelper.AssertNetworkResponseData("@" + networkCall);
     this.assertHelper.AssertDocumentReady();
   }
