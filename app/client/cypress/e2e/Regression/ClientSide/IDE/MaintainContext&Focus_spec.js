@@ -8,6 +8,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -186,11 +187,11 @@ describe("MaintainContext&Focus", function () {
   });
 
   it("4. Datasource edit mode has to be maintained", () => {
-    dataSources.navigateToDatasource("Appsmith");
+    EditorNavigation.SelectEntityByName("Appsmith", EntityType.Datasource);
     dataSources.EditDatasource();
-    dataSources.navigateToDatasource("Github");
+    EditorNavigation.SelectEntityByName("Github", EntityType.Datasource);
     dataSources.AssertDSEditViewMode("View");
-    dataSources.navigateToDatasource("Appsmith");
+    EditorNavigation.SelectEntityByName("Appsmith", EntityType.Datasource);
     dataSources.AssertDSEditViewMode("Edit");
   });
 

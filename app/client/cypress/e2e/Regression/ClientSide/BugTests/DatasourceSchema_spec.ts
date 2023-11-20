@@ -6,6 +6,7 @@ import {
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
@@ -49,7 +50,7 @@ describe("Datasource form related tests", function () {
 
   it("2. Verify if schema was fetched once #18448", () => {
     agHelper.RefreshPage();
-    dataSources.navigateToDatasource(dataSourceName);
+    EditorNavigation.SelectEntityByName(dataSourceName, EntityType.Datasource);
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
     EditorNavigation.ViaSidebar(SidebarButton.Pages);

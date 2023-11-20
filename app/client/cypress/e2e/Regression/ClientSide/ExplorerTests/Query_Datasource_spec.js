@@ -1,6 +1,7 @@
 /// <reference types="Cypress" />
 
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
@@ -54,7 +55,7 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.testSaveDatasource();
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
-    dataSources.navigateToDatasource(datasourceName);
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     agHelper.RenameWithInPane(`${datasourceName}new`, false);
     cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
 

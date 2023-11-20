@@ -1,7 +1,10 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 import { ObjectsRegistry } from "../support/Objects/Registry";
-import EditorNavigation, { SidebarButton } from "./Pages/EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "./Pages/EditorNavigation";
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const jsEditorLocators = require("../locators/JSEditor.json");
@@ -27,13 +30,13 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
 });
 
 Cypress.Commands.add("NavigateToActiveDSQueryPane", (datasourceName) => {
-  DataSources.navigateToDatasource(datasourceName);
+  EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
   cy.get(queryLocators.createQuery).click({ force: true });
   cy.wait(2000); //for the specified page to load
 });
 
 Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
-  DataSources.navigateToDatasource(datasourceName);
+  EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
   cy.get(datasource.datasourceCardGeneratePageBtn).click();
   cy.wait(2000); //for the specified page to load
 });

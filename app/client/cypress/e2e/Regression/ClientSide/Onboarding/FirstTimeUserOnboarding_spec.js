@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -53,7 +54,7 @@ describe("FirstTimeUserOnboarding", function () {
         .realHover()
         .should("have.css", "cursor", "auto");
       agHelper.GetNClick(OnboardingLocator.checklistActionBtn);
-      dataSources.navigateToDatasource("Movies");
+      EditorNavigation.SelectEntityByName("Movies", EntityType.Datasource);
       agHelper.GetNClick(OnboardingLocator.createQuery);
 
       agHelper.Sleep();
