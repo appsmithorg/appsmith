@@ -39,6 +39,7 @@ import {
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 interface WidgetQueryGeneratorFormContextType {
   widgetId: string;
@@ -322,9 +323,9 @@ function WidgetQueryGeneratorForm(props: Props) {
         );
       },
       details: {
-        title: createMessage(CUSTOMIZE_ONE_CLICK_DATA_TITLE),
         description: createMessage(CUSTOMIZE_ONE_CLICK_DATA_DESC),
-        imageURL: getAssetUrl(""),
+        title: createMessage(CUSTOMIZE_ONE_CLICK_DATA_TITLE),
+        videoURL: getAssetUrl(`${ASSETS_CDN_URL}/binding_customization.mp4`),
       },
       offset: {
         position: "left",
@@ -338,7 +339,7 @@ function WidgetQueryGeneratorForm(props: Props) {
       eventParams: {
         [FEATURE_WALKTHROUGH_KEYS.customize_one_click_data]: true,
       },
-      delay: 500,
+      delay: 100,
     });
   };
 

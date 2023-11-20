@@ -65,6 +65,16 @@ const ImageWrapper = styled.div`
   }
 `;
 
+const VideoWrapper = styled.div`
+  border-radius: var(--ads-radius-1);
+  background: var(--ads-v2-color-bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  padding: var(--ads-v2-spaces-2);
+`;
+
 const InstructionsHeaderWrapper = styled.div`
   display: flex;
   p {
@@ -312,6 +322,11 @@ const InstructionsComponent = ({
         <ImageWrapper>
           <img src={details.imageURL} />
         </ImageWrapper>
+      )}
+      {details.videoURL && (
+        <VideoWrapper>
+          <video autoPlay loop src={details.videoURL} />
+        </VideoWrapper>
       )}
       {!!details.footerDetails &&
         isFeatureFooterDetails(details.footerDetails) && (
