@@ -3,24 +3,25 @@ import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
 
 import Api from "api/Api";
 import type {
-  MODULE_ACTION_TYPE,
   MODULE_TYPE,
   Module,
   ModuleAction,
 } from "@appsmith/constants/ModuleConstants";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Action } from "entities/Action";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
 interface FetchModuleActionsPayload {
   moduleId: string;
 }
 
-export interface CreateModuleActionPayload {
+export interface CreateModulePayload {
   packageId: string;
   type: MODULE_TYPE;
   name?: string;
+  inputsForm: Module["inputsForm"];
   entity: Partial<Action> & {
-    type: MODULE_ACTION_TYPE;
+    type: ENTITY_TYPE;
   };
 }
 
@@ -68,7 +69,7 @@ class ModuleApi extends Api {
   }
 
   static async createModule(
-    payload: CreateModuleActionPayload,
+    payload: CreateModulePayload,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(BASE_URL, payload);
   }

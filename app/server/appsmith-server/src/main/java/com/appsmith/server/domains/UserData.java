@@ -82,6 +82,7 @@ public class UserData extends BaseDomain {
     String rawIdToken;
 
     // list of template ids that were recently forked by the user
+    @Deprecated
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedTemplateIds;
 

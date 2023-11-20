@@ -11,7 +11,7 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.onpageload.internal.PageLoadExecutablesUtil;
+import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
 import com.appsmith.server.services.ce.LayoutActionServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -34,7 +34,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             AnalyticsService analyticsService,
             NewPageService newPageService,
             NewActionService newActionService,
-            PageLoadExecutablesUtil pageLoadActionsUtil,
+            OnLoadExecutablesUtil pageLoadActionsUtil,
             SessionUserService sessionUserService,
             ActionCollectionService actionCollectionService,
             CollectionService collectionService,

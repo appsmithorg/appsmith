@@ -81,4 +81,70 @@ describe("Your Reducer", () => {
 
     expect(state.isModuleFetchingActions).toBe(false);
   });
+
+  it("should handle UPDATE_MODULE_INPUTS_INIT", () => {
+    const action = {
+      type: ReduxActionTypes.UPDATE_MODULE_INPUTS_INIT,
+      payload: undefined,
+    };
+
+    const state = reducer({ ...initialState, isModuleUpdating: false }, action);
+
+    expect(state.isModuleUpdating).toBe(true);
+  });
+
+  it("should handle UPDATE_MODULE_INPUTS_SUCCESS", () => {
+    const action = {
+      type: ReduxActionTypes.UPDATE_MODULE_INPUTS_SUCCESS,
+      payload: undefined,
+    };
+
+    const state = reducer({ ...initialState, isModuleUpdating: true }, action);
+
+    expect(state.isModuleUpdating).toBe(false);
+  });
+
+  it("should handle UPDATE_MODULE_INPUTS_ERROR", () => {
+    const action = {
+      type: ReduxActionErrorTypes.UPDATE_MODULE_INPUTS_ERROR,
+      payload: undefined,
+    };
+
+    const state = reducer({ ...initialState, isModuleUpdating: true }, action);
+
+    expect(state.isModuleUpdating).toBe(false);
+  });
+
+  it("should handle SAVE_MODULE_NAME_INIT", () => {
+    const action = {
+      type: ReduxActionTypes.SAVE_MODULE_NAME_INIT,
+      payload: undefined,
+    };
+
+    const state = reducer({ ...initialState, isModuleUpdating: false }, action);
+
+    expect(state.isModuleUpdating).toBe(true);
+  });
+
+  it("should handle SAVE_MODULE_NAME_SUCCESS", () => {
+    const action = {
+      type: ReduxActionTypes.SAVE_MODULE_NAME_SUCCESS,
+      payload: undefined,
+    };
+
+    const state = reducer({ ...initialState, isModuleUpdating: true }, action);
+
+    expect(state.isModuleUpdating).toBe(false);
+  });
+
+  it("should handle SAVE_MODULE_NAME_ERROR", () => {
+    const action = {
+      type: ReduxActionErrorTypes.SAVE_MODULE_NAME_ERROR,
+      payload: undefined,
+    };
+
+    const state = reducer({ ...initialState, isModuleUpdating: true }, action);
+
+    expect(state.isModuleUpdating).toBe(false);
+  });
 });

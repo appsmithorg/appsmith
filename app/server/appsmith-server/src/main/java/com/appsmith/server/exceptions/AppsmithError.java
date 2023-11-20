@@ -200,10 +200,11 @@ public enum AppsmithError {
                     + "  \"message\" : \"Binding path in the widget not found. Please reach out to Appsmith customer support to resolve this.\","
                     + "  \"widgetName\" : \"{1}\","
                     + "  \"widgetId\" : \"{2}\","
-                    + "  \"pageId\" : \"{4}\","
+                    + "  \"creatorId\" : \"{4}\","
                     + "  \"layoutId\" : \"{5}\","
                     + "  \"errorDetail\" : \"{8}\","
-                    + "  \"dynamicBinding\" : {6}",
+                    + "  \"dynamicBinding\" : {6},"
+                    + "  \"creatorType\" : \"{9}\"",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Invalid dynamic binding reference",
             ErrorType.BAD_REQUEST,
@@ -1174,7 +1175,22 @@ public enum AppsmithError {
             "Package cannot be published",
             ErrorType.BAD_REQUEST,
             null),
-    ;
+    INVALID_APPROVAL_REQUEST_RESOLUTION(
+            400,
+            AppsmithErrorCode.INVALID_APPROVAL_REQUEST_RESOLUTION.getCode(),
+            "Invalid approval request resolution. {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid approval request resolution",
+            ErrorType.APPROVAL_REQUEST_ERROR,
+            null),
+    INVALID_APPROVAL_REQUEST_CREATION(
+            400,
+            AppsmithErrorCode.INVALID_APPROVAL_REQUEST_CREATION.getCode(),
+            "Invalid approval request creation. {0}",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid approval request creation",
+            ErrorType.BAD_REQUEST,
+            null);
 
     private final Integer httpErrorCode;
     private final String appErrorCode;

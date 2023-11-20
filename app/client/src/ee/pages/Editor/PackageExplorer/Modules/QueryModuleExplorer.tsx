@@ -14,7 +14,6 @@ import {
 import {
   ENTITY_HEIGHT,
   RelativeContainer,
-  StyledEntity as Entity,
 } from "pages/Editor/Explorer/Common/components";
 import { EntityExplorerResizeHandler } from "pages/Editor/Explorer/Common/EntityExplorerResizeHandler";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,7 +31,7 @@ import {
 import { Icon } from "design-system";
 import { hasCreateModulePermission } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import Entity, { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { AddEntity, EmptyComponent } from "pages/Editor/Explorer/common";
 import ExplorerSubMenu from "pages/Editor/Explorer/Files/Submenu";
 import {
@@ -48,6 +47,23 @@ import {
 } from "components/editorComponents/GlobalSearch/utils";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import type { EventLocation } from "ce/utils/analyticsUtilTypes";
+import styled from "styled-components";
+
+const MIN_MODULES_HEIGHT = 156;
+
+export const StyledEntity = styled(Entity)<{ entitySize?: number }>`
+  &.query-modules > div:not(.t--entity-item) > div > div {
+      max-height: 40vh;
+      min-height: ${({ entitySize }) =>
+        entitySize && entitySize > MIN_MODULES_HEIGHT
+          ? MIN_MODULES_HEIGHT
+          : entitySize}px;
+      height: ${({ entitySize }) =>
+        entitySize && entitySize > 128 ? 128 : entitySize}px;
+      overflow-y: auto;
+    }
+  }
+`;
 
 const QueryModuleExplorer = () => {
   const packageId = useSelector(getCurrentPackageId) || "";
@@ -136,7 +152,7 @@ const QueryModuleExplorer = () => {
       className="border-b pb-1"
       data-testid="t--query-module-explorer"
     >
-      <Entity
+      <StyledEntity
         addButtonHelptext={createMessage(ADD_QUERY_MODULE_TOOLTIP)}
         alwaysShowRightIcon
         className="pb-0 group query-modules"
@@ -151,11 +167,14 @@ const QueryModuleExplorer = () => {
             openMenu={isMenuOpen}
             query={query}
             setQuery={setQuery}
+            tooltipText={createMessage(ADD_QUERY_MODULE_TOOLTIP)}
           />
         }
         entityId={createMessage(QUERY_MODULES_TITLE)}
         entitySize={
-          queryModules.length > 0 ? ENTITY_HEIGHT * queryModules.length : 156
+          queryModules.length > 0
+            ? ENTITY_HEIGHT * queryModules.length + ENTITY_HEIGHT
+            : 156
         }
         icon={""}
         isDefaultExpanded={
@@ -190,7 +209,7 @@ const QueryModuleExplorer = () => {
             step={1}
           />
         )}
-      </Entity>
+      </StyledEntity>
       <EntityExplorerResizeHandler
         resizeRef={moduleResizeRef}
         storedHeightKey={storedHeightKey}

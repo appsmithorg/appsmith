@@ -8,12 +8,14 @@ import store from "store";
 
 import ModuleEditorDefaultRedirect from "./ModuleEditorDefaultRedirect";
 import * as entitiesSelector from "@appsmith/selectors/entitiesSelector";
+import * as modulesSelector from "@appsmith/selectors/modulesSelector";
 import { lightTheme } from "selectors/themeSelectors";
 import { PluginType, type Action } from "entities/Action";
 import type { Plugin } from "api/PluginApi";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 
 jest.mock("@appsmith/selectors/entitiesSelector");
+jest.mock("@appsmith/selectors/modulesSelector");
 jest.mock("react-router");
 
 const DEFAULT_ENTITY = {
@@ -41,14 +43,13 @@ const REMOTE_PLUGIN = {
 
 const DEFAULT_MODULE = {
   id: "moduleId",
-  publicEntityId: DEFAULT_ENTITY.id,
 } as unknown as Module;
 
 const setGetAction = (value?: Action) => {
-  const entitiesSelectorsFactory = entitiesSelector as jest.Mocked<
-    typeof entitiesSelector
+  const modulesSelectorFactory = modulesSelector as jest.Mocked<
+    typeof modulesSelector
   >;
-  entitiesSelectorsFactory.getAction.mockImplementation(() => value);
+  modulesSelectorFactory.getModulePublicAction.mockImplementation(() => value);
 };
 
 const setGetPlugins = (value: Plugin[]) => {

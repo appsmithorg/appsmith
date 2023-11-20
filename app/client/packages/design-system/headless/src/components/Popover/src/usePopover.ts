@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import type { UseFloatingOptions } from "@floating-ui/react/src/types";
+import { useState, useMemo } from "react";
 import {
   autoUpdate,
   flip,
@@ -16,23 +17,24 @@ const DEFAULT_POPOVER_OFFSET = 10;
 
 export function usePopover({
   defaultOpen = false,
+  duration = 0,
+  initialFocus,
   isOpen: controlledOpen,
-  modal = true,
+  modal = false,
   offset: offsetProp = DEFAULT_POPOVER_OFFSET,
+  onClose,
   placement = "bottom",
   setOpen: setControlledOpen,
+  triggerRef,
 }: PopoverProps = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const [labelId, setLabelId] = useState<string | undefined>();
   const [descriptionId, setDescriptionId] = useState<string | undefined>();
-
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = setControlledOpen ?? setUncontrolledOpen;
 
-  const data = useFloating({
+  const config: Partial<UseFloatingOptions> = {
     placement,
-    open,
-    onOpenChange: setOpen,
     strategy: "fixed",
     whileElementsMounted: autoUpdate,
     middleware: [
@@ -42,6 +44,12 @@ export function usePopover({
         fallbackAxisSideDirection: "end",
       }),
     ],
+  };
+
+  const data = useFloating({
+    open,
+    onOpenChange: setOpen,
+    ...(modal ? {} : config),
   });
 
   const context = data.context;
@@ -52,7 +60,7 @@ export function usePopover({
   const role = useRole(context);
   const interactions = useInteractions([click, dismiss, role]);
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       open,
       setOpen,
@@ -63,7 +71,22 @@ export function usePopover({
       descriptionId,
       setLabelId,
       setDescriptionId,
+      duration,
+      triggerRef,
+      initialFocus,
+      onClose,
     }),
-    [open, setOpen, interactions, data, modal, labelId, descriptionId],
+    [
+      open,
+      setOpen,
+      interactions,
+      data,
+      modal,
+      labelId,
+      descriptionId,
+      triggerRef,
+      initialFocus,
+      onClose,
+    ],
   );
 }

@@ -3,7 +3,10 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Package } from "@appsmith/constants/PackageConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { FetchPackageResponse } from "@appsmith/api/PackageApi";
+import type {
+  FetchPackageResponse,
+  FetchPackagesInWorkspaceResponse,
+} from "@appsmith/api/PackageApi";
 
 type ID = string;
 
@@ -32,12 +35,25 @@ const packageReducer = createImmerReducer(INITIAL_STATE, {
     return draftState;
   },
 
-  [ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_PACKAGE_SUCCESS]: (
     draftState: PackagesReducerState,
     action: ReduxAction<Package>,
   ) => {
     const packageData = action.payload;
     draftState[packageData.id] = packageData;
+
+    return draftState;
+  },
+
+  [ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_SUCCESS]: (
+    draftState: PackagesReducerState,
+    action: ReduxAction<FetchPackagesInWorkspaceResponse>,
+  ) => {
+    draftState = {};
+    const { packages } = action.payload;
+    packages.map((pkg) => {
+      draftState[pkg.id] = pkg;
+    });
 
     return draftState;
   },

@@ -206,7 +206,8 @@ function* fetchWorkspaceIdandInitSaga(
   }
 
   if (!workspaceId) return;
-  yield put(fetchingEnvironmentConfigs(workspaceId));
+  // fetch the envs for the workspace, sending fetchDatasourceMeta as true to fetch the info about the configured envs (for showing walkthrough)
+  yield put(fetchingEnvironmentConfigs(workspaceId, true));
 }
 
 // Saga to handle creating a new environment

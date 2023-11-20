@@ -15,7 +15,16 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ModuleInput {
     @JsonView(Views.Public.class)
-    String name;
+    String id;
+
+    @JsonView(Views.Public.class)
+    String label;
+
+    @JsonView(Views.Public.class)
+    String propertyName;
+
+    @JsonView(Views.Public.class)
+    String controlType;
 
     @JsonView(Views.Public.class)
     String defaultValue;

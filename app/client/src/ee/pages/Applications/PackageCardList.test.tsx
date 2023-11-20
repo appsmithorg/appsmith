@@ -19,6 +19,10 @@ jest.mock("@appsmith/selectors/moduleFeatureSelectors");
 jest.mock("@appsmith/selectors/packageSelectors");
 jest.mock("@appsmith/selectors/workspaceSelectors");
 
+jest.mock("@appsmith/pages/Applications", () => ({
+  NoAppsFound: ({ children }: any) => <div>{children}</div>,
+}));
+
 const setQueryModuleFeatureFlag = (value: boolean) => {
   const moduleFeatureSelectorsFactory = moduleFeatureSelectors as jest.Mocked<
     typeof moduleFeatureSelectors

@@ -1,5 +1,6 @@
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ModuleType } from "@appsmith/constants/ModuleInstanceConstants";
+import type { Module } from "@appsmith/constants/ModuleConstants";
 
 export interface SaveModuleNamePayload {
   id: string;
@@ -14,12 +15,21 @@ export interface FetchModuleActionsPayload {
   moduleId: string;
 }
 
+export interface SetupModulePayload {
+  moduleId: string;
+}
+
 export interface CreateQueryModulePayload {
   datasourceId?: string;
-  type: ModuleType;
+  type: MODULE_TYPE;
   from: string;
   packageId: string;
   apiType?: string;
+}
+
+export interface UpdateModuleInputsPayload {
+  id: string;
+  inputsForm: Module["inputsForm"];
 }
 
 export const saveModuleName = (payload: SaveModuleNamePayload) => {
@@ -41,6 +51,11 @@ export const fetchModuleActions = (payload: FetchModuleActionsPayload) => ({
   payload,
 });
 
+export const setupModule = (payload: SetupModulePayload) => ({
+  type: ReduxActionTypes.SETUP_MODULE_INIT,
+  payload,
+});
+
 export const createQueryModule = (payload: CreateQueryModulePayload) => ({
   type: ReduxActionTypes.CREATE_QUERY_MODULE_INIT,
   payload,
@@ -49,4 +64,9 @@ export const createQueryModule = (payload: CreateQueryModulePayload) => ({
 export const setCurrentModule = (id: string | null) => ({
   type: ReduxActionTypes.SET_CURRENT_MODULE,
   payload: { id },
+});
+
+export const updateModuleInputs = (payload: UpdateModuleInputsPayload) => ({
+  type: ReduxActionTypes.UPDATE_MODULE_INPUTS_INIT,
+  payload: payload,
 });

@@ -31,7 +31,17 @@ const store = mockStore({
       },
     },
   },
-  entities: { pageList: { applicationId: "64ba2f58abba6049fb4626da" } },
+  entities: {
+    plugins: {
+      list: [
+        {
+          id: "postgres-plugin-id",
+          packageName: "postgres-plugin",
+        },
+      ],
+    },
+    pageList: { applicationId: "64ba2f58abba6049fb4626da" },
+  },
   environments: {
     isLoading: false,
     error: false,
@@ -85,7 +95,17 @@ const onlyStagingStore = mockStore({
       },
     },
   },
-  entities: { pageList: { applicationId: "64ba2f58abba6049fb4626da" } },
+  entities: {
+    plugins: {
+      list: [
+        {
+          id: "postgres-plugin-id",
+          packageName: "postgres-plugin",
+        },
+      ],
+    },
+    pageList: { applicationId: "64ba2f58abba6049fb4626da" },
+  },
   environments: {
     isLoading: false,
     error: false,
@@ -139,7 +159,17 @@ const noEnvAccess = mockStore({
       },
     },
   },
-  entities: { pageList: { applicationId: "64ba2f58abba6049fb4626da" } },
+  entities: {
+    plugins: {
+      list: [
+        {
+          id: "postgres-plugin-id",
+          packageName: "postgres-plugin",
+        },
+      ],
+    },
+    pageList: { applicationId: "64ba2f58abba6049fb4626da" },
+  },
   environments: {
     isLoading: false,
     error: false,

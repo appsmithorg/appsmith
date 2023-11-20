@@ -215,7 +215,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE_ID, workspaceId)));
         return workspaceMono.then(packageRepository
                 .findAllConsumablePackages(workspaceId, packagePermission.getReadPermission())
-                .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.EDIT))
+                .flatMap(aPackage -> generatePackageByViewMode(aPackage, ResourceModes.VIEW))
                 .collectList()
                 .flatMap(packageDTOS -> {
                     List<String> packageIds = packageDTOS.stream()

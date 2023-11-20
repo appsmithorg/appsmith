@@ -21,4 +21,10 @@ public class ActionCollectionDTO extends ActionCollectionCE_DTO {
 
     @JsonView(Views.Public.class)
     Boolean isPublic;
+
+    @JsonView(Views.Public.class)
+    String rootModuleInstanceId;
+
+    @JsonView(Views.Public.class)
+    String owningModuleInstanceId;
 }

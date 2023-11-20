@@ -222,10 +222,11 @@ describe("workspaceReducer", () => {
     ).toEqual(expectedState);
   });
 
-  it("UPDATE_PACKAGE_NAME_SUCCESS - should update the name of the respective package from the package list", () => {
+  it("UPDATE_PACKAGE_SUCCESS - should update the color and name of the respective package from the package list", () => {
     const payload = [package1, package2];
     const updatedPkg = {
       ...package2,
+      color: "#000",
       name: "test2 updated",
     };
     const initialState = klona(DEFAULT_STATE);
@@ -236,7 +237,7 @@ describe("workspaceReducer", () => {
 
     expect(
       reducer(initialState, {
-        type: ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS,
+        type: ReduxActionTypes.UPDATE_PACKAGE_SUCCESS,
         payload: updatedPkg,
       }),
     ).toEqual(expectedState);

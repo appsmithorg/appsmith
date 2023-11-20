@@ -66,9 +66,9 @@ describe("RouteParamsMiddleware", () => {
     expect(urlBuilder.getModulesParams()).toEqual({});
   });
 
-  it("should handle UPDATE_PACKAGE_NAME_SUCCESS action", () => {
+  it("should handle UPDATE_PACKAGE_SUCCESS action", () => {
     const action = {
-      type: ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS,
+      type: ReduxActionTypes.UPDATE_PACKAGE_SUCCESS,
       payload: { id: "package3" },
     };
 

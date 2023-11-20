@@ -16,6 +16,10 @@ import PackageCardListRenderer from "./PackageCardListRenderer";
 jest.mock("@appsmith/selectors/moduleFeatureSelectors");
 jest.mock("@appsmith/selectors/packageSelectors");
 
+jest.mock("@appsmith/pages/Applications", () => ({
+  NoAppsFound: ({ children }: any) => <div>{children}</div>,
+}));
+
 const DEFAULT_PACKAGE_LIST = [
   {
     id: "a1",

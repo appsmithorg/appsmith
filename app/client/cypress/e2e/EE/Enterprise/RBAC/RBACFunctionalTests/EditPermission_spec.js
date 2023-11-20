@@ -16,6 +16,9 @@ import {
   agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Edit Permission flow ", function () {
   let newWorkspaceName;
@@ -222,8 +225,7 @@ describe("Edit Permission flow ", function () {
     );
     cy.wait(2000);
     // verify user is  able to edit datasource and queries
-    cy.CheckAndUnfoldEntityItem("Datasources");
-    cy.get(`.t--entity-item:contains(${datasourceName2})`).click();
+    dataSources.navigateToDatasource(datasourceName2);
     cy.get(datasource.createQuery).should("be.disabled");
     cy.get(datasource.editDatasource).click();
     cy.get(datasourceEditor.port)
@@ -305,8 +307,8 @@ describe("Edit Permission flow ", function () {
     cy.get(jsEditorLocators.runButton).first().click({ force: true });
     cy.wait(3000);
     // verify user is not able to edit datasource but edit queries
-    cy.CheckAndUnfoldEntityItem("Datasources");
-    cy.get(`.t--entity-item:contains(${datasourceName})`).should("not.exist");
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    cy.get(datasource.datasourceCard).should("not.exist");
     // datasoruce is not visible
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-name").contains("SelectQuery").click();

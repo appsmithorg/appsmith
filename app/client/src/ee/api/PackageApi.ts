@@ -6,6 +6,7 @@ import type { Module } from "@appsmith/constants/ModuleConstants";
 import type {
   DeletePackagePayload,
   PublishPackagePayload,
+  FetchAllPackagesInWorkspacePayload,
 } from "@appsmith/actions/packageActions";
 
 export interface CreatePackagePayload {
@@ -24,11 +25,24 @@ export interface FetchPackageResponse {
   modules: Module[];
 }
 
+export interface FetchPackagesInWorkspaceResponse {
+  packages: Package[];
+  modules: Module[];
+}
+
 const BASE_URL = "v1/packages";
 
 class PackageApi extends Api {
   static async fetchAllPackages() {
     const url = `${BASE_URL}/`;
+
+    return Api.get(url);
+  }
+
+  static async fetchAllPackagesInWorkspace(
+    payload: FetchAllPackagesInWorkspacePayload,
+  ): Promise<AxiosPromise<ApiResponse<FetchPackagesInWorkspaceResponse>>> {
+    const url = `${BASE_URL}?workspaceId=${payload.wodrkspaceId}`;
 
     return Api.get(url);
   }

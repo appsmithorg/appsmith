@@ -1,9 +1,14 @@
 package com.appsmith.server.modules.services;
 
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.ModuleInput;
+import com.appsmith.external.models.ModuleInputForm;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Module;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ModuleActionDTO;
@@ -13,16 +18,21 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.moduleinstances.services.permissions.ModuleInstancePermissionChecker;
+import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
+import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +48,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -82,6 +93,9 @@ public class ModuleServiceTest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    PluginRepository pluginRepository;
+
     @SpyBean
     FeatureFlagService featureFlagService;
 
@@ -89,12 +103,18 @@ public class ModuleServiceTest {
     CommonConfig commonConfig;
 
     @SpyBean
+    PluginService pluginService;
+
+    @SpyBean
     ModuleInstancePermissionChecker moduleInstancePermissionChecker;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     static String workspaceId;
     static String defaultEnvironmentId;
     static String packageId;
     static PackageDTO testPackage = null;
+    Datasource datasource;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -129,7 +149,66 @@ public class ModuleServiceTest {
                     .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                     .block();
         }
+
+        setupDatasource();
         setupTestPackage();
+        mockPluginServiceFormData();
+    }
+
+    private void mockPluginServiceFormData() {
+        String jsonString = "{\n" + "  \"setting\": [\n"
+                + "    {\n"
+                + "      \"sectionName\": \"\",\n"
+                + "      \"id\": 1,\n"
+                + "      \"children\": [\n"
+                + "        {\n"
+                + "          \"label\": \"Run query on page load\",\n"
+                + "          \"configProperty\": \"executeOnLoad\",\n"
+                + "          \"controlType\": \"SWITCH\",\n"
+                + "          \"subtitle\": \"Will refresh data each time the page is loaded\"\n"
+                + "        },\n"
+                + "        {\n"
+                + "          \"label\": \"Request confirmation before running query\",\n"
+                + "          \"configProperty\": \"confirmBeforeExecute\",\n"
+                + "          \"controlType\": \"SWITCH\",\n"
+                + "          \"subtitle\": \"Ask confirmation from the user each time before refreshing data\"\n"
+                + "        },\n"
+                + "        {\n"
+                + "          \"label\": \"Use Prepared Statement\",\n"
+                + "          \"subtitle\": \"Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.\",\n"
+                + "          \"configProperty\": \"actionConfiguration.pluginSpecifiedTemplates[0].value\",\n"
+                + "          \"controlType\": \"SWITCH\",\n"
+                + "          \"initialValue\": true\n"
+                + "        },\n"
+                + "        {\n"
+                + "          \"label\": \"Query timeout (in milliseconds)\",\n"
+                + "          \"subtitle\": \"Maximum time after which the query will return\",\n"
+                + "          \"configProperty\": \"actionConfiguration.timeoutInMillisecond\",\n"
+                + "          \"controlType\": \"INPUT_TEXT\",\n"
+                + "          \"dataType\": \"NUMBER\"\n"
+                + "        }\n"
+                + "      ]\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        try {
+            JsonNode pluginSettingsNode = objectMapper.readTree(jsonString);
+            Map configMap = objectMapper.convertValue(pluginSettingsNode, Map.class);
+            Mockito.doReturn(Mono.just(configMap)).when(pluginService).getFormConfig(Mockito.any());
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupDatasource() {
+        datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(workspaceId);
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
     }
 
     public void setupTestPackage() {
@@ -154,6 +233,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -163,8 +244,31 @@ public class ModuleServiceTest {
                 .assertNext(createdModule -> {
                     assertThat(createdModule.getId()).isNotEmpty();
                     assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
+                    assertThat(createdModule.getSettingsForm()).isNotNull();
+                    verifySettingsForCreator(createdModule);
                 })
                 .verifyComplete();
+    }
+
+    private void verifySettingsForCreator(ModuleDTO moduleDTO) {
+        JsonNode jsonNode = objectMapper.valueToTree(moduleDTO.getSettingsForm());
+        // Check if "Run query on page load" is NOT present in the children array
+        JsonNode childrenNode = jsonNode.get(0)
+                // Assuming there is at least one item in the "setting" array
+                .path("children");
+
+        boolean isUnexpectedSettingPresent = false;
+        Iterator<JsonNode> elements = childrenNode.elements();
+        List<String> unexpectedCreatorSettingNames =
+                List.of("Run query on page load", "Request confirmation before running query");
+        while (elements.hasNext()) {
+            JsonNode element = elements.next();
+            if (unexpectedCreatorSettingNames.contains(element.path("label").asText())) {
+                isUnexpectedSettingPresent = true;
+                break;
+            }
+        }
+        assertThat(isUnexpectedSettingPresent).isFalse();
     }
 
     @WithUserDetails(value = "api_user")
@@ -176,6 +280,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -192,16 +298,29 @@ public class ModuleServiceTest {
 
         // Update name and inputs
         moduleDTO.setName("GetAllUsersModule");
-        moduleDTO.setInputs(Map.of(
-                "minAge", new ModuleInput("minAge", "0"),
-                "gender", new ModuleInput("gender", "all")));
+        moduleDTO.setInputsForm(List.of(new ModuleInputForm(
+                "id", "", List.of(new ModuleInput("id1", "label", "propertyName", "controlType", "defaultValue")))));
         Mono<ModuleDTO> updateModuleMono = crudModuleService.updateModule(moduleDTO, moduleRef.get());
 
         StepVerifier.create(updateModuleMono)
                 .assertNext(updatedModule -> {
                     assertThat(updatedModule.getName()).isEqualTo(moduleDTO.getName());
-                    assertThat(updatedModule.getInputs()).isNotEmpty();
-                    assertThat(updatedModule.getInputs().size()).isEqualTo(2);
+                    assertThat(updatedModule.getInputsForm()).isNotEmpty();
+                    assertThat(updatedModule.getInputsForm().size()).isEqualTo(1);
+                    verifySettingsForCreator(updatedModule);
+                })
+                .verifyComplete();
+
+        Mono<List<ModuleConsumable>> moduleActionsMono = crudModuleEntityService.getModuleActions(moduleRef.get());
+
+        StepVerifier.create(moduleActionsMono)
+                .assertNext(moduleConsumables -> {
+                    moduleConsumables.forEach(moduleConsumable -> {
+                        ModuleActionDTO moduleAction = (ModuleActionDTO) moduleConsumable;
+                        assertThat(moduleAction.getDatasource()).isNotNull();
+                        assertThat(moduleAction.getDatasource().getName()).isEqualTo(datasource.getName());
+                        assertThat(moduleAction.getContextType()).isEqualTo(CreatorContextType.MODULE);
+                    });
                 })
                 .verifyComplete();
     }
@@ -215,7 +334,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
-
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
         moduleDTO.setEntity(moduleActionDTO);
 
         Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
@@ -248,6 +368,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -287,6 +409,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId);
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -307,6 +431,13 @@ public class ModuleServiceTest {
                 .assertNext(moduleConsumables -> {
                     assertThat(moduleConsumables).isNotNull();
                     assertThat(moduleConsumables).size().isGreaterThanOrEqualTo(1);
+                    moduleConsumables.forEach(moduleConsumable -> {
+                        ModuleActionDTO moduleActionDTO1 = (ModuleActionDTO) moduleConsumable;
+                        assertThat(moduleActionDTO1.getContextType()).isEqualTo(CreatorContextType.MODULE);
+                        assertThat(moduleActionDTO1.getModuleId()).isEqualTo(moduleIdRef.get());
+                        assertThat(moduleActionDTO1.getRootModuleInstanceId()).isNull();
+                        assertThat(moduleActionDTO1.getOwningModuleInstanceId()).isNull();
+                    });
                 })
                 .verifyComplete();
     }
@@ -340,6 +471,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId.get());
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 
@@ -419,6 +552,8 @@ public class ModuleServiceTest {
         moduleDTO.setPackageId(packageId.get());
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
 
         moduleDTO.setEntity(moduleActionDTO);
 

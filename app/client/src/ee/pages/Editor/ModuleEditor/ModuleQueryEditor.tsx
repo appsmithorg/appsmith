@@ -1,10 +1,13 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
+import { useHistory } from "react-router";
 import { noop } from "lodash";
 
-import Editor from "pages/Editor/QueryEditor/Editor";
 import ActionEditorContextMenu from "./ActionEditorContextMenu";
+import Editor from "pages/Editor/QueryEditor/Editor";
+import ModuleInputsForm from "./ModuleInputsForm";
+import Loader from "./Loader";
 import {
   changeQuery,
   setQueryPaneConfigSelectedTabIndex,
@@ -12,13 +15,11 @@ import {
 import { getIsPackageEditorInitialized } from "@appsmith/selectors/packageSelectors";
 import { QueryEditorContextProvider } from "pages/Editor/QueryEditor/QueryEditorContext";
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
-import {
-  getAction,
-  getPluginSettingConfigs,
-} from "@appsmith/selectors/entitiesSelector";
-import { filterWhitelistedConfig } from "./helper";
 import { deleteModule, saveModuleName } from "@appsmith/actions/moduleActions";
 import type { SaveModuleNamePayload } from "@appsmith/actions/moduleActions";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { INTEGRATION_TABS } from "constants/routes";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
 
 interface ModuleQueryEditorRouteParams {
   pageId: string; // TODO: @ashit remove this and add generic key in the Editor
@@ -32,25 +33,15 @@ type ModuleQueryEditorProps = RouteComponentProps<ModuleQueryEditorRouteParams>;
 
 function ModuleQueryEditor(props: ModuleQueryEditorProps) {
   const dispatch = useDispatch();
+  const history = useHistory();
   const { apiId, moduleId, packageId, queryId } = props.match.params;
+  const actionId = queryId || apiId || "";
 
   const isPackageEditorInitialized = useSelector(getIsPackageEditorInitialized);
   const module = useSelector((state) => getModuleById(state, moduleId));
-
-  const actionId = queryId || apiId || "";
   const action = useSelector((state) => getAction(state, actionId));
 
-  const pluginId = action?.pluginId || "";
-  const settingsConfig = useSelector((state) =>
-    getPluginSettingConfigs(state, pluginId),
-  );
-
-  const whitelistedSettingsConfig = useMemo(() => {
-    return filterWhitelistedConfig(
-      settingsConfig,
-      module?.whitelistedPublicEntitySettingsForModule,
-    );
-  }, [module?.whitelistedPublicEntitySettingsForModule || [], settingsConfig]);
+  const isEditorInitialized = isPackageEditorInitialized && Boolean(action);
 
   useEffect(() => {
     /**
@@ -81,6 +72,15 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
     [module?.id],
   );
 
+  const onCreateDatasourceClick = () => {
+    history.push(
+      integrationEditorURL({
+        pageId: packageId, // ankita: update later
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
+    );
+  };
+
   const onDeleteModule = useCallback(() => {
     dispatch(deleteModule({ id: module?.id || "" }));
   }, [module?.id]);
@@ -91,18 +91,38 @@ function ModuleQueryEditor(props: ModuleQueryEditorProps) {
     );
   }, []);
 
+  const actionRightPaneAdditionSections = useMemo(() => {
+    if (!module?.inputsForm) {
+      return null;
+    }
+
+    return (
+      <ModuleInputsForm
+        defaultValues={{
+          inputsForm: module?.inputsForm,
+        }}
+        moduleId={module?.id}
+      />
+    );
+  }, [module?.id, module?.inputsForm]);
+
+  if (!isEditorInitialized) {
+    return <Loader />;
+  }
+
   return (
     <QueryEditorContextProvider
+      actionRightPaneAdditionSections={actionRightPaneAdditionSections}
       changeQueryPage={changeQueryPage}
       moreActionsMenu={moreActionsMenu}
-      onCreateDatasourceClick={noop}
+      onCreateDatasourceClick={onCreateDatasourceClick}
       onEntityNotFoundBackClick={noop}
       saveActionName={onSaveModuleName}
     >
       <Editor
         {...props}
-        isEditorInitialized={isPackageEditorInitialized}
-        settingsConfig={whitelistedSettingsConfig}
+        isEditorInitialized={isEditorInitialized}
+        settingsConfig={module?.settingsForm}
       />
     </QueryEditorContextProvider>
   );

@@ -1,5 +1,6 @@
 package com.appsmith.server.packages.services.crud;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Module;
@@ -20,12 +21,16 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.publish.PublishPackageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.publish.publishable.PackagePublishableService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +47,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.Boolean.FALSE;
@@ -93,6 +100,11 @@ public class PackageServiceTest {
     @SpyBean
     CommonConfig commonConfig;
 
+    @SpyBean
+    PluginService pluginService;
+
+    ObjectMapper objectMapper = new ObjectMapper();
+
     String firstWorkspaceId;
     String secondWorkspaceId;
     String defaultEnvironmentId;
@@ -141,6 +153,53 @@ public class PackageServiceTest {
             defaultEnvironmentId = workspaceService
                     .getDefaultEnvironmentId(secondWorkspaceId, environmentPermission.getExecutePermission())
                     .block();
+        }
+        mockPluginServiceFormData();
+    }
+
+    private void mockPluginServiceFormData() {
+        String jsonString = "{\n" + "  \"setting\": [\n"
+                + "    {\n"
+                + "      \"sectionName\": \"\",\n"
+                + "      \"id\": 1,\n"
+                + "      \"children\": [\n"
+                + "        {\n"
+                + "          \"label\": \"Run query on page load\",\n"
+                + "          \"configProperty\": \"executeOnLoad\",\n"
+                + "          \"controlType\": \"SWITCH\",\n"
+                + "          \"subtitle\": \"Will refresh data each time the page is loaded\"\n"
+                + "        },\n"
+                + "        {\n"
+                + "          \"label\": \"Request confirmation before running query\",\n"
+                + "          \"configProperty\": \"confirmBeforeExecute\",\n"
+                + "          \"controlType\": \"SWITCH\",\n"
+                + "          \"subtitle\": \"Ask confirmation from the user each time before refreshing data\"\n"
+                + "        },\n"
+                + "        {\n"
+                + "          \"label\": \"Use Prepared Statement\",\n"
+                + "          \"subtitle\": \"Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.\",\n"
+                + "          \"configProperty\": \"actionConfiguration.pluginSpecifiedTemplates[0].value\",\n"
+                + "          \"controlType\": \"SWITCH\",\n"
+                + "          \"initialValue\": true\n"
+                + "        },\n"
+                + "        {\n"
+                + "          \"label\": \"Query timeout (in milliseconds)\",\n"
+                + "          \"subtitle\": \"Maximum time after which the query will return\",\n"
+                + "          \"configProperty\": \"actionConfiguration.timeoutInMillisecond\",\n"
+                + "          \"controlType\": \"INPUT_TEXT\",\n"
+                + "          \"dataType\": \"NUMBER\"\n"
+                + "        }\n"
+                + "      ]\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
+        try {
+            JsonNode pluginSettingsNode = objectMapper.readTree(jsonString);
+            Map configMap = objectMapper.convertValue(pluginSettingsNode, Map.class);
+            Mockito.doReturn(Mono.just(configMap)).when(pluginService).getFormConfig(Mockito.any());
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
     }
 
@@ -411,6 +470,10 @@ public class PackageServiceTest {
                 .assertNext(publishedActions -> {
                     assertThat(publishedActions).isNotNull();
                     assertThat(publishedActions.size()).isEqualTo(EXPECTED_ENTITY_SIZE);
+                    publishedActions.forEach(publishedAction -> {
+                        assertThat(publishedAction.getPublishedAction().getContextType())
+                                .isEqualTo(CreatorContextType.MODULE);
+                    });
                 })
                 .verifyComplete();
 
@@ -547,6 +610,8 @@ public class PackageServiceTest {
 
         AtomicReference<String> packageId = new AtomicReference<>();
         AtomicReference<PackageDTO> testPackageRef = new AtomicReference<>();
+        AtomicReference<String> firstSourceModuleIdRef = new AtomicReference<>();
+        AtomicReference<String> secondSourceModuleIdRef = new AtomicReference<>();
 
         // create package
         Mono<PackageDTO> firstPackageMono = crudPackageService.createPackage(aPackage, secondWorkspaceId);
@@ -575,6 +640,7 @@ public class PackageServiceTest {
         StepVerifier.create(createModuleMono)
                 .assertNext(createdModule -> {
                     assertThat(createdModule.getId()).isNotEmpty();
+                    firstSourceModuleIdRef.set(createdModule.getId());
                 })
                 .verifyComplete();
 
@@ -593,6 +659,7 @@ public class PackageServiceTest {
         StepVerifier.create(createAnotherModuleMono)
                 .assertNext(createdModule -> {
                     assertThat(createdModule.getId()).isNotEmpty();
+                    secondSourceModuleIdRef.set(createdModule.getId());
                 })
                 .verifyComplete();
 
@@ -602,6 +669,37 @@ public class PackageServiceTest {
         StepVerifier.create(publishPackageMono)
                 .assertNext(publishPackageStatus -> {
                     assertThat(publishPackageStatus).isTrue();
+                })
+                .verifyComplete();
+
+        PublishingMetaDTO publishingMetaDTO = new PublishingMetaDTO();
+        publishingMetaDTO.setOldModuleIdToNewModuleIdMap(Map.of(
+                firstSourceModuleIdRef.get(), new ObjectId().toString(),
+                secondSourceModuleIdRef.get(), new ObjectId().toString()));
+        publishingMetaDTO.setSourcePackageId(packageId.get());
+
+        Mono<List<NewAction>> newActionPublishableEntitiesMono =
+                newActionPackagePublishableService.getPublishableEntities(publishingMetaDTO);
+
+        StepVerifier.create(newActionPublishableEntitiesMono)
+                .assertNext(publishedActions -> {
+                    assertThat(publishedActions.size()).isEqualTo(2);
+                    publishedActions.forEach(publishedAction -> {
+                        assertThat(publishedAction.getUnpublishedAction().getModuleId())
+                                .isNull();
+                        assertThat(publishedAction.getUnpublishedAction().getContextType())
+                                .isNull();
+                        assertThat(publishedAction.getPublishedAction().getContextType())
+                                .isEqualTo(CreatorContextType.MODULE);
+                        assertThat(publishedAction.getPublishedAction().getOwningModuleInstanceId())
+                                .isNull();
+                        assertThat(publishedAction.getPublishedAction().getModuleId())
+                                .isNotNull();
+                        assertThat(publishedAction.getPublishedAction().getRootModuleInstanceId())
+                                .isNull();
+                        assertThat(publishedAction.getPublishedAction().getModuleInstanceId())
+                                .isNull();
+                    });
                 })
                 .verifyComplete();
 
@@ -616,6 +714,9 @@ public class PackageServiceTest {
                             .isEqualTo(1);
                     assertThat(consumablePackagesAndModulesDTO.getModules().size())
                             .isEqualTo(2);
+                    consumablePackagesAndModulesDTO.getModules().forEach(consumableModuleDTO -> {
+                        verifySettingsForConsumer(consumableModuleDTO);
+                    });
                 })
                 .verifyComplete();
 
@@ -631,5 +732,26 @@ public class PackageServiceTest {
                             .isEqualTo(0);
                 })
                 .verifyComplete();
+    }
+
+    private void verifySettingsForConsumer(ModuleDTO moduleDTO) {
+        JsonNode jsonNode = objectMapper.valueToTree(moduleDTO.getSettingsForm());
+        // Check if "Run query on page load" is NOT present in the children array
+        JsonNode childrenNode = jsonNode.get(0)
+                // Assuming there is at least one item in the "setting" array
+                .path("children");
+
+        boolean isUnexpectedSettingPresent = false;
+        Iterator<JsonNode> elements = childrenNode.elements();
+        List<String> expectedConsumerSettingNames =
+                List.of("Run query on page load", "Request confirmation before running query");
+        while (elements.hasNext()) {
+            JsonNode element = elements.next();
+            if (!expectedConsumerSettingNames.contains(element.path("label").asText())) {
+                isUnexpectedSettingPresent = true;
+                break;
+            }
+        }
+        assertThat(isUnexpectedSettingPresent).isFalse();
     }
 }

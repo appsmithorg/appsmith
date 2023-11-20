@@ -60,7 +60,11 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   // Create a ref so that this DOM node can be
   // observed by the observer for changes in size
   const ref = React.useRef<HTMLDivElement>(null);
-  usePositionObserver("widget", { widgetId: props.widgetId }, ref);
+  usePositionObserver(
+    "widget",
+    { widgetId: props.widgetId, layoutId: props.layoutId },
+    ref,
+  );
   /** EO POSITIONS OBSERVER LOGIC */
 
   const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
@@ -159,7 +163,7 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       position: "relative",
       // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
       overflow: "hidden",
-      opacity: isDragging && isSelected ? 0.5 : 1,
+      opacity: (isDragging && isSelected) || !props.isVisible ? 0.5 : 1,
       "&:hover": {
         zIndex: onHoverZIndex,
       },

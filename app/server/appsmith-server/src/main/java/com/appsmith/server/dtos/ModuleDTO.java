@@ -1,7 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.helpers.Identifiable;
-import com.appsmith.external.models.ModuleInput;
+import com.appsmith.external.models.ModuleInputForm;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.ModuleConsumable;
@@ -14,7 +14,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Transient;
 
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -45,17 +45,8 @@ public class ModuleDTO implements Identifiable {
     @JsonView(Views.Export.class)
     String packageUUID;
 
-    /*
-     "inputs": {
-       "token": {
-         "name": "token",
-         "defaultValue": "10"
-       }
-     }
-    */
-    // key is the name of the input
     @JsonView(Views.Public.class)
-    Map<String, ModuleInput> inputs;
+    List<ModuleInputForm> inputsForm;
 
     // Public entity is created along with the creation of module. Variants of publicEntity { Query module : ActionDTO,
     // JS module: ActionCollectionDTO,
@@ -67,4 +58,8 @@ public class ModuleDTO implements Identifiable {
     @Transient
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
+
+    @Transient
+    @JsonView(Views.Public.class)
+    Object settingsForm;
 }

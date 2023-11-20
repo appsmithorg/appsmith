@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import BranchButton from "./BranchButton";
@@ -11,6 +11,7 @@ import {
   CONNECT_GIT,
   CONNECT_GIT_BETA,
   CONNECTING_TO_REPO_DISABLED,
+  CONTACT_ADMIN_FOR_GIT,
   createMessage,
   DISCARD_AND_PULL_SUCCESS,
   DURING_ONBOARDING_TOUR,
@@ -45,6 +46,7 @@ import { Button, Icon, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useIsGitAdmin } from "../hooks/useIsGitAdmin";
 
 interface QuickActionButtonProps {
   className?: string;
@@ -240,21 +242,35 @@ const OuterContainer = styled.div`
   height: 100%;
 `;
 
+const CenterDiv = styled.div`
+  text-align: center;
+`;
+
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
-  const isTooltipEnabled = isInGuidedTour;
-  const tooltipContent = !isInGuidedTour ? (
-    <>
-      <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
-      <div>{createMessage(COMING_SOON)}</div>
-    </>
-  ) : (
-    <>
-      <div>{createMessage(CONNECTING_TO_REPO_DISABLED)}</div>
-      <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
-    </>
-  );
+  const isGitAdmin = useIsGitAdmin();
+  const isTooltipEnabled = isInGuidedTour || !isGitAdmin;
+  const tooltipContent = useMemo(() => {
+    if (!isGitAdmin) {
+      return <CenterDiv>{createMessage(CONTACT_ADMIN_FOR_GIT)}</CenterDiv>;
+    }
+    if (isInGuidedTour) {
+      return (
+        <>
+          <div>{createMessage(CONNECTING_TO_REPO_DISABLED)}</div>
+          <div>{createMessage(DURING_ONBOARDING_TOUR)}</div>
+        </>
+      );
+    }
+    return (
+      <>
+        <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
+        <div>{createMessage(COMING_SOON)}</div>
+      </>
+    );
+  }, [isInGuidedTour, isGitAdmin]);
+
   const isGitConnectionEnabled = !isInGuidedTour;
 
   return (
@@ -269,6 +285,7 @@ function ConnectGitPlaceholder() {
           {isGitConnectionEnabled ? (
             <Button
               className="t--connect-git-bottom-bar"
+              isDisabled={!isGitAdmin}
               kind="secondary"
               onClick={() => {
                 AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {

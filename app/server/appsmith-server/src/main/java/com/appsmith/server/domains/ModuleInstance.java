@@ -1,7 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BranchAwareDomain;
-import com.appsmith.external.models.ModuleInstanceCreatorType;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -22,19 +22,17 @@ public class ModuleInstance extends BranchAwareDomain {
     String moduleUUID; // this refers to the `moduleUUID` field of the Module domain
 
     @JsonView(Views.Public.class)
-    String moduleId; // this refers to the `id` field of the Module domain
-
-    // creatorId can be the consuming `pageId` or the consuming `moduleId`
-    @JsonView(Views.Public.class)
-    String creatorId;
+    String sourceModuleId; // this is the id of the original module from where it's derived
 
     @JsonView(Views.Public.class)
-    ModuleInstanceCreatorType creatorType;
+    CreatorContextType contextType;
 
-    // Variants of publicEntity { Query module : ActionDTO, JS module: ActionCollectionDTO,
-    // UI module: Layout}
     @JsonView(Views.Public.class)
-    String publicEntityId;
+    String moduleId; // if module is instantiated in the context of MODULE then this moduleId will have the id of that
+    // module
+
+    @JsonView(Views.Public.class)
+    String pageId; // if module is instantiated in the context of PAGE then this moduleId will have the id of that page
 
     @JsonView(Views.Public.class)
     ModuleInstanceDTO unpublishedModuleInstance;

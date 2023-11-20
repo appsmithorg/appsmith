@@ -692,6 +692,38 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
+    public Mono<Boolean> bulkAssignUsersAndUserGroupsToPermissionGroupsWithoutPermission(
+            List<User> users, List<UserGroup> groups, List<PermissionGroup> roles) {
+        Set<String> userIds = users.stream().map(User::getId).collect(Collectors.toSet());
+        Set<String> groupIds = groups.stream().map(UserGroup::getId).collect(Collectors.toSet());
+        roles.forEach(role -> {
+            role.getAssignedToUserIds().addAll(userIds);
+            role.getAssignedToGroupIds().addAll(groupIds);
+        });
+        Mono<List<UpdateResult>> updateRolesMono = Flux.fromIterable(roles)
+                .flatMap(role -> {
+                    Update update = new Update();
+                    update.set(
+                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), role.getAssignedToUserIds());
+                    update.set(
+                            fieldName(QPermissionGroup.permissionGroup.assignedToGroupIds),
+                            role.getAssignedToGroupIds());
+                    return repository.updateById(role.getId(), update);
+                })
+                .collectList();
+
+        List<String> userIdsForClearingCache = new ArrayList<>(groups.stream()
+                .map(UserGroup::getUsers)
+                .flatMap(Collection::stream)
+                .toList());
+        userIdsForClearingCache.addAll(userIds);
+        Mono<Boolean> clearCacheForUsers =
+                cleanPermissionGroupCacheForUsers(userIdsForClearingCache).thenReturn(TRUE);
+        return updateRolesMono.zipWhen(updatedRoles -> clearCacheForUsers).map(pair -> TRUE);
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
     public Flux<PermissionGroup> findAllByAssignedToGroupIdsInWithoutPermission(Set<String> groupIds) {
         return repository.findAllByAssignedToGroupIds(groupIds, Optional.empty(), Optional.empty());
     }

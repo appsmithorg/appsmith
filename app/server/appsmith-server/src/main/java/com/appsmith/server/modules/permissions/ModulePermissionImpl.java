@@ -11,8 +11,13 @@ public class ModulePermissionImpl implements ModulePermission {
     }
 
     @Override
-    public AclPermission getExecutePermission() {
-        return AclPermission.EXECUTE_MODULES;
+    public AclPermission getCreateExecutablesPermission() {
+        return AclPermission.CREATE_MODULE_EXECUTABLES;
+    }
+
+    @Override
+    public AclPermission getCreateModuleInstancePermission() {
+        return AclPermission.CREATE_MODULE_INSTANCES;
     }
 
     @Override

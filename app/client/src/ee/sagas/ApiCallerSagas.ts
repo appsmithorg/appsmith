@@ -5,6 +5,7 @@ import { updateActionAPICall as CE_updateActionAPICall } from "ce/sagas/ApiCalle
 import type { ApiResponse } from "api/ApiResponses";
 import type { Action } from "entities/Action";
 import type { ModuleAction } from "@appsmith/constants/ModuleConstants";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 
 export function* updateActionAPICall(action: Action) {
   try {
@@ -18,7 +19,7 @@ export function* updateActionAPICall(action: Action) {
     } else {
       const response: ApiResponse<Action> = yield ModuleApi.updateAction({
         ...action,
-        type: "action",
+        type: ENTITY_TYPE_VALUE.ACTION,
       } as unknown as ModuleAction);
 
       return response;

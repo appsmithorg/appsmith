@@ -1,14 +1,22 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { noop } from "lodash";
 import type { MenuItemProps } from "design-system";
 import {
   Button,
+  Divider,
   Menu,
   MenuContent,
   MenuItem,
   MenuTrigger,
 } from "design-system";
 import {
+  ColorSelector,
   EditInteractionKind,
   EditableText,
   SavingState,
@@ -18,18 +26,21 @@ import Card from "components/common/Card";
 import history from "utils/history";
 import { generateEditedByText } from "pages/Applications/helpers";
 import { BASE_PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
-import type { Package } from "@appsmith/constants/PackageConstants";
+import {
+  DEFAULT_PACKAGE_COLOR,
+  DEFAULT_PACKAGE_ICON,
+  type Package,
+} from "@appsmith/constants/PackageConstants";
 import type { ModifiedMenuItemProps } from "pages/Applications/ApplicationCard";
 import { useDispatch, useSelector } from "react-redux";
 import { hasDeletePackagePermission } from "@appsmith/utils/permissionHelpers";
-import {
-  deletePackage,
-  updatePackageName,
-} from "@appsmith/actions/packageActions";
+import { deletePackage, updatePackage } from "@appsmith/actions/packageActions";
 import {
   getIsSavingPackageName,
   getisErrorSavingPackageName,
 } from "@appsmith/selectors/packageSelectors";
+import { ThemeContext } from "styled-components";
+import { getRandomPaletteColor } from "utils/AppsmithUtils";
 
 interface PackageCardProps {
   isFetchingPackages: boolean;
@@ -43,23 +54,25 @@ interface ContextMenuProps {
   isMenuOpen: boolean;
   moreActionItems: MenuItemProps[];
   onUpdatePackage: (val: string) => void;
-  packageName: string;
+  pkg: Package;
   setLastUpdatedValue: (val: string) => void;
+  updateColor: (color: string) => void;
 }
-
-const DEFAULT_BACKGROUND_COLOR = "#9747FF1A";
-const DEFAULT_ICON = "package";
 
 const ContextMenu = ({
   handleMenuOnClose,
   isMenuOpen,
   moreActionItems,
   onUpdatePackage,
-  packageName,
+  pkg,
   setLastUpdatedValue,
+  updateColor,
 }: ContextMenuProps) => {
   const isSavingName = useSelector(getIsSavingPackageName);
   const isErroredSavingName = useSelector(getisErrorSavingPackageName);
+  const theme = useContext(ThemeContext);
+  const colorCode =
+    pkg.color || getRandomPaletteColor(theme.colors.appCardColors);
 
   return (
     <Menu className="more" onOpenChange={handleMenuOnClose} open={isMenuOpen}>
@@ -83,7 +96,7 @@ const ContextMenu = ({
         >
           <EditableText
             className="px-3 pt-2 pb-2 t--application-name"
-            defaultValue={packageName}
+            defaultValue={pkg.name}
             editInteractionKind={EditInteractionKind.SINGLE}
             fill
             hideEditIcon={false}
@@ -104,6 +117,15 @@ const ContextMenu = ({
             underline
           />
         </div>
+        <>
+          <ColorSelector
+            colorPalette={theme.colors.appCardColors}
+            defaultValue={colorCode}
+            fill
+            onSelect={updateColor}
+          />
+          <Divider />
+        </>
         <div className="menu-items-wrapper">
           {moreActionItems.map((item: MenuItemProps) => {
             const { children, key, ...restMenuItem } = item;
@@ -166,7 +188,12 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
 
   const onUpdatePackage = (val: string) => {
     if (val !== pkg.name) {
-      dispatch(updatePackageName(val, pkg));
+      dispatch(
+        updatePackage({
+          name: val,
+          id: pkg.id,
+        }),
+      );
     }
   };
 
@@ -190,7 +217,7 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
   };
 
   const addDeleteOption = () => {
-    if (hasDeletePermission && false) {
+    if (hasDeletePermission) {
       const index = moreActionItems.findIndex(
         (el) => el.startIcon === "delete-bin-line",
       );
@@ -209,6 +236,15 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
     }
   };
 
+  const updateColor = (color: string) => {
+    dispatch(
+      updatePackage({
+        color: color,
+        id: pkg.id,
+      }),
+    );
+  };
+
   const contextMenu = useMemo(
     () => (
       <ContextMenu
@@ -216,8 +252,9 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
         isMenuOpen={isMenuOpen}
         moreActionItems={moreActionItems}
         onUpdatePackage={onUpdatePackage}
-        packageName={pkg.name}
+        pkg={pkg}
         setLastUpdatedValue={setLastUpdatedValue}
+        updateColor={updateColor}
       />
     ),
     [handleMenuOnClose, isMenuOpen, pkg.name],
@@ -229,11 +266,11 @@ function PackageCard({ isFetchingPackages, isMobile, pkg }: PackageCardProps) {
 
   return (
     <Card
-      backgroundColor={pkg.color || DEFAULT_BACKGROUND_COLOR}
+      backgroundColor={pkg.color || DEFAULT_PACKAGE_COLOR}
       contextMenu={contextMenu}
       editedByText={editedByText}
       hasReadPermission
-      icon={pkg.icon || DEFAULT_ICON}
+      icon={pkg.icon || DEFAULT_PACKAGE_ICON}
       isContextMenuOpen={false}
       isFetching={isFetchingPackages}
       isMobile={isMobile}

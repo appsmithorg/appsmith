@@ -32,7 +32,7 @@ import {
 import { actionOperations } from "./utils";
 import type { Plugin } from "api/PluginApi";
 import { createQueryModule } from "@appsmith/actions/moduleActions";
-import { ModuleType } from "@appsmith/constants/ModuleInstanceConstants";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export const useFilteredFileOperations = (query = "") => {
   const allDatasources = useSelector(getDatasources);
@@ -114,7 +114,7 @@ export const useFilteredAndSortedFileOperations = ({
         packageId,
         from,
         datasourceId,
-        type: ModuleType.QUERY,
+        type: MODULE_TYPE.QUERY,
       });
 
   // map into operations

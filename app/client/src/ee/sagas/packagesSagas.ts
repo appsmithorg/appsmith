@@ -28,6 +28,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type {
   CreatePackageFromWorkspacePayload,
   DeletePackagePayload,
+  FetchAllPackagesInWorkspacePayload,
   FetchPackagePayload,
   PublishPackagePayload,
 } from "@appsmith/actions/packageActions";
@@ -63,6 +64,30 @@ export function* fetchAllPackagesSaga() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ALL_PACKAGES_ERROR,
+      payload: { error: { message: createMessage(FETCH_PACKAGES_ERROR) } },
+    });
+  }
+}
+
+export function* fetchAllPackagesInWorkspaceSaga(
+  action: ReduxAction<FetchAllPackagesInWorkspacePayload>,
+) {
+  try {
+    const response: ApiResponse = yield call(
+      PackageApi.fetchAllPackagesInWorkspace,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_ERROR,
       payload: { error: { message: createMessage(FETCH_PACKAGES_ERROR) } },
     });
   }
@@ -182,17 +207,20 @@ export function* fetchPackageSaga(payload: FetchPackagePayload) {
   }
 }
 
-export function* updatePackageNameSaga(action: ReduxAction<Package>) {
+export function* updatePackageSaga(action: ReduxAction<Package>) {
   try {
+    const packageData: Package = yield call(PackageApi.fetchPackage, {
+      packageId: action.payload.id,
+    });
     const response: ApiResponse<Package> = yield call(
       PackageApi.updatePackage,
-      action.payload,
+      { ...packageData, ...action.payload },
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS,
+        type: ReduxActionTypes.UPDATE_PACKAGE_SUCCESS,
         payload: response.data,
       });
 
@@ -200,7 +228,7 @@ export function* updatePackageNameSaga(action: ReduxAction<Package>) {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.UPDATE_PACKAGE_NAME_ERROR,
+      type: ReduxActionErrorTypes.UPDATE_PACKAGE_ERROR,
       payload: {
         error,
       },
@@ -268,13 +296,14 @@ export default function* packagesSaga() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_ALL_PACKAGES_INIT, fetchAllPackagesSaga),
     takeLatest(
+      ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_INIT,
+      fetchAllPackagesInWorkspaceSaga,
+    ),
+    takeLatest(
       ReduxActionTypes.CREATE_PACKAGE_FROM_WORKSPACE_INIT,
       createPackageFromWorkspaceSaga,
     ),
-    takeLatest(
-      ReduxActionTypes.UPDATE_PACKAGE_NAME_INIT,
-      updatePackageNameSaga,
-    ),
+    takeLatest(ReduxActionTypes.UPDATE_PACKAGE_INIT, updatePackageSaga),
     takeLatest(ReduxActionTypes.DELETE_PACKAGE_INIT, deletePackageSaga),
     takeLatest(ReduxActionTypes.PUBLISH_PACKAGE_INIT, publishPackageSaga),
   ]);

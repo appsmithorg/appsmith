@@ -5,6 +5,7 @@ import { noop } from "lodash";
 import "@testing-library/jest-dom";
 import "jest-styled-components";
 import { defaultTheme } from "react-select";
+import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 // Mock useDispatch and useSelector
 jest.mock("react-redux", () => ({
@@ -22,6 +23,18 @@ jest.mock("design-system", () => ({
     show: jest.fn(),
   },
 }));
+
+const allPackagePermissions = [PERMISSION_TYPE.DELETE_PACKAGE];
+
+const mockPackagePermissions = (filter: string[] = []) => {
+  if (filter.length > 0) {
+    const result = allPackagePermissions.filter(
+      (permission) => !filter.includes(permission),
+    );
+    return result;
+  }
+  return allPackagePermissions;
+};
 
 describe("GetNavigationMenuData", () => {
   let mockDispatch: any, mockUseSelector: any, mockHistory: any;
@@ -46,6 +59,16 @@ describe("GetNavigationMenuData", () => {
       userPermissions: ["edit", "delete"],
     });
 
+    jest
+      .spyOn(
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require("@appsmith/utils/permissionHelpers"),
+        "hasDeletePackagePermission",
+      )
+      .mockImplementation(() =>
+        mockPackagePermissions([PERMISSION_TYPE.DELETE_PACKAGE]),
+      );
+
     // Render the function within a ThemeProvider
     const container = GetNavigationMenuData({
       editMode: noop,
@@ -56,14 +79,14 @@ describe("GetNavigationMenuData", () => {
     const homeMenuItem = container.find((arr) => arr.text === "Home");
     const editNameMenuItem = container.find((arr) => arr.text === "Edit name");
     const helpMenuItem = container.find((arr) => arr.text === "Help");
-    // const deletePackageMenuItem = container.find(
-    //   (arr) => arr.text === "Delete package",
-    // );
+    const deletePackageMenuItem = container.find(
+      (arr) => arr.text === "Delete package",
+    );
 
     expect(homeMenuItem).toBeTruthy();
     expect(editNameMenuItem).toBeTruthy();
     expect(helpMenuItem).toBeTruthy();
-    // expect(deletePackageMenuItem).toBeTruthy();
+    expect(deletePackageMenuItem).toBeTruthy();
 
     const communityForumMenuItem = helpMenuItem?.children?.find(
       (arr) => arr.text === "Community forum",

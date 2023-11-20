@@ -1,6 +1,7 @@
 package com.appsmith.server.modules.crud;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -8,6 +9,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
@@ -17,21 +19,30 @@ import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.helpers.ObjectUtils;
 import com.appsmith.server.helpers.ValidationUtils;
-import com.appsmith.server.moduleinstances.services.permissions.ModuleInstancePermissionChecker;
+import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ModuleRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +50,7 @@ import java.util.Set;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Service
+@Slf4j
 public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl implements CrudModuleService {
     private final ModuleRepository moduleRepository;
     private final ModulePermission modulePermission;
@@ -49,6 +61,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     private final PackagePermission packagePermission;
     private final ModuleInstancePermissionChecker moduleInstancePermissionChecker;
     private final TransactionalOperator transactionalOperator;
+    private static ObjectMapper objectMapper = new ObjectMapper();
+    private final PluginService pluginService;
 
     public CrudModuleServiceImpl(
             ModuleRepository moduleRepository,
@@ -59,7 +73,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             PackagePermissionChecker packagePermissionChecker,
             PackagePermission packagePermission,
             ModuleInstancePermissionChecker moduleInstancePermissionChecker,
-            TransactionalOperator transactionalOperator) {
+            TransactionalOperator transactionalOperator,
+            PluginService pluginService) {
         super(moduleRepository);
         this.moduleRepository = moduleRepository;
         this.modulePermission = modulePermission;
@@ -70,6 +85,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         this.packagePermission = packagePermission;
         this.moduleInstancePermissionChecker = moduleInstancePermissionChecker;
         this.transactionalOperator = transactionalOperator;
+        this.pluginService = pluginService;
     }
 
     @Override
@@ -82,21 +98,46 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                     } else {
                         moduleDTO = module.getPublishedModule();
                     }
-                    return setTransientFieldsFromModuleToModuleDTO(module, moduleDTO);
+                    return setTransientFieldsFromModuleToModuleDTO(module, moduleDTO)
+                            .flatMap(this::setModuleSettingsForCreator);
                 })
                 .collectList();
     }
 
-    private Mono<ModuleDTO> setTransientFieldsFromModuleToModuleDTO(Module module, ModuleDTO moduleDTO) {
-        moduleDTO.setModuleUUID(module.getModuleUUID());
-        moduleDTO.setId(module.getId());
-        moduleDTO.setType(module.getType());
-        moduleDTO.setPackageId(module.getPackageId());
-        moduleDTO.setPackageUUID(module.getPackageUUID());
-        moduleDTO.setUserPermissions(module.getUserPermissions());
-        moduleDTO.setEntity(null);
+    private Mono<ModuleDTO> setModuleSettingsForCreator(ModuleDTO moduleDTO) {
+        Mono<NewAction> publicActionMono = newActionService.findPublicActionByModuleId(moduleDTO.getId());
+        return getSettingsFormForModuleInstance().zipWith(publicActionMono).flatMap(tuple2 -> pluginService
+                .getFormConfig(tuple2.getT2().getPluginId())
+                .flatMap(pluginConfigMap -> {
+                    Object pluginSettings = pluginConfigMap.get("setting");
+                    Object moduleInstanceSettings = tuple2.getT1();
 
-        return Mono.just(moduleDTO);
+                    JsonNode pluginSettingsNode = objectMapper.valueToTree(pluginSettings);
+                    JsonNode moduleInstanceSettingsNode = objectMapper.valueToTree(moduleInstanceSettings);
+
+                    ModuleUtils.getSettingsForModuleCreator(pluginSettingsNode, moduleInstanceSettingsNode);
+
+                    moduleDTO.setSettingsForm(pluginSettingsNode);
+
+                    return Mono.just(moduleDTO);
+                }));
+    }
+
+    private Mono<ModuleDTO> setTransientFieldsFromModuleToModuleDTO(Module module, ModuleDTO moduleDTO) {
+
+        return getSettingsFormForModuleInstance().flatMap(settingsForm -> {
+            moduleDTO.setModuleUUID(module.getModuleUUID());
+            moduleDTO.setId(module.getId());
+            moduleDTO.setType(module.getType());
+            moduleDTO.setPackageId(module.getPackageId());
+            moduleDTO.setPackageUUID(module.getPackageUUID());
+            moduleDTO.setUserPermissions(module.getUserPermissions());
+            moduleDTO.setEntity(null);
+
+            moduleDTO.setSettingsForm(settingsForm);
+
+            return Mono.just(moduleDTO);
+        });
     }
 
     @Override
@@ -108,7 +149,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleDTO> createModule(ModuleDTO moduleDTO) {
         return validateModule(moduleDTO)
-                .flatMap(this::saveModuleAndCreateAction)
+                .flatMap(tuple2 -> this.saveModuleAndCreateAction(tuple2.getT1(), tuple2.getT2()))
                 .as(transactionalOperator::transactional);
     }
 
@@ -134,10 +175,29 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         } else {
             moduleDTO = module.getPublishedModule();
         }
+
         return setTransientFieldsFromModuleToModuleDTO(module, moduleDTO);
     }
 
-    private Mono<Module> validateModule(ModuleDTO moduleDTO) {
+    private Mono<Object> getSettingsFormForModuleInstance() {
+        try {
+            ClassPathResource resource = new ClassPathResource("modules/setting.json");
+            InputStream inputStream = resource.getInputStream();
+
+            JsonNode rootTree = objectMapper.readTree(inputStream);
+
+            List<JsonNode> settingsForm = objectMapper.convertValue(rootTree.get("setting"), List.class);
+
+            inputStream.close();
+
+            return Mono.just(settingsForm);
+        } catch (IOException e) {
+            return Mono.error(
+                    new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, "Unable to fetch settings of module"));
+        }
+    }
+
+    private Mono<Tuple2<Module, String>> validateModule(ModuleDTO moduleDTO) {
         if (ValidationUtils.isEmptyParam(moduleDTO.getPackageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PACKAGE_ID));
         }
@@ -174,36 +234,40 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
                             module.setUnpublishedModule(moduleDTO);
 
-                            return Mono.just(module);
+                            return Mono.just(module).zipWith(Mono.just(aPackage.getWorkspaceId()));
                         }));
     }
 
-    private Mono<ModuleDTO> saveModuleAndCreateAction(Module module) {
-        return moduleRepository.save(module).flatMap(savedModule -> {
-            ModuleDTO moduleDTO = module.getUnpublishedModule();
-            // Update moduleDTO with savedModule details
-            moduleDTO.setId(savedModule.getId());
-            moduleDTO.setUserPermissions(savedModule.getUserPermissions());
+    private Mono<ModuleDTO> saveModuleAndCreateAction(Module module, String workspaceId) {
+        return moduleRepository.save(module).flatMap(savedModule -> moduleRepository
+                .findById(savedModule.getId(), modulePermission.getCreateExecutablesPermission())
+                .flatMap(fetchedModule -> {
+                    ModuleDTO moduleDTO = module.getUnpublishedModule();
+                    moduleDTO.setId(fetchedModule.getId());
+                    moduleDTO.setUserPermissions(fetchedModule.getUserPermissions());
 
-            NewAction moduleAction = createModuleAction(moduleDTO, true);
+                    NewAction moduleAction = createModuleAction(moduleDTO, workspaceId, true);
+                    Set<Policy> childActionPolicies = policyGenerator.getAllChildPolicies(
+                            fetchedModule.getPolicies(), Module.class, Action.class);
+                    moduleAction.setPolicies(childActionPolicies);
 
-            return newActionService
-                    .validateAndSaveActionToRepository(moduleAction)
-                    .flatMap(savedActionDTO -> {
-                        return moduleRepository
-                                .save(module)
-                                .flatMap(moduleRepository::setUserPermissionsInObject)
-                                .flatMap(updatedModule -> setTransientFieldsFromModuleToModuleDTO(
-                                        updatedModule, updatedModule.getUnpublishedModule()));
-                    });
-        });
+                    return newActionService
+                            .validateAndSaveActionToRepository(moduleAction)
+                            .flatMap(savedActionDTO -> moduleRepository
+                                    .save(fetchedModule)
+                                    .flatMap(moduleRepository::setUserPermissionsInObject)
+                                    .then(setTransientFieldsFromModuleToModuleDTO(
+                                                    fetchedModule, fetchedModule.getUnpublishedModule())
+                                            .flatMap(this::setModuleSettingsForCreator)));
+                }));
     }
 
-    private NewAction createModuleAction(ModuleDTO moduleDTO, boolean isPublic) {
+    private NewAction createModuleAction(ModuleDTO moduleDTO, String workspaceId, boolean isPublic) {
         NewAction moduleAction = new NewAction();
         if (moduleDTO.getEntity() == null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENTITY);
         }
+        moduleAction.setWorkspaceId(workspaceId);
 
         ModuleActionDTO unpublishedAction = (ModuleActionDTO) moduleDTO.getEntity();
 
@@ -211,7 +275,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         unpublishedAction.setName(moduleDTO.getName());
         unpublishedAction.setModuleId(moduleDTO.getId());
         unpublishedAction.setDefaultResources(new DefaultResources());
-        unpublishedAction.setContext(ActionDTO.ActionContext.MODULE);
+        unpublishedAction.setContextType(CreatorContextType.MODULE);
 
         moduleAction.setUnpublishedAction(unpublishedAction);
         moduleAction.setPublishedAction(new ActionDTO());
@@ -272,8 +336,10 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                     .findPublicActionByModuleId(moduleId)
                                     .flatMap(newAction -> {
                                         ActionDTO updateActionDTO = new ActionDTO();
-                                        updateActionDTO.setContext(ActionDTO.ActionContext.MODULE);
+                                        updateActionDTO.setContextType(CreatorContextType.MODULE);
                                         updateActionDTO.setName(moduleDTO.getName());
+                                        updateActionDTO.setDatasource(
+                                                newAction.getUnpublishedAction().getDatasource());
                                         return newActionService.updateUnpublishedActionWithoutAnalytics(
                                                 newAction.getId(), updateActionDTO, Optional.empty());
                                     })
@@ -282,10 +348,12 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                                                     moduleId,
                                                     updateObj,
                                                     Optional.of(modulePermission.getEditPermission()))
+                                            .flatMap(moduleRepository::setUserPermissionsInObject)
                                             .flatMap(updatedModule -> {
                                                 ModuleDTO unpublishedModule = updatedModule.getUnpublishedModule();
                                                 return setTransientFieldsFromModuleToModuleDTO(
-                                                        updatedModule, unpublishedModule);
+                                                                updatedModule, unpublishedModule)
+                                                        .flatMap(this::setModuleSettingsForCreator);
                                             }));
                         }));
     }
@@ -331,11 +399,11 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         Update updateObj = new Update();
         String namePath =
                 fieldName(QModule.module.unpublishedModule) + "." + fieldName(QModule.module.unpublishedModule.name);
-        String inputsPath =
-                fieldName(QModule.module.unpublishedModule) + "." + fieldName(QModule.module.unpublishedModule.inputs);
+        String inputsPath = fieldName(QModule.module.unpublishedModule) + "."
+                + fieldName(QModule.module.unpublishedModule.inputsForm);
 
         ObjectUtils.setIfNotEmpty(updateObj, namePath, moduleDTO.getName());
-        ObjectUtils.setIfNotEmpty(updateObj, inputsPath, moduleDTO.getInputs());
+        ObjectUtils.setIfNotEmpty(updateObj, inputsPath, moduleDTO.getInputsForm());
 
         return updateObj;
     }

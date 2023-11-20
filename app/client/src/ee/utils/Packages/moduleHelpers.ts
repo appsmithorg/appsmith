@@ -3,6 +3,7 @@ import {
   MODULE_TYPE,
   type Module,
 } from "@appsmith/constants/ModuleConstants";
+import type { Package } from "@appsmith/constants/PackageConstants";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
@@ -24,4 +25,14 @@ export const selectAllQueryModules = (modules: Module[]) => {
     (module) => module.type === MODULE_TYPE.QUERY,
   );
   return queryModules;
+};
+
+export const getPackageNameForModule = (
+  modules: Record<string, Module>,
+  packages: Record<string, Package>,
+  moduleId: string,
+) => {
+  const module = modules[moduleId];
+  const packageName = module ? packages[module.packageId]?.name : "";
+  return packageName || "Packages";
 };

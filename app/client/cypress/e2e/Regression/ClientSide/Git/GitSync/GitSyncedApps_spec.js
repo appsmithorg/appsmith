@@ -121,8 +121,6 @@ describe("Git sync apps", function () {
       cy.get(`.t--entity-item:contains(${newPage})`).click();
       cy.wait(1000);
       // create a get api call
-      cy.NavigateToAPI_Panel();
-      cy.wait(2000);
       cy.CreateAPI("get_data");
       // creating get request using echo
       cy.get(apiwidget.resourceUrl)
@@ -290,7 +288,6 @@ describe("Git sync apps", function () {
     jsEditor.CreateJSObject('return "Success";');
     cy.wait(2000);
     // create postgres select query
-    //cy.CheckAndUnfoldEntityItem("Datasources");
     dataSources.NavigateFromActiveDS(datasourceName, true);
     dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
     agHelper.RenameWithInPane("get_users");

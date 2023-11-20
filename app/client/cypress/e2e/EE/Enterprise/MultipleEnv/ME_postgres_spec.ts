@@ -89,12 +89,8 @@ describe(
       agHelper.Sleep(2000);
       entityExplorer.AddNewPage("New blank page");
       multipleEnv.SwitchEnv(stagingEnv);
-      dataSources.NavigateToActiveTab();
-      dataSources.CreateQueryForDS(
-        meDSStagingOnlyName,
-        query,
-        meStagingOnlyQueryName,
-      );
+      dataSources.navigateToDatasource(meDSStagingOnlyName);
+      dataSources.CreateQueryAfterDSSaved(query, meStagingOnlyQueryName);
       // Run and verify the response for the query
       dataSources.RunQueryNVerifyResponseViews(43);
       multipleEnv.SwitchEnv(prodEnv);
@@ -157,8 +153,7 @@ describe(
       table.WaitUntilTableLoad();
       // verify generate crud option is not present on prod
       multipleEnv.SwitchEnv(prodEnv);
-      dataSources.NavigateToActiveTab();
-      dataSources.AssertReconnectDS(meDSStagingOnlyName);
+      cy.get(dataSources._datasourceCardGeneratePageBtn).should("not.exist");
     });
 
     it("5 Deploy the app, check for modal and check table response for both envs", function () {

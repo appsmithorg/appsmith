@@ -1,6 +1,7 @@
 package com.appsmith.server.constants;
 
 import com.appsmith.server.constants.ce.FieldNameCE;
+import com.appsmith.server.domains.ApprovalRequest;
 
 public class FieldName extends FieldNameCE {
 
@@ -115,6 +116,7 @@ public class FieldName extends FieldNameCE {
     // Package & module related constants
     public static final String PACKAGE_ID = "packageId";
     public static final String MODULE_ID = "moduleId";
+    public static final String MODULE_INSTANCE_ID = "moduleInstanceId";
     public static final String ENTITY = "entity";
     public static final String LICENSE_PLAN = "licensePlan";
     public static final String LICENSE_ORIGIN = "licenseOrigin";
@@ -129,4 +131,10 @@ public class FieldName extends FieldNameCE {
     public static final String WORKFLOW_ID = "workflowId";
     public static final String LICENSE = "license";
     public static final String ADDED = "added";
+    public static final String WORKFLOW = "workflow";
+    public static final String REQUEST_ID = "requestId";
+    public static final String REQUEST = "request";
+    public static final String ASCENDING = "ASC";
+
+    public static final String APPROVAL_REQUEST_ROLE_PREFIX = ApprovalRequest.class.getSimpleName() + " Role: %s";
 }

@@ -6,5 +6,7 @@ import com.appsmith.server.solutions.DomainPermission;
 public interface ModulePermission extends DomainPermission {
     AclPermission getDeletePermission();
 
-    AclPermission getExecutePermission();
+    AclPermission getCreateExecutablesPermission();
+
+    AclPermission getCreateModuleInstancePermission();
 }

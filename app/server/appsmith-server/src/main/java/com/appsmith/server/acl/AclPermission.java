@@ -6,6 +6,7 @@ import com.appsmith.external.models.Environment;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApprovalRequest;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Module;
@@ -125,6 +126,7 @@ public enum AclPermission {
     WORKSPACE_PUBLISH_WORKFLOWS("publish:workspaceWorkflows", Workspace.class),
     WORKSPACE_EXPORT_WORKFLOWS("export:workspaceWorkflows", Workspace.class),
     WORKSPACE_DELETE_WORKFLOWS("delete:workspaceWorkflows", Workspace.class),
+    WORKSPACE_RESOLVE_WORKFLOWS("resolve:workspaceWorkflows", Workspace.class),
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
@@ -152,6 +154,9 @@ public enum AclPermission {
     DELETE_PACKAGES("delete:packages", Package.class),
 
     APPLICATION_CREATE_PAGES("create:pages", Application.class),
+
+    // Due to this edge in the hierarchy graph, access to creating module instances would be limited to default
+    // workspace admins and workspace developers
     PACKAGE_CREATE_MODULES("create:modules", Package.class),
 
     MANAGE_PAGES("manage:pages", Page.class),
@@ -160,8 +165,13 @@ public enum AclPermission {
 
     MANAGE_MODULES("manage:modules", Module.class),
     READ_MODULES("read:modules", Module.class),
-    EXECUTE_MODULES("execute:modules", Module.class),
     DELETE_MODULES("delete:modules", Module.class),
+
+    CREATE_MODULE_INSTANCES("create:moduleInstances", Module.class),
+
+    // This permission would be used to add actions, JS objects and other module instances to the module in the context
+    // of creator
+    CREATE_MODULE_EXECUTABLES("create:moduleExecutables", Module.class),
 
     PAGE_CREATE_PAGE_ACTIONS("create:pageActions", Page.class),
     PAGE_CREATE_MODULE_INSTANCES("create:moduleInstancesInPage", Page.class),
@@ -219,6 +229,11 @@ public enum AclPermission {
     DELETE_WORKFLOWS("delete:workflows", Workflow.class),
     EXPORT_WORKFLOWS("export:workflows", Workflow.class),
     EXECUTE_WORKFLOWS("execute:workflows", Workflow.class),
+    RESOLVE_WORKFLOWS("resolve:workflows", Workflow.class),
+
+    // Approval Request Permissions
+    RESOLVE_APPROVAL_REQUESTS("resolve:approvalRequests", ApprovalRequest.class),
+    READ_APPROVAL_REQUESTS("read:approvalRequests", ApprovalRequest.class),
     ;
 
     private final String value;

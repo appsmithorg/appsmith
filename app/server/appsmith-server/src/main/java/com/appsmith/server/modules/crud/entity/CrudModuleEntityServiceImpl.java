@@ -1,6 +1,7 @@
 package com.appsmith.server.modules.crud.entity;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Module;
@@ -13,6 +14,7 @@ import com.appsmith.server.helpers.ModuleConsumable;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ModuleRepository;
+import com.appsmith.server.solutions.ActionPermission;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -27,12 +29,17 @@ public class CrudModuleEntityServiceImpl implements CrudModuleEntityService {
     private final ModuleRepository moduleRepository;
     private final NewActionService newActionService;
     private final ModulePermission modulePermission;
+    private final ActionPermission actionPermission;
 
     public CrudModuleEntityServiceImpl(
-            ModuleRepository moduleRepository, NewActionService newActionService, ModulePermission modulePermission) {
+            ModuleRepository moduleRepository,
+            NewActionService newActionService,
+            ModulePermission modulePermission,
+            ActionPermission actionPermission) {
         this.moduleRepository = moduleRepository;
         this.newActionService = newActionService;
         this.modulePermission = modulePermission;
+        this.actionPermission = actionPermission;
     }
 
     /**
@@ -51,7 +58,7 @@ public class CrudModuleEntityServiceImpl implements CrudModuleEntityService {
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.MODULE_ID, moduleId)));
 
-        moduleActionDTO.setContext(ActionDTO.ActionContext.MODULE);
+        moduleActionDTO.setContextType(CreatorContextType.MODULE);
 
         Mono<NewAction> updatedActionMono = newActionService
                 .findById(actionId)
@@ -87,7 +94,10 @@ public class CrudModuleEntityServiceImpl implements CrudModuleEntityService {
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_ID, moduleId)));
 
         return moduleMono.flatMap(module -> newActionService
-                .getAllUnpublishedModuleActions(module.getId())
+                .findAllActionsByContextIdAndContextTypeAndViewMode(
+                        module.getId(), CreatorContextType.MODULE, actionPermission.getEditPermission(), false, false)
+                .flatMap(moduleAction -> newActionService.generateActionByViewMode(moduleAction, false))
+                .collectList()
                 .map(actionList -> actionList.stream()
                         .map(actionDTO -> (ModuleConsumable) actionDTO)
                         .collect(Collectors.toList())));

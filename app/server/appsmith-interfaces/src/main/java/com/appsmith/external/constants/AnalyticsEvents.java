@@ -87,6 +87,7 @@ public enum AnalyticsEvents {
     SERVER_SETUP_COMPLETE("server_setup_complete"),
 
     PARTIAL_IMPORT,
+    PARTIAL_EXPORT,
 
     SCIM_DISABLED("scim_disabled"),
     SCIM_LINKED("scim_linked"),

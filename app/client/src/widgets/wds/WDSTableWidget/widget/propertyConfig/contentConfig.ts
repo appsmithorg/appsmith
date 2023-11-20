@@ -6,9 +6,9 @@ import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../../constants";
-import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
+import { InlineEditingSaveOptions } from "widgets/wds/WDSTableWidget/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
   tableDataValidation,

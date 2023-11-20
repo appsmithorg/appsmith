@@ -89,24 +89,27 @@ describe("packageReducer", () => {
     ).toEqual(expectedState);
   });
 
-  it("UPDATE_PACKAGE_NAME_SUCCESS - should update the respective package name for the specific package id in the state", () => {
+  it("UPDATE_PACKAGE_SUCCESS - should update the respective package color and name for the specific package id in the state", () => {
     const initialState = klona(DEFAULT_STATE);
     initialState[package1.id] = package1;
     initialState[package2.id] = package2;
 
+    const updatedColor = "#000";
     const updatedName = "Package 1 Updated";
     const expectedState = klona(DEFAULT_STATE);
     expectedState[package2.id] = package2;
     expectedState[package1.id] = {
       ...package1,
+      color: updatedColor,
       name: updatedName,
     };
 
     expect(
       reducer(initialState, {
-        type: ReduxActionTypes.UPDATE_PACKAGE_NAME_SUCCESS,
+        type: ReduxActionTypes.UPDATE_PACKAGE_SUCCESS,
         payload: {
           ...package1,
+          color: updatedColor,
           name: updatedName,
         },
       }),

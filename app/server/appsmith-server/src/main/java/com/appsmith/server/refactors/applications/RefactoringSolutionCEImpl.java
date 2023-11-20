@@ -201,6 +201,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             case JS_ACTION -> jsActionEntityRefactoringService;
             case ACTION -> newActionEntityRefactoringService;
             case JS_OBJECT -> actionCollectionEntityRefactoringService;
+            default -> null;
         };
     }
 

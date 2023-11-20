@@ -2,6 +2,7 @@ package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -41,6 +42,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -285,17 +287,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Mono<List<ActionDTO>> getAllUnpublishedModuleActions(String moduleId) {
-
-        return repository
-                .findAllNonJSActionsByModuleId(moduleId)
-                .collectList()
-                .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
-                .flatMap(newAction -> generateActionByViewMode(newAction, false))
-                .collectList();
-    }
-
-    @Override
     public Mono<List<NewAction>> archiveActionsByModuleId(String moduleId) {
         return repository
                 .findAllNonJSActionsByModuleId(moduleId)
@@ -310,5 +301,26 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     @Override
     public Mono<NewAction> findPublicActionByModuleId(String moduleId) {
         return repository.findPublicActionByModuleId(moduleId);
+    }
+
+    @Override
+    public Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            boolean viewMode,
+            boolean includeJs) {
+        Flux<NewAction> newActionFlux;
+        if (viewMode) {
+            newActionFlux = repository.findAllPublishedActionsByContextIdAndContextType(
+                    contextId, contextType, permission, includeJs);
+        } else {
+            newActionFlux = repository.findAllUnpublishedActionsByContextIdAndContextType(
+                    contextId, contextType, permission, includeJs);
+        }
+        return newActionFlux
+                .flatMap(repository::setUserPermissionsInObject)
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
     }
 }

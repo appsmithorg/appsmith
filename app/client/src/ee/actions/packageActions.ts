@@ -17,9 +17,22 @@ export interface PublishPackagePayload {
   packageId: string;
 }
 
+export interface FetchAllPackagesInWorkspacePayload {
+  wodrkspaceId: string;
+}
+
 export const fetchAllPackages = () => {
   return {
     type: ReduxActionTypes.FETCH_ALL_PACKAGES_INIT,
+  };
+};
+
+export const fetchAllPackagesInWorkspace = (
+  payload: FetchAllPackagesInWorkspacePayload,
+) => {
+  return {
+    type: ReduxActionTypes.FETCH_ALL_PACKAGES_IN_WORKSPACE_INIT,
+    payload,
   };
 };
 
@@ -37,20 +50,12 @@ export const createPackageFromWorkspace = (
   };
 };
 
-export const updatePackageName = (value: string, pkg: Package | null) => {
+export const updatePackage = (
+  payload: Partial<Package> & Pick<Package, "id">,
+) => {
   return {
-    type: ReduxActionTypes.UPDATE_PACKAGE_NAME_INIT,
-    payload: {
-      ...pkg,
-      color: pkg?.color || "",
-      icon: pkg?.icon || "",
-      id: pkg?.id || "",
-      modifiedAt: pkg?.modifiedAt || "",
-      modifiedBy: pkg?.modifiedBy || "",
-      name: value,
-      workspaceId: pkg?.workspaceId || "",
-      userPermissions: pkg?.userPermissions || [],
-    },
+    type: ReduxActionTypes.UPDATE_PACKAGE_INIT,
+    payload,
   };
 };
 

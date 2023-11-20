@@ -2,17 +2,21 @@ import type { EnvironmentType } from "@appsmith/configs/types";
 import {
   allowManageEnvironmentAccessForWorkspace,
   getEnvironments,
+  renderEnvWalkthrough,
 } from "@appsmith/selectors/environmentSelectors";
 import { Text, Icon, Tooltip } from "design-system";
 import { capitalizeFirstLetter } from "pages/Editor/gitSync/QuickGitActions";
 import styled from "styled-components";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { connect, useSelector } from "react-redux";
 import {
   createMessage,
   ENVIRONMENT_FILTER_DISABLED_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
+import {
+  DB_NOT_SUPPORTED,
+  dsEditorEnvWalkthroughConfig,
+} from "@appsmith/utils/Environments";
 import type { PluginType } from "entities/Action";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import type { AppState } from "@appsmith/reducers";
@@ -23,6 +27,14 @@ import CE_DSDataFilter from "ce/components/DSDataFilter";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import history from "utils/history";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import {
+  getFeatureWalkthroughShown,
+  setFeatureWalkthroughShown,
+} from "utils/storage";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export const defaultEnvironment = (workspaceId: string): EnvironmentType => ({
   id: DEFAULT_ENV_ID,
@@ -82,6 +94,10 @@ const FilterComponentContainer = styled.div<{
 
   ${(props) => (props.disabled ? ` cursor: not-allowed;` : `cursor: pointer;`)}
 `;
+
+const WALKTHROUGH_GUIDE_GIF = `${ASSETS_CDN_URL}/env_config.gif`;
+
+const WALKTHROUGH_SECTION_ID = "t--ds-data-filter-container";
 
 const FilterComponentLabel = styled(Text)<{ disabled: boolean }>`
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
@@ -174,6 +190,43 @@ const DSDataFilter = ({
     setSelectedEnvironment(environments[0]);
   }, [environments.length, pluginType, viewMode, isInsideReconnectModal]);
 
+  // Walkthrough section
+  const { popFeature, pushFeature } = useContext(WalkthroughContext) || {};
+  const renderWalkthrough = useSelector((state: AppState) =>
+    renderEnvWalkthrough(state, 2),
+  );
+
+  const checkAndShowWalkthrough = async () => {
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.env_walkthrough,
+    );
+    const imageURL = getAssetUrl(WALKTHROUGH_GUIDE_GIF);
+
+    // Adding walkthrough tutorial
+    !isFeatureWalkthroughShown &&
+      pushFeature &&
+      pushFeature(
+        dsEditorEnvWalkthroughConfig(
+          WALKTHROUGH_SECTION_ID,
+          closeWalkthrough,
+          imageURL,
+        ),
+      );
+  };
+
+  const closeWalkthrough = (setFlag = true) => {
+    popFeature && popFeature(FEATURE_WALKTHROUGH_KEYS.env_walkthrough);
+    if (setFlag)
+      setFeatureWalkthroughShown(
+        FEATURE_WALKTHROUGH_KEYS.env_walkthrough,
+        true,
+      );
+  };
+
+  useEffect(() => {
+    if (renderWalkthrough) checkAndShowWalkthrough();
+  }, [renderWalkthrough]);
+
   if (!showFilterPane) {
     if (showRamps) {
       return (
@@ -230,7 +283,7 @@ const DSDataFilter = ({
 
   return (
     <Container>
-      <OptionsContainer>
+      <OptionsContainer id={WALKTHROUGH_SECTION_ID}>
         {environments.map((env: EnvironmentType) => {
           const isDisabled = DB_NOT_SUPPORTED.includes(
             pluginType as PluginType,

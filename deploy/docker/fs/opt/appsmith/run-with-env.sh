@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ENV_PATH="/appsmith-stacks/configuration/docker.env"
-PRE_DEFINED_ENV_PATH="/opt/appsmith/templates/pre-define.env"
+PRE_DEFINED_ENV_PATH="$TMP/pre-define.env"
 echo 'Load environment configuration'
 set -o allexport
 . "$ENV_PATH"

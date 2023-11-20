@@ -4,7 +4,7 @@ import { CellWrapper } from "../TableStyledWrappers";
 import type { BaseCellComponentProps } from "../Constants";
 import { TABLE_SIZES } from "../Constants";
 import { Button } from "./Button";
-import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import type { ButtonColumnActions } from "widgets/wds/WDSTableWidget/constants";
 import styled from "styled-components";
 
 const StyledButton = styled(Button)<{ compactMode: string }>`

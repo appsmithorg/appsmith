@@ -14,6 +14,7 @@ export function* startPackageEngine(
   try {
     const packageEngine = new PackageEditorEngine();
 
+    yield call(packageEngine.setupEngine);
     yield call(packageEngine.loadPackage, action.payload.packageId);
     yield call(packageEngine.loadPluginsAndDatasources);
     yield call(packageEngine.completeChore);

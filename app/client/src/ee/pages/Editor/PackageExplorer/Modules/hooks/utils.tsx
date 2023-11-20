@@ -9,8 +9,8 @@ import {
   SEARCH_ITEM_TYPES,
   type ActionOperation,
 } from "components/editorComponents/GlobalSearch/utils";
-import { ModuleType } from "@appsmith/constants/ModuleInstanceConstants";
 import { createQueryModule } from "@appsmith/actions/moduleActions";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export const actionOperations: ActionOperation[] = [
   {
@@ -21,7 +21,7 @@ export const actionOperations: ActionOperation[] = [
       createQueryModule({
         packageId,
         from,
-        type: ModuleType.QUERY,
+        type: MODULE_TYPE.QUERY,
       }),
   },
   {
@@ -33,7 +33,7 @@ export const actionOperations: ActionOperation[] = [
       createQueryModule({
         packageId,
         from,
-        type: ModuleType.QUERY,
+        type: MODULE_TYPE.QUERY,
         apiType: PluginPackageName.GRAPHQL,
       }),
   },
