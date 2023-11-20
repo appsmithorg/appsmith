@@ -5,6 +5,10 @@ import styled from "styled-components";
 //@ts-ignore
 import script from "!!raw-loader!./script.js";
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import css from "!!raw-loader!./reset.css";
+
 const StyledIframe = styled.iframe`
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
@@ -84,6 +88,7 @@ function CustomComponent(props: CustomComponentProps) {
     <html>
       <head>
         <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+        <style>${css}</style>
       </head>
       <body>
         <script type="text/javascript">${script}</script>
