@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
@@ -43,7 +42,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { Button, Divider, Icon, Text as NewText } from "design-system";
+import { Button, Icon, Text as NewText } from "design-system";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
@@ -305,26 +304,17 @@ export function WorkspaceMenuItem({
   selected,
   workspace,
 }: any) {
-  const menuRef = useRef<HTMLAnchorElement>(null);
-  useEffect(() => {
-    if (selected) {
-      menuRef.current?.scrollIntoView({ behavior: "smooth" });
-      menuRef.current?.click();
-    }
-  }, [selected]);
-
   return (
     <ListItem
       containerClassName={
         isFetchingApplications ? BlueprintClasses.SKELETON : ""
       }
       ellipsize={
-        isFetchingApplications ? 100 : 25
+        isFetchingApplications ? 100 : 22
       } /* this is to avoid showing tooltip for loaders */
       href={`${window.location.pathname}#${workspace.workspace.id}`}
       icon="group-2-line"
       key={workspace.workspace.id}
-      ref={menuRef}
       selected={selected}
       text={workspace.workspace.name}
       tooltipPos={Position.BOTTOM_LEFT}
@@ -347,7 +337,7 @@ export function LeftPane(props: LeftPaneProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
 
-  let userWorkspaces;
+  let userWorkspaces: any;
   if (!isFetchingApplications) {
     userWorkspaces = fetchedUserWorkspaces;
   } else {
@@ -356,8 +346,9 @@ export function LeftPane(props: LeftPaneProps) {
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
-  if (isMobile) return null;
+  const activeWorkspaceId = urlHash ? urlHash : userWorkspaces[0]?.workspace.id;
 
+  if (isMobile) return null;
   return (
     <LeftPaneWrapper isBannerVisible={isBannerVisible}>
       <LeftPaneSection
@@ -371,7 +362,7 @@ export function LeftPane(props: LeftPaneProps) {
               <WorkspaceMenuItem
                 isFetchingApplications={isFetchingApplications}
                 key={workspace.workspace.id}
-                selected={urlHash === workspace.workspace.id}
+                selected={workspace.workspace.id === activeWorkspaceId}
                 workspace={workspace}
               />
             ))}
@@ -443,6 +434,8 @@ export function ApplicationsSection(props: any) {
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
+  const location = useLocation();
+  const urlHash = location.hash.slice(1);
   const { isFetchingPackages } = usePackage();
   const isSavingWorkspaceInfo = useSelector(getIsSavingWorkspaceInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
@@ -591,177 +584,164 @@ export function ApplicationsSection(props: any) {
       </CenteredWrapper>
     );
   } else {
-    workspacesListComponent = updatedWorkspaces.map(
-      (workspaceObject: any, index: number) => {
-        const isLastWorkspace = updatedWorkspaces.length === index + 1;
-        const { applications, packages, workspace } = workspaceObject;
-        const hasManageWorkspacePermissions = isPermitted(
-          workspace.userPermissions,
-          PERMISSION_TYPE.MANAGE_WORKSPACE,
+    let activeWorkspace = updatedWorkspaces.find(
+      (workspace: any) => workspace.workspace.id === urlHash,
+    );
+    if ((!activeWorkspace || !urlHash) && updatedWorkspaces.length) {
+      activeWorkspace = updatedWorkspaces[0];
+    }
+    if (!activeWorkspace) return null;
+    const { applications, packages, workspace } = activeWorkspace;
+    const hasManageWorkspacePermissions = isPermitted(
+      workspace.userPermissions,
+      PERMISSION_TYPE.MANAGE_WORKSPACE,
+    );
+    const canInviteToWorkspace = isPermitted(
+      workspace.userPermissions,
+      PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+    );
+    const canDeleteWorkspace = hasDeleteWorkspacePermission(
+      workspace?.userPermissions || [],
+    );
+    const hasCreateNewApplicationPermission =
+      hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
+    const renderManageEnvironmentMenu =
+      isManageEnvironmentEnabled &&
+      hasManageWorkspaceEnvironmentPermission(workspace.userPermissions);
+    const onClickAddNewAppButton = (workspaceId: string) => {
+      if (
+        Object.entries(creatingApplicationMap).length === 0 ||
+        (creatingApplicationMap && !creatingApplicationMap[workspaceId])
+      ) {
+        createNewApplication(
+          getNextEntityName(
+            "Untitled application ",
+            applications.map((el: any) => el.name),
+          ),
+          workspaceId,
         );
-        const canInviteToWorkspace = isPermitted(
-          workspace.userPermissions,
-          PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
-        );
-        const canDeleteWorkspace = hasDeleteWorkspacePermission(
-          workspace?.userPermissions || [],
-        );
-        const hasCreateNewApplicationPermission =
-          hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
+      }
+    };
+    const showWorkspaceMenuOptions =
+      canInviteToWorkspace ||
+      hasManageWorkspacePermissions ||
+      hasCreateNewApplicationPermission ||
+      (canDeleteWorkspace && applications.length === 0) ||
+      renderManageEnvironmentMenu;
+    const handleResetMenuState = () => {
+      setWorkspaceToOpenMenu(null);
+      setWarnLeavingWorkspace(false);
+      setWarnDeleteWorkspace(false);
+    };
+    const handleWorkspaceMenuClose = (open: boolean) => {
+      if (!open && !warnLeavingWorkspace && !warnDeleteWorkspace) {
+        handleResetMenuState();
+      }
+    };
 
-        const renderManageEnvironmentMenu =
-          isManageEnvironmentEnabled &&
-          hasManageWorkspaceEnvironmentPermission(workspace.userPermissions);
-
-        const onClickAddNewAppButton = (workspaceId: string) => {
-          if (
-            Object.entries(creatingApplicationMap).length === 0 ||
-            (creatingApplicationMap && !creatingApplicationMap[workspaceId])
-          ) {
-            createNewApplication(
-              getNextEntityName(
-                "Untitled application ",
-                applications.map((el: any) => el.name),
-              ),
-              workspaceId,
-            );
-          }
-        };
-
-        const showWorkspaceMenuOptions =
-          canInviteToWorkspace ||
-          hasManageWorkspacePermissions ||
-          hasCreateNewApplicationPermission ||
-          (canDeleteWorkspace && applications.length === 0) ||
-          renderManageEnvironmentMenu;
-
-        const handleResetMenuState = () => {
-          setWorkspaceToOpenMenu(null);
-          setWarnLeavingWorkspace(false);
-          setWarnDeleteWorkspace(false);
-        };
-
-        const handleWorkspaceMenuClose = (open: boolean) => {
-          if (!open && !warnLeavingWorkspace && !warnDeleteWorkspace) {
-            handleResetMenuState();
-          }
-        };
-
-        return (
-          <React.Fragment key={workspace.id}>
-            <WorkspaceSection
-              className="t--workspace-section"
-              isMobile={isMobile}
-              key={index}
-            >
-              <WorkspaceDropDown isMobile={isMobile}>
-                {(currentUser || isLoadingResources) &&
-                  WorkspaceMenuTarget({
-                    workspaceName: workspace.name,
-                    workspaceSlug: workspace.id,
-                  })}
-                {selectedWorkspaceIdForImportApplication && (
-                  <ImportApplicationModal
-                    isModalOpen={
-                      selectedWorkspaceIdForImportApplication === workspace.id
-                    }
-                    onClose={() =>
-                      setSelectedWorkspaceIdForImportApplication("")
-                    }
-                    workspaceId={selectedWorkspaceIdForImportApplication}
+    return (
+      <React.Fragment key={workspace.id}>
+        <WorkspaceSection className="t--workspace-section" isMobile={isMobile}>
+          <WorkspaceDropDown isMobile={isMobile}>
+            {(currentUser || isLoadingResources) &&
+              WorkspaceMenuTarget({
+                workspaceName: workspace.name,
+                workspaceSlug: workspace.id,
+              })}
+            {selectedWorkspaceIdForImportApplication && (
+              <ImportApplicationModal
+                isModalOpen={
+                  selectedWorkspaceIdForImportApplication === workspace.id
+                }
+                onClose={() => setSelectedWorkspaceIdForImportApplication("")}
+                workspaceId={selectedWorkspaceIdForImportApplication}
+              />
+            )}
+            {!isLoadingResources && (
+              <WorkspaceShareUsers isHidden={isEnabledMultipleSelection}>
+                <SharedUserList workspaceId={workspace.id} />
+                {canInviteToWorkspace && !isMobile && (
+                  <FormDialogComponent
+                    Form={WorkspaceInviteUsersForm}
+                    placeholder={createMessage(
+                      INVITE_USERS_PLACEHOLDER,
+                      !isGACEnabled,
+                    )}
+                    workspace={workspace}
                   />
                 )}
-                {!isLoadingResources && (
-                  <WorkspaceShareUsers isHidden={isEnabledMultipleSelection}>
-                    <SharedUserList workspaceId={workspace.id} />
-                    {canInviteToWorkspace && !isMobile && (
-                      <FormDialogComponent
-                        Form={WorkspaceInviteUsersForm}
-                        placeholder={createMessage(
-                          INVITE_USERS_PLACEHOLDER,
-                          !isGACEnabled,
-                        )}
-                        workspace={workspace}
-                      />
-                    )}
-                    <WorkspaceAction
-                      isMobile={isMobile}
-                      onCreateNewApplication={onClickAddNewAppButton}
-                      workspaceId={workspace.id}
+                <WorkspaceAction
+                  isMobile={isMobile}
+                  onCreateNewApplication={onClickAddNewAppButton}
+                  workspaceId={workspace.id}
+                />
+                {(currentUser || isLoadingResources) &&
+                  !isMobile &&
+                  showWorkspaceMenuOptions && (
+                    <WorkspaceMenu
+                      canDeleteWorkspace={
+                        applications.length === 0 &&
+                        packages.length === 0 &&
+                        canDeleteWorkspace
+                      }
+                      canInviteToWorkspace={canInviteToWorkspace}
+                      enableImportExport={enableImportExport}
+                      handleDeleteWorkspace={handleDeleteWorkspace}
+                      handleResetMenuState={handleResetMenuState}
+                      handleWorkspaceMenuClose={handleWorkspaceMenuClose}
+                      hasCreateNewApplicationPermission={
+                        hasCreateNewApplicationPermission
+                      }
+                      hasManageWorkspacePermissions={
+                        hasManageWorkspacePermissions
+                      }
+                      isFetchingResources={isLoadingResources}
+                      isSavingWorkspaceInfo={isSavingWorkspaceInfo}
+                      leaveWS={leaveWS}
+                      setSelectedWorkspaceIdForImportApplication={
+                        setSelectedWorkspaceIdForImportApplication
+                      }
+                      setWarnDeleteWorkspace={setWarnDeleteWorkspace}
+                      setWarnLeavingWorkspace={setWarnLeavingWorkspace}
+                      setWorkspaceToOpenMenu={setWorkspaceToOpenMenu}
+                      warnDeleteWorkspace={warnDeleteWorkspace}
+                      warnLeavingWorkspace={warnLeavingWorkspace}
+                      workspace={workspace}
+                      workspaceNameChange={workspaceNameChange}
+                      workspaceToOpenMenu={workspaceToOpenMenu}
                     />
-                    {(currentUser || isLoadingResources) &&
-                      !isMobile &&
-                      showWorkspaceMenuOptions && (
-                        <WorkspaceMenu
-                          canDeleteWorkspace={
-                            applications.length === 0 &&
-                            packages.length === 0 &&
-                            canDeleteWorkspace
-                          }
-                          canInviteToWorkspace={canInviteToWorkspace}
-                          enableImportExport={enableImportExport}
-                          handleDeleteWorkspace={handleDeleteWorkspace}
-                          handleResetMenuState={handleResetMenuState}
-                          handleWorkspaceMenuClose={handleWorkspaceMenuClose}
-                          hasCreateNewApplicationPermission={
-                            hasCreateNewApplicationPermission
-                          }
-                          hasManageWorkspacePermissions={
-                            hasManageWorkspacePermissions
-                          }
-                          isFetchingResources={isLoadingResources}
-                          isSavingWorkspaceInfo={isSavingWorkspaceInfo}
-                          leaveWS={leaveWS}
-                          setSelectedWorkspaceIdForImportApplication={
-                            setSelectedWorkspaceIdForImportApplication
-                          }
-                          setWarnDeleteWorkspace={setWarnDeleteWorkspace}
-                          setWarnLeavingWorkspace={setWarnLeavingWorkspace}
-                          setWorkspaceToOpenMenu={setWorkspaceToOpenMenu}
-                          warnDeleteWorkspace={warnDeleteWorkspace}
-                          warnLeavingWorkspace={warnLeavingWorkspace}
-                          workspace={workspace}
-                          workspaceNameChange={workspaceNameChange}
-                          workspaceToOpenMenu={workspaceToOpenMenu}
-                        />
-                      )}
-                  </WorkspaceShareUsers>
-                )}
-              </WorkspaceDropDown>
-              {isLoadingResources && (
-                <ResourceListLoader
-                  isMobile={isMobile}
-                  resources={applications}
-                />
-              )}
-              {!isLoadingResources && (
-                <ApplicationCardList
-                  applications={applications}
-                  canInviteToWorkspace={canInviteToWorkspace}
-                  deleteApplication={deleteApplication}
-                  enableImportExport={enableImportExport}
-                  hasCreateNewApplicationPermission={
-                    hasCreateNewApplicationPermission
-                  }
-                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
-                  isMobile={isMobile}
-                  onClickAddNewButton={onClickAddNewAppButton}
-                  updateApplicationDispatch={updateApplicationDispatch}
-                  workspaceId={workspace.id}
-                />
-              )}
-              {!isLoadingResources && (
-                <PackageCardList
-                  isMobile={isMobile}
-                  packages={packages}
-                  workspaceId={workspace.id}
-                />
-              )}
-            </WorkspaceSection>
-            {!isLastWorkspace && <Divider />}
-          </React.Fragment>
-        );
-      },
+                  )}
+              </WorkspaceShareUsers>
+            )}
+          </WorkspaceDropDown>
+          {isLoadingResources && (
+            <ResourceListLoader isMobile={isMobile} resources={applications} />
+          )}
+          {!isLoadingResources && (
+            <ApplicationCardList
+              applications={applications}
+              canInviteToWorkspace={canInviteToWorkspace}
+              deleteApplication={deleteApplication}
+              enableImportExport={enableImportExport}
+              hasCreateNewApplicationPermission={
+                hasCreateNewApplicationPermission
+              }
+              hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+              isMobile={isMobile}
+              onClickAddNewButton={onClickAddNewAppButton}
+              updateApplicationDispatch={updateApplicationDispatch}
+              workspaceId={workspace.id}
+            />
+          )}
+          {!isLoadingResources && (
+            <PackageCardList
+              isMobile={isMobile}
+              packages={packages}
+              workspaceId={workspace.id}
+            />
+          )}
+        </WorkspaceSection>
+      </React.Fragment>
     );
   }
 
