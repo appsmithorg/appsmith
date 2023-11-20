@@ -30,6 +30,7 @@ export class DataTreeFactory {
     loadingEntities,
     metaWidgets,
     moduleInputs,
+    moduleInstanceEntities,
     moduleInstances,
     pluginDependencyConfig,
     theme,
@@ -76,8 +77,10 @@ export class DataTreeFactory {
 
     if (!isEmpty(moduleInstances)) {
       Object.values(moduleInstances).forEach((moduleInstance) => {
-        const { configEntity, unEvalEntity } =
-          generateModuleInstance(moduleInstance);
+        const { configEntity, unEvalEntity } = generateModuleInstance(
+          moduleInstance,
+          moduleInstanceEntities,
+        );
         if (!!configEntity && !!unEvalEntity) {
           dataTree[moduleInstance.name] = unEvalEntity;
           configTree[moduleInstance.name] = configEntity;

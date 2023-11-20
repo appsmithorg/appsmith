@@ -1286,3 +1286,10 @@ export function getInputsForModule(): Module["inputsForm"] {
 export const getModuleInstances = (): Record<string, ModuleInstance> => {
   return {};
 };
+
+export const getModuleInstanceEntities = () => {
+  return {
+    actions: [],
+    jsCollections: [],
+  };
+};

@@ -192,6 +192,7 @@ export interface DataTreeSeed {
   isMobile: boolean;
   moduleInputs: Module["inputsForm"];
   moduleInstances: Record<string, ModuleInstance>;
+  moduleInstanceEntities: any;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;
 }
