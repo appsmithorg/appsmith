@@ -15,7 +15,7 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { getAllTemplates } from "actions/templateActions";
-import { Link, Text } from "design-system";
+import { Flex, Link, Text } from "design-system";
 import {
   CREATE_NEW_APPS_STEP_SUBTITLE,
   CREATE_NEW_APPS_STEP_TITLE,
@@ -27,6 +27,10 @@ import {
   START_WITH_DATA_TITLE,
   START_WITH_DATA_SUBTITLE,
   createMessage,
+  START_WITH_DATA_CONNECT_HEADING,
+  START_WITH_DATA_CONNECT_SUBHEADING,
+  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
+  START_WITH_TEMPLATE_CONNECT_HEADING,
 } from "@appsmith/constants/messages";
 import Filters from "pages/Templates/Filters";
 import { isEmpty } from "lodash";
@@ -136,6 +140,15 @@ const WithDataWrapper = styled.div`
   background: var(--ads-v2-color-bg);
   padding: var(--ads-v2-spaces-13);
 `;
+
+const Header = ({ subtitle, title }: { subtitle: string; title: string }) => {
+  return (
+    <Flex flexDirection="column" mb="spaces-14" mt="spaces-7">
+      <Text kind="heading-xl">{title}</Text>
+      <Text>{subtitle}</Text>
+    </Flex>
+  );
+};
 
 interface CardProps {
   onClick?: () => void;
@@ -403,26 +416,38 @@ const CreateNewAppsOption = ({
             templateId={selectedTemplate}
           />
         ) : (
-          <TemplateWrapper>
-            <FiltersWrapper>
-              <Filters />
-            </FiltersWrapper>
-            <TemplateContentWrapper>
-              <TemplatesContent
-                isForkingEnabled={!!workspaceList.length}
-                onForkTemplateClick={onForkTemplateClick}
-                onTemplateClick={onTemplateClick}
-              />
-            </TemplateContentWrapper>
-          </TemplateWrapper>
+          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+            <Header
+              subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
+              title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
+            />
+            <TemplateWrapper>
+              <FiltersWrapper>
+                <Filters />
+              </FiltersWrapper>
+              <TemplateContentWrapper>
+                <TemplatesContent
+                  isForkingEnabled={!!workspaceList.length}
+                  onForkTemplateClick={onForkTemplateClick}
+                  onTemplateClick={onTemplateClick}
+                />
+              </TemplateContentWrapper>
+            </TemplateWrapper>
+          </Flex>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
         createNewAppPluginId ? (
           <div>{createNewAppPluginId}</div>
         ) : (
-          <WithDataWrapper>
-            <CreateNewDatasourceTab />
-          </WithDataWrapper>
+          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+            <Header
+              subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+              title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+            />
+            <WithDataWrapper>
+              <CreateNewDatasourceTab />
+            </WithDataWrapper>
+          </Flex>
         )
       ) : (
         <OptionWrapper>
