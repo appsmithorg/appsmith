@@ -350,8 +350,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .body(BodyInserters.fromValue(payload))
                 .retrieve()
                 .bodyToMono(ApplicationTemplate.class)
-                .onErrorResume(error ->
-                        Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, error.getMessage())));
+                .onErrorResume(error -> Mono.error(new AppsmithException(
+                        AppsmithError.CLOUD_SERVICES_ERROR, "while publishing template" + error.getMessage())));
     }
 
     private Mono<Application> updateApplicationFlags(String applicationId, String branchId) {
