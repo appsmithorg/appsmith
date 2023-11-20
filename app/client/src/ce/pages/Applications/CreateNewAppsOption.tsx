@@ -449,6 +449,14 @@ const CreateNewAppsOption = ({
             </WithDataWrapper>
           </Flex>
         )
+      ) : useType === START_WITH_TYPE.DATA ? (
+        createNewAppPluginId ? (
+          <div>{createNewAppPluginId}</div>
+        ) : (
+          <WithDataWrapper>
+            <CreateNewDatasourceTab />
+          </WithDataWrapper>
+        )
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">
