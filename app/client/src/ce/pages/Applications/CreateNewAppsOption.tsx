@@ -1,22 +1,4 @@
 import {
-  getTemplateFilters,
-  importTemplateIntoApplicationViaOnboardingFlow,
-} from "actions/templateActions";
-import type { Template } from "api/TemplatesApi";
-import type { AppState } from "@appsmith/reducers";
-import { TemplatesContent } from "pages/Templates";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  allTemplatesFiltersSelector,
-  getForkableWorkspaces,
-  getTemplatesSelector,
-  isImportingTemplateToAppSelector,
-} from "selectors/templatesSelectors";
-import styled from "styled-components";
-import { getAllTemplates } from "actions/templateActions";
-import { Link, Text } from "design-system";
-import {
   CREATE_NEW_APPS_STEP_SUBTITLE,
   CREATE_NEW_APPS_STEP_TITLE,
   GO_BACK,
@@ -24,30 +6,45 @@ import {
   START_FROM_SCRATCH_TITLE,
   START_FROM_TEMPLATE_SUBTITLE,
   START_FROM_TEMPLATE_TITLE,
-  START_WITH_DATA_TITLE,
   START_WITH_DATA_SUBTITLE,
+  START_WITH_DATA_TITLE,
   createMessage,
 } from "@appsmith/constants/messages";
-import Filters from "pages/Templates/Filters";
-import { isEmpty } from "lodash";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { TemplateView } from "pages/Templates/TemplateView";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import type { AppState } from "@appsmith/reducers";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentPluginIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import {
   firstTimeUserOnboardingInit,
   resetCurrentApplicationIdForCreateNewApp,
   resetCurrentPluginIdForCreateNewApp,
 } from "actions/onboardingActions";
-import {
-  getApplicationByIdFromWorkspaces,
-  getCurrentPluginIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { fetchPlugins } from "actions/pluginActions";
+import {
+  getAllTemplates,
+  getTemplateFilters,
+  importTemplateIntoApplicationViaOnboardingFlow,
+} from "actions/templateActions";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { Link, Text } from "design-system";
+import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import { TemplateView } from "pages/Templates/TemplateView";
+import TemplatesMainRevamp from "pages/Templates/TemplatesMainRevamp";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  allTemplatesFiltersSelector,
+  getTemplatesSelector,
+  isImportingTemplateToAppSelector,
+} from "selectors/templatesSelectors";
+import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -74,27 +71,10 @@ const BackWrapper = styled.div<{ hidden?: boolean }>`
   ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
 `;
 
-const FiltersWrapper = styled.div`
-  width: ${(props) => props.theme.homePage.sidebar}px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--ads-v2-color-border);
-  flex-shrink: 0;
-  .filter-wrapper {
-    height: 100%;
-  }
-`;
-
 const TemplateWrapper = styled.div`
   display: flex;
   flex-grow: 1;
   overflow: hidden;
-`;
-
-const TemplateContentWrapper = styled.div`
-  flex-grow: 1;
-  overflow: auto;
 `;
 
 const OptionWrapper = styled.div`
@@ -178,7 +158,6 @@ const CreateNewAppsOption = ({
     (state: AppState) => state.ui.templates.templates.length,
   );
   const filters = useSelector(allTemplatesFiltersSelector);
-  const workspaceList = useSelector(getForkableWorkspaces);
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
@@ -235,18 +214,6 @@ const CreateNewAppsOption = ({
     return template;
   };
 
-  const onTemplateClick = (id: string) => {
-    const template = getTemplateById(id);
-    if (template) {
-      AnalyticsUtil.logEvent("CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING", {
-        id,
-        title: template.title,
-      });
-      // When template is clicked to view the template details
-      if (!isImportingTemplate) setSelectedTemplate(id);
-    }
-  };
-
   const resetCreateNewAppFlow = () => {
     dispatch(resetCurrentApplicationIdForCreateNewApp());
   };
@@ -269,23 +236,6 @@ const CreateNewAppsOption = ({
           ),
         );
       }
-    }
-  };
-
-  const onForkTemplateClick = (template: Template) => {
-    const title = template.title;
-    AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { title });
-    // When fork template is clicked to add a new app using the template
-    if (!isImportingTemplate && application) {
-      dispatch(
-        importTemplateIntoApplicationViaOnboardingFlow(
-          template.id,
-          template.title,
-          template.pages.map((p) => p.name),
-          application.id,
-          application.workspaceId,
-        ),
-      );
     }
   };
 
@@ -404,16 +354,7 @@ const CreateNewAppsOption = ({
           />
         ) : (
           <TemplateWrapper>
-            <FiltersWrapper>
-              <Filters />
-            </FiltersWrapper>
-            <TemplateContentWrapper>
-              <TemplatesContent
-                isForkingEnabled={!!workspaceList.length}
-                onForkTemplateClick={onForkTemplateClick}
-                onTemplateClick={onTemplateClick}
-              />
-            </TemplateContentWrapper>
+            <TemplatesMainRevamp />
           </TemplateWrapper>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
