@@ -12,10 +12,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import net.minidev.json.writer.CollectionMapper;
+import net.minidev.json.writer.JsonReader;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpMethod;
@@ -35,6 +37,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -260,12 +263,20 @@ public class DataUtils {
         }
 
         JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-        Object parsedJson = null;
+
+        Object parsedJson;
 
         if (type.equals(List.class)) {
             parsedJson = (JSONArray) jsonParser.parse(jsonString);
         } else {
-            parsedJson = (JSONObject) jsonParser.parse(jsonString);
+            // We learned from issue #23456 that some use-cases require the order of keys to be preserved
+            //  i.e. for AWS authorisation, one signature header is required whose value holds the hash
+            // of the body.
+            JsonReader jsonReader = new JsonReader();
+            TypeToken<LinkedHashMap<String, Object>> linkedHashMapTypeToken = new TypeToken<>() {};
+            CollectionMapper.MapClass<LinkedHashMap<String, Object>> collectionMapper =
+                    new CollectionMapper.MapClass<>(jsonReader, linkedHashMapTypeToken.getRawType());
+            parsedJson = jsonParser.parse(jsonString, collectionMapper);
         }
 
         return parsedJson;
@@ -282,7 +293,7 @@ public class DataUtils {
                 PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), FIELD_API_CONTENT_TYPE);
         ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
 
-        if (httpMethod.equals(HttpMethod.GET) && (apiContentType == null || apiContentType == ApiContentType.NONE)) {
+        if (HttpMethod.GET.equals(httpMethod) && (apiContentType == null || apiContentType == ApiContentType.NONE)) {
             /**
              * Setting request body object to null makes the webClient object to ignore the body when sending the API
              * request. Earlier, we were setting it to an empty string, which worked fine for almost all the use
@@ -297,7 +308,7 @@ public class DataUtils {
         // Based on the content-type, this Object may be of type MultiValueMap or String
         Object requestBodyObj = "";
 
-        if (!httpMethod.equals(HttpMethod.GET)) {
+        if (!HttpMethod.GET.equals(httpMethod)) {
             // Read the body normally as this is a non-GET request
             requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
         } else if (apiContentType != null && apiContentType != ApiContentType.NONE) {
