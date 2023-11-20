@@ -27,7 +27,7 @@ export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
 
     if (dataPathRef) {
       data = DataStore.getActionData(dataPathRef);
-      DataStore.unSetActionData(dataPathRef);
+      DataStore.deleteActionData(dataPathRef);
     }
     // update the evaltree
     set(evalTree, `${entityName}.[${dataPath}]`, data);

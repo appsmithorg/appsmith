@@ -11,10 +11,6 @@ export default class DataStore {
     set(DataStore.store, fullPath, value);
   }
 
-  static unSetActionData(fullPath: string) {
-    unset(DataStore.store, fullPath);
-  }
-
   static getActionData(fullPath: string): unknown | undefined {
     return get(DataStore.store, fullPath, undefined);
   }
