@@ -57,6 +57,9 @@ const SectionWrapper = styled.div`
     margin-top: ${props.theme.homePage.header}px;
   `}
   background: var(--ads-v2-color-gray-50);
+  ${(props) => `
+    min-height: calc(100vh - ${props.theme.homePage.header}px);
+  `}
 `;
 
 const BackWrapper = styled.div<{ hidden?: boolean }>`
