@@ -11,13 +11,13 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            Gson gson,
+            SessionUserService sessionUserService,
             TransactionalOperator transactionalOperator,
             PermissionGroupRepository permissionGroupRepository,
             ImportableService<Plugin> pluginImportableService,
@@ -58,7 +58,7 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
                 applicationPermission,
                 pagePermission,
                 actionPermission,
-                gson,
+                sessionUserService,
                 transactionalOperator,
                 permissionGroupRepository,
                 pluginImportableService,

@@ -372,6 +372,9 @@ export const ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF = () => "🙌 Click on";
 export const ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF = () =>
   "after adding your query";
 export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
+export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
+export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
+export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -753,7 +756,7 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
-  "Search for table or attribute";
+  "Search for table";
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -1034,7 +1037,7 @@ export const ADD_DEPLOY_KEY_STEP_TITLE = () =>
 export const HOW_TO_ADD_DEPLOY_KEY = () =>
   "How to paste SSH Key in repo and give write access?";
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
-  "I've added deploy key and gave it write access";
+  "I've added the deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
 export const GIT_CONNECT_SUCCESS_TITLE = () =>
   "Successfully connected to your Git remote repository";
@@ -1083,7 +1086,7 @@ export const BRANCH_PROTECTION_CHANGE_RULE = () =>
   "You can remove protection on your default branch in Git settings.";
 export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
 export const BRANCH_TOOLTIP_MESSAGE = () =>
-  "You can remove protection on your default branch in Git settings.";
+  "Please create a new branch or checkout an existing one to edit the app.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
@@ -1494,7 +1497,7 @@ export const WELCOME_FORM_GENERIC_ERROR_MESSAGE = () =>
   "This field is required.";
 
 export const WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE = () =>
-  "TPasswords don't match.";
+  "Passwords don't match.";
 
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   `Are you sure you want to run `;
@@ -1674,6 +1677,8 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SETTINGS = () => "Settings";
+export const CONTEXT_PARTIAL_EXPORT = () => "Export";
+export const CONTEXT_PARTIAL_IMPORT = () => "Import";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as home page";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";
@@ -2206,7 +2211,7 @@ export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
 
 export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
 export const DATASOURCE_LIST_BLANK_TITLE = () =>
-  "No datasources exist in your workplace.";
+  "No datasources exist in your workspace.";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
   "You need a datasource connection to write your first query";
 
@@ -2252,3 +2257,22 @@ export const START_FROM_SCRATCH_SUBTITLE = () =>
 export const START_WITH_DATA_TITLE = () => "Start with data";
 export const START_WITH_DATA_SUBTITLE = () =>
   "Get started with connecting your data, and easily craft a functional application.";
+
+export const PARTIAL_IMPORT_EXPORT = {
+  export: {
+    modalHeading: () => "Export",
+    modalSubHeading: () => "Select entities below to export from the Page",
+    cta: () => "Export selected entities",
+    sections: {
+      jsObjects: () => "JS Objects",
+      databases: () => "Databases",
+      queries: () => "Queries",
+      customLibs: () => "Custom libraries",
+      widgets: () => "Widgets",
+    },
+  },
+  import: {
+    modalHeading: () => "Import",
+    modalSubheading: () => "Import partial application from file",
+  },
+};

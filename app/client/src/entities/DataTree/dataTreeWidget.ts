@@ -190,6 +190,7 @@ const generateDataTreeWidgetWithoutMeta = (
 
   const propertyPaneConfigs = WidgetFactory.getWidgetPropertyPaneConfig(
     widget.type,
+    widget,
   );
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
   // Ensure all dynamic bindings are strings as they will be evaluated
@@ -315,6 +316,7 @@ const generateDataTreeWidgetWithoutMeta = (
     overridingMetaPropsMap,
     defaultMetaProps,
     entityConfig: {
+      widgetId: widget.widgetId,
       defaultProps,
       defaultMetaProps: Object.keys(defaultMetaProps),
       dynamicBindingPathList,
@@ -403,6 +405,6 @@ export const generateDataTreeWidget = (
       componentWidth,
       type: widget.type,
     },
-    configEntity: { ...entityConfig, widgetId: dataTreeWidget.widgetId },
+    configEntity: entityConfig,
   };
 };

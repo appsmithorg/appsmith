@@ -9,11 +9,16 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Boolean & Enum Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS, Add dsl, Appply theme", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     agHelper.AddDsl("Datatypes/BooleanEnumDTdsl");
     appSettings.OpenPaneAndChangeThemeColors(-18, -20);
     dataSources.CreateDataSource("Postgres");
@@ -31,10 +36,9 @@ describe("Boolean & Enum Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable");
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dsName, "public.boolenumtypes");
-
     //Select query:
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.boolenumtypes",
       "Select",
     );
@@ -67,7 +71,6 @@ describe("Boolean & Enum Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "dropEnum");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("2. Inserting record - boolenumtypes", () => {
@@ -230,17 +233,6 @@ describe("Boolean & Enum Datatype tests", function () {
         expect($cellData).to.eq("0"); //Success response for dropped table!
       });
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.ExpandCollapseEntity(dsName);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dsName,
-        action: "Refresh",
-      });
-      agHelper.AssertElementAbsence(
-        entityExplorer._entityNameInExplorer("public.boolenumtypes"),
-      );
-      entityExplorer.ExpandCollapseEntity(dsName, false);
-      entityExplorer.ExpandCollapseEntity("Datasources", false);
 
       //Delete queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists

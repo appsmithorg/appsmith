@@ -2,6 +2,7 @@
   background: var(--color-bg-neutral-opacity);
   display: grid;
   place-items: center;
+  z-index: var(--z-index-99);
 }
 
 .content {
@@ -18,15 +19,15 @@
   padding-block: var(--outer-spacing-4);
 }
 
-.content[data-size="small"] {
+[data-size="small"] .content {
   width: var(--sizing-120);
 }
 
-.content[data-size="medium"] {
+[data-size="medium"] .content {
   width: var(--sizing-180);
 }
 
-.content[data-size="large"] {
+[data-size="large"] .content {
   width: 100%;
   height: 100%;
 }
@@ -47,6 +48,7 @@
 .content[data-status="close"],
 .overlay[data-status="open"],
 .overlay[data-status="close"] {
+  /* don't forget to change the duration Modal.tsx as well */
   transition-duration: 200ms;
 }
 .content[data-status="initial"],
