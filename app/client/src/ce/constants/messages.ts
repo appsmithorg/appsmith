@@ -1082,7 +1082,7 @@ export const BRANCH_PROTECTION_RULES_AS_FOLLOWS = () =>
 export const BRANCH_PROTECTION_RULE_1 = () =>
   "Commit and merge are not allowed.";
 export const BRANCH_PROTECTION_RULE_2 = () =>
-  "Users can’t create or edit queries, widgets, and JsObjects.";
+  "Users can’t create or edit queries, widgets, and JS Objects.";
 export const BRANCH_PROTECTION_RULE_3 = () =>
   "You can still pull the latest changes and create new branches to edit the app.";
 export const BRANCH_PROTECTION_CHANGE_RULE = () =>
