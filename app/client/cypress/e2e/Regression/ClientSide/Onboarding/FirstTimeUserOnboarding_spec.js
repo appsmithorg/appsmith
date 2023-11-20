@@ -222,8 +222,8 @@ describe("FirstTimeUserOnboarding", function () {
       0,
       false,
     );
-    agHelper.Sleep(500);
-    agHelper.GetNClick(debuggerHelper.locators._helpButton, 0, true);
+    agHelper.Sleep();
+    agHelper.GetHoverNClick(debuggerHelper.locators._helpButton, 0, true);
     agHelper.AssertElementVisibility(OnboardingLocator.checklistDatasourceBtn);
   });
 

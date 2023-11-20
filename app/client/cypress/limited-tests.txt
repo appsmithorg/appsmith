@@ -1,10 +1,7 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ClientSide/Git/GitSync/GitSyncedApps_spec.js
-cypress/e2e/Regression/ClientSide/Git/ExistingApps/v1.9.24/DSCrudAndBindings_Spec.ts
-cypress/e2e/Regression/ServerSide/MySQL_Datatypes/Basic_Spec.ts
-
-
+cypress/e2e/Regression/ClientSide/Onboarding/FirstTimeUserOnboarding_spec.js
 
 
 # For running all specs - uncomment below:
