@@ -1,18 +1,28 @@
 import type {
-  PopoverContentProps,
+  PopoverModalContentProps,
   PopoverProps,
 } from "@design-system/headless";
 import type { ReactNode } from "react";
 
 export interface ModalProps
-  extends Pick<PopoverProps, "defaultOpen" | "isOpen" | "setOpen" | "onClose">,
-    Pick<PopoverContentProps, "overlayClassName" | "contentClassName"> {
+  extends Pick<
+      PopoverProps,
+      "isOpen" | "setOpen" | "onClose" | "triggerRef" | "initialFocus"
+    >,
+    Pick<PopoverModalContentProps, "overlayClassName"> {
   /** Size of the Modal
    * @default medium
    */
   size?: "small" | "medium" | "large";
   /** The children of the component. */
   children: ReactNode;
+}
+
+export interface ModalContentProps {
+  /** The children of the component. */
+  children: ReactNode;
+  /** Sets the CSS className  for the overlay. Only use as a **last resort**. */
+  className?: string;
 }
 
 export interface ModalHeaderProps {

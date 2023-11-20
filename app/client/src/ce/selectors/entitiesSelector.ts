@@ -12,6 +12,7 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
@@ -388,6 +389,18 @@ export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
 
 export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
+);
+
+// Most popular datasources are hardcoded right now to include these 4 plugins and REST API
+// Going forward we may want to have separate list for each instance based on usage
+export const getMostPopularPlugins = createSelector(getPlugins, (plugins) =>
+  plugins.filter(
+    (plugin) =>
+      plugin.packageName === PluginPackageName.POSTGRES ||
+      plugin.packageName === PluginPackageName.MY_SQL ||
+      plugin.packageName === PluginPackageName.MONGO ||
+      plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
+  ),
 );
 
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>

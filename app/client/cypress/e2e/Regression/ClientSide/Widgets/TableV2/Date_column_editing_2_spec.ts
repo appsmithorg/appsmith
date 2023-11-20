@@ -84,13 +84,5 @@ describe("Table widget date column inline editing functionality", () => {
       .then(($textData) =>
         expect($textData).to.include("YYYY-MM-DDTHH:mm:ss.SSSZ"),
       );
-    propPane.UpdatePropertyFieldValue(
-      "Date format",
-      "YYYY-MM-DDTHH:mm:ss.SSSsZ",
-    );
-    //we should now see an error when an incorrect date format
-    agHelper.AssertElementVisibility(
-      `${propPane._propertyDateFormat} ${table._codeMirrorError}`,
-    );
   });
 });

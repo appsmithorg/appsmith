@@ -1,5 +1,5 @@
 import type { UseFloatingOptions } from "@floating-ui/react/src/types";
-import React, { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   autoUpdate,
   flip,
@@ -18,17 +18,18 @@ const DEFAULT_POPOVER_OFFSET = 10;
 export function usePopover({
   defaultOpen = false,
   duration = 0,
+  initialFocus,
   isOpen: controlledOpen,
   modal = false,
   offset: offsetProp = DEFAULT_POPOVER_OFFSET,
   onClose,
   placement = "bottom",
   setOpen: setControlledOpen,
+  triggerRef,
 }: PopoverProps = {}) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const [labelId, setLabelId] = useState<string | undefined>();
   const [descriptionId, setDescriptionId] = useState<string | undefined>();
-
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = setControlledOpen ?? setUncontrolledOpen;
 
@@ -48,13 +49,6 @@ export function usePopover({
   const data = useFloating({
     open,
     onOpenChange: setOpen,
-    whileElementsMounted: () => {
-      return () => {
-        if (onClose) {
-          onClose();
-        }
-      };
-    },
     ...(modal ? {} : config),
   });
 
@@ -66,7 +60,7 @@ export function usePopover({
   const role = useRole(context);
   const interactions = useInteractions([click, dismiss, role]);
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       open,
       setOpen,
@@ -78,7 +72,21 @@ export function usePopover({
       setLabelId,
       setDescriptionId,
       duration,
+      triggerRef,
+      initialFocus,
+      onClose,
     }),
-    [open, setOpen, interactions, data, modal, labelId, descriptionId],
+    [
+      open,
+      setOpen,
+      interactions,
+      data,
+      modal,
+      labelId,
+      descriptionId,
+      triggerRef,
+      initialFocus,
+      onClose,
+    ],
   );
 }

@@ -1377,6 +1377,7 @@ function* executePluginActionSaga(
   let response: ActionExecutionResponse;
   try {
     response = yield ActionAPI.executeAction(formData, timeout);
+    const isError = isErrorResponse(response);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
     );
@@ -1394,7 +1395,7 @@ function* executePluginActionSaga(
       updateActionData({
         entityName: pluginAction.name,
         dataPath: "data",
-        data: payload.body,
+        data: isError ? undefined : payload.body,
       }),
     );
     // TODO: Plugins are not always fetched before on page load actions are executed.
@@ -1413,7 +1414,6 @@ function* executePluginActionSaga(
       log.error("plugin no found", e);
     }
 
-    const isError = isErrorResponse(response);
     if (filePickerInstrumentation.numberOfFiles > 0) {
       triggerFileUploadInstrumentation(
         filePickerInstrumentation,
