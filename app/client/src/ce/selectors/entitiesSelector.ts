@@ -393,15 +393,29 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
 
 // Most popular datasources are hardcoded right now to include these 4 plugins and REST API
 // Going forward we may want to have separate list for each instance based on usage
-export const getMostPopularPlugins = createSelector(getPlugins, (plugins) =>
-  plugins.filter(
-    (plugin) =>
-      plugin.packageName === PluginPackageName.POSTGRES ||
-      plugin.packageName === PluginPackageName.MY_SQL ||
-      plugin.packageName === PluginPackageName.MONGO ||
-      plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
-  ),
-);
+export const getMostPopularPlugins = createSelector(getPlugins, (plugins) => {
+  const popularPlugins = [];
+
+  popularPlugins.push(
+    plugins.find(
+      (plugin) => plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
+    ),
+  );
+  popularPlugins.push(
+    plugins.find((plugin) => plugin.packageName === PluginPackageName.REST_API),
+  );
+  popularPlugins.push(
+    plugins.find((plugin) => plugin.packageName === PluginPackageName.POSTGRES),
+  );
+  popularPlugins.push(
+    plugins.find((plugin) => plugin.packageName === PluginPackageName.MY_SQL),
+  );
+  popularPlugins.push(
+    plugins.find((plugin) => plugin.packageName === PluginPackageName.MONGO),
+  );
+
+  return popularPlugins;
+});
 
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter(
