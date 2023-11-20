@@ -147,6 +147,13 @@ public class DataUtils {
                     continue;
                 }
 
+                // null values are not accepted by the Mutli-part form data standards,
+                // null values cannot be achieved via client side changes, hence skipping the form-data property
+                // altogether instead of throwing an error over here.
+                if (property.getValue() == null) {
+                    continue;
+                }
+
                 // This condition is for the current scenario, while we wait for client changes to come in
                 // before the migration can be introduced
                 if (property.getType() == null) {
@@ -197,19 +204,14 @@ public class DataUtils {
                         }
                         break;
                     case JSON:
-                        if (property.getValue() == null) {
-                            // Should we throw out an error over here?, We don't expect this to be the case
-                            break;
-                        }
-
                         if (!(property.getValue() instanceof String jsonString)) {
-                            bodyBuilder.part(key, property.getValue());
+                            bodyBuilder.part(key, property.getValue(), MediaType.APPLICATION_JSON);
                             break;
                         }
 
                         if (!StringUtils.hasText(jsonString)) {
-                            // this doesn't have any text
-                            bodyBuilder.part(key, "");
+                            // the jsonString is empty, it could be intended by the user hence continuing execution.
+                            bodyBuilder.part(key, "", MediaType.APPLICATION_JSON);
                             break;
                         }
 
@@ -224,7 +226,9 @@ public class DataUtils {
                         }
 
                         if (objectFromJson == null) {
-                            bodyBuilder.part(key, "");
+                            // Although this is not expected to be true; However, in case the parsed object is null,
+                            // choosing to error out as the value provided by user has not transformed into json.
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, jsonString);
                         } else {
                             bodyBuilder.part(key, objectFromJson, MediaType.APPLICATION_JSON);
                         }
