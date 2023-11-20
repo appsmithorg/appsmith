@@ -1,8 +1,6 @@
+import { Button } from "@design-system/widgets";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { IconWrapper } from "constants/IconConstants";
-import { Colors } from "constants/Colors";
-import { TableIconWrapper } from "../../../TableStyledWrappers";
 import TableFilterPane from "./FilterPane";
 
 import type {
@@ -12,7 +10,6 @@ import type {
 
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
-import { ActionItem } from "../ActionItem";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { importSvg } from "design-system-old";
 
@@ -30,8 +27,6 @@ interface TableFilterProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   widgetId: string;
-  accentColor: string;
-  borderRadius: string;
 }
 
 export const TableFilters = (props: TableFilterProps) => {
@@ -68,16 +63,6 @@ export const TableFilters = (props: TableFilterProps) => {
     [widgetId],
   );
 
-  if (columns.length === 0) {
-    return (
-      <TableIconWrapper disabled>
-        <IconWrapper color={Colors.CADET_BLUE} height={20} width={20}>
-          <FilterIcon />
-        </IconWrapper>
-      </TableIconWrapper>
-    );
-  }
-
   const hasAnyFilters = !!(
     filters.length >= 1 &&
     filters[0].column &&
@@ -86,15 +71,18 @@ export const TableFilters = (props: TableFilterProps) => {
 
   return (
     <>
-      <ActionItem
+      <Button
         data-testid={`t--table-filter-toggle-btn ${generateClassName(
           widgetId,
         )}`}
-        icon="filter"
+        icon={FilterIcon}
+        isDisabled={columns.length === 0}
         onPress={() => toggleFilterPane(!isTableFilterPaneVisible)}
         ref={actionItemRef}
-        title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
-      />
+        variant="ghost"
+      >
+        {`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
+      </Button>
       <TableFilterPane
         targetNode={actionItemRef.current ?? undefined}
         {...props}

@@ -40,7 +40,7 @@ const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
         fieldStyles.field,
         textAreaStyles["textarea"],
       )}
-      inputClassName="wds-body-text"
+      inputClassName={getTypographyClassName("body")}
       isRequired={isRequired}
       label={label}
       labelClassName={getTypographyClassName("body")}

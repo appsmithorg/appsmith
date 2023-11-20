@@ -342,18 +342,15 @@ export function Table(props: TableProps) {
           >
             <Flex
               gap="spacing-1"
-              minWidth="676px"
+              minWidth="910px"
               padding="spacing-1"
               style={{
                 borderBottom: "var(--border-width-1) solid var(--color-bd)",
               }}
             >
               <TableHeader
-                accentColor={props.accentColor}
                 allowAddNewRow={props.allowAddNewRow}
                 applyFilter={props.applyFilter}
-                borderRadius={props.borderRadius}
-                boxShadow={props.boxShadow}
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}

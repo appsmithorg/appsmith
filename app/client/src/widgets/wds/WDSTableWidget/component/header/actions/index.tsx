@@ -1,4 +1,5 @@
 import { TextInput, Text, Flex, IconButton } from "@design-system/widgets";
+import { importSvg } from "design-system-old";
 import React from "react";
 import { TableFilters } from "./filter";
 import type {
@@ -9,8 +10,10 @@ import type {
 import TableDataDownload from "./Download";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { PageNumberInput } from "./PageNumberInput";
-import { ActionItem } from "./ActionItem";
 import { Icon as BIcon } from "@blueprintjs/core";
+
+import { Button, Tooltip } from "@design-system/widgets";
+const AddIcon = importSvg(async () => import("assets/icons/control/add.svg"));
 
 const MIN_WIDTH_TO_SHOW_PAGE_ITEMS = 676;
 
@@ -40,9 +43,6 @@ export interface ActionsPropsType {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
-  borderRadius: string;
-  boxShadow: string;
-  accentColor: string;
   allowAddNewRow: boolean;
   onAddNewRow: () => void;
   disableAddNewRow: boolean;
@@ -71,9 +71,7 @@ export const Actions = (props: ActionsPropsType) => {
           <>
             {props.isVisibleFilters && (
               <TableFilters
-                accentColor={props.accentColor}
                 applyFilter={props.applyFilter}
-                borderRadius={props.borderRadius}
                 columns={props.columns}
                 filters={props.filters}
                 widgetId={props.widgetId}
@@ -82,7 +80,6 @@ export const Actions = (props: ActionsPropsType) => {
 
             {props.isVisibleDownload && (
               <TableDataDownload
-                borderRadius={props.borderRadius}
                 columns={props.tableColumns}
                 data={props.tableData}
                 delimiter={props.delimiter}
@@ -91,14 +88,23 @@ export const Actions = (props: ActionsPropsType) => {
             )}
 
             {props.allowAddNewRow && (
-              <ActionItem
-                data-testid="t--add-new-row"
-                disabled={props.disableAddNewRow}
-                disabledMessage="Save or discard the unsaved row to add a new row"
-                icon="add"
-                onPress={props.onAddNewRow}
-                title="Add new row"
-              />
+              <Tooltip
+                tooltip={
+                  props.disableAddNewRow
+                    ? "Save or discard the unsaved row to add a new row"
+                    : ""
+                }
+              >
+                <Button
+                  data-testid="t--add-new-row"
+                  icon={AddIcon}
+                  isDisabled={props.disableAddNewRow}
+                  onPress={props.onAddNewRow}
+                  variant="ghost"
+                >
+                  Add new row
+                </Button>
+              </Tooltip>
             )}
           </>
         )}
@@ -157,8 +163,6 @@ export const Actions = (props: ActionsPropsType) => {
               Page
             </Text>
             <PageNumberInput
-              accentColor={props.accentColor}
-              borderRadius={props.borderRadius}
               disabled={props.pageCount === 1}
               pageCount={props.pageCount}
               pageNo={props.pageNo + 1}

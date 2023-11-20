@@ -4,9 +4,6 @@ import styles from "./styles.module.css";
 import { Text, Button, Flex } from "@design-system/widgets";
 
 export interface AddNewRowBannerType {
-  accentColor: string;
-  borderRadius: string;
-  boxShadow: string;
   onAddNewRowAction: (
     type: AddNewRowActions,
     onActionComplete: () => void,

@@ -72,14 +72,3 @@ export interface PopoverTriggerProps {
   /** The children of the component. */
   children: ReactNode;
 }
-
-export interface PopoverContentProps {
-  children: ReactNode;
-  closeOnFocusOut?: boolean;
-  style?: CSSProperties;
-  className?: string;
-}
-
-export interface PopoverTriggerProps {
-  children: ReactNode;
-}

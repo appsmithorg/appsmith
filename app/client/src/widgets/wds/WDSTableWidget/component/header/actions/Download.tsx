@@ -1,13 +1,9 @@
 import React, { memo } from "react";
-import { IconWrapper } from "constants/IconConstants";
-import { Colors } from "constants/Colors";
 import type { ReactTableColumnProps } from "../../Constants";
-import { TableIconWrapper } from "../../TableStyledWrappers";
-import { ActionItem } from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
 import zipcelx from "zipcelx";
 import { importSvg } from "design-system-old";
-import { Menu, MenuList, Item } from "@design-system/widgets";
+import { Menu, MenuList, Item, Button } from "@design-system/widgets";
 
 const DownloadIcon = importSvg(
   async () => import("assets/icons/control/download-data-icon.svg"),
@@ -141,23 +137,18 @@ function TableDataDownload(props: TableDataDownloadProps) {
     });
   };
 
-  if (props.columns.length === 0) {
-    return (
-      <TableIconWrapper disabled>
-        <IconWrapper color={Colors.CADET_BLUE} height={20} width={20}>
-          <DownloadIcon />
-        </IconWrapper>
-        <span className="action-title">Download</span>
-      </TableIconWrapper>
-    );
-  }
-
   return (
     <Menu
       items={downloadOptions}
       onAction={(key) => downloadFile(key as FileDownloadType)}
     >
-      <ActionItem icon="download" title="Download" />
+      <Button
+        icon={DownloadIcon}
+        isDisabled={props.columns.length === 0}
+        variant="ghost"
+      >
+        Download
+      </Button>
       <MenuList>
         {(item: DownloadOptionProps) => (
           <Item key={item.key}>{item.label}</Item>

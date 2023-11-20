@@ -52,8 +52,6 @@ export interface TableFilterPaneProps {
   columns: ReactTableColumnProps[];
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  accentColor: string;
-  borderRadius: string;
   targetNode?: Element;
 }
 
@@ -93,7 +91,6 @@ class TableFilterPane extends Component<Props> {
 
       return (
         <Popper
-          borderRadius={this.props.borderRadius}
           boundaryParent={boundaryParent || "viewport"}
           disablePopperEvents={
             get(this.props, "metaProps.isMoved", false) as boolean
