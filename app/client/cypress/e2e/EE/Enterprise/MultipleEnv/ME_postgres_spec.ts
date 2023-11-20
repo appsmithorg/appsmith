@@ -89,7 +89,7 @@ describe(
       agHelper.Sleep(2000);
       entityExplorer.AddNewPage("New blank page");
       multipleEnv.SwitchEnv(stagingEnv);
-      dataSources.navigateToDatasource(meDatasourceName);
+      dataSources.navigateToDatasource(meDSStagingOnlyName);
       dataSources.CreateQueryAfterDSSaved(query, meStagingOnlyQueryName);
       // Run and verify the response for the query
       dataSources.RunQueryNVerifyResponseViews(43);
