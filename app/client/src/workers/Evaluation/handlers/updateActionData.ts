@@ -1,6 +1,6 @@
 import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerSyncRequest } from "../types";
-import { set } from "lodash";
+import set from "lodash/set";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import DataStore from "../dataStore";
 
@@ -8,6 +8,7 @@ export interface UpdateActionProps {
   entityName: string;
   dataPath: string;
   data: unknown;
+  dataPathRef?: string;
 }
 export default function (request: EvalWorkerSyncRequest) {
   const actionsDataToUpdate: UpdateActionProps[] = request.data;
@@ -21,7 +22,13 @@ export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
   const evalTree = dataTreeEvaluator.getEvalTree();
 
   for (const actionToUpdate of actionsToUpdate) {
-    const { data, dataPath, entityName } = actionToUpdate;
+    const { dataPath, dataPathRef, entityName } = actionToUpdate;
+    let { data } = actionToUpdate;
+
+    if (dataPathRef) {
+      data = DataStore.getActionData(dataPathRef);
+      DataStore.unSetActionData(dataPathRef);
+    }
     // update the evaltree
     set(evalTree, `${entityName}.[${dataPath}]`, data);
     // Update context
