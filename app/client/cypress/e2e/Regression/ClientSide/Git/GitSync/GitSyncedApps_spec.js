@@ -246,6 +246,9 @@ describe("Git sync apps", function () {
     gitSync.CommitAndPush(true);
     // verify data binding on all pages in deploy mode
     cy.latestDeployPreview();
+    cy.get(".t--page-switch-tab")
+      .contains(`${pageName}`)
+      .click({ force: true });
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
