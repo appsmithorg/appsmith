@@ -307,6 +307,7 @@ function WidgetQueryGeneratorForm(props: Props) {
 
   const checkAndShowWalkthrough = async () => {
     if (!pushFeature) return;
+    if ((window as any).Cypress) return;
     if (!isFeatureEnabled) return;
     const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
       FEATURE_WALKTHROUGH_KEYS.customize_one_click_data,
