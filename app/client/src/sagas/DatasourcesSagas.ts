@@ -129,7 +129,10 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
-import { getWorkspaceIdForImport } from "@appsmith/selectors/applicationSelectors";
+import {
+  getCurrentApplicationIdForCreateNewApp,
+  getWorkspaceIdForImport,
+} from "@appsmith/selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
@@ -971,6 +974,17 @@ function* createTempDatasourceFromFormSaga(
     payload.datasourceStorages[defaultEnvId],
     initialValues,
   );
+
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+
+  if (currentApplicationIdForCreateNewApp) {
+    yield put({
+      type: ReduxActionTypes.SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP,
+      payload: actionPayload.payload.pluginId,
+    });
+  }
 
   yield put(createDatasourceSuccess(payload as Datasource));
 
