@@ -111,7 +111,7 @@ describe("Shopping cart App", function () {
     deployMode.DeployApp(appPage.bookname);
   });
 
-  it.skip("2. Perform CRUD operations and validate data", function () {
+  it("2. Perform CRUD operations and validate data", function () {
     // Adding the books to the Add cart form
     agHelper.GetNClick(appPage.bookname);
     //Wait for element to be in DOM
@@ -170,6 +170,7 @@ describe("Shopping cart App", function () {
     );
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
+    agHelper.Sleep(3000);
     // Deleting the book from the cart
     agHelper.GetNClick(appPage.deleteButton, 1, false);
     assertHelper.AssertNetworkStatus("@postExecute");
@@ -198,7 +199,7 @@ describe("Shopping cart App", function () {
       .should("have.text", "3");
   });
 
-  it.skip("3. Connect the application to git and validate data in deploy mode and edit mode", function () {
+  it("3. Connect the application to git and validate data in deploy mode and edit mode", function () {
     deployMode.NavigateBacktoEditor();
     gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
