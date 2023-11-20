@@ -1937,8 +1937,6 @@ export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
 export const DATASOURCE_GENERATE_PAGE_BUTTON = () => "Generate new page";
-export const ERR_FETCHING_DATASOURCE_PREVIEW_DATA = () =>
-  "Some problem occured while fetching data";
 export const FETCHING_DATASOURCE_PREVIEW_DATA = () => "Loading data";
 export const SCHEMA_PREVIEW_NO_DATA = () =>
   "No data records to show or the table header begins with an index other than 1";
@@ -2202,12 +2200,15 @@ export const COMMUNITY_TEMPLATES = {
   },
 };
 
+// Interim data state info
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
 export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
-export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
+export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
+export const FAILED_RECORDS_MESSAGE_TEXT = () =>
+  "There was an error connecting to the datasource. Try again in a while.";
 
 export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
 export const DATASOURCE_LIST_BLANK_TITLE = () =>

@@ -1,14 +1,16 @@
 import React from "react";
-import EmptyTableSVG from "assets/images/empty-table-in-display-preview.svg";
-import { Spinner, Text } from "design-system";
+import EmptyTableSVG from "assets/images/empty-table.svg";
+import FailedDataSVG from "assets/images/failed-data.svg";
+import ProgressSVG from "assets/images/progress.svg";
+import { Text } from "design-system";
 import {
   EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,
   createMessage,
-  EMPTY_TABLE_SVG_ALT_TEXT,
   LOADING_RECORDS_MESSAGE_TEXT,
   LOADING_RECORDS_TITLE_TEXT,
-  ERR_FETCHING_DATASOURCE_PREVIEW_DATA,
+  FAILED_RECORDS_MESSAGE_TEXT,
+  FAILED_RECORDS_TITLE_TEXT,
 } from "@appsmith/constants/messages";
 import { MessageWrapper, SchemaStateMessageWrapper } from "./SchemaViewModeCSS";
 
@@ -24,32 +26,35 @@ const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
       <SchemaStateMessageWrapper>
         {state === "NODATA" ? (
           <>
-            {/* Render empty table image */}
             <img
-              alt={createMessage(EMPTY_TABLE_SVG_ALT_TEXT)}
+              alt={createMessage(EMPTY_TABLE_TITLE_TEXT)}
               src={EmptyTableSVG}
             />
-            {/* Show description below the image */}
-            {/* Show title */}
             <Text style={{ fontWeight: "bold" }}>
               {createMessage(EMPTY_TABLE_TITLE_TEXT)}
             </Text>
-            {/* Show description */}
             <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
           </>
         ) : state === "FAILED" ? (
-          <Text color="var(--ads-color-red-500)">
-            {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
-          </Text>
+          <>
+            <img
+              alt={createMessage(FAILED_RECORDS_TITLE_TEXT)}
+              src={FailedDataSVG}
+            />
+            <Text style={{ fontWeight: "bold" }}>
+              {createMessage(FAILED_RECORDS_TITLE_TEXT)}
+            </Text>
+            <Text>{createMessage(FAILED_RECORDS_MESSAGE_TEXT)}</Text>
+          </>
         ) : state === "LOADING" ? (
           <>
-            {/* Show spinner */}
-            <Spinner size="md" />
-            {/* Show title */}
+            <img
+              alt={createMessage(LOADING_RECORDS_TITLE_TEXT)}
+              src={ProgressSVG}
+            />
             <Text style={{ fontWeight: "bold" }}>
               {createMessage(LOADING_RECORDS_TITLE_TEXT)}
             </Text>
-            {/* Show description */}
             <Text>{createMessage(LOADING_RECORDS_MESSAGE_TEXT)}</Text>
           </>
         ) : null}
