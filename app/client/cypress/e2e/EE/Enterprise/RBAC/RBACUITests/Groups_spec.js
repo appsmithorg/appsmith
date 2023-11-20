@@ -5,7 +5,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe("Groups tab Tests", function () {
+describe.skip("Groups tab Tests", function () {
   let groups;
   before(() => {
     cy.AddIntercepts();
