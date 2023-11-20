@@ -283,8 +283,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     localStorage.setItem("appName", appName);
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(4000);
-    cy.get("#loading").should("not.exist");
+    agHelper.AssertElementAbsence("#loading", 5000);
 
     cy.url().then((url) => {
       if (url.indexOf("/applications") > -1) {

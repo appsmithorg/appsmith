@@ -213,7 +213,10 @@ export class AggregateHelper extends ReusableHelper {
 
   public CheckForPageSaveError() {
     // Wait for "saving" status to disappear
-    this.GetElement(this.locator._statusSaving, 30000).should("not.exist");
+    this.AssertElementAbsence(
+      this.locator._statusSaving,
+      Cypress.config("defaultCommandTimeout"),
+    );
     // Check for page save error
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._saveStatusError).length) {
@@ -268,7 +271,11 @@ export class AggregateHelper extends ReusableHelper {
       });
   }
 
-  public GetElement(selector: ElementType, timeout = 20000) {
+  public GetElement(
+    selector: ElementType,
+    timeout = Cypress.config("defaultCommandTimeout"),
+    exists: "exist" | "not.exist" = "exist",
+  ) {
     let locator;
     if (typeof selector == "string") {
       //cy.log(selector, "selector");
@@ -281,7 +288,12 @@ export class AggregateHelper extends ReusableHelper {
               timeout: timeout,
             });
     } else locator = cy.wrap(selector);
-    return locator;
+    if (exists === "exist") {
+      return locator.should("have.length.at.least", 1);
+    } else {
+      return locator.should("have.length", 0);
+    }
+    //    return locator;
   }
 
   public GetNAssertElementText(
@@ -488,10 +500,7 @@ export class AggregateHelper extends ReusableHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    const locator = selector.includes("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.waitUntil(
+    this.GetElement(selector).waitUntil(
       ($ele) =>
         cy
           .wrap($ele)
@@ -1451,7 +1460,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertElementAbsence(selector: ElementType, timeout = 0) {
     //Should not exists - cannot take indexes
-    return this.GetElement(selector, timeout).should("not.exist");
+    return this.GetElement(selector, timeout, "not.exist").should("not.exist");
   }
 
   public GetText(
@@ -1508,12 +1517,21 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
-  public AssertElementExist(selector: ElementType, index = 0, timeout = 20000) {
+  public AssertElementExist(
+    selector: ElementType,
+    index = 0,
+    timeout = Cypress.config("defaultCommandTimeout"),
+  ) {
     return this.GetElement(selector, timeout).eq(index).should("exist");
   }
 
-  public ScrollIntoView(selector: ElementType, index = 0, timeout = 20000) {
+  public ScrollIntoView(
+    selector: ElementType,
+    index = 0,
+    timeout = Cypress.config("defaultCommandTimeout"),
+  ) {
     return this.GetElement(selector, timeout)
+      .should("have.length.at.least", 1)
       .eq(index)
       .then(($element) => {
         if (
