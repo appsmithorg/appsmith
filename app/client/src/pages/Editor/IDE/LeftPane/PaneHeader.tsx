@@ -13,6 +13,9 @@ const Container = styled.div`
   padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
   display: flex;
   justify-content: space-between;
+  span {
+    line-height: 20px;
+  }
 `;
 
 function PaneHeader(props: Props) {
