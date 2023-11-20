@@ -16,6 +16,7 @@ import com.appsmith.server.filters.PreAuth;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
@@ -144,6 +145,12 @@ public class SecurityConfig {
     private String INTERNAL_PASSWORD;
 
     private static final String INTERNAL = "INTERNAL";
+
+    @Autowired
+    private OAuthPostLogoutConfiguration oAuthPostLogoutConfiguration;
+
+    @Autowired
+    private UserDataService userDataService;
 
     /**
      * This routerFunction is required to map /public/** endpoints to the src/main/resources/public folder
@@ -300,7 +307,12 @@ public class SecurityConfig {
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
                 .logout()
                 .logoutUrl(Url.LOGOUT_URL)
-                .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
+                .requiresLogout(ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGOUT_URL))
+                .logoutSuccessHandler(new LogoutSuccessHandler(
+                        analyticsService,
+                        userDataService,
+                        reactiveClientRegistrationRepository,
+                        oAuthPostLogoutConfiguration))
                 .and()
                 .build();
     }
