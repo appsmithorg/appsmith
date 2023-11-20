@@ -17,6 +17,7 @@ import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
@@ -48,6 +49,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
+    private final RefactoringSolution refactoringSolution;
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
@@ -89,7 +91,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         return pageMono.flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
                     // Check against widget names and action names
-                    return layoutActionService.isNameAllowed(page.getId(), layout.getId(), collection.getName());
+                    return refactoringSolution.isNameAllowed(page.getId(), layout.getId(), collection.getName());
                 })
                 .flatMap(isNameAllowed -> {
                     // If the name is allowed, return list of actionDTOs for further processing

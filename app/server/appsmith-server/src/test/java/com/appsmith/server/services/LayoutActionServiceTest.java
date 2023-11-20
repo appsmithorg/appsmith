@@ -17,7 +17,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -43,7 +42,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -622,23 +620,6 @@ public class LayoutActionServiceTest {
                             .containsAll(Set.of(FieldName.MONGO_ESCAPE_ID, FieldName.MONGO_ESCAPE_CLASS));
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testIsNameAllowed_withRepeatedActionCollectionName_throwsError() {
-        Mockito.doReturn(Flux.empty()).when(newActionService).getUnpublishedActions(Mockito.any());
-
-        ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
-        mockActionCollectionDTO.setName("testCollection");
-
-        Mockito.when(actionCollectionService.getActionCollectionsByViewMode(Mockito.any(), Mockito.anyBoolean()))
-                .thenReturn(Flux.just(mockActionCollectionDTO));
-
-        Mono<Boolean> nameAllowedMono = layoutActionService.isNameAllowed(
-                testPage.getId(), testPage.getLayouts().get(0).getId(), "testCollection");
-
-        StepVerifier.create(nameAllowedMono).assertNext(Assertions::assertFalse).verifyComplete();
     }
 
     @Test
@@ -1336,38 +1317,6 @@ public class LayoutActionServiceTest {
         assertNotNull(changedLayoutDTO);
         assertNotNull(changedLayoutDTO.getLayoutOnLoadActionErrors());
         assertEquals(0, changedLayoutDTO.getLayoutOnLoadActionErrors().size());
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void jsActionWithoutCollectionIdShouldBeIgnoredDuringNameChecking() {
-        ActionDTO firstAction = new ActionDTO();
-        firstAction.setPluginType(PluginType.JS);
-        firstAction.setName("foo");
-        firstAction.setFullyQualifiedName("testCollection.foo");
-        firstAction.setCollectionId("collectionId");
-
-        ActionDTO secondAction = new ActionDTO();
-        secondAction.setPluginType(PluginType.JS);
-        secondAction.setName("bar");
-        secondAction.setFullyQualifiedName("testCollection.bar");
-        secondAction.setCollectionId(null);
-
-        Mockito.doReturn(Flux.just(firstAction, secondAction))
-                .when(newActionService)
-                .getUnpublishedActions(Mockito.any());
-
-        ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
-        mockActionCollectionDTO.setName("testCollection");
-        mockActionCollectionDTO.setActions(List.of(firstAction, secondAction));
-
-        Mockito.when(actionCollectionService.getActionCollectionsByViewMode(Mockito.any(), Mockito.anyBoolean()))
-                .thenReturn(Flux.just(mockActionCollectionDTO));
-
-        Mono<Boolean> nameAllowedMono = layoutActionService.isNameAllowed(
-                testPage.getId(), testPage.getLayouts().get(0).getId(), "testCollection.bar");
-
-        StepVerifier.create(nameAllowedMono).assertNext(Assertions::assertTrue).verifyComplete();
     }
 
     /**

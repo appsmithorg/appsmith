@@ -7,4 +7,6 @@ import reactor.core.publisher.Mono;
 public interface RefactoringSolutionCE {
 
     Mono<LayoutDTO> refactorEntityName(RefactorEntityNameDTO refactorEntityNameDTO, String branchName);
+
+    Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName);
 }

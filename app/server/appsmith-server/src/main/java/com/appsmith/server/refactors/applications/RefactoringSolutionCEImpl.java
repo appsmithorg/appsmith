@@ -1,6 +1,7 @@
 package com.appsmith.server.refactors.applications;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
@@ -23,14 +24,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
@@ -164,8 +168,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 .then(pageIdMono)
                 .flatMap(branchedPageId -> {
                     refactorEntityNameDTO.setPageId(branchedPageId);
-                    return layoutActionService
-                            .isNameAllowed(
+                    return this.isNameAllowed(
                                     branchedPageId,
                                     refactorEntityNameDTO.getLayoutId(),
                                     refactorEntityNameDTO.getNewFullyQualifiedName())
@@ -225,5 +228,47 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     return true;
                 })
                 .then();
+    }
+
+    @Override
+    public Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName) {
+
+        boolean isFQN = newName.contains(".");
+
+        Iterable<Flux<String>> existingEntityNamesFlux = getExistingEntityNamesFlux(pageId, layoutId, isFQN);
+
+        return Flux.merge(existingEntityNamesFlux)
+                .collect(Collectors.toSet())
+                .map(existingNames -> !existingNames.contains(newName));
+    }
+
+    protected Iterable<Flux<String>> getExistingEntityNamesFlux(String pageId, String layoutId, boolean isFQN) {
+        Flux<String> existingActionNamesFlux =
+                newActionEntityRefactoringService.getExistingEntityNames(pageId, CreatorContextType.PAGE, layoutId);
+
+        /*
+         * TODO : Execute this check directly on the DB server. We can query array of arrays by:
+         * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
+         */
+        Flux<String> existingWidgetNamesFlux = Flux.empty();
+        Flux<String> existingActionCollectionNamesFlux = Flux.empty();
+
+        // Widget and collection names cannot collide with FQNs because of the dot operator
+        // Hence we can avoid unnecessary DB calls
+        if (!isFQN) {
+            existingWidgetNamesFlux =
+                    widgetEntityRefactoringService.getExistingEntityNames(pageId, CreatorContextType.PAGE, layoutId);
+
+            existingActionCollectionNamesFlux = actionCollectionEntityRefactoringService.getExistingEntityNames(
+                    pageId, CreatorContextType.PAGE, layoutId);
+        }
+
+        ArrayList<Flux<String>> list = new ArrayList<>();
+
+        list.add(existingActionNamesFlux);
+        list.add(existingWidgetNamesFlux);
+        list.add(existingActionCollectionNamesFlux);
+
+        return list;
     }
 }

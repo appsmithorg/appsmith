@@ -23,8 +23,6 @@ public interface LayoutActionServiceCE {
 
     Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO, String branchName);
 
-    Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName);
-
     Mono<ActionDTO> updateAction(String id, ActionDTO action);
 
     Mono<ActionDTO> updateSingleAction(String id, ActionDTO action);

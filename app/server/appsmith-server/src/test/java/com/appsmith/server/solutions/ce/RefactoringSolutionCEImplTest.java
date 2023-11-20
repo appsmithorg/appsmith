@@ -141,7 +141,7 @@ class RefactoringSolutionCEImplTest {
         oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
         oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
 
-        Mockito.when(layoutActionService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(refactoringSolutionCE.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(true));
 
         LayoutDTO layout = new LayoutDTO();
@@ -228,7 +228,7 @@ class RefactoringSolutionCEImplTest {
                         Mockito.any()))
                 .thenReturn(Flux.just(oldActionCollection, duplicateActionCollection));
 
-        Mockito.when(layoutActionService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(refactoringSolutionCE.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(false));
 
         NewPage newPage = new NewPage();
@@ -265,7 +265,7 @@ class RefactoringSolutionCEImplTest {
         oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
         oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
 
-        Mockito.when(layoutActionService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(refactoringSolutionCE.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(true));
 
         Mockito.when(newActionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))

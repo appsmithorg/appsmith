@@ -13,9 +13,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Executable;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ExecutableDependencyEdge;
@@ -23,7 +21,6 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
@@ -35,6 +32,7 @@ import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
+import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CollectionService;
@@ -48,8 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -82,7 +78,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final NewActionService newActionService;
     private final OnLoadExecutablesUtil onLoadExecutablesUtil;
     private final SessionUserService sessionUserService;
-    private final ActionCollectionService actionCollectionService;
+    private final RefactoringSolution refactoringSolution;
     private final CollectionService collectionService;
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
@@ -466,93 +462,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         }
 
         return dsl;
-    }
-
-    @Override
-    public Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        if (pageId != null) {
-            params.add(FieldName.PAGE_ID, pageId);
-        }
-
-        boolean isFQN = newName.contains(".");
-
-        Mono<Set<String>> actionNamesInPageMono = newActionService
-                .getUnpublishedActions(params)
-                .flatMap(actionDTO -> {
-                    /*
-                       This is unexpected. Every action inside a JS collection should have a collectionId.
-                       But there are a few documents found for plugin type JS inside newAction collection that don't have any collectionId.
-                       The reason could be due to the lack of transactional behaviour when multiple inserts/updates that take place
-                       during JS action creation. A detailed RCA is documented here
-                       https://www.notion.so/appsmith/RCA-JSObject-name-already-exists-Please-use-a-different-name-e09c407f0ddb4653bd3974f3703408e6
-                    */
-                    if (actionDTO.getPluginType().equals(PluginType.JS)
-                            && !StringUtils.hasLength(actionDTO.getCollectionId())) {
-                        log.debug(
-                                "JS Action with Id: {} doesn't have any collection Id under pageId: {}",
-                                actionDTO.getId(),
-                                pageId);
-                        return Mono.empty();
-                    } else {
-                        return Mono.just(actionDTO);
-                    }
-                })
-                .map(ActionDTO::getValidName)
-                .collect(toSet());
-
-        /*
-         * TODO : Execute this check directly on the DB server. We can query array of arrays by:
-         * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
-         */
-        Mono<Set<String>> widgetNamesMono = Mono.just(Set.of());
-        Mono<Set<String>> actionCollectionNamesMono = Mono.just(Set.of());
-
-        // Widget and collection names cannot collide with FQNs because of the dot operator
-        // Hence we can avoid unnecessary DB calls
-        if (!isFQN) {
-            widgetNamesMono = newPageService
-                    // fetch the unpublished page
-                    .findPageById(pageId, pagePermission.getReadPermission(), false)
-                    .flatMap(page -> {
-                        List<Layout> layouts = page.getLayouts();
-                        for (Layout layout : layouts) {
-                            if (layoutId.equals(layout.getId())) {
-                                if (layout.getWidgetNames() != null
-                                        && layout.getWidgetNames().size() > 0) {
-                                    return Mono.just(layout.getWidgetNames());
-                                }
-                                // In case of no widget names (which implies that there is no DSL), return an empty set.
-                                return Mono.just(new HashSet<>());
-                            }
-                        }
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.LAYOUT_ID, layoutId));
-                    });
-            actionCollectionNamesMono = actionCollectionService
-                    .getActionCollectionsByViewMode(params, false)
-                    .map(ActionCollectionDTO::getName)
-                    .collect(toSet())
-                    .switchIfEmpty(Mono.just(Set.of()));
-        }
-
-        return Mono.zip(actionNamesInPageMono, widgetNamesMono, actionCollectionNamesMono)
-                .map(tuple -> {
-                    final Set<String> actionNames = tuple.getT1();
-                    boolean isAllowed = true;
-                    if (actionNames.contains(newName)) {
-                        isAllowed = false;
-                    }
-                    Set<String> widgetNames = tuple.getT2();
-                    if (widgetNames.contains(newName)) {
-                        isAllowed = false;
-                    }
-                    Set<String> collectionNames = tuple.getT3();
-                    if (collectionNames.contains(newName)) {
-                        isAllowed = false;
-                    }
-                    return isAllowed;
-                });
     }
 
     /**
@@ -991,7 +900,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         return pageMono.flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
                     String name = action.getValidName();
-                    return isNameAllowed(page.getId(), layout.getId(), name);
+                    return refactoringSolution.isNameAllowed(page.getId(), layout.getId(), name);
                 })
                 .flatMap(nameAllowed -> {
                     // If the name is allowed, return pageMono for further processing
