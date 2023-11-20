@@ -1,9 +1,6 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ClientSide/Git/GitSync/GitSyncedApps_spec.js
-cypress/e2e/Regression/ServerSide/QueryPane/DSDocs_Spec.ts
-cypress/e2e/Regression/ClientSide/Widgets/Checkbox/CheckBoxGroupTest.ts
-cypress/e2e/Regression/ClientSide/Widgets/Others/StatboxDsl_spec.js
 cypress/e2e/Regression/ServerSide/GenerateCRUD/Postgres2_Spec.ts
 
 
