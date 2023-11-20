@@ -83,6 +83,7 @@ describe("MySQL Datatype tests", function () {
     agHelper.ClickButton("Run InsertQuery");
     inputData.input.forEach((valueArr, i) => {
       agHelper.ClickButton("Run InsertQuery");
+      agHelper.Sleep(2000); //for modal to load elements fully
       valueArr.forEach((value, index) => {
         if (value !== "")
           agHelper.EnterInputText(inputData.inputFieldName[index], value);
