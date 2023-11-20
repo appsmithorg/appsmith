@@ -1680,6 +1680,8 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SETTINGS = () => "Settings";
+export const CONTEXT_PARTIAL_EXPORT = () => "Export";
+export const CONTEXT_PARTIAL_IMPORT = () => "Import";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as home page";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";
@@ -2258,3 +2260,22 @@ export const START_FROM_SCRATCH_SUBTITLE = () =>
 export const START_WITH_DATA_TITLE = () => "Start with data";
 export const START_WITH_DATA_SUBTITLE = () =>
   "Get started with connecting your data, and easily craft a functional application.";
+
+export const PARTIAL_IMPORT_EXPORT = {
+  export: {
+    modalHeading: () => "Export",
+    modalSubHeading: () => "Select entities below to export from the Page",
+    cta: () => "Export selected entities",
+    sections: {
+      jsObjects: () => "JS Objects",
+      databases: () => "Databases",
+      queries: () => "Queries",
+      customLibs: () => "Custom libraries",
+      widgets: () => "Widgets",
+    },
+  },
+  import: {
+    modalHeading: () => "Import",
+    modalSubheading: () => "Import partial application from file",
+  },
+};

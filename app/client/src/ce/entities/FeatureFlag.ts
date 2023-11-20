@@ -40,6 +40,8 @@ export const FEATURE_FLAG = {
   ab_one_click_learning_popover_enabled:
     "ab_one_click_learning_popover_enabled",
   rollout_app_sidebar_enabled: "rollout_app_sidebar_enabled",
+  release_show_partial_import_export_enabled:
+    "release_show_partial_import_export_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -76,6 +78,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_show_new_sidebar_announcement_enabled: false,
   ab_one_click_learning_popover_enabled: false,
   rollout_app_sidebar_enabled: false,
+  release_show_partial_import_export_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
