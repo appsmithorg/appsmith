@@ -20,6 +20,7 @@ import {
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+import Pages from "pages/Editor/Explorer/Pages";
 
 enum TabsType {
   QUERIES = "queries",
@@ -91,12 +92,15 @@ const _pagesPane = () => {
   };
   return (
     <Flex
+      border="1px solid var(--ads-v2-color-border)"
       className="ide-pages-pane"
       flexDirection="column"
       gap="spacing-2"
       height="100%"
       width="256px"
     >
+      <Pages />
+      {/* divider is inside the Pages component */}
       <Flex
         alignItems="center"
         className="ide-pages-pane__header"
