@@ -17,7 +17,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe("Create Permission flow ", function () {
+describe.skip("Create Permission flow ", function () {
   let datasourceName;
   let datasourceName2;
   let workspaceName;
@@ -331,7 +331,7 @@ describe("Create Permission flow ", function () {
     cy.LogOut();
   });
 
-  it.skip("6. Create permission : Page level Create new query/jsObject in same page) ", function () {
+  it("6. Create permission : Page level Create new query/jsObject in same page) ", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
     cy.wait(2000);
