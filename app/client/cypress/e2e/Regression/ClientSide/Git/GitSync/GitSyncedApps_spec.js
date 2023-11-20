@@ -220,6 +220,9 @@ describe("Git sync apps", function () {
       .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(`.t--entity-item:contains(${newPage})`).first().click();
     cy.wait("@getPage");
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
     cy.get(".t--draggable-inputwidgetv2")
       .first()
       .find(".bp3-input")
@@ -234,15 +237,10 @@ describe("Git sync apps", function () {
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
-    cy.get(`.t--entity-item:contains(${pageName})`).first().click();
-    cy.wait("@getPage");
-    cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.equal("New Config");
-    });
+
     cy.wait(3000);
     // commit and push the changes
     gitSync.CommitAndPush(true);
-    cy.wait(2000);
     // verify data binding on all pages in deploy mode
     cy.latestDeployPreview();
     cy.readTabledataPublish("0", "1").then((cellData) => {
