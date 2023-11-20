@@ -30,7 +30,7 @@ describe("Statbox Widget", function () {
     entityExplorer.SelectEntityByName("IconButton1", "Statbox1");
     cy.get(".t--property-pane-section-general").then(() => {
       // changing the icon to arrow-up
-      cy.get(".bp3-button-text").first().click().wait(500);
+      cy.get(".bp3-button-text").first().click().wait(1000);
       cy.get(".bp3-icon-arrow-up").click().wait(500);
       // opening modal from onClick action of icon button
       cy.createModal("Modal", "onClick");
