@@ -239,6 +239,7 @@ describe("Git sync apps", function () {
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
+    cy.wait(3000);
     // commit and push the changes
     cy.commitAndPush();
     cy.wait(2000);
