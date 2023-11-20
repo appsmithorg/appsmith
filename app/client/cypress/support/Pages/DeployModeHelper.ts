@@ -67,7 +67,7 @@ export class DeployMode {
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast("has failed"),
       ); //Validating bug - 14141 + 14252
-    this.agHelper.Sleep(2000); //for Depoy page to settle!
+    this.agHelper.Sleep(3500); //for Depoy page to settle!
     // });
   }
 
