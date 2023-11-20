@@ -2,6 +2,8 @@
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ClientSide/Git/GitSync/GitSyncedApps_spec.js
 cypress/e2e/Regression/ServerSide/GenerateCRUD/Postgres2_Spec.ts
+cypress/e2e/Regression/ClientSide/Git/ExistingApps/v1.9.24/DSCrudAndBindings_Spec.ts
+
 
 
 # For running all specs - uncomment below:
