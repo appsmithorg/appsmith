@@ -1,7 +1,6 @@
 import type { ChangeEvent } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import type { DropdownOnSelect } from "design-system-old";
 import {
   CodeEditorBorder,
@@ -10,6 +9,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { JSObjectNameEditorProps } from "./JSObjectNameEditor";
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   setActiveJSAction,
@@ -40,6 +40,7 @@ import {
   getJSPropertyLineFromName,
 } from "./utils";
 import JSFunctionSettingsView from "./JSFunctionSettings";
+import type { JSFunctionSettingsProps } from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import {
   ActionButtons,
@@ -72,6 +73,10 @@ import {
 interface JSFormProps {
   jsCollection: JSCollection;
   contextMenu: React.ReactNode;
+  showSettings?: boolean;
+  onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
+  saveJSObjectName: JSObjectNameEditorProps["saveJSObjectName"];
+  backLink?: React.ReactNode;
 }
 
 type Props = JSFormProps;
@@ -97,8 +102,12 @@ const SecondaryWrapper = styled.div`
 `;
 
 function JSEditorForm({
+  backLink,
   contextMenu,
   jsCollection: currentJSCollection,
+  onUpdateSettings,
+  saveJSObjectName,
+  showSettings = true,
 }: Props) {
   const theme = EditorTheme.LIGHT;
   const dispatch = useDispatch();
@@ -305,13 +314,14 @@ function JSEditorForm({
           handleRunAction(event, "KEYBOARD_SHORTCUT");
         }}
       >
-        <CloseEditor />
+        {backLink}
         <Form onSubmit={(event) => event.preventDefault()}>
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor
                 disabled={!isChangePermitted}
                 page="JS_PANE"
+                saveJSObjectName={saveJSObjectName}
               />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
@@ -352,12 +362,14 @@ function JSEditorForm({
                       >
                         Code
                       </Tab>
-                      <Tab
-                        data-testid={`t--js-editor-` + JSEditorTab.SETTINGS}
-                        value={JSEditorTab.SETTINGS}
-                      >
-                        Settings
-                      </Tab>
+                      {showSettings && (
+                        <Tab
+                          data-testid={`t--js-editor-` + JSEditorTab.SETTINGS}
+                          value={JSEditorTab.SETTINGS}
+                        >
+                          Settings
+                        </Tab>
+                      )}
                     </TabsList>
                     <TabPanel value={JSEditorTab.CODE}>
                       <div className="js-editor-tab">
@@ -389,14 +401,17 @@ function JSEditorForm({
                         />
                       </div>
                     </TabPanel>
-                    <TabPanel value={JSEditorTab.SETTINGS}>
-                      <div className="js-editor-tab">
-                        <JSFunctionSettingsView
-                          actions={jsActions}
-                          disabled={!isChangePermitted}
-                        />
-                      </div>
-                    </TabPanel>
+                    {showSettings && (
+                      <TabPanel value={JSEditorTab.SETTINGS}>
+                        <div className="js-editor-tab">
+                          <JSFunctionSettingsView
+                            actions={jsActions}
+                            disabled={!isChangePermitted}
+                            onUpdateSettings={onUpdateSettings}
+                          />
+                        </div>
+                      </TabPanel>
+                    )}
                   </Tabs>
                 </TabbedViewContainer>
                 {showDebugger ? (

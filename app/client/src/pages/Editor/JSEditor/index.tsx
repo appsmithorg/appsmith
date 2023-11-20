@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import type { RouteComponentProps } from "react-router";
 import type { JSCollection } from "entities/JSCollection";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import JsEditorForm from "./Form";
 import * as Sentry from "@sentry/react";
 import { getJSCollectionById } from "selectors/editorSelectors";
@@ -10,6 +10,10 @@ import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import AppJSEditorContextMenu from "./AppJSEditorContextMenu";
+import { updateFunctionProperty } from "actions/jsPaneActions";
+import type { OnUpdateSettingsProps } from "./JSFunctionSettings";
+import { saveJSObjectName } from "actions/jsActionActions";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -24,6 +28,7 @@ type Props = ReduxStateProps &
 
 function JSEditor(props: Props) {
   const { pageId } = props.match.params;
+  const dispatch = useDispatch();
   const jsCollection = useSelector((state) =>
     getJSCollectionById(state, props),
   );
@@ -47,9 +52,21 @@ function JSEditor(props: Props) {
     );
   }
 
+  const onUpdateSettings = (props: OnUpdateSettingsProps) => {
+    dispatch(updateFunctionProperty(props));
+  };
+
+  const backLink = <CloseEditor />;
+
   if (!!jsCollection) {
     return (
-      <JsEditorForm contextMenu={contextMenu} jsCollection={jsCollection} />
+      <JsEditorForm
+        backLink={backLink}
+        contextMenu={contextMenu}
+        jsCollection={jsCollection}
+        onUpdateSettings={onUpdateSettings}
+        saveJSObjectName={saveJSObjectName}
+      />
     );
   }
   return <EntityNotFoundPane />;
