@@ -46,6 +46,7 @@ import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { Plugin } from "api/PluginApi";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -394,25 +395,29 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
 // Most popular datasources are hardcoded right now to include these 4 plugins and REST API
 // Going forward we may want to have separate list for each instance based on usage
 export const getMostPopularPlugins = createSelector(getPlugins, (plugins) => {
-  const popularPlugins = [];
+  const popularPlugins: Plugin[] = [];
 
-  popularPlugins.push(
-    plugins.find(
-      (plugin) => plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
-    ),
+  const gsheetPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
   );
-  popularPlugins.push(
-    plugins.find((plugin) => plugin.packageName === PluginPackageName.REST_API),
+  const restPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.REST_API,
   );
-  popularPlugins.push(
-    plugins.find((plugin) => plugin.packageName === PluginPackageName.POSTGRES),
+  const postgresPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.POSTGRES,
   );
-  popularPlugins.push(
-    plugins.find((plugin) => plugin.packageName === PluginPackageName.MY_SQL),
+  const mysqlPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MY_SQL,
   );
-  popularPlugins.push(
-    plugins.find((plugin) => plugin.packageName === PluginPackageName.MONGO),
+  const mongoPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MONGO,
   );
+
+  gsheetPlugin && popularPlugins.push(gsheetPlugin);
+  restPlugin && popularPlugins.push(restPlugin);
+  postgresPlugin && popularPlugins.push(postgresPlugin);
+  mysqlPlugin && popularPlugins.push(mysqlPlugin);
+  mongoPlugin && popularPlugins.push(mongoPlugin);
 
   return popularPlugins;
 });
