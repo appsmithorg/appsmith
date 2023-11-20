@@ -42,6 +42,7 @@ public class OpenAIConstants {
 
     // Other constants
     public static final String BODY = "body";
+    public static final Integer DEFAULT_MAX_TOKEN = 16;
 
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))

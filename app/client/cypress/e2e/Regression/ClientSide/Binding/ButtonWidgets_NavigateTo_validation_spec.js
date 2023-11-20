@@ -32,7 +32,5 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
       locators._widgetInDeployed(draggableWidgets.BUTTON),
     );
     cy.url().should("contain", testdata.externalPage);
-
-
   });
 });

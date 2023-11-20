@@ -56,6 +56,7 @@ export const getColumnsPureFn: getColumns = (
           type: column.columnType,
           format: column.outputFormat || "",
           inputFormat: column.inputFormat || "",
+          decimals: column.decimals || 0,
         },
         columnProperties: column,
         Cell: renderCell,

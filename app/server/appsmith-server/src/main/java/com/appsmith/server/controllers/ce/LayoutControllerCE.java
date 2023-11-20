@@ -8,7 +8,7 @@ import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
+import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;

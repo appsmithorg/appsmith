@@ -224,7 +224,7 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   return (
     <ViewModeSchemaContainer>
-      <DataWrapperContainer>
+      <DataWrapperContainer data-testId="datasource-schema-container">
         <StructureContainer>
           {props.datasource && (
             <DatasourceStructureHeader

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 import ApiEditor from "../../../../locators/ApiEditor";
@@ -13,7 +17,6 @@ import {
 describe("Test curl import flow", function () {
   it("1. Test curl import flow Run and Delete", function () {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
-    cy.NavigateToApiEditor();
     dataSources.NavigateToDSCreateNew();
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(

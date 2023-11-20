@@ -2,7 +2,6 @@ import React, { memo, useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
-import { Collapsible } from ".";
 import { getTypographyByKey } from "design-system-old";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -50,6 +49,9 @@ import localStorage from "utils/localStorage";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import type { WidgetType } from "constants/WidgetConstants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import Collapsible from "components/common/Collapsible";
 
 const BINDING_GUIDE_GIF = `${ASSETS_CDN_URL}/binding.gif`;
 
@@ -498,6 +500,12 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   useEffect(() => {
     checkAndShowWalkthrough();
   }, []);
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
+  const filteredSuggestedWidgets = isWDSEnabled
+    ? props.suggestedWidgets.filter(
+        (each) => !!Object.keys(WDS_V2_WIDGET_MAP).includes(each.type),
+      )
+    : props.suggestedWidgets;
 
   return (
     <SuggestedWidgetContainer id={BINDING_SECTION_ID}>
@@ -559,7 +567,7 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
         <SubSection className="t--suggested-widget-add-new">
           {renderHeading(addNewWidgetLabel, addNewWidgetSubLabel)}
           <WidgetList className="spacing">
-            {props.suggestedWidgets.map((suggestedWidget) => {
+            {filteredSuggestedWidgets.map((suggestedWidget) => {
               const widgetInfo: WidgetBindingInfo | undefined =
                 WIDGET_DATA_FIELD_MAP[suggestedWidget.type];
 

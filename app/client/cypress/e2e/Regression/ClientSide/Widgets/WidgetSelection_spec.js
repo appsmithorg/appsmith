@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const dsl = require("../../../../fixtures/widgetSelection.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -52,10 +56,11 @@ describe("Widget Selection", function () {
     // Switch to the Explorer Pane
     _.entityExplorer.NavigateToSwitcher("Explorer");
     // Click to create a New Data Source
-    cy.get(".t--entity-add-btn").eq(3).click();
+    _.dataSources.NavigateToDSCreateNew();
     // Hit CTRL +A
     cy.get("body").type("{ctrl}{a}");
     // Switch to the Canvas
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     _.entityExplorer.NavigateToSwitcher("Widgets");
     // Widgets should not be selected
     cy.get(".t--multi-selection-box").should("not.exist");

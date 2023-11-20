@@ -12,7 +12,11 @@ describe("General Settings", () => {
   it("1. App name change updates URL", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToGeneralSettings();
-    _.generalSettings.UpdateAppNameAndVerifyUrl(true, guid);
+    _.generalSettings.UpdateAppNameAndVerifyUrl({
+      reset: true,
+      newAppName: guid,
+      restOfUrl: "/settings",
+    });
     _.homePage.GetAppName().then((appName) => {
       _.deployMode.DeployApp();
       _.appSettings.CheckUrl(appName as string, "Page1", undefined, false);
@@ -28,7 +32,12 @@ describe("General Settings", () => {
     //App name allows special and accented character
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToGeneralSettings();
-    _.generalSettings.UpdateAppNameAndVerifyUrl(true, guid + "!@#œ™¡", guid);
+    _.generalSettings.UpdateAppNameAndVerifyUrl({
+      reset: true,
+      newAppName: guid + "!@#œ™¡",
+      verifyAppNameAs: guid,
+      restOfUrl: "/settings",
+    });
     _.appSettings.ClosePane();
 
     //Veirfy App name doesn't allow empty

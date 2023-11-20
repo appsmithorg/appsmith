@@ -13,12 +13,14 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.themes.base.ThemeService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,7 @@ import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -48,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
+@Slf4j
 public class ThemeServiceTest {
 
     @Autowired
@@ -91,6 +95,12 @@ public class ThemeServiceTest {
     @Autowired
     PermissionGroupService permissionGroupService;
 
+    @Autowired
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
     @BeforeEach
     public void setup() {
         Workspace workspace = new Workspace();
@@ -111,13 +121,29 @@ public class ThemeServiceTest {
     }
 
     private Application createApplication() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        Set<String> beforeCreatingApplication =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingApplication);
         Application application = new Application();
         application.setName("ThemeTest_" + UUID.randomUUID());
         application.setWorkspaceId(this.workspace.getId());
-        applicationPageService
+        Application createdApplication = applicationPageService
                 .createApplication(application, this.workspace.getId())
                 .block();
-        return application;
+
+        Set<String> afterCreatingApplication =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User after creating Application: {}", afterCreatingApplication);
+
+        log.info("Workspace ID: {}", this.workspace.getId());
+        log.info("Workspace Role Ids: {}", this.workspace.getDefaultPermissionGroups());
+        log.info("Policy for created Workspace: {}", this.workspace.getPolicies());
+        log.info("Application ID: {}", createdApplication.getId());
+        log.info("Policies for created Application: {}", createdApplication.getPolicies());
+        log.info("Current User ID: {}", currentUser.getId());
+
+        return createdApplication;
     }
 
     public void replaceApiUserWithAnotherUserInWorkspace() {

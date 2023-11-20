@@ -8,6 +8,9 @@ import {
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "../spec_utility";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -23,6 +26,7 @@ describe("one click binding mongodb datasource", function () {
     dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.SelectEntityByName("Table1", "Widgets");
 
       oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
