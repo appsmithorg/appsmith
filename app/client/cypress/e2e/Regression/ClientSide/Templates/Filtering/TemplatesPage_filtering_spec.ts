@@ -50,4 +50,34 @@ describe("excludeForAirgap", "Templates page filtering", () => {
         }
       });
   });
+
+  it("4. templates should be sorted by name", () => {
+    cy.intercept({
+      method: "GET",
+      url: "/api/v1/app-templates",
+    }).then((interception) => {
+      const templatesResponse = interception.response.body.data;
+      const isSorted = templatesResponse.every(
+        (template: any, index: number) => {
+          if (index === 0) return true;
+          if ("sortPriority" in templatesResponse[index - 1]) {
+            if ("sortPriority" in template) {
+              return (
+                template.sortPriority <=
+                templatesResponse[index - 1].sortPriority
+              );
+            } else {
+              return true;
+            }
+          }
+          return (
+            new Date(template.createdAt) <=
+            new Date(templatesResponse[index - 1].createdAt)
+          );
+        },
+      );
+      expect(isSorted).to.be.true;
+    });
+    templates.RefreshTemplatesPage(false);
+  });
 });
