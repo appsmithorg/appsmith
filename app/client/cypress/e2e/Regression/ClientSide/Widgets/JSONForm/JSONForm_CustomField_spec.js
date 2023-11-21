@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
@@ -13,7 +12,7 @@ const fieldPrefix = ".t--jsonformfield";
 
 describe(
   "JSON Form Widget Custom Field",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     it("uses the custom field when the accessor matches", () => {
       const formDsl = JSON.parse(

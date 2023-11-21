@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormUnicodeDSLWithoutSourceData = require("../../../../../fixtures/jsonFormUnicodeDSLWithoutSourceData.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -12,7 +11,7 @@ const backBtn = "[data-testid='t--property-pane-back-btn']";
 
 describe(
   "JSON Form Widget Unicode keys",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

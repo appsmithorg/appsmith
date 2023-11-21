@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -11,7 +10,7 @@ import {
 
 describe(
   "Checkbox Group Widget Functionality",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     before(() => {
       agHelper.AddDsl("checkboxgroupDsl");

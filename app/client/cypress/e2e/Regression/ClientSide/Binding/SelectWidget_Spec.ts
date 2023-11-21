@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
@@ -7,7 +6,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe(
   "Validate basic binding of Input widget to Input widget",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("Select_table_dsl");

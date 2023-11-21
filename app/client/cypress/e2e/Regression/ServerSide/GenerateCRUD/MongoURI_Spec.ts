@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -17,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Validate Mongo URI CRUD with JSON Form",
-  { tags: [Tag.GenerateCRUD] },
+  { tags: ["@tag.GenerateCRUD"] },
   () => {
     let dsName: any;
 

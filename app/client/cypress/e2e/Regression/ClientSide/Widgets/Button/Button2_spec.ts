@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   fakerHelper,
@@ -15,7 +14,7 @@ import {
 
 import clocators from "../../../../../locators/commonlocators.json";
 
-describe("Button widget testcases", { tags: [Tag.Widget, Tag.Button] }, () => {
+describe("Button widget testcases", { tags: ["@tag.Widget", "@tag.Button"] }, () => {
   before(() => {
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,

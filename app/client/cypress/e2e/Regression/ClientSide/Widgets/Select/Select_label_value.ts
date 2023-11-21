@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -9,7 +8,7 @@ import {
 
 describe(
   "Select Widget Functionality",
-  { tags: [Tag.Widget, Tag.Select] },
+  { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     it("Validate select widget data - source data , label key , value key, default selected value ", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const jsonFormInModalDsl = require("../../../../../fixtures/jsonFormInModalDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -33,7 +32,7 @@ const checkFormModalValues = (value) => {
   cy.get(".t--modal-widget").should("not.exist");
 };
 
-describe("JSONForm in Modal", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
+describe("JSONForm in Modal", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => {
   it("should show the JSONForm with default values from Table widget", () => {
     const tableData = [
       {

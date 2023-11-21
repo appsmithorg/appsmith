@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import publish from "../../../../../locators/publishWidgetspage.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
@@ -14,7 +13,7 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe(
   "Single Select Widget Functionality",
-  { tags: [Tag.Widget, Tag.Select] },
+  { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
       agHelper.AddDsl("TreeSelectDsl");

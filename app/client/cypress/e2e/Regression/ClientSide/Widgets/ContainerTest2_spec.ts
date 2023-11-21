@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -7,7 +6,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Rich Text Editor widget Tests", { tags: [Tag.Widget] }, function () {
+describe("Rich Text Editor widget Tests", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     agHelper.AddDsl("ContainerWithOtherWidgetsDsl");
     entityExplorer.SelectEntityByName("Container1", "Widgets");

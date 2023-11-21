@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
@@ -37,7 +36,7 @@ describe("FirstTimeUserOnboarding", function () {
 
   it(
     "2. onboarding flow - should check the checklist actions",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       agHelper.GetNAssertContains(OnboardingLocator.checklistStatus, "0 of 5");
       agHelper.AssertElementExist(OnboardingLocator.checklistDatasourceBtn);
@@ -111,7 +110,7 @@ describe("FirstTimeUserOnboarding", function () {
 
   it(
     "2. onboarding flow - should check the checklist page actions - airgap",
-    { tags: [Tag.airgap] },
+    { tags: ["@tag.airgap"] },
     function () {
       cy.get(OnboardingLocator.introModal).should("be.visible");
 

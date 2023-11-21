@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Autocomplete using slash command and mustache tests",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("slashcommandDsl");
@@ -75,7 +74,7 @@ describe(
 
     it(
       "Slash command and mustache autocomplete validation for textbox widget",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         cy.openPropertyPane("textwidget");
         cy.EnableAllCodeEditors();
@@ -107,7 +106,7 @@ describe(
 
     it(
       "Slash command and mustache autocomplete validation for textbox widget for airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       function () {
         cy.openPropertyPane("textwidget");
         cy.EnableAllCodeEditors();

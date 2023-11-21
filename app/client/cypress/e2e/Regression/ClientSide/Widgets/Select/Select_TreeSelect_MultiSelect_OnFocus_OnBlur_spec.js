@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Select, MultiSelect, Tree Select and Multi Tree Select Widget Property tests onFocus and onBlur",
-  { tags: [Tag.Widget, Tag.Select] },
+  { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("selectMultiSelectTreeSelectWidgetDsl");

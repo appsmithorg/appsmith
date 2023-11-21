@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -7,7 +6,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("removeValue Action test", { tags: [Tag.JS] }, () => {
+describe("removeValue Action test", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
     entityExplorer.NavigateToSwitcher("Explorer");

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -10,7 +9,7 @@ import {
 
 describe(
   "List widget V2 functionality with button, button group and icon button widgets",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       agHelper.AddDsl("listV2ButtonsDsl", locators._buttonByText("Submit"));

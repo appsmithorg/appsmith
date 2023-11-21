@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const fieldPrefix = ".t--jsonformfield";
@@ -15,7 +14,7 @@ import {
 
 describe(
   "JSON Form Widget Array Field",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

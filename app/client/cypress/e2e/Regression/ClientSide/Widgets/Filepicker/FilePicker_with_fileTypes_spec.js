@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "FilePicker Widget Functionality with different file types",
-  { tags: [Tag.Widget, Tag.Filepicker] },
+  { tags: ["@tag.Widget", "@tag.Filepicker"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("filepickerDsl");

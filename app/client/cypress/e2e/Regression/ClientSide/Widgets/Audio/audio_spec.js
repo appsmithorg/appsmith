@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Audio Widget Functionality",
-  { tags: [Tag.Widget, Tag.Audio] },
+  { tags: ["@tag.Widget", "@tag.Audio"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("audioWidgetDsl");

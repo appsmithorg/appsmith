@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -9,7 +8,7 @@ import {
 
 import testdata from "../../../../../fixtures/testdata.json";
 
-describe("Iframe widget Tests", { tags: [Tag.Widget] }, function () {
+describe("Iframe widget Tests", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("iframewidget", 550, 100);
   });

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -12,7 +11,7 @@ import {
 import { format } from "date-fns";
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 
-describe("Date picker widget testcases", { tags: [Tag.Widget] }, () => {
+describe("Date picker widget testcases", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.DATEPICKER);
   });

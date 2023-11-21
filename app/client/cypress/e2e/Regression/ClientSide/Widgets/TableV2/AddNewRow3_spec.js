@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "Actions flow (save, discard)",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       cy.startServerAndRoutes();

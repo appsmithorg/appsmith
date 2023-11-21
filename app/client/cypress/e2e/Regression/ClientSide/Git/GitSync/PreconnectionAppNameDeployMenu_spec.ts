@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
-describe("Pre git connection spec:", { tags: [Tag.Git] }, function () {
+describe("Pre git connection spec:", { tags: ["@tag.Git"] }, function () {
   it("1. Deploy menu at the application dropdown menu", () => {
     // create new app
     _.homePage.NavigateToHome();

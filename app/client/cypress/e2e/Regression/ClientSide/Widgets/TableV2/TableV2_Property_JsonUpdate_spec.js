@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Test Create Api and Bind to Table widget V2",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before("Create an API and Execute the API and bind with Table V", () => {
       _.agHelper.AddDsl("tableV2TextPaginationDsl");

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -6,7 +5,7 @@ import {
 
 describe(
   "Table Widget v2 property pane feature validation",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2AndTextDsl");

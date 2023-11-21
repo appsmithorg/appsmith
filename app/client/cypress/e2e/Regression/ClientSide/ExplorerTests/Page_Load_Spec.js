@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -6,7 +5,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Page Load tests", { tags: [Tag.IDE] }, () => {
+describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

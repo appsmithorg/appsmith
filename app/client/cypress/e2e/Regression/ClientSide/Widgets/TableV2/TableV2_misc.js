@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { DEFAULT_COLUMN_NAME } from "../../../../../support/Constants";
 
 describe(
   "tests bug 20663 TypeError: Cannot read properties of undefined",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableV2NewDsl");

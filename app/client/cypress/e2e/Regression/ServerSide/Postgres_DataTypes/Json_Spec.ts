@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -17,7 +16,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Json & JsonB Datatype tests",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     let dsName: any, query: string;
 

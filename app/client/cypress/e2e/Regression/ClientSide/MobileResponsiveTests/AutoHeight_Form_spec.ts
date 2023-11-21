@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { WIDGET_PADDING } from "../../../../../src/constants/WidgetConstants";
 import {
   MOBILE_ROW_GAP,
@@ -18,7 +17,7 @@ let containerHeight = 0;
 let inputHeight = 0;
 describe(
   "validate auto height for form widget on auto layout canvas",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     it("1. form widget height should update on adding or deleting child widgets", () => {
       /**

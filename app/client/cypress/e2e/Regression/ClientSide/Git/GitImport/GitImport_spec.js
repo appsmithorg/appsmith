@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePageLocators from "../../../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
@@ -17,7 +16,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Git import flow ", { tags: [Tag.Git] }, function () {
+describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   before(() => {
     homePage.NavigateToHome();
     homePage.CreateNewWorkspace();

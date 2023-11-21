@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const fieldPrefix = ".t--jsonformfield";
@@ -36,7 +35,7 @@ function clearOptionsProperty() {
 
 describe(
   "JSONForm RadioGroup Field",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

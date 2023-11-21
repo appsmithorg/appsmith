@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import widgetsPage from "../../../../../locators/Widgets.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
@@ -28,7 +27,7 @@ let repoName: any;
 
 describe(
   "Git sync: Merge changes via remote",
-  { tags: [Tag.Git] },
+  { tags: ["@tag.Git"] },
   function () {
     before(() => {
       _.homePage.NavigateToHome();

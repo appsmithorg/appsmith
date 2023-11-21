@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   autoLayout,
   dataSources,
@@ -9,7 +8,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe(
   "Check Suggested Widgets Feature in auto-layout",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   function () {
     before(() => {
       autoLayout.ConvertToAutoLayoutAndVerify(false);

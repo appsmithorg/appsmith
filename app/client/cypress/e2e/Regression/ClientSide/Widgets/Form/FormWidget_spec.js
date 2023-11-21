@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -6,7 +5,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Form Widget Functionality", { tags: [Tag.Widget] }, function () {
+describe("Form Widget Functionality", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("formdsl");
   });

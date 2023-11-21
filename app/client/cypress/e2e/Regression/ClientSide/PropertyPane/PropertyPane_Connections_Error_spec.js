@@ -1,9 +1,8 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Property pane connections error state",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("TextTabledsl");

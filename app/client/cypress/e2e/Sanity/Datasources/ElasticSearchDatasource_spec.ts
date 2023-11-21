@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 const datasource = require("../../../locators/DatasourcesEditor.json");
 
 import { dataSources } from "../../../support/Objects/ObjectsCore";
@@ -7,7 +6,7 @@ let elasticSearchName;
 
 describe(
   "Elastic search datasource tests",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     beforeEach(() => {
       cy.startRoutesForDatasource();

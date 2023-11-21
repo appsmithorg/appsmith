@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const queryEditor = require("../../../../locators/QueryEditor.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -12,7 +11,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe(
   "Addwidget from Query and bind with other widgets",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     before(() => {
       agHelper.AddDsl("inputdsl");

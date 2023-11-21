@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -9,7 +8,7 @@ const invalidURL = "test";
 let repoName: string;
 let generatedKey;
 let windowOpenSpy: any;
-describe("Git sync modal: Learn more links", { tags: [Tag.Git] }, function () {
+describe("Git sync modal: Learn more links", { tags: ["@tag.Git"] }, function () {
   it("1. validates repo URL", function () {
     // open gitSync modal
     cy.get(homePage.deployPopupOptionTrigger).click({ force: true });

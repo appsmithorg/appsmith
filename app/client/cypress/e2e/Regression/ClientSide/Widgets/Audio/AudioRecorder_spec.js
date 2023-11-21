@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 const explorer = require("../../../../../locators/explorerlocators.json");
 
 const widgetName = "audiorecorderwidget";
 
-describe("AudioRecorder Widget", { tags: [Tag.Widget, Tag.Audio] }, () => {
+describe("AudioRecorder Widget", { tags: ["@tag.Widget", "@tag.Audio"] }, () => {
   it("Drag & drop AudioRecorder and Text widgets", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });

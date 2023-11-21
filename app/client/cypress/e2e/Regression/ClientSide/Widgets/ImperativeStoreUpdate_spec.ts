@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   PROPERTY_SELECTOR,
   WIDGET,
@@ -15,7 +14,7 @@ import {
 
 describe(
   "Linting warning for imperative store update",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     it("Shows lint error for imperative store update", function () {
       entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);

@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const publicWidgetsPage = require("../../../../../locators/publishWidgetspage.json");
 
-describe("3D Custom EChart feature", { tags: [Tag.Widget] }, function () {
+describe("3D Custom EChart feature", { tags: ["@tag.Widget"] }, function () {
   it("1. 3D EChart Custom Chart Widget Functionality", function () {
     featureFlagIntercept({
       release_custom_echarts_enabled: true,

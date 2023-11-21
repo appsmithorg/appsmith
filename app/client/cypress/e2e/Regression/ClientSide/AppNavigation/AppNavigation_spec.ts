@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -9,7 +8,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("General checks for app navigation", { tags: [Tag.IDE] }, function () {
+describe("General checks for app navigation", { tags: ["@tag.IDE"] }, function () {
   it("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
     // App header should appear when there is a single page in the application
     deployMode.DeployApp();

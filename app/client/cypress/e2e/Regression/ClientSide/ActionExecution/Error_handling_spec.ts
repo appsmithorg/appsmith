@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -12,7 +11,7 @@ import {
 
 describe(
   "Test Create Api and Bind to Button widget",
-  { tags: [Tag.JS] },
+  { tags: ["@tag.JS"] },
   function () {
     before("Test_Add users api and execute api", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);

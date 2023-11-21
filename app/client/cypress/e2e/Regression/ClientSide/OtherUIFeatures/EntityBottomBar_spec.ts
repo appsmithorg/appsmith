@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
@@ -72,7 +71,7 @@ describe("Entity bottom bar", () => {
 
   it(
     "5. Query bottom bar should be collapsable",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       _.dataSources.CreateMockDB("Users").then((dbName) => {
         //Verify if bottom bar remain open on shifting to active datasource page.
@@ -110,7 +109,7 @@ describe("Entity bottom bar", () => {
 
   it(
     "5. Query bottom bar should be collapsable - airgap",
-    { tags: [Tag.airgap] },
+    { tags: ["@tag.airgap"] },
     () => {
       _.dataSources.CreateDataSource("Postgres");
       //Verify if bottom bar remain open on shifting to active datasource page.

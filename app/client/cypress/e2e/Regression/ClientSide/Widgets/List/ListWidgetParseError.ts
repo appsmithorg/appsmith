@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const { AggregateHelper: agHelper, CommonLocators } = ObjectsRegistry;
 
 describe(
   "List Widget parse error test",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("Button onClick currentItem.task shouldn't throw parse error", () => {
       agHelper.AddDsl("ListWidgetWithDataAndButtonDSL");

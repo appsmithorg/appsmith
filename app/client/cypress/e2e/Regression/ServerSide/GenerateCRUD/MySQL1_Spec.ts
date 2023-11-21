@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -19,7 +18,7 @@ let dsName: any;
 
 describe(
   "Validate MySQL Generate CRUD with JSON Form",
-  { tags: [Tag.GenerateCRUD] },
+  { tags: ["@tag.GenerateCRUD"] },
   () => {
     before(() => {
       featureFlagIntercept({

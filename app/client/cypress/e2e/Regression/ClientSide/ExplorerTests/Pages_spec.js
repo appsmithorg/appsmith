@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 const locators = {
   errorPageTitle: ".t--error-page-title",
 };
 
-describe("Pages", { tags: [Tag.IDE] }, function () {
+describe("Pages", { tags: ["@tag.IDE"] }, function () {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
   let apiName = "someApi";
 

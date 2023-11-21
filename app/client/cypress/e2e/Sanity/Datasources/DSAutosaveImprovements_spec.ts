@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
 import EditorNavigation, {
   SidebarButton,
@@ -11,7 +10,7 @@ let dsName: any;
 
 describe(
   "Datasource Autosave Improvements Tests",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("1. Test to verify that when datasource is discarded, no datasource can be seen in active list", () => {
       dataSources.NavigateToDSCreateNew();

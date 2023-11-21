@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
@@ -12,7 +11,7 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Guided Tour", { tags: [Tag.excludeForAirgap] }, function () {
+describe("Guided Tour", { tags: ["@tag.excludeForAirgap"] }, function () {
   it("1. Guided tour should work when started from the editor", function () {
     cy.generateUUID().then((uid) => {
       cy.Signup(`${uid}@appsmith.com`, uid);

@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe(
   "Chart Widget Functionality around custom chart data",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("chartCustomDataDsl");

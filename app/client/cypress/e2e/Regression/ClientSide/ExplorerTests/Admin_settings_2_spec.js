@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="cypress-tags" />
 import adminsSettings from "../../../../locators/AdminsSettings";
 
@@ -22,7 +21,7 @@ const routes = {
   VERSION: "/settings/version",
 };
 
-describe("Admin settings page", { tags: [Tag.IDE] }, function () {
+describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
   it("1. should test that configure link redirects to google maps setup doc", () => {
     cy.visit(routes.DEVELOPER_SETTINGS, { timeout: 60000 });
     cy.get(adminsSettings.readMoreLink).within(() => {
@@ -37,7 +36,7 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
 
   it(
     "2. should test that authentication page redirects",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -57,7 +56,7 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
 
   it(
     "2. should test that authentication page redirects and google and github auth doesn't exist - airgap",
-    { tags: [Tag.airgap] },
+    { tags: ["@tag.airgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -71,7 +70,7 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
 
   it(
     "3. should test that configure link redirects to google signup setup doc",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -91,7 +90,7 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
 
   it(
     "4. should test that configure link redirects to github signup setup doc",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.authenticationTab).click();
@@ -111,7 +110,7 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
 
   it(
     "5. should test that read more on version opens up release notes",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.versionTab).click();
@@ -135,7 +134,7 @@ describe("Admin settings page", { tags: [Tag.IDE] }, function () {
 
   it(
     "5. should test that read more on version is hidden for airgap",
-    { tags: [Tag.airgap] },
+    { tags: ["@tag.airgap"] },
     () => {
       cy.visit(routes.GENERAL, { timeout: 60000 });
       cy.get(adminsSettings.versionTab).click();

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -15,7 +14,7 @@ const data = [
 
 describe(
   "Custom column alias functionality",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("tableV2NewDsl");

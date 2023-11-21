@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
@@ -11,7 +10,7 @@ import {
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Dropdown Widget", { tags: [Tag.Widget, Tag.Select] }, function () {
+describe("Dropdown Widget", { tags: ["@tag.Widget", "@tag.Select"] }, function () {
   before(() => {
     agHelper.AddDsl("newFormDsl");
   });

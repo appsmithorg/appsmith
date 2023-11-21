@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -7,7 +6,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Navigate To feature", { tags: [Tag.JS] }, () => {
+describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
   it("2. Gives error message when invalid word is entered in the url tab of navigate to", () => {
     entityExplorer.AddNewPage(); // page 2
     entityExplorer.SelectEntityByName("Page1");

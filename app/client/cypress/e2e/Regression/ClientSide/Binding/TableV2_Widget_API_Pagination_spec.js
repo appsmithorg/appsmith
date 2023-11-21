@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Test Create Api and Bind to Table widget V2",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2TextPaginationDsl");

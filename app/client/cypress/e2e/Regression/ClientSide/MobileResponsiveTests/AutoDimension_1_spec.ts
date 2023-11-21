@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -9,7 +8,7 @@ import {
 
 describe(
   "Validating use cases for Auto Dimension",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     before(() => {
       autoLayout.ConvertToAutoLayoutAndVerify(false);

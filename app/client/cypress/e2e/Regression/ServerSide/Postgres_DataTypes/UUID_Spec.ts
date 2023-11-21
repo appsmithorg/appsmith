@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -16,7 +15,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("UUID Datatype tests", { tags: [Tag.Datasource] }, function () {
+describe("UUID Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Importing App & setting theme", () => {

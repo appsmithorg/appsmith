@@ -1,9 +1,8 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Validate API Auto generated headers",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   () => {
     it("1. Check whether auto generated header is set and overidden", () => {
       _.apiPage.CreateApi("FirstAPI");

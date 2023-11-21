@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -11,7 +10,7 @@ import {
 
 describe(
   "Audio Recorder functionality tests",
-  { tags: [Tag.Widget, Tag.Audio] },
+  { tags: ["@tag.Widget", "@tag.Audio"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(

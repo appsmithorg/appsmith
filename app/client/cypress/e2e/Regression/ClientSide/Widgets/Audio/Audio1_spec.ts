@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -12,7 +11,7 @@ const URL = "https://assets.appsmith.com/widgets/birds_chirping.mp3";
 
 describe(
   "Audio Widget functionality tests",
-  { tags: [Tag.Widget, Tag.Audio, Tag.excludeForAirgap] },
+  { tags: ["@tag.Widget", "@tag.excludeForAirgap"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.AUDIO, 200, 200);

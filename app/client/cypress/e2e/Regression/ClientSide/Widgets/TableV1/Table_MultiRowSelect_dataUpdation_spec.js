@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
@@ -14,7 +13,7 @@ if the primary column value isn't updated.
 */
 describe(
   "Table Widget row multi select validation",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       agHelper.AddDsl("multiSelectedRowUpdationDsl");

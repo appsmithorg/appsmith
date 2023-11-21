@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 import homePage from "../../../../locators/HomePage";
@@ -10,7 +9,7 @@ let currentUrl;
 
 describe(
   "Addwidget from Query and bind with other widgets",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     beforeEach(() => {
       cy.startRoutesForDatasource();

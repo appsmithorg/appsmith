@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 /**
  * This spec test the working of select and multiselect within an
  * Object or Array field
@@ -12,7 +11,7 @@ let agHelper = ObjectsRegistry.AggregateHelper;
 let locators = ObjectsRegistry.CommonLocators;
 let propPane = ObjectsRegistry.PropertyPane;
 
-describe("JSONForm select field", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
+describe("JSONForm select field", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

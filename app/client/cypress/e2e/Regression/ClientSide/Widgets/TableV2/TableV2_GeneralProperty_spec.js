@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 /* eslint-disable cypress/no-unnecessary-waiting */
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -12,7 +11,7 @@ import {
 
 describe(
   "Table Widget property pane feature validation",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2NewDsl");

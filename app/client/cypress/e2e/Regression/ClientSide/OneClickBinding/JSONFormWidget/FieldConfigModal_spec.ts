@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import { OneClickBinding } from "../spec_utility";
 import {
@@ -13,7 +12,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe(
   "JSONForm widget one click binding feature",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   () => {
     it("1.tests select/unselect fields for json form widget", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 450, 200);

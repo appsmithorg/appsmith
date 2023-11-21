@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../../fixtures/testdata.json");
 
 describe(
   "Table Widget property pane feature validation",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableNewDsl");

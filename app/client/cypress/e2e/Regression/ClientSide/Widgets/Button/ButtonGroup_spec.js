@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const { modifierKey } = require("../../../../../support/Constants");
 
@@ -19,7 +18,7 @@ const menuButton =
 
 describe(
   "Button Group Widget Functionality",
-  { tags: [Tag.Widget, Tag.Button] },
+  { tags: ["@tag.Widget", "@tag.Button"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON_GROUP);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -86,7 +85,7 @@ function removeCustomField() {
 
 describe(
   "JSON Form Hidden fields",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     before(() => {
       agHelper.AddDsl("jsonFormDslWithSchema");

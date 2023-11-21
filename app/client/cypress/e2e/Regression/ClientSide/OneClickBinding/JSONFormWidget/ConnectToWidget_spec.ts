@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import { OneClickBinding } from "../spec_utility";
 import {
@@ -16,7 +15,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe(
   "JSONForm widget one click binding feature",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   () => {
     let datasourceName: string;
 

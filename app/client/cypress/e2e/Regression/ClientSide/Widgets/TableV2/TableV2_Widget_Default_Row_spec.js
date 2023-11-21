@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
@@ -9,7 +8,7 @@ import {
 
 describe(
   "Table Widget V2 property pane deafult feature validation",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       agHelper.AddDsl("defaultTableV2Dsl");

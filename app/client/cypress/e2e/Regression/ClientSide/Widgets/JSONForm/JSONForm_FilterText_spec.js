@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 /**
  * Spec to test the filterText update action trigger in Select and MultiSelect widget
  */
@@ -18,7 +17,7 @@ let locators = ObjectsRegistry.CommonLocators;
 
 describe(
   "JSONForm Select field - filterText update action trigger ",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

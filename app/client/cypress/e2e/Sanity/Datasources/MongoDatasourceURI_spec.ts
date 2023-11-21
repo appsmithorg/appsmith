@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import {
   agHelper,
   dataManager,
@@ -11,7 +10,7 @@ let dsName: any;
 //  https://github.com/appsmithorg/TestEventDriver/issues/40
 describe(
   "Create, test, save then delete a mongo datasource using URI",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("1. Create, test, save then delete a mongo datasource using URI without username and password - #24897 ", function () {
       dataSources.NavigateToDSCreateNew();

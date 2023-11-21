@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /* eslint-disable cypress/no-unnecessary-waiting */
 import EditorNavigation, {
   SidebarButton,
@@ -169,7 +168,7 @@ describe("GlobalSearch", function () {
   // results found will be shown
   it(
     "8. navigatesToGoogleSheetsQuery does not break again: Bug 15012",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.createGoogleSheetsDatasource();
       cy.renameDatasource("XYZ");

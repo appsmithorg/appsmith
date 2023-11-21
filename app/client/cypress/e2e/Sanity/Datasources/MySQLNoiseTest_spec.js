@@ -1,10 +1,9 @@
-import { Tag } from "../../../tags";
 const queryLocators = require("../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
 
-describe("MySQL noise test", { tags: [Tag.Datasource] }, function () {
+describe("MySQL noise test", { tags: ["@tag.Datasource"] }, function () {
   let datasourceName;
 
   beforeEach(() => {

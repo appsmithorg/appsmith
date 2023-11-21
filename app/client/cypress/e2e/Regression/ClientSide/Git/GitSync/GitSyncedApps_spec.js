@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
@@ -28,7 +27,7 @@ const mainBranch = "master";
 let datasourceName;
 let repoName;
 
-describe("Git sync apps", { tags: [Tag.Git] }, function () {
+describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
   before(() => {
     // homePage.NavigateToHome();
     // cy.createWorkspace();

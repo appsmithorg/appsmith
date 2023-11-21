@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../../tags";
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 const tableData = `{{[
@@ -14,7 +13,7 @@ function updateCellValue(value) {
   _.agHelper.Sleep(500);
 }
 
-describe("Currency column", { tags: [Tag.Widget, Tag.Table] }, () => {
+describe("Currency column", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 300, 400);
     _.propPane.UpdatePropertyFieldValue(

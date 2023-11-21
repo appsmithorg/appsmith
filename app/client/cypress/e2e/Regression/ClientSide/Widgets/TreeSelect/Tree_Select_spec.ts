@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import explorer from "../../../../../locators/explorerlocators.json";
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 
-describe("Tree Select Widget", { tags: [Tag.Widget, Tag.Select] }, function () {
+describe("Tree Select Widget", { tags: ["@tag.Widget", "@tag.Select"] }, function () {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

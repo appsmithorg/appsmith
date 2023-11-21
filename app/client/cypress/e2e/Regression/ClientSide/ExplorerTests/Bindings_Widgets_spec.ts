@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "Entity explorer tests related to widgets and validation",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

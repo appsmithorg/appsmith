@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import * as commonlocators from "../../../../locators/commonlocators.json";
 import {
   agHelper,
@@ -9,7 +8,7 @@ import {
 
 describe(
   "Resizing Behaviour in auto-layout",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   function () {
     before(() => {
       cy.get(commonlocators.autoConvert).click({

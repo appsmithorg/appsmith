@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../../tags";
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const dslWithCurrencyWidget = require("../../../../../../fixtures/Listv2/simpleListWithCurrencyWidget.json");
 import {
@@ -13,7 +12,7 @@ import {
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
 
-describe("Input Widgets", { tags: [Tag.Widget, Tag.List] }, function () {
+describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   before(() => {
     agHelper.AddDsl("Listv2/simpleLargeListv2");
   });

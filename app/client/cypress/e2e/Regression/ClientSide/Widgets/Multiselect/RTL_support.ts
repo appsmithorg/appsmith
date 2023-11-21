@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
@@ -7,7 +6,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Select Widget", { tags: [Tag.Widget, Tag.Multiselect] }, () => {
+describe("Select Widget", { tags: ["@tag.Widget", "@tag.Multiselect"] }, () => {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.MULTISELECT);
   });

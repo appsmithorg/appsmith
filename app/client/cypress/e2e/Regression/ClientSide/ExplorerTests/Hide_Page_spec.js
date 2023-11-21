@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const pages = require("../../../../locators/Pages.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -7,7 +6,7 @@ const pageTwo = "MyPage2";
 
 describe(
   "Hide / Show page test functionality",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     it("1. Hide/Show page test ", function () {
       cy.Createpage(pageOne);

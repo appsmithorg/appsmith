@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { WIDGET_PADDING } from "../../../../../src/constants/WidgetConstants";
 import { MOBILE_ROW_GAP } from "../../../../../src/layoutSystems/common/utils/constants";
 import {
@@ -16,7 +15,7 @@ const containerPadding = 16;
 let inputHeight = 0;
 describe(
   "Validate auto height for container widget on auto layout canvas",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     it("1. parent height should update on adding or deleting child widgets", () => {
       /**

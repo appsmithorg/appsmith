@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Column freeze & unfreeze in page mode",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });
@@ -13,7 +12,7 @@ describe(
 
     describe(
       "2.1 Column freeze and unfreeze testing with 0 pre-frozen columns",
-      { tags: [Tag.Widget, Tag.Table] },
+      { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         after(() => {
           _.deployMode.NavigateBacktoEditor();
@@ -86,7 +85,7 @@ describe(
 
     describe(
       "2.2 Column freeze and unfreeze testing with multiple pre-frozen columns",
-      { tags: [Tag.Widget, Tag.Table] },
+      { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         after(() => {
           _.deployMode.NavigateBacktoEditor();
@@ -152,7 +151,7 @@ describe(
 
     describe(
       "2.3 Hiding frozen columns",
-      { tags: [Tag.Widget, Tag.Table] },
+      { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("2.3.1 Hide left frozen column and check it's position is before right frozen columns", () => {
           cy.openPropertyPane(_.draggableWidgets.TABLE);

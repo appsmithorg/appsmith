@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
@@ -8,7 +7,7 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import appPage from "../../../../locators/CMSApplocators";
 import apiEditor from "../../../../locators/ApiEditor";
 
-describe("API Panel request body", { tags: [Tag.Datasource] }, function () {
+describe("API Panel request body", { tags: ["@tag.Datasource"] }, function () {
   it("1. Check whether the default content-type changes on changing method types and remains unchanged on switching to GET", function () {
     cy.CreateAPI("FirstAPI");
 

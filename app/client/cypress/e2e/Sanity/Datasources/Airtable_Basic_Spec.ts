@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -16,7 +15,7 @@ import {
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
 describe(
   "Validate Airtable Ds",
-  { tags: [Tag.Datasource, Tag.excludeForAirgap] },
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   () => {
     before("Create a new Airtable DS", () => {
       dataSources.CreateDataSource("Airtable", true, false);

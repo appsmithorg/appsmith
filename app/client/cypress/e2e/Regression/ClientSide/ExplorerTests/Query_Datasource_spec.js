@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 import EditorNavigation, {
@@ -19,7 +18,7 @@ let datasourceName;
 
 describe(
   "Entity explorer tests related to query and datasource",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     before(() => {
       cy.generateUUID().then((uid) => {

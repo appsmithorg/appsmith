@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import {
@@ -10,7 +9,7 @@ import {
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Radio Widget Functionality", { tags: [Tag.Widget] }, function () {
+describe("Radio Widget Functionality", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     agHelper.AddDsl("newFormDsl");
   });

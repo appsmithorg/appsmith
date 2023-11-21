@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 const apiwidget = require("../../../locators/apiWidgetslocator.json");
 const datasourceFormData = require("../../../fixtures/datasources.json");
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
@@ -6,7 +5,7 @@ const testdata = require("../../../fixtures/testdata.json");
 
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
-describe("Authenticated API Datasource", { tags: [Tag.Datasource] }, function () {
+describe("Authenticated API Datasource", { tags: ["@tag.Datasource"] }, function () {
   const URL = datasourceFormData["authenticatedApiUrl"];
   const headers = "Headers";
   const queryParams = "Query Params";

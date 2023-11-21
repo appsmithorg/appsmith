@@ -1,8 +1,7 @@
-import { Tag } from "../../../../tags";
 const dsl = require("../../../../fixtures/deprecatedWidgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Deprecation warning feature", { tags: [Tag.Widget] }, function () {
+describe("Deprecation warning feature", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("deprecatedWidgets");
   });

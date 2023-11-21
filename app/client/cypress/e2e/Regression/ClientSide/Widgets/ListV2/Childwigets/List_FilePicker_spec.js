@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -10,7 +9,7 @@ const commonlocators = require("../../../../../../locators/commonlocators.json")
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
-describe(" File Picker Widget", { tags: [Tag.Widget, Tag.List] }, function () {
+describe(" File Picker Widget", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   before(() => {
     agHelper.AddDsl("Listv2/simpleLargeListv2");
   });

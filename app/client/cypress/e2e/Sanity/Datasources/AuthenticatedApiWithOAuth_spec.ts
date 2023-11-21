@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import {
   agHelper,
   apiPage,
@@ -8,7 +7,7 @@ import {
 
 describe(
   "Authentiacted Api with OAuth 2.O authorization code test cases",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("1. Create & Save an Authenticated API with OAuth 2.O authorization code", function () {
       // Create OAuth client

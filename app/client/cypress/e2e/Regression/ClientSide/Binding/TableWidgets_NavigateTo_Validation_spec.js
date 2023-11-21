@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -12,7 +11,7 @@ import {
 
 describe(
   "Table Widget and Navigate to functionality validation",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

@@ -1,7 +1,6 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Form data", { tags: [Tag.Widget] }, function () {
+describe("Form data", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("formDataDsl");
   });

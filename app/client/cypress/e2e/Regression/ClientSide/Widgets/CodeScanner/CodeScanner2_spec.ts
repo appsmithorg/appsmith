@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import widgetLocators from "../../../../../locators/Widgets.json";
 import {
   agHelper,
@@ -10,7 +9,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Code scanner widget tests", { tags: [Tag.Widget] }, () => {
+describe("Code scanner widget tests", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     //Reset video source to default
     cy.task("resetVideoSource");

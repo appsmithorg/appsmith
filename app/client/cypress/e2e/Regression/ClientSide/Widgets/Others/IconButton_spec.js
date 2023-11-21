@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
@@ -6,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Icon button Widget Functionality",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.ICONBUTTON);

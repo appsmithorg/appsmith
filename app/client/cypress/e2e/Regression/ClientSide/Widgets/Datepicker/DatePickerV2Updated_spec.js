@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "DatePicker Widget Property pane tests with js bindings",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();
@@ -32,7 +31,7 @@ describe(
 
 describe(
   "DatePicker Widget required property test",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   () => {
     it("should should bring up a required error state when value is cleared ", () => {
       cy.openPropertyPane("datepickerwidget2");

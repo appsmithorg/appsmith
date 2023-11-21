@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -8,7 +7,7 @@ import {
 
 describe(
   "Rich Text Editor widget Tests",
-  { tags: [Tag.Widget, Tag.RichTextEditor] },
+  { tags: ["@tag.Widget", "@tag.RichTextEditor"] },
   function () {
     before(() => {
       agHelper.AddDsl("richTextEditorDsl");

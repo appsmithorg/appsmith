@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityItems,
@@ -64,7 +63,7 @@ describe("Datasource form related tests", function () {
 
   it(
     "3. Verify if schema (table and column) exist in query editor and searching works",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.RefreshPage();
       dataSources.CreateMockDB("Users");
@@ -81,7 +80,7 @@ describe("Datasource form related tests", function () {
 
   it(
     "4. Verify if collapsible opens when refresh button is opened.",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       agHelper.RefreshPage();
       dataSources.CreateMockDB("Users");

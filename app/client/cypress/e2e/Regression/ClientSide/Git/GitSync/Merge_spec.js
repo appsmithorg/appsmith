@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import commonLocators from "../../../../../locators/commonlocators.json";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -6,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 let repoName;
 let childBranchKey = "ChildBranch";
 let mainBranch = "master";
-describe("Git sync modal: merge tab", { tags: [Tag.Git] }, function () {
+describe("Git sync modal: merge tab", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();

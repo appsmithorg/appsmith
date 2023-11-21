@@ -1,11 +1,10 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Property Pane Search", { tags: [Tag.IDE] }, function () {
+describe("Property Pane Search", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     agHelper.AddDsl("swtchTableV2Dsl");
   });

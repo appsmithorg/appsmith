@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -12,7 +11,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("DateTime Datatype tests", { tags: [Tag.Datasource] }, function () {
+describe("DateTime Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {

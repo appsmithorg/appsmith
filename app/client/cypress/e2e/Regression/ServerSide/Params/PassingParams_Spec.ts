@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -17,7 +16,7 @@ let jsName: any, dsName: any;
 
 describe(
   "Bug #10784 - Passing params from JS to SQL query should not break",
-  { tags: [Tag.JS] },
+  { tags: ["@tag.JS"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);

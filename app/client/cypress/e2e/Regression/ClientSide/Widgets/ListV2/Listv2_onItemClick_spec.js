@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
@@ -37,7 +36,7 @@ function validateToastDoestExist() {
   cy.get(commonlocators.toastmsg, { timeout: 100 }).should("not.exist");
 }
 
-describe("List widget v2 onItemClick", { tags: [Tag.Widget, Tag.List] }, () => {
+describe("List widget v2 onItemClick", { tags: ["@tag.Widget", "@tag.List"] }, () => {
   it("1. List widget V2 with onItemClick", () => {
     cy.dragAndDropToCanvas("listwidgetv2", {
       x: 300,

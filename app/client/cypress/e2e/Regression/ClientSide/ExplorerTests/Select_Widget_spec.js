@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 import commonLocators from "../../../../locators/commonlocators.json";
 import widgets from "../../../../locators/Widgets.json";
 const widgetLocators = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Explorer hidden widget Selection", { tags: [Tag.IDE] }, () => {
+describe("Explorer hidden widget Selection", { tags: ["@tag.IDE"] }, () => {
   before(() => {
     _.agHelper.AddDsl("explorerHiddenWidgets");
   });

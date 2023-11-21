@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgets = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
@@ -10,7 +9,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { progressWidgetProgress } from "../../../../../locators/WidgetLocators";
 
-describe("Progress Widget", { tags: [Tag.Widget] }, function () {
+describe("Progress Widget", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.PROGRESS);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 200);

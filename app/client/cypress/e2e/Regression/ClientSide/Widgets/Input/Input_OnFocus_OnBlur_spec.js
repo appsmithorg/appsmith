@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
@@ -15,7 +14,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe(
   "Input Widget Property tests onFocus and onBlur",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     it("1. onBlur and onFocus should be triggered from the input widget", () => {
       cy.dragAndDropToCanvas(inputWidgetName, { x: 300, y: 200 });

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
@@ -8,7 +7,7 @@ const iconAlignmentProperty = ".t--property-control-position";
 
 describe(
   "Button Widget Functionality",
-  { tags: [Tag.Widget, Tag.Button] },
+  { tags: ["@tag.Widget", "@tag.Button"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("newFormDsl");
@@ -194,7 +193,7 @@ describe(
 
     it(
       "8. Button-Check recaptcha type can be selected",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         cy.selectDropdownValue(commonlocators.recaptchaVersion, "reCAPTCHA v2");
         cy.get(commonlocators.recaptchaVersionText)
@@ -205,7 +204,7 @@ describe(
 
     it(
       "9. Button-Check recaptcha type should not exist for airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       function () {
         cy.get(commonlocators.recaptchaVersion).should("not.exist");
       },

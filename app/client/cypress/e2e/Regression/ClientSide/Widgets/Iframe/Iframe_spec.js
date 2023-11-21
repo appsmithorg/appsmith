@@ -1,7 +1,6 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Iframe Widget functionality", { tags: [Tag.Widget] }, function () {
+describe("Iframe Widget functionality", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("IframeDsl");
   });

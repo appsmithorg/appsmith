@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "RichTextEditor Widget Validation",
-  { tags: [Tag.Widget, Tag.RichTextEditor] },
+  { tags: ["@tag.Widget", "@tag.RichTextEditor"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");

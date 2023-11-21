@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -49,7 +48,7 @@ function checkSelectedRadioValue(selector, value) {
 
 describe(
   "List widget v2 - Basic Child Widget Interaction",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("Listv2/emptyList");

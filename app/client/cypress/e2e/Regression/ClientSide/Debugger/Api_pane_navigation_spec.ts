@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="cypress-tags" />
 import {
   apiPage,
@@ -9,7 +8,7 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Api pane navigation", { tags: [Tag.excludeForAirgap] }, () => {
+describe("Api pane navigation", { tags: ["@tag.excludeForAirgap"] }, () => {
   it("1. Navigation to Grapql pagination field", () => {
     apiPage.CreateGraphqlApi("Api1");
     apiPage.SelectPaneTab("Pagination");

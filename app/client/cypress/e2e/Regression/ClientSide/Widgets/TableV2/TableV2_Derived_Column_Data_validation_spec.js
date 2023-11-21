@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Test Create Api and Bind to Table widget",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2TextPaginationDsl");

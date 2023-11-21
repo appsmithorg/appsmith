@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 const queryLocators = require("../../../../locators/QueryEditor.json");
@@ -17,7 +16,7 @@ let datasourceName;
 
 describe(
   "Validate CRUD queries for Amazon S3 along with UI flow verifications",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     let fileName;
 

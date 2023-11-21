@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import template from "../../../../locators/TemplatesLocators.json";
 import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import widgetLocators from "../../../../locators/Widgets.json";
@@ -11,7 +10,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Fork a template to the current app",
-  { tags: [Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   () => {
     before(() => {
       _.homePage.NavigateToHome();

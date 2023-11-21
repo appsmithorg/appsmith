@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -19,7 +18,7 @@ let dsName: any;
 
 describe(
   "Postgres Generate CRUD with JSON Form",
-  { tags: [Tag.GenerateCRUD] },
+  { tags: ["@tag.GenerateCRUD"] },
   () => {
     it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
       dataSources.CreateDataSource("Postgres");

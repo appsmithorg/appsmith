@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -10,7 +9,7 @@ import {
 
 describe(
   "List widget V2 PropertyPane",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. Validate isVisible", () => {
       entityExplorer.DragDropWidgetNVerify("listwidgetv2", 300, 300);

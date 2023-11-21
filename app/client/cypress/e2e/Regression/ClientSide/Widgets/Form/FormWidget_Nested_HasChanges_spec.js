@@ -1,7 +1,6 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Form Widget", { tags: [Tag.Widget] }, () => {
+describe("Form Widget", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     _.agHelper.AddDsl("formHasChangesDsl");
   });

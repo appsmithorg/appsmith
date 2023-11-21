@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -8,7 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "MultiSelectTree Widget Functionality",
-  { tags: [Tag.Widget, Tag.Multiselect] },
+  { tags: ["@tag.Widget", "@tag.Multiselect"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("TreeSelectDsl");

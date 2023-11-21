@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   propPane,
   table,
@@ -9,7 +8,7 @@ const totalRows = 100;
 
 describe(
   "Table Widget Virtualized Row",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 600 });

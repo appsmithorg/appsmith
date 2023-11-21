@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -6,7 +5,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const appSettings = ObjectsRegistry.AppSettings;
 
-describe("Theme validation usecases", { tags: [Tag.Theme] }, function () {
+describe("Theme validation usecases", { tags: [] }, function () {
   it("1. Drag and drop button widget, change value and check reset flow", function () {
     // drop button widget
     cy.get(explorer.addWidget).click();

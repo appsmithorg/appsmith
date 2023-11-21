@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const explorer = require("../../../../locators/explorerlocators.json");
 import {
   apiPage,
@@ -13,7 +12,7 @@ const secondApiName = "Second";
 
 describe(
   "Api Naming conflict on a page test",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     it("1. Expects actions on the same page cannot have identical names", function () {
       // create an API
@@ -47,7 +46,7 @@ describe(
 
 describe(
   "Api Naming conflict on different pages test",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     it("2. It expects actions on different pages can have identical names", function () {
       // create a new API
@@ -76,7 +75,7 @@ describe(
   },
 );
 
-describe("Entity Naming conflict test", { tags: [Tag.IDE] }, function () {
+describe("Entity Naming conflict test", { tags: ["@tag.IDE"] }, function () {
   it("3. Expects JS objects and actions to not have identical names on the same page.", function () {
     entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and name it

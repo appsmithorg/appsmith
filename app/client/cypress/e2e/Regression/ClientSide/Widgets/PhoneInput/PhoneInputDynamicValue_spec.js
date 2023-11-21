@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -8,7 +7,7 @@ import {
 
 const widgetName = "phoneinputwidget";
 
-describe("Phone input widget - ", { tags: [Tag.Widget] }, () => {
+describe("Phone input widget - ", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     agHelper.AddDsl("PhoneInputDynamic");
   });

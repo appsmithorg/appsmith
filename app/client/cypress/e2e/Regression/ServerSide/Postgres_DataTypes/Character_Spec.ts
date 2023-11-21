@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -11,7 +10,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
-describe("Character Datatype tests", { tags: [Tag.Datasource] }, function () {
+describe("Character Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {

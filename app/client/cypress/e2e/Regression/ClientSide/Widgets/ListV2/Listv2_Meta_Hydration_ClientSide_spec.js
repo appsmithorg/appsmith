@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -61,7 +60,7 @@ function verifyValueOfWidget(widgetType, value, index) {
 
 describe(
   "List widget v2 - meta hydration tests",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("Listv2/MetaHydrationDSL");

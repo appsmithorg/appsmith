@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
 describe(
   "List widget v2 Copy and Paste",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. Validate Copy paste action", () => {
       cy.dragAndDropToCanvas("listwidgetv2", {

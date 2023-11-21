@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -13,7 +12,7 @@ let repoName;
 let generatedKey;
 let windowOpenSpy;
 const owner = Cypress.env("TEST_GITHUB_USER_NAME");
-describe("Git sync modal: connect tab", { tags: [Tag.Git] }, function () {
+describe("Git sync modal: connect tab", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 import {
@@ -19,7 +18,7 @@ beforeEach(() => {
 
 describe(
   "Fork a template to the current app from new page popover",
-  { tags: [Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   () => {
     it("1. Fork template from page section", () => {
       //Fork template button to be visible always

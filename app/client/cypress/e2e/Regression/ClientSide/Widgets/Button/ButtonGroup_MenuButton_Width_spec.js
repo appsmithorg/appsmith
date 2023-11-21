@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "In a button group widget, menu button width",
-  { tags: [Tag.Widget, Tag.Button] },
+  { tags: ["@tag.Widget", "@tag.Button"] },
   function () {
     before(() => {
       agHelper.AddDsl("ButtonGroup_MenuButton_Width_dsl");

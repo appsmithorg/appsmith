@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   entityExplorer,
   draggableWidgets,
@@ -20,7 +19,7 @@ const upfrontContentCount = 4;
 
 describe(
   "One click binding control",
-  { tags: [Tag.Binding, Tag.excludeForAirgap] },
+  { tags: ["@tag.Binding", "@tag.excludeForAirgap"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);
