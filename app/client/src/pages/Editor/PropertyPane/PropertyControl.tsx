@@ -606,8 +606,9 @@ const PropertyControl = memo((props: Props) => {
   const { propertyName } = props;
 
   const isDynamic: boolean = widgetProperties?.isPropertyDynamicPath;
-  const wasDynamic: boolean =
-    usePrevious(widgetProperties?.isPropertyDynamicPath) ?? isDynamic;
+  const wasDynamic: boolean = usePrevious(
+    widgetProperties?.isPropertyDynamicPath,
+  );
 
   if (widgetProperties) {
     // Do not render the control if it needs to be hidden
@@ -645,6 +646,13 @@ const PropertyControl = memo((props: Props) => {
       }),
     );
 
+    /**
+     * Position cursor inside binding when switched to JS mode
+     * Check to see if a toggle operation was made.
+     */
+    const shouldFocusOnJSControl =
+      wasDynamic !== undefined && isDynamic && wasDynamic !== isDynamic;
+
     const { additionalAutoComplete, ...rest } = props;
     const config: ControlData = {
       ...rest,
@@ -657,7 +665,7 @@ const PropertyControl = memo((props: Props) => {
       additionalDynamicData: {},
       label,
       additionalControlData: {
-        shouldFocusOnJSControl: isDynamic && wasDynamic !== isDynamic,
+        shouldFocusOnJSControl,
       },
     };
     config.expected = getExpectedValue(props.validation);
