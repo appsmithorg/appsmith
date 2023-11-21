@@ -125,7 +125,9 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --immutable
+        run: |
+          npm install -g yarn
+          yarn install --immutable
 
       # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests
@@ -164,6 +166,12 @@ jobs:
         with:
           name: rts-dist
           path: app/client/packages/rts/rts-dist.tar
+          
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: rts-dist
+          path: app/client/packages/rts/dist
 
       # Set status = success
       - name: Save the status of the run
