@@ -48,6 +48,10 @@ export function* updateWidgetsToBeDeleted(selectedWidgets: string[]) {
 
   if (!emptySections.length) return [];
 
+  /**
+   * Step 3: Remove zones the belong to empty sections from the list of selected widgets.
+   * and add the empty sections to the list of widgets to be deleted.
+   */
   return [
     ...selectedWidgets.filter(
       (each: string) => !zonesToBeDeleted.includes(each),
