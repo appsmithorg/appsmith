@@ -15,6 +15,8 @@ interface ButtonControlProps extends ControlProps {
   onAdd: (widget: WidgetProps, name: string) => Record<string, unknown>;
 }
 
+const RESTRICTED_NAMES = ["onReset"];
+
 class ButtonControl extends BaseControl<
   ButtonControlProps,
   ButtonControlState
@@ -45,7 +47,10 @@ class ButtonControl extends BaseControl<
     return (
       !this.state.eventName.trim() ||
       this.props.widgetProperties.hasOwnProperty(this.state.eventName.trim()) ||
-      this.props.widgetProperties.events.includes(this.state.eventName.trim())
+      this.props.widgetProperties.events.includes(
+        this.state.eventName.trim(),
+      ) ||
+      RESTRICTED_NAMES.includes(this.state.eventName.trim())
     );
   };
 
@@ -59,6 +64,8 @@ class ButtonControl extends BaseControl<
       this.props.widgetProperties.events.includes(this.state.eventName.trim())
     ) {
       return "Event name already exists";
+    } else if (RESTRICTED_NAMES.includes(this.state.eventName.trim())) {
+      return "Event name is restricted";
     }
   };
 
