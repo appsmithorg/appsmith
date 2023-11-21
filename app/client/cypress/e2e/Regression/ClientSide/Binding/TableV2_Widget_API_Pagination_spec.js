@@ -1,10 +1,10 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
   entityExplorer,
   propPane,
   apiPage,
   table,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", function () {
@@ -47,6 +47,6 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     agHelper.GetNClick(table._nextPage("v2"));
 
     agHelper.AssertAttribute(table._nextPage("v2"), "disabled", "disabled");
-    agHelper.AssertElementAbsence(commonlocators._toastMsg);
+    agHelper.AssertElementAbsence(locators._toastMsg);
   });
 });
