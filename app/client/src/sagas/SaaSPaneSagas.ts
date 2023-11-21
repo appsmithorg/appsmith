@@ -21,6 +21,7 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import { initialize } from "redux-form";
 import { omit } from "lodash";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
@@ -43,6 +44,10 @@ function* handleDatasourceCreatedSaga(
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
     yield select(getGenerateCRUDEnabledPluginMap);
 
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+
   // isGeneratePageInitiator ensures that datasource is being created from generate page with data
   // then we check if the current plugin is supported for generate page with data functionality
   // and finally isDBCreated ensures that datasource is not in temporary state and
@@ -61,7 +66,7 @@ function* handleDatasourceCreatedSaga(
         },
       }),
     );
-  } else {
+  } else if (!currentApplicationIdForCreateNewApp) {
     history.push(
       saasEditorDatasourceIdURL({
         pageId,

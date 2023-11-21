@@ -12,7 +12,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
 
     // Oracle
     dataSources.NavigateToDSCreateNew();
@@ -24,7 +23,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
 
     // SMTP
     dataSources.NavigateToDSCreateNew();
@@ -36,7 +34,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
 
     // MySQL
     dataSources.NavigateToDSCreateNew();
@@ -48,7 +45,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
 
     // Postgres
     dataSources.NavigateToDSCreateNew();
@@ -60,7 +56,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
 
     // MongoDB
     dataSources.NavigateToDSCreateNew();
@@ -72,7 +67,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
 
     // Elasticsearch
     dataSources.NavigateToDSCreateNew();
@@ -84,7 +78,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
 
     // Redis
     dataSources.NavigateToDSCreateNew();
@@ -96,7 +89,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
 
     // Redshift
     dataSources.NavigateToDSCreateNew();
@@ -108,7 +100,6 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
 
     // ArangoDB
     dataSources.NavigateToDSCreateNew();
@@ -120,6 +111,5 @@ describe("Test placeholder value for port number for all datasources - tests #24
       "placeholder",
       expectedPlaceholderValue,
     );
-    agHelper.GoBack();
   });
 });

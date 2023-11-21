@@ -1,6 +1,7 @@
 package com.appsmith.server.refactors.applications;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
@@ -12,25 +13,28 @@ import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
@@ -39,7 +43,7 @@ import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALU
 public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final NewPageService newPageService;
     private final ResponseUtils responseUtils;
-    private final LayoutActionService layoutActionService;
+    private final UpdateLayoutService updateLayoutService;
     private final ApplicationService applicationService;
     private final PagePermission pagePermission;
     private final AnalyticsService analyticsService;
@@ -108,8 +112,8 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 List<Layout> layouts = page.getLayouts();
                 for (Layout layout : layouts) {
                     if (layoutId.equals(layout.getId())) {
-                        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                        return layoutActionService
+                        layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                        return updateLayoutService
                                 .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
                                 .zipWith(Mono.just(updatedBindingPaths));
                     }
@@ -164,8 +168,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 .then(pageIdMono)
                 .flatMap(branchedPageId -> {
                     refactorEntityNameDTO.setPageId(branchedPageId);
-                    return layoutActionService
-                            .isNameAllowed(
+                    return this.isNameAllowed(
                                     branchedPageId,
                                     refactorEntityNameDTO.getLayoutId(),
                                     refactorEntityNameDTO.getNewFullyQualifiedName())
@@ -201,6 +204,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             case JS_ACTION -> jsActionEntityRefactoringService;
             case ACTION -> newActionEntityRefactoringService;
             case JS_OBJECT -> actionCollectionEntityRefactoringService;
+            default -> null;
         };
     }
 
@@ -224,5 +228,47 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     return true;
                 })
                 .then();
+    }
+
+    @Override
+    public Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName) {
+
+        boolean isFQN = newName.contains(".");
+
+        Iterable<Flux<String>> existingEntityNamesFlux = getExistingEntityNamesFlux(pageId, layoutId, isFQN);
+
+        return Flux.merge(existingEntityNamesFlux)
+                .collect(Collectors.toSet())
+                .map(existingNames -> !existingNames.contains(newName));
+    }
+
+    protected Iterable<Flux<String>> getExistingEntityNamesFlux(String pageId, String layoutId, boolean isFQN) {
+        Flux<String> existingActionNamesFlux =
+                newActionEntityRefactoringService.getExistingEntityNames(pageId, CreatorContextType.PAGE, layoutId);
+
+        /*
+         * TODO : Execute this check directly on the DB server. We can query array of arrays by:
+         * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
+         */
+        Flux<String> existingWidgetNamesFlux = Flux.empty();
+        Flux<String> existingActionCollectionNamesFlux = Flux.empty();
+
+        // Widget and collection names cannot collide with FQNs because of the dot operator
+        // Hence we can avoid unnecessary DB calls
+        if (!isFQN) {
+            existingWidgetNamesFlux =
+                    widgetEntityRefactoringService.getExistingEntityNames(pageId, CreatorContextType.PAGE, layoutId);
+
+            existingActionCollectionNamesFlux = actionCollectionEntityRefactoringService.getExistingEntityNames(
+                    pageId, CreatorContextType.PAGE, layoutId);
+        }
+
+        ArrayList<Flux<String>> list = new ArrayList<>();
+
+        list.add(existingActionNamesFlux);
+        list.add(existingWidgetNamesFlux);
+        list.add(existingActionCollectionNamesFlux);
+
+        return list;
     }
 }

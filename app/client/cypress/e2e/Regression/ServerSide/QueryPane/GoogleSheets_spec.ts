@@ -4,6 +4,9 @@ import {
   locators,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "excludeForAirgap",
@@ -44,7 +47,7 @@ describe(
       );
       agHelper.GetNClick(locators._visibleTextSpan("Don't save"));
       agHelper.Sleep();
-      agHelper.GoBack();
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       agHelper.Sleep();
     });
   },

@@ -3,7 +3,8 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export const getIsAppSidebarEnabled = createSelector(
   selectFeatureFlags,
-  (flags) => !!flags?.release_app_sidebar_enabled,
+  (flags) =>
+    !!flags?.release_app_sidebar_enabled || flags?.rollout_app_sidebar_enabled,
 );
 
 export const getIsAppSidebarAnnouncementEnabled = createSelector(

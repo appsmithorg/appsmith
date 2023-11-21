@@ -5,10 +5,13 @@ import {
   deployMode,
   appSettings,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Test app's navigation settings", function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
     agHelper.AssertElementVisibility(
       appSettings.locators._navigationSettingsTab,
     );
@@ -34,7 +37,7 @@ describe("Test app's navigation settings", function () {
     //Browser back is used as the Navbar is off and there wont be option to come back to editor
     agHelper.BrowserNavigation(-1);
     // Wait for the app to load
-    agHelper.GetNClick(appSettings.locators._appSettings, 0, true);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     // Toggle show navbar back to on
     agHelper.GetNClick(
@@ -60,7 +63,7 @@ describe("Test app's navigation settings", function () {
 
   it("4. Change 'Orientation' back to 'Top', and 'Nav style' to 'Inline', page navigation items should appear inline", () => {
     entityExplorer.AddNewPage();
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._top,

@@ -167,6 +167,7 @@ export interface WidgetEntityConfig
   extends Partial<WidgetProps>,
     Omit<WidgetConfigProps, "widgetName" | "rows" | "columns">,
     WidgetConfig {
+  widgetId: string;
   defaultMetaProps: Array<string>;
   type: string;
   __setters?: Record<string, any>;

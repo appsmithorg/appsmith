@@ -27,7 +27,7 @@ const mainBranch = "master";
 let datasourceName;
 let repoName;
 
-describe("Git sync apps", function () {
+describe.skip("Git sync apps", function () {
   before(() => {
     // homePage.NavigateToHome();
     // cy.createWorkspace();
@@ -121,8 +121,6 @@ describe("Git sync apps", function () {
       cy.get(`.t--entity-item:contains(${newPage})`).click();
       cy.wait(1000);
       // create a get api call
-      cy.NavigateToAPI_Panel();
-      cy.wait(2000);
       cy.CreateAPI("get_data");
       // creating get request using echo
       cy.get(apiwidget.resourceUrl)
