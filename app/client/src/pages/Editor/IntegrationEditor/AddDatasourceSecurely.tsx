@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import SecureLock from "assets/images/secure-lock.svg";
 import { Flex, Text } from "design-system";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const Wrapper = styled(Flex)`
   background: var(--ads-v2-color-blue-100);
@@ -13,7 +14,10 @@ const Wrapper = styled(Flex)`
 function AddDatasourceSecurely() {
   return (
     <Wrapper>
-      <img alt="Secure & fast connection" src={SecureLock} />
+      <img
+        alt="Secure & fast connection"
+        src={getAssetUrl(`${ASSETS_CDN_URL}/secure-lock.svg`)}
+      />
       <Flex flexDirection="column" ml="spaces-4">
         <Text color="var(--ads-v2-color-gray-700)" kind="heading-m">
           Secure & fast connection
