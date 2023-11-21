@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
@@ -25,7 +26,7 @@ describe("List widget v2 - Basic server side data tests", () => {
         );
         _.dataSources.RunQuery();
       });
-      _.entityExplorer.SelectEntityByName("Page1");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     } else {
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");
@@ -37,7 +38,7 @@ describe("List widget v2 - Basic server side data tests", () => {
         );
         _.dataSources.RunQuery();
       });
-      _.entityExplorer.SelectEntityByName("Page1");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     }
   });
 

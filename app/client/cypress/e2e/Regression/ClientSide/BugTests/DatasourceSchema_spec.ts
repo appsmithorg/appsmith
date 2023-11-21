@@ -1,8 +1,8 @@
 import {
   agHelper,
-  entityItems,
   dataSources,
   entityExplorer,
+  entityItems,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
@@ -54,7 +54,7 @@ describe("Datasource form related tests", function () {
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
     EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    entityExplorer.SelectEntityByName("Query1");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,

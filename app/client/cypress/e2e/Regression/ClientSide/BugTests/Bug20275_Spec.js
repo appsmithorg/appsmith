@@ -1,5 +1,8 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
@@ -27,7 +30,7 @@ describe("Testing if user.email is avaible on page load", function () {
     jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false);
 
     ee.DragDropWidgetNVerify(WIDGET.TEXT, 200, 600);
-    ee.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.TypeTextIntoField("Text", "{{appsmith.user.email}}");
 
     deployMode.DeployApp();

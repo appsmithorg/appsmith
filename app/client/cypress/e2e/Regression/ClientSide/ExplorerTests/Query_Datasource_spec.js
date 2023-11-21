@@ -103,8 +103,7 @@ describe("Entity explorer tests related to query and datasource", function () {
       toastToValidate: "action moved to page",
     });
     cy.wait(2000);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("MyQuery");
+    EditorNavigation.SelectEntityByName("MyQuery", EntityType.Query);
     cy.wait(2000);
     cy.runQuery();
 

@@ -12,6 +12,9 @@ import {
   apiPage,
   dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch",
@@ -114,7 +117,7 @@ describe("Git sync:", function () {
   // rename entities
   it("3. makes branch specific resource updates", function () {
     cy.switchGitBranch(childBranchKey);
-    entityExplorer.SelectEntityByName("ParentPage1", "Pages");
+    EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
     entityExplorer.RenameEntityFromExplorer(
       "ParentPage1",
       "ParentPageRenamed",
@@ -136,7 +139,7 @@ describe("Git sync:", function () {
 
   it("4. enables switching branch from the URL", () => {
     cy.url().then((url) => {
-      entityExplorer.SelectEntityByName("ParentPage1", "Pages");
+      EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
       cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
       cy.get(".t--widget-tablewidgetv2").should("exist");

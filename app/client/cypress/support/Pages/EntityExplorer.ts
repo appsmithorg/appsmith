@@ -1,6 +1,9 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
-import EditorNavigation, { SidebarButton } from "./EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "./EditorNavigation";
 
 type templateActions =
   | "Find"
@@ -92,22 +95,6 @@ export class EntityExplorer {
   _widgetSearchInput = "#entity-explorer-search";
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
   _widgetTagSuggestedWidgets = ".widget-tag-collapisble-suggested";
-
-  public SelectEntityByName(
-    entityNameinLeftSidebar: string,
-    section: "Widgets" | "Queries/JS" | "Pages" | "" | string = "",
-    ctrlKey = false,
-  ) {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    this.NavigateToSwitcher("Explorer");
-    if (section) this.ExpandCollapseEntity(section); //to expand respective section
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
-      .last()
-      .click(
-        ctrlKey ? { ctrlKey, force: true } : { multiple: true, force: true },
-      );
-    this.agHelper.Sleep(); //for selection to settle
-  }
 
   public SelectEntityInModal(
     modalNameinEE: string,
@@ -392,7 +379,7 @@ export class EntityExplorer {
 
   public ClonePage(pageName = "Page1") {
     EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    this.SelectEntityByName(pageName, "Pages");
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     this.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: pageName,
       action: "Clone",
@@ -416,7 +403,7 @@ export class EntityExplorer {
 
   public CopyPasteWidget(widgetName: string) {
     this.NavigateToSwitcher("Widgets");
-    this.SelectEntityByName(widgetName);
+    EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);
   }

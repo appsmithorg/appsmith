@@ -1,12 +1,15 @@
 import {
   agHelper,
-  locators,
+  dataSources,
   deployMode,
   entityExplorer,
-  propPane,
-  dataSources,
   entityItems,
+  locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Checkbox Tests", function () {
   before(() => {
@@ -31,7 +34,7 @@ describe("Checkbox Tests", function () {
     const styleGeneralProperties = ["alignment"];
     const styleColorProperties = ["accentcolor"];
 
-    entityExplorer.SelectEntityByName("CheckboxGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("CheckboxGroup1", EntityType.Widget);
     defaultProperties.forEach((defaultSectionProperty) => {
       agHelper.AssertElementVisibility(
         propPane._propertyPanePropertyControl(
@@ -113,7 +116,7 @@ describe("Checkbox Tests", function () {
   });
 
   it("3. Verify Data can be added and deleted", () => {
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     propPane.MoveToTab("Content");
     agHelper.GetElementLength(propPane._placeholderName).then((len) => {
       agHelper.GetNClick(propPane._addOptionProperty);
@@ -133,7 +136,7 @@ describe("Checkbox Tests", function () {
       deployMode.NavigateBacktoEditor();
 
       // Delete option
-      entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+      EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
       agHelper.GetNClick(propPane._optionsDeleteButton, 3);
       // Verify option deleted
       agHelper.AssertElementLength(propPane._placeholderName, len);
@@ -147,7 +150,7 @@ describe("Checkbox Tests", function () {
       deployMode.DeployApp();
       agHelper.AssertElementLength(propPane._checkbox, len);
       deployMode.NavigateBacktoEditor();
-      entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+      EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     });
   });
 
@@ -167,7 +170,7 @@ describe("Checkbox Tests", function () {
     agHelper.AssertAttribute(locators._label, "position", "Left");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`);
     agHelper.AssertAttribute(locators._label, "position", "Top");
   });
@@ -175,7 +178,7 @@ describe("Checkbox Tests", function () {
   it("5. Verify tooltip", () => {
     entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 550, 300);
     propPane.UpdatePropertyFieldValue("Default value", "1000");
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
     agHelper.HoverElement(locators._checkboxHelpIcon);
     agHelper.AssertPopoverTooltip("1,000");
@@ -195,14 +198,14 @@ describe("Checkbox Tests", function () {
 
   it("6. Verify onSelectionChange Navigat to", () => {
     entityExplorer.AddNewPage();
-    entityExplorer.SelectEntityByName("Page1");
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     propPane.SelectPlatformFunction("onSelectionChange", "Navigate to");
     dataSources.ValidateNSelectDropdown("Choose page", "Select page", "Page2");
     agHelper.Sleep(2000);
     agHelper.GetNClick(propPane._checkbox, 1, true);
     entityExplorer.VerifyIsCurrentPage("Page2");
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     // Preview mode
     agHelper.GetNClick(locators._enterPreviewMode);
@@ -218,12 +221,12 @@ describe("Checkbox Tests", function () {
       .should("have.class", "is-active");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("Page1");
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
   });
 
   it("7. Verify Full color picker and font size", () => {
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     // Verify font color picker opens up
     propPane.MoveToTab("Style");
     agHelper.GetNClick(propPane._propertyControlColorPicker("fontcolor"));
@@ -257,7 +260,7 @@ describe("Checkbox Tests", function () {
     agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     propPane.MoveToTab("Style");
     cy.wait(1000);
     // Verify Accent color
@@ -326,7 +329,7 @@ describe("Checkbox Tests", function () {
     deployMode.NavigateBacktoEditor();
 
     // Verify checkbox visible
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     propPane.MoveToTab("Content");
     propPane.TogglePropertyState("visible", "Off");
     agHelper.GetNAssertContains(
@@ -349,11 +352,11 @@ describe("Checkbox Tests", function () {
     );
 
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     propPane.MoveToTab("Content");
     propPane.TogglePropertyState("visible", "On");
     // Verify checkbox disabled
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.MoveToTab("Content");
     propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.isDisabled}}");
     agHelper.GetNAssertContains(
@@ -375,7 +378,7 @@ describe("Checkbox Tests", function () {
       "false",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     propPane.MoveToTab("Content");
     propPane.TogglePropertyState("disabled", "On");
     agHelper.GetNAssertContains(
@@ -397,12 +400,12 @@ describe("Checkbox Tests", function () {
       "true",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("NewCheckBox", "Widgets");
+    EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     propPane.MoveToTab("Content");
     propPane.TogglePropertyState("disabled", "Off");
 
     // Verify selected value[All values selected]
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.MoveToTab("Content");
     propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.selectedValues}}");
     entityExplorer.ActionContextMenuByEntityName({
@@ -432,7 +435,7 @@ describe("Checkbox Tests", function () {
     agHelper.GetNAssertContains(locators._textWidgetContaioner, '"RED"');
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.MoveToTab("Content");
     propPane.UpdatePropertyFieldValue("Text", "{{NewCheckBox.isValid}}");
     agHelper.GetNAssertContains(

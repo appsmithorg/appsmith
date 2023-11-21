@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -30,8 +34,10 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     entityExplorer.ExpandCollapseEntity("Pages");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
     //Table Widget V2 Functionality with multiple page
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Table1", "Container3");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidgetV2,

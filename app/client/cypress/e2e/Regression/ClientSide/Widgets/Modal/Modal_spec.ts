@@ -9,6 +9,9 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Modal Widget test cases", function () {
   const image = (src: string) => 'img[src="' + src + '"]';
@@ -19,7 +22,7 @@ describe("Modal Widget test cases", function () {
   it("1. Modal widget functionality", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
     agHelper.Sleep();
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
@@ -48,7 +51,7 @@ describe("Modal Widget test cases", function () {
 
   it("2. Verify that multiple Modal widgets can be opened simultaneously.", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.ToggleJSMode("onClick", false);
     propPane.CreateModal("onClick");
     agHelper.Sleep(500);
@@ -81,7 +84,7 @@ describe("Modal Widget test cases", function () {
 
     //Contains modal with couple of widgets(image, text, select, input, table, container, icon button, json form , list, tab)
     homePage.ImportApp("modalWidgetTestApp.json");
-    entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
 
     //Auto height
     propPane.AssertPropertiesDropDownValues("Height", ["Auto Height", "Fixed"]);
@@ -115,7 +118,7 @@ describe("Modal Widget test cases", function () {
     deployMode.NavigateBacktoEditor();
 
     //Fixed height
-    entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Height", "Fixed");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     agHelper.ClickButton("Submit");
@@ -330,7 +333,7 @@ describe("Modal Widget test cases", function () {
   it("6. Verify modal widget styles", function () {
     //JS conversion
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Background color", "#fca5a5");
     propPane.EnterJSContext("Border radius", "1.5rem");
@@ -350,7 +353,7 @@ describe("Modal Widget test cases", function () {
     agHelper.AssertCSS(locators._modalWrapper, "border-radius", "24px");
 
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     propPane.MoveToTab("Style");
     //Full color picker
     propPane.ToggleJSMode("Background color", false);

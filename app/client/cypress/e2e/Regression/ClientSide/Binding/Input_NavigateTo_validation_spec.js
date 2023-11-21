@@ -1,5 +1,9 @@
 /// <reference types="Cypress" />
 
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -37,7 +41,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
     cy.get(".t--open-dropdown-Select-page").click();

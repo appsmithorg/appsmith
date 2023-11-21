@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
@@ -14,7 +18,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   it("1. Drag and drop form widget and validate copy widget via toast message", function () {
-    entityExplorer.SelectEntityByName("Form1", "Widgets");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
     propPane.RenameWidget("Form1", "FormTest");
     cy.get(commonlocators.copyWidget).click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting

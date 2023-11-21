@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
@@ -301,7 +305,7 @@ describe("Git sync apps", function () {
       .trigger("mouseover")
       .click({ force: true });
     cy.wait(2000); // adding wait for query to load
-    entityExplorer.SelectEntityByName("get_users", "Queries/JS");
+    EditorNavigation.SelectEntityByName("get_users", EntityType.Queries / JS);
     agHelper.ActionContextMenuWithInPane({
       action: "Move to page",
       subAction: "Child_Page",
@@ -313,7 +317,7 @@ describe("Git sync apps", function () {
       .trigger("mouseover")
       .click({ force: true });
     cy.wait(2000);
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.Queries / JS);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Move to page",
@@ -457,16 +461,16 @@ describe("Git sync apps", function () {
     cy.wait(2000);
 
     //  clone the Child_Page
-    entityExplorer.SelectEntityByName("Child_Page", "Pages");
+    EditorNavigation.SelectEntityByName("Child_Page", EntityType.Page);
     entityExplorer.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
-    entityExplorer.SelectEntityByName("Child_Page Copy", "Pages");
+    EditorNavigation.SelectEntityByName("Child_Page Copy", EntityType.Page);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Child_Page",
       action: "Hide",
     });
 
-    entityExplorer.SelectEntityByName("Child_Page", "Pages");
+    EditorNavigation.SelectEntityByName("Child_Page", EntityType.Page);
     cy.wait("@getPage");
     cy.get(homePageLocators.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");

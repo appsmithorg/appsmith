@@ -11,6 +11,7 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
@@ -222,7 +223,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   //Open Bug 14063 - hence skipping
   // it.skip("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
-  //   entityExplorer.SelectEntityByName("update_form", "Widgets");
+  EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
   //   propPane.ChangeJsonFormFieldType(
   //     "Text Description",
   //     "Multiline Text Input",
@@ -286,8 +287,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("10. Verify application does not break when user runs the query with wrong table name", function () {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    entityExplorer.SelectEntityByName("DropProductlines", "Queries/JS");
+    EditorNavigation.SelectEntityByName("DropProductlines", EntityType.Query);
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(false);

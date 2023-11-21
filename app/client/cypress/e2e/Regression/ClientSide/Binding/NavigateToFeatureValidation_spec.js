@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -14,7 +18,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
   });
 
   it("1. Table Widget Functionality with multiple page", function () {
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidget,

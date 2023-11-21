@@ -3,6 +3,9 @@ import {
   entityExplorer,
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Entity explorer tests related to widgets and validation", function () {
   beforeEach(() => {
@@ -15,9 +18,9 @@ describe("Entity explorer tests related to widgets and validation", function () 
 
   it("1. Add a widget to default page and verify the properties", function () {
     agHelper.AddDsl("displayWidgetDsl");
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Container4");
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+      "Container4",
+    ]);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Text1",
       action: "Show bindings",
@@ -33,9 +36,9 @@ describe("Entity explorer tests related to widgets and validation", function () 
     entityExplorer.AddNewPage("New blank page");
     agHelper.AddDsl("tableWidgetDsl");
 
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Container3");
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Table1",
       action: "Show bindings",
@@ -59,7 +62,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
   });
 
   it("3. Toggle between widgets in different pages using search functionality", function () {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.ExpandCollapseEntity("Widgets");
     entityExplorer.ExpandCollapseEntity("Container4");
     entityExplorer.ActionContextMenuByEntityName({

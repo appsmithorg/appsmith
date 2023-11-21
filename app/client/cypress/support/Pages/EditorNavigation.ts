@@ -40,14 +40,21 @@ class EditorNavigation {
       .should("have.attr", "data-selected", "true");
   }
 
-  NavigateToWidget(name: string, clickOptions: Partial<ClickOptions>) {
+  NavigateToWidget(
+    name: string,
+    clickOptions?: Partial<ClickOptions>,
+    hierarchy: string[] = [],
+  ) {
     this.ViaSidebar(SidebarButton.Pages);
     _.EntityExplorer.NavigateToSwitcher("Explorer");
     _.EntityExplorer.ExpandCollapseEntity("Widgets");
+    hierarchy.forEach((level) => {
+      _.EntityExplorer.ExpandCollapseEntity(level);
+    });
     cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
       .first()
       .click(
-        clickOptions.ctrlKey
+        clickOptions?.ctrlKey
           ? { ctrlKey: true, force: true }
           : { multiple: true, force: true },
       );
@@ -87,11 +94,12 @@ class EditorNavigation {
   SelectEntityByName(
     name: string,
     type: EntityType,
-    clickOptions: Partial<ClickOptions>,
+    clickOptions?: Partial<ClickOptions>,
+    hierarchy?: string[],
   ) {
     switch (type) {
       case EntityType.Widget:
-        this.NavigateToWidget(name, clickOptions);
+        this.NavigateToWidget(name, clickOptions, hierarchy);
         break;
       case EntityType.Datasource:
         this.NavigateToDatasource(name);
