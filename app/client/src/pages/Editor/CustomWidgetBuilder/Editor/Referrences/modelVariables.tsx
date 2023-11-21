@@ -33,7 +33,7 @@ export default function ModelVariables() {
           onChange={() => toggleUseTransientModel?.()}
         >
           <Tooltip content="Transient model has the model updates made from the custom component in the widget builder. THESE CHANGES WILL NOT BE SAVED IN THE APP">
-            <Text>Show transient model</Text>
+            <Text>use transient model</Text>
           </Tooltip>
         </Switch>
       </div>
