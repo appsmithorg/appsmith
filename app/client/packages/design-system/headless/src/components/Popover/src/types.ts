@@ -1,3 +1,4 @@
+import type { MutableRefObject } from "react";
 import type { CSSProperties } from "react";
 import type { ReactNode } from "react";
 import type { Dispatch, SetStateAction } from "react";
@@ -38,6 +39,14 @@ export interface PopoverProps {
   children?: ReactNode;
   /** Popover offset. */
   offset?: number;
+  /** Handler that is called when the popover is closed. */
+  onClose?: () => void;
+  /** Open and close animation durations. */
+  duration?: number;
+  /** Ref of trigger element. This ref is necessary for adding aria attributes to trigger */
+  triggerRef?: MutableRefObject<HTMLElement | null>;
+  /** Which element to initially focus. Can be either a number (tabbable index as specified by the order) or a ref.  */
+  initialFocus?: number | MutableRefObject<HTMLElement | null>;
 }
 
 export interface PopoverContentProps {
@@ -50,8 +59,13 @@ export interface PopoverContentProps {
   closeOnFocusOut?: boolean;
   /** Sets inline [style](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style) for the element. Only use as a **last resort**. Use style props instead. */
   style?: CSSProperties;
-  /** Sets the CSS className  for the element. Only use as a last resort. Use style props instead. */
-  className?: string;
+  /** Sets the CSS className  for the content popover. Only use as a **last resort**. */
+  contentClassName?: string;
+}
+
+export interface PopoverModalContentProps extends PopoverContentProps {
+  /** Sets the CSS className  for the overlay. Only use as a **last resort**. */
+  overlayClassName?: string;
 }
 
 export interface PopoverTriggerProps {

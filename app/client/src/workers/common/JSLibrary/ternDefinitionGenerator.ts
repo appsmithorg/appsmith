@@ -19,6 +19,13 @@ export function getTernDocType(obj: any) {
   }
 }
 
+export function typeToTernType(type: string) {
+  if (type === "boolean") return "bool";
+  if (type === "undefined") return "?";
+  if (type === "function") return "fn()";
+  return "string";
+}
+
 const ignoredKeys = [
   "constructor",
   "WINDOW",

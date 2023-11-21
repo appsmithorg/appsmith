@@ -6,7 +6,7 @@ import { isObject, uniqueId } from "lodash";
 import type { Def } from "tern";
 import { Types, getType } from "utils/TypeHelpers";
 import { shouldAddSetter } from "workers/Evaluation/evaluate";
-import { getTernDocType } from "workers/common/JSLibrary/ternDefinitionGenerator";
+import { typeToTernType } from "workers/common/JSLibrary/ternDefinitionGenerator";
 
 export type ExtraDef = Record<string, Def | string>;
 
@@ -133,12 +133,12 @@ export function addSettersToDefinitions(
 
     setters.forEach((setterName: string) => {
       const setter = entityConfig.__setters?.[setterName];
-      const setterType = getTernDocType(
+      const setterType = typeToTernType(
         entityConfig.__setters?.[setterName].type,
       );
 
       if (shouldAddSetter(setter, entity)) {
-        definitions[setterName] = `fn(value:${setterType}) -> +Promise`;
+        definitions[setterName] = `fn(value: ${setterType}) -> +Promise`;
       }
     });
   }

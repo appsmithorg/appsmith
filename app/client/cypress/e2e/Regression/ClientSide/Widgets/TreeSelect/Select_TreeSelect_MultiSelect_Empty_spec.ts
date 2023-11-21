@@ -5,13 +5,19 @@ describe("MultiSelect, Tree Select and Multi Tree Select Widget Empty Options Fu
     _.agHelper.AddDsl("SelectDslWithEmptyOptions");
   });
   it("1. To Check empty options for Multi Select Tree Widget", () => {
-    cy.get(formWidgetsPage.treeSelectInput).first().click({ force: true });
+    cy.wait(1000)
+      .get(formWidgetsPage.treeSelectInput)
+      .first()
+      .click({ force: true })
+      .wait(500);
     cy.get(".rc-tree-select-empty").should("have.text", "No Results Found");
 
     //To Check empty options for Single Select Tree Widget"
-    cy.get(formWidgetsPage.treeSelectInput)
+    cy.wait(500)
+      .get(formWidgetsPage.treeSelectInput)
       .last()
       .click({ force: true })
+      .wait(500)
       .get(".single-tree-select-dropdown .rc-tree-select-empty")
       .should("have.text", "No Results Found");
 

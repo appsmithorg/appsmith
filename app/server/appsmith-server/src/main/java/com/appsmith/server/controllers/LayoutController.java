@@ -2,9 +2,9 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.LayoutControllerCE;
+import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
-import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

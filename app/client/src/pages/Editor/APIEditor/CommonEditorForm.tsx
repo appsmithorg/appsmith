@@ -496,8 +496,13 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     const index = Object.values(API_EDITOR_TABS).indexOf(value);
     dispatch(setApiPaneConfigSelectedTabIndex(index));
   };
-  const { actionRightPaneBackLink, moreActionsMenu, saveActionName } =
-    useContext(ApiEditorContext);
+  const {
+    actionRightPaneAdditionSections,
+    actionRightPaneBackLink,
+    moreActionsMenu,
+    saveActionName,
+    showRightPaneTabbedSection = true,
+  } = useContext(ApiEditorContext);
 
   const {
     actionConfigurationHeaders,
@@ -580,7 +585,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             <NameWrapper className="t--nameOfApi">
               <ActionNameEditor
                 disabled={!isChangePermitted}
-                page="API_PANE"
+                enableFontStyling
                 saveActionName={saveActionName}
               />
             </NameWrapper>
@@ -736,6 +741,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
           <DataSourceList
             actionName={actionName}
             actionRightPaneBackLink={actionRightPaneBackLink}
+            additionalSections={actionRightPaneAdditionSections}
             applicationId={props.applicationId}
             currentActionDatasourceId={currentActionDatasourceId}
             currentPageId={props.currentPageId}
@@ -744,6 +750,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             hasResponse={props.hasResponse}
             onClick={updateDatasource}
             pluginId={props.pluginId}
+            showTabbedSection={showRightPaneTabbedSection}
             suggestedWidgets={props.suggestedWidgets}
           />
         </Wrapper>

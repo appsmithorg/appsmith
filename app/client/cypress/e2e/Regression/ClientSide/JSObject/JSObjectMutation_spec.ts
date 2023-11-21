@@ -130,7 +130,7 @@ describe("JSObject testing", () => {
     _.jsEditor.RunJSObj();
     _.entityExplorer.SelectEntityByName("Text2", "Widgets");
     _.agHelper.AssertContains("id-1");
-    cy.reload();
+    _.agHelper.RefreshPage();
     _.agHelper.AssertContains("Not Set");
     _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     _.jsEditor.SelectFunctionDropdown("myFun2");

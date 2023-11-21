@@ -9,11 +9,22 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 import inputData from "../../../../support/Objects/mySqlData";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let dsName: any, query: string;
 
 describe("MySQL Datatype tests", function () {
   before("Load dsl, Change theme, Create Mysql DS", () => {
+    featureFlagIntercept(
+      {
+        ab_gsheet_schema_enabled: true,
+        ab_mock_mongo_schema_enabled: true,
+      },
+      false,
+    );
     agHelper.AddDsl("Datatypes/mySQLdsl");
 
     appSettings.OpenPaneAndChangeTheme("Moon");
@@ -21,6 +32,7 @@ describe("MySQL Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   });
 
   it("1. Creating mysqlDTs table & queries", () => {
@@ -31,10 +43,9 @@ describe("MySQL Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
-
     //Creating SELECT query
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       inputData.tableName,
       "Select",
     );
@@ -46,7 +57,8 @@ describe("MySQL Datatype tests", function () {
 
     //Other queries
     query = inputData.query.insertRecord;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       inputData.tableName,
       "Insert",
     );
@@ -54,7 +66,8 @@ describe("MySQL Datatype tests", function () {
     dataSources.EnterQuery(query);
 
     query = inputData.query.dropTable;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       inputData.tableName,
       "Delete",
     );
@@ -76,10 +89,11 @@ describe("MySQL Datatype tests", function () {
       });
       i % 2 && agHelper.ToggleSwitch("Bool_column");
       agHelper.ClickButton("insertRecord");
+      agHelper.Sleep(2000); //for the modal to close after entering all values & value to reflect in table
       agHelper.AssertElementVisibility(
         locators._buttonByText("Run InsertQuery"),
       );
-      agHelper.Sleep(2000);
+      agHelper.Sleep(3000);
     });
   });
 
@@ -126,17 +140,7 @@ describe("MySQL Datatype tests", function () {
       dataSources.RunQuery();
       dataSources.AssertQueryTableResponse(0, "0"); //Success response for dropped table!
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.ExpandCollapseEntity(dsName);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dsName,
-        action: "Refresh",
-      });
-      agHelper.AssertElementAbsence(
-        entityExplorer._entityNameInExplorer(inputData.tableName),
-      );
-      entityExplorer.ExpandCollapseEntity(dsName, false);
-      entityExplorer.ExpandCollapseEntity("Datasources", false);
+      dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName, false);
 
       //DS deletion
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists

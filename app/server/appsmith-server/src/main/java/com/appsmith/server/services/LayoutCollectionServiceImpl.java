@@ -8,7 +8,6 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ce.LayoutCollectionServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
-import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,6 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
     public LayoutCollectionServiceImpl(
             NewPageService newPageService,
             LayoutActionService layoutActionService,
-            RefactoringSolution refactoringSolution,
             ActionCollectionService actionCollectionService,
             NewActionService newActionService,
             AnalyticsService analyticsService,
@@ -27,11 +25,9 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
             ActionCollectionRepository actionCollectionRepository,
             PagePermission pagePermission,
             ActionPermission actionPermission) {
-
         super(
                 newPageService,
                 layoutActionService,
-                refactoringSolution,
                 actionCollectionService,
                 newActionService,
                 analyticsService,
