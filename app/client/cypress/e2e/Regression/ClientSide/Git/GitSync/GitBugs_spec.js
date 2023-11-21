@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import homePageLocators from "../../../../../locators/HomePage";
@@ -18,7 +17,7 @@ const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
 
-describe("Git sync Bug #10773", { tags: [Tag.Git] }, function () {
+describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
   let repoName;
 
   beforeEach(() => {
