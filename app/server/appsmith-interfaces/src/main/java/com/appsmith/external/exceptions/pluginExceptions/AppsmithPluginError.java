@@ -99,7 +99,7 @@ public enum AppsmithPluginError implements BasePluginError {
             "{1}",
             "{2}"),
     PLUGIN_AUTHENTICATION_ERROR(
-            401,
+            500,
             AppsmithPluginErrorCode.PLUGIN_AUTHENTICATION_ERROR.getCode(),
             "Invalid authentication credentials. Please check datasource configuration.",
             AppsmithErrorAction.DEFAULT,
