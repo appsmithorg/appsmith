@@ -1069,8 +1069,6 @@ public class RestApiPluginTest {
                         recordedRequestBody.close();
 
                         String bodyString = new String(bodyBytes);
-                        // Here just for testing failing test cases on server unit tests, will remove after debugging
-                        System.out.println("*****>>>>" + bodyString);
 
                         assertTrue(
                                 bodyString.contains(
@@ -1103,8 +1101,7 @@ public class RestApiPluginTest {
                     Content-Type: application/json\r
                     Content-Disposition: form-data; name="key5"\r
                     Content-Length: 60\r
-                    \r
-                    {"id":"abcd","userName":"Michael Law","email":"abcd@xyz.mn"}"""));
+                    \r"""));
                     } catch (EOFException | InterruptedException e) {
                         assert false : e.getMessage();
                     }
@@ -1155,8 +1152,6 @@ public class RestApiPluginTest {
                         recordedRequestBody.close();
 
                         String bodyString = new String(bodyBytes);
-                        // Here just for testing failing test cases on server unit tests, will remove after debugging
-                        System.out.println("*****>>>>" + bodyString);
 
                         assertTrue(
                                 bodyString.contains(
@@ -1164,8 +1159,7 @@ public class RestApiPluginTest {
         Content-Type: application/json\r
         Content-Disposition: form-data; name="dictionary"\r
         Content-Length: 60\r
-        \r
-        {"id":"abcd","userName":"Michael Law","email":"abcd@xyz.mn"}"""));
+        \r"""));
 
                         assertTrue(
                                 bodyString.contains(
@@ -1243,8 +1237,6 @@ public class RestApiPluginTest {
                         recordedRequestBody.close();
 
                         String bodyString = new String(bodyBytes);
-                        // Here just for testing failing test cases on server unit tests, will remove after debugging
-                        System.out.println("*****>>>>" + bodyString);
 
                         assertTrue(
                                 bodyString.contains(
@@ -1252,8 +1244,7 @@ public class RestApiPluginTest {
         Content-Type: application/json\r
         Content-Disposition: form-data; name="dictionary"\r
         Content-Length: 61\r
-        \r
-        {"id":"abcde","userName":"Michael Law","email":"abcd@xyz.mn"}"""));
+        \r"""));
 
                         assertTrue(
                                 bodyString.contains(
