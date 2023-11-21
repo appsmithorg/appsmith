@@ -15,13 +15,18 @@ import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseL
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { createZoneAndAddWidgets } from "./zoneUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call, select } from "redux-saga/effects";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 
-export function createSectionAndAddWidget(
+export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
   highlight: AnvilHighlightInfo,
   widgets: WidgetLayoutProps[],
   parentId: string,
-): { canvasWidgets: CanvasWidgetsReduxState; section: WidgetProps } {
+) {
+  const evalTree: DataTree = yield select(getDataTree);
   /**
    * Step 1: Create Section widget.
    */
@@ -41,7 +46,7 @@ export function createSectionAndAddWidget(
     version: 1,
     widgetId: generateReactKey(),
     zoneCount: 1,
-    widgetName: "Section" + getRandomInt(1, 100), // TODO: Need the function to logically add the number.
+    widgetName: getNextWidgetName(allWidgets, "SECTION_WIDGET", evalTree),
   };
 
   /**
@@ -65,20 +70,28 @@ export function createSectionAndAddWidget(
     type: "CANVAS_WIDGET",
     version: 1,
     widgetId: generateReactKey(),
-    widgetName: "Canvas" + getRandomInt(1, 100), // TODO: Need the function to logically add the number.
+    widgetName: getNextWidgetName(allWidgets, "CANVAS_WIDGET", evalTree),
   };
 
   /**
    * Step 3: Add widgets to section. and update relationships.
    */
-  return addWidgetsToSection(
-    allWidgets,
-    widgets,
-    highlight,
-    sectionProps,
-    canvasProps,
-    sectionLayout,
-  );
+  const res: { canvasWidgets: CanvasWidgetsReduxState; section: WidgetProps } =
+    yield call(
+      addWidgetsToSection,
+      allWidgets,
+      widgets,
+      highlight,
+      sectionProps,
+      canvasProps,
+      sectionLayout,
+      {
+        [sectionProps.widgetId]: sectionProps,
+        [canvasProps.widgetId]: canvasProps,
+      },
+    );
+
+  return res;
 }
 
 /**
@@ -122,14 +135,15 @@ function addZoneToSection(
   };
 }
 
-export function addWidgetsToSection(
+export function* addWidgetsToSection(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
   section: WidgetProps,
   canvas: WidgetProps,
   sectionLayout: LayoutProps,
-): { canvasWidgets: CanvasWidgetsReduxState; section: WidgetProps } {
+  additionalWidgets: CanvasWidgetsReduxState = {},
+) {
   let canvasWidgets = { ...allWidgets };
   const sectionProps = { ...section };
   let canvasProps = { ...canvas };
@@ -175,11 +189,13 @@ export function addWidgetsToSection(
      * 3. Add the new zone and canvas to canvasWidgets.
      */
     const data: { canvasWidgets: CanvasWidgetsReduxState; zone: WidgetProps } =
-      createZoneAndAddWidgets(
+      yield call(
+        createZoneAndAddWidgets,
         canvasWidgets,
         nonZones,
         highlight,
         canvasProps.widgetId,
+        additionalWidgets,
       );
     canvasProps.children = [...canvasProps.children, data.zone.widgetId];
     sectionLayout = sectionComp.addChild(
@@ -220,10 +236,4 @@ export function addWidgetsToSection(
     },
     section: sectionProps,
   };
-}
-
-function getRandomInt(min: number, max: number): number {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
 }

@@ -150,14 +150,16 @@ export function* addNewChildToDSL(
   ];
 
   if (!!isMainCanvas) {
-    updatedWidgets = addWidgetToMainCanvas(
+    updatedWidgets = yield call(
+      addWidgetToMainCanvas,
       updatedWidgets,
       draggedWidgets,
       highlight,
       newWidget.newWidgetId,
     );
   } else if (!!isSection) {
-    updatedWidgets = addWidgetToSection(
+    updatedWidgets = yield call(
+      addWidgetToSection,
       updatedWidgets,
       draggedWidgets,
       highlight,
@@ -208,7 +210,7 @@ function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
   }
 }
 
-function addWidgetToMainCanvas(
+function* addWidgetToMainCanvas(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
@@ -224,11 +226,14 @@ function addWidgetToMainCanvas(
       ),
     },
   };
-  return addWidgetsToMainCanvasLayout(
+  updatedWidgets = yield call(
+    addWidgetsToMainCanvasLayout,
     updatedWidgets,
     draggedWidgets,
     highlight,
   );
+
+  return updatedWidgets;
 }
 
 function addWidgetToGenericLayout(

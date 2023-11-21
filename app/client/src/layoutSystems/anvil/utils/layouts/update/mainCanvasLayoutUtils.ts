@@ -9,12 +9,13 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { createSectionAndAddWidget } from "./sectionUtils";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { call } from "redux-saga/effects";
 
-export function addWidgetsToMainCanvasLayout(
+export function* addWidgetsToMainCanvasLayout(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
-): CanvasWidgetsReduxState {
+) {
   let canvasWidgets: CanvasWidgetsReduxState = { ...allWidgets };
   /**
    * Step 1: Get layout for MainCanvas.
@@ -32,7 +33,8 @@ export function addWidgetsToMainCanvasLayout(
    * Step 2: Create a new Section Widget and add the dragged widgets to it.
    */
   const res: { canvasWidgets: CanvasWidgetsReduxState; section: WidgetProps } =
-    createSectionAndAddWidget(
+    yield call(
+      createSectionAndAddWidget,
       canvasWidgets,
       highlight,
       draggedWidgets,

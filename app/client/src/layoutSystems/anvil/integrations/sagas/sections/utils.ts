@@ -157,7 +157,7 @@ export function* addNewZonesToSection(
   return { updatedWidgets, createdZoneIds };
 }
 
-export function addWidgetToSection(
+export function* addWidgetToSection(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
@@ -173,7 +173,8 @@ export function addWidgetToSection(
   const res: {
     canvasWidgets: CanvasWidgetsReduxState;
     section: WidgetProps;
-  } = addWidgetsToSection(
+  } = yield call(
+    addWidgetsToSection,
     allWidgets,
     draggedWidgets,
     highlight,

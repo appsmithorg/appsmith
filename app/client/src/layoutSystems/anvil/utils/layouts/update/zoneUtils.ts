@@ -12,13 +12,19 @@ import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseL
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { isLargeWidget } from "../widgetUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { select } from "redux-saga/effects";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 
-export function createZoneAndAddWidgets(
+export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
   parentId: string,
-): { canvasWidgets: CanvasWidgetsReduxState; zone: WidgetProps } {
+  additionalWidgets: CanvasWidgetsReduxState = {},
+) {
+  const evalTree: DataTree = yield select(getDataTree);
   /**
    * Step 1: Create Zone widget.
    */
@@ -37,7 +43,11 @@ export function createZoneAndAddWidgets(
     type: "ZONE_WIDGET",
     version: 1,
     widgetId: generateReactKey(),
-    widgetName: "Zone" + getRandomInt(1, 100), // TODO: Need the function to logically add the number.
+    widgetName: getNextWidgetName(
+      { ...allWidgets, ...additionalWidgets },
+      "ZONE_WIDGET",
+      evalTree,
+    ),
   };
 
   /**
@@ -61,7 +71,11 @@ export function createZoneAndAddWidgets(
     type: "CANVAS_WIDGET",
     version: 1,
     widgetId: generateReactKey(),
-    widgetName: "Canvas" + getRandomInt(1, 100), // TODO: Need the function to logically add the number.
+    widgetName: getNextWidgetName(
+      { ...allWidgets, ...additionalWidgets },
+      "CANVAS_WIDGET",
+      evalTree,
+    ),
   };
 
   /**
@@ -129,6 +143,7 @@ export function createZoneAndAddWidgets(
       parentId: canvasProps.widgetId,
     };
   });
+
   return {
     canvasWidgets: {
       ...allWidgets,
@@ -186,10 +201,4 @@ function addWidgetsToChildTemplate(
    * If no template is available, then add widgets directly to layout.
    */
   return zoneComp.addChild(zoneLayout, draggedWidgets, highlight);
-}
-
-function getRandomInt(min: number, max: number): number {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
