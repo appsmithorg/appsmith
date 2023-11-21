@@ -54,6 +54,7 @@ describe("Table Widget property pane feature validation", function () {
       .type("purple", { force: true, delay: 0 });
     cy.wait("@updateLayout");
     cy.assertPageSave();
+    _.agHelper.Sleep(3000);
     _.deployMode.DeployApp();
     cy.wait(4000);
 
