@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -7,7 +6,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Binding the table widget and input Widget",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formInputTableV2Dsl");

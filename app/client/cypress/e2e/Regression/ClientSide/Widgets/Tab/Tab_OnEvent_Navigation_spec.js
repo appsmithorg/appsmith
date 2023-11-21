@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Tabs widget on change of selection navigation usecases",
-  { tags: [Tag.Widget, Tag.Tab] },
+  { tags: ["@tag.Widget", "@tag.Tab"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tabsWidgetReset");

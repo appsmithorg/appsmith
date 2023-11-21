@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   dataSources,
@@ -7,7 +6,7 @@ import {
 
 let dsName: any;
 
-describe("Validate Redis DS", { tags: [Tag.Datasource] }, () => {
+describe("Validate Redis DS", { tags: ["@tag.Datasource"] }, () => {
   before("Create a new Redis DS", () => {
     dataSources.CreateDataSource("Redis");
     cy.get("@dsName").then(($dsName) => {

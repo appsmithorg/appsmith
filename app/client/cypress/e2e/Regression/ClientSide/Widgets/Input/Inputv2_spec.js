@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const explorer = require("../../../../../locators/explorerlocators.json");
 
 const widgetName = "inputwidgetv2";
 const widgetInput = `.t--widget-${widgetName} input`;
 
-describe("Input widget V2 - ", { tags: [Tag.Widget] }, () => {
+describe("Input widget V2 - ", { tags: ["@tag.Widget"] }, () => {
   it("1. DragDrop Input & Label/Text widgets", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });

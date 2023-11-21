@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import {
@@ -8,7 +7,7 @@ import {
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Rest Bugs tests", { tags: [Tag.Datasource] }, function () {
+describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

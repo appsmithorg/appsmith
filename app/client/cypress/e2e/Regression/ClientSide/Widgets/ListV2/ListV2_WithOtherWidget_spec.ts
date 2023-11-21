@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -8,7 +7,7 @@ import {
 
 describe(
   "List widget V2 functionality with audio and video widgets",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       agHelper.AddDsl("listV2AudioVideoDsl");

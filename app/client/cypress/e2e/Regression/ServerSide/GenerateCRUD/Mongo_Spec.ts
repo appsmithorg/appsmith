@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { INTERCEPT } from "../../../../fixtures/variables";
 
 import {
@@ -15,7 +14,7 @@ import {
 
 describe(
   "Validate Mongo CRUD with JSON Form",
-  { tags: [Tag.GenerateCRUD] },
+  { tags: ["@tag.GenerateCRUD"] },
   () => {
     let dsName: any;
 

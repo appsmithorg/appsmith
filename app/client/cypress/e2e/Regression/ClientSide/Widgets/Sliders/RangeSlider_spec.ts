@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
@@ -9,7 +8,7 @@ import {
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Range Slider spec", { tags: [Tag.Widget, Tag.Slider] }, () => {
+describe("Range Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("rangesliderwidget", 550, 100);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);

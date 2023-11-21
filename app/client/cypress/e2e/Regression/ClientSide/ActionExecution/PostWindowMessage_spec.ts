@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -8,7 +7,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Post window message", { tags: [Tag.JS] }, () => {
+describe("Post window message", { tags: ["@tag.JS"] }, () => {
   it("1. Posts message to an iframe within Appsmith", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.IFRAME, 200, 300);

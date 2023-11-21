@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
@@ -18,7 +17,7 @@ let datasourceName;
 
 describe(
   "Validate CRUD queries for Postgres along with UI flow verifications",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     // afterEach(function() {
     //   if (this.currentTest.state === "failed") {

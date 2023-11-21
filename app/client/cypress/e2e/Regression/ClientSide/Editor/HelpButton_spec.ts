@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Help Button on editor", function () {
   it(
     "1. Chat with us and Intercom consent should be visible on Help Menu",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       _.agHelper.GetNClick(
         _.debuggerHelper.locators._helpButton,

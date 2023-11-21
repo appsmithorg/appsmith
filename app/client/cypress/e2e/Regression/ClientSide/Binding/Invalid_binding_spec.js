@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const testdata = require("../../../../fixtures/testdata.json");
 import {
   entityExplorer,
@@ -8,7 +7,7 @@ import {
 
 describe(
   "Binding the multiple widgets and validating default data",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("Invalid_binding_dsl");

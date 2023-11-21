@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 const testdata = require("../../../fixtures/testdata.json");
 import {
   agHelper,
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Datasource form related tests",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("1. Check whether the number of key value pairs is equal to number of delete buttons", function () {
       cy.NavigateToAPI_Panel();

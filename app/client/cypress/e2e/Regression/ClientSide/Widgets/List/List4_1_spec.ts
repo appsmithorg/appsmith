@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   entityExplorer,
   agHelper,
@@ -12,7 +11,7 @@ const dsl = require("../../../../../fixtures/listdsl.json");
 
 describe(
   "List Widget Functionality",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   function () {
     const items = JSON.parse(dsl.dsl.children[0].listData);
 

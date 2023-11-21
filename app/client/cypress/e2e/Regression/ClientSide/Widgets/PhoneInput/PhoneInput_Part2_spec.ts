@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -7,7 +6,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Phone Input widget Tests", { tags: [Tag.Widget] }, function () {
+describe("Phone Input widget Tests", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("phoneinputwidget", 550, 100);
   });

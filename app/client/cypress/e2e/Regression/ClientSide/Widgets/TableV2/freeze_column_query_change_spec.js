@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   PROPERTY_SELECTOR,
   WIDGET,
@@ -13,7 +12,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "1. Check frozen common and/or custom columns retain position on query change",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 600, y: 200 });

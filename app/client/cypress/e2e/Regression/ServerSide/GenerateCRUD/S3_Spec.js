@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const generatePage = require("../../../../locators/GeneratePage.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -13,7 +12,7 @@ import {
 
 describe(
   "Generate New CRUD Page Inside from entity explorer",
-  { tags: [Tag.GenerateCRUD] },
+  { tags: ["@tag.GenerateCRUD"] },
   function () {
     let datasourceName;
 

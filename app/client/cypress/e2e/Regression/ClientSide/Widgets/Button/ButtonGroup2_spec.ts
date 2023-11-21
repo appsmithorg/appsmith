@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   deployMode,
@@ -13,7 +12,7 @@ import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocator
 
 describe(
   "Button Group Widget Test",
-  { tags: [Tag.Widget, Tag.Button] },
+  { tags: ["@tag.Widget", "@tag.Button"] },
   function () {
     before("Login to the app and navigate to the workspace", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON_GROUP);

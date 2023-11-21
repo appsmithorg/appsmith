@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const data = require("../../../../../fixtures/TestDataSet1.json");
 import {
@@ -9,7 +8,7 @@ import {
   dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Statbox Widget", { tags: [Tag.Widget] }, function () {
+describe("Statbox Widget", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     agHelper.AddDsl("StatboxDsl");
   });

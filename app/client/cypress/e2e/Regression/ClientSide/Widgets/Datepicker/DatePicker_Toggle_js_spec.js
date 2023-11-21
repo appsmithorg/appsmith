@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("DatePicker", { tags: [Tag.Widget] }, function () {
+describe("DatePicker", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("newFormDsl");
 

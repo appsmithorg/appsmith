@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const Layoutpage = require("../../../../../locators/Layout.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -9,7 +8,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Tab widget test", { tags: [Tag.Widget, Tag.Tab] }, function () {
+describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   before(() => {
     agHelper.AddDsl("layoutdsl");
   });

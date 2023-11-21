@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -9,7 +8,7 @@ import {
 
 describe(
   "Binding the Table and input Widget",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("formInputTableDsl");

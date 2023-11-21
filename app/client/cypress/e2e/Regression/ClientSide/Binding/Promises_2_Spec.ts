@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
@@ -8,7 +7,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane;
 
-describe("Validate basic Promises", { tags: [Tag.Binding] }, () => {
+describe("Validate basic Promises", { tags: ["@tag.Binding"] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

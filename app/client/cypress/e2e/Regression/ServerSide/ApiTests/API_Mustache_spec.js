@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import {
@@ -8,7 +7,7 @@ import {
 
 describe(
   "Moustache test Functionality",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     beforeEach(() => {
       agHelper.AddDsl("commondsl");

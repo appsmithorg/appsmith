@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 import {
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Text-Table Binding Functionality",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     Cypress.on("uncaught:exception", (err, runnable) => {
       // returning false here prevents Cypress from

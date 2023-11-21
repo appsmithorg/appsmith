@@ -1,8 +1,7 @@
-import { Tag } from "../../../../tags";
 const commonLocators = require("../../../../locators/commonlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Canvas context Property Pane", { tags: [Tag.IDE] }, function () {
+describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
   it("1. Bug 18191: Unable to delete checkbox child when it is inside list widget #18191", () => {
     _.agHelper.AddDsl("Bugs/CheckboxGroupInListWidgetDsl");
     cy.openPropertyPane("checkboxgroupwidget");

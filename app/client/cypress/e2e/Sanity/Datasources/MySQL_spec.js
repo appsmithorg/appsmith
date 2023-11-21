@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 const datasource = require("../../../locators/DatasourcesEditor.json");
 import { dataSources } from "../../../support/Objects/ObjectsCore";
 
@@ -6,7 +5,7 @@ let datasourceName;
 
 describe(
   "MySQL datasource test cases",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     beforeEach(() => {
       cy.startRoutesForDatasource();

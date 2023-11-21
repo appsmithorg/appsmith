@@ -1,10 +1,9 @@
-import { Tag } from "../../../tags";
 const datasource = require("../../../locators/DatasourcesEditor.json");
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "Arango datasource test cases",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("1. Create, test, save then delete a Arango datasource", function () {
       dataSources.NavigateToDSCreateNew();

@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetName = "currencyinputwidget";
 
 describe(
   "Currency Widget showStepArrows Functionality - ",
-  { tags: [Tag.Widget, Tag.CurrencyInput] },
+  { tags: ["@tag.Widget", "@tag.CurrencyInput"] },
   function () {
     it("1. Validate that For new currency input widgets being dragged, the value for showStepArrows should be set to false", () => {
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 400 });

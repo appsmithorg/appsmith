@@ -1,9 +1,8 @@
-import { Tag } from "../../../../tags";
 const LayoutPage = require("../../../../locators/Layout.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Tabs widget resetting", { tags: [Tag.Widget] }, function () {
+describe("Tabs widget resetting", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("tabsWidgetReset");
   });

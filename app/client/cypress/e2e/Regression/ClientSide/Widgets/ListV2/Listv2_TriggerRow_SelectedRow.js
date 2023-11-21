@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -40,7 +39,7 @@ const data = [
 
 describe(
   "List widget v2; TriggeredRow, SelectedRow",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("Listv2/ListWithInputForSelectedAndTriggerRow");

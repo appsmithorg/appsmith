@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Table widget v2 edge case scenario testing",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

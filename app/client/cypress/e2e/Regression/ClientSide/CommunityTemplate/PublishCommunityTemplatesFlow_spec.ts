@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   communityTemplates,
@@ -9,7 +8,7 @@ import {
 const communityForm = communityTemplates.locators._communityForm;
 describe(
   "Publish app to Community flow",
-  { tags: [Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   () => {
     afterEach(() => {
       agHelper.RefreshPage();

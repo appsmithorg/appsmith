@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const dsl = require("../../../../../fixtures/Listv2/MetaHydrationDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -72,7 +71,7 @@ function testJsontextClear(endp) {
 
 describe(
   "List widget v2 - meta hydration tests",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("Listv2/MetaHydrationDSL");

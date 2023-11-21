@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -8,7 +7,7 @@ import {
 
 describe(
   "FilePicker Widget Functionality",
-  { tags: [Tag.Widget, Tag.Filepicker] },
+  { tags: ["@tag.Widget", "@tag.Filepicker"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.FILEPICKER);

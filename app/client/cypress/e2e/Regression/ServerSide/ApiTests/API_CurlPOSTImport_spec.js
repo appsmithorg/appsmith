@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import {
   dataSources,
@@ -6,7 +5,7 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test curl import flow", { tags: [Tag.Datasource] }, function () {
+describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
   it("1. Test curl import flow for POST action with JSON body", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       localStorage.setItem("ApiPaneV2", "ApiPaneV2");

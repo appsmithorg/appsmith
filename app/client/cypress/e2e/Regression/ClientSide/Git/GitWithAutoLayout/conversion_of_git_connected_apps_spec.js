@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   homePage,
   agHelper,
@@ -12,7 +11,7 @@ let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch";
 
 let repoName;
-describe("Git sync:", { tags: [Tag.Git] }, function () {
+describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   before(() => {
     homePage.NavigateToHome();
     agHelper.GenerateUUID();

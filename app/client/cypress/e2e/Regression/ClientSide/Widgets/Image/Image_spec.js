@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Image Widget Functionality",
-  { tags: [Tag.Widget, Tag.Image] },
+  { tags: ["@tag.Widget", "@tag.Image"] },
   function () {
     before(() => {
       agHelper.AddDsl("displayWidgetDsl");

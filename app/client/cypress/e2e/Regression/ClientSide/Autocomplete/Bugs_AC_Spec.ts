@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -92,7 +91,7 @@ describe("Autocomplete bug fixes", function () {
 
   it(
     "7. Installed library should show up in autocomplete",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       EditorNavigation.ViaSidebar(SidebarButton.Libraries);
       installer.OpenInstaller();
@@ -107,7 +106,7 @@ describe("Autocomplete bug fixes", function () {
 
   it(
     "8. No autocomplete for Removed libraries",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
       EditorNavigation.ViaSidebar(SidebarButton.Libraries);

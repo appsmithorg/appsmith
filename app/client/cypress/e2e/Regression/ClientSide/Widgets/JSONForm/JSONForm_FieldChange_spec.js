@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
@@ -14,7 +13,7 @@ const fieldPrefix = ".t--jsonformfield";
 
 describe(
   "JSON Form Widget Field Change",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     before(() => {
       cy.addDsl(dslWithSchema);

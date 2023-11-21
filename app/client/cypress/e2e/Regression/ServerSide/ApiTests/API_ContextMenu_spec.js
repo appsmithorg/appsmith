@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
@@ -9,7 +8,7 @@ import {
 
 describe(
   "API Panel Test Functionality ",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("1. Test API copy/Move/delete feature", function () {
       cy.Createpage("SecondPage");

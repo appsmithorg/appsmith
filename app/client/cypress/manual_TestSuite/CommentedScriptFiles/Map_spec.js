@@ -1,4 +1,3 @@
-import { Tag } from "../../tags";
 const commonlocators = require("../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../locators/ViewWidgets.json");
 const publishPage = require("../../locators/publishWidgetspage.json");
@@ -7,7 +6,7 @@ import * as _ from "../../support/Objects/ObjectsCore";
 if (Cypress.env("APPSMITH_GOOGLE_MAPS_API_KEY")) {
   describe(
     "Map Widget Functionality",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       before(() => {
         _.agHelper.AddDsl("Mapdsl");

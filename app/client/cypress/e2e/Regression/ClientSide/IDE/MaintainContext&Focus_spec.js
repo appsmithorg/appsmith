@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import {
   agHelper,
@@ -15,7 +14,7 @@ import EditorNavigation, {
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
-describe("MaintainContext&Focus", { tags: [Tag.IDE] }, function () {
+describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
   before("Import the test application", () => {
     homePage.CreateNewWorkspace("MaintainContext&Focus", true);
     homePage.ImportApp("ContextSwitching.json");

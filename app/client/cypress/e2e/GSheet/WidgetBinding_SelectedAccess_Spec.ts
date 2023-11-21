@@ -1,4 +1,3 @@
-import { Tag } from "../../tags";
 /// <reference types="Cypress" />
 import { GSHEET_DATA } from "../../fixtures/test-data-gsheet";
 import {
@@ -20,7 +19,7 @@ let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
 describe(
   "GSheet-widget binding for selected sheet access",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     before("Setup app and spreadsheet", function () {
       //Setting up the app name

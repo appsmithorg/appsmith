@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import HomePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
@@ -18,7 +17,7 @@ let repoName;
 
 describe(
   "Tests JS Library with Git",
-  { tags: [Tag.Git, Tag.excludeForAirgap] },
+  { tags: ["@tag.Git", "@tag.excludeForAirgap"] },
   () => {
     before(() => {
       homePage.NavigateToHome();

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import adminSettings from "../../../../locators/AdminsSettings";
 import homePage from "../../../../locators/HomePage";
 
@@ -64,7 +63,7 @@ describe("Form Login test functionality", function () {
 
   it(
     "2. Go to admin settings and disable Form Login",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       cy.LogOut(false);
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));

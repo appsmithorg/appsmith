@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 import generatePage from "../../../../locators/GeneratePage.json";
@@ -19,7 +18,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe(
   "Validate CRUD queries for Amazon S3 along with UI flow verifications",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     let bucketName = "assets-test--appsmith",
       uid: any,

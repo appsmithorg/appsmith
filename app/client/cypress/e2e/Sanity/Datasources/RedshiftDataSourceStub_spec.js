@@ -1,11 +1,10 @@
-import { Tag } from "../../../tags";
 const datasource = require("../../../locators/DatasourcesEditor.json");
 let datasourceName;
 import { dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "Redshift datasource test cases",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     beforeEach(() => {
       cy.startRoutesForDatasource();

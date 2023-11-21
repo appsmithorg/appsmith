@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -14,7 +13,7 @@ import {
 
 describe(
   "Binding the multiple Widgets and validating NavigateTo Page",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

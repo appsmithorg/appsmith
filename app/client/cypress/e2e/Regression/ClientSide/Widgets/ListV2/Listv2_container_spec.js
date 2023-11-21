@@ -1,8 +1,7 @@
-import { Tag } from "../../../../../tags";
 const simpleListDSL = require("../../../../../fixtures/Listv2/simpleList.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Listv2 - Container widget", { tags: [Tag.Widget, Tag.List] }, () => {
+describe("Listv2 - Container widget", { tags: ["@tag.Widget", "@tag.List"] }, () => {
   before(() => {
     cy.addDsl(simpleListDSL);
   });

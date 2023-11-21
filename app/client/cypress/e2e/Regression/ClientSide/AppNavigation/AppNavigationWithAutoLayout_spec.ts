@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   appSettings,
@@ -14,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "Validating multiple widgets in auto layout mode with App navigation settings",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     it("1. Drag and Drop multiple widgets in auto layout mode", function () {
       autoLayout.ConvertToAutoLayoutAndVerify(false);

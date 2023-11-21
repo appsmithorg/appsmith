@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -13,7 +12,7 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe(
   "List widget v2 - Basic server side data tests",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("Listv2/listWithServerSideData");
@@ -47,7 +46,7 @@ describe(
 
     it(
       "1. shows correct number of items and binding texts",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         cy.wait(2000);
         cy.get(publishLocators.containerWidget).should("have.length", 3);
@@ -66,7 +65,7 @@ describe(
     );
     it(
       "1. shows correct number of items and binding texts - airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       () => {
         cy.wait(2000);
         cy.get(publishLocators.containerWidget).should("have.length", 2);
@@ -86,7 +85,7 @@ describe(
 
     it(
       "2. next page shows correct number of items and binding text",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         cy.get(".t--list-widget-next-page.rc-pagination-next")
           .find("button")
@@ -118,7 +117,7 @@ describe(
 
     it(
       "2. next page shows correct number of items and binding text - airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       () => {
         cy.get(".t--list-widget-next-page.rc-pagination-next")
           .find("button")
@@ -187,7 +186,7 @@ describe(
 
     it(
       "4. retains input values when pages are switched",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         // Type a number in each of the item's input widget
         cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
@@ -249,7 +248,7 @@ describe(
 
     it(
       "4. retains input values when pages are switched - airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       () => {
         // Type a number in each of the item's input widget
         cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
@@ -331,7 +330,7 @@ describe(
 
     it(
       "6. no of items rendered should be equal to page size",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         cy.NavigateToDatasourceEditor();
 
@@ -382,7 +381,7 @@ describe(
     );
     it(
       "7. no of items rendered should be equal to page size - airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       () => {
         _.dataSources.CreateDataSource("Postgres");
         cy.wait(1000);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="cypress-tags" />
 
 import {
@@ -13,7 +12,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Query pane navigation", { tags: [Tag.excludeForAirgap] }, () => {
+describe("Query pane navigation", { tags: ["@tag.excludeForAirgap"] }, () => {
   let ds1Name: string;
   let ds2Name: string;
 

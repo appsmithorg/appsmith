@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -6,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 let dsname;
 describe(
   "Chart Widget Skeleton Loading Functionality",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("ChartLoadingDsl");
@@ -14,7 +13,7 @@ describe(
 
     it(
       "1. Test case while reloading and on submission",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         /**
          * Use case:
@@ -99,7 +98,7 @@ describe(
     );
     it(
       "1. Test case while reloading and on submission - airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       function () {
         cy.wait(2000);
         _.dataSources.CreateDataSource("Postgres");

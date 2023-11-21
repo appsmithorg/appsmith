@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   entityExplorer,
   jsEditor,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "Validate basic operations on Entity explorer JSEditor structure",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   () => {
     const pageId = "Page1";
 

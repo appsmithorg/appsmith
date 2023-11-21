@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const omnibar = require("../../../../locators/Omnibar.json");
 import {
   agHelper,
@@ -88,7 +87,7 @@ describe("Omnibar functionality test cases", () => {
 
   it(
     "4. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       // typing a random string in search bar
       cy.get(omnibar.globalSearch).click({ force: true });

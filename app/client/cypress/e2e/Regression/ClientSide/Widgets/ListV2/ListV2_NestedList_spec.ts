@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
@@ -9,7 +8,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Nested List widget V2 ", { tags: [Tag.Widget, Tag.List] }, () => {
+describe("Nested List widget V2 ", { tags: ["@tag.Widget", "@tag.List"] }, () => {
   before(() => {
     agHelper.AddDsl("listV2NestedDsl");
   });

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 /// <reference types="Cypress" />
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -8,7 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Container Widget Functionality",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   function () {
     const items = JSON.parse(dsl.dsl.children[0].listData);
 

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import commonLocators from "../../../../../locators/commonlocators.json";
 import explorer from "../../../../../locators/explorerlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
@@ -19,7 +18,7 @@ let parentBranchKey = "ParentBranch",
   branchQueryKey = "branch";
 
 let repoName;
-describe("Git sync:", { tags: [Tag.Git] }, function () {
+describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   before(() => {
     homePage.NavigateToHome();
     cy.createWorkspace();

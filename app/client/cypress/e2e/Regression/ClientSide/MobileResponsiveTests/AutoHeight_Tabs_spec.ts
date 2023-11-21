@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { WIDGET_PADDING } from "../../../../../src/constants/WidgetConstants";
 import {
   MOBILE_ROW_GAP,
@@ -20,7 +19,7 @@ let inputHeight = 0;
 const tabsMinHeight = 300 - WIDGET_PADDING;
 describe(
   "validate auto height for tabs widget on auto layout canvas",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     it("1. tabs widget should maintain a minHeight of 30 rows", () => {
       /**

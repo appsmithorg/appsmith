@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Linting warning validation with text widget",
-  { tags: [Tag.Widget, Tag.Text] },
+  { tags: ["@tag.Widget", "@tag.Text"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("textLintErrorDsl");

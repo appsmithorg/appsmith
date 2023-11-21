@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const page1 = "Page1";
 
-describe("Iframe Widget functionality", { tags: [Tag.Widget] }, function () {
+describe("Iframe Widget functionality", { tags: ["@tag.Widget"] }, function () {
   it("1.Import application json", function () {
     cy.visit("/applications", { timeout: 60000 });
     homePage.ImportApp("IframeOnSrcDocChange.json");

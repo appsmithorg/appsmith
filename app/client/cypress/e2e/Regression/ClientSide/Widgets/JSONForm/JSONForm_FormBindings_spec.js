@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -12,7 +11,7 @@ const locators = ObjectsRegistry.CommonLocators;
 
 describe(
   "JSON Form Widget Form Bindings",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

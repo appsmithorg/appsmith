@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
@@ -11,7 +10,7 @@ const testUrl1 =
 
 describe(
   "Bug 14666: Api Response Test Functionality ",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("1. Test table loading when data is in array format", function () {
       cy.log("Login Successful");

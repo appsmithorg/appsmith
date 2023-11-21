@@ -1,7 +1,6 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Welcome tour spec", { tags: [Tag.excludeForAirgap] }, function () {
+describe("Welcome tour spec", { tags: ["@tag.excludeForAirgap"] }, function () {
   it("1. Bug: 22275: Debugger should not render in preview mode", function () {
     //Open debugger
     _.agHelper.GetNClick(_.debuggerHelper.locators._debuggerIcon);

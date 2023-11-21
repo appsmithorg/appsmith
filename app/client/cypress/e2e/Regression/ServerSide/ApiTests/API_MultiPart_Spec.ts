@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   apiPage,
@@ -14,7 +13,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Validate API request body panel", { tags: [Tag.Datasource] }, () => {
+describe("Validate API request body panel", { tags: ["@tag.Datasource"] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

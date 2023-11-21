@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 let testHeight;
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Auto conversion algorithm usecases for fixed Layout",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   function () {
     it("1. Validate basic conversion algorithm usecases fixed layout Desktop", function () {
       _.agHelper.AddDsl("conversionFrAutoLayoutDsl");

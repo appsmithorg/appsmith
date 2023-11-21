@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Loadash basic test with input Widget",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("inputBindingdsl");

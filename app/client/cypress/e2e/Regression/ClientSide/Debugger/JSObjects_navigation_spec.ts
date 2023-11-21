@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   jsEditor,
   agHelper,
@@ -7,7 +6,7 @@ import {
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("JSObjects", { tags: [Tag.excludeForAirgap] }, () => {
+describe("JSObjects", { tags: ["@tag.excludeForAirgap"] }, () => {
   it("1. Switch to settings pane when clicked on update logs", () => {
     jsEditor.NavigateToNewJSEditor();
     jsEditor.EnableDisableAsyncFuncSettings("myFun2");

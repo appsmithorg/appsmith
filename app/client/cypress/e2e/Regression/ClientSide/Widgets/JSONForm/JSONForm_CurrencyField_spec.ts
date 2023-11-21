@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   entityExplorer,
   propPane,
@@ -11,7 +10,7 @@ import {
 
 describe(
   "Modal Widget background color spec",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     const schema = {
       name: "John",

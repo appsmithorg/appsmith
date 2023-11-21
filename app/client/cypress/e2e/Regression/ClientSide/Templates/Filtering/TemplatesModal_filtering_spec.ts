@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "Bug 17276 - Templates modal filtering",
-  { tags: [Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   () => {
     const NAME_FILTER = "order";
     it("1. should not retain filters when trying to add a page from template(multiple attempts)", () => {

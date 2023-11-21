@@ -1,9 +1,8 @@
-import { Tag } from "../../../../tags";
 const explorer = require("../../../../locators/explorerlocators.json");
 
 let COLUMN_SPACE = 0;
 
-describe("Label feature", { tags: [Tag.Widget] }, () => {
+describe("Label feature", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     cy.get(explorer.addWidget).click();
     cy.get("#canvas-viewport").invoke("width", `640px`);

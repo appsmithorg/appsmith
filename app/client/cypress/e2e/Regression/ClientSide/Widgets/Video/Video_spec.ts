@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 import {
@@ -8,7 +7,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Video Widget Functionality", { tags: [Tag.Widget] }, function () {
+describe("Video Widget Functionality", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.VIDEO);
   });

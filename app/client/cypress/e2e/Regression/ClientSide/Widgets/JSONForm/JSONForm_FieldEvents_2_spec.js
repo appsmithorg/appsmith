@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 /**
  * Spec to test the events made available by each field type
  */
@@ -15,7 +14,7 @@ import {
 const fieldPrefix = ".t--jsonformfield";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
-describe("Radio Group Field", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
+describe("Radio Group Field", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

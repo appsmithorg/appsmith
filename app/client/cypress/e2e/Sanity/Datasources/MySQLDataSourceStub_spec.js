@@ -1,10 +1,9 @@
-import { Tag } from "../../../tags";
 const datasource = require("../../../locators/DatasourcesEditor.json");
 import { dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "MySQL datasource test cases",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     let datasourceName;
     it("1. Create, test, save then delete a MySQL datasource", function () {

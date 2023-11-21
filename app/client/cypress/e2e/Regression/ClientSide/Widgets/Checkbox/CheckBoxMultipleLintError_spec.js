@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Linting warning validation with Checkbox widget",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("snippetErrordsl");

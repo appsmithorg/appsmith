@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -11,7 +10,7 @@ const defaultValue = `[
 
 describe(
   "MultiSelect Widget Functionality",
-  { tags: [Tag.Widget, Tag.Multiselect] },
+  { tags: ["@tag.Widget", "@tag.Multiselect"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

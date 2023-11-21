@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import {
   MOBILE_ROW_GAP,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "Validating use cases for Auto Dimension",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     before(() => {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

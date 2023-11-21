@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -11,7 +10,7 @@ import { DataSourceKVP } from "../../../../support/Pages/DataSources";
 
 let dsName: any;
 
-describe("Check datasource doc links", { tags: [Tag.Datasource] }, function () {
+describe("Check datasource doc links", { tags: ["@tag.Datasource"] }, function () {
   it("1. Verify Postgres documentation opens", function () {
     CreateDummyDSNSave(DataSourceKVP["Postgres"]);
     cy.get("@dsName").then(($dsName) => {
@@ -92,7 +91,7 @@ describe("Check datasource doc links", { tags: [Tag.Datasource] }, function () {
 
   it(
     "7. Verify Airtable documentation opens",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       CreateDummyDSNSave(DataSourceKVP["Airtable"]);
       cy.get("@dsName").then(($dsName) => {

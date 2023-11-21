@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -11,7 +10,7 @@ import {
 
 const containerShadowElement = `${widgetsPage.containerWidget}`;
 
-describe("App Theming funtionality", { tags: [Tag.Theme] }, function () {
+describe("App Theming funtionality", { tags: [] }, function () {
   let themesSection = (sectionName, themeName) =>
     "//*[text()='" +
     sectionName +

@@ -1,4 +1,3 @@
-import { Tag } from "../../tags";
 /// <reference types="Cypress" />
 import { GSHEET_DATA } from "../../fixtures/test-data-gsheet";
 import {
@@ -18,7 +17,7 @@ let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
 describe(
   "GSheet-Functional Tests With Selected Access",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     before("Setup app", function () {
       //Setting up app name

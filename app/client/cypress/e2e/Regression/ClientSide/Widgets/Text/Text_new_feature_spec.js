@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
@@ -9,7 +8,7 @@ import {
 
 describe(
   "Text Widget color/font/alignment Functionality",
-  { tags: [Tag.Widget, Tag.Text] },
+  { tags: ["@tag.Widget", "@tag.Text"] },
   function () {
     before(() => {
       agHelper.AddDsl("textDsl");

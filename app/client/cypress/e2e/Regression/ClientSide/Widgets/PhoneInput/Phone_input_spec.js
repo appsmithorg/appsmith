@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 
@@ -15,7 +14,7 @@ const searchAndSelectOption = (optionValue) => {
     .contains(optionValue)
     .click({ force: true });
 };
-describe("Phone input widget - ", { tags: [Tag.Widget] }, () => {
+describe("Phone input widget - ", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     _.agHelper.AddDsl("emptyDSL");
   });

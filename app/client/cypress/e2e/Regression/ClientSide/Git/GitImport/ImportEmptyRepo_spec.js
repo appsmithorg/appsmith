@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Git import empty repository", { tags: [Tag.Git] }, function () {
+describe("Git import empty repository", { tags: ["@tag.Git"] }, function () {
   let repoName;
   const assertConnectFailure = true;
   const failureMessage =

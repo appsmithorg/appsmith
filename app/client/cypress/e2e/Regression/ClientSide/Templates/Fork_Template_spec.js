@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const templateLocators = require("../../../../locators/TemplatesLocators.json");
 import reconnectDatasourceLocators from "../../../../locators/ReconnectLocators.js";
@@ -6,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Fork a template to an workspace",
-  { tags: [Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   () => {
     it("1. Fork a template to an workspace", () => {
       _.templates.SwitchToTemplatesTab();

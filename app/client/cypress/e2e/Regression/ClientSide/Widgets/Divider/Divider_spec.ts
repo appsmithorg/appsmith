@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -11,7 +10,7 @@ import {
 
 describe(
   "Divider Widget functionality tests",
-  { tags: [Tag.Widget, Tag.Divider] },
+  { tags: ["@tag.Widget", "@tag.Divider"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.DIVIDER, 200, 200);

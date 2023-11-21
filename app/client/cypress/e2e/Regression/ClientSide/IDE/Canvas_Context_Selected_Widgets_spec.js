@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const dsl = require("../../../../fixtures/editorContextdsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -6,7 +5,7 @@ const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
 
-describe("Canvas context widget selection", { tags: [Tag.IDE] }, function () {
+describe("Canvas context widget selection", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     _.agHelper.AddDsl("editorContextdsl");
     cy.Createpage(page2);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../../tags";
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const publishPage = require("../../../../../../locators/publishWidgetspage.json");
 const commonLocators = require("../../../../../../locators/commonlocators.json");
@@ -31,7 +30,7 @@ const tableData = `[
 const checkboxSelector = " .bp3-checkbox input[type='checkbox']";
 describe(
   "Checkbox column type funtionality test",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);

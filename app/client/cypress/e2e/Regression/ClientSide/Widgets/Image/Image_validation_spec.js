@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Image Widget Validation Image Urls",
-  { tags: [Tag.Widget, Tag.Image] },
+  { tags: ["@tag.Widget", "@tag.Image"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("displayWidgetDsl");
@@ -19,6 +18,7 @@ describe(
           "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
         );
     });
+    
 
     it("2. Add new image and check image is showing instead of default image", function () {
       cy.testCodeMirror(this.dataSet.NewImage);

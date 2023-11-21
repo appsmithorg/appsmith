@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   autoLayout,
   agHelper,
@@ -8,7 +7,7 @@ import {
 
 describe(
   "Copy paste widget related tests for Auto layout",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 

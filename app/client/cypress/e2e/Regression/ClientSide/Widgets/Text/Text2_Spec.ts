@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
@@ -10,7 +9,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Text widget tests", { tags: [Tag.Widget, Tag.Text] }, function () {
+describe("Text widget tests", { tags: ["@tag.Widget", "@tag.Text"] }, function () {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.TEXT);
   });

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
@@ -11,7 +10,7 @@ function checkSelectedRadioValue(selector, value) {
   cy.get(`${selector} input:checked`).should("have.value", value);
 }
 
-describe("RadioGroup widget testing", { tags: [Tag.Widget] }, function () {
+describe("RadioGroup widget testing", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("radioGroup_int_value_dsl");
   });

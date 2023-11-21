@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Binding - List widget to text widget",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("listRegression2Dsl");

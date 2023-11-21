@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 let valueToTest: any, jsName: any;
 
 describe(
   "Validate JSObj binding to Table widget",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("listwidgetdsl");

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
 import {
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Fork a template to the current app",
-  { tags: [Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

@@ -30,13 +30,13 @@ function processFile(filePath) {
         const tagsStartIndex = line.indexOf("{ tags: [") + 9;
         const tagsEndIndex = line.indexOf("] }");
         const existingTags = line.substring(tagsStartIndex, tagsEndIndex);
-        const updatedTags = `${existingTags}, ${TAG}`;
+        const updatedTags = `${existingTags}, "${TAG}"`;
         const updatedLine = line.replace(existingTags, updatedTags);
         newFileContent += updatedLine + "\n";
       } else {
         const updatedLine = line.replace(
           firstStringParam,
-          `${firstStringParam}, { tags: [${TAG}] }`,
+          `${firstStringParam}, { tags: ["${TAG}"] }`,
         );
         newFileContent += updatedLine + "\n";
       }

@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const dsl = require("../../../../../fixtures/textNewDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Text Widget Truncate Functionality",
-  { tags: [Tag.Widget, Tag.Text] },
+  { tags: ["@tag.Widget", "@tag.Text"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("textNewDsl");

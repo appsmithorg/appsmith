@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import {
   agHelper,
   assertHelper,
@@ -11,7 +10,7 @@ import {
 
 describe(
   "Datasource form OAuth2 client credentials related tests",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     let clientId, clientSecret;
 

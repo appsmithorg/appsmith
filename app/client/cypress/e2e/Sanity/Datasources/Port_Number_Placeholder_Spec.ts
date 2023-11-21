@@ -1,9 +1,8 @@
-import { Tag } from "../../../tags";
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "Test placeholder value for port number for all datasources - tests #24960",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   () => {
     it("1. Test datasource port number placeholder", () => {
       // MsSQL

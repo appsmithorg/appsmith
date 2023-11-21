@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
 
@@ -6,7 +5,7 @@ import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Dropdown Widget Functionality",
-  { tags: [Tag.Widget, Tag.Multiselect] },
+  { tags: ["@tag.Widget", "@tag.Multiselect"] },
   function () {
     before(() => {
       agHelper.AddDsl("widgetPopupDsl");

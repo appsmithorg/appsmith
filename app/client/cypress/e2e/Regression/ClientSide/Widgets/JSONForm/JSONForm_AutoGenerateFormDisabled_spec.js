@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const fieldPrefix = ".t--jsonformfield";
 import {
   agHelper,
@@ -10,7 +9,7 @@ import {
 
 describe(
   "JSON Form Widget AutoGenerate Disabled",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     before(() => {
       agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");

@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { seconds, testTimeout } from "../../../../../support/timeout";
 
 describe(
   "Table widget edge case scenario testing",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableWithTextWidgetDsl");

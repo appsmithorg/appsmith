@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   dataSources,
@@ -6,7 +5,7 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validate Elasticsearch DS", { tags: [Tag.Datasource] }, () => {
+describe("Validate Elasticsearch DS", { tags: ["@tag.Datasource"] }, () => {
   let dsName: any,
     books: any,
     containerName = "elasticsearch";

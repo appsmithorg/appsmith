@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 const testdata = require("../../../fixtures/testdata.json");
 import {
   agHelper,
@@ -6,7 +5,7 @@ import {
   apiPage,
 } from "../../../support/Objects/ObjectsCore";
 
-describe("Create a rest datasource", { tags: [Tag.Datasource] }, function () {
+describe("Create a rest datasource", { tags: ["@tag.Datasource"] }, function () {
   it("1. Create a rest datasource + Bug 14566", function () {
     apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods);
     cy.get(".t--store-as-datasource").click();

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -13,7 +12,7 @@ const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will h
 
 describe(
   "File picker widget v2",
-  { tags: [Tag.Widget, Tag.Filepicker] },
+  { tags: ["@tag.Widget", "@tag.Filepicker"] },
   () => {
     before(() => {
       agHelper.AddDsl("filePickerTableDSL");

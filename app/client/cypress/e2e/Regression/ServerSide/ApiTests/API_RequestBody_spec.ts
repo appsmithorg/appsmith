@@ -1,11 +1,10 @@
-import { Tag } from "../../../../tags";
 import {
   entityItems,
   apiPage,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("API Panel request body", { tags: [Tag.Datasource] }, function () {
+describe("API Panel request body", { tags: ["@tag.Datasource"] }, function () {
   it("1. Check whether input exists when form-encoded is selected", function () {
     apiPage.CreateApi("FirstAPI");
     apiPage.SelectAPIVerb("POST");

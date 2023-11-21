@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonText = require("../../../../../fixtures/jsonTextDsl.json");
@@ -6,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Verify syntax to create Datpicker field type",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();

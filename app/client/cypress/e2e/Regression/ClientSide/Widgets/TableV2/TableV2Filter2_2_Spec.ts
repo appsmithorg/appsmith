@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   entityExplorer,
   propPane,
@@ -13,7 +12,7 @@ import {
 
 describe(
   "Verify various Table_Filter combinations",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     it("1. Verify Full table data - download csv and download Excel", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);

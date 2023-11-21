@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /* eslint-disable cypress/no-unnecessary-waiting */
 import {
   entityExplorer,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "Table Widget V2 condtional formatting to remain consistent",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2WidgetCondnFormatDsl");

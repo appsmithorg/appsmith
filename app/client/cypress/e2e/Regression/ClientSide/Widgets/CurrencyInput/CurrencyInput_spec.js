@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const themelocators = require("../../../../../locators/ThemeLocators.json");
@@ -8,7 +7,7 @@ const widgetInput = `.t--widget-${widgetName} input`;
 
 describe(
   "Currency widget - ",
-  { tags: [Tag.Widget, Tag.CurrencyInput] },
+  { tags: ["@tag.Widget", "@tag.CurrencyInput"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

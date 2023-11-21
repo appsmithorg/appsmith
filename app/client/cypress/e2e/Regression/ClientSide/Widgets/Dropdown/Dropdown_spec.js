@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -7,7 +6,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Dropdown Widget Functionality",
-  { tags: [Tag.Widget, Tag.Select] },
+  { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

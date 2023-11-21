@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   entityExplorer,
   draggableWidgets,
@@ -11,7 +10,7 @@ import widgetLocators from "../../../../locators/Widgets.json";
 
 describe(
   "Handle Cases while conversion",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
       entityExplorer.DragDropWidgetNVerify(
@@ -68,7 +67,7 @@ describe(
 
     it(
       "5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         entityExplorer.AddNewPage("Add page from template");
         agHelper.AssertElementVisibility(template.templateDialogBox);

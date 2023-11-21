@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../.././../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -7,7 +6,7 @@ const dsl = require("../../../../../fixtures/tableAndTextDsl.json");
 
 describe(
   "Table Widget Filtered Table data in autocomplete",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableAndTextDsl");

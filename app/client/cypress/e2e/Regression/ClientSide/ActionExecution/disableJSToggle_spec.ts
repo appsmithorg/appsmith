@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -9,7 +8,7 @@ import {
 
 describe(
   "Disable JS toggle when Action selector code is not parsable",
-  { tags: [Tag.JS] },
+  { tags: ["@tag.JS"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);

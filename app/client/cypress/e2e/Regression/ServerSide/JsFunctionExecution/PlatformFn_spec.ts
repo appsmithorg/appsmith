@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { data } from "cypress/types/jquery";
 import {
   agHelper,
@@ -9,7 +8,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Tests functionality of platform function", { tags: [Tag.JS] }, () => {
+describe("Tests functionality of platform function", { tags: ["@tag.JS"] }, () => {
   it("1. Tests access to outer variable", () => {
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,

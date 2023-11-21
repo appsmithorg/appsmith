@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   SidebarButton,
@@ -7,7 +6,7 @@ import EditorNavigation, {
 let dsName;
 describe(
   "Validate Datasource Panel Styles",
-  { tags: [Tag.Datasource, Tag.excludeForAirgap] },
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     const backgroundColorGray700 = "rgb(76, 86, 100)";
     const backgroundColorGray1 = "rgb(241, 245, 249)";

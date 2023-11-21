@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   apiPage,
@@ -12,7 +11,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Radio Widget test cases", { tags: [Tag.Widget] }, function () {
+describe("Radio Widget test cases", { tags: ["@tag.Widget"] }, function () {
   it("1. Validate radio widget bindings", () => {
     //JS Object
     jsEditor.CreateJSObject(

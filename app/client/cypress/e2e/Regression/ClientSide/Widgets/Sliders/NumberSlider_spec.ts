@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
@@ -11,7 +10,7 @@ import {
   deployMode,
   autoLayout,
 } from "../../../../../support/Objects/ObjectsCore";
-describe("Number Slider spec", { tags: [Tag.Widget, Tag.Slider] }, () => {
+describe("Number Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("numbersliderwidget", 550, 100);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);

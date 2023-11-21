@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
@@ -87,7 +86,7 @@ const listData = [
 
 describe(
   "List widget V2 page number and page size",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("listv2PaginationDsl");
@@ -160,7 +159,7 @@ describe(
 
     it(
       "3. should reset page no if higher than max when switched from server side to client side",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         cy.addDsl(dslWithServerSide);
         // Open Datasource editor
@@ -200,7 +199,7 @@ describe(
 
     it(
       "3. should reset page no if higher than max when switched from server side to client side - airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       () => {
         cy.addDsl(dslWithServerSide);
         // Open Datasource editor

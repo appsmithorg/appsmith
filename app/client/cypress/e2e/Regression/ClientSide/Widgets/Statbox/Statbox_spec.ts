@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
@@ -11,7 +10,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Statbox spec", { tags: [Tag.Widget, Tag.Statbox] }, () => {
+describe("Statbox spec", { tags: ["@tag.Widget", "@tag.Statbox"] }, () => {
   before(() => {
     /**
      * On the canvas we have a Statbox Widget

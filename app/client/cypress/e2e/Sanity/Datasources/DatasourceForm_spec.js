@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 const testdata = require("../../../fixtures/testdata.json");
 import {
   agHelper,
@@ -8,7 +7,7 @@ import {
   dataSources,
 } from "../../../support/Objects/ObjectsCore";
 
-describe("Datasource form related tests", { tags: [Tag.Datasource] }, function () {
+describe("Datasource form related tests", { tags: ["@tag.Datasource"] }, function () {
   it("1. Check whether the number of key value pairs is equal to number of delete buttons", function () {
     apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods);
     cy.get(".t--store-as-datasource").click();

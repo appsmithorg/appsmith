@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const widgets = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -6,7 +5,7 @@ let testHeight;
 
 describe(
   "Auto conversion algorithm usecases for auto-layout",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   function () {
     it("1. Validate basic conversion algorithm usecases", function () {
       _.agHelper.AddDsl("conversionFrAutoLayoutDsl");

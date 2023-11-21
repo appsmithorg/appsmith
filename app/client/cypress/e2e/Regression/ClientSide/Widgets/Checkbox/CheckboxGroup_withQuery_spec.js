@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -9,7 +8,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Checkbox Group Widget Functionality",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     let dsName;
     before(() => {

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   autoLayout,
   agHelper,
@@ -9,7 +8,7 @@ import HomePage from "../../../../locators/HomePage";
 
 describe(
   "Copy paste widget related tests for Auto layout",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     before(() => {
       autoLayout.ConvertToAutoLayoutAndVerify(false);

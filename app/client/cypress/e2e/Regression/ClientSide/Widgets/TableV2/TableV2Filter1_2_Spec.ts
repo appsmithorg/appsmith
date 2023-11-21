@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -12,7 +11,7 @@ import {
 
 describe(
   "Verify various Table_Filter combinations",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     it("1. Verify Table Filter for 'empty'", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);

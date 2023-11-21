@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
@@ -15,7 +14,7 @@ import {
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test curl import flow", { tags: [Tag.Datasource] }, function () {
+describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
   it("1. Test curl import flow Run and Delete", function () {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
     dataSources.NavigateToDSCreateNew();

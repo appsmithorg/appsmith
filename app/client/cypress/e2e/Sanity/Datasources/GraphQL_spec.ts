@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import {
   agHelper,
   entityItems,
@@ -48,7 +47,7 @@ const GRAPHQL_LIMIT_DATA = [
 
 describe(
   "GraphQL Datasource Implementation",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     before(() => {
       agHelper.GenerateUUID();

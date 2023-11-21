@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pageid = "MyPage";
@@ -12,7 +11,7 @@ let ee = ObjectsRegistry.EntityExplorer,
 
 describe(
   "Entity explorer API pane related testcases",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     it("1. Empty Message validation for Widgets/API/Queries", function () {
       homePage.CreateNewWorkspace("EmptyMsgCheck", true);

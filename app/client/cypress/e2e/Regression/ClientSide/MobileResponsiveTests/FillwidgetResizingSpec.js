@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let theight;
@@ -6,7 +5,7 @@ let twidth;
 
 describe(
   "Validating Mobile Views for Fill Widget",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   function () {
     it("Validate change with height width for fill widget - Input widget", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

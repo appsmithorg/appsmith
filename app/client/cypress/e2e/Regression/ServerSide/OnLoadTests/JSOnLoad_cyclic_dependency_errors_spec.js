@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
@@ -34,7 +33,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
 
   it(
     "1. Create Users Sample DB Query & Simulate cyclic depedency",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       //Step1 : Create Mock Users DB
       dataSources.CreateMockDB("Users").then(() => {
@@ -58,7 +57,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
 
   it(
     "1. Create Users Sample DB Query & Simulate cyclic depedency - airgap",
-    { tags: [Tag.airgap] },
+    { tags: ["@tag.airgap"] },
     () => {
       //Step1 : Create postgres DB
       dataSources.CreateDataSource("Postgres");

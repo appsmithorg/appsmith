@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import { PROPERTY_SELECTOR } from "../../../../locators/WidgetLocators";
 import {
@@ -29,7 +28,7 @@ const JSInput2TestCode =
 
 let repoName;
 
-describe("1. CommandClickNavigation", { tags: [Tag.IDE] }, function () {
+describe("1. CommandClickNavigation", { tags: ["@tag.IDE"] }, function () {
   it("1. Import application & Assert few things", () => {
     homePage.NavigateToHome();
     cy.reload();

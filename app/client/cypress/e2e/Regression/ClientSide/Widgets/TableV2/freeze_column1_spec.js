@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   getWidgetSelector,
   PROPERTY_SELECTOR,
@@ -10,7 +9,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Column freeze & unfreeze in canavs mode",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });
@@ -37,7 +36,7 @@ describe(
     });
     describe(
       "1.1 Column freeze and unfreeze testing via propertypane",
-      { tags: [Tag.Widget, Tag.Table] },
+      { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("1.1.1 Freeze column to left", () => {
           cy.openPropertyPane(_.draggableWidgets.TABLE);
@@ -115,7 +114,7 @@ describe(
 
     describe(
       "1.2 Column freeze and unfreeze testing via dropdown",
-      { tags: [Tag.Widget, Tag.Table] },
+      { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("1.2.1 Check if column freeze for user mode is enabled", () => {
           cy.openPropertyPane(_.draggableWidgets.TABLE);

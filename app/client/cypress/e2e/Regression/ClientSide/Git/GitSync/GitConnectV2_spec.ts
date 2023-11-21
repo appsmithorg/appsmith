@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -8,7 +7,7 @@ let app1Name: string;
 let repoName: any;
 let branchName: any;
 
-describe("Git Connect V2", { tags: [Tag.Git] }, function () {
+describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

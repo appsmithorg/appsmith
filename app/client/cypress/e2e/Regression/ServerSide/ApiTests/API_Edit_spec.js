@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
@@ -14,7 +13,7 @@ import {
 
 describe(
   "API Panel Test Functionality",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     before(() => {
       agHelper.AddDsl("uiBindDsl");

@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "MultiSelect Widget Functionality",
-  { tags: [Tag.Widget, Tag.Multiselect] },
+  { tags: ["@tag.Widget", "@tag.Multiselect"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

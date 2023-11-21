@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 /* eslint-disable cypress/no-unnecessary-waiting */
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Select Widget Functionality",
-  { tags: [Tag.Widget, Tag.Select] },
+  { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.SELECT);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const Layoutpage = require("../../../../../locators/Layout.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -6,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "File Picker Widget V2 Functionality",
-  { tags: [Tag.Widget, Tag.Filepicker] },
+  { tags: ["@tag.Widget", "@tag.Filepicker"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("filePickerV2_reset_check_dsl");

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const explorerLocators = require("../../../../locators/explorerlocators.json");
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -7,7 +6,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Creating new app after discontinuing guided tour should not start the same",
-  { tags: [Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   function () {
     it("1. Creating new app after discontinuing guided tour should not start the same", function () {
       // Start guided tour

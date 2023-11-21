@@ -1,4 +1,3 @@
-import { Tag } from "../../tags";
 /// <reference types="Cypress" />
 import { GSHEET_DATA } from "../../fixtures/test-data-gsheet";
 import {
@@ -19,7 +18,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
-describe("GSheet Miscellaneous Tests", { tags: [Tag.Datasource] }, function () {
+describe("GSheet Miscellaneous Tests", { tags: ["@tag.Datasource"] }, function () {
   const columnHeaders = [
     "uniq_id",
     "japanese_name",

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -9,7 +8,7 @@ import {
 
 describe(
   "CUrrency Input widget Tests",
-  { tags: [Tag.Widget, Tag.CurrencyInput] },
+  { tags: ["@tag.Widget", "@tag.CurrencyInput"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 550, 100);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   deployMode,
@@ -13,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "Test Top + Inline navigation style",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     before(() => {
       // Import an application

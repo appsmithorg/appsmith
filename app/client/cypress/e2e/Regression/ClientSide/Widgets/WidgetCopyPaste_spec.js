@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
@@ -6,7 +5,7 @@ const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
-describe("Widget Copy paste", { tags: [Tag.Widget] }, function () {
+describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   before(() => {
     _.agHelper.AddDsl("WidgetCopyPaste");

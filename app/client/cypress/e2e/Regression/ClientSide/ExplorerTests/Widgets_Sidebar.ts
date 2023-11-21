@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   entityExplorer,
   agHelper,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "Entity explorer tests related to widgets and validation",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
     const WIDGET_TAGS: Record<string, string> = {
