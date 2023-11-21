@@ -226,6 +226,7 @@ describe("UUID Datatype tests", function () {
           locators._buttonByText("Run UpdateQuery"),
         );
         table.WaitUntilTableLoad();
+        agHelper.Sleep(3000); //wait for table load
         table.ReadTableRowColumnData(2, 0).then(($cellData) => {
           expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
         });
