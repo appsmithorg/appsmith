@@ -13,11 +13,11 @@ import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALU
 public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final NewPageService newPageService;
     private final ResponseUtils responseUtils;
-    private final LayoutActionService layoutActionService;
+    private final UpdateLayoutService updateLayoutService;
     private final ApplicationService applicationService;
     private final PagePermission pagePermission;
     private final AnalyticsService analyticsService;
@@ -112,8 +112,8 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 List<Layout> layouts = page.getLayouts();
                 for (Layout layout : layouts) {
                     if (layoutId.equals(layout.getId())) {
-                        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                        return layoutActionService
+                        layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                        return updateLayoutService
                                 .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
                                 .zipWith(Mono.just(updatedBindingPaths));
                     }

@@ -15,6 +15,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
@@ -49,6 +50,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
+    private final UpdateLayoutService updateLayoutService;
     private final RefactoringSolution refactoringSolution;
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
@@ -332,8 +334,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 // 2. Run updateLayout on the old page
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
-                                            layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(
+                                            layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                                            return updateLayoutService.updateLayout(
                                                     page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());
@@ -351,8 +353,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 // 3. Run updateLayout on the new page.
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
-                                            layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(
+                                            layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                                            return updateLayoutService.updateLayout(
                                                     page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());

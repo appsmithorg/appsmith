@@ -21,6 +21,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ObjectMapperUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
@@ -83,6 +84,9 @@ public class ActionCollectionServiceImplTest {
     LayoutActionService layoutActionService;
 
     @MockBean
+    UpdateLayoutService updateLayoutService;
+
+    @MockBean
     RefactoringSolution refactoringSolution;
 
     @MockBean
@@ -141,6 +145,7 @@ public class ActionCollectionServiceImplTest {
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
                 layoutActionService,
+                updateLayoutService,
                 refactoringSolution,
                 actionCollectionService,
                 newActionService,
@@ -791,10 +796,10 @@ public class ActionCollectionServiceImplTest {
         jsonObject.put("key", "value");
         layout.setDsl(jsonObject);
 
-        Mockito.when(layoutActionService.unescapeMongoSpecialCharacters(Mockito.any()))
+        Mockito.when(updateLayoutService.unescapeMongoSpecialCharacters(Mockito.any()))
                 .thenReturn(jsonObject);
 
-        Mockito.when(layoutActionService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(updateLayoutService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
         Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))

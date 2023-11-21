@@ -28,6 +28,7 @@ import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
@@ -103,6 +104,9 @@ public class LayoutActionServiceTest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     RefactoringSolution refactoringSolution;
@@ -201,7 +205,7 @@ public class LayoutActionServiceTest {
 
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
-        layoutActionService
+        updateLayoutService
                 .updateLayout(pageId, testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -454,7 +458,7 @@ public class LayoutActionServiceTest {
                 layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
 
         Mono<LayoutDTO> updateLayoutMono =
-                layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
+                updateLayoutService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -490,7 +494,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
 
         updateLayoutMono =
-                layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
+                updateLayoutService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -598,7 +602,7 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        Mono<LayoutDTO> updateLayoutMono = layoutActionService
+        Mono<LayoutDTO> updateLayoutMono = updateLayoutService
                 .updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)
                 .cache();
 
@@ -737,7 +741,7 @@ public class LayoutActionServiceTest {
                 layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
 
         Mono<LayoutDTO> updateLayoutMono =
-                layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
+                updateLayoutService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -855,7 +859,7 @@ public class LayoutActionServiceTest {
                 .block();
 
         Mono<LayoutDTO> updateLayoutMono =
-                layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
+                updateLayoutService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -948,7 +952,7 @@ public class LayoutActionServiceTest {
                 layoutActionService.createSingleAction(action2, Boolean.FALSE).block();
 
         Mono<LayoutDTO> updateLayoutMono =
-                layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
+                updateLayoutService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -987,7 +991,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(parentDsl);
 
         Mono<LayoutDTO> updateLayoutMono =
-                layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
+                updateLayoutService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(layoutDTO -> {
@@ -1027,7 +1031,7 @@ public class LayoutActionServiceTest {
                 newPageService.findPageById(testPage.getId(), READ_PAGES, false),
                 newPageService.findPageById(secondPage.getId(), READ_PAGES, false));
 
-        Mono<Tuple2<PageDTO, PageDTO>> updateAndGetPagesMono = layoutActionService
+        Mono<Tuple2<PageDTO, PageDTO>> updateAndGetPagesMono = updateLayoutService
                 .updateMultipleLayouts(testApp.getId(), null, multiplePageLayoutDTO)
                 .then(pagesMono);
 
@@ -1120,7 +1124,7 @@ public class LayoutActionServiceTest {
                 .thenReturn(newActionFlux);
 
         Mono<LayoutDTO> updateLayoutMono =
-                layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
+                updateLayoutService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -1192,7 +1196,7 @@ public class LayoutActionServiceTest {
                 .thenReturn(newActionFlux);
 
         Mono<LayoutDTO> updateLayoutMono =
-                layoutActionService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
+                updateLayoutService.updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout);
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
@@ -1261,7 +1265,7 @@ public class LayoutActionServiceTest {
         mainDsl.put("children", objects);
         layout.setDsl(mainDsl);
 
-        LayoutDTO firstLayout = layoutActionService
+        LayoutDTO firstLayout = updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -1311,7 +1315,7 @@ public class LayoutActionServiceTest {
 
         layout.setDsl(mainDsl);
 
-        LayoutDTO changedLayoutDTO = layoutActionService
+        LayoutDTO changedLayoutDTO = updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
         assertNotNull(changedLayoutDTO);

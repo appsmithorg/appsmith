@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringSolutionCEImpl;
@@ -23,7 +24,6 @@ import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -73,7 +73,7 @@ class RefactoringSolutionCEImplTest {
     private ResponseUtils responseUtils;
 
     @MockBean
-    private LayoutActionService layoutActionService;
+    private UpdateLayoutService updateLayoutService;
 
     @MockBean
     private ApplicationService applicationService;
@@ -110,7 +110,7 @@ class RefactoringSolutionCEImplTest {
         refactoringSolutionCE = new RefactoringSolutionCEImpl(
                 newPageService,
                 responseUtils,
-                layoutActionService,
+                updateLayoutService,
                 applicationService,
                 pagePermission,
                 analyticsService,
@@ -182,7 +182,7 @@ class RefactoringSolutionCEImplTest {
         Mockito.when(newActionService.findByPageIdAndViewMode(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Flux.empty());
 
-        Mockito.when(layoutActionService.updateLayout(
+        Mockito.when(updateLayoutService.updateLayout(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
@@ -319,7 +319,7 @@ class RefactoringSolutionCEImplTest {
         Mockito.when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))
                 .thenReturn(layout);
 
-        Mockito.when(layoutActionService.updateLayout(
+        Mockito.when(updateLayoutService.updateLayout(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
