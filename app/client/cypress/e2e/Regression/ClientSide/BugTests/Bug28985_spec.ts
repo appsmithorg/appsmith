@@ -3,12 +3,12 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Api execution results test cases", () => {
   it("1. Check to see if API execution results are preserved after it is renamed", () => {
     const {
+      agHelper,
       apiPage,
       dataManager,
       entityExplorer,
       jsEditor,
       propPane,
-      agHelper,
     } = _;
     // Drag and drop a button widget
     entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
