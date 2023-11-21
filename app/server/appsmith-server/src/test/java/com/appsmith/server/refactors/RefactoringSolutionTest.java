@@ -1,6 +1,7 @@
 package com.appsmith.server.refactors;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -249,7 +250,10 @@ public class RefactoringSolutionTest {
                 .thenReturn(Flux.just(mockActionCollectionDTO));
 
         Mono<Boolean> nameAllowedMono = refactoringSolution.isNameAllowed(
-                testPage.getId(), testPage.getLayouts().get(0).getId(), "testCollection");
+                testPage.getId(),
+                CreatorContextType.PAGE,
+                testPage.getLayouts().get(0).getId(),
+                "testCollection");
 
         StepVerifier.create(nameAllowedMono).assertNext(Assertions::assertFalse).verifyComplete();
     }
@@ -281,7 +285,10 @@ public class RefactoringSolutionTest {
                 .thenReturn(Flux.just(mockActionCollectionDTO));
 
         Mono<Boolean> nameAllowedMono = refactoringSolution.isNameAllowed(
-                testPage.getId(), testPage.getLayouts().get(0).getId(), "testCollection.bar");
+                testPage.getId(),
+                CreatorContextType.PAGE,
+                testPage.getLayouts().get(0).getId(),
+                "testCollection.bar");
 
         StepVerifier.create(nameAllowedMono).assertNext(Assertions::assertTrue).verifyComplete();
     }
