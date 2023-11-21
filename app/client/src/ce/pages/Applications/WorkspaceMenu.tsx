@@ -23,7 +23,6 @@ import { ManageEnvironmentsMenu } from "@appsmith/pages/Applications/ManageEnvir
 interface WorkspaceMenuProps {
   canDeleteWorkspace: boolean;
   canInviteToWorkspace: boolean;
-  enableImportExport: boolean;
   handleDeleteWorkspace: (workspaceId: string) => void;
   handleResetMenuState: () => void;
   handleWorkspaceMenuClose: (open: boolean) => void;
@@ -32,7 +31,6 @@ interface WorkspaceMenuProps {
   isFetchingResources: boolean;
   isSavingWorkspaceInfo: boolean;
   leaveWS: (workspaceId: string) => void;
-  setSelectedWorkspaceIdForImportApplication: (workspaceId?: string) => void;
   setWarnLeavingWorkspace: (show: boolean) => void;
   setWarnDeleteWorkspace: (show: boolean) => void;
   setWorkspaceToOpenMenu: (value: string | null) => void;
@@ -50,16 +48,13 @@ const WorkspaceRename = styled(EditableText)`
 function WorkspaceMenu({
   canDeleteWorkspace,
   canInviteToWorkspace,
-  enableImportExport,
   handleDeleteWorkspace,
   handleResetMenuState,
   handleWorkspaceMenuClose,
-  hasCreateNewApplicationPermission,
   hasManageWorkspacePermissions,
   isFetchingResources,
   isSavingWorkspaceInfo,
   leaveWS,
-  setSelectedWorkspaceIdForImportApplication,
   setWarnDeleteWorkspace,
   setWarnLeavingWorkspace,
   setWorkspaceToOpenMenu,
@@ -139,17 +134,6 @@ function WorkspaceMenu({
               Settings
             </MenuItem>
           </>
-        )}
-        {enableImportExport && hasCreateNewApplicationPermission && (
-          <MenuItem
-            data-testid="t--workspace-import-app"
-            onSelect={() =>
-              setSelectedWorkspaceIdForImportApplication(workspace.id)
-            }
-            startIcon="download"
-          >
-            Import
-          </MenuItem>
         )}
         {hasManageWorkspacePermissions && canInviteToWorkspace && (
           <MenuItem

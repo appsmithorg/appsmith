@@ -273,6 +273,8 @@ export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
+export const WORKSPACE_ACTION_BUTTON = () => "New";
+export const NEW_APP = () => "New app";
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;

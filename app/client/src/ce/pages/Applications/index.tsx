@@ -671,8 +671,12 @@ export function ApplicationsSection(props: any) {
                   />
                 )}
                 <WorkspaceAction
+                  enableImportExport={enableImportExport}
                   isMobile={isMobile}
                   onCreateNewApplication={onClickAddNewAppButton}
+                  setSelectedWorkspaceIdForImportApplication={
+                    setSelectedWorkspaceIdForImportApplication
+                  }
                   workspaceId={workspace.id}
                 />
                 {(currentUser || isLoadingResources) &&
@@ -685,7 +689,6 @@ export function ApplicationsSection(props: any) {
                         canDeleteWorkspace
                       }
                       canInviteToWorkspace={canInviteToWorkspace}
-                      enableImportExport={enableImportExport}
                       handleDeleteWorkspace={handleDeleteWorkspace}
                       handleResetMenuState={handleResetMenuState}
                       handleWorkspaceMenuClose={handleWorkspaceMenuClose}
@@ -698,9 +701,6 @@ export function ApplicationsSection(props: any) {
                       isFetchingResources={isLoadingResources}
                       isSavingWorkspaceInfo={isSavingWorkspaceInfo}
                       leaveWS={leaveWS}
-                      setSelectedWorkspaceIdForImportApplication={
-                        setSelectedWorkspaceIdForImportApplication
-                      }
                       setWarnDeleteWorkspace={setWarnDeleteWorkspace}
                       setWarnLeavingWorkspace={setWarnLeavingWorkspace}
                       setWorkspaceToOpenMenu={setWorkspaceToOpenMenu}
