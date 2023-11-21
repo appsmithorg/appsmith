@@ -101,7 +101,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
             ...prev,
             jsObjects: [],
           }));
-          event.preventDefault();
+          event.stopPropagation();
         },
         title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.jsObjects),
       },
