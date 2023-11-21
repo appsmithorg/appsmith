@@ -146,7 +146,7 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
     @Override
     public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        if (contextId != null) {
+        if (StringUtils.hasText(contextId)) {
             params.add(FieldName.PAGE_ID, contextId);
         }
         return actionCollectionService
