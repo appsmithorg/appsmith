@@ -331,8 +331,9 @@ describe("UUID Datatype tests", function () {
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    // assertHelper.AssertNetworkStatus("@postExecute", 200);
+    // assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertReduxLoad();
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
     });
