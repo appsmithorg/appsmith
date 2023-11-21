@@ -2210,7 +2210,7 @@ export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
 export const FAILED_RECORDS_MESSAGE_TEXT = () =>
   "There was an error connecting to the datasource. Try again in a while.";
 
-export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
+export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_TITLE = () =>
   "No datasources exist in your workspace.";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
@@ -2265,7 +2265,7 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubHeading: () => "Select entities below to export from the Page",
     cta: () => "Export selected entities",
     sections: {
-      jsObjects: () => "JS Objects",
+      jsObjects: () => "JS objects",
       databases: () => "Databases",
       queries: () => "Queries",
       customLibs: () => "Custom libraries",
