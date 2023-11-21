@@ -37,8 +37,6 @@ describe("Bug 28287: Binding query to widget, check query response in query edit
       agHelper.Sleep(1000);
 
       entityExplorer.SelectEntityByName(queryName, "Queries/JS");
-      debuggerHelper.ClickDebuggerIcon();
-      debuggerHelper.ClickResponseTab();
 
       agHelper.AssertElementVisibility(dataSources._queryResponse("TABLE"));
     });

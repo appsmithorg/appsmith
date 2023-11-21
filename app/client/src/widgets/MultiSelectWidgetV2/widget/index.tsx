@@ -47,6 +47,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -134,6 +135,7 @@ class MultiSelectWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
@@ -551,6 +553,21 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "rtl",
+            label: "Enable RTL",
+            helpText: "Enables right to left text direction",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: () => {
+              return !super.getFeatureFlag(
+                FEATURE_FLAG.license_widget_rtl_support_enabled,
+              );
+            },
+          },
         ],
       },
       {
@@ -838,6 +855,7 @@ class MultiSelectWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
+        rtl={this.props.rtl}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}
@@ -945,6 +963,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   labelWidth?: number;
   isDirty?: boolean;
   labelComponentWidth?: number;
+  rtl?: boolean;
 }
 
 export default MultiSelectWidget;

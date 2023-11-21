@@ -60,13 +60,13 @@ export function MainContainerResizer({
   enableMainCanvasResizer,
   heightWithTopMargin,
   isPageInitiated,
-  isPreviewMode,
+  isPreview,
   shouldHaveTopMargin,
 }: {
   heightWithTopMargin: string;
   isPageInitiated: boolean;
   shouldHaveTopMargin: boolean;
-  isPreviewMode: boolean;
+  isPreview: boolean;
   currentPageId: string;
   enableMainCanvasResizer: boolean;
 }) {
@@ -77,7 +77,7 @@ export function MainContainerResizer({
     const ele: HTMLElement | null = document.getElementById(CANVAS_VIEWPORT);
 
     if (isPageInitiated && enableMainCanvasResizer) {
-      const buffer = isPreviewMode ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;
+      const buffer = isPreview ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;
       const fullWidthCSS = `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`;
       const wrapperElement: any = document.getElementById("widgets-editor");
 
@@ -158,7 +158,7 @@ export function MainContainerResizer({
     }
   }, [
     appLayout,
-    isPreviewMode,
+    isPreview,
     currentPageId,
     enableMainCanvasResizer,
     isPageInitiated,

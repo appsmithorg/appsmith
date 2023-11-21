@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { DatasourceStructureContainer as DatasourceStructureList } from "./DatasourceStructureContainer";
 import {
@@ -8,16 +7,10 @@ import {
   getNumberOfEntitiesInCurrentPage,
 } from "@appsmith/selectors/entitiesSelector";
 import DatasourceStructureHeader from "./DatasourceStructureHeader";
-import { MessageWrapper, TableWrapper } from "./GoogleSheetSchema";
-import { Spinner, Text, Button } from "design-system";
+import { Button } from "design-system";
 import {
-  ERR_FETCHING_DATASOURCE_PREVIEW_DATA,
-  FETCHING_DATASOURCE_PREVIEW_DATA,
   DATASOURCE_GENERATE_PAGE_BUTTON,
-  EMPTY_TABLE_TITLE_TEXT,
-  EMPTY_TABLE_MESSAGE_TEXT,
   createMessage,
-  EMPTY_TABLE_SVG_ALT_TEXT,
 } from "@appsmith/constants/messages";
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
@@ -44,97 +37,21 @@ import {
   getHasCreatePagePermission,
   hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import EmptyTableSVG from "assets/images/empty-table-in-display-preview.svg";
-
-const ViewModeSchemaContainer = styled.div`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const DataWrapperContainer = styled.div`
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-`;
-
-const StructureContainer = styled.div`
-  height: 100%;
-  width: 25%;
-  padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-5);
-  padding-left: var(--ads-v2-spaces-7);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-right: 1px solid var(--ads-v2-color-gray-300);
-  flex-shrink: 0;
-`;
-
-const DatasourceDataContainer = styled.div`
-  height: 100%;
-  width: 75%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const DatasourceListContainer = styled.div`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  div {
-    flex-shrink: 0;
-  }
-  div ~ div {
-    flex: 1;
-  }
-  .t--schema-virtuoso-container {
-    height: 100%;
-  }
-`;
-
-const SchemaStateMessageWrapper = styled.div`
-  width: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  img {
-    padding-bottom: var(--ads-v2-spaces-7);
-  }
-  span:first-child {
-    padding-bottom: var(--ads-v2-spaces-2);
-  }
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-shrink: 0;
-  justify-content: flex-end;
-  border-top: 1px solid var(--ads-v2-color-gray-300);
-  padding: var(--ads-v2-spaces-4);
-`;
+import RenderInterimDataState from "./RenderInterimDataState";
+import {
+  ButtonContainer,
+  DataWrapperContainer,
+  DatasourceDataContainer,
+  DatasourceListContainer,
+  StructureContainer,
+  TableWrapper,
+  ViewModeSchemaContainer,
+} from "./SchemaViewModeCSS";
 
 interface Props {
   datasource: Datasource;
   setDatasourceViewModeFlag: (viewMode: boolean) => void;
 }
-
-const renderEmptyTablePage = () => {
-  return (
-    <SchemaStateMessageWrapper>
-      {/* Render empty table image */}
-      <img alt={createMessage(EMPTY_TABLE_SVG_ALT_TEXT)} src={EmptyTableSVG} />
-      {/* Show description below the image */}
-      {/* Show title */}
-      <Text style={{ fontWeight: "bold" }}>
-        {createMessage(EMPTY_TABLE_TITLE_TEXT)}
-      </Text>
-      {/* Show description */}
-      <Text>{createMessage(EMPTY_TABLE_MESSAGE_TEXT)}</Text>
-    </SchemaStateMessageWrapper>
-  );
-};
 
 const DatasourceViewModeSchema = (props: Props) => {
   const dispatch = useDispatch();
@@ -200,6 +117,7 @@ const DatasourceViewModeSchema = (props: Props) => {
     if (
       isDatasourceStructureLoading ||
       !datasourceStructure ||
+      !datasourceStructure.tables ||
       (datasourceStructure && datasourceStructure?.error)
     ) {
       setPreviewData([]);
@@ -247,6 +165,10 @@ const DatasourceViewModeSchema = (props: Props) => {
       });
     }
   }, [previewData]);
+
+  useEffect(() => {
+    setPreviewData([]);
+  }, [props.datasource.id]);
 
   const onEntityTableClick = (table: string) => {
     AnalyticsUtil.logEvent("DATASOURCE_PREVIEW_TABLE_CHANGE", {
@@ -302,12 +224,14 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   return (
     <ViewModeSchemaContainer>
-      <DataWrapperContainer>
+      <DataWrapperContainer data-testId="datasource-schema-container">
         <StructureContainer>
-          <DatasourceStructureHeader
-            datasourceId={props.datasource.id}
-            paddingBottom
-          />
+          {props.datasource && (
+            <DatasourceStructureHeader
+              datasource={props.datasource}
+              paddingBottom
+            />
+          )}
           <DatasourceListContainer>
             <DatasourceStructureList
               context={DatasourceStructureContext.DATASOURCE_VIEW_MODE}
@@ -322,31 +246,25 @@ const DatasourceViewModeSchema = (props: Props) => {
         </StructureContainer>
         <DatasourceDataContainer>
           <TableWrapper>
-            {isLoading && (
-              <MessageWrapper>
-                <Spinner size="md" />
-                <Text style={{ marginLeft: "8px" }}>
-                  {createMessage(FETCHING_DATASOURCE_PREVIEW_DATA)}
-                </Text>
-              </MessageWrapper>
+            {(isLoading || isDatasourceStructureLoading) && (
+              <RenderInterimDataState state="LOADING" />
             )}
-            {!isLoading && failedFetchingPreviewData && (
-              <MessageWrapper>
-                <Text color="var(--ads-color-red-500)">
-                  {createMessage(ERR_FETCHING_DATASOURCE_PREVIEW_DATA)}
-                </Text>
-              </MessageWrapper>
-            )}
-            {!isLoading &&
-              !failedFetchingPreviewData &&
-              !previewDataError &&
-              previewData?.length > 0 && <Table data={previewData} />}
-            {!isLoading &&
-              !failedFetchingPreviewData &&
-              !previewDataError &&
-              previewData?.length < 1 && (
-                <MessageWrapper>{renderEmptyTablePage()}</MessageWrapper>
+            {(!isLoading || !isDatasourceStructureLoading) &&
+              (failedFetchingPreviewData || previewDataError) && (
+                <RenderInterimDataState state="FAILED" />
               )}
+            {!isLoading &&
+              !isDatasourceStructureLoading &&
+              !failedFetchingPreviewData &&
+              !previewDataError &&
+              previewData?.length > 0 && (
+                <Table data={previewData} shouldResize={false} />
+              )}
+            {!isLoading &&
+              !isDatasourceStructureLoading &&
+              !failedFetchingPreviewData &&
+              !previewDataError &&
+              !previewData?.length && <RenderInterimDataState state="NODATA" />}
           </TableWrapper>
         </DatasourceDataContainer>
       </DataWrapperContainer>

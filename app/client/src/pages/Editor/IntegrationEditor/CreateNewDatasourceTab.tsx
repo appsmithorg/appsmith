@@ -27,6 +27,12 @@ import history from "utils/history";
 import { showDebuggerFlag } from "../../../selectors/debuggerSelectors";
 import classNames from "classnames";
 import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  createMessage,
+  CREATE_NEW_DATASOURCE_DATABASE_HEADER,
+  CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
+} from "@appsmith/constants/messages";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -109,6 +115,7 @@ function CreateNewDatasource({
   history,
   isCreating,
   pageId,
+  showMostPopularPlugins,
   showUnsupportedPluginDialog,
 }: any) {
   const newDatasourceRef = useRef<HTMLDivElement>(null);
@@ -122,14 +129,20 @@ function CreateNewDatasource({
       });
     }
   }, [active]);
+
   return (
     <div id="new-datasources" ref={newDatasourceRef}>
-      <Text type={TextType.H2}>Databases</Text>
+      <Text type={TextType.H2}>
+        {showMostPopularPlugins
+          ? createMessage(CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER)
+          : createMessage(CREATE_NEW_DATASOURCE_DATABASE_HEADER)}
+      </Text>
       <NewQueryScreen
         history={history}
         isCreating={isCreating}
         location={location}
         pageId={pageId}
+        showMostPopularPlugins={showMostPopularPlugins}
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
       />
     </div>
@@ -184,6 +197,7 @@ interface CreateNewDatasourceScreenProps {
   showDebugger: boolean;
   pageId: string;
   isAppSidebarEnabled: boolean;
+  isEnabledForStartWithData: boolean;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -215,6 +229,7 @@ class CreateNewDatasourceTab extends React.Component<
       dataSources,
       isAppSidebarEnabled,
       isCreating,
+      isEnabledForStartWithData,
       pageId,
     } = this.props;
     if (!canCreateDatasource) return null;
@@ -236,6 +251,17 @@ class CreateNewDatasourceTab extends React.Component<
         {dataSources.length === 0 &&
           this.props.mockDatasources.length > 0 &&
           mockDataSection}
+        {isEnabledForStartWithData && (
+          <CreateNewDatasource
+            active={false}
+            history={history}
+            isCreating={isCreating}
+            location={location}
+            pageId={pageId}
+            showMostPopularPlugins
+            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+          />
+        )}
         <CreateNewAPI
           active={false}
           history={history}
@@ -281,6 +307,11 @@ const mapStateToProps = (state: AppState) => {
     isFeatureEnabled,
     userWorkspacePermissions,
   );
+
+  const isEnabledForStartWithData =
+    !!featureFlags[
+      FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled
+    ];
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
   return {
     dataSources: getDatasources(state),
@@ -291,6 +322,7 @@ const mapStateToProps = (state: AppState) => {
     showDebugger,
     pageId,
     isAppSidebarEnabled,
+    isEnabledForStartWithData,
   };
 };
 

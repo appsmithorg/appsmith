@@ -12,6 +12,7 @@ export enum PluginType {
   SAAS = "SAAS",
   JS = "JS",
   REMOTE = "REMOTE",
+  AI = "AI",
 }
 
 export enum PluginPackageName {
@@ -49,6 +50,7 @@ export enum PluginName {
   HUBSPOT = "HubSpot",
   ELASTIC_SEARCH = "Elasticsearch",
   GRAPHQL = "Authenticated GraphQL API",
+  OPEN_AI = "Open AI",
 }
 
 export enum PaginationType {
@@ -155,6 +157,8 @@ export interface BaseAction {
   messages: string[];
   userPermissions?: string[];
   errorReports?: Array<LayoutOnLoadActionErrors>;
+  isPublic?: boolean;
+  moduleId?: string;
 }
 
 interface BaseApiAction extends BaseAction {
@@ -168,6 +172,11 @@ export interface SaaSAction extends BaseAction {
 }
 export interface RemoteAction extends BaseAction {
   pluginType: PluginType.REMOTE;
+  actionConfiguration: any;
+  datasource: StoredDatasource;
+}
+export interface AIAction extends BaseAction {
+  pluginType: PluginType.AI;
   actionConfiguration: any;
   datasource: StoredDatasource;
 }
@@ -206,7 +215,12 @@ export interface ActionViewMode {
   timeoutInMillisecond?: number;
 }
 
-export type Action = ApiAction | QueryAction | SaaSAction | RemoteAction;
+export type Action =
+  | ApiAction
+  | QueryAction
+  | SaaSAction
+  | RemoteAction
+  | AIAction;
 
 export enum SlashCommand {
   NEW_API,

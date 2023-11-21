@@ -12,6 +12,7 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
@@ -44,7 +45,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
-import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+import type { Module } from "@appsmith/constants/ModuleConstants";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -85,9 +86,32 @@ export const getShouldShowWidgetName = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (state: AppState) => state.ui.editor.isPreviewMode,
   (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  (isResizing, isDragging, isPreviewMode, isAutoCanvasResizing) => {
+  // cannot import other selectors, breaks the app
+  (state) => {
+    const gitMetaData =
+      state.ui.applications.currentApplication?.gitApplicationMetadata;
+    const isGitConnected = !!(gitMetaData && gitMetaData?.remoteUrl);
+    const currentBranch = gitMetaData?.branchName;
+    const { protectedBranches = [] } = state.ui.gitSync;
+    if (!isGitConnected || !currentBranch) {
+      return false;
+    } else {
+      return protectedBranches.includes(currentBranch);
+    }
+  },
+  (
+    isResizing,
+    isDragging,
+    isPreviewMode,
+    isAutoCanvasResizing,
+    isProtectedMode,
+  ) => {
     return (
-      !isResizing && !isDragging && !isPreviewMode && !isAutoCanvasResizing
+      !isResizing &&
+      !isDragging &&
+      !isPreviewMode &&
+      !isAutoCanvasResizing &&
+      !isProtectedMode
     );
   },
 );
@@ -367,10 +391,24 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
+// Most popular datasources are hardcoded right now to include these 4 plugins and REST API
+// Going forward we may want to have separate list for each instance based on usage
+export const getMostPopularPlugins = createSelector(getPlugins, (plugins) =>
+  plugins.filter(
+    (plugin) =>
+      plugin.packageName === PluginPackageName.POSTGRES ||
+      plugin.packageName === PluginPackageName.MY_SQL ||
+      plugin.packageName === PluginPackageName.MONGO ||
+      plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
+  ),
+);
+
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter(
     (plugin) =>
-      plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
+      plugin.type === PluginType.DB ||
+      plugin.type === PluginType.REMOTE ||
+      plugin.type === PluginType.AI,
   ),
 );
 
@@ -684,7 +722,9 @@ export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
   getCurrentPageId,
   (widgetsByPage, currentPageId) =>
-    currentPageId ? widgetsByPage[currentPageId].dsl : {},
+    currentPageId && widgetsByPage[currentPageId]
+      ? widgetsByPage[currentPageId].dsl
+      : {},
 );
 
 export const getParentModalId = (
@@ -1251,6 +1291,6 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
   );
 };
 
-export function getInputsForModule(): Record<string, ModuleInput> {
-  return {};
+export function getInputsForModule(): Module["inputsForm"] {
+  return [];
 }

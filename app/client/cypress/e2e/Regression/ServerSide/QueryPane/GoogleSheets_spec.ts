@@ -4,6 +4,9 @@ import {
   locators,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "excludeForAirgap",
@@ -36,6 +39,7 @@ describe(
     it("2. Bug # 25004 - Verify Google Sheets documentation opens", function () {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn(pluginName);
+      agHelper.Sleep(); //for plugin page to settle
       deployMode.StubWindowNAssert(
         locators._learnMore,
         "querying-google-sheets#create-queries",
@@ -43,7 +47,7 @@ describe(
       );
       agHelper.GetNClick(locators._visibleTextSpan("Don't save"));
       agHelper.Sleep();
-      agHelper.GoBack();
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       agHelper.Sleep();
     });
   },

@@ -43,8 +43,8 @@ import type {
   JSCollectionCreateUpdateResponse,
   RefactorAction,
   SetFunctionPropertyPayload,
-} from "api/JSActionAPI";
-import JSActionAPI from "api/JSActionAPI";
+} from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
@@ -72,7 +72,7 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
@@ -557,10 +557,8 @@ function* handleRefactorJSActionNameSaga(
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     const requestData = {
-      refactorAction: {
-        ...data.payload.refactorAction,
-        layoutId: layoutId,
-      },
+      ...data.payload.refactorAction,
+      layoutId: layoutId,
       actionCollection: data.payload.actionCollection,
     };
     // call to refactor action

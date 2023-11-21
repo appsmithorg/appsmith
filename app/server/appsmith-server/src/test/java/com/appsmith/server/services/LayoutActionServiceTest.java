@@ -18,10 +18,11 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.dtos.RefactorActionNameDTO;
-import com.appsmith.server.dtos.ce.UpdateMultiplePageLayoutDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
+import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
@@ -30,10 +31,10 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1294,14 +1295,15 @@ public class LayoutActionServiceTest {
         assertEquals(1, firstLayout.getLayoutOnLoadActionErrors().size());
 
         // refactoring action to carry the existing error in DSL
-        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        RefactorEntityNameDTO refactorActionNameDTO = new RefactorEntityNameDTO();
+        refactorActionNameDTO.setEntityType(EntityType.ACTION);
         refactorActionNameDTO.setOldName("actionName");
         refactorActionNameDTO.setNewName("newActionName");
         refactorActionNameDTO.setLayoutId(layout.getId());
         refactorActionNameDTO.setPageId(testPage.getId());
         refactorActionNameDTO.setActionId(createdAction.getId());
 
-        Mono<LayoutDTO> layoutDTOMono = refactoringSolution.refactorActionName(refactorActionNameDTO);
+        Mono<LayoutDTO> layoutDTOMono = refactoringSolution.refactorEntityName(refactorActionNameDTO, null);
         StepVerifier.create(layoutDTOMono.map(
                         layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
                 .expectNext(1)

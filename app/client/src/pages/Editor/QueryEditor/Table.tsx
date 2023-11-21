@@ -17,6 +17,7 @@ import type { Theme } from "constants/DefaultTheme";
 interface TableProps {
   data: Record<string, any>[];
   tableBodyHeight?: number;
+  shouldResize?: boolean;
 }
 
 const TABLE_SIZES = {
@@ -208,6 +209,7 @@ export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
 function Table(props: TableProps) {
   const theme = useTheme() as Theme;
   const tableBodyRef = React.useRef<HTMLElement>();
+  const { shouldResize = true } = props;
 
   const data = React.useMemo(() => {
     /* Check for length greater than 0 of rows returned from the query for mappings keys */
@@ -346,12 +348,14 @@ function Table(props: TableProps) {
                         >
                           <AutoToolTipComponent title={column.render("Header")}>
                             {column.render("Header")}
-                            <div
-                              {...column.getResizerProps()}
-                              className={`resizer ${
-                                column.isResizing ? "isResizing" : ""
-                              }`}
-                            />
+                            {shouldResize && (
+                              <div
+                                {...column.getResizerProps()}
+                                className={`resizer ${
+                                  column.isResizing ? "isResizing" : ""
+                                }`}
+                              />
+                            )}
                           </AutoToolTipComponent>
                         </div>
                       </div>

@@ -252,7 +252,7 @@ describe("Radio Widget test cases", function () {
     agHelper.AssertCSS(
       widgetLocators.radioWidgetLabelContainer,
       "width",
-      "59.765625px",
+      "55.859375px",
     );
     agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
     agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
@@ -296,6 +296,7 @@ describe("Radio Widget test cases", function () {
     deployMode.DeployApp(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
+    agHelper.Sleep(2000); //for Radio Group to load fully, for CI flakyness
     agHelper.HoverElement(locators._tooltipIcon);
     agHelper.AssertPopoverTooltip("Tooltip text");
     agHelper.AssertElementEnabledDisabled(

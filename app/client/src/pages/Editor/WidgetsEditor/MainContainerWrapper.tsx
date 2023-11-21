@@ -32,15 +32,13 @@ import Canvas from "../Canvas";
 import type { AppState } from "@appsmith/reducers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
-import {
-  LayoutSystemFeatures,
-  useLayoutSystemFeatures,
-} from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
+import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
 
 interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
+  isProtectedMode: boolean;
   shouldShowSnapShotBanner: boolean;
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
@@ -110,6 +108,7 @@ const Wrapper = styled.section<{
  * This Component encompasses/wraps the center section of the editor
  * That involves mainly the main container and main container resizer
  * @param props object that contains
+ * @prop isProtectedMode, boolean to indicate protected mode
  * @prop isPreviewMode, boolean to indicate preview mode
  * @prop shouldShowSnapShotBanner, boolean to indicate if snapshot is shown
  * @prop navigationHeight, height of navigation header in pixels
@@ -120,7 +119,12 @@ const Wrapper = styled.section<{
 function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
-  const { currentPageId, isPreviewMode, shouldShowSnapShotBanner } = props;
+  const {
+    currentPageId,
+    isPreviewMode,
+    isProtectedMode,
+    shouldShowSnapShotBanner,
+  } = props;
 
   const isFetchingPage = useSelector(getIsFetchingPage);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
@@ -129,7 +133,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin =
-    !isPreviewMode ||
+    !(isPreviewMode || isProtectedMode) ||
     !isAppSettingsPaneWithNavigationTabOpen ||
     pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
@@ -138,11 +142,8 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
-
-  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableMainContainerResizer] = checkLayoutSystemFeatures([
-    LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER,
-  ]);
+  const { canShowResizer, enableMainContainerResizer } =
+    useMainContainerResizer();
 
   useEffect(() => {
     return () => {
@@ -178,7 +179,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   }
 
   const isPreviewingNavigation =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
 
   /**
    * calculating exact height to not allow scroll at this component,
@@ -190,12 +191,13 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
    * - 3. bottom bar (footer with debug/logs buttons)
    */
   const topMargin = shouldShowSnapShotBanner ? "4rem" : "0rem";
-  const bottomBarHeight = isPreviewMode ? "0px" : theme.bottomBarHeight;
+  const bottomBarHeight =
+    isPreviewMode || isProtectedMode ? "0px" : theme.bottomBarHeight;
   const smallHeaderHeight = showCanvasTopSection
     ? theme.smallHeaderHeight
     : "0px";
   const scrollBarHeight =
-    isPreviewMode || isPreviewingNavigation ? "8px" : "40px";
+    isPreviewMode || isProtectedMode || isPreviewingNavigation ? "8px" : "40px";
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
   const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px)`;
@@ -204,7 +206,9 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
       <Wrapper
         $enableMainCanvasResizer={enableMainContainerResizer}
         background={
-          isPreviewMode || isAppSettingsPaneWithNavigationTabOpen
+          isPreviewMode ||
+          isProtectedMode ||
+          isAppSettingsPaneWithNavigationTabOpen
             ? isWDSV2Enabled
               ? "var(--bg-color)"
               : selectedTheme.properties.colors.backgroundColor
@@ -252,10 +256,10 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
       </Wrapper>
       <MainContainerResizer
         currentPageId={currentPageId}
-        enableMainCanvasResizer={enableMainContainerResizer}
+        enableMainCanvasResizer={enableMainContainerResizer && canShowResizer}
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
-        isPreviewMode={isPreviewMode}
+        isPreview={isPreviewMode || isProtectedMode}
         shouldHaveTopMargin={shouldHaveTopMargin}
       />
     </>

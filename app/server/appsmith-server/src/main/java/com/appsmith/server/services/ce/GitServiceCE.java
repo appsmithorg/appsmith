@@ -80,4 +80,8 @@ public interface GitServiceCE {
     Mono<BranchTrackingStatus> fetchRemoteChanges(String defaultApplicationId, String branchName, boolean isFileLock);
 
     Mono<String> autoCommitDSLMigration(String defaultApplicationId, String branchName);
+
+    Mono<List<String>> updateProtectedBranches(String defaultApplicationId, List<String> branchNames);
+
+    Mono<List<String>> getProtectedBranches(String defaultApplicationId);
 }

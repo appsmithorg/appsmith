@@ -12,7 +12,7 @@ const _TooltipTrigger = (
 ) => {
   const { children, ...rest } = props;
   const context = useTooltipContext();
-  // @ts-expect-error we don't which type children will be
+  // @ts-expect-error we don't know which type children will be
   const childrenRef = (children as unknown).ref;
   const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
 

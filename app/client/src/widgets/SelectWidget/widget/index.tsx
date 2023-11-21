@@ -53,6 +53,7 @@ import type {
 } from "WidgetProvider/constants";
 
 import IconSVG from "../icon.svg";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
@@ -187,6 +188,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
@@ -556,6 +558,21 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "rtl",
+            label: "Enable RTL",
+            helpText: "Enables right to left text direction",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: () => {
+              return !super.getFeatureFlag(
+                FEATURE_FLAG.license_widget_rtl_support_enabled,
+              );
+            },
+          },
         ],
       },
       {
@@ -828,6 +845,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         options={options}
         placeholder={this.props.placeholderText}
         resetFilterTextOnClose={!this.props.serverSideFiltering}
+        rtl={this.props.rtl}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
         serverSideFiltering={this.props.serverSideFiltering}
         value={this.props.selectedOptionValue}
@@ -928,6 +946,7 @@ export interface SelectWidgetProps extends WidgetProps {
   isDirty?: boolean;
   filterText: string;
   labelComponentWidth?: number;
+  rtl?: boolean;
 }
 
 export default SelectWidget;

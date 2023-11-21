@@ -11,11 +11,10 @@ import React, { memo, useEffect, useState, useContext } from "react";
 import EntityPlaceholder from "../Explorer/Entity/Placeholder";
 import DatasourceStructure from "./DatasourceStructure";
 import { SearchInput, Text } from "design-system";
-import styled from "styled-components";
 import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import DatasourceStructureLoadingContainer from "./DatasourceStructureLoadingContainer";
+import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { PluginName } from "entities/Action";
@@ -23,6 +22,7 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { setFeatureWalkthroughShown } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SCHEMA_SECTION_ID } from "entities/Action";
+import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
 
 interface Props {
   datasourceId: string;
@@ -47,16 +47,8 @@ export const SCHEMALESS_PLUGINS: Array<string> = [
   PluginName.REST_API,
   PluginName.REDIS,
   PluginName.GOOGLE_SHEETS,
+  PluginName.OPEN_AI,
 ];
-
-const DatasourceStructureSearchContainer = styled.div`
-  margin-bottom: 8px;
-  position: sticky;
-  top: 0;
-  overflow: hidden;
-  z-index: 10;
-  background: white;
-`;
 
 const Container = (props: Props) => {
   const isLoading = useSelector((state: AppState) =>
@@ -67,7 +59,6 @@ const Container = (props: Props) => {
   const [datasourceStructure, setDatasourceStructure] = useState<
     DatasourceStructureType | undefined
   >(props.datasourceStructure);
-  const [hasSearchedOccured, setHasSearchedOccured] = useState(false);
 
   const { isOpened: isWalkthroughOpened, popFeature } =
     useContext(WalkthroughContext) || {};
@@ -104,15 +95,9 @@ const Container = (props: Props) => {
   const handleOnChange = (value: string) => {
     if (!props.datasourceStructure?.tables?.length) return;
 
-    if (value.length > 0) {
-      !hasSearchedOccured && setHasSearchedOccured(true);
-    } else {
-      hasSearchedOccured && setHasSearchedOccured(false);
-    }
-
     const filteredDastasourceStructure =
       props.datasourceStructure.tables.filter((table) =>
-        table.name.includes(value),
+        table.name.toLowerCase().includes(value.toLowerCase()),
       );
 
     setDatasourceStructure({ tables: filteredDastasourceStructure });
@@ -128,7 +113,9 @@ const Container = (props: Props) => {
       view = (
         <>
           {props.context !== DatasourceStructureContext.EXPLORER && (
-            <DatasourceStructureSearchContainer>
+            <DatasourceStructureSearchContainer
+              className={`t--search-container--${props.context.toLowerCase()}`}
+            >
               <SearchInput
                 className="datasourceStructure-search"
                 endIcon="close"
@@ -136,7 +123,7 @@ const Container = (props: Props) => {
                 placeholder={createMessage(
                   DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
                 )}
-                size={"md"}
+                size={"sm"}
                 startIcon="search"
                 type="text"
               />
@@ -147,7 +134,6 @@ const Container = (props: Props) => {
               context={props.context}
               currentActionId={props.currentActionId || ""}
               datasourceId={props.datasourceId}
-              forceExpand={hasSearchedOccured}
               // If set, then it doesn't set the context menu to generate query from templates
               onEntityTableClick={props.onEntityTableClick}
               step={props.step + 1}
@@ -198,7 +184,7 @@ const Container = (props: Props) => {
     props.context !== DatasourceStructureContext.EXPLORER &&
     isLoading
   ) {
-    view = <DatasourceStructureLoadingContainer />;
+    view = <ItemLoadingIndicator type="SCHEMA" />;
   }
 
   return view;

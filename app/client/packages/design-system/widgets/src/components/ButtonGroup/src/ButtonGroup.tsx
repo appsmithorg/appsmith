@@ -1,8 +1,8 @@
-import React, { forwardRef, cloneElement } from "react";
+import React, { forwardRef } from "react";
+import { ButtonGroupContext } from "./ButtonGroupContext";
 import styles from "./styles.module.css";
-import isArray from "lodash/isArray";
 
-import type { Ref, ReactNode } from "react";
+import type { Ref } from "react";
 import type { ButtonGroupProps } from "./types";
 
 const _ButtonGroup = (props: ButtonGroupProps, ref: Ref<HTMLDivElement>) => {
@@ -14,23 +14,17 @@ const _ButtonGroup = (props: ButtonGroupProps, ref: Ref<HTMLDivElement>) => {
     ...others
   } = props;
 
-  const cloneChildren = (elements: ReactNode) => {
-    if (isArray(elements)) {
-      return elements.map((element) =>
-        cloneElement(element, { variant, color }),
-      );
-    }
-  };
-
   return (
-    <div
-      className={styles.buttonGroup}
-      data-orientation={orientation}
-      ref={ref}
-      {...others}
-    >
-      {cloneChildren(children)}
-    </div>
+    <ButtonGroupContext.Provider value={{ color, variant }}>
+      <div
+        className={styles.buttonGroup}
+        data-orientation={orientation}
+        ref={ref}
+        {...others}
+      >
+        {children}
+      </div>
+    </ButtonGroupContext.Provider>
   );
 };
 

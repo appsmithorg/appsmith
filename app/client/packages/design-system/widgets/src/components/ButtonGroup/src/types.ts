@@ -6,8 +6,10 @@ export const BUTTON_GROUP_ORIENTATIONS = {
   horizontal: "horizontal",
 };
 
-export interface ButtonGroupProps
-  extends Pick<ButtonProps, "variant" | "color"> {
+export interface InheritedButtonProps
+  extends Pick<ButtonProps, "variant" | "color"> {}
+
+export interface ButtonGroupProps extends InheritedButtonProps {
   children?: React.ReactNode;
   orientation?: keyof typeof BUTTON_GROUP_ORIENTATIONS;
 }

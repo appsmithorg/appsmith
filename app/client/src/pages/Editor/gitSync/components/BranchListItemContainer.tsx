@@ -5,12 +5,12 @@ export const BranchListItemContainer = styled.div<{
   active?: boolean;
   isDefault?: boolean;
 }>`
-  padding: ${(props) => `${props.theme.spaces[5]}px`};
+  padding: ${(props) => `${props.theme.spaces[4]}px`};
   margin: ${(props) => `${props.theme.spaces[1]}px 0`};
   color: var(--ads-v2-color-fg-emphasis);
   cursor: pointer;
   width: 100%;
-  height: 48px;
+  height: 36px;
   border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
     props.selected || props.active ? "var(--ads-v2-color-bg-muted)" : ""};
@@ -20,9 +20,8 @@ export const BranchListItemContainer = styled.div<{
 background-color: var(--ads-v2-color-bg-subtle);
 }`}
 
-  display: grid;
-  grid-gap: 16px;
-  grid-template-columns: 9fr 1fr;
+  display: flex;
+  align-items: center;
 
   .branch-list-item-text {
     white-space: nowrap;
@@ -31,5 +30,6 @@ background-color: var(--ads-v2-color-bg-subtle);
     display: flex;
     align-items: center;
     gap: 4px;
+    flex: 1;
   }
 `;

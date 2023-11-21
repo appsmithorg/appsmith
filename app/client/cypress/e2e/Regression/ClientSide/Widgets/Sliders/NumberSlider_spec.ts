@@ -425,7 +425,7 @@ describe("Number Slider spec", () => {
       .type("{rightArrow}")
       .type("{upArrow}");
 
-    agHelper.Sleep(200);
+    agHelper.Sleep();
 
     agHelper
       .GetText(getWidgetSelector(draggableWidgets.TEXT))

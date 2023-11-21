@@ -3,12 +3,12 @@ import { ThemeProvider } from "styled-components";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  combinedPreviewModeSelector,
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPageSaving,
   getIsPublishingApplication,
   getPageSavingError,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import {
   getCurrentAppWorkspace,
@@ -48,7 +48,10 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
 
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import {
+  getIsGitConnected,
+  protectedModeSelector,
+} from "selectors/gitSyncSelectors";
 import {
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
@@ -80,6 +83,7 @@ import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
+import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -92,7 +96,7 @@ export function EditorHeader() {
   const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
@@ -103,6 +107,7 @@ export function EditorHeader() {
   const featureFlags = useSelector(selectFeatureFlags);
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   const deployLink = useHref(viewerURL, { pageId });
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -117,6 +122,10 @@ export function EditorHeader() {
     showPublishCommunityTemplateModal,
     setShowPublishCommunityTemplateModal,
   ] = useState(false);
+
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
+
+  const showEntityExplorerLock = !isAppSidebarEnabled && !signpostingEnabled;
 
   const handlePublish = () => {
     if (applicationId) {
@@ -150,6 +159,7 @@ export function EditorHeader() {
         pageCount,
         ...navigationSettingsWithPrefix,
         isPublic: !!currentApplication?.isPublic,
+        templateTitle: currentApplication?.forkedFromTemplateTitle,
       });
     }
   };
@@ -197,8 +207,10 @@ export function EditorHeader() {
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
-          {!signpostingEnabled && (
+          {showEntityExplorerLock ? (
             <LockEntityExplorer isPreviewingApp={isPreviewingApp} />
+          ) : (
+            <div />
           )}
 
           <AppsmithLink />
@@ -320,6 +332,7 @@ export function EditorHeader() {
                   className="t--application-publish-btn"
                   data-guided-tour-iid="deploy"
                   id={"application-publish-btn"}
+                  isDisabled={isProtectedMode}
                   isLoading={isPublishing}
                   kind="tertiary"
                   onClick={() => handleClickDeploy(true)}

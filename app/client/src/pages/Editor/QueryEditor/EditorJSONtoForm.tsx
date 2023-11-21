@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import type { RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
@@ -124,10 +124,6 @@ import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
-import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
-import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
-import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   getHasCreateDatasourcePermission,
   getHasExecuteActionPermission,
@@ -405,6 +401,7 @@ export function EditorJSONtoForm(props: Props) {
   } = props;
 
   const {
+    actionRightPaneAdditionSections,
     actionRightPaneBackLink,
     closeEditorLink,
     moreActionsMenu,
@@ -442,6 +439,9 @@ export function EditorJSONtoForm(props: Props) {
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
+
+  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
+    useState<boolean>(false);
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
     isFeatureEnabled,
@@ -502,6 +502,30 @@ export function EditorJSONtoForm(props: Props) {
       hintMessages = executedQueryData.messages;
     }
   }
+
+  // These useEffects are used to open the response tab by default for page load queries
+  // as for page load queries, query response is available and can be shown in response tab
+  useEffect(() => {
+    // output and responseDisplayFormat is present only when query has response available
+    if (
+      responseDisplayFormat &&
+      !!responseDisplayFormat?.title &&
+      output &&
+      !showResponseOnFirstLoad
+    ) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+      setShowResponseOnFirstLoad(true);
+    }
+  }, [responseDisplayFormat, output, showResponseOnFirstLoad]);
+
+  // When multiple page load queries exist, we want to response tab by default for all of them
+  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
+  useEffect(() => {
+    if (!!currentActionConfig?.id) {
+      setShowResponseOnFirstLoad(false);
+    }
+  }, [currentActionConfig?.id]);
 
   const dispatch = useDispatch();
 
@@ -887,15 +911,6 @@ export function EditorJSONtoForm(props: Props) {
     dispatch(setDebuggerSelectedTab(tabKey));
   }, []);
 
-  const isPostgresPlugin = currentActionPluginName === PluginName.POSTGRES;
-  const featureFlags = useSelector(selectFeatureFlags);
-  const editorMode = isPostgresPlugin
-    ? editorSQLModes.POSTGRESQL_WITH_BINDING
-    : editorSQLModes.MYSQL_WITH_BINDING;
-
-  const isAIEnabledForPosting =
-    isPostgresPlugin && isAIEnabled(featureFlags, editorMode);
-
   // close the debugger
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
@@ -986,11 +1001,6 @@ export function EditorJSONtoForm(props: Props) {
                     className="tab-panel"
                     value={EDITOR_TABS.QUERY}
                   >
-                    <EditorFormSignPosting
-                      isAIEnabled={isAIEnabledForPosting}
-                      mode={editorMode}
-                    />
-
                     <SettingsWrapper>
                       {editorConfig && editorConfig.length > 0 ? (
                         renderConfig(editorConfig)
@@ -1111,6 +1121,7 @@ export function EditorJSONtoForm(props: Props) {
             <ActionRightPane
               actionName={actionName}
               actionRightPaneBackLink={actionRightPaneBackLink}
+              additionalSections={actionRightPaneAdditionSections}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}
               hasConnections={hasDependencies}

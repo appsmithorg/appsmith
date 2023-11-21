@@ -56,7 +56,7 @@ import get from "lodash/get";
 import {
   initFormEvaluations,
   startFormEvaluations,
-} from "@appsmith/actions/evaluationActions";
+} from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
@@ -344,7 +344,8 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const { actionConfiguration, id, pluginId, pluginType } =
     actionPayload.payload;
   const pageId: string = yield select(getCurrentPageId);
-  if (pluginType !== PluginType.DB && pluginType !== PluginType.REMOTE) return;
+  if (![PluginType.DB, PluginType.REMOTE, PluginType.AI].includes(pluginType))
+    return;
   const pluginTemplates: Record<string, unknown> =
     yield select(getPluginTemplates);
   const queryTemplate = pluginTemplates[pluginId];
@@ -377,7 +378,8 @@ function* handleDatasourceCreatedSaga(
   if (
     plugin &&
     plugin.type !== PluginType.DB &&
-    plugin.type !== PluginType.REMOTE
+    plugin.type !== PluginType.REMOTE &&
+    plugin.type !== PluginType.AI
   )
     return;
 

@@ -36,6 +36,10 @@
       "value": "rgb(27.359% 28.199% 35.2%)",
       "type": "color"
     },
+    "bg-neutral-opacity": {
+      "value": "rgb(27.359% 28.199% 35.2% / 0.5)",
+      "type": "color"
+    },
     "bg-neutral-hover": {
       "value": "rgb(32.654% 33.544% 40.754%)",
       "type": "color"
@@ -294,5 +298,6 @@
       "value": 9999,
       "type": "zIndex"
     }
-  }
+  },
+  "colorMode": "light"
 }

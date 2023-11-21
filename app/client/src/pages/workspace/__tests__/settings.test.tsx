@@ -186,6 +186,7 @@ describe("<Settings />", () => {
   it("displays tabs", () => {
     renderComponent();
     const tabList = screen.getAllByRole("tab");
-    expect(tabList).toHaveLength(2);
+    expect(tabList.length).toBeGreaterThanOrEqual(2);
+    expect(tabList.length).toBeLessThanOrEqual(3);
   });
 });

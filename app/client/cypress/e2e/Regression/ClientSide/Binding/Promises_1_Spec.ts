@@ -236,6 +236,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     //agHelper.AssertElementLength(locator._toastMsg, 3); //Below incases of some api's failure
+    agHelper.WaitUntilEleAppear(locator._toastMsg);
     agHelper
       .GetElementLength(locator._toastMsg)
       .then(($len) => expect($len).to.be.at.least(2));

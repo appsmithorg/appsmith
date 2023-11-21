@@ -1,0 +1,39 @@
+import { Button, Menu, MenuList, Item } from "@design-system/widgets";
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+<Meta title="Design-system/Widgets/Menu" component={Menu} />
+
+export const Template = (args) => {
+  return (
+    <Menu {...args} disabledKeys={["cut"]} onAction={(key) => console.log(key)}>
+      <Button>My trigger</Button>
+      <MenuList>
+        <Item key="copy">Copy</Item>
+        <Item key="cut">Cut</Item>
+        <Item key="paste">Paste</Item>
+      </MenuList>
+    </Menu>
+  );
+};
+
+# Menu
+
+A menu displays a list of actions or options that a user can choose.
+
+Additional information about functionality of the component can be found in the [headless component story](/?path=/docs/design-system-headless-menu--docs).
+
+<Canvas>
+  <Story name="Menu">{Template.bind({})}</Story>
+</Canvas>
+
+## Menu props
+
+<ArgsTable story="Menu" of={Menu} />
+
+## MenuList props
+
+<ArgsTable of={MenuList} />
+
+## Item props
+
+Item props are not pulled up in the ArgsTable, the data can be found [here](https://react-spectrum.adobe.com/react-aria/Menu.html#item).

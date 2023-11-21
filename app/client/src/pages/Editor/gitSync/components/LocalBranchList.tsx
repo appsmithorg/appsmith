@@ -20,6 +20,7 @@ export function LocalBranchList(
   activeHoverIndex: number,
   defaultBranch: string | undefined,
   switchBranch: (branch: string) => void,
+  protectedBranches: string[] = [],
 ) {
   return (
     <div data-testid="t--git-local-branch-list-container">
@@ -27,7 +28,8 @@ export function LocalBranchList(
         <Text
           color="var(--ads-v2-color-fg-muted)"
           data-testid="t--branch-list-header-local"
-          kind="heading-xs"
+          kind="heading-s"
+          style={{ fontWeight: 600 }}
         >
           {createMessage(LOCAL_BRANCHES)}
         </Text>
@@ -43,6 +45,7 @@ export function LocalBranchList(
             active={currentBranch === branch}
             branch={branch}
             isDefault={branch === defaultBranch}
+            isProtected={protectedBranches.includes(branch)}
             key={branch}
             onClick={() => switchBranch(branch)}
             selected={isActive}

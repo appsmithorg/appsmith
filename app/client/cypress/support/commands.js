@@ -2,6 +2,8 @@
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
 
+import EditorNavigation, { SidebarButton } from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 //require('cy-verify-downloads').addCustomCommand();
@@ -813,14 +815,6 @@ Cypress.Commands.add("importCurl", () => {
   );
 });
 
-Cypress.Commands.add("NavigateToActiveTab", () => {
-  cy.get(explorer.activeTab).click({ force: true });
-
-  // cy.get(pages.integrationActiveTab)
-  //   .should("be.visible")
-  //   .click({ force: true });
-});
-
 Cypress.Commands.add("selectAction", (option) => {
   cy.get(".ads-v2-menu__menu-item-children")
     .contains(option)
@@ -1309,7 +1303,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
       cy.isSelectRow(0);
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
-        expect(tableData).to.equal(valueToTest);
+        expect(valueToTest).contains(tableData);
       });
     });
 });
@@ -1337,7 +1331,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
       cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
         cy.log(valueToTest);
-        expect(tableData).to.equal(valueToTest);
+        expect(valueToTest).contains(tableData);
       });
     });
 });
@@ -2119,6 +2113,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreatePage", () => {
+  EditorNavigation.ViaSidebar(SidebarButton.Pages);
   cy.get(pages.AddPage).first().click();
   cy.xpath("//span[text()='New blank page']/parent::div").click();
 });

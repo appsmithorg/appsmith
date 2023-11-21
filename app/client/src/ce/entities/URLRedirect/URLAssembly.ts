@@ -244,16 +244,18 @@ export class URLBuilder {
   }
 
   resolveEntityIdForApp(builderParams: URLBuilderParams) {
-    return {
-      entityId: builderParams.pageId || this.currentPageId,
-      entityType: "pageId",
-    };
+    const pageId = builderParams.pageId || this.currentPageId;
+
+    if (!pageId) {
+      throw new URIError(
+        "Missing pageId. If you are trying to set href inside a react component use the 'useHref' hook.",
+      );
+    }
+
+    return pageId;
   }
 
-  resolveEntityId(builderParams: URLBuilderParams): {
-    entityId?: string | null;
-    entityType: string;
-  } {
+  resolveEntityId(builderParams: URLBuilderParams): string {
     return this.resolveEntityIdForApp(builderParams);
   }
 
@@ -272,13 +274,7 @@ export class URLBuilder {
       suffix,
     } = builderParams;
 
-    const { entityId, entityType } = this.resolveEntityId(builderParams);
-
-    if (!entityId) {
-      throw new URIError(
-        `Missing ${entityType}. If you are trying to set href inside a react component use the 'useHref' hook.`,
-      );
-    }
+    const entityId = this.resolveEntityId(builderParams);
 
     const basePath = this.generateBasePath(entityId, mode);
 

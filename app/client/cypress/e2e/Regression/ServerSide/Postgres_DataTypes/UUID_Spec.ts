@@ -10,15 +10,24 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("UUID Datatype tests", function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Importing App & setting theme", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");
@@ -40,11 +49,14 @@ describe("UUID Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.uuidtype");
   });
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("public.uuidtype", "Select");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.uuidtype",
+      "Select",
+    );
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
@@ -79,7 +91,6 @@ describe("UUID Datatype tests", function () {
     agHelper.RenameWithInPane("deleteRecord");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("5. Inserting record - uuidtype", () => {
@@ -182,6 +193,7 @@ describe("UUID Datatype tests", function () {
           locators._buttonByText("Run UpdateQuery"),
         );
         table.WaitUntilTableLoad();
+        agHelper.Sleep(5000); //some more time for rows to rearrange for CI flakyness!
         table.ReadTableRowColumnData(2, 0).then(($cellData) => {
           expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
         });
@@ -369,17 +381,7 @@ describe("UUID Datatype tests", function () {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.uuidtype"),
-    );
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.uuidtype", false);
   });
 
   it("15. Verify Deletion of all created queries", () => {

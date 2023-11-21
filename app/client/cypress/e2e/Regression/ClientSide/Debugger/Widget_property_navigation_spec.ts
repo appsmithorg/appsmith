@@ -87,12 +87,12 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     );
     _.propPane.OpenTableColumnSettings("date_of_birth");
 
-    _.agHelper.SelectDropdownList("Field Type", "Object");
+    _.propPane.SelectPropertiesDropDown("Field Type", "Object");
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.propPane.OpenTableColumnSettings("customField1");
 
-    _.agHelper.SelectDropdownList("Field Type", "Object");
+    _.propPane.SelectPropertiesDropDown("Field Type", "Object");
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.propPane.OpenTableColumnSettings("customField2");

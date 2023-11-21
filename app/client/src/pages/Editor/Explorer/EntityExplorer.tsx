@@ -31,10 +31,9 @@ import {
   saveExplorerStatus,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { useFeatureFlag } from "../../../utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import DatasourceStarterLayoutPrompt from "./Datasources/DatasourceStarterLayoutPrompt";
+import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -97,9 +96,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     useContext(WalkthroughContext) || {};
   const applicationId = useSelector(getCurrentApplicationId);
   const isDatasourcesOpen = getExplorerStatus(applicationId, "datasource");
-  const isAppSidebarEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_app_sidebar_enabled,
-  );
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   const closeWalkthrough = useCallback(() => {
     if (isWalkthroughOpened && popFeature) {
@@ -159,15 +156,17 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       {/* Shows first time users only */}
       <DatasourceStarterLayoutPrompt />
       {!isAppSidebarEnabled && (
-        <Datasources
-          addDatasource={addDatasource}
-          entityId={pageId}
-          isDatasourcesOpen={isDatasourcesOpen}
-          listDatasource={listDatasource}
-          onDatasourcesToggle={onDatasourcesToggle}
-        />
+        <>
+          <Datasources
+            addDatasource={addDatasource}
+            entityId={pageId}
+            isDatasourcesOpen={isDatasourcesOpen}
+            listDatasource={listDatasource}
+            onDatasourcesToggle={onDatasourcesToggle}
+          />
+          <JSDependencies />
+        </>
       )}
-      <JSDependencies />
     </EntityExplorerWrapper>
   );
 }

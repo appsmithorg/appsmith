@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
+import com.appsmith.server.dtos.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;

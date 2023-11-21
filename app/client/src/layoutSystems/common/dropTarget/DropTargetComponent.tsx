@@ -23,9 +23,9 @@ import {
 import { useDispatch } from "react-redux";
 import { getDragDetails } from "sagas/selectors";
 import {
+  combinedPreviewModeSelector,
   getIsMobileCanvasLayout,
   getOccupiedSpacesSelectorForContainer,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
@@ -49,6 +49,8 @@ import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import useCurrentAppState from "pages/Editor/IDE/hooks";
+import { AppState as IDEAppState } from "entities/IDE/constants";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -75,6 +77,7 @@ const StyledDropTarget = styled.div`
 function Onboarding() {
   const [isUsersFirstApp, setIsUsersFirstApp] = useState(false);
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
+  const appState = useCurrentAppState();
   const user = useSelector(getCurrentUser);
   const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
@@ -100,13 +103,15 @@ function Onboarding() {
     })();
   }, [user, currentApplicationId]);
 
-  return shouldShowStarterTemplates ? (
-    <StarterBuildingBlocks />
-  ) : (
-    <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
-      Drag and drop a widget here
-    </h2>
-  );
+  if (shouldShowStarterTemplates && appState === IDEAppState.PAGES)
+    return <StarterBuildingBlocks />;
+  else if (!shouldShowStarterTemplates && appState === IDEAppState.PAGES)
+    return (
+      <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
+        Drag and drop a widget here
+      </h2>
+    );
+  else return null;
 }
 
 /*
@@ -235,7 +240,7 @@ function useUpdateRows(
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
   // Get if this is in preview mode.
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

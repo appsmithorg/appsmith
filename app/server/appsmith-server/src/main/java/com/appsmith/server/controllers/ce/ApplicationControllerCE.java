@@ -10,6 +10,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
@@ -373,7 +374,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping(value = "/export/partial/{applicationId}/{pageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<Object>> exportApplicationPartially(
+    public Mono<ResponseDTO<ApplicationJson>> exportApplicationPartially(
             @PathVariable String applicationId,
             @PathVariable String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
@@ -381,11 +382,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
         // params - contains ids of jsLib, actions and datasourceIds to be exported
         return partialExportService
                 .getPartialExportResources(applicationId, pageId, branchName, fileDTO)
-                .map(fetchedResource -> {
-                    HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
-                    Object applicationResource = fetchedResource.getApplicationResource();
-                    return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
-                });
+                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
     @JsonView(Views.Public.class)
@@ -400,6 +397,6 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return fileMono.flatMap(fileData -> partialImportService.importResourceInPage(
                         workspaceId, applicationId, pageId, branchName, fileData))
-                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
+                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.CREATED.value(), fetchedResource, null));
     }
 }

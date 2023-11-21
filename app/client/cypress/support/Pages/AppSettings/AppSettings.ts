@@ -1,11 +1,10 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+import EditorNavigation, { SidebarButton } from "../EditorNavigation";
 export class AppSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private theme = ObjectsRegistry.ThemeSettings;
 
   public locators = {
-    _appSettings: ".t--app-settings-cta",
-    _closeSettings: "#t--close-app-settings-pane",
     _themeSettingsHeader: "#t--theme-settings-header",
     _generalSettingsHeader: "#t--general-settings-header",
     _embedSettingsHeader: "#t--share-embed-settings",
@@ -69,11 +68,11 @@ export class AppSettings {
   };
 
   public OpenAppSettings() {
-    this.agHelper.GetNClick(this.locators._appSettings, 0, true);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
   }
 
   public ClosePane() {
-    this.agHelper.GetNClick(this.locators._closeSettings);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   }
 
   public GoToThemeSettings() {
@@ -120,6 +119,7 @@ export class AppSettings {
     pageName: string,
     customSlug?: string,
     editMode = true,
+    restOfUrl = "",
   ) {
     appName = appName.replace(/\s+/g, "-");
     this.agHelper.AssertElementAbsence(this.locators._updateStatus, 10000);
@@ -129,14 +129,14 @@ export class AppSettings {
         expect(pathname).to.be.equal(
           `/app/${customSlug}-${pageId}${
             editMode ? "/edit" : ""
-          }`.toLowerCase(),
+          }${restOfUrl}`.toLowerCase(),
         );
       } else {
         const pageId = pathname.split("/")[3]?.split("-").pop();
         expect(pathname).to.be.equal(
           `/app/${appName}/${pageName}-${pageId}${
             editMode ? "/edit" : ""
-          }`.toLowerCase(),
+          }${restOfUrl}`.toLowerCase(),
         );
       }
     });
