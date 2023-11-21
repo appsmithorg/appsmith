@@ -49,7 +49,7 @@ describe("Select Widget", () => {
       .should("have.css", "direction", "rtl");
 
     agHelper
-      .GetElement(".rc-select-dropdown [dir='rtl']", "noVerify")
+      .GetElement(".rc-select-dropdown [dir='rtl']", "exist")
       .should("exist");
 
     propPane.TogglePropertyState("Enable RTL", "Off");
@@ -68,6 +68,8 @@ describe("Select Widget", () => {
       .GetElement(".multi-select-dropdown input.bp3-input")
       .should("have.css", "direction", "ltr");
 
-    agHelper.GetElement(".rc-select-dropdown [dir='rtl']").should("not.exist");
+    agHelper
+      .GetElement(".rc-select-dropdown [dir='rtl']", "not.exist")
+      .should("not.exist");
   });
 });
