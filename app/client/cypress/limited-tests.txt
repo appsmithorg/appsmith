@@ -2,6 +2,8 @@
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 cypress/e2e/Regression/ServerSide/Postgres_DataTypes/UUID_Spec.ts
 cypress/e2e/Regression/ClientSide/Widgets/Video/Video2_Spec.ts
+cypress/e2e/Regression/ClientSide/Binding/TableV2_Widget_API_Pagination_spec.js
+
 
 
 

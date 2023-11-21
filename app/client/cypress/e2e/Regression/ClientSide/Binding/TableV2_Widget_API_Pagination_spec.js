@@ -35,6 +35,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     cy.get(`.t--widget-tablewidgetv2 .page-item`)
       .first()
       .should("contain", "2");
+    agHelper.WaitUntilToastDisappear("done");
   });
 
   it("2. Bug #22477: should check whether the next page button is disabled and not clickable when last page is reached", () => {
