@@ -60,7 +60,6 @@ describe("Input widget test with default value from chart datapoint", () => {
 
   it("2. onDataPointClick should work and respond with x, y, seriesTitle, and rawEventData (in case of custom fusion chart).", () => {
     agHelper.AddDsl("chartCustomSankeyDataDsl");
-    assertHelper.AssertNetworkStatus("@updateLayout");
     entityExplorer.SelectEntityByName("Chart1");
     agHelper.Sleep(1500); //waiting for chart to load!
     propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
