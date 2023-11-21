@@ -1256,9 +1256,8 @@ export class AggregateHelper extends ReusableHelper {
             input.focus();
             setTimeout(() => {
               input.setValue(value);
-              cy.wait(200);
-              input.setValue(value);
               setTimeout(() => {
+                input.execCommand("goLineStart");
                 // Move cursor to the end of the line
                 input.execCommand("goLineEnd");
               }, 1000);
