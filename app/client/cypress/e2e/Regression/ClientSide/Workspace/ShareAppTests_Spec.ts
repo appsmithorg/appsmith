@@ -23,7 +23,7 @@ describe("Create new workspace and share with a user", function () {
     agHelper.Sleep(2000);
 
     agHelper.GenerateUUID();
-    agHelper.GetElement("@guid").then((uid) => {
+    cy.get("@guid").then((uid) => {
       workspaceId = "shareApp" + uid;
       appid = "Share" + uid;
       homePage.CreateNewWorkspace(workspaceId);
