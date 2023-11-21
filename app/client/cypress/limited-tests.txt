@@ -1,9 +1,5 @@
 # To run only limited tests - give the spec names in below format:
 #cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-cypress/e2e/Regression/ClientSide/ExplorerTests/Widgets_Sidebar.ts
-cypress/e2e/Regression/ClientSide/Debugger/Widget_property_navigation_spec.ts
-cypress/e2e/Regression/ClientSide/Widgets/List/ListWidgetParseError.ts
-cypress/e2e/Regression/ClientSide/MobileResponsiveTests/AutoLayout_Widgets_Copy_Paste_spec.ts
 cypress/e2e/Regression/ClientSide/Binding/TableV2_Widget_API_Pagination_spec.js
 
 
