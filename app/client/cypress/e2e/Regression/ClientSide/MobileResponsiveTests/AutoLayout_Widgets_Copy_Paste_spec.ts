@@ -20,7 +20,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //copying first button in first layer, which is center aligned
     agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
-    agHelper.GetElement(locators._toastMsg).contains("Copied");
+    agHelper.ValidateToastMessage("Copied");
 
     //paste
     agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
@@ -44,7 +44,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //copying second button in first layer, which is end aligned
     agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
-    agHelper.GetElement(locators._toastMsg).contains("Copied");
+    agHelper.ValidateToastMessage("Copied");
 
     agHelper.GetNClick(
       locators._widgetInDeployed(draggableWidgets.CONTAINER),
@@ -73,11 +73,10 @@ describe("Copy paste widget related tests for Auto layout", () => {
 
     //copying first button in first layer, which is center aligned
     agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
-    agHelper.GetElement(locators._toastMsg).contains("Copied");
+    agHelper.ValidateToastMessage("Copied");
 
     //unselect all widgets
     agHelper.GetNClick(locators._selectionCanvas("0"), 0, true);
-
     agHelper.AssertElementLength(locators._selectedWidget, 0);
     //paste
     agHelper.GetElement("body").type(`{${modifierKey}}{v}`);
@@ -131,7 +130,7 @@ describe("Copy paste widget related tests for Auto layout", () => {
     );
     agHelper.AssertElementLength(locators._selectedWidget, 4);
     agHelper.GetElement("body").type(`{${modifierKey}}{c}`);
-    agHelper.GetElement(locators._toastMsg).contains("Copied");
+    agHelper.ValidateToastMessage("Copied");
 
     //unselect all widgets
     agHelper.GetNClick(locators._selectionCanvas("0"), 0, true);
