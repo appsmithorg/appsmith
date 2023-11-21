@@ -138,9 +138,12 @@ describe("Dropdown Widget", function () {
 
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
     cy.EnableAllCodeEditors();
-    cy.testJsontext(
-      "onoptionchange",
+
+    propPane.EnterJSContext(
+      "onOptionChange",
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
+      true,
+      false
     );
 
     deployMode.DeployApp();
@@ -162,9 +165,11 @@ describe("Dropdown Widget", function () {
     entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
 
-    cy.testJsontext(
-      "onoptionchange",
+    propPane.EnterJSContext(
+      "onOptionChange",
       "{{dropdownApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
+      true,
+      false
     );
 
     deployMode.DeployApp();
