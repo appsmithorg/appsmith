@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import type { ContentProps } from "./types";
 import styles from "./styles.module.css";
 import {
@@ -9,13 +9,12 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { CustomWidgetBuilderContext } from "../..";
 
-type Props = {
-  value: string;
-} & ContentProps;
+export default function JSEditor(props: ContentProps) {
+  const { srcDoc, update } = useContext(CustomWidgetBuilderContext);
 
-export default function JSEditor(props: Props) {
-  const { height, onChange, showHeader = true } = props;
+  const { height, showHeader = true } = props;
 
   return (
     <div className={styles.editor}>
@@ -33,8 +32,10 @@ export default function JSEditor(props: Props) {
           height={height - 38}
           hideEvaluatedValue
           input={{
-            value: props.value,
-            onChange,
+            value: srcDoc?.js,
+            onChange: (value) => {
+              update?.("js", value);
+            },
           }}
           mode={EditorModes.JAVASCRIPT}
           placeholder="// no need to write window onLoad, it is handled by the widget"

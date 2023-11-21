@@ -1,6 +1,8 @@
 import React, { useContext } from "react";
 import ReactJson from "react-json-view";
 import { CustomWidgetBuilderContext } from "../..";
+import { Switch, Text, Tooltip } from "design-system";
+import styles from "./styles.module.css";
 
 export default function ModelVariables() {
   const reactJsonProps = {
@@ -20,7 +22,25 @@ export default function ModelVariables() {
     indentWidth: 2,
   };
 
-  const { model } = useContext(CustomWidgetBuilderContext);
+  const { model, toggleUseTransientModel, transientModel, useTransientModel } =
+    useContext(CustomWidgetBuilderContext);
 
-  return <ReactJson src={model} {...reactJsonProps} />;
+  return (
+    <div>
+      <div className={styles.switchTransientMode}>
+        <Switch
+          isSelected={useTransientModel}
+          onChange={() => toggleUseTransientModel?.()}
+        >
+          <Tooltip content="Transient model has the model updates made from the custom component in the widget builder. THESE CHANGES WILL NOT BE SAVED IN THE APP">
+            <Text>Show transient model</Text>
+          </Tooltip>
+        </Switch>
+      </div>
+      <ReactJson
+        src={useTransientModel ? transientModel : model}
+        {...reactJsonProps}
+      />
+    </div>
+  );
 }

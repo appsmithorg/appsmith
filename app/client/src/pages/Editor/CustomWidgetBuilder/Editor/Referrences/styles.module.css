@@ -16,7 +16,6 @@
 }
 
 .collapsibleBody {
-  display: flex;
   padding: 0px 1rem;
   padding-bottom: 1rem;
 }
@@ -69,4 +68,8 @@
 
 .eventValueDefault {
   color: #9ba4b2;
+}
+
+.switchTransientMode {
+  margin-bottom: 10px;
 }

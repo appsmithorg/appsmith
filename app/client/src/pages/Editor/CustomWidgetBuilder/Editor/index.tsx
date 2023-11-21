@@ -10,9 +10,7 @@ import JSEditor from "./CodeEditors/JSEditor";
 import type { ContentProps } from "./CodeEditors/types";
 
 export default function Editor() {
-  const { isReferrenceOpen, srcDoc, update } = useContext(
-    CustomWidgetBuilderContext,
-  );
+  const { isReferrenceOpen } = useContext(CustomWidgetBuilderContext);
 
   return (
     <div className={styles.contentRight}>
@@ -24,39 +22,15 @@ export default function Editor() {
           content={[
             {
               title: "HTML",
-              children: (props: ContentProps) => (
-                <HTMLEditor
-                  onChange={(value) =>
-                    update?.("html", value as unknown as string)
-                  }
-                  value={srcDoc?.html || ""}
-                  {...props}
-                />
-              ),
+              children: (props: ContentProps) => <HTMLEditor {...props} />,
             },
             {
               title: "CSS",
-              children: (props: ContentProps) => (
-                <CSSEditor
-                  onChange={(value) =>
-                    update?.("css", value as unknown as string)
-                  }
-                  value={srcDoc?.css || ""}
-                  {...props}
-                />
-              ),
+              children: (props: ContentProps) => <CSSEditor {...props} />,
             },
             {
               title: "Javascript",
-              children: (props: ContentProps) => (
-                <JSEditor
-                  onChange={(value) =>
-                    update?.("js", value as unknown as string)
-                  }
-                  value={srcDoc?.js || ""}
-                  {...props}
-                />
-              ),
+              children: (props: ContentProps) => <JSEditor {...props} />,
             },
           ]}
         />

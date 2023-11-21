@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import styles from "./styles.module.css";
 import type { ContentProps } from "./types";
@@ -10,13 +10,12 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { CustomWidgetBuilderContext } from "../..";
 
-type Props = {
-  value: string;
-} & ContentProps;
+export default function HTMLEditor(props: ContentProps) {
+  const { srcDoc, update } = useContext(CustomWidgetBuilderContext);
 
-export default function HTMLEditor(props: Props) {
-  const { height, onChange, showHeader = true } = props;
+  const { height, showHeader = true } = props;
 
   return (
     <div className={styles.editor}>
@@ -34,8 +33,10 @@ export default function HTMLEditor(props: Props) {
           height={height - 38}
           hideEvaluatedValue
           input={{
-            value: props.value,
-            onChange,
+            value: srcDoc?.html,
+            onChange: (value) => {
+              update?.("html", value);
+            },
           }}
           mode={EditorModes.HTMLMIXED}
           placeholder="<!-- no need to write html, head, body tags, it is handled by the widget -->"

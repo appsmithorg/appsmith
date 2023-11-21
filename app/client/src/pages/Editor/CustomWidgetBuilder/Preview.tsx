@@ -1,11 +1,12 @@
-import React, { useContext, useLayoutEffect, useRef } from "react";
+import React, { useContext, useLayoutEffect, useMemo, useRef } from "react";
 import styles from "./styles.module.css";
 import CustomComponent from "widgets/CustomWidget/component";
-import { noop } from "lodash";
 import { CustomWidgetBuilderContext } from ".";
+import { toast } from "design-system";
 
 export default function Preview() {
-  const { model, srcDoc } = useContext(CustomWidgetBuilderContext);
+  const { model, srcDoc, transientModel, updateModel, useTransientModel } =
+    useContext(CustomWidgetBuilderContext);
 
   const [dimensions, setDimensions] = React.useState({
     width: 300,
@@ -24,14 +25,22 @@ export default function Preview() {
     }
   }, [containerRef.current]);
 
+  const key = useMemo(() => Math.random(), [model, srcDoc, useTransientModel]);
+
   return (
     <div className={styles.contentLeft} ref={containerRef}>
       <CustomComponent
-        execute={noop}
+        execute={(name) => {
+          toast.show(`Event fired: ${name}`, { kind: "success" });
+        }}
         height={dimensions.height}
-        model={model || {}}
+        key={key}
+        model={(useTransientModel ? transientModel : model) || {}}
         srcDoc={srcDoc || { html: "", js: "", css: "" }}
-        update={noop}
+        update={(data) => {
+          updateModel?.(data);
+          toast.show(`Model updated`, { kind: "success" });
+        }}
         width={dimensions.width}
       />
     </div>

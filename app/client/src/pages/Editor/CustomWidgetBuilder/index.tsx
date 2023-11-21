@@ -5,6 +5,7 @@ import Preview from "./Preview";
 import Editor from "./Editor";
 import { CUSTOM_WIDGET_BUILDER_EVENTS } from "./contants";
 import { Spinner } from "design-system";
+import history from "utils/history";
 
 interface CustomWidgetBuilderContextValueType {
   name: string;
@@ -16,6 +17,8 @@ interface CustomWidgetBuilderContextValueType {
     css: string;
   };
   model: Record<string, unknown>;
+  transientModel: Record<string, unknown>;
+  useTransientModel: boolean;
   events: Record<string, string>;
   saving: boolean;
 }
@@ -26,6 +29,8 @@ interface CustomWidgetBuilderContextFunctionType {
   save: () => void;
   discard: () => void;
   update: (editor: string, value: string) => void;
+  updateModel: (model: Record<string, unknown>) => void;
+  toggleUseTransientModel: () => void;
 }
 
 interface CustomWidgetBuilderContextType
@@ -35,6 +40,8 @@ interface CustomWidgetBuilderContextType
 export const CustomWidgetBuilderContext = React.createContext<
   Partial<CustomWidgetBuilderContextType>
 >({});
+
+let connectionTimeout: number;
 
 export default function CustomWidgetBuilder() {
   const [loading, setLoading] = useState(true);
@@ -50,8 +57,10 @@ export default function CustomWidgetBuilder() {
         css: "div {color: red;}",
       },
       model: {},
+      transientModel: {},
       events: {},
       saving: false,
+      useTransientModel: true,
     });
 
   const contextFunctions: CustomWidgetBuilderContextFunctionType = useMemo(
@@ -103,6 +112,25 @@ export default function CustomWidgetBuilder() {
           };
         });
       },
+      updateModel: (transientModel: Record<string, unknown>) => {
+        setContextValue((prev) => {
+          return {
+            ...prev,
+            transientModel: {
+              ...prev.transientModel,
+              ...transientModel,
+            },
+          };
+        });
+      },
+      toggleUseTransientModel: () => {
+        setContextValue((prev) => {
+          return {
+            ...prev,
+            useTransientModel: !prev.useTransientModel,
+          };
+        });
+      },
     }),
     [contextValue.srcDoc],
   );
@@ -119,12 +147,14 @@ export default function CustomWidgetBuilder() {
     window.addEventListener("message", (event: any) => {
       switch (event.data.type) {
         case CUSTOM_WIDGET_BUILDER_EVENTS.READY_ACK:
+          connectionTimeout && clearTimeout(connectionTimeout);
           setContextValue((prev) => {
             return {
               ...prev,
               name: event.data.name,
               srcDoc: event.data.srcDoc,
               model: event.data.model,
+              transientModel: event.data.model,
               events: event.data.events,
             };
           });
@@ -136,6 +166,7 @@ export default function CustomWidgetBuilder() {
               ...prev,
               name: event.data.name,
               model: event.data.model,
+              transientModel: event.data.model,
               events: event.data.events,
             };
           });
@@ -157,6 +188,10 @@ export default function CustomWidgetBuilder() {
       },
       "*",
     );
+
+    connectionTimeout = setTimeout(() => {
+      history.replace(window.location.pathname.replace("/builder", ""));
+    }, 2000);
   }, []);
 
   return (
