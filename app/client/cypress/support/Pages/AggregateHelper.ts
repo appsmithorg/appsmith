@@ -159,10 +159,11 @@ export class AggregateHelper extends ReusableHelper {
             this.RefreshPage();
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-            //this.Sleep(2000); //settling time for dsl
-            this.assertHelper.AssertNetworkResponseData("@getPluginForm");
-            this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
-            this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
+            //this.Sleep(2000); //settling time for dsl;
+            this.assertHelper.AssertEditReduxLoad();
+            // this.assertHelper.AssertNetworkResponseData("@getPluginForm");
+            // this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
+            // this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
           });
         });
       });
@@ -1101,7 +1102,8 @@ export class AggregateHelper extends ReusableHelper {
       this.locator._specificToast("Cannot read properties of undefined"),
     );
     this.assertHelper.AssertDocumentReady();
-    this.Sleep(4000); //for page to load for CI runs
+    //this.Sleep(4000); //for page to load for CI runs
+    this.assertHelper.AssertEditReduxLoad();
     networkCallAlias &&
       this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }

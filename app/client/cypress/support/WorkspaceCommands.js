@@ -283,7 +283,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     localStorage.setItem("appName", appName);
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    agHelper.AssertElementAbsence("#loading", 5000);
+    //agHelper.AssertElementAbsence("#loading", 5000);
 
     cy.url().then((url) => {
       if (url.indexOf("/applications") > -1) {
@@ -292,9 +292,13 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
       }
     });
   });
-  cy.get("#sidebar").should("be.visible");
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
+  //cy.get("#sidebar").should("be.visible");
+
+  // Get the Redux store & validating
+  assertHelper.AssertEditReduxLoad();
+
+  // assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
+  // assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 
   // If the intro modal is open, close it
   cy.skipSignposting();

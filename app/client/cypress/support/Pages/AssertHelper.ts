@@ -1,5 +1,4 @@
 import "cypress-wait-until";
-import { ObjectsRegistry } from "../Objects/Registry";
 import { ReusableHelper } from "../Objects/ReusableHelper";
 
 export const EntityItems = {
@@ -30,6 +29,25 @@ export class AssertHelper extends ReusableHelper {
       }),
     );
     //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
+  }
+
+  public AssertEditReduxLoad() {
+    cy.window()
+      .its("store")
+      .then((store) => {
+        cy.waitUntil(
+          () => {
+            const currentState = store.getState().entities.datasources;
+            // cy.log(
+            //   "Current Redux State:",
+            //   JSON.stringify(currentState, null, 2),
+            // );
+            // cy.log("currentState.loading:", currentState.loading);
+            return currentState.loading === false;
+          },
+          { timeout: Cypress.config("pageLoadTimeout") },
+        );
+      });
   }
 
   public AssertDelete(entityType: EntityItemsType) {
