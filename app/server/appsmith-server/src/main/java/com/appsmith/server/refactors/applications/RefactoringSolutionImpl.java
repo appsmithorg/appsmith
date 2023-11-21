@@ -4,11 +4,11 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
     public RefactoringSolutionImpl(
             NewPageService newPageService,
             ResponseUtils responseUtils,
-            LayoutActionService layoutActionService,
+            UpdateLayoutService updateLayoutService,
             ApplicationService applicationService,
             PagePermission pagePermission,
             AnalyticsService analyticsService,
@@ -35,7 +35,7 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
         super(
                 newPageService,
                 responseUtils,
-                layoutActionService,
+                updateLayoutService,
                 applicationService,
                 pagePermission,
                 analyticsService,

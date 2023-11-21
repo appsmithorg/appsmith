@@ -44,6 +44,7 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -144,6 +145,9 @@ public class GitServiceWithRBACTest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     NewPageService newPageService;
@@ -749,7 +753,7 @@ public class GitServiceWithRBACTest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleAction(action, Boolean.TRUE)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
@@ -990,7 +994,7 @@ public class GitServiceWithRBACTest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleAction(action, Boolean.TRUE)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
@@ -1976,7 +1980,7 @@ public class GitServiceWithRBACTest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleActionWithBranch(action, null)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
@@ -2241,7 +2245,7 @@ public class GitServiceWithRBACTest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleActionWithBranch(action, null)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
