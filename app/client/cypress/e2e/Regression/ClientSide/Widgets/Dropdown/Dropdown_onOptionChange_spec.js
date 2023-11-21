@@ -143,7 +143,7 @@ describe("Dropdown Widget", function () {
       "onOptionChange",
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
       true,
-      false
+      false,
     );
 
     deployMode.DeployApp();
@@ -169,7 +169,7 @@ describe("Dropdown Widget", function () {
       "onOptionChange",
       "{{dropdownApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
       true,
-      false
+      false,
     );
 
     deployMode.DeployApp();
