@@ -1,8 +1,5 @@
 import React from "react";
-import EmptyTableSVG from "assets/images/empty-table.svg";
-import FailedDataSVG from "assets/images/failed-data.svg";
-import ProgressSVG from "assets/images/progress.svg";
-import { Text } from "design-system";
+import { Spinner, Text } from "design-system";
 import {
   EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,
@@ -13,6 +10,8 @@ import {
   FAILED_RECORDS_TITLE_TEXT,
 } from "@appsmith/constants/messages";
 import { MessageWrapper, SchemaStateMessageWrapper } from "./SchemaViewModeCSS";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 type InterimState = "LOADING" | "NODATA" | "FAILED";
 
@@ -28,7 +27,7 @@ const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
           <>
             <img
               alt={createMessage(EMPTY_TABLE_TITLE_TEXT)}
-              src={EmptyTableSVG}
+              src={getAssetUrl(`${ASSETS_CDN_URL}/empty-state.svg`)}
             />
             <Text style={{ fontWeight: "bold" }}>
               {createMessage(EMPTY_TABLE_TITLE_TEXT)}
@@ -39,7 +38,7 @@ const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
           <>
             <img
               alt={createMessage(FAILED_RECORDS_TITLE_TEXT)}
-              src={FailedDataSVG}
+              src={getAssetUrl(`${ASSETS_CDN_URL}/failed-state.svg`)}
             />
             <Text style={{ fontWeight: "bold" }}>
               {createMessage(FAILED_RECORDS_TITLE_TEXT)}
@@ -48,10 +47,7 @@ const RenderInterimDataState = ({ state }: RenderInterimDataStateProps) => {
           </>
         ) : state === "LOADING" ? (
           <>
-            <img
-              alt={createMessage(LOADING_RECORDS_TITLE_TEXT)}
-              src={ProgressSVG}
-            />
+            <Spinner size="md" />
             <Text style={{ fontWeight: "bold" }}>
               {createMessage(LOADING_RECORDS_TITLE_TEXT)}
             </Text>
