@@ -134,7 +134,8 @@ export class DeployMode {
     // cy.window().then((win) => {
     //   win.location.reload();
     // });
-    this.agHelper.Sleep(4000); //Waiting a bit for new url to settle loading
+    //this.agHelper.Sleep(4000); //Waiting a bit for new url to settle loading
+    this.assertHelper.AssertReduxLoad();
     // cy.url().then((url) => {
     //   cy.window().then((window) => {
     //     window.location.href = url;
@@ -143,17 +144,17 @@ export class DeployMode {
     //cy.get("@windowStub").should("be.calledOnce");//commenting since page load is not consistent
     cy.url().should("contain", expectedUrl);
     this.agHelper.Sleep(2000); //stay in the page a bit before navigating back
-    //this.assertHelper.AssertDocumentReady();
+    //this.assertHelper.AssertReduxLoad();
     cy.window({ timeout: 60000 }).then((win) => {
       win.history.back();
     });
-    this.agHelper.Sleep(2000); //wait for page to settle
+    this.assertHelper.AssertReduxLoad();
+    // this.agHelper.Sleep(2000); //wait for page to settle
     this.assertHelper.AssertNetworkResponseData("@" + networkCall);
-    this.assertHelper.AssertDocumentReady();
   }
 
   public NavigateBacktoEditor(toastToCheck = "") {
-    this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertReduxLoad();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
     this.agHelper.Sleep();
     localStorage.setItem("inDeployedMode", "false");

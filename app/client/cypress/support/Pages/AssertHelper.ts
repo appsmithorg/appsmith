@@ -22,13 +22,14 @@ export class AssertHelper extends ReusableHelper {
   }
 
   public AssertDocumentReady() {
-    cy.waitUntil(() =>
-      //cy.document().then((doc) => doc.readyState === "complete"),
-      cy.document().should((doc) => {
-        expect(doc.readyState).to.equal("complete");
-      }),
-    );
-    //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
+    // cy.waitUntil(() =>
+    //   //cy.document().then((doc) => doc.readyState === "complete"),
+    //   cy.document().should((doc) => {
+    //     expect(doc.readyState).to.equal("complete");
+    //   }),
+    // );
+    // //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
+    this.AssertReduxLoad();
   }
 
   public AssertReduxLoad() {
