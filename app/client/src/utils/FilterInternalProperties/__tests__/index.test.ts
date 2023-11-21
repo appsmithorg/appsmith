@@ -118,7 +118,7 @@ describe("filterInternalProperties tests", () => {
           ],
         },
       },
-    ];
+    ] as unknown as JSCollectionData[];
 
     const jsObject1 = {
       myVar1: [],
