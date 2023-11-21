@@ -31,11 +31,8 @@ class PropertyControlFactory {
   static createControl(
     controlData: ControlData,
     controlFunctions: ControlFunctions,
-    jsControl: {
-      preferEditor: boolean;
-      customEditor?: string;
-      shouldFocusOnJSControl: boolean;
-    },
+    preferEditor: boolean,
+    customEditor?: string,
     additionalAutoComplete?: AdditionalDynamicDataTree,
     hideEvaluatedValue?: boolean,
     isSearchResult?: boolean,
@@ -43,15 +40,12 @@ class PropertyControlFactory {
     let controlBuilder;
     let evaluatedValue = controlData.evaluatedValue;
 
-    if (jsControl.preferEditor) {
-      controlBuilder = jsControl.customEditor
-        ? this.controlMap.get(jsControl.customEditor)
+    if (preferEditor) {
+      controlBuilder = customEditor
+        ? this.controlMap.get(customEditor)
         : this.controlMap.get("CODE_EDITOR");
     } else {
-      if (
-        jsControl.customEditor === "COMPUTE_VALUE" &&
-        isArray(evaluatedValue)
-      ) {
+      if (customEditor === "COMPUTE_VALUE" && isArray(evaluatedValue)) {
         evaluatedValue = evaluatedValue[0];
       }
       controlBuilder = this.controlMap.get(controlData.controlType);
@@ -63,12 +57,9 @@ class PropertyControlFactory {
         ...controlFunctions,
         evaluatedValue,
         key: controlData.id,
-        customJSControl: jsControl.customEditor,
+        customJSControl: customEditor,
         additionalAutoComplete,
         hideEvaluatedValue,
-        additionalControlData: {
-          shouldFocusOnJSControl: jsControl.shouldFocusOnJSControl,
-        },
         isSearchResult,
       };
 

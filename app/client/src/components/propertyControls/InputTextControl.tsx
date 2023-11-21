@@ -96,6 +96,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
       additionalAutoComplete,
+      additionalControlData,
       dataTreePath,
       defaultValue,
       expected,
@@ -113,6 +114,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     return (
       <InputText
         additionalAutocomplete={additionalAutoComplete}
+        additionalControlData={additionalControlData}
         dataTreePath={dataTreePath}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}

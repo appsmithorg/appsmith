@@ -656,6 +656,9 @@ const PropertyControl = memo((props: Props) => {
       parentPropertyValue: propertyValue,
       additionalDynamicData: {},
       label,
+      additionalControlData: {
+        shouldFocusOnJSControl: isDynamic && wasDynamic !== isDynamic,
+      },
     };
     config.expected = getExpectedValue(props.validation);
     if (widgetProperties.isPropertyDynamicTrigger) {
@@ -865,11 +868,8 @@ const PropertyControl = memo((props: Props) => {
                 onBatchUpdateWithAssociatedWidgetUpdates,
               theme: props.theme,
             },
-            {
-              preferEditor: isDynamic,
-              customEditor: customJSControl,
-              shouldFocusOnJSControl: isDynamic && wasDynamic !== isDynamic,
-            },
+            isDynamic,
+            customJSControl,
             additionAutocomplete,
             hideEvaluatedValue(),
             props.isSearchResult,

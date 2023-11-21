@@ -100,6 +100,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
   render() {
     const {
       additionalAutoComplete,
+      additionalControlData,
       dataTreePath,
       defaultValue,
       expected,
@@ -122,6 +123,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
 
     return (
       <InputText
+        additionalControlData={additionalControlData}
         additionalDynamicData={additionalAutoComplete}
         dataTreePath={dataTreePath}
         expected={expected}
