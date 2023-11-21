@@ -6,7 +6,6 @@ import {
   homePage,
   locators,
   propPane,
-  theme,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 import testdata from "../../../../../fixtures/testdata.json";

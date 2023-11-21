@@ -1497,9 +1497,9 @@ export class AggregateHelper extends ReusableHelper {
     selector: ElementType,
     visibility = true,
     index = 0,
-    timeout = 20000,
+    timeout = Cypress.config("defaultCommandTimeout"),
   ) {
-    return this.GetElement(selector, timeout)
+    return this.GetElement(selector, "exist", timeout)
       .eq(index)
       .scrollIntoView()
       .should(visibility == true ? "be.visible" : "not.be.visible");
@@ -1521,7 +1521,9 @@ export class AggregateHelper extends ReusableHelper {
     index = 0,
     timeout = Cypress.config("defaultCommandTimeout"),
   ) {
-    return this.GetElement(selector, timeout).eq(index).should("exist");
+    return this.GetElement(selector, "exist", timeout)
+      .eq(index)
+      .should("exist");
   }
 
   public ScrollIntoView(
@@ -1529,7 +1531,7 @@ export class AggregateHelper extends ReusableHelper {
     index = 0,
     timeout = Cypress.config("defaultCommandTimeout"),
   ) {
-    return this.GetElement(selector, timeout)
+    return this.GetElement(selector, "exist", timeout)
       .should("have.length.at.least", 1)
       .eq(index)
       .then(($element) => {

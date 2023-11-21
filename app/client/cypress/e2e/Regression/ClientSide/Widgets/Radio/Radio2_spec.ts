@@ -58,7 +58,7 @@ describe("Radio Widget test cases", function () {
     deployMode.DeployApp(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
-    agHelper.GetElement("@postExecute").then((interception: any) => {
+    cy.get("@postExecute").then((interception: any) => {
       agHelper.Sleep();
       const name = interception.response.body.data.body[0].name;
       agHelper.AssertExistingCheckedState(
