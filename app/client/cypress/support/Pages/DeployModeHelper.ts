@@ -72,8 +72,7 @@ export class DeployMode {
       ); //Validating bug - 14141 + 14252
     this.assertHelper.AssertNetworkStatus("@viewPage");
     this.assertHelper.AssertReduxLoad();
-
-    //this.agHelper.Sleep(2000); //for Depoy page to settle loading!
+    this.agHelper.Sleep(2000); //for Depoy page to settle loading!
     // });
   }
 
