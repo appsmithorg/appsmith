@@ -266,7 +266,10 @@ Cypress.Commands.add("GetUrlQueryParams", () => {
 Cypress.Commands.add("LogOutUser", () => {
   cy.wait(1000); //waiting for window to load
   homePageTS.InvokeDispatchOnStore();
-  assertHelper.AssertNetworkStatus("@postLogout", 200);
+  //Logout is still a POST request in CE
+  if (CURRENT_REPO === REPO.CE) {
+    assertHelper.AssertNetworkStatus("@postLogout", 200);
+  }
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
@@ -399,12 +402,19 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
   // agHelper.AssertElementAbsence(
   //   locators._specificToast("Internal server error while processing request"),
   // );
+
+  // Logout is a POST request in CE
+  const httpMethod = "POST";
+  if (CURRENT_REPO === REPO.EE) {
+    httpMethod = "GET";
+  }
+
   if (CURRENT_REPO === REPO.CE)
     toCheckgetPluginForm &&
       assertHelper.AssertNetworkResponseData("@getPluginForm", false);
 
   cy.request({
-    method: "POST",
+    method: httpMethod,
     url: "/api/v1/logout",
     headers: {
       "X-Requested-By": "Appsmith",
@@ -1023,7 +1033,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/applications/new").as("applications");
   cy.intercept("GET", "/api/v1/users/profile").as("getUser");
   cy.intercept("GET", "/api/v1/plugins?workspaceId=*").as("getPlugins");
-  cy.intercept("POST", "/api/v1/logout").as("postLogout");
+
+  if (CURRENT_REPO === REPO.CE) {
+    cy.intercept("POST", "/api/v1/logout").as("postLogout");
+  } else if (CURRENT_REPO === REPO.EE) {
+    cy.intercept("GET", "/api/v1/logout").as("postLogout");
+  }
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
   cy.intercept("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");

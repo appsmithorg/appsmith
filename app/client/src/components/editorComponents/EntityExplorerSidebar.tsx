@@ -1,13 +1,13 @@
+import * as Sentry from "@sentry/react";
+import classNames from "classnames";
 import React, {
   memo,
-  useEffect,
-  useRef,
   useCallback,
-  useState,
+  useEffect,
   useMemo,
+  useRef,
+  useState,
 } from "react";
-import classNames from "classnames";
-import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
 
 import PerformanceTracker, {
