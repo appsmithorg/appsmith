@@ -7,8 +7,8 @@ import {
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
-import { SectionRow } from "./SectionRow";
 import WidgetRow from "./WidgetRow";
+import { SectionRow } from "./SectionRow";
 
 class Section extends WidgetRow {
   constructor(props: LayoutComponentProps) {
@@ -29,7 +29,7 @@ class Section extends WidgetRow {
      */
     const defaultTemplate: LayoutProps = {
       isDropTarget: true,
-      isPermanent: false,
+      isPermanent: true,
       layout: [],
       layoutId: "",
       layoutType: LayoutComponentTypes.ZONE,
@@ -60,7 +60,6 @@ class Section extends WidgetRow {
     return ["ZONE_WIDGET"];
   }
 
-  static rendersWidgets: boolean = true;
   render() {
     return <SectionRow {...this.props} />;
   }
