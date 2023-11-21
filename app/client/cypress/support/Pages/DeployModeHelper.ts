@@ -42,15 +42,18 @@ export class DeployMode {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
 
     // Wait before publish
-    this.agHelper.Sleep(); //wait for elements settle!
+    //this.agHelper.Sleep(); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
-    this.assertHelper.AssertDocumentReady();
+    //this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertReduxLoad();
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
     //cy.get("@windowDeployStub").should("be.calledOnce");
-    this.assertHelper.AssertDocumentReady();
+    //this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertReduxLoad();
+
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
     //Below url check throwing error - hence commenting!
@@ -68,7 +71,9 @@ export class DeployMode {
         this.locator._specificToast("has failed"),
       ); //Validating bug - 14141 + 14252
     this.assertHelper.AssertNetworkStatus("@viewPage");
-    this.agHelper.Sleep(2000); //for Depoy page to settle loading!
+    this.assertHelper.AssertReduxLoad();
+
+    //this.agHelper.Sleep(2000); //for Depoy page to settle loading!
     // });
   }
 

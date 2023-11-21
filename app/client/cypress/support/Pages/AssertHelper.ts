@@ -31,13 +31,13 @@ export class AssertHelper extends ReusableHelper {
     //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
   }
 
-  public AssertEditReduxLoad() {
+  public AssertReduxLoad() {
     cy.window()
       .its("store")
       .then((store) => {
         cy.waitUntil(
           () => {
-            const currentState = store.getState().entities.datasources;
+            const currentState = store.getState().ui.editor.loadingStates;
             // cy.log(
             //   "Current Redux State:",
             //   JSON.stringify(currentState, null, 2),

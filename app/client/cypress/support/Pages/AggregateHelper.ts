@@ -160,7 +160,7 @@ export class AggregateHelper extends ReusableHelper {
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
             //this.Sleep(2000); //settling time for dsl;
-            this.assertHelper.AssertEditReduxLoad();
+            this.assertHelper.AssertReduxLoad();
             // this.assertHelper.AssertNetworkResponseData("@getPluginForm");
             // this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
             // this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
@@ -1083,8 +1083,10 @@ export class AggregateHelper extends ReusableHelper {
   public RefreshPage(
     networkCallAlias = "getWorkspace", //    reloadWithoutCache = true,
   ) {
-    this.Sleep(2000);
-    this.assertHelper.AssertDocumentReady();
+    // this.Sleep(2000);
+    // this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertReduxLoad();
+
     // // cy.window()
     // //   .then((win) => {
     // //     win.location.reload();
@@ -1101,9 +1103,9 @@ export class AggregateHelper extends ReusableHelper {
     this.AssertElementAbsence(
       this.locator._specificToast("Cannot read properties of undefined"),
     );
-    this.assertHelper.AssertDocumentReady();
+    // this.assertHelper.AssertDocumentReady();
     //this.Sleep(4000); //for page to load for CI runs
-    this.assertHelper.AssertEditReduxLoad();
+    this.assertHelper.AssertReduxLoad();
     networkCallAlias &&
       this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }

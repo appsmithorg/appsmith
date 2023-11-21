@@ -295,7 +295,7 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
   //cy.get("#sidebar").should("be.visible");
 
   // Get the Redux store & validating
-  assertHelper.AssertEditReduxLoad();
+  assertHelper.AssertReduxLoad();
 
   // assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
   // assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
