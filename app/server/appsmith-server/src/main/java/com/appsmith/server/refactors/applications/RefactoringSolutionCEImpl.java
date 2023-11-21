@@ -170,6 +170,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     refactorEntityNameDTO.setPageId(branchedPageId);
                     return this.isNameAllowed(
                                     branchedPageId,
+                                    CreatorContextType.PAGE,
                                     refactorEntityNameDTO.getLayoutId(),
                                     refactorEntityNameDTO.getNewFullyQualifiedName())
                             .zipWith(newPageService.getById(branchedPageId));
@@ -231,20 +232,23 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     }
 
     @Override
-    public Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName) {
+    public Mono<Boolean> isNameAllowed(
+            String contextId, CreatorContextType contextType, String layoutId, String newName) {
 
         boolean isFQN = newName.contains(".");
 
-        Iterable<Flux<String>> existingEntityNamesFlux = getExistingEntityNamesFlux(pageId, layoutId, isFQN);
+        Iterable<Flux<String>> existingEntityNamesFlux =
+                getExistingEntityNamesFlux(contextId, layoutId, isFQN, contextType);
 
         return Flux.merge(existingEntityNamesFlux)
                 .collect(Collectors.toSet())
                 .map(existingNames -> !existingNames.contains(newName));
     }
 
-    protected Iterable<Flux<String>> getExistingEntityNamesFlux(String pageId, String layoutId, boolean isFQN) {
+    protected Iterable<Flux<String>> getExistingEntityNamesFlux(
+            String contextId, String layoutId, boolean isFQN, CreatorContextType contextType) {
         Flux<String> existingActionNamesFlux =
-                newActionEntityRefactoringService.getExistingEntityNames(pageId, CreatorContextType.PAGE, layoutId);
+                newActionEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
 
         /*
          * TODO : Execute this check directly on the DB server. We can query array of arrays by:
@@ -257,10 +261,10 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         // Hence we can avoid unnecessary DB calls
         if (!isFQN) {
             existingWidgetNamesFlux =
-                    widgetEntityRefactoringService.getExistingEntityNames(pageId, CreatorContextType.PAGE, layoutId);
+                    widgetEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
 
-            existingActionCollectionNamesFlux = actionCollectionEntityRefactoringService.getExistingEntityNames(
-                    pageId, CreatorContextType.PAGE, layoutId);
+            existingActionCollectionNamesFlux =
+                    actionCollectionEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
         }
 
         ArrayList<Flux<String>> list = new ArrayList<>();

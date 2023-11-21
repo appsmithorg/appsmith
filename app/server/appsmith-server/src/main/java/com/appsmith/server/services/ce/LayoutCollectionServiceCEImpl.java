@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
@@ -92,8 +93,11 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         // If the collection name is unique, the action name will be guaranteed to be unique within that collection
         return pageMono.flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
+                    CreatorContextType contextType =
+                            collection.getContextType() == null ? CreatorContextType.PAGE : collection.getContextType();
                     // Check against widget names and action names
-                    return refactoringSolution.isNameAllowed(page.getId(), layout.getId(), collection.getName());
+                    return refactoringSolution.isNameAllowed(
+                            page.getId(), contextType, layout.getId(), collection.getName());
                 })
                 .flatMap(isNameAllowed -> {
                     // If the name is allowed, return list of actionDTOs for further processing
