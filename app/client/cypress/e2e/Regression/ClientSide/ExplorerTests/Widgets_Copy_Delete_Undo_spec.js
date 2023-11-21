@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
@@ -13,7 +12,7 @@ before(() => {
 
 describe(
   "Test Suite to validate copy/delete/undo functionalites",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 

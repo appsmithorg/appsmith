@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -9,7 +8,7 @@ const widgetName = "filepickerwidgetv2";
 
 describe(
   "File picker widget v2",
-  { tags: [Tag.Widget, Tag.Filepicker] },
+  { tags: ["@tag.Widget", "@tag.Filepicker"] },
   () => {
     it("1. Drag & drop FilePicker/Text widgets", () => {
       cy.get(explorer.addWidget).click();

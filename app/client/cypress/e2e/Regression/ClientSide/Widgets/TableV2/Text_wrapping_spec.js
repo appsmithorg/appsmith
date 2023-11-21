@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget text wrapping functionality",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

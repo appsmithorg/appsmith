@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   dataSources,
   deployMode,
@@ -11,7 +10,7 @@ import EditorNavigation, {
 
 describe(
   "Google Sheets datasource row objects placeholder",
-  { tags: [Tag.Datasource, Tag.excludeForAirgap] },
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   function () {
     let pluginName = "Google Sheets";
 

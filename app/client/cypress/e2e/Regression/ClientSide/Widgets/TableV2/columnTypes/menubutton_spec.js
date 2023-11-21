@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../../tags";
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Custom column alias functionality",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 150, y: 300 });

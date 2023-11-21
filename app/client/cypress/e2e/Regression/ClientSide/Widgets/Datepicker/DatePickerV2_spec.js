@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -6,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "DatePicker Widget Property pane tests with js bindings",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();
@@ -199,7 +198,7 @@ describe(
 
 describe(
   "DatePicker Widget Property tests onFocus and onBlur",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     it("onBlur and onFocus should be triggered from the datePicker widget", () => {
       cy.Createpage("New Page");

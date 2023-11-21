@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -8,7 +7,7 @@ import {
 
 describe(
   "Listv2 - Event bindings spec",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {
       agHelper.AddDsl("Listv2/nestedList.json");

@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../../tags";
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table widget - Select column type functionality",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });

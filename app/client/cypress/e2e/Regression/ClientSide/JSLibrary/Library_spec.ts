@@ -1,11 +1,10 @@
-import { Tag } from "../../../../tags";
 import HomePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Tests JS Libraries", { tags: [Tag.excludeForAirgap] }, () => {
+describe("Tests JS Libraries", { tags: ["@tag.excludeForAirgap"] }, () => {
   it("1. Validates Library install/uninstall", () => {
     EditorNavigation.ViaSidebar(SidebarButton.Libraries);
     _.installer.OpenInstaller();

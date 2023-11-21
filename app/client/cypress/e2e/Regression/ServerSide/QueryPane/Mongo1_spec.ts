@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { INTERCEPT } from "../../../../fixtures/variables";
 import {
   agHelper,
@@ -16,7 +15,7 @@ let dsName: any;
 
 describe(
   "Validate Mongo Query Pane Validations",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   () => {
     before(() => {
       //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach

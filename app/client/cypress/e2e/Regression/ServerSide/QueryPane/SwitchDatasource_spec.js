@@ -1,7 +1,6 @@
-import { Tag } from "../../../../tags";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
-describe("Switch datasource", { tags: [Tag.Datasource] }, function () {
+describe("Switch datasource", { tags: ["@tag.Datasource"] }, function () {
   let guid, dsName_1, dsName_2, MongoDB;
   beforeEach(() => {
     cy.startRoutesForDatasource();

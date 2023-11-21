@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 const explorer = require("../../../../locators/explorerlocators.json");
@@ -32,7 +31,7 @@ const widgetsToTest = {
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(
     `${testConfig.widgetName} widget test for validating reset action`,
-    { tags: [Tag.Binding] },
+    { tags: ["@tag.Binding"] },
     function () {
       beforeEach(() => {
         agHelper.RestoreLocalStorageCache();

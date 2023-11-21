@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
@@ -13,7 +12,7 @@ let locators = ObjectsRegistry.CommonLocators;
 
 describe(
   "JSON Form Widget AutoGenerate Enabled",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

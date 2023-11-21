@@ -1,11 +1,10 @@
-import { Tag } from "../../../../tags";
 import adminSettings from "../../../../locators/AdminsSettings";
 const commonlocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
 
 describe(
   "SSO with Google test functionality",
-  { tags: [Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   function () {
     it("1. Go to admin settings and enable Google with not all mandatory fields filled", function () {
       cy.LogOut();

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   entityExplorer,
   propPane,
@@ -105,7 +104,7 @@ const TABLE_DATA_2 = `[
 
 describe(
   "Table widget v2: tableData change test",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       agHelper.ClearLocalStorageCache();

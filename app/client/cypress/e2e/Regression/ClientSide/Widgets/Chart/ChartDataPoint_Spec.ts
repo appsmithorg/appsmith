@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   assertHelper,
@@ -15,7 +14,7 @@ let dataSet: any, dsl: any;
 
 describe(
   "Input widget test with default value from chart datapoint",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   () => {
     //beforeEach - to enable re-attempt passing!
     beforeEach(() => {

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import { RATING_WIDGET } from "../../../../../locators/RatingWidgetLocators";
 
 import {
@@ -11,7 +10,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Rating widet testcases", { tags: [Tag.Widget] }, () => {
+describe("Rating widet testcases", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.RATING);
   });

@@ -1,7 +1,6 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Modal Widget Functionality", { tags: [Tag.Widget] }, function () {
+describe("Modal Widget Functionality", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("modalScroll");
   });

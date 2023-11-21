@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   dataSources,
   autoLayout,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "Handle Conversion for Generated/Imported Pages",
-  { tags: [Tag.MobileResponsive, Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   () => {
     it("1. make sure the Generated CRUD apps is converted and all the canvases are converted to auto layout", () => {
       dataSources.GeneratePageWithMockDB();

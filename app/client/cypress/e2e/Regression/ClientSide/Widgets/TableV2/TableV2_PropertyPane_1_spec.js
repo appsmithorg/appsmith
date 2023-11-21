@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   entityExplorer,
   table,
@@ -15,7 +14,7 @@ const emptyTableColumnNameData = require("../../../../../fixtures/TableWidgetDat
 
 describe(
   "Table Widget V2 property pane feature validation",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2NewDslWithPagination");

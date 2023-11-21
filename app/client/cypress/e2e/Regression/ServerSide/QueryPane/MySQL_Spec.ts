@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   dataSources,
@@ -13,7 +12,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe(
   "Validate MySQL query UI flows - Bug 14054",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   () => {
     let dsName: any;
 

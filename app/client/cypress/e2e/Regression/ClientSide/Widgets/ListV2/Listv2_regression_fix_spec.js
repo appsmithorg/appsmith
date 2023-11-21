@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
-describe("List widget v2 Regression", { tags: [Tag.Widget, Tag.List] }, () => {
+describe("List widget v2 Regression", { tags: ["@tag.Widget", "@tag.List"] }, () => {
   it("1. List widget V2 with invisible widgets", () => {
     cy.dragAndDropToCanvas("listwidgetv2", {
       x: 300,

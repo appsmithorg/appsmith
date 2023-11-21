@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const level3NestedList = require("../../../../../fixtures/Listv2/level3NestedList.json");
 
 function checkAutosuggestion(label, type) {
@@ -13,7 +12,7 @@ function checkAutosuggestion(label, type) {
 
 describe(
   "List v2 - Property autocomplete",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       cy.addDsl(level3NestedList);

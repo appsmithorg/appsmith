@@ -1,7 +1,6 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("JSONForm Footer spec", { tags: [Tag.Widget, Tag.JSONForm] }, () => {
+describe("JSONForm Footer spec", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => {
   beforeEach(() => {
     _.agHelper.RestoreLocalStorageCache();
   });

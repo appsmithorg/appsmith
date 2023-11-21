@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   dataSources,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "Create a query with a empty datasource, run, save the query",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     beforeEach(() => {
       cy.startRoutesForDatasource();

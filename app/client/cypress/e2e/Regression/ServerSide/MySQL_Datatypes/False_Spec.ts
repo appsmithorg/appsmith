@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -10,7 +9,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let dsName: any, query: string;
 
-describe("MySQL Datatype tests", { tags: [Tag.Datasource] }, function () {
+describe("MySQL Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   before("Create Mysql DS & Create mysqlDTs table", function () {
     featureFlagIntercept({
       ab_gsheet_schema_enabled: true,

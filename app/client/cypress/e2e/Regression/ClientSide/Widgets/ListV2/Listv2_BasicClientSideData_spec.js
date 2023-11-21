@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
@@ -27,7 +26,7 @@ const simpleListData1 = [
 
 describe(
   "List widget v2 - Basic client side data tests",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();

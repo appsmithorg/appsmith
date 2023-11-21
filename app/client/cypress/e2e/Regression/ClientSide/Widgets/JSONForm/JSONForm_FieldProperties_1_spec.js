@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -12,7 +11,7 @@ const fieldPrefix = ".t--jsonformfield";
 
 describe(
   "Text Field Property Control",
-  { tags: [Tag.Widget, Tag.JSONForm] },
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

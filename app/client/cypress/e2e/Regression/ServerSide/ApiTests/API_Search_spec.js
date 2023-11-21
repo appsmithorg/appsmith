@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import ApiEditor from "../../../../locators/ApiEditor";
 import {
   entityExplorer,
@@ -19,7 +18,7 @@ const testUrl3 =
 
 describe(
   "API Panel Test Functionality ",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("1. Test Search API fetaure", function () {
       cy.log("Login Successful");

@@ -1,11 +1,10 @@
-import { Tag } from "../../../tags";
 import homePageLocators from "../../../locators/HomePage";
 import * as _ from "../../../support/Objects/ObjectsCore";
 import { homePage, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "Reconnect Datasource Modal validation while importing application",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     let workspaceId;
     let appid;

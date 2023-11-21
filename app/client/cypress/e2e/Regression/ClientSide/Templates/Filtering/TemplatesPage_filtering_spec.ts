@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 import {
   homePage,
   agHelper,
   templates,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Templates page filtering", { tags: [Tag.excludeForAirgap] }, () => {
+describe("Templates page filtering", { tags: ["@tag.excludeForAirgap"] }, () => {
   const FUNCTIONS_FILTER = ["Operations", "Customer Support"];
   const NAME_FILTER = "order";
 

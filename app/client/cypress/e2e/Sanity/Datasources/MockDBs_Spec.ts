@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -14,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "Validate Mock Query Active Ds querying & count",
-  { tags: [Tag.Datasource, Tag.excludeForAirgap] },
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {
       dataSources.CreateMockDB("Users").then((mockDBName) => {

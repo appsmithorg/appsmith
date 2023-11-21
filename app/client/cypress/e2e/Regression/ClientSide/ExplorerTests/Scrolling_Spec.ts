@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   dataSources,
@@ -10,11 +9,11 @@ let mockDBNameUsers: string, mockDBNameMovies: string;
 
 describe(
   "Entity explorer context menu should hide on scrolling",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     it(
       "1. Bug #15474 - Entity explorer menu must close on scroll",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
         agHelper.GetNClick(locators._closeModal, 0, true, 0);
@@ -64,7 +63,7 @@ describe(
 
     it(
       "1. Bug #15474 - Entity explorer menu must close on scroll - airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       function () {
         entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
         agHelper.GetNClick(locators._closeModal, 0, true, 0);

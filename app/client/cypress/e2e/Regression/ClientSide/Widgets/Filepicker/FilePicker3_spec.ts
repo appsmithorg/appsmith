@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -9,7 +8,7 @@ import {
 
 describe(
   "Verify file picker widget",
-  { tags: [Tag.Widget, Tag.Filepicker] },
+  { tags: ["@tag.Widget", "@tag.Filepicker"] },
   () => {
     before(() => {
       agHelper.AddDsl("filepickerDsl");

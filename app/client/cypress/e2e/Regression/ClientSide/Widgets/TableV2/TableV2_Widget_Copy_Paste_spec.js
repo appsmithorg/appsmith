@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Test Suite to validate copy/paste table Widget V2",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2NewDsl");

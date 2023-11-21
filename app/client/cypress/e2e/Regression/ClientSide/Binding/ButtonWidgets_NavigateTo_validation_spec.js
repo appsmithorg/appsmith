@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   entityExplorer,
   propPane,
@@ -11,7 +10,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 
 describe(
   "Binding the button Widgets and validating NavigateTo Page functionality",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);

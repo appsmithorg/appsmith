@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import {
@@ -13,7 +12,7 @@ let datasourceName;
 
 describe(
   "Entity explorer tests related to copy query",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     beforeEach(() => {
       cy.startRoutesForDatasource();

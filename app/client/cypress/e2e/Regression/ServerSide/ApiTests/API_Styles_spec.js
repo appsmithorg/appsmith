@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import ApiEditor from "../../../../locators/ApiEditor";
 import DynamicInput from "../../../../locators/DynamicInput";
 import HomePage from "../../../../locators/HomePage";
@@ -15,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "Validate API Panel CSS Styles",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     const backgroundColorGray200 = "rgb(227, 232, 239)";
     const backgroundColorwhite = "rgb(255, 255, 255)";

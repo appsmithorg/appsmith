@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 const dsl = require("../../../../fixtures/longCanvasDsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "reduce long canvas height on widget operation",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   () => {
     beforeEach(() => {
       _.agHelper.AddDsl("longCanvasDsl");

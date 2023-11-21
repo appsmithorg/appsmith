@@ -1,9 +1,8 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Binding the list widget with text widget",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   function () {
     //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 

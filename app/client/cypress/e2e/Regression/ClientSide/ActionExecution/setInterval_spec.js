@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -9,7 +8,7 @@ import data from "../../../../fixtures/TestDataSet1.json";
 
 describe(
   "Test Create Api and Bind to Button widget",
-  { tags: [Tag.JS] },
+  { tags: ["@tag.JS"] },
   function () {
     before("Test_Add users api and execute api", () => {
       agHelper.AddDsl("buttonApiDsl");

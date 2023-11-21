@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import formControls from "../../../../locators/FormControl.json";
 
 describe(
   "Ensures evaluated popup is viewable when dynamic bindings are present and draggable",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     it("shows evaluated pop up is visible and draggable", () => {
       _.dataSources.CreateDataSource("Mongo", true, true);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   apiPage,
@@ -8,7 +7,7 @@ import {
 
 describe(
   "Block Action Execution when no field is present",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   () => {
     const url = "https://www.google.com";
     it("1. Ensure API Run button is disabled when no url is present", () => {

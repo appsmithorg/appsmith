@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -11,7 +10,7 @@ import {
 
 describe(
   "InputV2 widget tests - continuation",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     before(() => {
       entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2);

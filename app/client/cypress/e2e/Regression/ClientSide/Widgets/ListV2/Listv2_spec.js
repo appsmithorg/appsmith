@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
@@ -8,7 +7,7 @@ import {
 
 describe(
   "List Widget V2 Functionality",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   function () {
     before(() => {
       agHelper.AddDsl("Listv2/simpleLargeListv2");
@@ -57,7 +56,7 @@ describe(
 
     it(
       "should validate that all widgets can be added to List",
-      { tags: [Tag.excludeForAirgap] },
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
         entityExplorer.NavigateToSwitcher("Widgets");
         allowed.forEach((widget) => {
@@ -71,7 +70,7 @@ describe(
 
     it(
       "should validate that all widgets can be added to List except mapwidget - airgap",
-      { tags: [Tag.airgap] },
+      { tags: ["@tag.airgap"] },
       () => {
         entityExplorer.NavigateToSwitcher("Widgets");
         const airgapAllowed = allowed.filter(

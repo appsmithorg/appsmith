@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 const explorer = require("../../../../locators/explorerlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Disabled Widgets drag Functionality",
-  { tags: [Tag.Widget] },
+  { tags: ["@tag.Widget"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("disabledWidgetsDsl");

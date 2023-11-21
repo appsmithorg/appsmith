@@ -1,9 +1,8 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Test Create Api and Bind to Table widget V2",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("TableV2ClientSearch");

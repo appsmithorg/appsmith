@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -10,7 +9,7 @@ import {
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Tabs widget Tests", { tags: [Tag.Widget, Tag.Tab] }, function () {
+describe("Tabs widget Tests", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   before(() => {
     agHelper.AddDsl("tabsDsl");
   });

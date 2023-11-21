@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -14,7 +13,7 @@ let dsName: any, newCallsign: any;
 
 describe(
   "Validate Postgres Generate CRUD with JSON Form",
-  { tags: [Tag.GenerateCRUD] },
+  { tags: ["@tag.GenerateCRUD"] },
   () => {
     before("Create DS for generate CRUD template test", () => {
       dataSources.CreateDataSource("Postgres");

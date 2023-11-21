@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -9,7 +8,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Image widget tests", { tags: [Tag.Widget, Tag.Image] }, function () {
+describe("Image widget tests", { tags: ["@tag.Widget", "@tag.Image"] }, function () {
   const image = (src: string) => 'img[src="' + src + '"]';
   const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
   const gifImg =

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   entityExplorer,
   propPane,
@@ -16,7 +15,7 @@ const ALERT_SUCCESS_MSG = "Table data filtered";
 
 describe(
   "Table widget v2: test server side filtering",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     /**
      * Initialization flow:
@@ -124,7 +123,7 @@ describe(
 
 describe(
   "Table v2: Server side filtering hidden behind feature flag",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       featureFlagIntercept({

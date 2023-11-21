@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper,
@@ -10,7 +9,7 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 
 describe(
   "Validate JSObjects binding to Input widget",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("formInputTableDsl");

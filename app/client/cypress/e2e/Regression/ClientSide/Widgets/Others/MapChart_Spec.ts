@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 /// <reference types="Cypress" />
 import viewWidgetsPage from "../../../../../locators/ViewWidgets.json";
 import {
@@ -14,7 +13,7 @@ const _mapChartCaption = "g[class*='-caption'] text";
 const _mapChartPlot = (text: string) =>
   "//text()[contains(., '" + text + "')]/..";
 
-describe("Map Chart Widget Functionality", { tags: [Tag.Widget] }, function () {
+describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function () {
   it("1. Drag and drop a Map Chart widget and verify", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAPCHART, 200, 200);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));

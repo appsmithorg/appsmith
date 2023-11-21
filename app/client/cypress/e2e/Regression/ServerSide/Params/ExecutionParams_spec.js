@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
@@ -8,7 +7,7 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("API Panel Test Functionality", { tags: [Tag.JS] }, function () {
+describe("API Panel Test Functionality", { tags: ["@tag.JS"] }, function () {
   let datasourceName;
   before(() => {
     agHelper.AddDsl("executionParamsDsl");

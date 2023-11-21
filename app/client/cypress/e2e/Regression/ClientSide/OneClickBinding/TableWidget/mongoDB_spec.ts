@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import {
   agHelper,
@@ -17,7 +16,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe(
   "one click binding mongodb datasource",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);

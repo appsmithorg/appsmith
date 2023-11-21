@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 
@@ -16,7 +15,7 @@ let themeFont;
 
 describe(
   "Theme validation usecase for multi-select widget",
-  { tags: [Tag.Theme] },
+  { tags: [] },
   function () {
     it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
       entityExplorer.DragDropWidgetNVerify(

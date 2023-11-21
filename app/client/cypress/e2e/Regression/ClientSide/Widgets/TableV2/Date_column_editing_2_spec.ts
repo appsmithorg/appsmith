@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   table,
   entityExplorer,
@@ -12,7 +11,7 @@ import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 
 describe(
   "Table widget date column inline editing functionality",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       agHelper.AddDsl("Table/DateCellEditingDSL");

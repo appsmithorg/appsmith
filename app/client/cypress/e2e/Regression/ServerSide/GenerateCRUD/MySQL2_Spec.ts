@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 // import { INTERCEPT } from "../../../../fixtures/variables";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -18,7 +17,7 @@ import {
 
 describe(
   "Validate MySQL Generate CRUD with JSON Form",
-  { tags: [Tag.GenerateCRUD] },
+  { tags: ["@tag.GenerateCRUD"] },
   () => {
     // beforeEach(function() {
     //   if (INTERCEPT.MYSQL) {

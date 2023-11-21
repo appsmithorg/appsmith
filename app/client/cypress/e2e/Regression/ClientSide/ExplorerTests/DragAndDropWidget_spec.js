@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -8,7 +7,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Entity explorer Drag and Drop widgets testcases",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     it("1. Drag and drop form widget and validate", function () {
       cy.get(explorer.addWidget).click({ force: true });

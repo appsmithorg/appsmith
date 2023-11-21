@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Multi Select widget Tests",
-  { tags: [Tag.Widget, Tag.Multiselect] },
+  { tags: ["@tag.Widget", "@tag.Multiselect"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("multiselectwidgetv2", 550, 100);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -19,7 +18,7 @@ import commonlocators from "../../../../../locators/commonlocators.json";
 
 describe(
   "Switchgroup Widget Functionality",
-  { tags: [Tag.Widget, Tag.Switch] },
+  { tags: ["@tag.Widget", "@tag.Switch"] },
   function () {
     /**
      * Adding switch group, checkbox group and text widgets

@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../../tags";
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
-describe("Select Widgets", { tags: [Tag.Widget, Tag.List] }, function () {
+describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   before(() => {
     _.agHelper.AddDsl("Listv2/Listv2WithTablewidget");
   });

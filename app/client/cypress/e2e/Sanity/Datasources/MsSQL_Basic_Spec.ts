@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import {
   agHelper,
   assertHelper,
@@ -20,7 +19,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe(
   "Validate MsSQL connection & basic querying with UI flows",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   () => {
     let dsName: any,
       query: string,

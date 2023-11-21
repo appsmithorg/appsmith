@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -6,7 +5,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("JS to non-JS mode in Action Selector", { tags: [Tag.JS] }, () => {
+describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
   });

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../../tags";
 import {
   entityExplorer,
   propPane,
@@ -9,7 +8,7 @@ import {
 
 describe(
   "Table widget v2: select column type test",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -12,7 +11,7 @@ import {
 import widgets from "../../../../../locators/Widgets.json";
 import commonloc from "../../../../../locators/commonlocators.json";
 
-describe("Switch widget testcases", { tags: [Tag.Widget, Tag.Switch] }, () => {
+describe("Switch widget testcases", { tags: ["@tag.Widget", "@tag.Switch"] }, () => {
   const jsonData = `[
         {
           "name": "yes",

@@ -1,8 +1,7 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import widgets from "../../../../../locators/Widgets.json";
 
-describe("Form reset functionality", { tags: [Tag.Widget] }, function () {
+describe("Form reset functionality", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("formResetDsl");
   });

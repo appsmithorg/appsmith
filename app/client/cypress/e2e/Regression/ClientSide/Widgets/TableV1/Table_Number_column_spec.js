@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 /* eslint-disable cypress/no-unnecessary-waiting */
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Validate Table Widget Table data",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("basicNumberDataTableDsl");

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -8,7 +7,7 @@ import {
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("", { tags: [Tag.Widget] }, () => {
+describe("", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     entityExplorer.DragNDropWidget(draggableWidgets.CHART);
   });

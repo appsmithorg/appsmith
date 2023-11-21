@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -11,7 +10,7 @@ import {
 
 describe(
   "Image widget - Rotation & Download",
-  { tags: [Tag.Widget, Tag.Image] },
+  { tags: ["@tag.Widget", "@tag.Image"] },
   function () {
     const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
     before(() => {

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const nestedListDSL = require("../../../../../fixtures/Listv2/nestedList.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
@@ -7,7 +6,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe(
   "Listv2 - Event bindings spec",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {
       cy.addDsl(nestedListDSL);

@@ -1,4 +1,3 @@
-import { Tag } from "../../../tags";
 import {
   agHelper,
   entityExplorer,
@@ -13,7 +12,7 @@ import { Widgets } from "../../../support/Pages/DataSources";
 
 describe(
   "Validate Arango & CURL Import Datasources",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   () => {
     let dsName: any,
       collectionName = "countries_places_to_visit",

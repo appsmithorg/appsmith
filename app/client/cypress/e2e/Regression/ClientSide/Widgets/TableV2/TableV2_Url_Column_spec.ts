@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   deployMode,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "16108 - Verify Table URL column bugs",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2WithUrlColumnDsl");

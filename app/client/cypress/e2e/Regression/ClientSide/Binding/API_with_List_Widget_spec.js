@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 import apiLocators from "../../../../locators/ApiEditor";
@@ -12,7 +11,7 @@ import {
 
 describe(
   "Test Create Api and Bind to List widget",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     let valueToTest;
     before(() => {

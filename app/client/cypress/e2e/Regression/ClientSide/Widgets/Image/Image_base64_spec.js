@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Image Widget Functionality with base64",
-  { tags: [Tag.Widget, Tag.Image] },
+  { tags: ["@tag.Widget", "@tag.Image"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("base64imagedsl");

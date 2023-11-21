@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
   agHelper,
@@ -6,7 +5,7 @@ import {
   gitSync,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Git regenerate SSH key flow", { tags: [Tag.Git] }, function () {
+describe("Git regenerate SSH key flow", { tags: ["@tag.Git"] }, function () {
   let repoName;
 
   it("1. Verify SSH key regeneration flow ", () => {

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import largeJSONData from "../../../../fixtures/largeJSONData.json";
 import {
   agHelper,
@@ -25,7 +24,7 @@ let onPageLoadAndConfirmExecuteFunctionsLength: number,
   functionsLength: number,
   jsObj: string;
 
-describe("JS Function Execution", { tags: [Tag.JS] }, function () {
+describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
   const FUNCTIONS_SETTINGS_DEFAULT_DATA: IFunctionSettingData[] = [
     {
       name: "getId",

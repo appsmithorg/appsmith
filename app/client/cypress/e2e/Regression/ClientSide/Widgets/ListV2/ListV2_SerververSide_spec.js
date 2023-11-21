@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   deployMode,
@@ -13,7 +12,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe(
   "List widget V2 Serverside Pagination",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       agHelper.AddDsl("Listv2/Listv2JSObjects");

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
@@ -11,7 +10,7 @@ import {
 
 describe(
   "Text-Table Binding Functionality",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     const updateData = `[
   {

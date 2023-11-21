@@ -1,11 +1,10 @@
-import { Tag } from "../../../tags";
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 import { agHelper } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "SMTP datasource test cases using ted",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     let SMTPDatasourceName;
     beforeEach(() => {

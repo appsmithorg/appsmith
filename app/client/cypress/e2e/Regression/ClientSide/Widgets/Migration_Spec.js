@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 /// <reference types="Cypress" />
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 import homePage from "../../../../locators/HomePage";
 
-describe("Migration Validate", { tags: [Tag.Widget] }, function () {
+describe("Migration Validate", { tags: ["@tag.Widget"] }, function () {
   it("1. Import application and Validate Migration on pageload", function () {
     // import application
     cy.get(homePage.homeIcon).click();

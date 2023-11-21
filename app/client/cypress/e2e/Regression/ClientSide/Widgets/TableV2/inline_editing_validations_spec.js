@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table widget inline editing validation functionality",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     afterEach(() => {
       _.agHelper.SaveLocalStorageCache();
@@ -80,7 +79,7 @@ describe(
 
     describe(
       "5. should check validation property for plain text column",
-      { tags: [Tag.Widget, Tag.Table] },
+      { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("a. Regex", () => {
           cy.openPropertyPane("tablewidgetv2");
@@ -133,7 +132,7 @@ describe(
 
     describe(
       "6. should check validation property for number column",
-      { tags: [Tag.Widget, Tag.Table] },
+      { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("a. Min", () => {
           cy.openPropertyPane("tablewidgetv2");
@@ -209,7 +208,7 @@ describe(
 
     describe(
       "8. should check the editable cell actions when there is a validation error",
-      { tags: [Tag.Widget, Tag.Table] },
+      { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("a. save should only work when there is no error", () => {
           cy.openPropertyPane("tablewidgetv2");

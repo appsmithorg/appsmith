@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -22,7 +21,7 @@ function checkAutosuggestion(label, type) {
 }
 describe(
   " Nested List Widgets ",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     beforeEach(() => {

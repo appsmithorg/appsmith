@@ -1,8 +1,7 @@
-import { Tag } from "../../../../../tags";
 const explorer = require("../../../../../locators/explorerlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget", { tags: [Tag.Widget, Tag.Table] }, function () {
+describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableNewDsl");
   });

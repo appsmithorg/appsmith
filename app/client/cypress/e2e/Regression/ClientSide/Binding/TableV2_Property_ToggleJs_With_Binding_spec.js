@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 /* eslint-disable cypress/no-unnecessary-waiting */
 
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -11,7 +10,7 @@ import {
 
 describe(
   "Table Widget V2 property pane feature validation",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2NewDsl");

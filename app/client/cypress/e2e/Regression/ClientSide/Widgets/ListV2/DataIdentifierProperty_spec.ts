@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -11,7 +10,7 @@ import {
 
 describe(
   "List v2 - Data Identifier property",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

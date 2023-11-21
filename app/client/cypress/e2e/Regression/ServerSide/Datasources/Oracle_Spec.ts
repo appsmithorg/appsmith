@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   dataSources,
@@ -19,7 +18,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Validate Oracle DS", { tags: [Tag.Datasource] }, () => {
+describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
   let dataSourceName: string, guid: any, query: string, selectQuery: string;
 
   before("Generate GUID", () => {

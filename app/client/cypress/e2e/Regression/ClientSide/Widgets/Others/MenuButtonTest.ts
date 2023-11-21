@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -9,7 +8,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
 
-describe("Menu Button widget Tests", { tags: [Tag.Widget] }, function () {
+describe("Menu Button widget Tests", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     agHelper.AddDsl("menuButtonDsl");
   });

@@ -1,10 +1,9 @@
-import { Tag } from "../../../../tags";
 import {
   entityExplorer,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("JS Toggle tests", { tags: [Tag.Binding] }, () => {
+describe("JS Toggle tests", { tags: ["@tag.Binding"] }, () => {
   before(() => {
     agHelper.AddDsl("Js_toggle_dsl");
   });

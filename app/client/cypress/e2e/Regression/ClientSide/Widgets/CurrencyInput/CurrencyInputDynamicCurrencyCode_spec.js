@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "currencyinputwidget";
 
 describe(
   "Currency input widget - ",
-  { tags: [Tag.Widget, Tag.CurrencyInput] },
+  { tags: ["@tag.Widget", "@tag.CurrencyInput"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("CurrencyInputDynamic");

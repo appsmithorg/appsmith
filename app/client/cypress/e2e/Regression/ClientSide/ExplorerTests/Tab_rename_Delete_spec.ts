@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import explorer from "../../../../locators/explorerlocators.json";
 import {
   agHelper,
@@ -6,7 +5,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Tab widget test", { tags: [Tag.IDE] }, function () {
+describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
   const tabname = "UpdatedTab";
   before(() => {
     agHelper.AddDsl("tabdsl");

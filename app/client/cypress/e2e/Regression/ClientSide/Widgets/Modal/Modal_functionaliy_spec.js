@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
@@ -6,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Modal Widget Functionality",
-  { tags: [Tag.Widget, Tag.Modal] },
+  { tags: ["@tag.Widget", "@tag.Modal"] },
   function () {
     afterEach(() => {
       _.agHelper.SaveLocalStorageCache();

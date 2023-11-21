@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import adminSettingsLocators from "../../../../locators/AdminsSettings";
 import {
   agHelper,
@@ -10,7 +9,7 @@ import {
 
 describe(
   "SSO with Github test functionality",
-  { tags: [Tag.excludeForAirgap] },
+  { tags: ["@tag.excludeForAirgap"] },
   function () {
     it("1. Go to admin settings and enable Github with not all mandatory fields filled", function () {
       homePage.Signout();

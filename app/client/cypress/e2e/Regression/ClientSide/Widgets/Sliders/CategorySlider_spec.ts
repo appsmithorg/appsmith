@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
@@ -11,7 +10,7 @@ import {
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Category Slider spec", { tags: [Tag.Widget, Tag.Slider] }, () => {
+describe("Category Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   const options = `[
     {
       "label": "xs",

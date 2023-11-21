@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   deployMode,
   agHelper,
@@ -9,7 +8,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Test Sidebar Collapse", { tags: [Tag.IDE] }, function () {
+describe("Test Sidebar Collapse", { tags: ["@tag.IDE"] }, function () {
   it("1. Sidebar collapse button should be there", () => {
     // First make sure that nav orientation is set to side
     EditorNavigation.ViaSidebar(SidebarButton.Settings);

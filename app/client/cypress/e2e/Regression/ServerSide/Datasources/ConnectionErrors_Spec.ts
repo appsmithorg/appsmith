@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   dataSources,
@@ -7,7 +6,7 @@ import {
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Validate Empty DS error messages", { tags: [Tag.Datasource] }, () => {
+describe("Validate Empty DS error messages", { tags: ["@tag.Datasource"] }, () => {
   let dataSourceName: string;
 
   afterEach("Delete DS", () => {

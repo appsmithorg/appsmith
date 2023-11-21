@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import { WIDGET_PADDING } from "../../../../../src/constants/WidgetConstants";
 import {
   MOBILE_ROW_GAP,
@@ -23,7 +22,7 @@ let iconHeight = 0;
 let dropTargetClass = "";
 describe(
   "validate auto height for modal widget on auto layout canvas",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     it("1. modal widget height should update on adding or deleting child widgets", () => {
       /**

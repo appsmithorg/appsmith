@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   dataSources,
   entityExplorer,
@@ -7,7 +6,7 @@ import {
 describe("Fix UQI query switching", function () {
   it(
     "1. The command of the Mongo query must be preserved and should not default to initial value after changed.",
-    { tags: [Tag.excludeForAirgap] },
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreateDataSource("Mongo", false, false);

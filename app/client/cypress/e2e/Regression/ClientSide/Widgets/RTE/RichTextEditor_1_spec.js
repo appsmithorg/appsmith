@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
@@ -35,7 +34,7 @@ const testCursorPoistion = (textValueLen, tinyMceId) => {
 
 describe(
   "RichTextEditor Widget Functionality",
-  { tags: [Tag.Widget, Tag.RichTextEditor] },
+  { tags: ["@tag.Widget", "@tag.RichTextEditor"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");

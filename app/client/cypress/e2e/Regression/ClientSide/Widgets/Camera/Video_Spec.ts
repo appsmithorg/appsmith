@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import widgetLocators from "../../../../../locators/Widgets.json";
 import {
   agHelper,
@@ -10,7 +9,7 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Camera widget - Video test", { tags: [Tag.Widget] }, () => {
+describe("Camera widget - Video test", { tags: ["@tag.Widget"] }, () => {
   before(() => {
     //Reset video source to default incase it got changed in other specs
     cy.task("resetVideoSource");

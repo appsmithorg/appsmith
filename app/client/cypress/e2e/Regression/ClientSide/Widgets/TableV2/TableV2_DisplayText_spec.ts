@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   table,
   entityExplorer,
@@ -21,7 +20,7 @@ const data = [
 
 describe(
   "Table V2 sort & filter using display text functionality",
-  { tags: [Tag.Widget, Tag.Table] },
+  { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);

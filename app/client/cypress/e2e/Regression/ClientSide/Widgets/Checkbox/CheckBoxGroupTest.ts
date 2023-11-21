@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -9,7 +8,7 @@ import {
   entityItems,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Checkbox Tests", { tags: [Tag.Widget] }, function () {
+describe("Checkbox Tests", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("checkboxgroupwidget", 550, 100);
   });

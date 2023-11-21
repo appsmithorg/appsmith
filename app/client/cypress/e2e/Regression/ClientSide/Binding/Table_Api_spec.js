@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const commonlocators = require("../../../../locators/commonlocators.json");
 import apiLocators from "../../../../locators/ApiEditor";
 import {
@@ -10,7 +9,7 @@ import {
 
 describe(
   "Test Create Api and Bind to Table widget",
-  { tags: [Tag.Binding] },
+  { tags: ["@tag.Binding"] },
   function () {
     let apiData;
     before(() => {

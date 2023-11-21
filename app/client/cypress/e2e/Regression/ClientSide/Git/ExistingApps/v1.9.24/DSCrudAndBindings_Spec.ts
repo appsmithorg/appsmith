@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../../tags";
 import {
   agHelper,
   assertHelper,
@@ -16,7 +15,7 @@ import {
 
 describe(
   "Import and validate older app (app created in older versions of Appsmith) from Gitea",
-  { tags: [Tag.Git] },
+  { tags: ["@tag.Git"] },
   function () {
     let appRepoName = "TestMigration",
       appName = "UpgradeAppToLatestVersion",

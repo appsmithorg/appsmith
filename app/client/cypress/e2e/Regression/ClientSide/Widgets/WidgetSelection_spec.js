@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
@@ -6,7 +5,7 @@ import EditorNavigation, {
 const dsl = require("../../../../fixtures/widgetSelection.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Widget Selection", { tags: [Tag.Widget] }, function () {
+describe("Widget Selection", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("widgetSelection");
   });

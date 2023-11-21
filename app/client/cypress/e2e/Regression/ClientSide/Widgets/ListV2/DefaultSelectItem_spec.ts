@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -52,7 +51,7 @@ function setUpDataSource() {
 
 describe(
   "List widget v2 defaultSelectedItem",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     before(() => {
       agHelper.AddDsl("Listv2/ListV2_Reset_dsl");
@@ -164,7 +163,7 @@ describe(
 
 describe(
   "List widget v2 Reset List widget and Refresh Data",
-  { tags: [Tag.Widget, Tag.List] },
+  { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. Setup List Widget", () => {
       entityExplorer.SelectEntityByName("List1");

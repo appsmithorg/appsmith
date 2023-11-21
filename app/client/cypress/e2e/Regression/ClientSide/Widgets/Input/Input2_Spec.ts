@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
@@ -9,7 +8,7 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("InputV2 widget tests", { tags: [Tag.Widget] }, function () {
+describe("InputV2 widget tests", { tags: ["@tag.Widget"] }, function () {
   let testcases,
     multilineData = `[
     {

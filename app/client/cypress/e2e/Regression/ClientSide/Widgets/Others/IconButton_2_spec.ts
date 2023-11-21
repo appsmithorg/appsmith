@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -9,7 +8,7 @@ import {
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Icon Button widget Tests", { tags: [Tag.Widget] }, function () {
+describe("Icon Button widget Tests", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.ICONBUTTON);
     entityExplorer.DragDropWidgetNVerify(

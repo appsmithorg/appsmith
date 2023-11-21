@@ -1,9 +1,8 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Validating Mobile Views for Hug Widget",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   function () {
     it("1. Validate change with height width for hug widget - image widget", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

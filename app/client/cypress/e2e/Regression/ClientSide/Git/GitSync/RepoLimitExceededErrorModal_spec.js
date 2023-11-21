@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
   gitSync,
@@ -10,7 +9,7 @@ import {
 import { REPO, CURRENT_REPO } from "../../../../../fixtures/REPO";
 
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
-describe("Repo Limit Exceeded Error Modal", { tags: [Tag.Git] }, function () {
+describe("Repo Limit Exceeded Error Modal", { tags: ["@tag.Git"] }, function () {
   before(() => {
     const uuid = require("uuid");
     repoName1 = uuid.v4().split("-")[0];

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   appSettings,
@@ -17,7 +16,7 @@ let currentUrl: string;
 
 describe(
   "Page orientation and navigation related usecases ",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
       EditorNavigation.ViaSidebar(SidebarButton.Settings);

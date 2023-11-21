@@ -1,10 +1,9 @@
-import { Tag } from "../../../../../tags";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
 let windowOpenSpy;
-describe("Git disconnect modal:", { tags: [Tag.Git] }, function () {
+describe("Git disconnect modal:", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();

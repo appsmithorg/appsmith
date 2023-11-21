@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 const explorer = require("../../../../locators/explorerlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
@@ -9,7 +8,7 @@ const alternateName = "AlternateName";
 const tooltTipQuery = `.rc-tooltip.ads-v2-tooltip:not(.rc-tooltip-hidden) > .rc-tooltip-content > .rc-tooltip-inner > .ads-v2-text`;
 describe(
   "Entity Explorer showing tooltips on long names",
-  { tags: [Tag.IDE] },
+  { tags: ["@tag.IDE"] },
   function () {
     it("1. Expect tooltip on long names only", function () {
       // create an API with a short name

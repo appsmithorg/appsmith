@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../../tags";
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../../locators/FormWidgets.json");
@@ -10,7 +9,7 @@ const items = JSON.parse(dsl.dsl.children[0].listData);
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const widgetSelectorByType = (name) => `.t--widget-${name}`;
 
-describe("Select Widgets", { tags: [Tag.Widget, Tag.List] }, function () {
+describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   before(() => {
     _.agHelper.AddDsl("Listv2/simpleLargeListv2");
   });

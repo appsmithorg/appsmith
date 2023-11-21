@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Checkbox Widget Functionality", { tags: [Tag.Widget] }, function () {
+describe("Checkbox Widget Functionality", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     _.agHelper.AddDsl("newFormDsl");
   });

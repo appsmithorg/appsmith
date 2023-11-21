@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import {
   agHelper,
   locators,
@@ -10,7 +9,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Test app's navigation settings", { tags: [Tag.IDE] }, function () {
+describe("Test app's navigation settings", { tags: ["@tag.IDE"] }, function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
     EditorNavigation.ViaSidebar(SidebarButton.Settings);
     agHelper.AssertElementVisibility(

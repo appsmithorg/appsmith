@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -12,7 +11,7 @@ const defaultValue = `
 
 describe(
   "Select Widget Functionality",
-  { tags: [Tag.Widget, Tag.Select] },
+  { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

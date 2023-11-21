@@ -1,12 +1,10 @@
-import { Tag } from "../../../../../tags";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { Tag } from "../../../../../tags";
 
 describe(
   "Text Widget Functionality",
-  { tags: [Tag.Widget, Tag.Text] },
+  { tags: ["@tag.Widget", "@tag.Text"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("displayWidgetDsl");

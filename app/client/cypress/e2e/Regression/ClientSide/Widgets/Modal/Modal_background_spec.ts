@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   deployMode,
@@ -7,7 +6,7 @@ import {
 
 describe(
   "Modal Widget background color spec",
-  { tags: [Tag.Widget, Tag.Modal] },
+  { tags: ["@tag.Widget", "@tag.Modal"] },
   () => {
     before(() => {
       agHelper.AddDsl("modalWidgetBGcolorDSL");

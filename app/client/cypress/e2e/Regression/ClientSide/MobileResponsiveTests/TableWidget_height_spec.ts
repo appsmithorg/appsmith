@@ -1,9 +1,8 @@
-import { Tag } from "../../../../tags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Validating use cases for Table Widget in AutoLayout mode",
-  { tags: [Tag.MobileResponsive] },
+  { tags: [] },
   () => {
     before(() => {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

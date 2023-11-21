@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -8,7 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Dropdown Widget Check value does not reset on navigation",
-  { tags: [Tag.Widget, Tag.Select] },
+  { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("dropDownWidget_reset_check_dsl");

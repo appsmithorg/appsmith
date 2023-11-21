@@ -1,4 +1,3 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   locators,
@@ -12,7 +11,7 @@ import {
 
 describe(
   "Tree Select widget Tests",
-  { tags: [Tag.Widget, Tag.Select] },
+  { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("formwidget", 500, 100);

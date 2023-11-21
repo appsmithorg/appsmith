@@ -1,11 +1,10 @@
-import { Tag } from "../../../../../tags";
 import {
   agHelper,
   draggableWidgets,
   entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Statbox Widget Functionality", { tags: [Tag.Widget] }, function () {
+describe("Statbox Widget Functionality", { tags: ["@tag.Widget"] }, function () {
   before(() => {
     agHelper.AddDsl("dynamicHeightStatboxdsl");
   });

@@ -1,4 +1,3 @@
-import { Tag } from "../../../../tags";
 import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
@@ -22,7 +21,7 @@ let datasourceName;
 
 describe(
   "Validate Mongo query commands",
-  { tags: [Tag.Datasource] },
+  { tags: ["@tag.Datasource"] },
   function () {
     // afterEach(function() {
     //   if (this.currentTest.state === "failed") {
