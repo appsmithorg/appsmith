@@ -49,7 +49,7 @@ describe("Select Widget", () => {
       .should("have.css", "direction", "rtl");
 
     agHelper
-      .GetElement(".rc-select-dropdown [dir='rtl']", "not.exist")
+      .GetElement(".rc-select-dropdown [dir='rtl']", "noVerify")
       .should("exist");
 
     propPane.TogglePropertyState("Enable RTL", "Off");
