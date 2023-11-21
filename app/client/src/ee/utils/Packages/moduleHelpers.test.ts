@@ -1,9 +1,9 @@
-import type { Module } from "@appsmith/constants/ModuleConstants";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { convertModulesToArray, selectAllQueryModules } from "./moduleHelpers"; // Import the functions to be tested
+import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
 
 // Mock data for testing
-const modules: Record<string, Module> = {
+const modules = {
   1: {
     id: "mod-1",
     type: MODULE_TYPE.QUERY,
@@ -31,7 +31,7 @@ const modules: Record<string, Module> = {
     settingsForm: [],
     userPermissions: [],
   },
-};
+} as unknown as ModulesReducerState;
 
 const moduleArray = Object.values(modules);
 

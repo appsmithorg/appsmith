@@ -10,7 +10,7 @@ const LoadingContainer = styled(CenteredWrapper)`
 
 function Loader() {
   return (
-    <LoadingContainer>
+    <LoadingContainer data-testid="t--loader-module">
       <Spinner size={30} />
     </LoadingContainer>
   );

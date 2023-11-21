@@ -4,93 +4,104 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { updateModuleInstance } from "@appsmith/actions/moduleInstanceActions";
-import type {
-  ModuleId,
-  ModuleInstance,
-} from "@appsmith/constants/ModuleInstanceConstants";
+import type { UpdateModuleInstanceSettingsPayload } from "@appsmith/actions/moduleInstanceActions";
+import type { Action } from "entities/Action";
 
 export interface ModuleInstancePaneState {
-  isRunning: Record<ModuleId, boolean>;
-  isSaving: Record<ModuleId, boolean>;
-  isDeleting: Record<ModuleId, boolean>;
-  isCreating: boolean;
+  nameSavingStatus: Record<string, { isSaving: boolean; error: boolean }>;
+  settingsSavingStatus: Record<string, { isSaving: boolean; error: boolean }>;
 }
 
-const initialState: ModuleInstancePaneState = {
-  isRunning: {},
-  isSaving: {},
-  isDeleting: {},
-  isCreating: false,
+export const initialState: ModuleInstancePaneState = {
+  nameSavingStatus: {},
+  settingsSavingStatus: {},
 };
 
 export const handlers = {
-  [ReduxActionTypes.CREATE_MODULE_INSTANCE_INIT]: (
+  [ReduxActionTypes.SAVE_MODULE_INSTANCE_NAME_INIT]: (
     draftState: ModuleInstancePaneState,
+    action: ReduxAction<{ id: string }>,
   ) => {
-    draftState.isCreating = true;
+    draftState.nameSavingStatus[action.payload.id] = {
+      isSaving: true,
+      error: false,
+    };
     return draftState;
   },
 
-  [ReduxActionTypes.CREATE_MODULE_INSTANCE_SUCCESS]: (
+  [ReduxActionTypes.SAVE_MODULE_INSTANCE_NAME_SUCCESS]: (
     draftState: ModuleInstancePaneState,
+    action: ReduxAction<{ id: string }>,
   ) => {
-    draftState.isCreating = false;
+    draftState.nameSavingStatus[action.payload.id].isSaving = false;
+    draftState.nameSavingStatus[action.payload.id].error = false;
     return draftState;
   },
 
-  [ReduxActionErrorTypes.CREATE_MODULE_INSTANCE_ERROR]: (
+  [ReduxActionErrorTypes.SAVE_MODULE_INSTANCE_NAME_ERROR]: (
     draftState: ModuleInstancePaneState,
+    action: ReduxAction<{ id: string }>,
   ) => {
-    draftState.isCreating = false;
+    draftState.nameSavingStatus[action.payload.id].isSaving = false;
+    draftState.nameSavingStatus[action.payload.id].error = true;
     return draftState;
   },
 
-  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_INIT]: (
+  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_INIT]: (
     draftState: ModuleInstancePaneState,
-    action: ReduxAction<ReturnType<typeof updateModuleInstance>["payload"]>,
+    action: ReduxAction<UpdateModuleInstanceSettingsPayload>,
   ) => {
-    draftState.isSaving[action.payload.id] = true;
+    draftState.settingsSavingStatus[action.payload.id] = {
+      isSaving: true,
+      error: false,
+    };
     return draftState;
   },
 
-  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_SUCCESS]: (
     draftState: ModuleInstancePaneState,
-    action: ReduxAction<ModuleInstance>,
+    action: ReduxAction<Action>,
   ) => {
-    draftState.isSaving[action.payload.id] = false;
+    draftState.settingsSavingStatus[action.payload.id].isSaving = false;
+    draftState.settingsSavingStatus[action.payload.id].error = false;
     return draftState;
   },
 
-  [ReduxActionErrorTypes.UPDATE_MODULE_INSTANCE_ERROR]: (
+  [ReduxActionErrorTypes.UPDATE_MODULE_INSTANCE_SETTINGS_ERROR]: (
     draftState: ModuleInstancePaneState,
-    action: ReduxAction<ModuleInstance>,
+    action: ReduxAction<{ id: string }>,
   ) => {
-    draftState.isSaving[action.payload.id] = false;
+    draftState.settingsSavingStatus[action.payload.id].isSaving = false;
+    draftState.settingsSavingStatus[action.payload.id].error = true;
     return draftState;
   },
 
-  [ReduxActionTypes.DELETE_MODULE_INSTANCE_INIT]: (
+  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_INIT]: (
     draftState: ModuleInstancePaneState,
-    action: ReduxAction<ModuleInstance>,
+    action: ReduxAction<UpdateModuleInstanceSettingsPayload>,
   ) => {
-    draftState.isDeleting[action.payload.id] = true;
+    draftState.settingsSavingStatus[action.payload.id] = {
+      isSaving: true,
+      error: false,
+    };
     return draftState;
   },
 
-  [ReduxActionTypes.DELETE_MODULE_INSTANCE_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_SUCCESS]: (
     draftState: ModuleInstancePaneState,
-    action: ReduxAction<ModuleInstance>,
+    action: ReduxAction<Action>,
   ) => {
-    delete draftState.isDeleting[action.payload.id];
+    draftState.settingsSavingStatus[action.payload.id].isSaving = false;
+    draftState.settingsSavingStatus[action.payload.id].error = false;
     return draftState;
   },
 
-  [ReduxActionErrorTypes.DELETE_MODULE_INSTANCE_ERROR]: (
+  [ReduxActionErrorTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_ERROR]: (
     draftState: ModuleInstancePaneState,
-    action: ReduxAction<ModuleInstance>,
+    action: ReduxAction<{ id: string }>,
   ) => {
-    draftState.isDeleting[action.payload.moduleId] = false;
+    draftState.settingsSavingStatus[action.payload.id].isSaving = false;
+    draftState.settingsSavingStatus[action.payload.id].error = true;
     return draftState;
   },
 };

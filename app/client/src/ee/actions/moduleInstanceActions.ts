@@ -1,8 +1,10 @@
 import type {
+  ModuleInstance,
   ModuleInstanceCreatorType,
   ModuleInstanceId,
 } from "@appsmith/constants/ModuleInstanceConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { Action } from "entities/Action";
 
 export interface CreateQueryModuleInstancePayload {
   moduleId: string;
@@ -12,7 +14,7 @@ export interface CreateQueryModuleInstancePayload {
 
 export interface UpdateModuleInstancePayload {
   id: ModuleInstanceId;
-  updates: unknown;
+  moduleInstance: Partial<ModuleInstance>;
 }
 
 export interface FetchModuleInstancesPayload {
@@ -28,6 +30,13 @@ export interface FetchModuleInstanceEntitiesPayload {
 export interface SetupModuleInstancePayload {
   creatorId: string;
   creatorType: ModuleInstanceCreatorType;
+}
+
+export type UpdateModuleInstanceSettingsPayload = Action;
+
+export interface UpdateModuleInstanceOnPageLoadSettingsPayload {
+  actionId: string;
+  value?: boolean;
 }
 
 export const createQueryModuleInstance = (
@@ -75,5 +84,19 @@ export const fetchModuleInstanceEntities = (
   payload: FetchModuleInstanceEntitiesPayload,
 ) => ({
   type: ReduxActionTypes.FETCH_MODULE_INSTANCE_ENTITIES_INIT,
+  payload,
+});
+
+export const updateModuleInstanceSettings = (
+  payload?: UpdateModuleInstanceSettingsPayload,
+) => ({
+  type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_INIT,
+  payload,
+});
+
+export const updateModuleInstanceOnPageLoadSettings = (
+  payload: UpdateModuleInstanceOnPageLoadSettingsPayload,
+) => ({
+  type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_INIT,
   payload,
 });

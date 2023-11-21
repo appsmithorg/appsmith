@@ -51,7 +51,7 @@ const generateDefaultInputForm = () => {
   return { inputsForm: [defaultInputSection] };
 };
 
-const DEBOUNCE_TIMEOUT = 300;
+const DEBOUNCE_TIMEOUT = 150;
 
 function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
   const dispatch = useDispatch();
@@ -89,7 +89,7 @@ function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
           </Text>
           <br />
           <br />
-          <Text>{`select * from users where id = {{ input_name }}`}</Text>
+          <Text>{`{{ inputs.input1 }}`}</Text>
         </InstructionsWrapper>
         <Form
           defaultValues={defaultValues || generateDefaultInputForm()}

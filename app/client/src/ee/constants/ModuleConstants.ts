@@ -21,6 +21,13 @@ export type ModuleAction = Action & {
   moduleId: string;
   packageId: string;
 };
+
+export interface PluginSettings {
+  id: number;
+  sectionName: string;
+  children: ControlData[];
+}
+
 export interface ModuleInput extends CE_ModuleInput {
   label: string;
   defaultValue: string;

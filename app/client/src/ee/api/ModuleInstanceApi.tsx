@@ -16,11 +16,6 @@ interface RunModuleInstancePayload {
   actionId: string;
 }
 
-interface UpdateModuleInstancePayload {
-  moduleInstanceId: string;
-  moduleInstance: ModuleInstance;
-}
-
 export interface FetchModuleInstancesResponse {
   moduleInstances: ModuleInstance[];
   modules: Module[];
@@ -32,8 +27,6 @@ export interface CreateModuleInstanceResponse {
   moduleInstance: ModuleInstance;
   module: Module;
 }
-
-export interface UpdateModuleInstanceResponse extends ModuleInstance {}
 
 export interface DeleteModuleInstanceResponse {
   id: string;
@@ -76,10 +69,11 @@ class ModuleInstancesApi extends Api {
   }
 
   static async updateModuleInstance(
-    payload: UpdateModuleInstancePayload,
-  ): Promise<AxiosPromise<ApiResponse<UpdateModuleInstanceResponse>>> {
-    const url = `${ModuleInstancesApi.moduleInstancesUrl}/${payload.moduleInstanceId}`;
-    return Api.put(url, { moduleInstance: payload.moduleInstance });
+    payload: ModuleInstance,
+  ): Promise<AxiosPromise<ApiResponse<ModuleInstance>>> {
+    const url = `${ModuleInstancesApi.moduleInstancesUrl}/${payload.id}`;
+
+    return Api.put(url, payload);
   }
 
   static async deleteModuleInstance(

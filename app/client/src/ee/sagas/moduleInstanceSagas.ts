@@ -3,19 +3,27 @@ import type {
   CreateQueryModuleInstancePayload,
   FetchModuleInstancesPayload,
   SetupModuleInstancePayload,
+  UpdateModuleInstanceOnPageLoadSettingsPayload,
+  UpdateModuleInstancePayload,
+  UpdateModuleInstanceSettingsPayload,
 } from "@appsmith/actions/moduleInstanceActions";
+import ModuleInstanceApi from "@appsmith/api/ModuleInstanceApi";
 import ModuleInstancesApi, {
   type CreateModuleInstanceResponse,
   type FetchModuleInstanceEntitiesResponse,
   type FetchModuleInstancesResponse,
 } from "@appsmith/api/ModuleInstanceApi";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { getModuleInstanceById } from "@appsmith/selectors/moduleInstanceSelectors";
+import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
-import { all, call, put, takeLatest } from "redux-saga/effects";
+import type { Action } from "entities/Action";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
 
@@ -118,6 +126,44 @@ function* fetchModuleInstancesForViewSaga(
   }
 }
 
+function* updateModuleInstanceSaga(
+  action: ReduxAction<UpdateModuleInstancePayload>,
+) {
+  try {
+    const moduleInstance: ReturnType<typeof getModuleInstanceById> =
+      yield select(getModuleInstanceById, action.payload.id);
+
+    if (!moduleInstance) {
+      throw Error(
+        "Saving module instance inputs failed. Module instance not found.",
+      );
+    }
+
+    const payload: ModuleInstance = {
+      ...moduleInstance,
+      ...action.payload.moduleInstance,
+    };
+
+    const response: ApiResponse<FetchModuleInstancesResponse> = yield call(
+      ModuleInstanceApi.updateModuleInstance,
+      payload,
+    );
+
+    const isValidResponse = validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SUCCESS,
+        payload: response.data.moduleInstances,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_MODULE_INSTANCE_ERROR,
+      payload: { error },
+    });
+  }
+}
+
 function* fetchModuleInstanceEntitiesSaga(
   action: ReduxAction<FetchModuleInstancesPayload>,
 ) {
@@ -196,6 +242,54 @@ export function* setupModuleInstanceForViewSaga(
   }
 }
 
+function* updateModuleInstanceOnPageLoadSettingsSaga(
+  action: ReduxAction<UpdateModuleInstanceOnPageLoadSettingsPayload>,
+) {
+  try {
+    const { actionId, value } = action.payload;
+    const response: ApiResponse = yield call(
+      ActionAPI.toggleActionExecuteOnLoad,
+      actionId,
+      value || false,
+    );
+    const isValidResponse = validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_ERROR,
+      payload: { error },
+    });
+  }
+}
+
+function* updateModuleInstanceSettingsSaga(
+  action: ReduxAction<UpdateModuleInstanceSettingsPayload>,
+) {
+  try {
+    const response: ApiResponse<Action> = yield call(
+      ActionAPI.updateAction,
+      action.payload,
+    );
+    const isValidResponse = validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_MODULE_INSTANCE_SETTINGS_ERROR,
+      payload: { error, id: action.payload.id },
+    });
+  }
+}
+
 // Watcher Saga
 export default function* moduleInstanceSaga() {
   yield all([
@@ -206,6 +300,18 @@ export default function* moduleInstanceSaga() {
     takeLatest(
       ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_INIT,
       fetchModuleInstancesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_MODULE_INSTANCE_INIT,
+      updateModuleInstanceSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_MODULE_INSTANCE_SETTINGS_INIT,
+      updateModuleInstanceSettingsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_INIT,
+      updateModuleInstanceOnPageLoadSettingsSaga,
     ),
     takeLatest(
       ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_VIEW_MODE_INIT,
