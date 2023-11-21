@@ -141,9 +141,6 @@ class RefactoringSolutionCEImplTest {
         oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
         oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
 
-        Mockito.when(refactoringSolutionCE.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(true));
-
         LayoutDTO layout = new LayoutDTO();
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("key", "value");
@@ -186,6 +183,10 @@ class RefactoringSolutionCEImplTest {
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
+        Mockito.doReturn(Flux.just(oldUnpublishedCollection.getName()))
+                .when(actionCollectionEntityRefactoringService)
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
+
         final Mono<LayoutDTO> layoutDTOMono =
                 refactoringSolutionCE.refactorEntityName(refactorActionCollectionNameDTO, null);
 
@@ -219,20 +220,24 @@ class RefactoringSolutionCEImplTest {
         duplicateUnpublishedCollection.setName("newName");
         duplicateActionCollection.setUnpublishedCollection(duplicateUnpublishedCollection);
 
-        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
-                        Mockito.any(),
-                        Mockito.any(),
-                        Mockito.anyBoolean(),
-                        Mockito.any(),
-                        Mockito.any(),
-                        Mockito.any()))
-                .thenReturn(Flux.just(oldActionCollection, duplicateActionCollection));
-
-        Mockito.when(refactoringSolutionCE.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(false));
+        Mockito.doReturn(Flux.just("oldName", "newName"))
+                .when(actionCollectionEntityRefactoringService)
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         NewPage newPage = new NewPage();
         newPage.setId("testPageId");
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setId("testPageId");
+        pageDTO.setApplicationId("testAppId");
+        Layout layout1 = new Layout();
+        layout1.setId("testLayoutId");
+        final JSONObject jsonObject = new JSONObject();
+        jsonObject.put("key", "value");
+        layout1.setDsl(jsonObject);
+        pageDTO.setLayouts(List.of(layout1));
+        newPage.setUnpublishedPage(pageDTO);
+        Mockito.when(newPageService.findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(pageDTO));
         Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
 
         final Mono<LayoutDTO> layoutDTOMono =
@@ -264,9 +269,6 @@ class RefactoringSolutionCEImplTest {
         oldActionCollection.setUnpublishedCollection(oldUnpublishedCollection);
         oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
         oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
-
-        Mockito.when(refactoringSolutionCE.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(true));
 
         Mockito.when(newActionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Mono.just(new ActionDTO()));
@@ -322,6 +324,10 @@ class RefactoringSolutionCEImplTest {
         Mockito.when(updateLayoutService.updateLayout(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
+
+        Mockito.doReturn(Flux.just(oldUnpublishedCollection.getName()))
+                .when(actionCollectionEntityRefactoringService)
+                .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         final Mono<LayoutDTO> layoutDTOMono =
                 refactoringSolutionCE.refactorEntityName(refactorActionCollectionNameDTO, null);
