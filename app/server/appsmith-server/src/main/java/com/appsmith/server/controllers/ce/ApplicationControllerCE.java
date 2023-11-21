@@ -160,12 +160,23 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(deletedResources -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResources, null));
     }
 
+    @Deprecated
     @JsonView(Views.Public.class)
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
         log.debug("Going to get all applications grouped by workspace");
         return applicationFetcher
                 .getAllApplications()
+                .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/home")
+    public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
+            @RequestParam(required = false) String workspaceId) {
+        log.debug("Going to get all applications by workspace id {}", workspaceId);
+        return service.findByWorkspaceIdAndRecentlyUsedOrder(workspaceId)
+                .collectList()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 

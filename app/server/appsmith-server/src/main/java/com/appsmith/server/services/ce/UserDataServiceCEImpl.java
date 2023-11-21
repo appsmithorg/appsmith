@@ -266,7 +266,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                             userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10));
                     // set recently used application ids
                     userData.setRecentlyUsedAppIds(
-                            addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20));
+                            addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 40));
                     return Mono.zip(
                             analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
                             repository.save(userData));

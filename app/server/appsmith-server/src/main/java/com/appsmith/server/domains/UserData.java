@@ -57,11 +57,17 @@ public class UserData extends BaseDomain {
 
     // list of workspace ids that were recently accessed by the user
     @JsonView(Views.Public.class)
+    @Deprecated
     private List<String> recentlyUsedWorkspaceIds;
 
     // list of application ids that were recently accessed by the user
+    @Deprecated
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedAppIds;
+
+    // Map of workspaceId to list of recently used applicationIds. This field should be used to add entities
+    //    @JsonView(Views.Public.class)
+    //    private Map<String, List<RecentlyUsedEntityDTO>> recentlyUsedEntityIds;
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
