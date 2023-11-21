@@ -253,11 +253,7 @@ export class Table {
 
   public WaitForTableEmpty(tableVersion: "v1" | "v2" = "v1") {
     this.agHelper
-      .GetElement(
-        this._tableEmptyColumnData(tableVersion),
-        Cypress.config("defaultCommandTimeout"),
-        "not.exist",
-      )
+      .GetElement(this._tableEmptyColumnData(tableVersion), "not.exist")
       .children()
       .should("have.length", 0); //or below
     //expect($children).to.have.lengthOf(0)

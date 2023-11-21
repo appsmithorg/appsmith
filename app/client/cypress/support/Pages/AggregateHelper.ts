@@ -273,8 +273,8 @@ export class AggregateHelper extends ReusableHelper {
 
   public GetElement(
     selector: ElementType,
-    timeout = Cypress.config("defaultCommandTimeout"),
     exists: "exist" | "not.exist" | "noVerify" = "exist",
+    timeout = Cypress.config("defaultCommandTimeout"),
   ) {
     let locator;
     if (typeof selector == "string") {
@@ -327,11 +327,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     if (index != 0) {
-      this.GetElement(
-        this.locator._toastMsg,
-        Cypress.config("defaultCommandTimeout"),
-        "noVerify",
-      )
+      this.GetElement(this.locator._toastMsg, "noVerify")
         .should("have.length.at.least", length)
         .eq(index)
         .should("contain.text", text);
@@ -1463,7 +1459,7 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertElementAbsence(selector: ElementType, timeout = 0) {
     //Should not exists - cannot take indexes
-    return this.GetElement(selector, timeout, "not.exist").should("not.exist");
+    return this.GetElement(selector, "not.exist", timeout).should("not.exist");
   }
 
   public GetText(
@@ -1579,7 +1575,7 @@ export class AggregateHelper extends ReusableHelper {
     text: string | number | RegExp,
     exists: "exist" | "not.exist" = "exist",
   ) {
-    return this.GetElement(selector).contains(text).should(exists);
+    return this.GetElement(selector, "noVerify").contains(text).should(exists);
   }
 
   public AssertURL(url: string) {

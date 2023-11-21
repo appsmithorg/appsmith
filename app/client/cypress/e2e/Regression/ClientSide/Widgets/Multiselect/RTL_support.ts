@@ -49,11 +49,7 @@ describe("Select Widget", () => {
       .should("have.css", "direction", "rtl");
 
     agHelper
-      .GetElement(
-        ".rc-select-dropdown [dir='rtl']",
-        Cypress.config("defaultCommandTimeout"),
-        "not.exist",
-      )
+      .GetElement(".rc-select-dropdown [dir='rtl']", "not.exist")
       .should("exist");
 
     propPane.TogglePropertyState("Enable RTL", "Off");
