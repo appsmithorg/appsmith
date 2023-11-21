@@ -24,7 +24,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.NavigateBackToPropertyPane();
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("Tab 2");
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Tab 2");
     _.propPane.AssertIfPropertyIsVisible("visible");
 
     _.debuggerHelper.CloseBottomBar();
@@ -45,9 +45,8 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.NavigateBackToPropertyPane();
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("Menu Item 1");
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Menu Item 1");
     _.propPane.AssertIfPropertyIsVisible("icon");
-
     _.debuggerHelper.CloseBottomBar();
     _.entityExplorer.SelectEntityByName("ButtonGroup1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("ButtonGroup1");
@@ -63,7 +62,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.NavigateBackToPropertyPane();
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("Second Menu Item");
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Second Menu Item");
     _.agHelper.Sleep();
     _.propPane.AssertIfPropertyIsVisible("disabled");
 
@@ -110,7 +109,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
 
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("Custom Field 2");
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Custom Field 2");
     _.propPane.AssertIfPropertyIsVisible("borderradius");
 
     _.debuggerHelper.CloseBottomBar();
@@ -133,8 +132,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
 
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink(true);
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("First Menu Item");
-
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "First Menu Item");
     _.debuggerHelper.CloseBottomBar();
     _.entityExplorer.SelectEntityByName("MenuButton1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
@@ -173,7 +171,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
 
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.ClicklogEntityLink();
-    _.agHelper.GetElement(_.propPane._paneTitle).contains("imdb_id");
+    _.agHelper.GetNAssertContains(_.propPane._paneTitle, "imdb_id");
 
     _.debuggerHelper.CloseBottomBar();
     _.entityExplorer.SelectEntityByName("Table1");

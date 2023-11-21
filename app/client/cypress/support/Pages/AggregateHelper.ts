@@ -1553,8 +1553,14 @@ export class AggregateHelper extends ReusableHelper {
     index: number | null = null,
   ) {
     if (index)
-      return this.GetElement(selector).eq(index).should("have.length", length);
-    else return this.GetElement(selector).should("have.length", length);
+      return this.GetElement(selector, "noVerify")
+        .eq(index)
+        .should("have.length", length);
+    else
+      return this.GetElement(selector, "noVerify").should(
+        "have.length",
+        length,
+      );
   }
 
   public FocusElement(selector: ElementType) {
