@@ -1,6 +1,7 @@
 package com.appsmith.server.widgets.refactors;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
@@ -8,10 +9,13 @@ import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.EntityRefactoringServiceCE;
 import com.appsmith.server.services.AstService;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -42,6 +46,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     private final NewPageService newPageService;
     private final AstService astService;
     private final ObjectMapper objectMapper;
+    private final PagePermission pagePermission;
 
     @Override
     public AnalyticsEvents getRefactorAnalyticsEvent(EntityType entityType) {
@@ -106,6 +111,28 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
         // Do nothing, DSL refactor will take care of this
         return Mono.empty().then();
+    }
+
+    @Override
+    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+        return newPageService
+                // fetch the unpublished page
+                .findPageById(contextId, pagePermission.getReadPermission(), false)
+                .flatMapMany(page -> {
+                    List<Layout> layouts = page.getLayouts();
+                    for (Layout layout : layouts) {
+                        if (layoutId.equals(layout.getId())) {
+                            if (layout.getWidgetNames() != null
+                                    && layout.getWidgetNames().size() > 0) {
+                                return Flux.fromIterable(layout.getWidgetNames());
+                            }
+                            // In case of no widget names (which implies that there is no DSL), return an empty set.
+                            return Flux.empty();
+                        }
+                    }
+                    return Flux.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.LAYOUT_ID, layoutId));
+                });
     }
 
     public Mono<Set<String>> refactorNameInDsl(

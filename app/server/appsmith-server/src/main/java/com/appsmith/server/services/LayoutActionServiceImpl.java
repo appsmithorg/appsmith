@@ -2,21 +2,20 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
+import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.services.ce.LayoutActionServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,15 +29,12 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
     private final DatasourcePermission datasourcePermission;
 
     public LayoutActionServiceImpl(
-            ObjectMapper objectMapper,
             AnalyticsService analyticsService,
             NewPageService newPageService,
             NewActionService newActionService,
-            OnLoadExecutablesUtil pageLoadActionsUtil,
-            SessionUserService sessionUserService,
-            ActionCollectionService actionCollectionService,
+            RefactoringSolution refactoringSolution,
             CollectionService collectionService,
-            ApplicationService applicationService,
+            UpdateLayoutService updateLayoutService,
             ResponseUtils responseUtils,
             DatasourceService datasourceService,
             PagePermission pagePermission,
@@ -46,15 +42,12 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             DatasourcePermission datasourcePermission) {
 
         super(
-                objectMapper,
                 analyticsService,
                 newPageService,
                 newActionService,
-                pageLoadActionsUtil,
-                sessionUserService,
-                actionCollectionService,
+                refactoringSolution,
                 collectionService,
-                applicationService,
+                updateLayoutService,
                 responseUtils,
                 datasourceService,
                 pagePermission,
