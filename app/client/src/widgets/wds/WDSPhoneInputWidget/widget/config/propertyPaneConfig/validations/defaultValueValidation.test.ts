@@ -3,7 +3,7 @@ import { defaultValueValidation } from "./defaultValueValidation";
 import _ from "lodash";
 
 describe("defaultValueValidation", () => {
-  let result: any;
+  let result: ReturnType<typeof defaultValueValidation>;
 
   it("should validate defaulttext", () => {
     result = defaultValueValidation(

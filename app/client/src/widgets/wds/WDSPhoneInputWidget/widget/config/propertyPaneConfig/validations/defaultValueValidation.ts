@@ -1,9 +1,10 @@
+import type { LoDashStatic } from "lodash";
 import type { PhoneInputWidgetProps } from "../../../types";
 
 export function defaultValueValidation(
   value: any,
   props: PhoneInputWidgetProps,
-  _?: any,
+  _: LoDashStatic,
 ) {
   const STRING_ERROR_MESSAGE = {
     name: "TypeError",
