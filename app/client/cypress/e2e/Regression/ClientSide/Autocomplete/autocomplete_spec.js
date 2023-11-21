@@ -4,7 +4,7 @@ import {
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Dynamic input autocomplete", () => {
+describe("Dynamic input autocomplete", { tags: ["@tag.JS"] }, () => {
   before(() => {
     agHelper.AddDsl("autocomp");
   });

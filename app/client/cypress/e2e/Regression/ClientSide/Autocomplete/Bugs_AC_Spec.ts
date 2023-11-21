@@ -12,7 +12,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Autocomplete bug fixes", function () {
+describe("Autocomplete bug fixes", { tags: ["@tag.JS"] }, function () {
   it("1. Bug #12790 Verifies if selectedRow is in best match", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
     table.AddSampleTableData();

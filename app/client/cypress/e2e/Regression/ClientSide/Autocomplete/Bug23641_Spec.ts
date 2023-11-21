@@ -6,7 +6,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Autocomplete bug fixes", function () {
+describe("Autocomplete bug fixes", { tags: ["@tag.JS"] }, function () {
   it("1. Bug #23641 Verifies if 'children' shows up in autocomplete list", function () {
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.MULTITREESELECT,

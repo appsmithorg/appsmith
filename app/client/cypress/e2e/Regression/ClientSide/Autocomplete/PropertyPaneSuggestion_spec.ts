@@ -7,7 +7,7 @@ import {
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Property Pane Suggestions", () => {
+describe("Property Pane Suggestions", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
   });
