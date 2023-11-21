@@ -1219,10 +1219,6 @@ public class RestApiPluginTest {
         params.add(param2);
         executeActionDTO.setParams(params);
 
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
-
         Mono<ActionExecutionResult> resultMono =
                 pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
         StepVerifier.create(resultMono)
