@@ -4,6 +4,7 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
@@ -409,7 +410,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         return pageMono.flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
                     String name = action.getValidName();
-                    return refactoringSolution.isNameAllowed(page.getId(), layout.getId(), name);
+                    CreatorContextType contextType =
+                            action.getContextType() == null ? CreatorContextType.PAGE : action.getContextType();
+                    return refactoringSolution.isNameAllowed(page.getId(), contextType, layout.getId(), name);
                 })
                 .flatMap(nameAllowed -> {
                     // If the name is allowed, return pageMono for further processing
