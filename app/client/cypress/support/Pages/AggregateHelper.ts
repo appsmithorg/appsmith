@@ -274,7 +274,7 @@ export class AggregateHelper extends ReusableHelper {
   public GetElement(
     selector: ElementType,
     timeout = Cypress.config("defaultCommandTimeout"),
-    exists: "exist" | "not.exist" = "exist",
+    exists: "exist" | "not.exist" | "noVerify" = "exist",
   ) {
     let locator;
     if (typeof selector == "string") {
@@ -288,12 +288,11 @@ export class AggregateHelper extends ReusableHelper {
               timeout,
             });
     } else locator = cy.wrap(selector);
-    if (exists === "exist") {
-      return locator.should("have.length.at.least", 1);
-    } else {
-      return locator.should("have.length", 0);
-    }
-    //    return locator;
+    return exists === "noVerify"
+      ? locator // Return the locator without verification if exists is "noVerify"
+      : exists === "exist"
+      ? locator.should("have.length.at.least", 1)
+      : locator.should("have.length", 0);
   }
 
   public GetNAssertElementText(
@@ -328,7 +327,11 @@ export class AggregateHelper extends ReusableHelper {
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     if (index != 0) {
-      this.GetElement(this.locator._toastMsg)
+      this.GetElement(
+        this.locator._toastMsg,
+        Cypress.config("defaultCommandTimeout"),
+        "noVerify",
+      )
         .should("have.length.at.least", length)
         .eq(index)
         .should("contain.text", text);
