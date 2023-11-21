@@ -324,7 +324,7 @@ export class cypressSplit {
       }
 
       if (this.util.getVars().cypressSkipFlaky === "true") {
-        let specsToSkip = await this.getFlakySpecs() ?? [];
+        let specsToSkip = (await this.getFlakySpecs()) ?? [];
         ignorePattern = [...ignorePattern, ...specsToSkip];
       }
 
