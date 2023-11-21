@@ -36,6 +36,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -97,6 +98,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceRepository workspaceRepository;
     private final LayoutActionService layoutActionService;
+    private final UpdateLayoutService updateLayoutService;
 
     private final AnalyticsService analyticsService;
     private final PolicyGenerator policyGenerator;
@@ -251,7 +253,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     || layout.getMongoEscapedWidgetNames().isEmpty()) {
                 continue;
             }
-            layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
+            layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
         }
         page.setLayouts(layouts);
         return page;
@@ -777,8 +779,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     return Flux.fromIterable(layouts)
                             .flatMap(layout -> {
-                                layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                return layoutActionService.updateLayout(
+                                layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                                return updateLayoutService.updateLayout(
                                         savedPage.getId(), savedPage.getApplicationId(), layout.getId(), layout);
                             })
                             .collectList()
