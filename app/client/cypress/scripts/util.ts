@@ -34,6 +34,7 @@ export default class util {
       thisRunner: this.getEnvValue("THIS_RUNNER", { required: true }),
       cypressSpecs: this.getEnvValue("CYPRESS_SPECS", { required: false }),
       cypressRerun: this.getEnvValue("CYPRESS_RERUN", { required: false }),
+      cypressSkipFlaky: this.getEnvValue("CYPRESS_SKIP_FLAKY", { required: false }),
     };
   }
 
