@@ -54,7 +54,8 @@ class WidgetRefactoringServiceCEImplTest {
 
     @BeforeEach
     public void setUp() {
-        widgetRefactoringServiceCE = new WidgetRefactoringServiceCEImpl(newPageService, astService, mapper);
+        widgetRefactoringServiceCE =
+                new WidgetRefactoringServiceCEImpl(newPageService, astService, mapper, pagePermission);
     }
 
     @Test

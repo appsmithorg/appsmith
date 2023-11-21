@@ -278,7 +278,7 @@
                 },
                 {
                   "widgetName": "RunQuery",
-                  "onClick": "{{smtpquery.run(() => showAlert(smtpquery.data.message), () => showAlert(smtpquery.data))}}",
+                  "onClick": "{{smtpquery.run(() => showAlert(smtpquery.data.message), () => showAlert('unsuccessful execution'))}}",
                   "buttonColor": "#2E3D49",
                   "dynamicPropertyPathList": [],
                   "displayName": "Button",

@@ -6,7 +6,6 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
-import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.*;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -41,7 +40,6 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -130,25 +128,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                         return clientResponse.createException().flatMapMany(Flux::error);
                     }
                 })
-                .collectList()
-                .zipWith(userDataService.getForCurrentUser())
-                .map(objects -> {
-                    List<ApplicationTemplate> applicationTemplateList = objects.getT1();
-                    UserData userData = objects.getT2();
-                    List<String> recentlyUsedTemplateIds = userData.getRecentlyUsedTemplateIds();
-                    if (!CollectionUtils.isEmpty(recentlyUsedTemplateIds)) {
-                        applicationTemplateList.sort(Comparator.comparingInt(o -> {
-                            int index = recentlyUsedTemplateIds.indexOf(o.getId());
-                            if (index < 0) {
-                                // template not in recent list, return a large value so that it's sorted out to
-                                // the end
-                                index = Integer.MAX_VALUE;
-                            }
-                            return index;
-                        }));
-                    }
-                    return applicationTemplateList;
-                });
+                .collectList();
     }
 
     @Override
@@ -238,17 +218,6 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             .sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, data)
                             .thenReturn(applicationImportDTO);
                 });
-    }
-
-    @Override
-    public Mono<List<ApplicationTemplate>> getRecentlyUsedTemplates() {
-        return userDataService.getForCurrentUser().flatMap(userData -> {
-            List<String> templateIds = userData.getRecentlyUsedTemplateIds();
-            if (!CollectionUtils.isEmpty(templateIds)) {
-                return getActiveTemplates(templateIds);
-            }
-            return Mono.empty();
-        });
     }
 
     @Override
@@ -380,7 +349,9 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(payload))
                 .retrieve()
-                .bodyToMono(ApplicationTemplate.class);
+                .bodyToMono(ApplicationTemplate.class)
+                .onErrorResume(error -> Mono.error(new AppsmithException(
+                        AppsmithError.CLOUD_SERVICES_ERROR, "while publishing template" + error.getMessage())));
     }
 
     private Mono<Application> updateApplicationFlags(String applicationId, String branchId) {

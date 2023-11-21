@@ -23,7 +23,7 @@ import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type {
   FetchActionsPayload,
   SetActionPropertyPayload,

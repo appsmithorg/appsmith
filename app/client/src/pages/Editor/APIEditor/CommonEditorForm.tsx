@@ -585,7 +585,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             <NameWrapper className="t--nameOfApi">
               <ActionNameEditor
                 disabled={!isChangePermitted}
-                page="API_PANE"
+                enableFontStyling
                 saveActionName={saveActionName}
               />
             </NameWrapper>
