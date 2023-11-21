@@ -354,7 +354,6 @@ configure_supervisord() {
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
-      # Update hosts lookup to resolve to embedded postgres
     fi
   fi
 
