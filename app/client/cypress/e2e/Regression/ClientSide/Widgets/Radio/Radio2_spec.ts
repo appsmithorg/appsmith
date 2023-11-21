@@ -316,7 +316,7 @@ describe("Radio Widget test cases", function () {
     });
 
     agHelper.GetWidth(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP));
-    agHelper.GetElement("@eleWidth").then(($currentWidth) => {
+    cy.get("@eleWidth").then(($currentWidth) => {
       expect($currentWidth).to.be.greaterThan(420);
     });
   });
@@ -365,7 +365,7 @@ describe("Radio Widget test cases", function () {
     });
 
     agHelper.GetWidth(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP));
-    agHelper.GetElement("@eleWidth").then(($currentWidth) => {
+    cy.get("@eleWidth").then(($currentWidth) => {
       expect($currentWidth).to.be.greaterThan(420);
     });
   });
