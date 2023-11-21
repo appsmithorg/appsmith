@@ -5,7 +5,7 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { generateReactKey } from "utils/generators";
-import { RenderModes } from "constants/WidgetConstants";
+import type { RenderModes } from "constants/WidgetConstants";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
@@ -19,6 +19,7 @@ import { call, select } from "redux-saga/effects";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
+import { getRenderMode } from "selectors/editorSelectors";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
@@ -27,6 +28,7 @@ export function* createSectionAndAddWidget(
   parentId: string,
 ) {
   const evalTree: DataTree = yield select(getDataTree);
+  const renderMode: RenderModes = yield select(getRenderMode);
   /**
    * Step 1: Create Section widget.
    */
@@ -38,7 +40,7 @@ export function* createSectionAndAddWidget(
     parentColumnSpace: 1,
     parentId,
     parentRowSpace: 10,
-    renderMode: RenderModes.CANVAS, // TODO: Remove hard coding.
+    renderMode,
     responsiveBehavior: ResponsiveBehavior.Fill,
     rightColumn: 64,
     topRow: 0,
@@ -63,7 +65,7 @@ export function* createSectionAndAddWidget(
     parentId: sectionProps.widgetId,
     parentColumnSpace: 1,
     parentRowSpace: 10,
-    renderMode: RenderModes.CANVAS, // TODO: Remove hard coding.
+    renderMode,
     responsiveBehavior: ResponsiveBehavior.Fill,
     rightColumn: 64,
     topRow: 0,

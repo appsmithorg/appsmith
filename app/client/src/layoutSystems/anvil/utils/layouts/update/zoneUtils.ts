@@ -5,7 +5,7 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { generateReactKey } from "utils/generators";
-import { RenderModes } from "constants/WidgetConstants";
+import type { RenderModes } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { zonePreset } from "layoutSystems/anvil/layoutComponents/presets/zonePreset";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
@@ -16,6 +16,7 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { select } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
+import { getRenderMode } from "selectors/editorSelectors";
 
 export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,
@@ -25,6 +26,7 @@ export function* createZoneAndAddWidgets(
   additionalWidgets: CanvasWidgetsReduxState = {},
 ) {
   const evalTree: DataTree = yield select(getDataTree);
+  const renderMode: RenderModes = yield select(getRenderMode);
   /**
    * Step 1: Create Zone widget.
    */
@@ -36,7 +38,7 @@ export function* createZoneAndAddWidgets(
     parentColumnSpace: 1,
     parentId,
     parentRowSpace: 10,
-    renderMode: RenderModes.CANVAS, // TODO: Remove hard coding.
+    renderMode,
     responsiveBehavior: ResponsiveBehavior.Fill,
     rightColumn: 64,
     topRow: 0,
@@ -64,7 +66,7 @@ export function* createZoneAndAddWidgets(
     parentId: zoneProps.widgetId,
     parentColumnSpace: 1,
     parentRowSpace: 10,
-    renderMode: RenderModes.CANVAS, // TODO: Remove hard coding.
+    renderMode,
     responsiveBehavior: ResponsiveBehavior.Fill,
     rightColumn: 64,
     topRow: 0,
