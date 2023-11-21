@@ -6,7 +6,7 @@ import type { CurrencyInputWidgetProps } from "../../../types";
 export function defaultValueValidation(
   value: any,
   props: CurrencyInputWidgetProps,
-  _?: LoDashStatic,
+  _: LoDashStatic,
 ): ValidationResponse {
   const NUMBER_ERROR_MESSAGE = {
     name: "TypeError",
