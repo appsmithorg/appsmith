@@ -1069,6 +1069,8 @@ public class RestApiPluginTest {
                         recordedRequestBody.close();
 
                         String bodyString = new String(bodyBytes);
+                        // Here just for testing failing test cases on server unit tests, will remove after debugging
+                        System.out.println("*****>>>>" + bodyString);
 
                         assertTrue(
                                 bodyString.contains(
@@ -1126,7 +1128,7 @@ public class RestApiPluginTest {
         final Property jsonKey = new Property("dictionary", jsonString);
         jsonKey.setType("JSON");
 
-        String listString = "[ \"a\",\"b\",\"c\"]";
+        String listString = "[\"a\",\"b\",\"c\"]";
         final Property listKey = new Property("list", listString);
         listKey.setType("JSON");
 
@@ -1153,6 +1155,8 @@ public class RestApiPluginTest {
                         recordedRequestBody.close();
 
                         String bodyString = new String(bodyBytes);
+                        // Here just for testing failing test cases on server unit tests, will remove after debugging
+                        System.out.println("*****>>>>" + bodyString);
 
                         assertTrue(
                                 bodyString.contains(
@@ -1239,6 +1243,8 @@ public class RestApiPluginTest {
                         recordedRequestBody.close();
 
                         String bodyString = new String(bodyBytes);
+                        // Here just for testing failing test cases on server unit tests, will remove after debugging
+                        System.out.println("*****>>>>" + bodyString);
 
                         assertTrue(
                                 bodyString.contains(
