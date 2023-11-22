@@ -39,7 +39,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Transient
     @JsonView(Views.Public.class)
-    private String id;
+    protected String id;
 
     @Transient
     @JsonView(Views.Public.class)
