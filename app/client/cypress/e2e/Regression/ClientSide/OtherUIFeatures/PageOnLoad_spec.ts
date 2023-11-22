@@ -16,7 +16,6 @@ describe("Check debugger logs state when there are onPageLoad actions", function
 
   it("1. Check debugger logs state when there are onPageLoad actions", function () {
     entityExplorer.SelectEntityByName("Table1", "Widgets");
-    propPane.UpdatePropertyFieldValue("Table data", "{{TestApi.data.users}}");
     apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods, "TestApi");
     apiPage.RunAPI();
     agHelper.GetNClick(explorer.addWidget);
