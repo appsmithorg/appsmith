@@ -159,6 +159,7 @@ export interface BaseAction {
   errorReports?: Array<LayoutOnLoadActionErrors>;
   isPublic?: boolean;
   moduleId?: string;
+  moduleInstanceId?: string;
 }
 
 interface BaseApiAction extends BaseAction {
