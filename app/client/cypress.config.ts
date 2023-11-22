@@ -1,5 +1,4 @@
 import { defineConfig } from "cypress";
-import { tagify } from 'cypress-tags';
 
 export default defineConfig({
   watchForFileChanges: false,
@@ -10,7 +9,6 @@ export default defineConfig({
   video: true,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
-  experimentalModifyObstructiveThirdPartyCode: true,
   reporterOptions: {
     reportDir: "results",
     overwrite: false,
@@ -26,14 +24,12 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "http://localhost/",
-    experimentalOriginDependencies: true,
+    baseUrl: "https://dev.appsmith.com/",
     env: {
+      USERNAME: "xxxx",
+      PASSWORD: "xxx",
       grepFilterSpecs: true,
       grepOmitFiltered: true,
-      USERNAME: "sharanya@appsmith.com",
-      PASSWORD: "Appsmith1@",
-      GITEA_TOKEN : "fa1080b66dc0f7f5799dc7d274a446e902456937"
     },
     setupNodeEvents(on, config) {
       require("@cypress/grep/src/plugin")(config);
@@ -41,7 +37,7 @@ export default defineConfig({
       return config;
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
-    testIsolation: true,
+    testIsolation: false,
     excludeSpecPattern: "cypress/e2e/**/spec_utility.ts",
   },
 });
