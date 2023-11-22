@@ -219,11 +219,13 @@ function* setUpTourAppSaga() {
   const query: ActionData | undefined = yield select(getQueryAction);
   yield put(clearActionResponse(query?.config.id ?? ""));
   yield put(
-    updateActionData({
-      entityName: query?.config.name || "",
-      dataPath: "data",
-      data: undefined,
-    }),
+    updateActionData([
+      {
+        entityName: query?.config.name || "",
+        dataPath: "data",
+        data: undefined,
+      },
+    ]),
   );
   const applicationId: string = yield select(getCurrentApplicationId);
   yield put(

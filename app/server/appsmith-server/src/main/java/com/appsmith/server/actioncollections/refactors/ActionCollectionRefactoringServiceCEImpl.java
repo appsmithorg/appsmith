@@ -2,8 +2,10 @@ package com.appsmith.server.actioncollections.refactors;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
@@ -15,6 +17,8 @@ import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -137,5 +141,16 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
                             actionCollectionService.update(branchedActionCollection.getId(), branchedActionCollection));
                 })
                 .then();
+    }
+
+    @Override
+    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        if (StringUtils.hasText(contextId)) {
+            params.add(FieldName.PAGE_ID, contextId);
+        }
+        return actionCollectionService
+                .getActionCollectionsByViewMode(params, false)
+                .map(ActionCollectionDTO::getName);
     }
 }

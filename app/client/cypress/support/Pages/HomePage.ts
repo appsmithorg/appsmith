@@ -326,8 +326,12 @@ export class HomePage {
 
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
+    let httpMethod = "POST";
+    if (CURRENT_REPO === REPO.EE) {
+      httpMethod = "GET";
+    }
     cy.request({
-      method: "POST",
+      method: httpMethod,
       url: "/api/v1/logout",
       headers: {
         "X-Requested-By": "Appsmith",
@@ -342,7 +346,10 @@ export class HomePage {
     if (toNavigateToHome) this.NavigateToHome();
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
-    this.assertHelper.AssertNetworkStatus("@postLogout");
+    //Logout is still a POST request in CE
+    if (CURRENT_REPO === REPO.CE) {
+      this.assertHelper.AssertNetworkStatus("@postLogout");
+    }
     return this.agHelper.Sleep(); //for logout to complete!
   }
 

@@ -10,10 +10,12 @@ import {
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import { SAAS_EDITOR_DATASOURCE_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import { getQueryParamsFromString } from "utils/getQueryParamsObject";
+import {
+  SAAS_EDITOR_API_ID_PATH,
+  SAAS_EDITOR_DATASOURCE_ID_PATH,
+} from "pages/Editor/SaaSEditor/constants";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { AppState } from "../entities/IDE/constants";
 
 export enum FocusEntity {
   PAGE = "PAGE",
@@ -26,6 +28,9 @@ export enum FocusEntity {
   JS_OBJECT = "JS_OBJECT",
   PROPERTY_PANE = "PROPERTY_PANE",
   NONE = "NONE",
+  APP_STATE = "APP_STATE",
+  LIBRARY = "LIBRARY",
+  SETTINGS = "SETTINGS",
 }
 
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
@@ -36,54 +41,8 @@ export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
 export interface FocusEntityInfo {
   entity: FocusEntity;
   id: string;
+  appState: AppState;
   pageId?: string;
-}
-
-/**
- * Method to indicate if the URL is of type API, Query etc.,
- * and not anything else
- * @param path
- * @returns
- */
-export function shouldStoreURLForFocus(path: string) {
-  const entityTypesToStore = [
-    FocusEntity.QUERY,
-    FocusEntity.API,
-    FocusEntity.JS_OBJECT,
-    FocusEntity.DATASOURCE,
-  ];
-
-  const entity = identifyEntityFromPath(path)?.entity;
-
-  return entityTypesToStore.indexOf(entity) >= 0;
-}
-
-/**
- * parse search string and get branch
- * @param searchString
- * @returns
- */
-const fetchGitBranch = (searchString: string | undefined) => {
-  const existingParams =
-    getQueryParamsFromString(searchString?.substring(1)) || {};
-
-  return existingParams.branch;
-};
-
-/**
- * Compare if both the params are on same branch
- * @param previousParamString
- * @param currentParamStaring
- * @returns
- */
-export function isSameBranch(
-  previousParamString: string,
-  currentParamStaring: string,
-) {
-  const previousBranch = fetchGitBranch(previousParamString);
-  const currentBranch = fetchGitBranch(currentParamStaring);
-
-  return previousBranch === currentBranch;
 }
 
 export function identifyEntityFromPath(path: string): FocusEntityInfo {
@@ -133,7 +92,12 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     exact: true,
   });
   if (!match) {
-    return { entity: FocusEntity.NONE, id: "", pageId: "" };
+    return {
+      entity: FocusEntity.NONE,
+      id: "",
+      pageId: "",
+      appState: AppState.PAGES,
+    };
   }
   if (match.params.apiId) {
     if (match.params.pluginPackageName) {
@@ -141,29 +105,39 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         entity: FocusEntity.QUERY,
         id: match.params.apiId,
         pageId: match.params.pageId,
+        appState: AppState.PAGES,
       };
     }
     return {
       entity: FocusEntity.API,
       id: match.params.apiId,
       pageId: match.params.pageId,
+      appState: AppState.PAGES,
     };
   }
-  if (
-    match.params.datasourceId &&
-    match.params.datasourceId !== TEMP_DATASOURCE_ID
-  ) {
-    return {
-      entity: FocusEntity.DATASOURCE,
-      id: match.params.datasourceId,
-      pageId: match.params.pageId,
-    };
+  if (match.params.datasourceId) {
+    if (match.params.datasourceId == TEMP_DATASOURCE_ID) {
+      return {
+        entity: FocusEntity.NONE,
+        id: match.params.datasourceId,
+        pageId: match.params.pageId,
+        appState: AppState.DATA,
+      };
+    } else {
+      return {
+        entity: FocusEntity.DATASOURCE,
+        id: match.params.datasourceId,
+        pageId: match.params.pageId,
+        appState: AppState.DATA,
+      };
+    }
   }
   if (match.params.selectedTab) {
     return {
       entity: FocusEntity.DATASOURCE,
       id: match.params.selectedTab,
       pageId: match.params.pageId,
+      appState: AppState.DATA,
     };
   }
   if (match.params.entity === "datasource") {
@@ -171,6 +145,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       entity: FocusEntity.DATASOURCE_LIST,
       id: "",
       pageId: match.params.pageId,
+      appState: AppState.DATA,
     };
   }
   if (match.params.queryId) {
@@ -178,6 +153,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       entity: FocusEntity.QUERY,
       id: match.params.queryId,
       pageId: match.params.pageId,
+      appState: AppState.PAGES,
     };
   }
   if (match.params.collectionId) {
@@ -185,6 +161,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       entity: FocusEntity.JS_OBJECT,
       id: match.params.collectionId,
       pageId: match.params.pageId,
+      appState: AppState.PAGES,
     };
   }
   if (match.params.widgetIds) {
@@ -192,7 +169,31 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       entity: FocusEntity.PROPERTY_PANE,
       id: match.params.widgetIds,
       pageId: match.params.pageId,
+      appState: AppState.PAGES,
     };
   }
-  return { entity: FocusEntity.CANVAS, id: "", pageId: match.params.pageId };
+  if (match.params.entity) {
+    if (match.params.entity === "libraries") {
+      return {
+        entity: FocusEntity.LIBRARY,
+        id: "",
+        appState: AppState.LIBRARIES,
+        pageId: match.params.pageId,
+      };
+    }
+    if (match.params.entity === "settings") {
+      return {
+        entity: FocusEntity.SETTINGS,
+        id: "",
+        appState: AppState.SETTINGS,
+        pageId: match.params.pageId,
+      };
+    }
+  }
+  return {
+    entity: FocusEntity.CANVAS,
+    id: "",
+    pageId: match.params.pageId,
+    appState: AppState.PAGES,
+  };
 }

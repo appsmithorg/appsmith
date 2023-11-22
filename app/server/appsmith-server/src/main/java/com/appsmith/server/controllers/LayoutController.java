@@ -2,8 +2,8 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.LayoutControllerCE;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
-import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +16,8 @@ public class LayoutController extends LayoutControllerCE {
 
     public LayoutController(
             LayoutService layoutService,
-            LayoutActionService layoutActionService,
+            UpdateLayoutService updateLayoutService,
             RefactoringSolution refactoringSolution) {
-
-        super(layoutService, layoutActionService, refactoringSolution);
+        super(layoutService, updateLayoutService, refactoringSolution);
     }
 }
