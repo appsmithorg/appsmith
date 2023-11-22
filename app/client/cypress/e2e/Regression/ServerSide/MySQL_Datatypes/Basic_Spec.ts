@@ -78,7 +78,6 @@ describe("MySQL Datatype tests", function () {
 
   //Insert valid/true values into datasource
   it("2. Inserting record", () => {
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");

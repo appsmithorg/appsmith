@@ -380,7 +380,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     agHelper.ClickButton("Close");
     deployMode.NavigateBacktoEditor();
 
-    EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget, {}, [
+      "Container6",
+    ]);
     propPane.UpdatePropertyFieldValue("Max file size(Mb)", "40");
     deployMode.DeployApp();
     video = "Videos/rotatedQRCode.y4m";
