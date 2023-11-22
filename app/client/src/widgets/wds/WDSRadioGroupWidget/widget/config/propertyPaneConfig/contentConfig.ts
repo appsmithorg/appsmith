@@ -72,6 +72,16 @@ export const propertyPaneContentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      {
+        helpText: "Show help text or details about current input",
+        propertyName: "labelTooltip",
+        label: "Tooltip",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Value must be atleast 6 chars",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
     ],
   },
   {
@@ -93,16 +103,6 @@ export const propertyPaneContentConfig = [
     sectionName: "General",
     children: [
       {
-        helpText: "Show help text or details about current input",
-        propertyName: "labelTooltip",
-        label: "Tooltip",
-        controlType: "INPUT_TEXT",
-        placeholderText: "Value must be atleast 6 chars",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
         helpText: "Controls the visibility of the widget",
         propertyName: "isVisible",
         label: "Visible",
@@ -116,17 +116,6 @@ export const propertyPaneContentConfig = [
         propertyName: "isDisabled",
         label: "Disabled",
         helpText: "Disables input to this widget",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
-      {
-        propertyName: "isInline",
-        helpText:
-          "Whether the radio buttons are to be displayed inline horizontally",
-        label: "Inline",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,

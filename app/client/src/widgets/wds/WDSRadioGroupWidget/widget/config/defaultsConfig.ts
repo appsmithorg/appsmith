@@ -3,8 +3,6 @@ export const defaultsConfig = {
   columns: 20,
   animateLoading: true,
   label: "Label",
-  labelTextSize: "0.875rem",
-  labelWidth: 5,
   options: [
     { label: "Yes", value: "Y" },
     { label: "No", value: "N" },

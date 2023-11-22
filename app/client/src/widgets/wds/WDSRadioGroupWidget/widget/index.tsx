@@ -18,6 +18,7 @@ import {
   metaConfig,
   methodsConfig,
   propertyPaneContentConfig,
+  propertyPaneStyleConfig,
   settersConfig,
 } from "./config";
 import { validateInput } from "./helpers";
@@ -62,7 +63,7 @@ class WDSRadioGroupWidget extends BaseWidget<
   }
 
   static getPropertyPaneStyleConfig() {
-    return [];
+    return propertyPaneStyleConfig;
   }
 
   static getDerivedPropertiesMap() {
@@ -130,7 +131,7 @@ class WDSRadioGroupWidget extends BaseWidget<
 
   getWidgetView() {
     const {
-      isInline,
+      labelPosition,
       labelTooltip,
       options,
       selectedOptionValue,
@@ -146,12 +147,15 @@ class WDSRadioGroupWidget extends BaseWidget<
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
         onChange={this.onRadioSelectionChange}
-        orientation={isInline ? "horizontal" : "vertical"}
         validationState={validation.validationStatus}
         value={selectedOptionValue}
       >
         {options.map((option, index) => (
-          <Radio key={`${widgetId}-option-${index}`} value={option.value}>
+          <Radio
+            key={`${widgetId}-option-${index}`}
+            labelPosition={labelPosition}
+            value={option.value}
+          >
             {option.label}
           </Radio>
         ))}

@@ -1,3 +1,4 @@
+import type { RadioGroupProps, RadioProps } from "@design-system/widgets";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface RadioOption {
@@ -11,9 +12,10 @@ export interface RadioGroupWidgetProps extends WidgetProps {
   onSelectionChange: string;
   defaultOptionValue: string;
   isRequired?: boolean;
-  isDisabled: boolean;
+  isDisabled?: boolean;
   label: string;
   labelTooltip?: string;
   isDirty: boolean;
-  isInline: boolean;
+  orientation?: RadioGroupProps["orientation"];
+  labelPosition?: RadioProps["labelPosition"];
 }

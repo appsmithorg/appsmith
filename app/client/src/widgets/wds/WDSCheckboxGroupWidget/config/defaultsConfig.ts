@@ -12,7 +12,7 @@ export const defaultsConfig = {
   isRequired: false,
   isVisible: true,
   labelPosition: "left",
-  labelText: "Label",
+  label: "Label",
   orientation: "vertical",
   version: 1,
   widgetName: "CheckboxGroup",
