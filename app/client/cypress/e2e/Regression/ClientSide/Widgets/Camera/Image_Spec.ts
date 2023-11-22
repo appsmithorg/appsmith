@@ -159,6 +159,7 @@ describe("Camera widget - Image test", () => {
       "image1.png",
     );
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
+    agHelper.Sleep(3000);
     agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
     agHelper.GetNClick(widgetLocators.cameraSaveBtn);
     agHelper.ValidateToastMessage("Captured successfully!");
