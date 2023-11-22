@@ -14,8 +14,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
   builderURL,
-  jsCollectionURL,
-  queryEditorURL,
+  jsCollectionListURL,
+  queryListURL,
 } from "@appsmith/RouteBuilder";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
@@ -80,10 +80,10 @@ const _pagesPane = () => {
   const onSegmentChange = (value: string) => {
     switch (value) {
       case TabsType.QUERIES:
-        history.push(queryEditorURL({ pageId }));
+        history.push(queryListURL({ pageId }));
         break;
       case TabsType.JS:
-        history.push(jsCollectionURL({ pageId }));
+        history.push(jsCollectionListURL({ pageId }));
         break;
       case TabsType.UI:
         history.push(builderURL({ pageId }));

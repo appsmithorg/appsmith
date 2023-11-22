@@ -1,5 +1,5 @@
 import React from "react";
-// import WidgetsEditorEntityExplorer from "../../WidgetsEditorEntityExplorer";
+import WidgetsEditorEntityExplorer from "../../WidgetsEditorEntityExplorer";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
@@ -18,6 +18,8 @@ import LibrarySidePane from "./LibrarySidePane";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
 import { PagesPane } from "../PagesPane";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const LeftPaneContainer = styled.div`
   height: 100%;
@@ -28,11 +30,13 @@ const LeftPaneContainer = styled.div`
 
 const LeftPane = () => {
   const isAppSidebarEnabled = useIsAppSidebarEnabled();
+  const isPagesPaneEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
   const { path } = useRouteMatch();
   const guidedTourEnabled = useSelector(inGuidedTour);
   if (!isAppSidebarEnabled || guidedTourEnabled) {
-    // return <WidgetsEditorEntityExplorer />;
-    return <PagesPane />;
+    return isPagesPaneEnabled ? <PagesPane /> : <WidgetsEditorEntityExplorer />;
   }
   return (
     <LeftPaneContainer>
@@ -57,8 +61,10 @@ const LeftPane = () => {
           exact
           path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
         />
-        {/* <SentryRoute component={WidgetsEditorEntityExplorer} /> */}
-        <SentryRoute component={PagesPane} />
+        {!isPagesPaneEnabled && (
+          <SentryRoute component={WidgetsEditorEntityExplorer} />
+        )}
+        {isPagesPaneEnabled && <SentryRoute component={PagesPane} />}
       </Switch>
     </LeftPaneContainer>
   );
