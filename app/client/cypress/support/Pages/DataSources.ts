@@ -1463,7 +1463,7 @@ export class DataSources {
 
   // this initiates saving via the back button.
   public SaveDSFromDialog(save = true) {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
     this.AssertDatasourceSaveModalVisibilityAndSave(save);
   }
 

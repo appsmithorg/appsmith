@@ -20,8 +20,8 @@ export enum EntityType {
 
 class EditorNavigation {
   sidebar: Sidebar;
-  ViaSidebar(button: SidebarButton) {
-    this.sidebar.navigate(button);
+  ViaSidebar(button: SidebarButton, willFail?: boolean) {
+    this.sidebar.navigate(button, willFail);
   }
 
   constructor() {

@@ -187,7 +187,7 @@ describe("Dropdown Widget", function () {
 
   it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
     // Open property pane
-    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget, [
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget, {}, [
       "Container3",
     ]);
 
