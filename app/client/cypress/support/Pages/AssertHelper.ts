@@ -39,8 +39,22 @@ export class AssertHelper extends ReusableHelper {
         .window()
         .its("store")
         .invoke("getState")
-        .then((state) => cy.wrap(state.ui.editor.loadingStates))
-        .should("deep.include", { loading: false });
+        .then((state) => {
+          const loadingStates = state.ui.editor.loadingStates;
+
+          cy.wrap(loadingStates).should("deep.include", { loading: false });
+
+          const actions = state.actions || [];
+          const actionPromises = actions.map((action: any) => {
+            return cy.wrap(action.isLoading).then((isLoading) => {
+              expect(isLoading).to.eq(false);
+            });
+          });
+
+          return Promise.all(actionPromises).then(() => {
+            return loadingStates; // Return loadingStates after all promises are resolved
+          });
+        });
     };
     cy.waitUntil(() => checkLoadingState().then(() => true), {
       timeout,
