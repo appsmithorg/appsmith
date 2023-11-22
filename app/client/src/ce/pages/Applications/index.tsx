@@ -142,7 +142,7 @@ export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
   position: fixed;
   top: calc(
     ${(props) => props.theme.homePage.header}px +
-      ${(props) => (props.isBannerVisible ? "48px" : "0px")}
+      ${(props) => (props.isBannerVisible ? 48 : 0)}px
   );
   border-right: 1px solid var(--ads-v2-color-border);
   padding: 0 12px;
