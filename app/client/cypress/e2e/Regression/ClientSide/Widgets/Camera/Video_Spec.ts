@@ -101,7 +101,7 @@ describe("Camera widget - Video test", () => {
 
     //Start video recording
     agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
-    agHelper.Sleep(2000);
+    agHelper.Sleep(4000);
 
     //Stop recording
     agHelper.GetNClick(widgetLocators.cameraStopRecordingBtn);
