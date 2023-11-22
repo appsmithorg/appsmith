@@ -239,6 +239,10 @@ export const getAppSidebarPinned = (state: AppState) => {
   return state.ui.applications.isAppSidebarPinned;
 };
 
+export const getApplicationsOfWorkspace = (state: AppState) => {
+  return state.ui.applications.applications;
+};
+
 /**
  * Return the width of the sidbar depending on the sidebar style.
  * If there isn't any sidebar or it is unpinned, return 0.

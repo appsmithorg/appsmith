@@ -28,7 +28,7 @@ import type { IconNames } from "design-system";
 import type { NavigationSetting } from "constants/AppConstants";
 import { defaultNavigationSetting } from "constants/AppConstants";
 import produce from "immer";
-import { groupBy, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -36,6 +36,7 @@ export const initialState: ApplicationsReduxState = {
   isErrorSavingAppName: false,
   isFetchingApplication: false,
   workspaces: [],
+  applications: [],
   isFetchingWorkspaces: false,
   isChangingViewAccess: false,
   applicationList: [],
@@ -77,28 +78,13 @@ export const handlers = {
     state: ApplicationsReduxState,
     action: ReduxAction<ApplicationPayload>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.workspaceId) {
-        let applications = workspace.applications;
-
-        applications = applications.filter(
-          (application: ApplicationPayload) => {
-            return application.id !== action.payload.id;
-          },
-        );
-
-        return {
-          ...workspace,
-          applications,
-        };
-      }
-
-      return workspace;
-    });
+    const applications = state.applications.filter(
+      (application: ApplicationPayload) => application.id !== action.payload.id,
+    );
 
     return {
       ...state,
-      userWorkspaces: _workspaces,
+      applications: [...applications],
       deletingApplication: false,
     };
   },
@@ -141,35 +127,14 @@ export const handlers = {
     state: ApplicationsReduxState,
     action: ReduxAction<ApplicationPayload[]>,
   ) => {
-    const workspacesWithDeletedApps = groupBy(
-      action.payload,
-      (e) => e.workspaceId,
+    const deletedApplicationIds = action.payload.map((app) => app.id);
+    const applications = state.applications.filter(
+      (app) => !deletedApplicationIds.includes(app.id),
     );
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspacesWithDeletedApps[workspace.workspace.id]) {
-        const deletedApplicationIds = workspacesWithDeletedApps[
-          workspace.workspace.id
-        ].map((e) => e.id);
-
-        let applications = workspace.applications;
-        applications = applications.filter(
-          (application: ApplicationPayload) => {
-            return !deletedApplicationIds.includes(application.id);
-          },
-        );
-
-        return {
-          ...workspace,
-          applications,
-        };
-      }
-
-      return workspace;
-    });
 
     return {
       ...state,
-      userWorkspaces: _workspaces,
+      applications: [...applications],
       deletingMultipleApps: {
         list: [],
         isDeleting: false,
@@ -216,6 +181,19 @@ export const handlers = {
   [ReduxActionTypes.GET_ALL_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplications: true }),
+  [ReduxActionTypes.GET_ALL_APPLICATIONS_OF_WORKSPACE_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({ ...state, isFetchingApplications: true }),
+  [ReduxActionTypes.GET_ALL_APPLICATIONS_OF_WORKSPACE_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ applicationList: any }>,
+  ) => {
+    return {
+      ...state,
+      isFetchingApplications: false,
+      applications: action.payload,
+    };
+  },
   [ReduxActionTypes.GET_ALL_WORKSPACES_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingWorkspaces: true }),
@@ -245,8 +223,8 @@ export const handlers = {
   ) => {
     return {
       ...state,
-      userWorkspaces: state.userWorkspaces.filter(
-        (workspace: Workspaces) => workspace.workspace.id !== action.payload,
+      workspaces: state.workspaces.filter(
+        (workspace: Workspace) => workspace.id !== action.payload,
       ),
     };
   },
@@ -328,17 +306,8 @@ export const handlers = {
       application: ApplicationPayload;
     }>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.workspaceId) {
-        const applications = workspace.applications;
-        applications.push(action.payload.application);
-        workspace.applications = [...applications];
-        return {
-          ...workspace,
-        };
-      }
-      return workspace;
-    });
+    const applications = state.applications;
+    applications.push(action.payload.application);
 
     const updatedCreatingApplication = { ...state.creatingApplication };
     updatedCreatingApplication[action.payload.workspaceId] = false;
@@ -347,7 +316,7 @@ export const handlers = {
       ...state,
       creatingApplication: updatedCreatingApplication,
       applicationList: [...state.applicationList, action.payload.application],
-      userWorkspaces: _workspaces,
+      applications: [...applications],
     };
   },
   [ReduxActionTypes.INVITED_USERS_TO_WORKSPACE]: (
@@ -393,22 +362,11 @@ export const handlers = {
       application: ApplicationPayload;
     }>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.workspaceId) {
-        const applications = workspace.applications;
-        workspace.applications = [...applications, action.payload.application];
-        return {
-          ...workspace,
-        };
-      }
-      return workspace;
-    });
-
     return {
       ...state,
       forkingApplication: false,
       applicationList: [...state.applicationList, action.payload.application],
-      userWorkspaces: _workspaces,
+      applications: [...state.applications, action.payload.application],
     };
   },
   [ReduxActionErrorTypes.FORK_APPLICATION_ERROR]: (
@@ -488,20 +446,21 @@ export const handlers = {
       logoUrl?: string;
     }>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.id) {
-        workspace.workspace = { ...workspace.workspace, ...action.payload };
+    const workspaces = state.workspaces;
+    const workspaceIndex = state.workspaces.findIndex(
+      (workspace: Workspace) => workspace.id === action.payload.id,
+    );
 
-        return {
-          ...workspace,
-        };
-      }
-      return workspace;
-    });
+    if (workspaceIndex !== -1) {
+      workspaces[workspaceIndex] = {
+        ...workspaces[workspaceIndex],
+        ...action.payload,
+      };
+    }
 
     return {
       ...state,
-      userWorkspaces: _workspaces,
+      workspaces: [...workspaces],
       isSavingWorkspaceInfo: false,
     };
   },
@@ -560,21 +519,18 @@ export const handlers = {
     // userWorkspaces data has to be saved to localStorage only if the action is successful
     // It introduces bug if we prematurely save it during init action.
     const { id, ...rest } = action.payload;
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      const appIndex = workspace.applications.findIndex((app) => app.id === id);
+    const applications = state.applications;
 
-      if (appIndex !== -1) {
-        workspace.applications[appIndex] = {
-          ...workspace.applications[appIndex],
-          ...rest,
-        };
-      }
-
-      return workspace;
-    });
+    const appIndex = state.applications.findIndex((app) => app.id === id);
+    if (appIndex !== -1) {
+      applications[appIndex] = {
+        ...applications[appIndex],
+        ...rest,
+      };
+    }
     return {
       ...state,
-      userWorkspaces: _workspaces,
+      applications: [...applications],
       isSavingAppName: false,
       isErrorSavingAppName: false,
       isSavingNavigationSetting: false,
@@ -961,6 +917,7 @@ export interface ApplicationsReduxState {
   workspaceIdForImport: any;
   pageIdForImport: string;
   workspaces: Workspace[];
+  applications: ApplicationPayload[];
   isDatasourceConfigForImportFetched?: boolean;
   isAppSidebarPinned: boolean;
   isSavingNavigationSetting: boolean;

@@ -12,7 +12,6 @@ import { useSelector } from "react-redux";
 import {
   getIsCreatingApplicationByWorkspaceId,
   getIsFetchingApplications,
-  getUserApplicationsWorkspacesList,
 } from "@appsmith/selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import {
@@ -21,30 +20,30 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { NEW_APP } from "@appsmith/constants/messages";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { Application } from "@appsmith/reducers/uiReducers/applicationsReducer";
 
 export interface WorkspaceActionProps {
-  workspaceId: string;
+  workspace: Workspace;
   isMobile: boolean;
+  applications: Application[];
   enableImportExport: boolean;
   onCreateNewApplication: (workspaceId: string) => void;
   setSelectedWorkspaceIdForImportApplication: (workspaceId?: string) => void;
 }
 
 function WorkspaceAction({
+  applications,
   enableImportExport,
   isMobile,
   onCreateNewApplication,
   setSelectedWorkspaceIdForImportApplication,
-  workspaceId,
+  workspace,
 }: WorkspaceActionProps) {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isCreatingApplication = Boolean(
-    useSelector(getIsCreatingApplicationByWorkspaceId(workspaceId)),
-  );
-  const workspaceList = useSelector(getUserApplicationsWorkspacesList);
-  const workspaceObject = workspaceList.find(
-    ({ workspace }) => workspace.id === workspaceId,
+    useSelector(getIsCreatingApplicationByWorkspaceId(workspace.id)),
   );
 
   const openActionMenu = useCallback(() => {
@@ -55,9 +54,7 @@ function WorkspaceAction({
     setIsActionMenuOpen(false);
   }, []);
 
-  if (!workspaceObject) return null;
-
-  const { applications, workspace } = workspaceObject;
+  if (!workspace) return null;
 
   const hasCreateNewApplicationPermission =
     hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;

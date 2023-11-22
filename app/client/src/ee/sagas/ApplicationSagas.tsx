@@ -18,6 +18,7 @@ import {
   uploadNavigationLogoSaga,
   deleteNavigationLogoSaga,
   deleteMultipleApplicationSaga,
+  getAllApplicationsOfWorkspaceSaga,
 } from "ce/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
@@ -37,6 +38,10 @@ export default function* applicationSagas() {
     takeLatest(
       ReduxActionTypes.GET_ALL_APPLICATION_INIT,
       getAllApplicationSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.GET_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
+      getAllApplicationsOfWorkspaceSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchAppAndPagesSaga),
     takeLatest(ReduxActionTypes.FORK_APPLICATION_INIT, forkApplicationSaga),

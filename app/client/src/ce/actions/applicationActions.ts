@@ -184,6 +184,13 @@ export const getAllApplications = () => {
   };
 };
 
+export const getAllApplicationsOfWorkspace = (payload: string) => {
+  return {
+    type: ReduxActionTypes.GET_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
+    payload,
+  };
+};
+
 export const resetCurrentApplication = () => {
   return {
     type: ReduxActionTypes.RESET_CURRENT_APPLICATION,

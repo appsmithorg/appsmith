@@ -1,9 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getUserApplicationsWorkspaces,
-  getIsFetchingApplications,
-} from "@appsmith/selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
@@ -26,6 +23,7 @@ import {
   FORK_APP_MODAL_SUCCESS_TITLE,
 } from "@appsmith/constants/messages";
 import { getAllApplications } from "@appsmith/actions/applicationActions";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 
 interface ForkApplicationModalProps {
   applicationId: string;
@@ -45,7 +43,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     value: string;
   }>({ label: "", value: "" });
   const dispatch = useDispatch();
-  const userWorkspaces = useSelector(getUserApplicationsWorkspaces);
+  const userWorkspaces = useSelector(getFetchedWorkspaces);
   const forkingApplication = useSelector(
     (state: AppState) => state.ui.applications.forkingApplication,
   );
@@ -89,23 +87,21 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
 
   const workspaceList = useMemo(() => {
     const filteredUserWorkspaces = userWorkspaces.filter((item) => {
-      const permitted = hasCreateNewAppPermission(
-        item.workspace.userPermissions ?? [],
-      );
+      const permitted = hasCreateNewAppPermission(item.userPermissions ?? []);
       return permitted;
     });
 
     if (filteredUserWorkspaces.length) {
       selectWorkspace({
-        label: filteredUserWorkspaces[0].workspace.name,
-        value: filteredUserWorkspaces[0].workspace.id,
+        label: filteredUserWorkspaces[0].name,
+        value: filteredUserWorkspaces[0].id,
       });
     }
 
     return filteredUserWorkspaces.map((workspace) => {
       return {
-        label: workspace.workspace.name,
-        value: workspace.workspace.id,
+        label: workspace.name,
+        value: workspace.id,
       };
     });
   }, [userWorkspaces]);

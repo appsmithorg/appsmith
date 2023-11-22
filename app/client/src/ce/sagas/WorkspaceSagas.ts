@@ -297,6 +297,7 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
       toast.show(createMessage(DELETE_WORKSPACE_SUCCESSFUL), {
         kind: "success",
       });
+      window.location.assign("/applications");
     }
   } catch (error) {
     yield put({

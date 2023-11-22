@@ -18,6 +18,7 @@ import type {
   DeleteNavigationLogoRequest,
   FetchApplicationPayload,
   FetchApplicationResponse,
+  FetchApplicationsOfWorkspaceResponse,
   FetchUnconfiguredDatasourceListResponse,
   FetchUsersApplicationsWorkspacesResponse,
   ForkApplicationRequest,
@@ -263,6 +264,32 @@ export function* getAllApplicationSaga() {
         error,
       },
     });
+  }
+}
+
+export function* getAllApplicationsOfWorkspaceSaga(
+  action: ReduxAction<string>,
+) {
+  try {
+    const response: FetchApplicationsOfWorkspaceResponse = yield call(
+      ApplicationApi.getAllApplicationsOfWorkspace,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      const applications = response.data.map((application) => {
+        return {
+          ...application,
+          defaultPageId: getDefaultPageId(application.pages),
+        };
+      });
+      yield put({
+        type: ReduxActionTypes.GET_ALL_APPLICATIONS_OF_WORKSPACE_SUCCESS,
+        payload: applications,
+      });
+    }
+  } catch (error) {
+    yield call(handleFetchApplicationError, error);
   }
 }
 
