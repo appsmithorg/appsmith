@@ -1129,7 +1129,12 @@ public class RestApiPluginTest {
         final Property listKey = new Property("list", listString);
         listKey.setType("JSON");
 
-        List<Property> formData = List.of(jsonKey, listKey);
+        String listedDictionaryString = "[{\"id\": abcd,\"email\": \"abcd@xyz.mn\",\"userName\": \"Bruce Banner\"}, "
+                + "{\"id\": efgh,\"email\": \"efgh@xyz.mn\",\"userName\": \"Matt Murdock\"}]";
+        final Property listedDictionaryKey = new Property("listedDictionary", listedDictionaryString);
+        listedDictionaryKey.setType("JSON");
+
+        List<Property> formData = List.of(jsonKey, listKey, listedDictionaryKey);
         actionConfig.setBodyFormData(formData);
 
         Mono<ActionExecutionResult> resultMono =
@@ -1139,7 +1144,13 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     assertEquals(
-                            Map.of("list", listString, "dictionary", jsonString),
+                            Map.of(
+                                    "list",
+                                    listString,
+                                    "dictionary",
+                                    jsonString,
+                                    "listedDictionary",
+                                    listedDictionaryString),
                             result.getRequest().getBody());
 
                     try {
@@ -1169,6 +1180,14 @@ public class RestApiPluginTest {
         Content-Length: 13\r
         \r
         ["a","b","c"]"""));
+
+                        assertTrue(
+                                bodyString.contains(
+                                        """
+        Content-Type: application/json\r
+        Content-Disposition: form-data; name="listedDictionary"\r
+        Content-Length: 125\r
+        \r"""));
                     } catch (EOFException | InterruptedException e) {
                         assert false : e.getMessage();
                     }

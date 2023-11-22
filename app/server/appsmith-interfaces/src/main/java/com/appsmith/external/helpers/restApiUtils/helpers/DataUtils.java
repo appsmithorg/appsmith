@@ -204,6 +204,9 @@ public class DataUtils {
                         }
                         break;
                     case JSON:
+                        // apart from String we can expect json list or a JSON dictionary as input,
+                        // while spring would typecast a json list to List, a Json Dictionary is not always expected to
+                        // be type-casted as a map, hence this has been chosen to be built as it is.
                         if (!(property.getValue() instanceof String jsonString)) {
                             bodyBuilder.part(key, property.getValue(), MediaType.APPLICATION_JSON);
                             break;
