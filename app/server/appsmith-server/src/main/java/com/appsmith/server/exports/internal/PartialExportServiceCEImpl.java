@@ -80,7 +80,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
 
         AclPermission permission = applicationPermission.getExportPermission(false, false);
         Mono<String> branchedPageIdMono =
-                newPageService.findBranchedPageId(pageId, branchName, AclPermission.MANAGE_PAGES);
+                newPageService.findBranchedPageId(branchName, pageId, AclPermission.MANAGE_PAGES);
 
         Mono<Application> applicationMono = applicationService
                 .findById(applicationId, applicationPermission.getEditPermission())

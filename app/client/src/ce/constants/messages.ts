@@ -1079,7 +1079,7 @@ export const BRANCH_PROTECTION_RULES_AS_FOLLOWS = () =>
 export const BRANCH_PROTECTION_RULE_1 = () =>
   "Commit and merge are not allowed.";
 export const BRANCH_PROTECTION_RULE_2 = () =>
-  "Users can’t create or edit queries, widgets, and JsObjects.";
+  "Users can’t create or edit queries, widgets, and JS Objects.";
 export const BRANCH_PROTECTION_RULE_3 = () =>
   "You can still pull the latest changes and create new branches to edit the app.";
 export const BRANCH_PROTECTION_CHANGE_RULE = () =>
@@ -2209,7 +2209,7 @@ export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
 export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
 
-export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
+export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_TITLE = () =>
   "No datasources exist in your workspace.";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
@@ -2270,7 +2270,7 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubHeading: () => "Select entities below to export from the Page",
     cta: () => "Export selected entities",
     sections: {
-      jsObjects: () => "JS Objects",
+      jsObjects: () => "JS objects",
       databases: () => "Databases",
       queries: () => "Queries",
       customLibs: () => "Custom libraries",

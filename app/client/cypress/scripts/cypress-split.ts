@@ -286,6 +286,22 @@ export class cypressSplit {
     }
   }
 
+  private async getFlakySpecs() {
+    const client = await this.dbClient.connect();
+    try {
+      const dbRes = await client.query(
+        `SELECT spec FROM public."flaky_specs" WHERE skip=true`,
+      );
+      const specs: string[] =
+        dbRes.rows.length > 0 ? dbRes.rows.map((row) => row.spec) : [];
+      return specs;
+    } catch (err) {
+      console.log(err);
+    } finally {
+      client.release();
+    }
+  }
+
   private async sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -305,6 +321,11 @@ export class cypressSplit {
       if (this.util.getVars().cypressRerun === "true") {
         specPattern =
           (await this.getFailedSpecsFromPreviousRun()) ?? defaultSpec;
+      }
+
+      if (this.util.getVars().cypressSkipFlaky === "true") {
+        let specsToSkip = (await this.getFlakySpecs()) ?? [];
+        ignorePattern = [...ignorePattern, ...specsToSkip];
       }
 
       const attempt = await this.createAttempt();
