@@ -33,22 +33,21 @@ export class AssertHelper extends ReusableHelper {
 
   public AssertReduxLoad() {
     this.Sleep(500);
-    cy.waitUntil(
-      () => {
-        cy.window()
-          .its("store")
-          .then((store: any) => {
-            const currentState = store.getState().ui.editor.loadingStates;
-            // cy.log(
-            //   "Current Redux State:",
-            //   JSON.stringify(currentState, null, 2),
-            // );
-            // cy.log("currentState.loading:", currentState.loading);
-            return currentState.loading === false;
-          });
-      },
-      { timeout: Cypress.config("pageLoadTimeout") },
-    );
+    const timeout = Cypress.config("pageLoadTimeout"); // Set your desired timeout value
+    const checkLoadingState = () => {
+      return cy
+        .window()
+        .its("store")
+        .invoke("getState")
+        .then((state) => cy.wrap(state.ui.editor.loadingStates))
+        .should("deep.include", { loading: false });
+    };
+    cy.waitUntil(() => checkLoadingState().then(() => true), {
+      timeout,
+      interval: 1000,
+      errorMsg:
+        "Loading state did not become false within the specified timeout.",
+    });
     this.Sleep(500);
   }
 
