@@ -86,7 +86,7 @@ jobs:
 
       # Run validatetag.js with the changed files
       - name: Run validatetag.js
-        if: steps.files.outputs.files != '' || steps.files.outputs.files_updated != ''
+        if: steps.files.outputs.files_created != '' || steps.files.outputs.files_updated != ''
         run: |
           node cypress/validatetag.js ${{ steps.files.outputs.files_created }} ${{ steps.files.outputs.files_updated }}
           
