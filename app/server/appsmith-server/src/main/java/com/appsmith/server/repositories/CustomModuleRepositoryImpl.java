@@ -1,7 +1,9 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Module;
+import com.appsmith.server.domains.QLayout;
 import com.appsmith.server.domains.QModule;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -11,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,5 +45,30 @@ public class CustomModuleRepositoryImpl extends BaseAppsmithRepositoryImpl<Modul
     @Override
     public Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission) {
         return updateById(id, updateObj, permission);
+    }
+
+    @Override
+    public Mono<Module> findByIdAndLayoutsIdAndViewMode(
+            String id, String layoutId, AclPermission permission, ResourceModes resourceModes) {
+        String layoutsIdKey;
+        String layoutsKey;
+
+        List<Criteria> criteria = new ArrayList<>();
+        Criteria idCriterion = getIdCriteria(id);
+        criteria.add(idCriterion);
+
+        if (ResourceModes.VIEW.equals(resourceModes)) {
+            layoutsKey =
+                    fieldName(QModule.module.publishedModule) + "." + fieldName(QModule.module.publishedModule.layouts);
+        } else {
+            layoutsKey = fieldName(QModule.module.unpublishedModule) + "."
+                    + fieldName(QModule.module.unpublishedModule.layouts);
+        }
+        layoutsIdKey = layoutsKey + "." + fieldName(QLayout.layout.id);
+
+        Criteria layoutCriterion = where(layoutsIdKey).is(layoutId);
+        criteria.add(layoutCriterion);
+
+        return queryOne(criteria, permission);
     }
 }

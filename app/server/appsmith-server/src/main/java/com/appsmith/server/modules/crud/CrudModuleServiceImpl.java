@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.annotations.FeatureFlagged;
@@ -423,5 +424,13 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                 .getAllConsumableModulesByPackageIds(packageIds, modulePermission.getReadPermission())
                 .flatMap(module -> setTransientFieldsFromModuleToModuleDTO(module, module.getPublishedModule()))
                 .collectList();
+    }
+
+    @Override
+    public Mono<ModuleDTO> findByIdAndLayoutsId(
+            String creatorId, String layoutId, AclPermission permission, ResourceModes resourceModes) {
+        return moduleRepository
+                .findByIdAndLayoutsIdAndViewMode(creatorId, layoutId, permission, resourceModes)
+                .flatMap(module -> generateModuleByViewMode(module, resourceModes));
     }
 }

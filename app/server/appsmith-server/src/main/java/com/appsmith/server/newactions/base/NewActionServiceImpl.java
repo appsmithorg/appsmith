@@ -304,6 +304,25 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInModule(String moduleId) {
+        return repository
+                .findUnpublishedActionsByModuleIdAndExecuteOnLoadSetByUserTrue(
+                        moduleId, actionPermission.getEditPermission())
+                .flatMap(this::sanitizeAction);
+    }
+
+    @Override
+    public Flux<NewAction> findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
+            String contextId,
+            CreatorContextType contextType,
+            String moduleInstanceId,
+            AclPermission permission,
+            boolean includeJs) {
+        return repository.findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
+                contextId, contextType, moduleInstanceId, permission, includeJs);
+    }
+
+    @Override
     public Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
             String contextId,
             CreatorContextType contextType,

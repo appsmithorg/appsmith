@@ -14,4 +14,7 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
 
     Mono<ModuleInstance> findByBranchNameAndDefaultModuleInstanceId(
             String branchName, String defaultModuleInstanceId, AclPermission permission);
+
+    Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByContextIdAndContextTypeAndModuleInstanceId(
+            String contextId, CreatorContextType contextType, String moduleInstanceId, AclPermission permission);
 }

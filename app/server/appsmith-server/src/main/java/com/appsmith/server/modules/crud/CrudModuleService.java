@@ -1,5 +1,6 @@
 package com.appsmith.server.modules.crud;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.dtos.ModuleDTO;
@@ -27,4 +28,7 @@ public interface CrudModuleService extends BaseModuleService, CrudModuleServiceC
     Mono<Void> archiveModulesByPackageId(String packageId);
 
     Mono<List<ModuleDTO>> getAllConsumableModules(List<String> packageIds);
+
+    Mono<ModuleDTO> findByIdAndLayoutsId(
+            String creatorId, String layoutId, AclPermission editPermission, ResourceModes resourceModes);
 }

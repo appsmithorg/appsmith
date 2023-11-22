@@ -93,6 +93,82 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
+    public Flux<NewAction> findUnpublishedActionsByModuleIdAndExecuteOnLoadSetByUserTrue(
+            String moduleId, AclPermission permission) {
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad))
+                .is(Boolean.TRUE);
+        criteriaList.add(executeOnLoadCriteria);
+
+        Criteria setByUserCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.userSetOnLoad))
+                .is(Boolean.TRUE);
+        criteriaList.add(setByUserCriteria);
+
+        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
+                .is(moduleId);
+        criteriaList.add(pageCriteria);
+
+        // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
+        // exist. To handle this, only fetch non-deleted actions
+        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
+                .is(null);
+        criteriaList.add(deletedCriteria);
+
+        return queryAll(criteriaList, permission);
+    }
+
+    @Override
+    public Flux<NewAction> findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
+            String contextId,
+            CreatorContextType contextType,
+            String moduleInstanceId,
+            AclPermission permission,
+            boolean includeJs) {
+
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        String contextIdPath;
+        if (CreatorContextType.PAGE.equals(contextType)) {
+            contextIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                    + fieldName(QNewAction.newAction.unpublishedAction.pageId);
+        } else {
+            contextIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                    + fieldName(QNewAction.newAction.unpublishedAction.moduleId);
+        }
+
+        String contextTypePath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.contextType);
+        String moduleInstanceIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.rootModuleInstanceId);
+        Criteria contextIdAndContextTypeAndModuleInstanceIdCriteria = where(contextIdPath)
+                .is(contextId)
+                .and(contextTypePath)
+                .is(contextType)
+                .and(moduleInstanceIdPath)
+                .is(moduleInstanceId);
+
+        criteriaList.add(contextIdAndContextTypeAndModuleInstanceIdCriteria);
+
+        Criteria jsInclusionOrExclusionCriteria;
+        if (includeJs) {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
+        } else {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        }
+
+        criteriaList.add(jsInclusionOrExclusionCriteria);
+
+        return queryAll(criteriaList, Optional.of(permission));
+    }
+
+    @Override
     public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         if (contextType == CreatorContextType.PAGE) {

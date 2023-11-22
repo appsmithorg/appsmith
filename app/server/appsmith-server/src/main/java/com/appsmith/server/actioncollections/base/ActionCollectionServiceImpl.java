@@ -1,5 +1,7 @@
 package com.appsmith.server.actioncollections.base;
 
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -75,5 +77,12 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                             .then(repository.archive(actionCollection));
                 })
                 .collectList();
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
+            String contextId, CreatorContextType contextType, String moduleInstanceId, AclPermission permission) {
+        return repository.findAllUnpublishedComposedCollectionsByContextIdAndContextTypeAndModuleInstanceId(
+                contextId, contextType, moduleInstanceId, permission);
     }
 }
