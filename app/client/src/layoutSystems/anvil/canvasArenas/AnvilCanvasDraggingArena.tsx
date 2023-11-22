@@ -1,8 +1,8 @@
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import React from "react";
 import type {
-  AnvilHighlightInfo,
   DraggedWidget,
+  HighlightPayload,
   LayoutComponentTypes,
 } from "../utils/anvilTypes";
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
@@ -19,7 +19,7 @@ interface AnvilCanvasDraggingArenaProps {
     layoutElementPositions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
     isReorderingWidgets: boolean,
-  ) => AnvilHighlightInfo[];
+  ) => HighlightPayload;
 }
 
 export const AnvilCanvasDraggingArena = (

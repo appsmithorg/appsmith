@@ -1,7 +1,6 @@
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import {
   LayoutComponentTypes,
-  type AnvilHighlightInfo,
   type LayoutComponentProps,
   type WidgetLayoutProps,
   type DraggedWidget,
@@ -60,7 +59,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -117,7 +116,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -178,7 +177,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -235,7 +234,7 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -265,7 +264,7 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -299,7 +298,7 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -401,7 +400,7 @@ describe("columnHighlights", () => {
       /**
        * Get highlights for the column layout.
        */
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         column,
         "0",
         [],

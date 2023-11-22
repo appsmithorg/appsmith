@@ -131,7 +131,7 @@ export const useCanvasDragging = (
         layoutElementPositions,
         draggedBlocks,
         isChildOfLayout,
-      );
+      )?.highlights;
     }
   };
 

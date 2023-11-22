@@ -156,7 +156,7 @@ export type GetInitialHighlights = (
   isDropTarget: boolean,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
 
 export type GetWidgetHighlights = (
   layoutProps: LayoutProps,
@@ -165,7 +165,7 @@ export type GetWidgetHighlights = (
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
 
 export type GetLayoutHighlights = (
   layoutProps: LayoutProps,
@@ -179,7 +179,7 @@ export type GetLayoutHighlights = (
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
 
 export type GetDimensions = (id: string) => LayoutElementPosition;
 
@@ -194,7 +194,12 @@ export type GetHighlights = (
   widgetPositions: LayoutElementPositions,
   draggedWidgets: DraggedWidget[],
   isReorderingWidgets: boolean,
-) => AnvilHighlightInfo[];
+) => HighlightPayload;
+
+export interface HighlightPayload {
+  highlights: AnvilHighlightInfo[];
+  skipEntity: boolean;
+}
 
 export type UpdateHighlights = (
   arr: AnvilHighlightInfo[],

@@ -2,10 +2,11 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
+  HighlightPayload,
   LayoutProps,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
-import { deriveHighlights } from "./highlightUtils";
+import { deriveHighlights, performInitialChecks } from "./highlightUtils";
 import {
   getHighlightsForLayouts,
   getHighlightsForWidgets,
@@ -20,7 +21,7 @@ import type { LayoutElementPositions } from "layoutSystems/common/types";
  * @param draggedWidgets | DraggedWidget[] : List of widgets that are being dragged
  * @param layoutOrder | string[] : Top - down hierarchy of layout IDs.
  * @param parentDropTarget | string : id of immediate drop target ancestor.
- * @returns AnvilHighlightInfo[] : List of highlights for the layout.
+ * @returns HighlightPayload.
  */
 export const deriveColumnHighlights =
   (
@@ -33,14 +34,14 @@ export const deriveColumnHighlights =
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
     isReorderingWidgets: boolean,
-  ): AnvilHighlightInfo[] => {
-    if (
-      !layoutProps ||
-      !positions ||
-      !positions[layoutProps.layoutId] ||
-      !draggedWidgets.length
-    )
-      return [];
+  ): HighlightPayload => {
+    const res: HighlightPayload | undefined = performInitialChecks(
+      layoutProps,
+      positions,
+      draggedWidgets,
+    );
+
+    if (res) return res;
 
     const { layoutStyle } = layoutProps;
 

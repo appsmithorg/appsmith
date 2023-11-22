@@ -5,9 +5,10 @@ import {
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
+  HighlightPayload,
   LayoutProps,
 } from "../../anvilTypes";
-import { HIGHLIGHT_SIZE } from "../../constants";
+import { HIGHLIGHT_SIZE, defaultHighlightPayload } from "../../constants";
 import {
   getHighlightsForLayouts,
   getHighlightsForWidgets,
@@ -23,7 +24,7 @@ import type { LayoutElementPositions } from "layoutSystems/common/types";
  * @param draggedWidgets | DraggedWidget[] : List of widgets that are being dragged
  * @param layoutOrder | string[] : Top - down hierarchy of layout IDs.
  * @param parentDropTarget | string : id of immediate drop target ancestor.
- * @returns AnvilHighlightInfo[] : List of highlights for the layout.
+ * @returns HighlightPayload : List of highlights for the layout.
  */
 export const deriveAlignedColumnHighlights =
   (
@@ -36,14 +37,14 @@ export const deriveAlignedColumnHighlights =
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
     isReorderingWidgets: boolean,
-  ): AnvilHighlightInfo[] => {
+  ): HighlightPayload => {
     if (
       !layoutProps ||
       !positions ||
       !positions[layoutProps.layoutId] ||
       !draggedWidgets.length
     )
-      return [];
+      return defaultHighlightPayload;
 
     const { layoutStyle } = layoutProps;
 

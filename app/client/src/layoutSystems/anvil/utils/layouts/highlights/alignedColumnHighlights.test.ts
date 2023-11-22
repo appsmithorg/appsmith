@@ -2,7 +2,6 @@ import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutCompon
 import {
   LayoutComponentTypes,
   type LayoutComponentProps,
-  type AnvilHighlightInfo,
   type WidgetLayoutProps,
 } from "../../anvilTypes";
 import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
@@ -35,7 +34,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -78,7 +77,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -131,7 +130,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -199,7 +198,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -270,7 +269,7 @@ describe("AlignedColumnHighlights tests", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -333,7 +332,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Second widget (input) is being dragged over it's parent layout.
        */
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -397,7 +396,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * First widget (button) is being dragged over it's parent layout.
        */
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         layout,
         "0",
         [],
@@ -513,7 +512,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Get highlights for the AlignedColumn layout.
        */
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         column,
         "0",
         [],
@@ -651,7 +650,7 @@ describe("AlignedColumnHighlights tests", () => {
       /**
        * Get highlights for the AlignedColumn layout.
        */
-      const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
+      const { highlights: res } = deriveAlignedColumnHighlights(
         column,
         "0",
         [],

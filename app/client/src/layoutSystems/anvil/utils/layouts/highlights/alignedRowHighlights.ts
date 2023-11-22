@@ -6,6 +6,7 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   GetDimensions,
+  HighlightPayload,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
@@ -13,7 +14,11 @@ import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
 } from "../../constants";
-import { getNonDraggedWidgets, getStartPosition } from "./highlightUtils";
+import {
+  getNonDraggedWidgets,
+  getStartPosition,
+  performInitialChecks,
+} from "./highlightUtils";
 import {
   type RowMetaData,
   type RowMetaInformation,
@@ -33,20 +38,20 @@ export const deriveAlignedRowHighlights =
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
     isReorderingWidgets: boolean,
-  ): AnvilHighlightInfo[] => {
-    if (!draggedWidgets.length || !positions[layoutProps.layoutId]) return [];
-    const { layout, maxChildLimit } = layoutProps;
+  ): HighlightPayload => {
+    const { layout } = layoutProps;
 
     /**
-     * Step 1: Check if draggedWidgets will exceed the maxChildLimit of the layout.
+     * Step 0: Perform initial checks before calculating highlights.
+     * There are situations where highlight calculations are not required.
      */
-    if (
-      !isReorderingWidgets &&
-      maxChildLimit !== undefined &&
-      maxChildLimit > 0
-    ) {
-      if (layout?.length + draggedWidgets.length > maxChildLimit) return [];
-    }
+    const res: HighlightPayload | undefined = performInitialChecks(
+      layoutProps,
+      positions,
+      draggedWidgets,
+    );
+
+    if (res) return res;
 
     const getDimensions: (id: string) => LayoutElementPosition =
       getRelativeDimensions(positions);
@@ -97,14 +102,14 @@ export const deriveAlignedRowHighlights =
  * @param baseHighlight | AnvilHighlightInfo
  * @param draggedWidgets | DraggedWidget[]
  * @param getDimensions | GetDimensions : method to get relative position of entity.
- * @returns AnvilHighlightInfo[] : List of highlights for empty AlignedRow.
+ * @returns HighlightPayload.
  */
 function getInitialHighlights(
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
   getDimensions: GetDimensions,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   let highlights: AnvilHighlightInfo[] = [];
 
   // Check if dragged widgets contain a Fill widget.
@@ -143,7 +148,7 @@ function getInitialHighlights(
     );
   });
 
-  return highlights;
+  return { highlights, skipEntity: false };
 }
 
 /**
@@ -153,7 +158,7 @@ function getInitialHighlights(
  * @param draggedWidgets | string[]
  * @param baseHighlight | AnvilHighlightInfo
  * @param getDimensions | GetDimensions
- * @returns AnvilHighlightInfo[]
+ * @returns HighlightPayload
  */
 export function getHighlightsForWidgets(
   layoutProps: LayoutProps,
@@ -161,7 +166,7 @@ export function getHighlightsForWidgets(
   draggedWidgets: DraggedWidget[],
   baseHighlight: AnvilHighlightInfo,
   getDimensions: GetDimensions,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   const layout: WidgetLayoutProps[] = layoutProps.layout as WidgetLayoutProps[];
   const layoutDimension: LayoutElementPosition = getDimensions(
     layoutProps.layoutId,
@@ -177,13 +182,13 @@ export function getHighlightsForWidgets(
    * then it renders all widgets directly without using alignments.
    */
   if (hasFillWidget) {
-    const highlights: AnvilHighlightInfo[] = getHighlightsForWidgetsRow(
+    const payload: HighlightPayload = getHighlightsForWidgetsRow(
       layoutProps,
       baseHighlight,
       draggedWidgets,
       getDimensions,
     );
-    return highlights;
+    return payload;
   }
 
   /**
@@ -194,7 +199,8 @@ export function getHighlightsForWidgets(
     draggedWidgets,
   );
 
-  if (!nonDraggedWidgets.length && !layoutProps.isDropTarget) return [];
+  if (!nonDraggedWidgets.length && !layoutProps.isDropTarget)
+    return { highlights: [], skipEntity: true };
 
   /**
    * Collect all information on alignments
@@ -299,7 +305,7 @@ export function getHighlightsForWidgets(
     }
   });
 
-  return highlights;
+  return { highlights, skipEntity: false };
 }
 
 function generateHighlight(

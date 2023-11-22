@@ -1,6 +1,5 @@
 import { generateAlignedRowMock } from "mocks/layoutComponents/layoutComponentMock";
 import type {
-  AnvilHighlightInfo,
   LayoutComponentProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
@@ -73,11 +72,7 @@ describe("AlignedRow highlights", () => {
         [`${layoutId}-2`]: endPosition,
       };
 
-      const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
-        layout,
-        "0",
-        [],
-      )(
+      const { highlights: res } = deriveAlignedRowHighlights(layout, "0", [])(
         dimensions,
         [
           {
@@ -160,11 +155,7 @@ describe("AlignedRow highlights", () => {
         },
       };
 
-      const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
-        layout,
-        "0",
-        [],
-      )(
+      const { highlights: res } = deriveAlignedRowHighlights(layout, "0", [])(
         dimensions,
         [
           {
@@ -279,11 +270,7 @@ describe("AlignedRow highlights", () => {
         },
       };
 
-      const res: AnvilHighlightInfo[] = deriveAlignedRowHighlights(
-        layout,
-        "0",
-        [],
-      )(
+      const { highlights: res } = deriveAlignedRowHighlights(layout, "0", [])(
         dimensions,
         [
           {

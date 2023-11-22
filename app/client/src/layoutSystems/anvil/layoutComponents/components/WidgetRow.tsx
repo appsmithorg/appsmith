@@ -47,6 +47,7 @@ class WidgetRow extends BaseLayoutComponent {
         layoutType={layoutType}
         parentDropTarget={parentDropTarget}
         renderMode={renderMode}
+        wrap="wrap"
         {...(layoutStyle || {})}
       >
         {this.renderDraggingArena()}
