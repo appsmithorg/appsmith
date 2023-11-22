@@ -331,7 +331,7 @@ describe.skip("Create Permission flow ", function () {
     cy.LogOut();
   });
 
-  it("6. Create permission : Page level Create new query/jsObject in same page) ", function () {
+  it.skip("6. Create permission : Page level Create new query/jsObject in same page) ", function () {
     cy.SignupFromAPI(testUser3, password);
     cy.LogintoAppTestUser(testUser3, password);
     cy.wait(2000);
