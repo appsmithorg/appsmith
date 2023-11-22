@@ -1,6 +1,4 @@
-export * from "ce/constants/ModuleInstanceConstants";
-
-import type { MODULE_TYPE } from "./ModuleConstants";
+import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
 export type ModuleId = string;
 export type ModuleInstanceId = string;
@@ -22,12 +20,4 @@ export interface ModuleInstance {
   jsonPathKeys: {
     [key: string]: any;
   };
-  userPermissions?: string[];
-}
-export interface QueryModuleInstance extends ModuleInstance {
-  type: MODULE_TYPE.QUERY;
-  jsonPathKeys: string[];
-  dynamicBindingPathList: Record<string, true>;
-  data: string;
-  run: string;
 }
