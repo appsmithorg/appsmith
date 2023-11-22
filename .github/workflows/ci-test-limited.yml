@@ -354,7 +354,6 @@ jobs:
           CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
-          CYPRESS_SKIP_FLAKY: true
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false
