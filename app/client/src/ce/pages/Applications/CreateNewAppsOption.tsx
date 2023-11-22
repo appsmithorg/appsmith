@@ -7,8 +7,12 @@ import {
   START_FROM_SCRATCH_TITLE,
   START_FROM_TEMPLATE_SUBTITLE,
   START_FROM_TEMPLATE_TITLE,
+  START_WITH_DATA_CONNECT_HEADING,
+  START_WITH_DATA_CONNECT_SUBHEADING,
   START_WITH_DATA_SUBTITLE,
   START_WITH_DATA_TITLE,
+  START_WITH_TEMPLATE_CONNECT_HEADING,
+  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
 } from "@appsmith/constants/messages";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -31,12 +35,12 @@ import {
   importTemplateIntoApplicationViaOnboardingFlow,
 } from "actions/templateActions";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { Link, Text } from "design-system";
+import { Flex, Link, Text } from "design-system";
 import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import { TemplateView } from "pages/Templates/TemplateView";
 import TemplatesHomeWrapper from "pages/Templates/TemplatesHomeWrapper";
-import React, { useEffect, useState } from "react";
+import { default as React, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   allTemplatesFiltersSelector,
@@ -119,6 +123,15 @@ const WithDataWrapper = styled.div`
   background: var(--ads-v2-color-bg);
   padding: var(--ads-v2-spaces-13);
 `;
+
+const Header = ({ subtitle, title }: { subtitle: string; title: string }) => {
+  return (
+    <Flex flexDirection="column" mb="spaces-14" mt="spaces-7">
+      <Text kind="heading-xl">{title}</Text>
+      <Text>{subtitle}</Text>
+    </Flex>
+  );
+};
 
 interface CardProps {
   onClick?: () => void;
@@ -371,14 +384,32 @@ const CreateNewAppsOption = ({
             templateId={selectedTemplate}
           />
         ) : (
-          <TemplateWrapper>
+          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+            <Header
+              subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
+              title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
+            />
             <TemplatesHomeWrapper
               currentApplicationIdForCreateNewApp={
                 currentApplicationIdForCreateNewApp
               }
               setSelectedTemplate={setSelectedTemplate}
             />
-          </TemplateWrapper>
+          </Flex>
+        )
+      ) : useType === START_WITH_TYPE.DATA ? (
+        createNewAppPluginId ? (
+          <div>{createNewAppPluginId}</div>
+        ) : (
+          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+            <Header
+              subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+              title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+            />
+            <WithDataWrapper>
+              <CreateNewDatasourceTab />
+            </WithDataWrapper>
+          </Flex>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
         createNewAppPluginId ? (
