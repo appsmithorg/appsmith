@@ -35,8 +35,14 @@ function checkTagsValidity(filePath) {
 // Retrieve file paths from command line arguments (excluding the first two arguments: node path and script name)
 const relativeFilePaths = process.argv.slice(2);
 
-// Convert relative file paths to absolute paths using the current working directory
-const absoluteFilePaths = relativeFilePaths.map(relativePath => path.resolve(process.cwd(), relativePath));
+// Get the current working directory
+const currentWorkingDirectory = process.cwd();
+
+// Remove 'app/client/' from the current working directory and append the relative file path
+const absoluteFilePaths = relativeFilePaths.map(relativePath => {
+  const updatedPath = path.join(currentWorkingDirectory.replace(/app\/client\//g, ''), relativePath);
+  return path.resolve(updatedPath);
+});
 
 // Process each file path
 absoluteFilePaths.forEach(filePath => {
