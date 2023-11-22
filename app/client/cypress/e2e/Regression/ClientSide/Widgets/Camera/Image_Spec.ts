@@ -113,7 +113,7 @@ describe("Camera widget - Image test", () => {
 
   it("6. Test image capture , preview, save, refresh, download & icons in each stage", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
-
+    agHelper.Sleep(2000);
     //Validate camera screen & icons
     agHelper.AssertElementVisibility(widgetLocators.cameraImageVideoOnOffBtn);
     agHelper.AssertElementVisibility(widgetLocators.cameraImageVideoDropdown);

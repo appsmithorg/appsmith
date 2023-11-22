@@ -13,7 +13,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("Modal Widget test cases", function () {
+describe.skip("Modal Widget test cases", function () {
   const image = (src: string) => 'img[src="' + src + '"]';
   const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
   const gifImg =

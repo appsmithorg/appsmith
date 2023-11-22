@@ -31,6 +31,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -80,6 +81,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final DatasourceStorageService datasourceStorageService;
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
+    private final UpdateLayoutService updateLayoutService;
     private final ApplicationPageService applicationPageService;
     private final ApplicationService applicationService;
     private final PluginService pluginService;
@@ -405,7 +407,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
                     log.debug("Going to update layout for page {} and layout {}", savedPageId, layoutId);
                     return sanitizeTemplateInfoMono
-                            .then(layoutActionService.updateLayout(
+                            .then(updateLayoutService.updateLayout(
                                     savedPageId, page.getApplicationId(), layoutId, layout))
                             .then(Mono.zip(
                                     Mono.just(datasourceStorage),
