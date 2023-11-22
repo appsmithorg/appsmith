@@ -16,4 +16,14 @@
     flex-direction: row-reverse;
     justify-content: space-between;
   }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled]:not([data-field-type="field-group"] &) {
+    opacity: var(--opacity-disabled);
+    cursor: default;
+  }
 }
