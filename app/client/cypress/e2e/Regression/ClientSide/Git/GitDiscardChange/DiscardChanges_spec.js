@@ -83,7 +83,6 @@ describe("Git discard changes:", function () {
     jsEditor.CreateJSObject('return "Success";');
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     entityExplorer.AssertEntityPresenceInExplorer(jsObject);
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     gitSync.DiscardChanges();
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     // verify jsObject2 is deleted after discarding changes

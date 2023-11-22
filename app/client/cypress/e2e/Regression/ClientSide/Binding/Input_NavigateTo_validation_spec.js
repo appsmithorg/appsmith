@@ -34,13 +34,11 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
+    entityExplorer.AssertEntityPresenceInExplorer(pageid);
   });
 
   it("2. Input widget test with default value from table widget", function () {
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     propPane.SelectPlatformFunction("onTextChanged", "Navigate to");

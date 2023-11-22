@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
@@ -39,7 +43,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
     dataSources.RunQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
-    cy.get(".t--entity-name").contains("CustomersTable").click({ force: true });
+    EditorNavigation.SelectEntityByName("CustomersTable", EntityType.Widget);
 
     // Step 3: Add binding to the tableData property
     propPane.UpdatePropertyFieldValue(
@@ -90,7 +94,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
       true,
       false,
     );
-    cy.get(".t--entity-name").contains("CountryInput").click({ force: true });
+    EditorNavigation.SelectEntityByName("CountryInput", EntityType.Widget);
     cy.wait(1000);
     cy.get(guidedTourLocators.inputfields)
       .eq(2)
@@ -102,7 +106,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
       true,
       false,
     );
-    cy.get(".t--entity-name").contains("DisplayImage").click({ force: true });
+    EditorNavigation.SelectEntityByName("DisplayImage", EntityType.Widget);
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {

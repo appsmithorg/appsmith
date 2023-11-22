@@ -30,14 +30,11 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     agHelper.AddDsl("navigateToInputDsl");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
+    EditorNavigation.SelectEntityByName(pageid, EntityType.Page);
   });
 
   it("2. Validate NavigateTo Page functionality ", function () {
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(4000);
     deployMode.DeployApp();
     cy.readTabledataPublish("1", "0").then((tabDataP) => {

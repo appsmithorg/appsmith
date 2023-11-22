@@ -130,8 +130,6 @@ describe("Test Create Api and Bind to Table widget", function () {
       },
     );
 
-    //cy.get(".t--entity-name:contains(Text1)").click({ force: true });
-    //cy.openPropertyPane("textwidget");
     /** Bind the Table widget with Text widget*/
     //cy.testJsontext("text", "{{Table1.selectedRow.avatar}}");
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);

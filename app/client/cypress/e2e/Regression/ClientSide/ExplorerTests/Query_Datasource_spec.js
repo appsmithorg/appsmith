@@ -31,7 +31,7 @@ describe("Entity explorer tests related to query and datasource", function () {
   it("1. Create a page/moveQuery/rename/delete in explorer", function () {
     cy.Createpage(pageid);
     cy.wait(2000);
-    cy.get(".t--entity-name").contains("Page1").click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(2000);
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
@@ -62,11 +62,8 @@ describe("Entity explorer tests related to query and datasource", function () {
     // reverting the name
     agHelper.RenameWithInPane(datasourceName, false);
 
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-
     // going  to the query create page
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.contains(commonlocators.entityName, "Query1").click();
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
 
     cy.wait("@getPluginForm").should(
       "have.nested.property",

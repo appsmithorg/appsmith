@@ -37,9 +37,10 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       expect($lis.eq(1)).to.contain("{{FormTest.data}}");
       expect($lis.eq(2)).to.contain("{{FormTest.hasChanges}}");
     });
-    cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
-    cy.hoverAndClickParticularIndex(1);
-    cy.selectAction("Delete");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "FormTest",
+      action: "Delete",
+    });
 
     //cy.DeleteWidgetFromSideBar();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -59,9 +60,10 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
-    cy.hoverAndClickParticularIndex(1);
-    cy.selectAction("Show bindings");
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "FormTest",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");

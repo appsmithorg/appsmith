@@ -101,7 +101,7 @@ describe("MaintainContext&Focus", function () {
 
   it("2. Maintains focus on property/Api/Query/Js Pane", () => {
     //Maintains focus on the property pane
-    cy.get(`.t--entity-name:contains("Page1")`).click();
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     cy.get(".t--widget-name").should("have.text", "Text1");
     cy.assertSoftFocusOnCodeInput(".t--property-control-text", {

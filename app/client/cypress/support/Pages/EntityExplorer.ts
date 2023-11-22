@@ -60,10 +60,6 @@ export class EntityExplorer {
     this._expandCollapseArrow(entityNameinLeftSidebar) +
     "/ancestor::div[contains(@class, 't--entity')]//div[@class='bp3-collapse']";
 
-  private _templateMenuTrigger = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 't--entity-name')][text()='" +
-    entityNameinLeftSidebar +
-    "']/ancestor::div[contains(@class, 't--entity-item')]//button[contains(@class, 't--template-menu-trigger')]";
   private _moreOptionsPopover =
     "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
   private _pageClone = ".single-select >div:contains('Clone')";
@@ -213,19 +209,6 @@ export class EntityExplorer {
       });
   }
 
-  public GetEntityNamesInSection(
-    sectionName: string,
-    entityFilterSelector: string,
-  ) {
-    return cy
-      .xpath(this._expandCollapseSection(sectionName))
-      .find(entityFilterSelector)
-      .then((entities) => {
-        const entityNames = entities.map((_, el) => Cypress.$(el).text()).get();
-        return entityNames;
-      });
-  }
-
   public ActionContextMenuByEntityName({
     action = "Delete",
     entityNameinLeftSidebar,
@@ -282,13 +265,6 @@ export class EntityExplorer {
           });
         });
     });
-  }
-
-  public HoverOnEntityItem(entityNameinLeftSidebar: string) {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    this.agHelper.ClickOutside();
-    //cy.get("body").trigger("mousedown");
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).realHover();
   }
 
   public SearchWidgetPane(widgetType: string) {

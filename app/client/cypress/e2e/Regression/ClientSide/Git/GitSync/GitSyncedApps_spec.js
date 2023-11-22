@@ -102,10 +102,8 @@ describe.skip("Git sync apps", function () {
 
     cy.wait(3000);
     // rename page to crud_page
-    cy.renameEntity("Page1", pageName);
-    cy.get(`.t--entity-name:contains(${pageName})`)
-      .trigger("mouseover")
-      .click({ force: true });
+    entityExplorer.RenameEntityFromExplorer("Page1", pageName);
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     // create a clone of page
     cy.get(`.t--entity-item:contains(${pageName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
@@ -301,11 +299,9 @@ describe.skip("Git sync apps", function () {
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("Child_Page");
     cy.wait(1000);
-    cy.get(`.t--entity-name:contains(${newPage} Copy)`)
-      .trigger("mouseover")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName(`${newPage} Copy`, EntityType.Page);
     cy.wait(2000); // adding wait for query to load
-    EditorNavigation.SelectEntityByName("get_users", EntityType.Queries / JS);
+    EditorNavigation.SelectEntityByName("get_users", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Move to page",
       subAction: "Child_Page",
@@ -313,11 +309,9 @@ describe.skip("Git sync apps", function () {
     });
     cy.runQuery();
     cy.wait(2000);
-    cy.get(`.t--entity-name:contains(${newPage} Copy)`)
-      .trigger("mouseover")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName(`${newPage} Copy`, EntityType.Page);
     cy.wait(2000);
-    EditorNavigation.SelectEntityByName("JSObject1", EntityType.Queries / JS);
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Move to page",
@@ -511,11 +505,11 @@ describe.skip("Git sync apps", function () {
     // verify Child_Page is not on master
     cy.switchGitBranch(mainBranch);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
+    entityExplorer.AssertEntityAbsenceInExplorer("Child_Page Copy");
     // create another branch and verify deleted page doesn't exist on it
     gitSync.CreateGitBranch(tempBranch0, true);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
+    entityExplorer.AssertEntityAbsenceInExplorer("Child_Page Copy");
   });
 
   it("10. Import app from git and verify page order should not change", () => {

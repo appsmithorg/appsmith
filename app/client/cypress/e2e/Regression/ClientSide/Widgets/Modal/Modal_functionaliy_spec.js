@@ -101,7 +101,7 @@ describe("Modal Widget Functionality", function () {
       300,
     );
     _.entityExplorer.NavigateToSwitcher("Explorer");
-    cy.get(".t--entity-name").contains("Widgets").click();
+    _.entityExplorer.ExpandCollapseEntity("Widgets", true);
 
     //select all widgets and copy
     cy.get(`#div-selection-0`).click({

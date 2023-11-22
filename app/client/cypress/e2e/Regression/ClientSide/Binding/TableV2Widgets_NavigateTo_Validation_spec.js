@@ -32,7 +32,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     entityExplorer.ExpandCollapseEntity("Pages");
-    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
+    entityExplorer.AssertEntityPresenceInExplorer(pageid);
     //Table Widget V2 Functionality with multiple page
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
