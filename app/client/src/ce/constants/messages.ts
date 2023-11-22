@@ -2208,7 +2208,7 @@ export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
 export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
 export const FAILED_RECORDS_MESSAGE_TEXT = () =>
-  "There was an error connecting to the datasource. Try again in a while.";
+  "There was an error connecting to the datasource. Please check the datasource configuration and retry. If the issue persists, review the datasource settings.";
 
 export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_TITLE = () =>
