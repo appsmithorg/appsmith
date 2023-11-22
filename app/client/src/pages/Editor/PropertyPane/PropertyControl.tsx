@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import _, { get, isFunction, merge } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
@@ -57,7 +57,6 @@ import { importSvg } from "design-system-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
-import { usePrevious } from "@mantine/hooks";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -606,9 +605,13 @@ const PropertyControl = memo((props: Props) => {
   const { propertyName } = props;
 
   const isDynamic: boolean = widgetProperties?.isPropertyDynamicPath;
-  const wasDynamic: boolean = usePrevious(
-    widgetProperties?.isPropertyDynamicPath,
-  );
+
+  /**
+   * Position cursor inside binding when switched to JS mode
+   * Check to see if a toggle operation was made.
+   */
+  const [switchedToDynamic, setSwitchedToDynamic] = useState(false);
+  const shouldFocusOnJSControl = switchedToDynamic;
 
   if (widgetProperties) {
     // Do not render the control if it needs to be hidden
@@ -646,13 +649,6 @@ const PropertyControl = memo((props: Props) => {
       }),
     );
 
-    /**
-     * Position cursor inside binding when switched to JS mode
-     * Check to see if a toggle operation was made.
-     */
-    const shouldFocusOnJSControl =
-      wasDynamic !== undefined && isDynamic && wasDynamic !== isDynamic;
-
     const { additionalAutoComplete, ...rest } = props;
     const config: ControlData = {
       ...rest,
@@ -664,9 +660,10 @@ const PropertyControl = memo((props: Props) => {
       parentPropertyValue: propertyValue,
       additionalDynamicData: {},
       label,
-      additionalControlData: {
-        shouldFocusOnJSControl,
-      },
+    };
+    config.additionalControlData = {
+      ...config.additionalControlData,
+      shouldFocusOnJSControl,
     };
     config.expected = getExpectedValue(props.validation);
     if (widgetProperties.isPropertyDynamicTrigger) {
@@ -821,7 +818,8 @@ const PropertyControl = memo((props: Props) => {
                     icon="js-toggle-v2"
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
-                    onClick={() =>
+                    onClick={() => {
+                      setSwitchedToDynamic(!isDynamic);
                       toggleDynamicProperty(
                         propertyName,
                         isDynamic,
@@ -829,8 +827,8 @@ const PropertyControl = memo((props: Props) => {
                           config,
                           propertyValue,
                         ),
-                      )
-                    }
+                      );
+                    }}
                     size="sm"
                   />
                 </span>

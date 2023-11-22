@@ -139,12 +139,12 @@ describe("Assistive Binding", function () {
     propPane.ValidatePropertyFieldValue("Label", "{{}}");
   });
 
-  // it("6. Works correctly when user toggles JS", () => {
-  //   entityExplorer.SelectEntityByName("Button1", "Widgets");
-  //   propPane.ToggleJSMode("onClick");
-  //   propPane.ValidatePropertyFieldValue("onClick", "{{}}");
-  //   propPane.TypeTextIntoField("onClick", "hello", false);
-  //   // This asserts that cursor was originally between the curly braces after the user switched to js mode
-  //   propPane.ValidatePropertyFieldValue("onClick", "{{hello}}");
-  // });
+  it("6. Works correctly when user toggles JS", () => {
+    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    propPane.ToggleJSMode("onClick");
+    propPane.ValidatePropertyFieldValue("onClick", "{{}}");
+    propPane.TypeTextIntoField("onClick", "hello", false);
+    // This asserts that cursor was originally between the curly braces after the user switched to js mode
+    propPane.ValidatePropertyFieldValue("onClick", "{{hello}}");
+  });
 });
