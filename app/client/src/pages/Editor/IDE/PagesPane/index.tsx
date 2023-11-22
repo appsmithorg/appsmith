@@ -4,8 +4,7 @@ import { Divider, Flex, SegmentedControl } from "design-system";
 import { useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
-import { FocusEntity } from "navigation/FocusEntity";
-import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
 import { QueriesJS } from "./Queries_JS";
 import ExplorerWidgetGroup from "pages/Editor/Explorer/Widgets/WidgetGroup";
@@ -47,10 +46,12 @@ const _pagesPane = () => {
     ).entity;
     switch (entity) {
       case FocusEntity.QUERY:
+      case FocusEntity.QUERY_LIST:
       case FocusEntity.API:
         setSelected(TabsType.QUERIES);
         break;
       case FocusEntity.JS_OBJECT:
+      case FocusEntity.JS_OBJECT_LIST:
         setSelected(TabsType.JS);
         break;
       case FocusEntity.CANVAS:
@@ -92,7 +93,6 @@ const _pagesPane = () => {
   };
   return (
     <Flex
-      border="1px solid var(--ads-v2-color-border)"
       className="ide-pages-pane"
       flexDirection="column"
       gap="spacing-2"
@@ -130,7 +130,7 @@ const _pagesPane = () => {
           value={selected}
         />
       </Flex>
-      <Divider />
+      <Divider orientation="horizontal" />
       <Flex
         className="ide-pages-pane__content"
         flexDirection="column"

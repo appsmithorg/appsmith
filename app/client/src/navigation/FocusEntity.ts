@@ -23,7 +23,9 @@ export enum FocusEntity {
   DATASOURCE = "DATASOURCE",
   DEBUGGER = "DEBUGGER",
   QUERY = "QUERY",
+  QUERY_LIST = "QUERY_LIST",
   JS_OBJECT = "JS_OBJECT",
+  JS_OBJECT_LIST = "JS_OBJECT_LIST",
   PROPERTY_PANE = "PROPERTY_PANE",
   NONE = "NONE",
 }
@@ -135,6 +137,8 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
   if (!match) {
     return { entity: FocusEntity.NONE, id: "", pageId: "" };
   }
+  // eslint-disable-next-line no-console
+  console.log("Albin-match", match);
   if (match.params.apiId) {
     if (match.params.pluginPackageName) {
       return {
@@ -191,6 +195,20 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     return {
       entity: FocusEntity.PROPERTY_PANE,
       id: match.params.widgetIds,
+      pageId: match.params.pageId,
+    };
+  }
+  if (match.params.entity === "queries") {
+    return {
+      entity: FocusEntity.QUERY_LIST,
+      id: "",
+      pageId: match.params.pageId,
+    };
+  }
+  if (match.params.entity === "jsObjects") {
+    return {
+      entity: FocusEntity.JS_OBJECT_LIST,
+      id: "",
       pageId: match.params.pageId,
     };
   }

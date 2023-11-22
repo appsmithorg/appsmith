@@ -93,6 +93,8 @@ export enum FocusElement {
   SelectedWidgets = "SelectedWidgets",
   SubEntityCollapsibleState = "SubEntityCollapsibleState",
   InputField = "InputField",
+  SelectedQuery = "SelectedQuery",
+  SelectedJSObject = "SelectedJSObject",
 }
 
 export enum ConfigType {
@@ -308,4 +310,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: DefaultDebuggerContext,
     },
   ],
+  [FocusEntity.QUERY_LIST]: [],
+  [FocusEntity.JS_OBJECT_LIST]: [],
 };

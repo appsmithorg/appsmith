@@ -15,6 +15,7 @@ import {
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
+  QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
@@ -37,6 +38,8 @@ import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import GeneratePage from "pages/Editor/GeneratePage";
+import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
+import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 
 export default (path: string, isAppSidebarEnabled: boolean) => [
   {
@@ -66,6 +69,12 @@ export default (path: string, isAppSidebarEnabled: boolean) => [
     path: `${path}${BUILDER_CHECKLIST_PATH}`,
   },
   {
+    key: "QueryEditorList",
+    component: QueriesBlankState,
+    exact: true,
+    path: `${path}${QUERIES_EDITOR_BASE_PATH}`,
+  },
+  {
     key: "ApiEditor",
     component: ApiEditor,
     exact: true,
@@ -77,17 +86,23 @@ export default (path: string, isAppSidebarEnabled: boolean) => [
     exact: true,
     path: `${path}${QUERIES_EDITOR_ID_PATH}`,
   },
-  {
-    key: "JSEditor Collection",
-    component: JSEditor,
-    exact: true,
-    path: `${path}${JS_COLLECTION_EDITOR_PATH}`,
-  },
+  // {
+  //   key: "JSEditor Collection",
+  //   component: JSEditor,
+  //   exact: true,
+  //   path: `${path}${JS_COLLECTION_EDITOR_PATH}`,
+  // },
   {
     key: "JSEditor File",
     component: JSEditor,
     exact: true,
     path: `${path}${JS_COLLECTION_ID_PATH}`,
+  },
+  {
+    key: "JsEditorList",
+    component: JSBlankState,
+    exact: true,
+    path: `${path}${JS_COLLECTION_EDITOR_PATH}`,
   },
   {
     key: "CurlImportEditor",
