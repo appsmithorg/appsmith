@@ -40,7 +40,7 @@ import type {
 } from "utils/DynamicBindingUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
-export function* fetchPluginsSaga(
+function* fetchPluginsSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
 ) {
   try {

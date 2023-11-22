@@ -608,6 +608,7 @@ function* evaluationChangeListenerSaga(): any {
     FIRST_EVAL_REDUX_ACTIONS,
   );
 
+  // Wait for widget config build to complete before starting evaluation only if the current editor is not a workflow
   const isCurrentEditorWorkflowType = yield select(
     getIsCurrentEditorWorkflowType,
   );
