@@ -179,6 +179,14 @@ export function* addWidgetsToSection(
     );
     canvasProps = res.canvas;
     sectionLayout = res.section;
+    // Update parent of the zone.
+    canvasWidgets = {
+      ...canvasWidgets,
+      [zone.widgetId]: {
+        ...canvasWidgets[zone.widgetId],
+        parentId: canvasProps.widgetId,
+      },
+    };
   });
 
   /**
