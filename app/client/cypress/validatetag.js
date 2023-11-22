@@ -40,8 +40,8 @@ const currentWorkingDirectory = process.cwd();
 
 // Remove 'app/client/' from the current working directory and append the relative file path
 const absoluteFilePaths = relativeFilePaths.map(relativePath => {
-  const updatedPath = path.join(currentWorkingDirectory.replace(/app\/client\//g, ''), relativePath);
-  return path.resolve(updatedPath);
+  const updatedPath = path.resolve(currentWorkingDirectory, '../..', relativePath);
+  return updatedPath;
 });
 
 // Process each file path
