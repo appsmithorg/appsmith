@@ -424,6 +424,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);
       });
+      agHelper.Sleep(4000);
       cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
 
       // cy.wrap(Cypress.automation('remote:debugger:protocol', {
