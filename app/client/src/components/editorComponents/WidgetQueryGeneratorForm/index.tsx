@@ -316,7 +316,7 @@ function WidgetQueryGeneratorForm(props: Props) {
     const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
     if (!isNewUser) return;
     pushFeature({
-      targetId: `[data-guided-tour-iid='${propertyPath}']`,
+      targetId: `[data-guided-tour-iid='${propertyPath}'] .t--js-toggle`,
       onDismiss: async () => {
         await setFeatureWalkthroughShown(
           FEATURE_WALKTHROUGH_KEYS.customize_one_click_data,
@@ -330,9 +330,10 @@ function WidgetQueryGeneratorForm(props: Props) {
       },
       offset: {
         position: "left",
-        left: -10,
-        highlightPad: 5,
-        indicatorLeft: 100,
+        left: -80,
+        highlightPad: 2,
+        indicatorLeft: 30,
+        indicatorTop: -15,
         style: {
           transform: "none",
         },
