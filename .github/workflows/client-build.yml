@@ -85,7 +85,7 @@ jobs:
           pr-number: ${{ inputs.pr }}
 
       # Run validatetag.js with the changed files
-      - name: Run validatetag.js
+      - name: Check for the cypress tag added if valid
         if: steps.files.outputs.files_created != '' || steps.files.outputs.files_updated != ''
         run: |
           node cypress/validatetag.js ${{ steps.files.outputs.files_created }} ${{ steps.files.outputs.files_updated }}
