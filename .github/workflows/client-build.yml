@@ -83,6 +83,12 @@ jobs:
           repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
           pattern: 'app/client/cypress/e2e/.*'
           pr-number: ${{ inputs.pr }}
+
+      # Run validatetag.js with the changed files
+      - name: Run validatetag.js
+        if: steps.files.outputs.files != '' || steps.files.outputs.files_updated != ''
+        run: |
+          node cypress/validatetag.js ${{ steps.files.outputs.files_created }} ${{ steps.files.outputs.files_updated }}
           
       # Check all the newly added files are in ts  
       - name: Check the newly added files are written in ts
