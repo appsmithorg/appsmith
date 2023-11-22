@@ -1,21 +1,16 @@
 import type { ReactNode } from "react";
 import React, { useState } from "react";
 import styled from "styled-components";
-import _, { noop } from "lodash";
 import {
   Button,
   Modal,
   ModalContent,
   ModalBody,
   ModalHeader,
-  SearchInput,
   ModalFooter,
 } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getDeletingMultipleApps,
-  getIsFetchingApplications,
-} from "@appsmith/selectors/applicationSelectors";
+import { getDeletingMultipleApps } from "@appsmith/selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -32,7 +27,7 @@ const SubHeaderWrapper = styled.div<{
 }>`
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   background: var(--ads-v2-color-bg);
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
   ${({ isBannerVisible, isMobile }) =>
@@ -45,9 +40,6 @@ const SubHeaderWrapper = styled.div<{
       : `padding: ${CONTAINER_WRAPPER_PADDING} ${CONTAINER_WRAPPER_PADDING} 12px ${CONTAINER_WRAPPER_PADDING} ; position: sticky; ${
           isBannerVisible ? "top: 40px; margin-top: 40px" : "top: 0"
         }; align-items: center;`}
-`;
-const SearchContainer = styled.div<{ isMobile?: boolean }>`
-  width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
 `;
 
 const MultipleDeleteWrapper = styled.div`
@@ -78,12 +70,11 @@ interface SubHeaderProps {
 export function ApplicationsSubHeader(props: SubHeaderProps) {
   const [showModal, setShowModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
-  const query =
-    props.search &&
-    props.search.queryFn &&
-    _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
+  // const query =
+  //   props.search &&
+  //   props.search.queryFn &&
+  //   _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
 
   const dispatch = useDispatch();
 
@@ -115,7 +106,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
       isBannerVisible={props.isBannerVisible}
       isMobile={isMobile}
     >
-      <SearchContainer isMobile={isMobile}>
+      {/* <SearchContainer isMobile={isMobile}>
         {props.search && (
           <SearchInput
             data-testid="t--application-search-input"
@@ -125,7 +116,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
             placeholder={props.search.placeholder}
           />
         )}
-      </SearchContainer>
+      </SearchContainer> */}
       {isEnabledMultipleSelection && (
         <MultipleDeleteWrapper>
           <Button
