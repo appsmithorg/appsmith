@@ -152,6 +152,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     jsEditor.EnableDisableAsyncFuncSettings("film", true, true);
 
     deployMode.DeployApp();
+    agHelper.Sleep(2000);
     for (let dialog = 1; dialog <= 5; dialog++) {
       jsEditor.ConfirmationClick("Yes");
       agHelper.Sleep(500);
