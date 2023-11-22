@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 const { Tag } = require('./tags');
 
 function extractTagsFromTestFile(filePath) {
@@ -36,11 +35,8 @@ function checkTagsValidity(filePath) {
 // Retrieve file paths from command line arguments (excluding the first two arguments: node path and script name)
 const relativeFilePaths = process.argv.slice(2);
 
-// Get the user's home directory
-const userHomeDirectory = os.homedir();
-
-// Convert relative file paths to absolute paths using the user's home directory
-const absoluteFilePaths = relativeFilePaths.map(relativePath => path.join(userHomeDirectory, relativePath));
+// Convert relative file paths to absolute paths using the current working directory
+const absoluteFilePaths = relativeFilePaths.map(relativePath => path.resolve(process.cwd(), relativePath));
 
 // Process each file path
 absoluteFilePaths.forEach(filePath => {
