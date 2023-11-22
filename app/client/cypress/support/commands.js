@@ -2,6 +2,8 @@
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
 
+import EditorNavigation, { SidebarButton } from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 //require('cy-verify-downloads').addCustomCommand();
@@ -264,7 +266,10 @@ Cypress.Commands.add("GetUrlQueryParams", () => {
 Cypress.Commands.add("LogOutUser", () => {
   cy.wait(1000); //waiting for window to load
   homePageTS.InvokeDispatchOnStore();
-  assertHelper.AssertNetworkStatus("@postLogout", 200);
+  //Logout is still a POST request in CE
+  if (CURRENT_REPO === REPO.CE) {
+    assertHelper.AssertNetworkStatus("@postLogout", 200);
+  }
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
@@ -397,12 +402,19 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
   // agHelper.AssertElementAbsence(
   //   locators._specificToast("Internal server error while processing request"),
   // );
+
+  // Logout is a POST request in CE
+  const httpMethod = "POST";
+  if (CURRENT_REPO === REPO.EE) {
+    httpMethod = "GET";
+  }
+
   if (CURRENT_REPO === REPO.CE)
     toCheckgetPluginForm &&
       assertHelper.AssertNetworkResponseData("@getPluginForm", false);
 
   cy.request({
-    method: "POST",
+    method: httpMethod,
     url: "/api/v1/logout",
     headers: {
       "X-Requested-By": "Appsmith",
@@ -813,14 +825,6 @@ Cypress.Commands.add("importCurl", () => {
   );
 });
 
-Cypress.Commands.add("NavigateToActiveTab", () => {
-  cy.get(explorer.activeTab).click({ force: true });
-
-  // cy.get(pages.integrationActiveTab)
-  //   .should("be.visible")
-  //   .click({ force: true });
-});
-
 Cypress.Commands.add("selectAction", (option) => {
   cy.get(".ads-v2-menu__menu-item-children")
     .contains(option)
@@ -1029,7 +1033,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/applications/new").as("applications");
   cy.intercept("GET", "/api/v1/users/profile").as("getUser");
   cy.intercept("GET", "/api/v1/plugins?workspaceId=*").as("getPlugins");
-  cy.intercept("POST", "/api/v1/logout").as("postLogout");
+
+  if (CURRENT_REPO === REPO.CE) {
+    cy.intercept("POST", "/api/v1/logout").as("postLogout");
+  } else if (CURRENT_REPO === REPO.EE) {
+    cy.intercept("GET", "/api/v1/logout").as("postLogout");
+  }
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
   cy.intercept("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
@@ -2119,6 +2128,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreatePage", () => {
+  EditorNavigation.ViaSidebar(SidebarButton.Pages);
   cy.get(pages.AddPage).first().click();
   cy.xpath("//span[text()='New blank page']/parent::div").click();
 });

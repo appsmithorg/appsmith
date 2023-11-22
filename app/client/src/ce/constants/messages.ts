@@ -372,6 +372,9 @@ export const ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF = () => "🙌 Click on";
 export const ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF = () =>
   "after adding your query";
 export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
+export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
+export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
+export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -1076,7 +1079,7 @@ export const BRANCH_PROTECTION_RULES_AS_FOLLOWS = () =>
 export const BRANCH_PROTECTION_RULE_1 = () =>
   "Commit and merge are not allowed.";
 export const BRANCH_PROTECTION_RULE_2 = () =>
-  "Users can’t create or edit queries, widgets, and JsObjects.";
+  "Users can’t create or edit queries, widgets, and JS Objects.";
 export const BRANCH_PROTECTION_RULE_3 = () =>
   "You can still pull the latest changes and create new branches to edit the app.";
 export const BRANCH_PROTECTION_CHANGE_RULE = () =>
@@ -1494,7 +1497,7 @@ export const WELCOME_FORM_GENERIC_ERROR_MESSAGE = () =>
   "This field is required.";
 
 export const WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE = () =>
-  "TPasswords don't match.";
+  "Passwords don't match.";
 
 export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
   `Are you sure you want to run `;
@@ -1674,6 +1677,8 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SETTINGS = () => "Settings";
+export const CONTEXT_PARTIAL_EXPORT = () => "Export";
+export const CONTEXT_PARTIAL_IMPORT = () => "Import";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as home page";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";
@@ -1932,8 +1937,6 @@ export const GOOGLE_SHEETS_ASK_FOR_SUPPORT = () => "Ask for support";
 export const GOOGLE_SHEETS_FILE_PICKER_TITLE = () =>
   "Select Google Sheets to query";
 export const DATASOURCE_GENERATE_PAGE_BUTTON = () => "Generate new page";
-export const ERR_FETCHING_DATASOURCE_PREVIEW_DATA = () =>
-  "Some problem occured while fetching data";
 export const FETCHING_DATASOURCE_PREVIEW_DATA = () => "Loading data";
 export const SCHEMA_PREVIEW_NO_DATA = () =>
   "No data records to show or the table header begins with an index other than 1";
@@ -2197,14 +2200,17 @@ export const COMMUNITY_TEMPLATES = {
   },
 };
 
+// Interim data state info
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
 export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
-export const EMPTY_TABLE_SVG_ALT_TEXT = () => "Empty table image";
+export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
+export const FAILED_RECORDS_MESSAGE_TEXT = () =>
+  "There was an error connecting to the datasource. Please check the datasource configuration and retry. If the issue persists, review the datasource settings.";
 
-export const DATA_PANE_TITLE = () => "Datasources in your Workspace";
+export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_TITLE = () =>
   "No datasources exist in your workspace.";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () =>
@@ -2252,3 +2258,28 @@ export const START_FROM_SCRATCH_SUBTITLE = () =>
 export const START_WITH_DATA_TITLE = () => "Start with data";
 export const START_WITH_DATA_SUBTITLE = () =>
   "Get started with connecting your data, and easily craft a functional application.";
+export const START_WITH_DATA_CONNECT_HEADING = () => "Connect your datasource";
+export const START_WITH_DATA_CONNECT_SUBHEADING = () =>
+  "Select an option to establish a connection. Your data's security is our priority.";
+export const START_WITH_TEMPLATE_CONNECT_HEADING = () => "Select a template";
+export const START_WITH_TEMPLATE_CONNECT_SUBHEADING = () =>
+  "Choose an option below to embark on your app-building adventure!";
+
+export const PARTIAL_IMPORT_EXPORT = {
+  export: {
+    modalHeading: () => "Export",
+    modalSubHeading: () => "Select entities below to export from the Page",
+    cta: () => "Export selected entities",
+    sections: {
+      jsObjects: () => "JS objects",
+      databases: () => "Databases",
+      queries: () => "Queries",
+      customLibs: () => "Custom libraries",
+      widgets: () => "Widgets",
+    },
+  },
+  import: {
+    modalHeading: () => "Import",
+    modalSubheading: () => "Import partial application from file",
+  },
+};

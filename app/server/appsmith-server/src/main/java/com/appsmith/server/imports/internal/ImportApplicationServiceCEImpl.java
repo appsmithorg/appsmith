@@ -338,10 +338,10 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
      */
     private String validateApplicationJson(ApplicationJson importedDoc) {
         String errorField = "";
-        if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
-            errorField = FieldName.PAGE_LIST;
-        } else if (importedDoc.getExportedApplication() == null) {
+        if (importedDoc.getExportedApplication() == null) {
             errorField = FieldName.APPLICATION;
+        } else if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
+            errorField = FieldName.PAGE_LIST;
         } else if (importedDoc.getActionList() == null) {
             errorField = FieldName.ACTIONS;
         } else if (importedDoc.getDatasourceList() == null) {
@@ -493,6 +493,13 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         String errorField = validateApplicationJson(importedDoc);
         if (!errorField.isEmpty()) {
             log.error("Error in importing application. Field {} is missing", errorField);
+            if (errorField.equals(FieldName.APPLICATION)) {
+                return Mono.error(
+                        new AppsmithException(
+                                AppsmithError.VALIDATION_FAILURE,
+                                "Field '" + errorField
+                                        + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page."));
+            }
             return Mono.error(new AppsmithException(
                     AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
         }

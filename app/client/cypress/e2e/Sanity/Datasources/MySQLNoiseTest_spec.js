@@ -34,8 +34,6 @@ describe("MySQL noise test", function () {
     );
     cy.WaitAutoSave();
     cy.runQuery();
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     // API for killing mySQL session
     cy.CreateAPI("killSession");
     cy.enterDatasourceAndPath(

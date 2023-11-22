@@ -63,6 +63,12 @@ const QueryMain = importSvg(
 const SortIcon = importRemixIcon(
   async () => import("remixicon-react/ArrowUpDownLineIcon"),
 );
+const GroupQueryIcon = importSvg(
+  async () => import("assets/icons/menu/query-group.svg"),
+);
+const LibraryIcon = importSvg(
+  async () => import("assets/icons/menu/library.svg"),
+);
 
 /* eslint-disable react/display-name */
 
@@ -232,6 +238,16 @@ export const MenuIcons: {
   CURL_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <CurlIcon />
+    </IconWrapper>
+  ),
+  GROUP_QUERY_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <GroupQueryIcon />
+    </IconWrapper>
+  ),
+  LIBRARY_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <LibraryIcon />
     </IconWrapper>
   ),
 };

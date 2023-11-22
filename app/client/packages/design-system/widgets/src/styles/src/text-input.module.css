@@ -8,6 +8,7 @@
     box-shadow: 0 0 0 1px var(--color-bd-neutral);
     padding-inline: var(--inner-spacing-1);
     padding-block: var(--inner-spacing-1);
+    flex: 1;
   }
 
   & [data-field-input] :is(input, textarea) {
@@ -95,12 +96,25 @@
 
   /**
   * ----------------------------------------------------------------------------
-  * DISABleD
+  * DISABLED
   *-----------------------------------------------------------------------------
   */
   &[data-disabled],
   &[data-disabled] :is(input, textarea),
   &[data-disabled] label {
     cursor: not-allowed;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * START ICON AND END ICON
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-input-start-icon] {
+    width: max-content;
+  }
+
+  & [data-field-input-end-icon] {
+    width: max-content;
   }
 }

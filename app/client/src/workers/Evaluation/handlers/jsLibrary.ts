@@ -258,17 +258,24 @@ export async function loadLibraries(
           libraryReservedIdentifiers[accessors[i]] = true;
           invalidEntityIdentifiers[accessors[i]] = true;
         }
+
+        continue;
       } catch (e) {
-        try {
-          module = await import(/* webpackIgnore: true */ url);
-          if (!module || typeof module !== "object") throw "Not an ESM module";
-          const key = accessors[0];
-          libStore[key] = module;
-          libraryReservedIdentifiers[key] = true;
-          invalidEntityIdentifiers[key] = true;
-        } catch (e) {
-          throw new ImportError(url);
-        }
+        log.debug(e);
+      }
+
+      try {
+        module = await import(/* webpackIgnore: true */ url);
+        if (!module || typeof module !== "object") throw "Not an ESM module";
+        const key = accessors[0];
+        const flattenedModule = flattenModule(module);
+        libStore[key] = flattenedModule;
+        self[key] = flattenedModule;
+        libraryReservedIdentifiers[key] = true;
+        invalidEntityIdentifiers[key] = true;
+      } catch (e) {
+        log.debug(e);
+        throw new ImportError(url);
       }
     }
     JSLibraries.push(...libs);

@@ -15,7 +15,7 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { getAllTemplates } from "actions/templateActions";
-import { Link, Text } from "design-system";
+import { Flex, Link, Text } from "design-system";
 import {
   CREATE_NEW_APPS_STEP_SUBTITLE,
   CREATE_NEW_APPS_STEP_TITLE,
@@ -27,6 +27,10 @@ import {
   START_WITH_DATA_TITLE,
   START_WITH_DATA_SUBTITLE,
   createMessage,
+  START_WITH_DATA_CONNECT_HEADING,
+  START_WITH_DATA_CONNECT_SUBHEADING,
+  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
+  START_WITH_TEMPLATE_CONNECT_HEADING,
 } from "@appsmith/constants/messages";
 import Filters from "pages/Templates/Filters";
 import { isEmpty } from "lodash";
@@ -35,22 +39,30 @@ import { TemplateView } from "pages/Templates/TemplateView";
 import {
   firstTimeUserOnboardingInit,
   resetCurrentApplicationIdForCreateNewApp,
+  resetCurrentPluginIdForCreateNewApp,
 } from "actions/onboardingActions";
-import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentPluginIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { fetchPlugins } from "actions/pluginActions";
+import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 
 const SectionWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
   ${(props) => `
-    height: calc(100vh - ${props.theme.homePage.header}px);
     margin-top: ${props.theme.homePage.header}px;
+  `}
+  background: var(--ads-v2-color-gray-50);
+  ${(props) => `
+    min-height: calc(100vh - ${props.theme.homePage.header}px);
   `}
 `;
 
@@ -59,7 +71,7 @@ const BackWrapper = styled.div<{ hidden?: boolean }>`
   ${(props) => `
     top: ${props.theme.homePage.header}px;
     `}
-  background: var(--ads-v2-color-bg);
+  background: inherit;
   padding: var(--ads-v2-spaces-3);
   z-index: 1;
   margin-left: -4px;
@@ -116,12 +128,27 @@ const CardContainer = styled.div`
   text-align: center;
   cursor: pointer;
   border-radius: 4px;
+  background: var(--ads-v2-color-bg);
   img {
     height: 160px;
     margin-bottom: 48px;
   }
   position: relative;
 `;
+
+const WithDataWrapper = styled.div`
+  background: var(--ads-v2-color-bg);
+  padding: var(--ads-v2-spaces-13);
+`;
+
+const Header = ({ subtitle, title }: { subtitle: string; title: string }) => {
+  return (
+    <Flex flexDirection="column" mb="spaces-14" mt="spaces-7">
+      <Text kind="heading-xl">{title}</Text>
+      <Text>{subtitle}</Text>
+    </Flex>
+  );
+};
 
 interface CardProps {
   onClick?: () => void;
@@ -141,6 +168,14 @@ const Card = ({ onClick, src, subTitle, testid, title }: CardProps) => {
   );
 };
 
+const START_WITH_TYPE = {
+  TEMPLATE: "TEMPLATE",
+  DATA: "DATA",
+};
+type TYPE_START_WITH_TYPE = keyof typeof START_WITH_TYPE;
+type TYPE_START_WITH_TYPE_VALUE =
+  (typeof START_WITH_TYPE)[TYPE_START_WITH_TYPE];
+
 const CreateNewAppsOption = ({
   currentApplicationIdForCreateNewApp,
   onClickBack,
@@ -148,7 +183,9 @@ const CreateNewAppsOption = ({
   currentApplicationIdForCreateNewApp: string;
   onClickBack: () => void;
 }) => {
-  const [useTemplate, setUseTemplate] = useState(false);
+  const [useType, setUseType] = useState<
+    TYPE_START_WITH_TYPE_VALUE | undefined
+  >();
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const templatesCount = useSelector(
     (state: AppState) => state.ui.templates.templates.length,
@@ -157,6 +194,7 @@ const CreateNewAppsOption = ({
   const workspaceList = useSelector(getForkableWorkspaces);
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
+  const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(
       state,
@@ -178,7 +216,7 @@ const CreateNewAppsOption = ({
     if (!templatesCount) {
       dispatch(getAllTemplates());
     }
-    setUseTemplate(true);
+    setUseType(START_WITH_TYPE.TEMPLATE);
   };
 
   const onClickStartFromScratch = () => {
@@ -197,11 +235,12 @@ const CreateNewAppsOption = ({
     // fetch plugins information to show list of all plugins
     if (isEnabledForStartWithData) {
       dispatch(fetchPlugins());
+      setUseType(START_WITH_TYPE.DATA);
     }
   };
 
-  const goBackFromTemplate = () => {
-    setUseTemplate(false);
+  const goBackToInitialScreen = () => {
+    setUseType(undefined);
   };
 
   const getTemplateById = (id: string) => {
@@ -265,7 +304,7 @@ const CreateNewAppsOption = ({
 
   const onClickBackButton = () => {
     if (isImportingTemplate) return;
-    if (useTemplate) {
+    if (useType === START_WITH_TYPE.TEMPLATE) {
       if (selectedTemplate) {
         // Going back from template details view screen
         const template = getTemplateById(selectedTemplate);
@@ -281,7 +320,21 @@ const CreateNewAppsOption = ({
         AnalyticsUtil.logEvent(
           "ONBOARDING_FLOW_CLICK_BACK_BUTTON_START_FROM_TEMPLATE_PAGE",
         );
-        goBackFromTemplate();
+        goBackToInitialScreen();
+      }
+    } else if (useType === START_WITH_TYPE.DATA) {
+      if (createNewAppPluginId) {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_BACK_BUTTON_DATASOURCE_FORM_PAGE",
+          { pluginId: createNewAppPluginId },
+        );
+        dispatch(resetCurrentPluginIdForCreateNewApp());
+      } else {
+        // Going back from start from data screen
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_BACK_BUTTON_START_FROM_DATA_PAGE",
+        );
+        goBackToInitialScreen();
       }
     } else {
       // Going back from create new app flow
@@ -344,7 +397,7 @@ const CreateNewAppsOption = ({
 
   return (
     <SectionWrapper>
-      <BackWrapper hidden={!useTemplate}>
+      <BackWrapper hidden={!useType}>
         <Link
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
@@ -354,7 +407,7 @@ const CreateNewAppsOption = ({
           {createMessage(GO_BACK)}
         </Link>
       </BackWrapper>
-      {useTemplate ? (
+      {useType === START_WITH_TYPE.TEMPLATE ? (
         selectedTemplate ? (
           <TemplateView
             onClickUseTemplate={onClickUseTemplate}
@@ -363,18 +416,46 @@ const CreateNewAppsOption = ({
             templateId={selectedTemplate}
           />
         ) : (
-          <TemplateWrapper>
-            <FiltersWrapper>
-              <Filters />
-            </FiltersWrapper>
-            <TemplateContentWrapper>
-              <TemplatesContent
-                isForkingEnabled={!!workspaceList.length}
-                onForkTemplateClick={onForkTemplateClick}
-                onTemplateClick={onTemplateClick}
-              />
-            </TemplateContentWrapper>
-          </TemplateWrapper>
+          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+            <Header
+              subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
+              title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
+            />
+            <TemplateWrapper>
+              <FiltersWrapper>
+                <Filters />
+              </FiltersWrapper>
+              <TemplateContentWrapper>
+                <TemplatesContent
+                  isForkingEnabled={!!workspaceList.length}
+                  onForkTemplateClick={onForkTemplateClick}
+                  onTemplateClick={onTemplateClick}
+                />
+              </TemplateContentWrapper>
+            </TemplateWrapper>
+          </Flex>
+        )
+      ) : useType === START_WITH_TYPE.DATA ? (
+        createNewAppPluginId ? (
+          <div>{createNewAppPluginId}</div>
+        ) : (
+          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+            <Header
+              subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+              title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+            />
+            <WithDataWrapper>
+              <CreateNewDatasourceTab />
+            </WithDataWrapper>
+          </Flex>
+        )
+      ) : useType === START_WITH_TYPE.DATA ? (
+        createNewAppPluginId ? (
+          <div>{createNewAppPluginId}</div>
+        ) : (
+          <WithDataWrapper>
+            <CreateNewDatasourceTab />
+          </WithDataWrapper>
         )
       ) : (
         <OptionWrapper>

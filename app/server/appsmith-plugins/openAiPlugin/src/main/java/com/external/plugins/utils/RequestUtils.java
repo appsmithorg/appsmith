@@ -7,6 +7,7 @@ import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.CollectionUtils;
@@ -30,6 +31,8 @@ import static com.external.plugins.constants.OpenAIConstants.EXCHANGE_STRATEGIES
 import static com.external.plugins.constants.OpenAIConstants.MODEL;
 import static com.external.plugins.constants.OpenAIConstants.MODELS_ENDPOINT;
 import static com.external.plugins.constants.OpenAIConstants.OPEN_AI_HOST;
+import static com.external.plugins.constants.OpenAIConstants.VISION;
+import static com.external.plugins.constants.OpenAIConstants.VISION_ENDPOINT;
 import static com.external.plugins.constants.OpenAIErrorMessages.EMPTY_BEARER_TOKEN;
 
 public class RequestUtils {
@@ -57,6 +60,8 @@ public class RequestUtils {
             return URI.create(OPEN_AI_HOST + CHAT_ENDPOINT);
         } else if (EMBEDDINGS.equals(command)) {
             return URI.create(OPEN_AI_HOST + EMBEDDINGS_ENDPOINT);
+        } else if (VISION.equals(command)) {
+            return URI.create(OPEN_AI_HOST + VISION_ENDPOINT);
         } else if (MODEL.equals(command)) {
             return URI.create(OPEN_AI_HOST + MODELS_ENDPOINT);
         } else {
@@ -80,6 +85,7 @@ public class RequestUtils {
 
         return client.method(httpMethod)
                 .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(body)
                 .headers(
                         headers -> headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + bearerTokenAuth.getBearerToken()))

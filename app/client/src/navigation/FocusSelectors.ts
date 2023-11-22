@@ -6,6 +6,8 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "../constants/routes";
+import { shouldStorePageURLForFocus } from "./FocusUtils";
+import { FocusEntity, identifyEntityFromPath } from "./FocusEntity";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {
   const match = matchPath<{ datasourceId?: string }>(path, [
@@ -18,4 +20,17 @@ export const getSelectedDatasourceId = (path: string): string | undefined => {
   ]);
   if (!match) return undefined;
   return match.params.datasourceId;
+};
+
+export const getCurrentPageUrl = (path: string): string | undefined => {
+  if (shouldStorePageURLForFocus(path)) {
+    return path;
+  }
+};
+
+export const getCurrentAppUrl = (path: string): string | undefined => {
+  const focusInfo = identifyEntityFromPath(path);
+  if (focusInfo.entity !== FocusEntity.NONE) {
+    return path;
+  }
 };

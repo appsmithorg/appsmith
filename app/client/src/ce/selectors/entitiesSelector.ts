@@ -12,6 +12,7 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
@@ -45,6 +46,8 @@ import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { Plugin } from "api/PluginApi";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -389,6 +392,36 @@ export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
 export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
+
+// Most popular datasources are hardcoded right now to include these 4 plugins and REST API
+// Going forward we may want to have separate list for each instance based on usage
+export const getMostPopularPlugins = createSelector(getPlugins, (plugins) => {
+  const popularPlugins: Plugin[] = [];
+
+  const gsheetPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
+  );
+  const restPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.REST_API,
+  );
+  const postgresPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.POSTGRES,
+  );
+  const mysqlPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MY_SQL,
+  );
+  const mongoPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MONGO,
+  );
+
+  gsheetPlugin && popularPlugins.push(gsheetPlugin);
+  restPlugin && popularPlugins.push(restPlugin);
+  postgresPlugin && popularPlugins.push(postgresPlugin);
+  mysqlPlugin && popularPlugins.push(mysqlPlugin);
+  mongoPlugin && popularPlugins.push(mongoPlugin);
+
+  return popularPlugins;
+});
 
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter(
@@ -1281,3 +1314,14 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
 export function getInputsForModule(): Module["inputsForm"] {
   return [];
 }
+
+export const getModuleInstances = (): Record<string, ModuleInstance> => {
+  return {};
+};
+
+export const getModuleInstanceEntities = () => {
+  return {
+    actions: [],
+    jsCollections: [],
+  };
+};

@@ -26,7 +26,14 @@ describe("AlignedColumnHighlights tests", () => {
         layout: [],
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -58,7 +65,14 @@ describe("AlignedColumnHighlights tests", () => {
         layout: [],
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -84,9 +98,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -127,9 +162,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -173,9 +229,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -208,9 +285,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       /**
        * Second widget (input) is being dragged over it's parent layout.
@@ -247,9 +345,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       /**
        * First widget (button) is being dragged over it's parent layout.
@@ -305,13 +424,62 @@ describe("AlignedColumnHighlights tests", () => {
        * Create dimensions data
        */
       const dimensions: LayoutElementPositions = {
-        [row1.layoutId]: { height: 80, left: 10, top: 10, width: 300 },
-        [button1]: { height: 40, left: 10, top: 10, width: 100 },
-        [input1]: { height: 70, left: 120, top: 10, width: 170 },
-        [row2.layoutId]: { height: 80, left: 10, top: 90, width: 300 },
-        [button2]: { height: 40, left: 10, top: 10, width: 100 },
-        [input2]: { height: 70, left: 120, top: 10, width: 170 },
-        [column.layoutId]: { height: 200, left: 0, top: 0, width: 320 },
+        [row1.layoutId]: {
+          height: 80,
+          left: 10,
+          top: 10,
+          width: 300,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [button1]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input1]: {
+          height: 70,
+          left: 120,
+          top: 10,
+          width: 170,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
+        [row2.layoutId]: {
+          height: 80,
+          left: 10,
+          top: 90,
+          width: 300,
+          offsetLeft: 10,
+          offsetTop: 90,
+        },
+        [button2]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input2]: {
+          height: 70,
+          left: 120,
+          top: 10,
+          width: 170,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
+        [column.layoutId]: {
+          height: 200,
+          left: 0,
+          top: 0,
+          width: 320,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
 
       /**
@@ -390,13 +558,62 @@ describe("AlignedColumnHighlights tests", () => {
        * Create dimensions data
        */
       const dimensions: LayoutElementPositions = {
-        [row1.layoutId]: { height: 80, left: 10, top: 10, width: 300 },
-        [button1]: { height: 40, left: 10, top: 10, width: 100 },
-        [input1]: { height: 70, left: 120, top: 10, width: 170 },
-        [row2.layoutId]: { height: 80, left: 10, top: 90, width: 300 },
-        [button2]: { height: 40, left: 10, top: 10, width: 100 },
-        [input2]: { height: 70, left: 120, top: 10, width: 170 },
-        [column.layoutId]: { height: 200, left: 0, top: 0, width: 320 },
+        [row1.layoutId]: {
+          height: 80,
+          left: 10,
+          top: 10,
+          width: 300,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [button1]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input1]: {
+          height: 70,
+          left: 120,
+          top: 10,
+          width: 170,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
+        [row2.layoutId]: {
+          height: 80,
+          left: 10,
+          top: 90,
+          width: 300,
+          offsetLeft: 10,
+          offsetTop: 90,
+        },
+        [button2]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input2]: {
+          height: 70,
+          left: 120,
+          top: 10,
+          width: 170,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
+        [column.layoutId]: {
+          height: 200,
+          left: 0,
+          top: 0,
+          width: 320,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
 
       /**

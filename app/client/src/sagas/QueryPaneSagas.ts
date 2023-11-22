@@ -87,6 +87,7 @@ import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import type { ChangeQueryPayload } from "actions/queryPaneActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -394,6 +395,10 @@ function* handleDatasourceCreatedSaga(
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
     yield select(getGenerateCRUDEnabledPluginMap);
 
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+
   // isGeneratePageInitiator ensures that datasource is being created from generate page with data
   // then we check if the current plugin is supported for generate page with data functionality
   // and finally isDBCreated ensures that datasource is not in temporary state and
@@ -412,7 +417,7 @@ function* handleDatasourceCreatedSaga(
         },
       }),
     );
-  } else {
+  } else if (!currentApplicationIdForCreateNewApp) {
     history.push(
       datasourcesEditorIdURL({
         pageId,

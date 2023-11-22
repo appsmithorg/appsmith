@@ -6,19 +6,30 @@ import {
   PopoverHeader,
   PopoverTrigger,
 } from "design-system";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   createMessage,
   customJSLibraryMessages,
 } from "@appsmith/constants/messages";
 import { Installer } from "../../Explorer/Libraries/Installer";
+import { clearInstalls } from "actions/JSLibraryActions";
+import { useDispatch } from "react-redux";
 
 const AddLibraryPopover = () => {
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+  const onOpenChange = useCallback(
+    (open) => {
+      dispatch(clearInstalls());
+      setOpen(open);
+    },
+    [open],
+  );
   return (
-    <Popover onOpenChange={setOpen} open={open}>
+    <Popover onOpenChange={onOpenChange} open={open}>
       <PopoverTrigger>
         <Button
+          className="t--install-library-button"
           isIconButton
           kind="tertiary"
           onClick={() => setOpen(true)}

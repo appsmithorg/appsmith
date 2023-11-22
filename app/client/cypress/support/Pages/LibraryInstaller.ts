@@ -2,8 +2,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 export class LibraryInstaller {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
-  private _installer_trigger_locator =
-    ".t--entity-add-btn.group.libraries button";
+  private _installer_trigger_locator = ".t--install-library-button";
   private _installer_close_locator =
     ".ads-v2-popover__body-header .ads-v2-icon";
 
