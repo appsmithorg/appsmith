@@ -43,11 +43,7 @@ const _PopoverContent = (props: PopoverContentProps, ref: Ref<HTMLElement>) => {
 
   return (
     <FloatingPortal root={root}>
-      <FloatingFocusManager
-        closeOnFocusOut={closeOnFocusOut}
-        context={context}
-        modal={false}
-      >
+      <FloatingFocusManager closeOnFocusOut={closeOnFocusOut} context={context}>
         <div
           aria-describedby={descriptionId}
           aria-labelledby={labelId}
