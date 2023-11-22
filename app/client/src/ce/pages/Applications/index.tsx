@@ -25,7 +25,6 @@ import {
   getIsDeletingApplication,
   getIsFetchingApplications,
   getIsSavingWorkspaceInfo,
-  getUserApplicationsWorkspaces,
   getUserApplicationsWorkspacesList,
 } from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
@@ -66,6 +65,7 @@ import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
+  SEARCH_APPS,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
 
@@ -102,6 +102,11 @@ import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeature
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
+import {
+  getFetchedWorkspaces,
+  getIsFetchingWorkspaces,
+} from "@appsmith/selectors/workspaceSelectors";
+import ApplicationsSubHeader from "pages/common/SubHeader";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -226,18 +231,31 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
 export function LeftPaneSection(props: {
   heading: string;
   children?: any;
-  isFetchingApplications: boolean;
+  isLoadingResources: boolean;
   isBannerVisible?: boolean;
 }) {
   const dispatch = useDispatch();
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const tenantPermissions = useSelector(getTenantPermissions);
-  const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
+  const fetchedWorkspaces = useSelector(getFetchedWorkspaces);
 
   const canCreateWorkspace = getHasCreateWorkspacePermission(
     isFeatureEnabled,
     tenantPermissions,
   );
+
+  const createNewWorkspace = async () => {
+    await submitCreateWorkspaceForm(
+      {
+        name: getNextEntityName(
+          "Untitled workspace ",
+          fetchedWorkspaces.map((el: any) => el.name),
+        ),
+      },
+      dispatch,
+    );
+    dispatch({ type: ReduxActionTypes.GET_ALL_WORKSPACES_INIT });
+  };
 
   return (
     <LeftPaneDataSection isBannerVisible={props.isBannerVisible}>
@@ -246,18 +264,9 @@ export function LeftPaneSection(props: {
         {canCreateWorkspace && (
           <Button
             data-testid="t--workspace-new-workspace-auto-create"
+            isDisabled={props.isLoadingResources}
             kind="tertiary"
-            onClick={async () =>
-              submitCreateWorkspaceForm(
-                {
-                  name: getNextEntityName(
-                    "Untitled workspace ",
-                    fetchedUserWorkspaces.map((el: any) => el.workspace.name),
-                  ),
-                },
-                dispatch,
-              )
-            }
+            onClick={createNewWorkspace}
             startIcon="add-line"
           />
         )}
@@ -300,23 +309,22 @@ export const textIconStyles = (props: { color: string; hover: string }) => {
 };
 
 export function WorkspaceMenuItem({
-  isFetchingApplications,
+  isLoadingResources,
   selected,
   workspace,
 }: any) {
+  if (!workspace.id) return null;
   return (
     <ListItem
-      containerClassName={
-        isFetchingApplications ? BlueprintClasses.SKELETON : ""
-      }
+      containerClassName={isLoadingResources ? BlueprintClasses.SKELETON : ""}
       ellipsize={
-        isFetchingApplications ? 100 : 22
+        isLoadingResources ? 100 : 22
       } /* this is to avoid showing tooltip for loaders */
-      href={`${window.location.pathname}#${workspace.workspace.id}`}
+      href={`${window.location.pathname}#${workspace?.id}`}
       icon="group-2-line"
-      key={workspace.workspace.id}
+      key={workspace?.id}
       selected={selected}
-      text={workspace.workspace.name}
+      text={workspace?.name}
       tooltipPos={Position.BOTTOM_LEFT}
     />
   );
@@ -333,20 +341,24 @@ export interface LeftPaneProps {
 
 export function LeftPane(props: LeftPaneProps) {
   const { isBannerVisible = false } = props;
-  const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isFetchingWorkspaces = useSelector(getIsFetchingWorkspaces);
+  const fetchedWorkspaces = useSelector(getFetchedWorkspaces);
   const isMobile = useIsMobileDevice();
+  const { isFetchingPackages } = usePackage();
+  const isLoadingResources =
+    isFetchingWorkspaces || isFetchingApplications || isFetchingPackages;
 
   let userWorkspaces: any;
-  if (!isFetchingApplications) {
-    userWorkspaces = fetchedUserWorkspaces;
+  if (!isFetchingWorkspaces) {
+    userWorkspaces = fetchedWorkspaces;
   } else {
     userWorkspaces = loadingUserWorkspaces as any;
   }
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
-  const activeWorkspaceId = urlHash ? urlHash : userWorkspaces[0]?.workspace.id;
+  const activeWorkspaceId = urlHash ? urlHash : userWorkspaces[0]?.id;
 
   if (isMobile) return null;
   return (
@@ -354,18 +366,21 @@ export function LeftPane(props: LeftPaneProps) {
       <LeftPaneSection
         heading={createMessage(WORKSPACES_HEADING)}
         isBannerVisible={isBannerVisible}
-        isFetchingApplications={isFetchingApplications}
+        isLoadingResources={isLoadingResources}
       >
         <WorkpsacesNavigator data-testid="t--left-panel">
           {userWorkspaces &&
-            userWorkspaces.map((workspace: any) => (
-              <WorkspaceMenuItem
-                isFetchingApplications={isFetchingApplications}
-                key={workspace.workspace.id}
-                selected={workspace.workspace.id === activeWorkspaceId}
-                workspace={workspace}
-              />
-            ))}
+            userWorkspaces.map(
+              (workspace: any) =>
+                workspace && (
+                  <WorkspaceMenuItem
+                    isLoadingResources={isLoadingResources}
+                    key={workspace?.id}
+                    selected={workspace?.id === activeWorkspaceId}
+                    workspace={workspace}
+                  />
+                ),
+            )}
         </WorkpsacesNavigator>
       </LeftPaneSection>
     </LeftPaneWrapper>
@@ -439,6 +454,7 @@ export function ApplicationsSection(props: any) {
   const { isFetchingPackages } = usePackage();
   const isSavingWorkspaceInfo = useSelector(getIsSavingWorkspaceInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isFetchingWorkspaces = useSelector(getIsFetchingWorkspaces);
   const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
@@ -470,7 +486,8 @@ export function ApplicationsSection(props: any) {
   ) => {
     dispatch(updateApplication(id, data));
   };
-  const isLoadingResources = isFetchingApplications || isFetchingPackages;
+  const isLoadingResources =
+    isFetchingWorkspaces || isFetchingApplications || isFetchingPackages;
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
   useEffect(() => {
@@ -587,10 +604,14 @@ export function ApplicationsSection(props: any) {
     let activeWorkspace = updatedWorkspaces.find(
       (workspace: any) => workspace.workspace.id === urlHash,
     );
-    if ((!activeWorkspace || !urlHash) && updatedWorkspaces.length) {
+    if ((!activeWorkspace || !urlHash) && updatedWorkspaces?.length) {
       activeWorkspace = updatedWorkspaces[0];
     }
-    if (!activeWorkspace) return null;
+    if (!activeWorkspace || isLoadingResources) {
+      // const { applications } = loadingUserWorkspaces[0];
+      return null;
+      // <ResourceListLoader isMobile={isMobile} resources={applications} />
+    }
     const { applications, packages, workspace } = activeWorkspace;
     const hasManageWorkspacePermissions = isPermitted(
       workspace.userPermissions,
@@ -768,7 +789,7 @@ export interface ApplicationProps {
   createApplicationError?: string;
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
-  getAllApplication: () => void;
+  getAllWorkspaces: () => void;
   userWorkspaces: any;
   currentUser?: User;
   searchKeyword: string | undefined;
@@ -804,7 +825,7 @@ export class Applications<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.getAllApplication();
+    this.props.getAllWorkspaces();
     this.props.setHeaderMetaData(true, true);
 
     // Whenever we go back to home page from application page,
@@ -831,13 +852,13 @@ export class Applications<
         <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
           {(matches: boolean) => (
             <ApplicationsWrapper isMobile={matches}>
-              {/* <SubHeader
+              <ApplicationsSubHeader
                 search={{
                   placeholder: createMessage(SEARCH_APPS),
                   queryFn: this.props.searchApplications,
                   defaultValue: this.props.searchKeyword,
                 }}
-              /> */}
+              />
               <ApplicationsSection searchKeyword={this.props.searchKeyword} />
               <RepoLimitExceededErrorModal />
             </ApplicationsWrapper>
@@ -854,7 +875,7 @@ export const mapStateToProps = (state: AppState) => ({
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
-  userWorkspaces: getUserApplicationsWorkspacesList(state),
+  userWorkspaces: getFetchedWorkspaces(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),
   currentApplicationIdForCreateNewApp:
@@ -862,8 +883,8 @@ export const mapStateToProps = (state: AppState) => ({
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({
-  getAllApplication: () => {
-    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
+  getAllWorkspaces: () => {
+    dispatch({ type: ReduxActionTypes.GET_ALL_WORKSPACES_INIT });
   },
   resetEditor: () => {
     dispatch(resetEditorRequest());

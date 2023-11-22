@@ -8,6 +8,7 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type {
+  Workspace,
   Workspaces,
   WorkspaceUser,
 } from "@appsmith/constants/workspaceConstants";
@@ -34,6 +35,8 @@ export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,
   isErrorSavingAppName: false,
   isFetchingApplication: false,
+  workspaces: [],
+  isFetchingWorkspaces: false,
   isChangingViewAccess: false,
   applicationList: [],
   creatingApplication: {},
@@ -213,6 +216,19 @@ export const handlers = {
   [ReduxActionTypes.GET_ALL_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplications: true }),
+  [ReduxActionTypes.GET_ALL_WORKSPACES_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({ ...state, isFetchingWorkspaces: true }),
+  [ReduxActionTypes.GET_ALL_WORKSPACES_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ applicationList: any }>,
+  ) => {
+    return {
+      ...state,
+      isFetchingWorkspaces: false,
+      workspaces: action.payload,
+    };
+  },
   [ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ applicationList: any }>,
@@ -930,6 +946,7 @@ export interface ApplicationsReduxState {
   isSavingAppName: boolean;
   isErrorSavingAppName: boolean;
   isFetchingApplication: boolean;
+  isFetchingWorkspaces: boolean;
   isChangingViewAccess: boolean;
   creatingApplication: creatingApplicationMap;
   createApplicationError?: string;
@@ -943,6 +960,7 @@ export interface ApplicationsReduxState {
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;
   pageIdForImport: string;
+  workspaces: Workspace[];
   isDatasourceConfigForImportFetched?: boolean;
   isAppSidebarPinned: boolean;
   isSavingNavigationSetting: boolean;

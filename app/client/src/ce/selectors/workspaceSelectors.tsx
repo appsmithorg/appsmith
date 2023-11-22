@@ -1,6 +1,8 @@
 import { createSelector } from "reselect";
 import type { AppState } from "@appsmith/reducers";
 import type { WorkspaceRole } from "@appsmith/constants/workspaceConstants";
+import { getApplicationsState } from "./applicationSelectors";
+import type { ApplicationsReduxState } from "@appsmith/reducers/uiReducers/applicationsReducer";
 
 export const getRolesFromState = (state: AppState) => {
   return state.ui.workspaces.roles;
@@ -18,6 +20,16 @@ export const getWorkspaceLoadingStates = (state: AppState) => {
       (el) => el.isChangingRole,
     )[0],
   };
+};
+
+export const getIsFetchingWorkspaces = createSelector(
+  getApplicationsState,
+  (applications: ApplicationsReduxState): boolean =>
+    applications.isFetchingWorkspaces,
+);
+
+export const getFetchedWorkspaces = (state: AppState) => {
+  return state.ui.applications.workspaces;
 };
 
 export const getCurrentWorkspaceId = (state: AppState) =>
