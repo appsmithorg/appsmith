@@ -972,7 +972,7 @@ export const isAPathDynamicBindingPath = (
   propertyPath: string,
 ) => {
   return (
-    (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
+    isWidgetActionOrJsObject(entity) &&
     isPathADynamicBinding(entityConfig, propertyPath)
   );
 };
