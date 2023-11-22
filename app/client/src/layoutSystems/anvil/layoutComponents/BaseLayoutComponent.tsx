@@ -17,6 +17,7 @@ import {
 import { RenderModes } from "constants/WidgetConstants";
 import LayoutFactory from "./LayoutFactory";
 import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";
+import { defaultHighlightPayload } from "../utils/constants";
 
 abstract class BaseLayoutComponent extends PureComponent<
   LayoutComponentProps,
@@ -42,7 +43,8 @@ abstract class BaseLayoutComponent extends PureComponent<
   }
 
   // Get a list of highlights to demarcate the drop positions within the layout.
-  static deriveHighlights: DeriveHighlightsFn = () => () => [];
+  static deriveHighlights: DeriveHighlightsFn = () => () =>
+    defaultHighlightPayload;
 
   // Get a list of child widgetIds rendered by the layout.
   static extractChildWidgetIds(props: LayoutProps): string[] {
