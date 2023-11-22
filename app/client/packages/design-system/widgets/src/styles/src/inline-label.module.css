@@ -16,14 +16,4 @@
     flex-direction: row-reverse;
     justify-content: space-between;
   }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * DISABLED
-  *-----------------------------------------------------------------------------
-  */
-  &[data-disabled] {
-    opacity: var(--opacity-disabled);
-    cursor: default;
-  }
 }
