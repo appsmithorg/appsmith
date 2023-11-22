@@ -66,7 +66,8 @@ describe("Git sync Bug #10773", function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify ChildPage is not on master
     cy.switchGitBranch(mainBranch);
-    EditorNavigation.SelectEntityByName(pagename, EntityType.Page);
+    cy.CheckAndUnfoldEntityItem("Pages");
+    entityExplorer.AssertEntityAbsenceInExplorer(pagename);
     // create another branch and verify deleted page doesn't exist on it
     //cy.createGitBranch(tempBranch0);
     gitSync.CreateGitBranch(tempBranch0, false);
@@ -222,7 +223,7 @@ describe("Git sync Bug #10773", function () {
 
           // verify jsObject data binding on Page 1
           cy.CheckAndUnfoldEntityItem("Queries/JS");
-          entityExplorer.AssertEntityAbsenceInExplorer(jsObject);
+          entityExplorer.AssertEntityPresenceInExplorer(jsObject);
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );

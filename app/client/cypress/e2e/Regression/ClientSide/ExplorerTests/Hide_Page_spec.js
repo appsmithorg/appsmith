@@ -13,10 +13,10 @@ describe("Hide / Show page test functionality", function () {
     cy.Createpage(pageOne);
     cy.Createpage(pageTwo);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.get(`.t--entity-item:contains('MyPage2')`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
+    _.entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "MyPage2",
+      action: "Hide",
     });
-    cy.get(pages.hidePage).click({ force: true });
     cy.ClearSearch();
     _.deployMode.DeployApp();
     cy.get(".t--page-switch-tab").should("have.length", 2);

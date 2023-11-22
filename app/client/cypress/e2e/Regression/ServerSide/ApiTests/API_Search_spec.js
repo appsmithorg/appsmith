@@ -27,8 +27,8 @@ describe("API Panel Test Functionality ", function () {
       cy.CreateAPI(`SecondAPI_${uid}`);
       cy.CheckAndUnfoldEntityItem("Queries/JS");
       cy.log("Creation of SecondAPI Action successful");
-      entityExplorer.AssertEntityPresenceInExplorer("FirstAPI");
-      entityExplorer.AssertEntityPresenceInExplorer("SecondAPI");
+      entityExplorer.AssertEntityPresenceInExplorer(`FirstAPI_${uid}`);
+      entityExplorer.AssertEntityPresenceInExplorer(`SecondAPI_${uid}`);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: `FirstAPI_${uid}`,
         action: "Delete",

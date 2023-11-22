@@ -1459,6 +1459,7 @@ export class DataSources {
         true,
         0,
       );
+    this.AssertDSDialogVisibility(false);
   }
 
   // this initiates saving via the back button.
