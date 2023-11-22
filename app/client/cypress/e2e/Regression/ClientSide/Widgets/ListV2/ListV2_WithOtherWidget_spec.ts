@@ -47,9 +47,10 @@ describe("List widget V2 functionality with audio and video widgets", () => {
     propPane.AssertPropertyVisibility(eventsProperties, "events");
 
     // Audio widget inside List
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
-    EditorNavigation.SelectEntityByName("Container1", EntityType.List1);
-    EditorNavigation.SelectEntityByName("Audio1", EntityType.Container1);
+    EditorNavigation.SelectEntityByName("Audio1", EntityType.Widget, {}, [
+      "List1",
+      "Container1",
+    ]);
     propPane.AssertPropertyVisibility(dataProperties, "data");
     propPane.AssertPropertyVisibility(generalProperties, "general");
     propPane.AssertPropertyVisibility(eventsProperties, "events");

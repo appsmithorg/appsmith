@@ -47,7 +47,7 @@ describe("List v2 - Data Identifier property", () => {
       "https://api.punkapi.com/v2/beers?page=1&per_page=2",
     );
     apiPage.RunAPI(false);
-    EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget, {}, [
       "List1",
       "Container1",
     ]);

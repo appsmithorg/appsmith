@@ -22,7 +22,9 @@ describe("Dynamic Height Width validation with limits", function () {
 
       // agHelper.GetWidgetCSSHeight(locators._widgetInDeployed("modal"))
       .then((currentModalHeight: number) => {
-        EditorNavigation.SelectEntityByName("Text1", EntityType.Modal1);
+        EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+          "Modal1",
+        ]);
         agHelper.AssertElementVisibility(propPane._propertyPaneHeightLabel);
         propPane.SelectPropertiesDropDown("height", "Auto Height");
         EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);

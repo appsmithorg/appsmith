@@ -174,7 +174,7 @@ describe("MaintainContext&Focus", function () {
     cy.Createpage("Page2");
 
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    EditorNavigation.SelectEntityByName("Rest_Api_1", EntityType.Queries / JS);
+    EditorNavigation.SelectEntityByName("Rest_Api_1", EntityType.Api);
 
     EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });

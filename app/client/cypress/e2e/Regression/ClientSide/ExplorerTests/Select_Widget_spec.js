@@ -37,7 +37,7 @@ describe("Explorer hidden widget Selection", () => {
       "UnselectedTab",
       EntityType.Widget,
       {},
-      ["Tab1"],
+      ["Tabs1"],
     );
 
     // Assert correct tab is open

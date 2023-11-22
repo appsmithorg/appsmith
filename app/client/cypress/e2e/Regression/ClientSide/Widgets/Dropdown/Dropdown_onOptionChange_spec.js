@@ -137,7 +137,7 @@ describe("Dropdown Widget", function () {
   it("4. Toggle JS - Dropdown-Call-Query Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
-    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget, [
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget, {}, [
       "Container3",
     ]);
 
@@ -163,9 +163,9 @@ describe("Dropdown Widget", function () {
   it("5. Toggle JS - Dropdown-CallAnApi Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
 
     cy.testJsontext(
       "onoptionchange",

@@ -18,7 +18,12 @@ describe("Dynamic Height Width validation", function () {
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.FORM))
       .then((formheight) => {
         propPane.SelectPropertiesDropDown("height", "Auto Height");
-        EditorNavigation.SelectEntityByName("SwitchGroup1", EntityType.Form1);
+        EditorNavigation.SelectEntityByName(
+          "SwitchGroup1",
+          EntityType.Widget,
+          {},
+          ["Form1"],
+        );
         propPane.SelectPropertiesDropDown("height", "Auto Height");
         agHelper
           .GetWidgetCSSHeight(
