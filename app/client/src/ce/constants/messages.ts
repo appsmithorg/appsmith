@@ -1733,6 +1733,11 @@ export const FETCHING_TEMPLATES = () => "Loading template details";
 export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
 
 export const TEMPLATES_BACK_BUTTON = () => "Back";
+export const SKIP_START_WITH_USE_CASE_TEMPLATES = () =>
+  "Skip this step, I’ll do it later";
+export const SELECT_A_TEMPLATE_TITLE = () => "Select a template";
+export const SELECT_A_TEMPLATE_SUBTITLE = () =>
+  "Choose an option below to embark on your app-building adventure!";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 

@@ -2,6 +2,7 @@ import {
   CREATE_NEW_APPS_STEP_SUBTITLE,
   CREATE_NEW_APPS_STEP_TITLE,
   GO_BACK,
+  SKIP_START_WITH_USE_CASE_TEMPLATES,
   START_FROM_SCRATCH_SUBTITLE,
   START_FROM_SCRATCH_TITLE,
   START_FROM_TEMPLATE_SUBTITLE,
@@ -34,7 +35,7 @@ import { Link, Text } from "design-system";
 import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import { TemplateView } from "pages/Templates/TemplateView";
-import TemplatesMainRevamp from "pages/Templates/TemplatesMainRevamp";
+import TemplatesHomeWrapper from "pages/Templates/TemplatesHomeWrapper";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -61,6 +62,8 @@ const SectionWrapper = styled.div`
 
 const BackWrapper = styled.div<{ hidden?: boolean }>`
   position: sticky;
+  display: flex;
+  justify-content: space-between;
   ${(props) => `
     top: ${props.theme.homePage.header}px;
     `}
@@ -239,6 +242,12 @@ const CreateNewAppsOption = ({
     }
   };
 
+  const onClickSkipButton = () => {
+    onClickBack();
+
+    // TODO:Handle analytics for this
+  };
+
   const onClickBackButton = () => {
     if (isImportingTemplate) return;
     if (useType === START_WITH_TYPE.TEMPLATE) {
@@ -343,6 +352,15 @@ const CreateNewAppsOption = ({
         >
           {createMessage(GO_BACK)}
         </Link>
+
+        <Link
+          className="t--create-new-app-option-skip"
+          data-testid="t--create-new-app-option-skip"
+          endIcon="arrow-right-line"
+          onClick={onClickSkipButton}
+        >
+          {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
+        </Link>
       </BackWrapper>
       {useType === START_WITH_TYPE.TEMPLATE ? (
         selectedTemplate ? (
@@ -354,7 +372,12 @@ const CreateNewAppsOption = ({
           />
         ) : (
           <TemplateWrapper>
-            <TemplatesMainRevamp />
+            <TemplatesHomeWrapper
+              currentApplicationIdForCreateNewApp={
+                currentApplicationIdForCreateNewApp
+              }
+              setSelectedTemplate={setSelectedTemplate}
+            />
           </TemplateWrapper>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
