@@ -1,5 +1,11 @@
 type ID = string;
 
+export enum MODULE_TYPE {
+  QUERY = "QUERY_MODULE",
+  JS = "JS",
+  UI = "UI",
+}
+
 export interface ModuleInput {
   id: string;
   propertyName: string;

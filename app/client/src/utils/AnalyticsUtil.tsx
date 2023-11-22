@@ -28,13 +28,17 @@ function getApplicationId(location: Location) {
   return appId;
 }
 
+export enum AnalyticsEventType {
+  error = "error",
+}
+
 class AnalyticsUtil {
   static cachedAnonymoustId: string;
   static cachedUserId: string;
   static user?: User = undefined;
   static blockTrackEvent: boolean | undefined;
   static instanceId?: string = "";
-
+  static blockErrorLogs = false;
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
@@ -119,8 +123,18 @@ class AnalyticsUtil {
     return initPromise;
   }
 
-  static logEvent(eventName: EventName, eventData: any = {}) {
+  static logEvent(
+    eventName: EventName,
+    eventData: any = {},
+    eventType?: AnalyticsEventType,
+  ) {
     if (AnalyticsUtil.blockTrackEvent) {
+      return;
+    }
+    if (
+      AnalyticsUtil.blockErrorLogs &&
+      eventType === AnalyticsEventType.error
+    ) {
       return;
     }
 
@@ -254,6 +268,9 @@ class AnalyticsUtil {
   static removeAnalytics() {
     AnalyticsUtil.blockTrackEvent = false;
     (window as any).analytics = undefined;
+  }
+  static setBlockErrorLogs(value: boolean) {
+    AnalyticsUtil.blockErrorLogs = value;
   }
 }
 

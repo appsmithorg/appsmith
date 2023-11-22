@@ -162,7 +162,7 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                 .map(ActionDTO::getValidName);
     }
 
-    private Mono<Set<String>> refactorNameInAction(
+    protected Mono<Set<String>> refactorNameInAction(
             ActionDTO actionDTO, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
         // If we're going the fallback route (without AST), we can first filter actions to be refactored
         // By performing a check on whether json path keys had a reference
