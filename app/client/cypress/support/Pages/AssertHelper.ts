@@ -32,11 +32,12 @@ export class AssertHelper extends ReusableHelper {
   }
 
   public AssertReduxLoad() {
-    cy.window()
-      .its("store")
-      .then((store) => {
-        cy.waitUntil(
-          () => {
+    this.Sleep(500);
+    cy.waitUntil(
+      () => {
+        cy.window()
+          .its("store")
+          .then((store: any) => {
             const currentState = store.getState().ui.editor.loadingStates;
             // cy.log(
             //   "Current Redux State:",
@@ -44,10 +45,11 @@ export class AssertHelper extends ReusableHelper {
             // );
             // cy.log("currentState.loading:", currentState.loading);
             return currentState.loading === false;
-          },
-          { timeout: Cypress.config("pageLoadTimeout") },
-        );
-      });
+          });
+      },
+      { timeout: Cypress.config("pageLoadTimeout") },
+    );
+    this.Sleep(500);
   }
 
   public AssertDelete(entityType: EntityItemsType) {
