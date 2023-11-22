@@ -66,6 +66,7 @@ import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
+  SEARCH_APPS,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
 
@@ -102,6 +103,7 @@ import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeature
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
+import ApplicationsSubHeader from "pages/common/SubHeader";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -831,13 +833,13 @@ export class Applications<
         <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
           {(matches: boolean) => (
             <ApplicationsWrapper isMobile={matches}>
-              {/* <SubHeader
+              <ApplicationsSubHeader
                 search={{
                   placeholder: createMessage(SEARCH_APPS),
                   queryFn: this.props.searchApplications,
                   defaultValue: this.props.searchKeyword,
                 }}
-              /> */}
+              />
               <ApplicationsSection searchKeyword={this.props.searchKeyword} />
               <RepoLimitExceededErrorModal />
             </ApplicationsWrapper>

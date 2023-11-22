@@ -24,22 +24,29 @@ import { CONTAINER_WRAPPER_PADDING } from "@appsmith/pages/Applications";
 const SubHeaderWrapper = styled.div<{
   isMobile?: boolean;
   isBannerVisible?: boolean;
+  isVisible?: boolean;
 }>`
   width: 100%;
   display: flex;
   justify-content: flex-end;
   background: var(--ads-v2-color-bg);
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
-  ${({ isBannerVisible, isMobile }) =>
+  ${({ isBannerVisible, isMobile, isVisible }) =>
     isMobile
       ? `padding: 12px 16px;
         position: sticky; ${
           isBannerVisible ? "top: 80px; margin-top: 80px" : "top: 0; margin: 0"
         };
         `
-      : `padding: ${CONTAINER_WRAPPER_PADDING} ${CONTAINER_WRAPPER_PADDING} 12px ${CONTAINER_WRAPPER_PADDING} ; position: sticky; ${
-          isBannerVisible ? "top: 40px; margin-top: 40px" : "top: 0"
-        }; align-items: center;`}
+      : `padding: ${
+          isVisible
+            ? `${CONTAINER_WRAPPER_PADDING} ${CONTAINER_WRAPPER_PADDING} 12px ${CONTAINER_WRAPPER_PADDING}`
+            : ""
+        } ; 
+          position: sticky; 
+      ${
+        isBannerVisible ? "top: 40px; margin-top: 40px" : "top: 0"
+      }; align-items: center;`}
 `;
 
 const MultipleDeleteWrapper = styled.div`
@@ -105,6 +112,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
     <SubHeaderWrapper
       isBannerVisible={props.isBannerVisible}
       isMobile={isMobile}
+      isVisible={!!(isEnabledMultipleSelection || props.add)}
     >
       {/* <SearchContainer isMobile={isMobile}>
         {props.search && (
