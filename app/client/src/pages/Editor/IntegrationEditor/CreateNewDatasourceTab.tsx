@@ -253,19 +253,25 @@ class CreateNewDatasourceTab extends React.Component<
         id="new-integrations-wrapper"
       >
         {dataSources.length === 0 && <AddDatasourceSecurely />}
-        {dataSources.length === 0 &&
-          this.props.mockDatasources.length > 0 &&
-          mockDataSection}
+        {dataSources.length === 0 && this.props.mockDatasources.length > 0 && (
+          <>
+            {mockDataSection}
+            <StyledDivider />
+          </>
+        )}
         {isEnabledForStartWithData && (
-          <CreateNewDatasource
-            active={false}
-            history={history}
-            isCreating={isCreating}
-            location={location}
-            pageId={pageId}
-            showMostPopularPlugins
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
+          <>
+            <CreateNewDatasource
+              active={false}
+              history={history}
+              isCreating={isCreating}
+              location={location}
+              pageId={pageId}
+              showMostPopularPlugins
+              showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+            />
+            <StyledDivider />
+          </>
         )}
         <CreateNewAPI
           active={false}

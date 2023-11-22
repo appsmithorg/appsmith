@@ -77,8 +77,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         String layoutId = refactorEntityNameDTO.getLayoutId();
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
 
-        String regexPattern = preWord + oldName + postWord;
-        Pattern oldNamePattern = Pattern.compile(regexPattern);
+        Pattern oldNamePattern = getReplacementPattern(oldName);
 
         RefactoringMetaDTO refactoringMetaDTO = new RefactoringMetaDTO();
 
@@ -121,6 +120,11 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
             }
             return Mono.empty();
         }));
+    }
+
+    protected static Pattern getReplacementPattern(String oldName) {
+        String regexPattern = preWord + oldName + postWord;
+        return Pattern.compile(regexPattern);
     }
 
     protected Mono<Void> refactorAllReferences(

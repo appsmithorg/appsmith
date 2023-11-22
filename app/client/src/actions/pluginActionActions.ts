@@ -340,22 +340,17 @@ export const bindDataOnCanvas = (payload: {
   };
 };
 
-export const updateActionData = ({
-  data,
-  dataPath,
-  entityName,
-}: {
-  entityName: string;
-  dataPath: string;
-  data: unknown;
-}) => {
+export const updateActionData = (
+  payload: {
+    entityName: string;
+    dataPath: string;
+    data: unknown;
+    dataPathRef?: string;
+  }[],
+) => {
   return {
     type: ReduxActionTypes.UPDATE_ACTION_DATA,
-    payload: {
-      entityName,
-      dataPath,
-      data,
-    },
+    payload,
   };
 };
 
