@@ -43,18 +43,6 @@ describe("MySQL Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
     dataSources.RunQuery();
 
-    //Creating SELECT query
-    dataSources.createQueryWithDatasourceSchemaTemplate(
-      dsName,
-      inputData.tableName,
-      "Select",
-    );
-    agHelper.RenameWithInPane("selectRecords");
-    dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-
     //Other queries
     query = inputData.query.insertRecord;
     dataSources.createQueryWithDatasourceSchemaTemplate(
@@ -73,6 +61,18 @@ describe("MySQL Datatype tests", function () {
     );
     agHelper.RenameWithInPane("dropTable");
     dataSources.EnterQuery(query);
+
+    //Creating SELECT query
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      inputData.tableName,
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
   });
 
   //Insert valid/true values into datasource
