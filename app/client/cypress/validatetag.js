@@ -1,4 +1,6 @@
 const fs = require('fs');
+const path = require('path');
+const os = require('os');
 const { Tag } = require('./tags');
 
 function extractTagsFromTestFile(filePath) {
@@ -11,29 +13,36 @@ function extractTagsFromTestFile(filePath) {
   if (matches && matches.length >= 3) {
     const tagsObj = eval(`(${matches[2]})`); // Parse the tags object
     if (tagsObj.tags && Array.isArray(tagsObj.tags)) {
-      return { filePath, tags: tagsObj.tags };
+      return tagsObj.tags;
     }
   }
-  return { filePath, tags: [] };
+  return [];
 }
 
-function checkTagsValidity(fileInfo) {
-  const invalidTags = fileInfo.tags.filter(tag => !Tag.includes(tag));
-  if (invalidTags.length > 0) {
-    return { filePath: fileInfo.filePath, invalidTags };
+function checkTagsValidity(filePath) {
+  try {
+    const extractedTags = extractTagsFromTestFile(filePath);
+    const invalidTags = extractedTags.filter(tag => !Tag.includes(tag));
+
+    if (invalidTags.length > 0) {
+      throw new Error(`Invalid tag(s) found in file '${filePath}': ${invalidTags.join(", ")}. Allowed tags are: ${Tag.join(", ")}`);
+    }
+    console.log(`Tags in file '${filePath}' are valid.`);
+  } catch (error) {
+    console.error(error.message);
   }
-  return null;
 }
 
-// Extract tags from the test files passed as command-line arguments
-const fileInfos = process.argv.slice(2).map(filePath => extractTagsFromTestFile(filePath));
+// Retrieve file paths from command line arguments (excluding the first two arguments: node path and script name)
+const relativeFilePaths = process.argv.slice(2);
 
-// Check validity for each file
-fileInfos.forEach(fileInfo => {
-  const error = checkTagsValidity(fileInfo);
-  if (error) {
-    console.error(`Invalid tag(s) found in ${error.filePath}: ${error.invalidTags.join(', ')}. Refer to tag.js for allowed tags.`);
-  } else {
-    console.log(`Tags in ${fileInfo.filePath} are valid.`);
-  }
+// Get the user's home directory
+const userHomeDirectory = os.homedir();
+
+// Convert relative file paths to absolute paths using the user's home directory
+const absoluteFilePaths = relativeFilePaths.map(relativePath => path.join(userHomeDirectory, relativePath));
+
+// Process each file path
+absoluteFilePaths.forEach(filePath => {
+  checkTagsValidity(filePath);
 });
