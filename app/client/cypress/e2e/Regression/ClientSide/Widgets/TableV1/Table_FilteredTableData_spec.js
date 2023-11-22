@@ -11,7 +11,6 @@ describe("Table Widget Filtered Table data in autocomplete", function () {
 
   it("Table Widget Functionality To Filter and search data", function () {
     cy.openPropertyPane("tablewidget");
-    cy.wait("@updateLayout");
     cy.get(publish.searchInput).first().type("query");
     cy.get(publish.filterBtn).click();
     cy.get(publish.attributeDropdown).click();
