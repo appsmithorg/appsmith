@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -71,6 +72,9 @@ public class LayoutServiceTest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -251,7 +255,7 @@ public class LayoutServiceTest {
         Layout startLayout =
                 layoutService.createLayout(page.getId(), testLayout).block();
 
-        Mono<LayoutDTO> updatedLayoutMono = layoutActionService.updateLayout(
+        Mono<LayoutDTO> updatedLayoutMono = updateLayoutService.updateLayout(
                 "random-impossible-id-page", page.getApplicationId(), startLayout.getId(), updateLayout);
 
         StepVerifier.create(updatedLayoutMono)
@@ -287,7 +291,7 @@ public class LayoutServiceTest {
         Layout startLayout =
                 layoutService.createLayout(page.getId(), testLayout).block();
 
-        Mono<LayoutDTO> updatedLayoutMono = layoutActionService.updateLayout(
+        Mono<LayoutDTO> updatedLayoutMono = updateLayoutService.updateLayout(
                 page.getId(), "random-impossible-id-app", startLayout.getId(), updateLayout);
 
         StepVerifier.create(updatedLayoutMono)
@@ -326,7 +330,7 @@ public class LayoutServiceTest {
             PageDTO page = tuple.getT1();
             Layout startLayout = tuple.getT2();
             startLayout.setDsl(obj1);
-            return layoutActionService.updateLayout(
+            return updateLayoutService.updateLayout(
                     page.getId(), page.getApplicationId(), startLayout.getId(), startLayout);
         });
 
@@ -623,7 +627,7 @@ public class LayoutServiceTest {
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(
+                    return updateLayoutService.updateLayout(
                             page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
                 });
 
@@ -832,7 +836,7 @@ public class LayoutServiceTest {
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(
+                    return updateLayoutService.updateLayout(
                             page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
                 });
 
@@ -1285,7 +1289,7 @@ public class LayoutServiceTest {
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(
+                    return updateLayoutService.updateLayout(
                             page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
                 });
 
@@ -1371,7 +1375,7 @@ public class LayoutServiceTest {
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);
 
-                    return layoutActionService.updateLayout(
+                    return updateLayoutService.updateLayout(
                             page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
                 });
 
