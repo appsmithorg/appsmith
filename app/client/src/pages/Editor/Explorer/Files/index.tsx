@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useActiveAction } from "../hooks";
+import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import { Entity, EntityClassNames } from "../Entity/index";
 import {
   createMessage,
