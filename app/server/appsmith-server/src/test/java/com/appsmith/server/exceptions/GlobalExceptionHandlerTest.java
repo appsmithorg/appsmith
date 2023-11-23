@@ -13,7 +13,13 @@ import reactor.test.StepVerifier;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GlobalExceptionHandlerTest {
-    // Refer issue: https://github.com/appsmithorg/appsmith/pull/29009 for more context
+    /*
+     * test case to ensure that whenever there is appsmithPluginException on server,
+     * we never expose the plugin status code directly,
+     * instead we use generic 500 internal server error.
+     * The actual plugin status code is visible inside response.status
+     * https://github.com/appsmithorg/appsmith/pull/29009 for more context
+     */
     @Test
     public void testCatchPluginException_onAppsmithPluginException_throwsInternalServerError() {
         MockServerHttpRequest httpRequest = MockServerHttpRequest.get("").build();
