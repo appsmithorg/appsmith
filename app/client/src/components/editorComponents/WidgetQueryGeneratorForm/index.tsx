@@ -26,6 +26,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getFeatureWalkthroughShown,
   isUserSignedUpFlagSet,
+  setFeatureWalkthroughShown,
 } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import type { User } from "constants/userConstants";
@@ -245,6 +246,10 @@ function WidgetQueryGeneratorForm(props: Props) {
     const isSignUpFlagSet = await isUserSignedUpFlagSet(user.email);
     const isNewUser = user && isSignUpFlagSet;
     if (!isNewUser) return;
+    await setFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.customize_one_click_data,
+      true,
+    );
     props.toggleDynamicProperty?.();
   }, [props.toggleDynamicProperty, isFeatureEnabled, user]);
 
