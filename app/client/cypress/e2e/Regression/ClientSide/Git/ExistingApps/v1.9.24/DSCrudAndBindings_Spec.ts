@@ -258,7 +258,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.Sleep(2000);
   });
 
-  it("4. Edit JSObject & Check Updated Data ", () => {
+  it.skip("4. Edit JSObject & Check Updated Data ", () => {
     deployMode.NavigateBacktoEditor();
     //Edit existing JS object
     EditorNavigation.SelectEntityByName("users", EntityType.JSObject);

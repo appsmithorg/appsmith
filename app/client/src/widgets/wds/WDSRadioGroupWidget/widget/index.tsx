@@ -1,11 +1,13 @@
 import React from "react";
-import xor from "lodash/xor";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import isNumber from "lodash/isNumber";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
-import type { SetterConfig } from "entities/AppTheming";
-import type { AnvilConfig } from "WidgetProvider/constants";
-import { Switch, SwitchGroup } from "@design-system/widgets";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { Radio, RadioGroup } from "@design-system/widgets";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import {
@@ -14,18 +16,19 @@ import {
   defaultsConfig,
   featuresConfig,
   metaConfig,
+  methodsConfig,
   propertyPaneContentConfig,
   propertyPaneStyleConfig,
   settersConfig,
-} from "./../config";
+} from "./config";
 import { validateInput } from "./helpers";
-import type { SwitchGroupWidgetProps, OptionProps } from "./types";
+import type { RadioGroupWidgetProps } from "./types";
 
-class WDSSwitchGroupWidget extends BaseWidget<
-  SwitchGroupWidgetProps,
+class WDSRadioGroupWidget extends BaseWidget<
+  RadioGroupWidgetProps,
   WidgetState
 > {
-  static type = "WDS_SWITCH_GROUP_WIDGET";
+  static type = "WDS_RADIO_GROUP_WIDGET";
 
   static getConfig() {
     return metaConfig;
@@ -39,6 +42,10 @@ class WDSSwitchGroupWidget extends BaseWidget<
     return defaultsConfig;
   }
 
+  static getMethods() {
+    return methodsConfig;
+  }
+
   static getAutoLayoutConfig() {
     return {};
   }
@@ -47,12 +54,8 @@ class WDSSwitchGroupWidget extends BaseWidget<
     return anvilConfig;
   }
 
-  static getAutocompleteDefinitions() {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return autocompleteConfig;
-  }
-
-  static getSetterConfig(): SetterConfig {
-    return settersConfig;
   }
 
   static getPropertyPaneContentConfig() {
@@ -63,46 +66,65 @@ class WDSSwitchGroupWidget extends BaseWidget<
     return propertyPaneStyleConfig;
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
+  static getDerivedPropertiesMap() {
     return {
-      selectedValues: "defaultSelectedValues",
+      selectedOption:
+        "{{_.find(this.options, { value: this.selectedOptionValue })}}",
+      isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
+      value: `{{this.selectedOptionValue}}`,
     };
   }
 
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+  static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      value: `{{this.selectedValues}}`,
-      isValid: `{{ this.isRequired ? !!this.selectedValues.length : true }}`,
+      selectedOptionValue: "defaultOptionValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedValues: undefined,
+      selectedOptionValue: undefined,
       isDirty: false,
     };
   }
 
-  componentDidUpdate(prevProps: SwitchGroupWidgetProps) {
+  static getStylesheetConfig(): Stylesheet {
+    return {
+      accentColor: "{{appsmith.theme.colors.primaryColor}}",
+      boxShadow: "none",
+    };
+  }
+
+  componentDidUpdate(prevProps: RadioGroupWidgetProps): void {
     if (
-      xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
-        .length > 0 &&
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
   }
 
-  onChange = (selectedValues: OptionProps["value"][]) => {
+  static getSetterConfig(): SetterConfig {
+    return settersConfig;
+  }
+
+  onRadioSelectionChange = (updatedValue: string) => {
+    let newVal;
+    if (isNumber(this.props.options[0].value)) {
+      newVal = parseFloat(updatedValue);
+    } else {
+      newVal = updatedValue;
+    }
+    // Set isDirty to true when the selection changes
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
+    this.props.updateWidgetMetaProperty("selectedOptionValue", newVal, {
       triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {
-        type: EventType.ON_SWITCH_GROUP_SELECTION_CHANGE,
+        type: EventType.ON_OPTION_CHANGE,
       },
     });
   };
@@ -120,26 +142,26 @@ class WDSSwitchGroupWidget extends BaseWidget<
     const validation = validateInput(this.props);
 
     return (
-      <SwitchGroup
+      <RadioGroup
         {...rest}
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
-        onChange={this.onChange}
+        onChange={this.onRadioSelectionChange}
         validationState={validation.validationStatus}
         value={selectedOptionValue}
       >
         {options.map((option, index) => (
-          <Switch
+          <Radio
             key={`${widgetId}-option-${index}`}
             labelPosition={labelPosition}
             value={option.value}
           >
             {option.label}
-          </Switch>
+          </Radio>
         ))}
-      </SwitchGroup>
+      </RadioGroup>
     );
   }
 }
 
-export { WDSSwitchGroupWidget };
+export { WDSRadioGroupWidget };
