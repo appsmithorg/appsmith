@@ -157,7 +157,7 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
