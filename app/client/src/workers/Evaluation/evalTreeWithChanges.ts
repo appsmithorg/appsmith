@@ -18,6 +18,9 @@ import { generateOptimisedUpdatesAndSetPrevState } from "./helpers";
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
   metaUpdates: EvalMetaUpdates = [],
+  options?: {
+    skipUpdatedPaths: boolean;
+  },
 ) {
   let evalOrder: string[] = [];
   let jsUpdates: Record<string, JSUpdate> = {};
@@ -35,7 +38,10 @@ export function evalTreeWithChanges(
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse =
-      dataTreeEvaluator.setupUpdateTreeWithDifferences(updatedValuePaths);
+      dataTreeEvaluator.setupUpdateTreeWithDifferences(
+        updatedValuePaths,
+        options?.skipUpdatedPaths,
+      );
 
     evalOrder = setupUpdateTreeResponse.evalOrder;
     unEvalUpdates = setupUpdateTreeResponse.unEvalUpdates;

@@ -7,7 +7,6 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { resetWidgetMetaProperty } from "actions/metaActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   GridDefaults,
@@ -82,8 +81,8 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { getDataTree, getConfigTree } from "selectors/dataTreeSelectors";
-import { validateProperty } from "./EvaluationsSaga";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { evalWorker, validateProperty } from "./EvaluationsSaga";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
@@ -101,6 +100,7 @@ import {
 } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type {
   CopiedWidgetGroup,
+  DescendantWidgetMap,
   NewPastePositionVariables,
 } from "./WidgetOperationUtils";
 import { WIDGET_PASTE_PADDING } from "./WidgetOperationUtils";
@@ -141,8 +141,7 @@ import {
   partialExportSaga,
   widgetSelectionSagas,
 } from "./WidgetSelectionSagas";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
@@ -186,6 +185,7 @@ import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
+import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -909,11 +909,9 @@ const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
   return obj;
 };
 
-function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
-  const { widgetId: parentWidgetId } = action.payload;
+export function* getWidgetDescendantsForReset(parentWidgetId: string) {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const evaluatedDataTree: DataTree = yield select(getDataTree);
-  const configTree: ConfigTree = yield select(getConfigTree);
   const widgetsMeta: MetaState = yield select(getWidgetsMeta);
   const childrenList = getWidgetDescendantToReset(
     canvasWidgets,
@@ -921,20 +919,22 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
     evaluatedDataTree,
     widgetsMeta,
   );
+  return childrenList;
+}
 
-  for (const childIndex in childrenList) {
-    const { evaluatedWidget: childWidget, id: childId } =
-      childrenList[childIndex];
-    const evaluatedWidgetConfig =
-      childWidget && configTree[childWidget?.widgetName];
-    yield put(
-      resetWidgetMetaProperty(
-        childId,
-        childWidget,
-        evaluatedWidgetConfig as WidgetEntityConfig,
-      ),
-    );
-  }
+function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
+  const { widgetId: parentWidgetId } = action.payload;
+  const childrenList: DescendantWidgetMap[] = yield call(
+    getWidgetDescendantsForReset,
+    parentWidgetId,
+  );
+
+  yield put({
+    type: ReduxActionTypes.RESET_WIDGETS,
+    payload: childrenList
+      .map((child) => child.evaluatedWidget?.widgetName)
+      .filter((childName) => !!childName),
+  });
 }
 
 function* updateCanvasSize(
@@ -2167,6 +2167,14 @@ function* widgetBatchUpdatePropertySaga() {
   }
 }
 
+function* handleWidgetReset(action: ReduxAction<{ widgetName: string }[]>) {
+  yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.RESET_WIDGETS,
+    action.payload,
+  );
+}
+
 export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
@@ -2210,5 +2218,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
     takeEvery(ReduxActionTypes.PARTIAL_IMPORT_INIT, partialImportSaga),
     takeEvery(ReduxActionTypes.PARTIAL_EXPORT_INIT, partialExportSaga),
+    takeEvery(ReduxActionTypes.RESET_WIDGETS, handleWidgetReset),
   ]);
 }

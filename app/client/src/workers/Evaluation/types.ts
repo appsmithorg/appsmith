@@ -62,3 +62,5 @@ export interface EvalTreeResponseData {
 }
 
 export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;
+
+export type ResetWidgetsRequestData = string[];

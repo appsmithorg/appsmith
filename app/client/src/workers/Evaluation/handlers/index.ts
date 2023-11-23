@@ -21,6 +21,7 @@ import setupEvaluationEnvironment, {
 import validateProperty from "./validateProperty";
 import updateActionData from "./updateActionData";
 import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
+import resetWidgets from "./resetWidgets";
 
 const syncHandlerMap: Record<
   EVAL_WORKER_SYNC_ACTION,
@@ -39,6 +40,7 @@ const syncHandlerMap: Record<
   [EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION]: setEvaluationVersion,
   [EVAL_WORKER_ACTIONS.INIT_FORM_EVAL]: initFormEval,
   [EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA]: updateActionData,
+  [EVAL_WORKER_ACTIONS.RESET_WIDGETS]: resetWidgets,
 };
 
 const asyncHandlerMap: Record<

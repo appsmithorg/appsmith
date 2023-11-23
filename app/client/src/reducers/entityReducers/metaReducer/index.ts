@@ -2,10 +2,8 @@ import { set } from "lodash";
 import { createReducer } from "utils/ReducerUtils";
 import type {
   UpdateWidgetMetaPropertyPayload,
-  ResetWidgetMetaPayload,
   BatchUpdateWidgetMetaPropertyPayload,
 } from "actions/metaActions";
-
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
@@ -13,8 +11,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { getMetaWidgetResetObj } from "./metaReducerUtils";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;
@@ -113,24 +109,6 @@ export const metaReducer = createReducer(initialState, {
     const next = { ...state };
     delete next[action.payload.widgetId];
     return next;
-  },
-  [ReduxActionTypes.RESET_WIDGET_META]: (
-    state: MetaState,
-    action: ReduxAction<ResetWidgetMetaPayload>,
-  ) => {
-    const { evaluatedWidget, evaluatedWidgetConfig, widgetId } = action.payload;
-
-    if (widgetId in state) {
-      // only reset widgets whose meta properties were changed.
-      state = {
-        ...state,
-        [widgetId]: getMetaWidgetResetObj(
-          evaluatedWidget,
-          evaluatedWidgetConfig as WidgetEntityConfig,
-        ),
-      };
-    }
-    return state;
   },
   [ReduxActionTypes.RESET_WIDGETS_META_STATE]: (
     state: MetaState,
