@@ -250,7 +250,7 @@ export interface exportApplicationRequest {
 export interface ImportPartialApplicationRequest {
   workspaceId: string;
   applicationFile: File;
-  progress?: (progressEvent: ProgressEvent) => void;
+  progress?: (progressEvent: AxiosProgressEvent) => void;
   onSuccessCallback?: () => void;
   applicationId: string;
   pageId: string;
