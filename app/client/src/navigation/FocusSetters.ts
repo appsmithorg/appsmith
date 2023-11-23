@@ -7,7 +7,7 @@ import {
 
 export function setSelectedDatasource(id: string | undefined) {
   if (id) {
-    history.push(
+    history.replace(
       datasourcesEditorIdURL({
         datasourceId: id,
       }),
@@ -18,20 +18,20 @@ export function setSelectedDatasource(id: string | undefined) {
 export function setPageUrl(path: string | undefined) {
   if (path) {
     const params = history.location.search;
-    history.push(`${path}${params}`);
+    history.replace(`${path}${params}`);
   }
 }
 
 export function setAppUrl(path: string | undefined) {
   if (path) {
     const params = history.location.search;
-    history.push(`${path}${params}`);
+    history.replace(`${path}${params}`);
   }
 }
 
 export function setSelectedQuery(id: string | undefined) {
   if (id) {
-    history.push(
+    history.replace(
       queryEditorIdURL({
         queryId: id,
       }),
@@ -41,7 +41,7 @@ export function setSelectedQuery(id: string | undefined) {
 
 export function setSelectedJSObject(id: string | undefined) {
   if (id) {
-    history.push(
+    history.replace(
       jsCollectionIdURL({
         collectionId: id,
       }),
