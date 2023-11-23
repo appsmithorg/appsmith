@@ -223,7 +223,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   //Open Bug 14063 - hence skipping
   // it.skip("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
-  EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
+  //   EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
   //   propPane.ChangeJsonFormFieldType(
   //     "Text Description",
   //     "Multiline Text Input",
