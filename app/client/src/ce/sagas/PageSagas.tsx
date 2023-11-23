@@ -65,7 +65,6 @@ import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
-  getAllPageIds,
   getDefaultPageId,
   getEditorConfigs,
   getWidgets,
@@ -473,19 +472,6 @@ export function* fetchPublishedPageSaga(
         error,
       },
     });
-  }
-}
-
-export function* fetchAllPublishedPagesSaga() {
-  try {
-    const pageIds: string[] = yield select(getAllPageIds);
-    yield all(
-      pageIds.map((pageId: string) => {
-        return call(PageApi.fetchPublishedPage, { pageId, bustCache: true });
-      }),
-    );
-  } catch (error) {
-    log.error({ error });
   }
 }
 
