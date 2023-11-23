@@ -1,22 +1,21 @@
 export * from "ce/pages/Editor/Explorer/ModuleInstanceEntity";
 
-import React, { memo, useCallback } from "react";
+import React, { useCallback } from "react";
 import history, { NavigationMethod } from "utils/history";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { AppState } from "@appsmith/reducers";
 import type { PluginType } from "entities/Action";
 import { moduleInstanceEditorURL } from "@appsmith/RouteBuilder";
-import {
-  // getHasDeleteActionPermission,
-  getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import Entity from "pages/Editor/Explorer/Entity";
+import Entity, { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getModuleInstanceById } from "@appsmith/selectors/moduleInstanceSelectors";
-// import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import { Icon } from "design-system";
+import ModuleInstanceEntityContextMenu from "./ModuleInstanceEntityContextMenu";
+import {
+  hasDeleteModuleInstancePermission,
+  hasManageModuleInstancePermission,
+} from "@appsmith/utils/permissionHelpers";
+import { saveModuleInstanceName } from "@appsmith/actions/moduleInstanceActions";
 
 interface ExplorerModuleInstanceEntityProps {
   step: number;
@@ -26,64 +25,71 @@ interface ExplorerModuleInstanceEntityProps {
   type: PluginType;
 }
 
-const onUpdateModuleInstanceName = (id: string, name: string) => {
-  return { id, name }; // ankita: update later
-};
+export const ExplorerModuleInstanceEntity = (
+  props: ExplorerModuleInstanceEntityProps,
+) => {
+  const pageId = useSelector(getCurrentPageId);
+  const moduleInstance = useSelector((state: AppState) =>
+    getModuleInstanceById(state, props.id),
+  );
 
-export const ExplorerModuleInstanceEntity = memo(
-  (props: ExplorerModuleInstanceEntityProps) => {
-    const pageId = useSelector(getCurrentPageId);
-    const moduleInstance = useSelector((state: AppState) =>
-      getModuleInstanceById(state, props.id),
-    );
-    const navigateToUrl = moduleInstanceEditorURL({
-      pageId,
-      moduleInstanceId: moduleInstance?.id || "",
-      params: {},
-    });
-    const navigateToModuleInstance = useCallback(() => {
-      if (moduleInstance?.id) {
-        history.push(navigateToUrl, {
-          invokedBy: NavigationMethod.EntityExplorer,
-        });
+  const navigateToModuleInstance = useCallback(() => {
+    if (moduleInstance?.id) {
+      const navigateToUrl = moduleInstanceEditorURL({
+        pageId,
+        moduleInstanceId: moduleInstance?.id || "",
+        params: {},
+      });
+      history.push(navigateToUrl, {
+        invokedBy: NavigationMethod.EntityExplorer,
+      });
+    }
+  }, [moduleInstance?.id, pageId]);
+
+  const moduleInstancePermissions = moduleInstance?.userPermissions || [];
+
+  const canDeleteModuleInstance = hasDeleteModuleInstancePermission(
+    moduleInstancePermissions,
+  );
+
+  const canManageModuleInstance = hasManageModuleInstancePermission(
+    moduleInstancePermissions,
+  );
+
+  if (!moduleInstance) return null;
+
+  const contextMenu = (
+    <ModuleInstanceEntityContextMenu
+      canDelete={canDeleteModuleInstance}
+      canManage={canManageModuleInstance}
+      className={EntityClassNames.CONTEXT_MENU}
+      id={moduleInstance.id}
+      name={moduleInstance.name}
+      pageId={pageId}
+    />
+  );
+  return (
+    <Entity
+      action={navigateToModuleInstance}
+      active={props.isActive}
+      canEditEntityName={canManageModuleInstance}
+      className="t--moduleInstance" // ankita: finalize if className or data-testid to be used for cypress
+      contextMenu={contextMenu}
+      entityId={moduleInstance.id}
+      icon={<Icon name="module" />}
+      key={moduleInstance.id}
+      name={moduleInstance.name}
+      searchKeyword={props.searchKeyword}
+      step={props.step}
+      updateEntityName={(id: string, name: string) =>
+        saveModuleInstanceName({
+          id,
+          name,
+        })
       }
-    }, [moduleInstance?.id, navigateToUrl]);
-
-    const moduleInstancePermissions = moduleInstance?.userPermissions || [];
-
-    const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-    /* const canDeleteModuleInstance = getHasDeleteActionPermission(
-      isFeatureEnabled,
-      moduleInstancePermissions,
-    ); */
-
-    const canManageModuleInstance = getHasManageActionPermission(
-      isFeatureEnabled,
-      moduleInstancePermissions,
-    );
-
-    if (!moduleInstance) return null;
-
-    const contextMenu = <div />;
-    return (
-      <Entity
-        action={navigateToModuleInstance}
-        active={props.isActive}
-        canEditEntityName={canManageModuleInstance}
-        className="t--moduleInstance"
-        contextMenu={contextMenu}
-        entityId={moduleInstance.id}
-        icon={<Icon name="module" />}
-        key={moduleInstance.id}
-        name={moduleInstance.name}
-        searchKeyword={props.searchKeyword}
-        step={props.step}
-        updateEntityName={onUpdateModuleInstanceName}
-      />
-    );
-  },
-);
+    />
+  );
+};
 
 ExplorerModuleInstanceEntity.displayName = "ExplorerModuleInstanceEntity";
 

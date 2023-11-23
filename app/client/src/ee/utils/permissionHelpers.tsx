@@ -63,6 +63,9 @@ export enum EE_PERMISSION_TYPE {
   MANAGE_MODULES = "manage:modules",
   DELETE_MODULES = "delete:modules",
   CREATE_MODULES_ACTIONS = "create:moduleActions",
+  /** Module instance permissions */
+  DELETE_MODULE_INSTANCES = "delete:moduleInstances",
+  MANAGE_MODULE_INSTANCES = "manage:moduleInstances",
 }
 
 export const PERMISSION_TYPE = {
@@ -181,3 +184,9 @@ export const hasCreateEnvironmentPermission = (permissions?: string[]) =>
 
 export const hasDeleteEnvironmentPermission = (permissions?: string[]) =>
   isPermitted(permissions, PERMISSION_TYPE.DELETE_ENVIRONMENT);
+
+export const hasDeleteModuleInstancePermission = (permissions?: string[]) =>
+  isPermitted(permissions, PERMISSION_TYPE.DELETE_MODULE_INSTANCES);
+
+export const hasManageModuleInstancePermission = (permissions?: string[]) =>
+  isPermitted(permissions, PERMISSION_TYPE.MANAGE_MODULE_INSTANCES);

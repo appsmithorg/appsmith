@@ -1,11 +1,15 @@
-import { moduleInstanceEditorURL } from "@appsmith/RouteBuilder";
-import type {
-  CreateQueryModuleInstancePayload,
-  FetchModuleInstancesPayload,
-  SetupModuleInstancePayload,
-  UpdateModuleInstanceOnPageLoadSettingsPayload,
-  UpdateModuleInstancePayload,
-  UpdateModuleInstanceSettingsPayload,
+import { builderURL, moduleInstanceEditorURL } from "@appsmith/RouteBuilder";
+import {
+  fetchModuleInstanceEntities,
+  type CreateQueryModuleInstancePayload,
+  type DeleteModuleInstancePayload,
+  type FetchModuleInstancesPayload,
+  type SaveModuleInstanceNamePayload,
+  type SetupModuleInstancePayload,
+  type UpdateModuleInstanceOnPageLoadSettingsPayload,
+  type UpdateModuleInstancePayload,
+  type UpdateModuleInstanceSettingsPayload,
+  setupModuleInstances,
 } from "@appsmith/actions/moduleInstanceActions";
 import ModuleInstanceApi from "@appsmith/api/ModuleInstanceApi";
 import ModuleInstancesApi, {
@@ -14,6 +18,8 @@ import ModuleInstancesApi, {
   type FetchModuleInstancesResponse,
 } from "@appsmith/api/ModuleInstanceApi";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import { ModuleInstanceCreatorType } from "@appsmith/constants/ModuleInstanceConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -26,20 +32,58 @@ import type { Action } from "entities/Action";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import history from "utils/history";
+import { shouldBeDefined } from "utils/helpers";
+import type { AppState } from "@appsmith/reducers";
+import {
+  getCurrentLayoutId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { toast } from "design-system";
+import {
+  MODULE_INSTANCE_RENAME_ERROR,
+  createMessage,
+} from "@appsmith/constants/messages";
+import * as log from "loglevel";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
+
+export interface RefactorModuleInstanceNameProps {
+  id: string;
+  pageId: string;
+  oldName: string;
+  newName: string;
+}
 
 function* createQueryModuleInstanceSaga(
   action: ReduxAction<CreateQueryModuleInstancePayload>,
 ) {
-  const { creatorId, creatorType, moduleId } = action.payload;
+  const { contextId, contextType, moduleId } = action.payload;
   try {
     const response: ApiResponse<CreateModuleInstanceResponse> = yield call(
       ModuleInstancesApi.createModuleInstance,
       {
         moduleId,
-        creatorId,
-        creatorType,
+        contextId,
+        contextType,
       },
     );
+    response.data = {
+      moduleInstance: {
+        id: "xxxx",
+        type: MODULE_TYPE.QUERY,
+        moduleId: "655dc3af34cf2732370a4c2a",
+        name: "QueryModuleInstance1",
+        creatorId: "655dbf2a34cf2732370a4c0a",
+        creatorType: ModuleInstanceCreatorType.PAGE,
+        inputs: {
+          userId: "xxx",
+          token: "xxx",
+        },
+        jsonPathKeys: {},
+        userPermissions: ["manage:moduleInstances", "delete:moduleInstances"],
+      },
+    };
+    response.responseMeta.success = true;
+    response.responseMeta.status = 200;
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -48,7 +92,7 @@ function* createQueryModuleInstanceSaga(
       });
 
       const redirectURL = moduleInstanceEditorURL({
-        pageId: creatorId,
+        pageId: contextId,
         moduleInstanceId: response.data.moduleInstance.id,
       });
       if (redirectURL) {
@@ -67,13 +111,13 @@ function* fetchModuleInstancesSaga(
   action: ReduxAction<FetchModuleInstancesPayload>,
 ) {
   try {
-    const { creatorId, creatorType } = action.payload;
+    const { contextId, contextType } = action.payload;
 
     const response: ApiResponse<FetchModuleInstancesResponse> = yield call(
       ModuleInstancesApi.fetchModuleInstances,
       {
-        creatorId,
-        creatorType,
+        contextId,
+        contextType,
       },
     );
     response.data = {
@@ -102,13 +146,13 @@ function* fetchModuleInstancesForViewSaga(
   action: ReduxAction<FetchModuleInstancesPayload>,
 ) {
   try {
-    const { creatorId, creatorType } = action.payload;
+    const { contextId, contextType } = action.payload;
 
     const response: ApiResponse<FetchModuleInstancesResponse> = yield call(
       ModuleInstancesApi.fetchModuleInstancesForView,
       {
-        creatorId,
-        creatorType,
+        contextId,
+        contextType,
       },
     );
     const isValidResponse = validateResponse(response);
@@ -168,16 +212,16 @@ function* fetchModuleInstanceEntitiesSaga(
   action: ReduxAction<FetchModuleInstancesPayload>,
 ) {
   try {
-    const { creatorId, creatorType } = action.payload;
+    const { contextId, contextType } = action.payload;
 
     const response: ApiResponse<FetchModuleInstanceEntitiesResponse> =
       yield call(ModuleInstancesApi.fetchModuleInstanceEntities, {
-        creatorId,
-        creatorType,
+        contextId,
+        contextType,
       });
     response.data = {
       actions: [],
-      actionCollections: [],
+      jsCollections: [],
     };
     response.responseMeta.success = true;
     response.responseMeta.status = 200;
@@ -200,16 +244,20 @@ export function* setupModuleInstanceSaga(
   action: ReduxAction<SetupModuleInstancePayload>,
 ) {
   try {
-    const { creatorId, creatorType } = action.payload;
+    const { contextId, contextType } = action.payload;
 
     yield call(fetchModuleInstancesSaga, {
       type: ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_INIT,
-      payload: { creatorId, creatorType },
+      payload: { contextId, contextType },
     });
 
     yield call(fetchModuleInstanceEntitiesSaga, {
       type: ReduxActionTypes.FETCH_MODULE_INSTANCE_ENTITIES_INIT,
-      payload: { creatorId, creatorType },
+      payload: { contextId, contextType },
+    });
+
+    yield put({
+      type: ReduxActionTypes.SETUP_MODULE_INSTANCE_SUCCESS,
     });
   } catch (error) {
     yield put({
@@ -223,16 +271,20 @@ export function* setupModuleInstanceForViewSaga(
   action: ReduxAction<SetupModuleInstancePayload>,
 ) {
   try {
-    const { creatorId, creatorType } = action.payload;
+    const { contextId, contextType } = action.payload;
 
     yield call(fetchModuleInstancesForViewSaga, {
       type: ReduxActionTypes.FETCH_MODULE_INSTANCE_FOR_PAGE_VIEW_MODE_INIT,
-      payload: { creatorId, creatorType },
+      payload: { contextId, contextType },
     });
 
     yield call(fetchModuleInstanceEntitiesSaga, {
       type: ReduxActionTypes.FETCH_MODULE_INSTANCE_ENTITIES_INIT,
-      payload: { creatorId, creatorType },
+      payload: { contextId, contextType },
+    });
+
+    yield put({
+      type: ReduxActionTypes.SETUP_MODULE_INSTANCE_FOR_VIEW_SUCCESS,
     });
   } catch (error) {
     yield put({
@@ -290,6 +342,115 @@ function* updateModuleInstanceSettingsSaga(
   }
 }
 
+function* deleteModuleInstanceSaga(
+  action: ReduxAction<DeleteModuleInstancePayload>,
+) {
+  try {
+    const currentPageId: string = yield select(getCurrentPageId);
+    const response: ApiResponse = yield call(
+      ModuleInstanceApi.deleteModuleInstance,
+      action.payload,
+    );
+    const isValidResponse = validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.DELETE_MODULE_INSTANCE_SUCCESS,
+        payload: action.payload,
+      });
+      history.push(builderURL({ pageId: currentPageId }));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_MODULE_INSTANCE_ERROR,
+      payload: { error, id: action.payload.id },
+    });
+  }
+}
+
+export function* refactorModuleInstanceName({
+  id,
+  newName,
+  oldName,
+  pageId,
+}: RefactorModuleInstanceNameProps) {
+  const layoutId: string = yield select(getCurrentLayoutId);
+  // call to refactor module instance
+  const refactorResponse: ApiResponse =
+    yield ModuleInstanceApi.refactorModuleInstance({
+      layoutId,
+      moduleInstanceId: id,
+      pageId: pageId,
+      oldName: oldName,
+      newName: newName,
+    });
+
+  const isRefactorSuccessful: boolean =
+    yield validateResponse(refactorResponse);
+
+  const currentPageId: string = yield select(getCurrentPageId);
+
+  if (isRefactorSuccessful) {
+    yield put({
+      type: ReduxActionTypes.SAVE_MODULE_INSTANCE_NAME_SUCCESS,
+      payload: {
+        moduleInstanceId: id,
+      },
+    });
+    if (currentPageId === pageId) {
+      // @ts-expect-error: refactorResponse is of type unknown
+      yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
+      yield put(
+        fetchModuleInstanceEntities({
+          contextId: pageId,
+          contextType: ModuleInstanceCreatorType.PAGE,
+        }),
+      );
+    } else {
+      yield put(
+        setupModuleInstances({
+          contextId: pageId,
+          contextType: ModuleInstanceCreatorType.PAGE,
+        }),
+      );
+    }
+  }
+}
+
+function* saveModuleInstanceNameSaga(
+  action: ReduxAction<SaveModuleInstanceNamePayload>,
+) {
+  const moduleInstanceId = action.payload.id;
+  const moduleInstance = shouldBeDefined<ModuleInstance | undefined>(
+    yield select((state: AppState) =>
+      getModuleInstanceById(state, moduleInstanceId),
+    ),
+    `Module Instance not found for moduleInstanceId - ${moduleInstanceId}`,
+  );
+  try {
+    yield refactorModuleInstanceName({
+      id: moduleInstanceId || "",
+      pageId: moduleInstance?.creatorId || "",
+      oldName: moduleInstance?.name || "",
+      newName: action.payload.name,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_MODULE_INSTANCE_NAME_ERROR,
+      payload: {
+        actionId: action.payload.id,
+        oldName: moduleInstance?.name || "",
+      },
+    });
+    toast.show(
+      createMessage(MODULE_INSTANCE_RENAME_ERROR, action.payload.name),
+      {
+        kind: "error",
+      },
+    );
+    log.error(error);
+  }
+}
+
 // Watcher Saga
 export default function* moduleInstanceSaga() {
   yield all([
@@ -328,6 +489,14 @@ export default function* moduleInstanceSaga() {
     takeLatest(
       ReduxActionTypes.FETCH_MODULE_INSTANCE_ENTITIES_INIT,
       fetchModuleInstanceEntitiesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.DELETE_MODULE_INSTANCE_INIT,
+      deleteModuleInstanceSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SAVE_MODULE_INSTANCE_NAME_INIT,
+      saveModuleInstanceNameSaga,
     ),
   ]);
 }

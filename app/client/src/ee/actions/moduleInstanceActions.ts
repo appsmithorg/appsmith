@@ -8,8 +8,8 @@ import type { Action } from "entities/Action";
 
 export interface CreateQueryModuleInstancePayload {
   moduleId: string;
-  creatorId: string;
-  creatorType: ModuleInstanceCreatorType;
+  contextId: string;
+  contextType: ModuleInstanceCreatorType;
 }
 
 export interface UpdateModuleInstancePayload {
@@ -18,18 +18,18 @@ export interface UpdateModuleInstancePayload {
 }
 
 export interface FetchModuleInstancesPayload {
-  creatorId: string;
-  creatorType: ModuleInstanceCreatorType;
+  contextId: string;
+  contextType: ModuleInstanceCreatorType;
 }
 
 export interface FetchModuleInstanceEntitiesPayload {
-  creatorId: string;
-  creatorType: ModuleInstanceCreatorType;
+  contextId: string;
+  contextType: ModuleInstanceCreatorType;
 }
 
 export interface SetupModuleInstancePayload {
-  creatorId: string;
-  creatorType: ModuleInstanceCreatorType;
+  contextId: string;
+  contextType: ModuleInstanceCreatorType;
 }
 
 export type UpdateModuleInstanceSettingsPayload = Action;
@@ -39,6 +39,15 @@ export interface UpdateModuleInstanceOnPageLoadSettingsPayload {
   value?: boolean;
 }
 
+export interface SaveModuleInstanceNamePayload {
+  id: string;
+  name: string;
+}
+
+export interface DeleteModuleInstancePayload {
+  id: string;
+}
+
 export const createQueryModuleInstance = (
   payload: CreateQueryModuleInstancePayload,
 ) => ({
@@ -46,9 +55,9 @@ export const createQueryModuleInstance = (
   payload,
 });
 
-export const deleteModuleInstance = (id: string) => ({
+export const deleteModuleInstance = (payload: DeleteModuleInstancePayload) => ({
   type: ReduxActionTypes.DELETE_MODULE_INSTANCE_INIT,
-  payload: { id },
+  payload,
 });
 
 export const updateModuleInstance = (payload: UpdateModuleInstancePayload) => ({
@@ -98,5 +107,12 @@ export const updateModuleInstanceOnPageLoadSettings = (
   payload: UpdateModuleInstanceOnPageLoadSettingsPayload,
 ) => ({
   type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_INIT,
+  payload,
+});
+
+export const saveModuleInstanceName = (
+  payload: SaveModuleInstanceNamePayload,
+) => ({
+  type: ReduxActionTypes.SAVE_MODULE_INSTANCE_NAME_INIT,
   payload,
 });

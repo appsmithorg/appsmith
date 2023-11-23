@@ -6,6 +6,7 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type { ActionDataState } from "ce/reducers/entityReducers/actionsReducer";
 import type { Action } from "entities/Action";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
 
 const handlers = {
   ...CE_handlers,
@@ -38,6 +39,16 @@ const handlers = {
     });
 
     return draftMetaState;
+  },
+  [ReduxActionTypes.DELETE_QUERY_MODULE_SUCCESS]: (
+    draftMetaState: ActionDataState,
+    action: ReduxAction<DeleteModulePayload>,
+  ) => {
+    const { id: moduleId } = action.payload;
+
+    return draftMetaState.filter(
+      (a) => a.config.moduleId !== moduleId && a.config.isPublic,
+    );
   },
 };
 

@@ -24,7 +24,6 @@ jest.mock("react-redux", () => ({
 const DEFAULT_MODULE = {
   id: "module-id",
   packageId: "6528d5f14b7c8d700a1026c9",
-  publicEntityId: "652535134b7c8d700a102652",
   inputsForm: [],
   settingsForm: [],
   name: "Module 1",

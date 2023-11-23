@@ -25,8 +25,8 @@ export const useModuleOptions = () => {
       kind: SEARCH_ITEM_TYPES.actionOperation,
       action: (pageId: string) =>
         createQueryModuleInstance({
-          creatorId: pageId,
-          creatorType: ModuleInstanceCreatorType.PAGE,
+          contextId: pageId,
+          contextType: ModuleInstanceCreatorType.PAGE,
           moduleId: module.id,
         }),
     };

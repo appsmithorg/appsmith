@@ -410,6 +410,8 @@ export const INVALID_INPUT_NAME = () =>
   "Input names can only contain alphanumeric and should start with an alphabet";
 export const MODULE_INSTANCE_EMPTY_INPUT = () =>
   "No inputs parameters defined for this query.";
+export const MODULE_INSTANCE_RENAME_ERROR = (name: string) =>
+  `Unable to update module instance name to ${name}`;
 // Modules end
 
 // AI begin

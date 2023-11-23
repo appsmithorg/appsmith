@@ -10,11 +10,13 @@ import type { Action } from "entities/Action";
 export interface ModuleInstancePaneState {
   nameSavingStatus: Record<string, { isSaving: boolean; error: boolean }>;
   settingsSavingStatus: Record<string, { isSaving: boolean; error: boolean }>;
+  deletingStatus: Record<string, { isDeleting: boolean; error: boolean }>;
 }
 
 export const initialState: ModuleInstancePaneState = {
   nameSavingStatus: {},
   settingsSavingStatus: {},
+  deletingStatus: {},
 };
 
 export const handlers = {
@@ -102,6 +104,38 @@ export const handlers = {
   ) => {
     draftState.settingsSavingStatus[action.payload.id].isSaving = false;
     draftState.settingsSavingStatus[action.payload.id].error = true;
+    return draftState;
+  },
+
+  [ReduxActionTypes.DELETE_MODULE_INSTANCE_INIT]: (
+    draftState: ModuleInstancePaneState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    draftState.deletingStatus[action.payload.id] = {
+      isDeleting: true,
+      error: false,
+    };
+
+    return draftState;
+  },
+
+  [ReduxActionTypes.DELETE_MODULE_INSTANCE_SUCCESS]: (
+    draftState: ModuleInstancePaneState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    draftState.deletingStatus[action.payload.id].isDeleting = false;
+    draftState.deletingStatus[action.payload.id].error = false;
+
+    return draftState;
+  },
+
+  [ReduxActionErrorTypes.DELETE_MODULE_INSTANCE_ERROR]: (
+    draftState: ModuleInstancePaneState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    draftState.deletingStatus[action.payload.id].isDeleting = false;
+    draftState.deletingStatus[action.payload.id].error = true;
+
     return draftState;
   },
 };

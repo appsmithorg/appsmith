@@ -6,6 +6,7 @@ import type { AxiosPromise } from "axios";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import type {
   CreateQueryModuleInstancePayload,
+  DeleteModuleInstancePayload,
   FetchModuleInstanceEntitiesPayload,
   FetchModuleInstancesPayload,
 } from "@appsmith/actions/moduleInstanceActions";
@@ -25,16 +26,19 @@ export interface RunModuleInstanceResponse extends ActionResponse {}
 
 export interface CreateModuleInstanceResponse {
   moduleInstance: ModuleInstance;
-  module: Module;
-}
-
-export interface DeleteModuleInstanceResponse {
-  id: string;
 }
 
 export interface FetchModuleInstanceEntitiesResponse {
   actions: ActionData[];
-  actionCollections: JSCollectionData[];
+  jsCollections: JSCollectionData[];
+}
+
+export interface RefactorModuleInstancePayload {
+  layoutId: string;
+  moduleInstanceId: string;
+  pageId: string;
+  oldName: string;
+  newName: string;
 }
 
 class ModuleInstancesApi extends Api {
@@ -77,9 +81,9 @@ class ModuleInstancesApi extends Api {
   }
 
   static async deleteModuleInstance(
-    moduleInstanceId: string,
-  ): Promise<AxiosPromise<ApiResponse<DeleteModuleInstanceResponse>>> {
-    const url = `${ModuleInstancesApi.moduleInstancesUrl}/${moduleInstanceId}`;
+    payload: DeleteModuleInstancePayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const url = `${ModuleInstancesApi.moduleInstancesUrl}/${payload.id}`;
     return Api.delete(url);
   }
 
@@ -88,6 +92,13 @@ class ModuleInstancesApi extends Api {
   ): Promise<AxiosPromise<ApiResponse<FetchModuleInstanceEntitiesResponse>>> {
     const url = `${ModuleInstancesApi.moduleInstancesUrl}/entities`;
     return Api.get(url, payload);
+  }
+
+  static async refactorModuleInstance(
+    payload: RefactorModuleInstancePayload,
+  ): Promise<AxiosPromise<ApiResponse<any>>> {
+    const url = `${ModuleInstancesApi.moduleInstancesUrl}/refactor`;
+    return Api.put(url, payload);
   }
 }
 
