@@ -23,8 +23,9 @@ public class ThemeExportableServiceCEImpl implements ExportableServiceCE<Theme> 
         this.themeService = themeService;
     }
 
+    // Directly sets required theme information in application json
     @Override
-    public Mono<List<Theme>> getExportableEntities(
+    public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -38,23 +39,25 @@ public class ThemeExportableServiceCEImpl implements ExportableServiceCE<Theme> 
                 })
                 .cache();
 
-        return applicationMono.flatMap(application -> themeService
-                .getThemeById(application.getEditModeThemeId(), READ_THEMES)
-                .switchIfEmpty(Mono.defer(() -> defaultThemeMono)) // setting default theme if theme is missing
-                .zipWith(
-                        themeService
-                                .getThemeById(application.getPublishedModeThemeId(), READ_THEMES)
-                                .switchIfEmpty(
-                                        Mono.defer(() -> defaultThemeMono)) // setting default theme if theme is missing
-                        )
-                .map(themesTuple -> {
-                    Theme editModeTheme = themesTuple.getT1();
-                    Theme publishedModeTheme = themesTuple.getT2();
-                    editModeTheme.sanitiseToExportDBObject();
-                    publishedModeTheme.sanitiseToExportDBObject();
-                    applicationJson.setEditModeTheme(editModeTheme);
-                    applicationJson.setPublishedTheme(publishedModeTheme);
-                    return List.of(themesTuple.getT1(), themesTuple.getT2());
-                }));
+        return applicationMono
+                .flatMap(application -> themeService
+                        .getThemeById(application.getEditModeThemeId(), READ_THEMES)
+                        .switchIfEmpty(Mono.defer(() -> defaultThemeMono)) // setting default theme if theme is missing
+                        .zipWith(
+                                themeService
+                                        .getThemeById(application.getPublishedModeThemeId(), READ_THEMES)
+                                        .switchIfEmpty(Mono.defer(
+                                                () -> defaultThemeMono)) // setting default theme if theme is missing
+                                )
+                        .map(themesTuple -> {
+                            Theme editModeTheme = themesTuple.getT1();
+                            Theme publishedModeTheme = themesTuple.getT2();
+                            editModeTheme.sanitiseToExportDBObject();
+                            publishedModeTheme.sanitiseToExportDBObject();
+                            applicationJson.setEditModeTheme(editModeTheme);
+                            applicationJson.setPublishedTheme(publishedModeTheme);
+                            return List.of(themesTuple.getT1(), themesTuple.getT2());
+                        }))
+                .then();
     }
 }

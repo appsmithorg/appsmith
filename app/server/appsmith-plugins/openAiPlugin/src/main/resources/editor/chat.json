@@ -1,0 +1,71 @@
+{
+  "identifier": "CHAT",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
+  },
+  "children": [
+    {
+      "label": "Models",
+      "tooltipText": "Select the model for response generation",
+      "subtitle": "ID of the model to use.",
+      "isRequired": true,
+      "propertyName": "chat_model_id",
+      "configProperty": "actionConfiguration.formData.chatModel.data",
+      "controlType": "DROP_DOWN",
+      "initialValue": "",
+      "options": [],
+      "placeholderText": "All models will be fetched.",
+      "fetchOptionsConditionally": true,
+      "alternateViewTypes": ["json"],
+      "conditionals": {
+        "enable": "{{true}}",
+        "fetchDynamicValues": {
+          "condition": "{{true}}",
+          "config": {
+            "params": {
+              "requestType": "CHAT_MODELS",
+              "displayType": "DROP_DOWN"
+            }
+          }
+        }
+      }
+    },
+    {
+      "label": "Temperature",
+      "tooltipText": "Put a value between 0 and 2",
+      "Description": "Put a value between 0 and 2",
+      "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+      "configProperty": "actionConfiguration.formData.temperature",
+      "controlType": "INPUT_TEXT",
+      "dataType": "NUMBER",
+      "initialValue": "0",
+      "isRequired": false
+    },
+    {
+      "label": "Messages",
+      "tooltipText": "Ask a question",
+      "subtitle": "A list of messages comprising the conversation so far.",
+      "propertyName": "messages",
+      "isRequired": true,
+      "configProperty": "actionConfiguration.formData.messages",
+      "controlType": "ARRAY_FIELD",
+      "addMoreButtonLabel": "Add message",
+      "schema": [
+        {
+          "label": "Role",
+          "key": "role",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "user OR system",
+          "initialValue": "user"
+        },
+        {
+          "label": "Content",
+          "key": "content",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "{{ UserInput.text }}"
+        }
+      ]
+    }
+  ]
+}

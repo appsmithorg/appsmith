@@ -14,6 +14,9 @@ import {
 import { Widgets } from "../../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
 import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spec_utility";
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -136,7 +139,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     dataSources.AddSuggestedWidget(Widgets.Table);
     agHelper.GetNClick(propPane._deleteWidget);
 
-    entityExplorer.SelectEntityByName("selectSimpsons", "Queries/JS");
+    EditorNavigation.SelectEntityByName("selectSimpsons", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -309,7 +312,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
 
     //Should not be able to delete ds until app is published again
     //coz if app is published & shared then deleting ds may cause issue, So!
-    dataSources.DeleteDatasouceFromActiveTab(dsName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     agHelper.WaitUntilAllToastsDisappear();
     deployMode.DeployApp(locators._emptyPageTxt);
     agHelper.Sleep(3000);

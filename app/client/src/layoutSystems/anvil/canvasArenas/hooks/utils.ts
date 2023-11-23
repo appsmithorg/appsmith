@@ -17,14 +17,21 @@ export const getClosestHighlight = (
    */
   let filteredHighlights: AnvilHighlightInfo[] = [];
   filteredHighlights = getViableDropPositions(highlights, pos);
-  if (!filteredHighlights || !filteredHighlights?.length) return;
+  /**
+   * Defensive coding:
+   * If filtered highlights are empty,
+   * use all highlights for proximity calculation.
+   *
+   * This is less performant, but improves experience.
+   */
+  if (!filteredHighlights || !filteredHighlights?.length) {
+    filteredHighlights = highlights;
+  }
 
   // Sort filtered highlights in ascending order of distance from mouse position.
   const arr = [...filteredHighlights]?.sort((a, b) => {
     return calculateDistance(a, pos) - calculateDistance(b, pos);
   });
-
-  // console.log("#### arr", arr, highlights);
 
   // Return the closest highlight.
   return arr[0];
@@ -36,42 +43,88 @@ function getViableDropPositions(
 ): AnvilHighlightInfo[] {
   if (!arr) return arr || [];
   const DEFAULT_DROP_RANGE = 10;
+
+  // Filter out vertical highlights.
   const verticalHighlights = arr.filter(
     (highlight: AnvilHighlightInfo) => highlight.isVertical,
   );
+
+  // Filter out vertical highlights.
   const horizontalHighlights = arr.filter(
     (highlight: AnvilHighlightInfo) => !highlight.isVertical,
   );
+
   const selection: AnvilHighlightInfo[] = [];
+
+  /**
+   * Each vertical highlight has a drop zone on the left and right.
+   *
+   * <-- left --> | <-- right -->
+   *
+   * If the mouse is within the drop zone, the highlight is a viable drop position.
+   */
   verticalHighlights.forEach((highlight: AnvilHighlightInfo) => {
     if (pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height)
       if (
         (pos.x >= highlight.posX &&
           pos.x <=
             highlight.posX +
-              (highlight.dropZone.right || DEFAULT_DROP_RANGE)) ||
+              Math.max(
+                highlight.dropZone.right || DEFAULT_DROP_RANGE,
+                DEFAULT_DROP_RANGE,
+              )) ||
         (pos.x < highlight.posX &&
           pos.x >=
-            highlight.posX - (highlight.dropZone.left || DEFAULT_DROP_RANGE))
+            highlight.posX -
+              Math.max(
+                highlight.dropZone.left || DEFAULT_DROP_RANGE,
+                DEFAULT_DROP_RANGE,
+              ))
       )
         selection.push(highlight);
   });
   const hasVerticalSelection = selection.length > 0;
+
+  /**
+   * Each horizontal highlight has a drop zone on the top and bottom.
+   *
+   *   ^
+   *   |
+   *  top
+   *   |
+   *  ---- <- highlight
+   *   |
+   * bottom
+   *   |
+   *   ^
+   *
+   *
+   * If the mouse is within the drop zone, the highlight is a viable drop position.
+   *
+   * If there are also some contending vertical highlights sharing a drop zone,
+   * then vertical highlights get priority and the a fraction of the drop zone of horizontal highlights is considered.
+   */
   horizontalHighlights.forEach((highlight: AnvilHighlightInfo) => {
     if (pos.x >= highlight.posX && pos.x <= highlight.posX + highlight.width)
       if (
         (pos.y >= highlight.posY &&
           pos.y <=
             highlight.posY +
-              (highlight.dropZone.bottom !== undefined
-                ? highlight.dropZone.bottom * (hasVerticalSelection ? 0.2 : 1)
-                : DEFAULT_DROP_RANGE)) ||
+              Math.max(
+                highlight.dropZone.bottom !== undefined
+                  ? highlight.dropZone.bottom * (hasVerticalSelection ? 0.2 : 1)
+                  : DEFAULT_DROP_RANGE,
+                DEFAULT_DROP_RANGE,
+              )) ||
         (pos.y < highlight.posY &&
           pos.y >=
             highlight.posY -
-              (highlight.dropZone.top !== undefined
-                ? highlight.dropZone.top * (hasVerticalSelection ? 0.3 : 1)
-                : DEFAULT_DROP_RANGE))
+              Math.max(
+                highlight.dropZone.top !== undefined
+                  ? highlight.dropZone.top * (hasVerticalSelection ? 0.2 : 1)
+                  : DEFAULT_DROP_RANGE,
+                DEFAULT_DROP_RANGE,
+              ))
       )
         selection.push(highlight);
   });

@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Visual tests for datasources", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
@@ -13,10 +16,8 @@ describe("Visual tests for datasources", () => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
-    _.dataSources.NavigateToActiveTab();
-    cy.get(".t--integrationsHomePage").matchImageSnapshot(
-      "emptydatasourcepage",
-    );
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    cy.get(".t--data-blank-state").matchImageSnapshot("emptydatasourcepage");
   });
   /* cy.NavigateToDatasourceEditor();
     cy.wait(2000);

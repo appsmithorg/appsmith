@@ -46,6 +46,14 @@ export class GitSync {
   private _gitSyncBranches = ".t--sync-branches";
   learnMoreSshUrl = ".t--learn-more-ssh-url";
   repoLimitExceededErrorModal = ".t--git-repo-limited-modal";
+  public _bottomSettingsBtn = ".t--bottom-git-settings";
+  public _defaultBranchSelect = "[data-testid='t--git-default-branch-select']";
+  public _defaultBranchUpdateBtn =
+    "[data-testid='t--git-default-branch-update-btn']";
+  public _protectedBranchesSelect =
+    "[data-testid='t--git-protected-branches-select']";
+  public _protectedBranchesUpdateBtn =
+    "[data-testid='t--git-protected-branches-update-btn']";
 
   OpenGitSyncModal() {
     this.agHelper.GetNClick(this._connectGitBottomBar);
@@ -120,7 +128,8 @@ export class GitSync {
     this.agHelper.ClickButton("Generate key");
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      cy.wait(`@generateKey-${repo}`).then((result: any) => {
+      this.assertHelper.AssertNetworkStatus("@generateKey-" + repo, [200, 201]);
+      cy.get(`@generateKey-${repo}`).then((result: any) => {
         generatedKey = result.response.body.data.publicKey;
         generatedKey = generatedKey.slice(0, generatedKey.length - 1);
         // fetch the generated key and post to the github repo
@@ -156,7 +165,13 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
+        this.agHelper.Sleep(2000); //for generatedKey to be available in CI runs
+        this.assertHelper.AssertNetworkStatus("@generatedKey", 201);
       } else {
+        this.assertHelper.AssertContains(
+          "Error while accessing the file system",
+          "not.exist",
+        );
         this.assertHelper.AssertNetworkStatus("@importFromGit", 201);
       }
     }
@@ -231,7 +246,6 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.GetNClick(this.startUsingGitButton);
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
-        this.CloseGitSyncModal();
       }
 
       cy.wrap(repoName).as("gitRepoName");
@@ -336,7 +350,11 @@ export class GitSync {
     });
   }
 
-  CreateGitBranch(branch = "br", toUseNewGuid = false) {
+  CreateGitBranch(
+    branch = "br",
+    toUseNewGuid = false,
+    assertCreateBranch = true,
+  ) {
     if (toUseNewGuid) this.agHelper.GenerateUUID();
     this.agHelper.AssertElementExist(this._bottomBarCommit);
     this.agHelper.GetNClick(this._branchButton);
@@ -347,6 +365,13 @@ export class GitSync {
         this._branchSearchInput,
         `{selectall}` + `${branch + uid}` + `{enter}`,
         { parseSpecialCharSeq: true },
+      );
+      assertCreateBranch &&
+        this.assertHelper.AssertNetworkStatus("createBranch", 201);
+      this.agHelper.AssertElementAbsence(
+        this.locator._specificToast(
+          "Unable to import application in workspace",
+        ),
       );
       this.agHelper.AssertElementExist(this.locator._btnSpinner);
       this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
@@ -416,13 +441,13 @@ export class GitSync {
     this.agHelper.GetNClick(this._openRepoButton);
   }
 
-  CommitAndPush(assertFailure?: true) {
+  CommitAndPush(assertSuccess = true) {
     this.agHelper.GetNClick(this.locator._publishButton);
     this.agHelper.AssertElementExist(this._bottomBarPull);
     //cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     this.agHelper.TypeText(this._commitCommentInput, "Initial commit");
     this.agHelper.GetNClick(this._commitButton);
-    if (!assertFailure) {
+    if (assertSuccess) {
       // check for commit success
       //adding timeout since commit is taking longer sometimes
       this.assertHelper.AssertNetworkStatus("@commit", 201);
@@ -449,9 +474,9 @@ export class GitSync {
     this.agHelper.AssertContains(
       Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES(),
     );
+    this.agHelper.AssertContains("Discarded changes successfully");
     this.assertHelper.AssertNetworkStatus("@discardChanges");
     this.assertHelper.AssertNetworkStatus("@gitStatus");
-    this.agHelper.AssertContains("Discarded changes successfully");
     this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
   }
 

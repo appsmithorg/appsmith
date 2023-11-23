@@ -200,10 +200,11 @@ public enum AppsmithError {
                     + "  \"message\" : \"Binding path in the widget not found. Please reach out to Appsmith customer support to resolve this.\","
                     + "  \"widgetName\" : \"{1}\","
                     + "  \"widgetId\" : \"{2}\","
-                    + "  \"pageId\" : \"{4}\","
+                    + "  \"creatorId\" : \"{4}\","
                     + "  \"layoutId\" : \"{5}\","
                     + "  \"errorDetail\" : \"{8}\","
-                    + "  \"dynamicBinding\" : {6}",
+                    + "  \"dynamicBinding\" : {6},"
+                    + "  \"creatorType\" : \"{9}\"",
             AppsmithErrorAction.LOG_EXTERNALLY,
             "Invalid dynamic binding reference",
             ErrorType.BAD_REQUEST,
@@ -1017,6 +1018,14 @@ public enum AppsmithError {
             "Too many failed requests received. Please try again after 5 minutes",
             AppsmithErrorAction.DEFAULT,
             "Too many requests",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
+            500,
+            AppsmithErrorCode.DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED.getCode(),
+            "Rate limit exhausted, blocking the host name failed",
+            AppsmithErrorAction.DEFAULT,
+            "Rate limit blocking failed",
             ErrorType.INTERNAL_ERROR,
             null),
     ;

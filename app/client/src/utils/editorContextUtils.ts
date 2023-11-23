@@ -185,6 +185,7 @@ export function getFormName(plugin: Plugin): string {
     switch (pluginType) {
       case PluginType.DB:
       case PluginType.REMOTE:
+      case PluginType.AI:
         return DATASOURCE_DB_FORM;
       case PluginType.SAAS:
         return DATASOURCE_SAAS_FORM;

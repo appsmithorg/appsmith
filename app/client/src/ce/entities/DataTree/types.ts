@@ -17,7 +17,8 @@ import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsRed
 import type { AppTheme } from "entities/AppTheming";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
-import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
@@ -64,6 +65,9 @@ export interface ActionEntityConfig extends EntityConfig {
   pluginId: PluginId;
   actionId: string;
   name: string;
+  moduleId?: string;
+  moduleInstanceId?: string;
+  isPublic?: boolean;
 }
 
 // JSAction (JSObject) entity Types
@@ -140,6 +144,7 @@ export interface EntityConfig {
   reactivePaths?: Record<string, EvaluationSubstitutionType>;
   validationPaths?: Record<string, ValidationConfig>;
   dynamicBindingPathList?: DynamicPath[];
+  dependencyMap?: Record<string, string[]>;
 }
 
 //data factory types
@@ -162,6 +167,7 @@ export interface WidgetEntityConfig
   extends Partial<WidgetProps>,
     Omit<WidgetConfigProps, "widgetName" | "rows" | "columns">,
     WidgetConfig {
+  widgetId: string;
   defaultMetaProps: Array<string>;
   type: string;
   __setters?: Record<string, any>;
@@ -185,7 +191,9 @@ export interface DataTreeSeed {
   theme: AppTheme["properties"];
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
-  moduleInputs: Record<string, ModuleInput>;
+  moduleInputs: Module["inputsForm"];
+  moduleInstances: Record<string, ModuleInstance>;
+  moduleInstanceEntities: any;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;
 }

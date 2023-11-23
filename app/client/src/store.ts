@@ -7,7 +7,7 @@ import { rootSaga } from "@appsmith/sagas";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
 import * as Sentry from "@sentry/react";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import routeParamsMiddleware from "RouteParamsMiddleware";
+import routeParamsMiddleware from "@appsmith/RouteParamsMiddleware";
 
 const sagaMiddleware = createSagaMiddleware();
 const ignoredSentryActionTypes = [

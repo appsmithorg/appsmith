@@ -1,11 +1,13 @@
 import {
   agHelper,
-  locators,
   deployMode,
   entityExplorer,
+  locators,
   propPane,
-  dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Multi Select widget Tests", function () {
   before(() => {
@@ -40,7 +42,7 @@ describe("Multi Select widget Tests", function () {
     const labelStylesProperties = ["fontcolor", "fontsize"];
     const borderShadows = ["borderradius", "boxshadow"];
 
-    entityExplorer.SelectEntityByName("MultiSelect1", "Widgets");
+    EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
     // Data section
     dataProperties.forEach((dataSectionProperty) => {
       agHelper.AssertElementVisibility(
@@ -132,7 +134,7 @@ describe("Multi Select widget Tests", function () {
     // Copy paste from property pane and delete from property pane
     propPane.CopyPasteWidgetFromPropertyPane("NewMultiSelect");
     propPane.DeleteWidgetFromPropertyPane("NewMultiSelectCopy");
-    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMultiSelect", EntityType.Widget);
     propPane.MoveToTab("Content");
   });
 
@@ -152,7 +154,7 @@ describe("Multi Select widget Tests", function () {
     agHelper.AssertAttribute(locators._label, "position", "Left");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMultiSelect", EntityType.Widget);
     agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`);
     agHelper.AssertAttribute(locators._label, "position", "Top");
   });
@@ -160,7 +162,7 @@ describe("Multi Select widget Tests", function () {
   it("5. Verify tooltip", () => {
     entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 550, 300);
     propPane.UpdatePropertyFieldValue("Default value", "1000");
-    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMultiSelect", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
     agHelper.HoverElement(".bp3-popover-target svg");
     agHelper.AssertPopoverTooltip("1,000");
@@ -179,7 +181,7 @@ describe("Multi Select widget Tests", function () {
   });
 
   it("6. Validate 'visible' and 'disable' toggle", () => {
-    entityExplorer.SelectEntityByName("NewMultiSelect");
+    EditorNavigation.SelectEntityByName("NewMultiSelect", EntityType.Widget);
 
     // Verify Disabled toggle
     propPane.TogglePropertyState("disabled", "On");
@@ -277,7 +279,7 @@ describe("Multi Select widget Tests", function () {
     agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMultiSelect", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMultiSelect", EntityType.Widget);
     propPane.MoveToTab("Style");
 
     // Verify border
@@ -295,5 +297,75 @@ describe("Multi Select widget Tests", function () {
       "box-shadow",
       "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     );
+  });
+
+  it("8. Verify validation error in default selected values", () => {
+    EditorNavigation.SelectEntityByName("NewMultiSelect", EntityType.Widget);
+
+    propPane.MoveToTab("Content");
+
+    propPane.UpdatePropertyFieldValue(
+      "Default selected values",
+      '["GREEN1", "RED1"]',
+      true,
+    );
+
+    agHelper.VerifyEvaluatedErrorMessage(
+      "Some or all default values are missing from options. Please update the values.",
+    );
+
+    propPane.ToggleJSMode("Source Data", true);
+
+    // Updates the options and asserts that the validation error is fixed
+    propPane.UpdatePropertyFieldValue(
+      "Source Data",
+      '[{"name": "Green", "code":"GREEN1"}, { "name": "Red","code": "RED1" }]',
+      true,
+    );
+
+    agHelper.FocusElement(
+      locators._propertyInputField("Default selected values"),
+    );
+
+    agHelper.Sleep(1000);
+    agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
+
+    // Changes options to bring back validation error
+    propPane.UpdatePropertyFieldValue(
+      "Source Data",
+      '[{"name": "Green", "code":"GREEN1"}, { "name": "Red","code": "RED" }]',
+      true,
+    );
+
+    agHelper.FocusElement(
+      locators._propertyInputField("Default selected values"),
+    );
+
+    agHelper.VerifyEvaluatedErrorMessage(
+      "Some or all default values are missing from options. Please update the values.",
+    );
+
+    // Reload to check if the error persists
+    agHelper.RefreshPage();
+
+    EditorNavigation.SelectEntityByName("NewMultiSelect", EntityType.Widget);
+
+    agHelper.FocusElement(
+      locators._propertyInputField("Default selected values"),
+    );
+
+    agHelper.VerifyEvaluatedErrorMessage(
+      "Some or all default values are missing from options. Please update the values.",
+    );
+
+    // Fixes the validation error
+    propPane.UpdatePropertyFieldValue(
+      "Default selected values",
+      '{{["GREEN1"]}}',
+      true,
+    );
+
+    agHelper.Sleep(1000);
+    agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
   });
 });

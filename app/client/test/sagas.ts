@@ -4,7 +4,7 @@ import workspaceSagas from "@appsmith/sagas/WorkspaceSagas";
 import { watchActionSagas } from "sagas/ActionSagas";
 import layoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
 import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
-import { watchJSActionSagas } from "sagas/JSActionSagas";
+import { watchJSActionSagas } from "@appsmith/sagas/JSActionSagas";
 import apiPaneSagas from "../src/sagas/ApiPaneSagas";
 import applicationSagas from "@appsmith/sagas/ApplicationSagas";
 import batchSagas from "../src/sagas/BatchSagas";

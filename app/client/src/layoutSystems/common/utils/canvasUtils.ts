@@ -19,7 +19,7 @@ type LayoutSystemProps =
  *
  * @returns
  */
-function renderChildWidget({
+export function renderChildWidget({
   childWidgetData,
   defaultWidgetProps,
   layoutSystemProps,

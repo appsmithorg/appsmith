@@ -26,14 +26,14 @@ import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import gitSyncSagas from "sagas/GitSyncSagas";
 import globalSearchSagas from "sagas/GlobalSearchSagas";
 import initSagas from "sagas/InitSagas";
-import { watchJSActionSagas } from "sagas/JSActionSagas";
+import { watchJSActionSagas } from "@appsmith/sagas/JSActionSagas";
 import JSLibrarySaga from "sagas/JSLibrarySaga";
 import jsPaneSagas from "sagas/JSPaneSagas";
 import layoutConversionSagas from "sagas/layoutConversionSagas";
 import LintingSaga from "sagas/LintingSagas";
 import modalSagas from "sagas/ModalSagas";
 import onboardingSagas from "sagas/OnboardingSagas";
-import pageSagas from "sagas/PageSagas";
+import pageSagas from "@appsmith/sagas/PageSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import pluginSagas from "sagas/PluginSagas";
 import providersSagas from "sagas/ProvidersSaga";
@@ -55,6 +55,7 @@ import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import LayoutElementPositionsSaga from "layoutSystems/anvil/integrations/sagas/LayoutElementPositionsSaga";
 import anvilDraggingSagas from "layoutSystems/anvil/integrations/sagas/draggingSagas";
+import ternSagas from "sagas/TernSaga";
 
 export const sagas = [
   initSagas,
@@ -112,4 +113,5 @@ export const sagas = [
   LayoutElementPositionsSaga,
   communityTemplateSagas,
   anvilDraggingSagas,
+  ternSagas,
 ];

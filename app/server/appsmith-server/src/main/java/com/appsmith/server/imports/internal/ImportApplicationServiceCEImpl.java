@@ -50,6 +50,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
@@ -337,10 +338,10 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
      */
     private String validateApplicationJson(ApplicationJson importedDoc) {
         String errorField = "";
-        if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
-            errorField = FieldName.PAGE_LIST;
-        } else if (importedDoc.getExportedApplication() == null) {
+        if (importedDoc.getExportedApplication() == null) {
             errorField = FieldName.APPLICATION;
+        } else if (CollectionUtils.isEmpty(importedDoc.getPageList())) {
+            errorField = FieldName.PAGE_LIST;
         } else if (importedDoc.getActionList() == null) {
             errorField = FieldName.ACTIONS;
         } else if (importedDoc.getDatasourceList() == null) {
@@ -492,6 +493,13 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         String errorField = validateApplicationJson(importedDoc);
         if (!errorField.isEmpty()) {
             log.error("Error in importing application. Field {} is missing", errorField);
+            if (errorField.equals(FieldName.APPLICATION)) {
+                return Mono.error(
+                        new AppsmithException(
+                                AppsmithError.VALIDATION_FAILURE,
+                                "Field '" + errorField
+                                        + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page."));
+            }
             return Mono.error(new AppsmithException(
                     AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
         }
@@ -502,6 +510,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
 
         Application importedApplication = importedDoc.getExportedApplication();
+        importedApplication.setServerSchemaVersion(importedDoc.getServerSchemaVersion());
+        importedApplication.setClientSchemaVersion(importedDoc.getClientSchemaVersion());
 
         Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
@@ -516,60 +526,31 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                 .cache();
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
-        Mono<List<CustomJSLib>> installedJsLibsMono = customJSLibImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
-        Mono<List<Plugin>> installedPluginsMono = pluginImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, workspaceMono, null, applicationJson);
+
+        Mono<Void> applicationSpecificImportedEntitiesMono =
+                applicationSpecificImportedEntities(applicationJson, importingMetaDTO, mappedImportableResourcesDTO);
 
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
-        final Mono<Application> importedApplicationMono = installedJsLibsMono
+
+        /*
+         Calling the workspaceMono first to avoid creating multiple mongo transactions.
+         If the first db call inside a transaction is a Flux, then there's a chance of creating multiple mongo
+         transactions which will lead to NoSuchTransaction exception.
+        */
+        final Mono<Application> importedApplicationMono = workspaceMono
+                .then(applicationSpecificImportedEntitiesMono)
                 .then(getImportApplicationMono(
                         importedApplication, importingMetaDTO, mappedImportableResourcesDTO, currUserMono))
                 .cache();
 
-        Mono<List<Theme>> importedThemesMono = themeImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson);
-
-        Mono<List<NewPage>> importedPagesMono = newPageImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson);
-
-        Mono<List<Datasource>> importedDatasourcesMono = datasourceImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson);
-
-        Mono<List<NewAction>> importedNewActionsMono = newActionImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson);
-
-        Mono<List<ActionCollection>> importedActionCollectionsMono = actionCollectionImportableService.importEntities(
-                importingMetaDTO,
-                mappedImportableResourcesDTO,
-                workspaceMono,
-                importedApplicationMono,
-                applicationJson);
-
         Mono<Application> importMono = importedApplicationMono
-                .then(installedPluginsMono)
-                .then(importedThemesMono)
-                .then(importedPagesMono)
-                .then(importedDatasourcesMono)
-                .then(importedNewActionsMono)
-                .then(importedActionCollectionsMono)
+                .then(getImportableEntities(
+                        importingMetaDTO,
+                        mappedImportableResourcesDTO,
+                        workspaceMono,
+                        importedApplicationMono,
+                        applicationJson))
                 .then(importedApplicationMono)
                 .flatMap(application -> {
                     return newActionImportableService
@@ -641,6 +622,120 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
         return Mono.create(sink -> resultMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    private Mono<Void> getImportableEntities(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<Application> importedApplicationMono,
+            ApplicationJson applicationJson) {
+
+        List<Mono<Void>> pageIndependentImportables = getPageIndependentImportables(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson);
+
+        List<Mono<Void>> pageDependentImportables = getPageDependentImportables(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson);
+
+        return Flux.merge(pageIndependentImportables)
+                .thenMany(Flux.merge(pageDependentImportables))
+                .then();
+    }
+
+    protected List<Mono<Void>> getPageIndependentImportables(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<Application> importedApplicationMono,
+            ApplicationJson applicationJson) {
+
+        // Updates plugin map in importable resources
+        Mono<Void> installedPluginsMono = pluginImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson);
+
+        // Directly updates required theme information in DB
+        Mono<Void> importedThemesMono = themeImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson);
+
+        // Updates pageNametoIdMap and pageNameMap in importable resources.
+        // Also directly updates required information in DB
+        Mono<Void> importedPagesMono = newPageImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson);
+
+        // Requires pluginMap to be present in importable resources.
+        // Updates datasourceNameToIdMap in importable resources.
+        // Also directly updates required information in DB
+        Mono<Void> importedDatasourcesMono = installedPluginsMono.then(datasourceImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson));
+
+        return List.of(importedDatasourcesMono, importedPagesMono, importedThemesMono);
+    }
+
+    protected List<Mono<Void>> getPageDependentImportables(
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Mono<Workspace> workspaceMono,
+            Mono<Application> importedApplicationMono,
+            ApplicationJson applicationJson) {
+
+        // Requires pageNameMap, pageNameToOldNameMap, pluginMap and datasourceNameToIdMap to be present in importable
+        // resources.
+        // Updates actionResultDTO in importable resources.
+        // Also directly updates required information in DB
+        Mono<Void> importedNewActionsMono = newActionImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson);
+
+        // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable
+        // resources.
+        // Updates actionCollectionResultDTO in importable resources.
+        // Also directly updates required information in DB
+        Mono<Void> importedActionCollectionsMono = actionCollectionImportableService.importEntities(
+                importingMetaDTO,
+                mappedImportableResourcesDTO,
+                workspaceMono,
+                importedApplicationMono,
+                applicationJson);
+
+        Mono<Void> combinedActionExportablesMono = importedNewActionsMono.then(importedActionCollectionsMono);
+        return List.of(combinedActionExportablesMono);
+    }
+
+    private Mono<Void> applicationSpecificImportedEntities(
+            ApplicationJson applicationJson,
+            ImportingMetaDTO importingMetaDTO,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        // Persists relevant information and updates mapped resources
+        Mono<Void> installedJsLibsMono = customJSLibImportableService.importEntities(
+                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
+        return installedJsLibsMono;
     }
 
     @Override

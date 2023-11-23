@@ -1,32 +1,35 @@
 import {
-  entityExplorer,
   agHelper,
-  locators,
-  propPane,
   assertHelper,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Dynamic Height Width validation list widget", function () {
   it("1. Validate change with auto height width for list widgets", function () {
-    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     const textMsg = "Dynamic panel validation for text widget wrt height";
     agHelper.AddDsl("DynamicHeightListTextDsl");
 
     entityExplorer.DragDropWidgetNVerify("multiselecttreewidget", 300, 500);
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     //Widgets which were not possible to be added to list widget cannot be pasted/moved into the list widget with multitreeselect
-    entityExplorer.SelectEntityByName("MultiTreeSelect1", "List1");
-    agHelper.TypeText(locators._body, `{${modifierKey}}c`, {
-      parseSpecialCharSeq: true,
-    });
+    EditorNavigation.SelectEntityByName(
+      "MultiTreeSelect1",
+      EntityType.Widget,
+      {},
+      ["List1"],
+    );
+    agHelper.SimulateCopyPaste("copy");
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.Sleep(2000);
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.MoveToTab("Style");
-    agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
-      parseSpecialCharSeq: true,
-    });
+    agHelper.SimulateCopyPaste("paste");
     agHelper.ValidateToastMessage(
       "This widget cannot be used inside the list widget.",
       0,
@@ -34,58 +37,62 @@ describe("Dynamic Height Width validation list widget", function () {
     );
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
-      .then((currentListHeight: number) => {
+      .then((currentListHeight: any) => {
         //Widgets within list widget have no dynamic height
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         //Widgets within list widget in existing applications have no dynamic height
-        entityExplorer.SelectEntityByName("Container1", "List1");
-        entityExplorer.SelectEntityByName("Text1", "Container1");
+        EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+          "List1",
+          "Container1",
+        ]);
 
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         propPane.UpdatePropertyFieldValue("Text", textMsg, true);
-        entityExplorer.SelectEntityByName("Container1", "List1");
-        entityExplorer.SelectEntityByName("Text2", "Container1");
+        EditorNavigation.SelectEntityByName("Text2", EntityType.Widget, {}, [
+          "Container1",
+          "List1",
+        ]);
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         propPane.UpdatePropertyFieldValue("Text", textMsg, true);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.LIST))
-          .then((updatedListHeight: number) => {
+          .then((updatedListHeight: any) => {
             expect(currentListHeight).to.equal(updatedListHeight);
           });
-        entityExplorer.SelectEntityByName("Container1", "List1");
+        EditorNavigation.SelectEntityByName(
+          "Container1",
+          EntityType.Widget,
+          {},
+          ["List1"],
+        );
 
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
         //Widgets when moved into the list widget have no dynamic height
-        entityExplorer.SelectEntityByName("Text3", "Widgets");
+        EditorNavigation.SelectEntityByName("Text3", EntityType.Widget);
         propPane.MoveToTab("Style");
-        agHelper.TypeText(locators._body, `{${modifierKey}}c`, {
-          parseSpecialCharSeq: true,
-        });
-        entityExplorer.SelectEntityByName("List1", "Widgets");
+        agHelper.SimulateCopyPaste("copy");
+
+        EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
         propPane.MoveToTab("Style");
-        agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
-          parseSpecialCharSeq: true,
-        });
+        agHelper.SimulateCopyPaste("paste");
         assertHelper.AssertNetworkStatus("@updateLayout", 200);
-        entityExplorer.NavigateToSwitcher("Explorer");
-        entityExplorer.SelectEntityByName("Text3Copy");
+
+        EditorNavigation.SelectEntityByName("Text3Copy", EntityType.Widget);
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
-        agHelper.TypeText(locators._body, `{${modifierKey}}c`, {
-          parseSpecialCharSeq: true,
-        });
-        //agHelper.GetElement(locators._body).click({ force: true });
-        agHelper.GetElement(locators._canvasBody).click({ force: true });
-        agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
-          parseSpecialCharSeq: true,
-        });
+        agHelper.SimulateCopyPaste("copy");
+        agHelper.WaitUntilAllToastsDisappear();
+        agHelper.Sleep(2000);
+        agHelper.GetNClick(locators._canvasBody);
+        agHelper.SimulateCopyPaste("paste");
         assertHelper.AssertNetworkStatus("@updateLayout");
         //Widgets when moved out of the list widget have dynamic height in property pane
-        entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
+        EditorNavigation.SelectEntityByName("Text3CopyCopy", EntityType.Widget);
         agHelper.AssertElementVisibility(propPane._propertyPaneHeightLabel);
+
         agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.TEXT));
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TEXT))
-          .then((height: number) => {
+          .then((height: any) => {
             propPane.SelectPropertiesDropDown("height", "Auto Height");
             assertHelper.AssertNetworkStatus("@updateLayout", 200);
             agHelper.GetNClick(
@@ -96,35 +103,36 @@ describe("Dynamic Height Width validation list widget", function () {
                 locators._widgetInDeployed(draggableWidgets.TEXT),
               )
               .wait(1000)
-              .then((updatedListHeight: number) => {
+              .then((updatedListHeight: any) => {
                 expect(height).to.not.equal(updatedListHeight);
               });
           });
-        entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
-        agHelper.TypeText(locators._body, `{${modifierKey}}c`, {
-          parseSpecialCharSeq: true,
-        });
-        entityExplorer.SelectEntityByName("List1", "Widgets");
+        EditorNavigation.SelectEntityByName("Text3CopyCopy", EntityType.Widget);
+        agHelper.SimulateCopyPaste("copy");
+
+        EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
         propPane.MoveToTab("Style");
-        agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
-          parseSpecialCharSeq: true,
-        });
+        agHelper.SimulateCopyPaste("paste");
         assertHelper.AssertNetworkStatus("@updateLayout", 200);
         //Widgets when copied and pasted into the list widget no longer have dynamic height
-        entityExplorer.SelectEntityByName("Text3CopyCopyCopy", "Container1");
+        EditorNavigation.SelectEntityByName(
+          "Text3CopyCopyCopy",
+          EntityType.Widget,
+          {},
+          ["Container1"],
+        );
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
-        entityExplorer.SelectEntityByName("Text3CopyCopy");
-        agHelper.TypeText(locators._body, `{${modifierKey}}x`, {
-          parseSpecialCharSeq: true,
-        });
-        entityExplorer.SelectEntityByName("List1");
+        agHelper.Sleep(2000); //wait a bit to ensure that the 'Text3CopyCopy' is selected for cut
+
+        EditorNavigation.SelectEntityByName("Text3CopyCopy", EntityType.Widget);
+        agHelper.SimulateCopyPaste("cut");
+        EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
         propPane.MoveToTab("Style");
         agHelper.Sleep(500);
-        agHelper.TypeText(locators._body, `{${modifierKey}}v`, {
-          parseSpecialCharSeq: true,
-        });
+        agHelper.SimulateCopyPaste("paste");
+
         assertHelper.AssertNetworkStatus("@updateLayout", 200);
-        entityExplorer.SelectEntityByName("Text3CopyCopy", "Widgets");
+        EditorNavigation.SelectEntityByName("Text3CopyCopy", EntityType.Widget);
         agHelper.AssertElementAbsence(propPane._propertyPaneHeightLabel);
       });
   });

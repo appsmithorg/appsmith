@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
@@ -284,6 +285,44 @@ public class ApplicationPageServiceTest {
                     // The migrated DSL should have the new format.
                     // Match for widget version
                     // Match published and unpublished page DSL version number
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void createOrUpdateSuffixedApplication_GitConnectedAppExistsWithSameName_AppCreatedWithSuffixedName() {
+        // create a Git connected application with two branches
+        final String appName = "app" + UUID.randomUUID();
+        Application application = new Application();
+        application.setName(appName);
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        gitApplicationMetadata.setBranchName("branch1");
+        application.setGitApplicationMetadata(gitApplicationMetadata);
+
+        Mono<Application> importAppMono = applicationPageService
+                .createApplication(application, workspace.getId())
+                .flatMap(createdApp -> {
+                    createdApp.getGitApplicationMetadata().setDefaultApplicationId(createdApp.getId());
+                    return applicationService.save(createdApp);
+                })
+                .flatMap(createdApp -> {
+                    createdApp.setId(null);
+                    createdApp.getGitApplicationMetadata().setBranchName("branch2");
+                    // just duplicate the app, we're not considering the pages, they remain same in both apps
+                    return applicationRepository.save(createdApp);
+                })
+                .flatMap(createdApp -> {
+                    Application newApplication = new Application();
+                    newApplication.setName(appName);
+                    newApplication.setWorkspaceId(workspace.getId());
+                    return applicationPageService.createOrUpdateSuffixedApplication(
+                            newApplication, newApplication.getName(), 0);
+                });
+
+        StepVerifier.create(importAppMono)
+                .assertNext(application1 -> {
+                    assertThat(application1.getName()).isEqualTo(appName + " (1)");
                 })
                 .verifyComplete();
     }

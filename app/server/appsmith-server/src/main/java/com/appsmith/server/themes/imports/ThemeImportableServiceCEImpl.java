@@ -6,8 +6,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ApplicationService;
@@ -15,8 +13,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.themes.base.ThemeService;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 
@@ -48,11 +44,11 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
      * - If current theme is a customized one and source theme is system theme, set the current theme to system and delete the old one
      * - If current theme is system theme, update the current theme as per source theme
      *
-     * @param applicationJson     ApplicationJSON from file or Git
+     * @param applicationJson ApplicationJSON from file or Git
      * @return Updated application that has editModeThemeId and publishedModeThemeId set
      */
     @Override
-    public Mono<List<Theme>> importEntities(
+    public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -60,7 +56,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             ApplicationJson applicationJson) {
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
             // appending to existing app, theme should not change
-            return Mono.just(List.of());
+            return Mono.empty().then();
         }
         return applicationMono.flatMap(destinationApp -> {
             Mono<Theme> editModeTheme = updateExistingAppThemeFromJSON(
@@ -78,18 +74,13 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                         destinationApp.setEditModeThemeId(editModeThemeId);
                         destinationApp.setPublishedModeThemeId(publishedModeThemeId);
                         // this will update the theme id in DB
-                        // also returning the updated application object so that theme id are available to the next
-                        // pipeline
-                        return applicationService
-                                .setAppTheme(
-                                        destinationApp.getId(),
-                                        editModeThemeId,
-                                        publishedModeThemeId,
-                                        applicationPermission.getEditPermission())
-                                .thenReturn(List.<Theme>of());
+                        return applicationService.setAppTheme(
+                                destinationApp.getId(),
+                                editModeThemeId,
+                                publishedModeThemeId,
+                                applicationPermission.getEditPermission());
                     })
-                    .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to import theme")));
+                    .then();
         });
     }
 

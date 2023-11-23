@@ -22,9 +22,7 @@ describe("Api Naming conflict on a page test", function () {
       cy.get(".t--context-menu").click({ force: true });
     });
     cy.selectAction("Edit name");
-    //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
-    //cy.RenameEntity(firstApiName);
     cy.validateMessage(firstApiName);
     agHelper.PressEnter();
     entityExplorer.ActionContextMenuByEntityName({
@@ -50,7 +48,7 @@ describe("Api Naming conflict on different pages test", function () {
     entityExplorer.AddNewPage();
     cy.CreateAPI(firstApiName);
     entityExplorer.ExpandCollapseEntity("Queries/JS", true);
-    cy.get(".t--entity-name").contains(firstApiName).should("exist");
+    entityExplorer.AssertEntityPresenceInExplorer(firstApiName);
     cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
@@ -72,14 +70,7 @@ describe("Entity Naming conflict test", function () {
     entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and name it
     jsEditor.CreateJSObject('return "Hello World";');
-    cy.get(`.t--entity-item:contains('JSObject1')`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.selectAction("Edit name");
-    cy.get(explorer.editEntity)
-      .last()
-      .type(firstApiName, { force: true })
-      .type("{enter}");
+    entityExplorer.RenameEntityFromExplorer("JSObject1", firstApiName);
     cy.wait(2000); //for the changed JS name to reflect
 
     cy.CreateAPI(secondApiName);

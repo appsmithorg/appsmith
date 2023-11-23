@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 let valueToTest: any, jsName: any;
 
 describe("Validate JSObj binding to Table widget", () => {
@@ -32,7 +35,7 @@ describe("Validate JSObj binding to Table widget", () => {
   });
 
   it("2. Validate the Api data is updated on List widget + Bug 12438", function () {
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     _.propPane.UpdatePropertyFieldValue(
       "Items",
       (("{{" + jsName) as string) + ".myFun1()}}",
@@ -68,7 +71,7 @@ describe("Validate JSObj binding to Table widget", () => {
   });
 
   it("3. Validate the List widget + Bug 12438 ", function () {
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     _.propPane.MoveToTab("Style");
     _.propPane.UpdatePropertyFieldValue("Item Spacing (px)", "50");
     cy.get(_.locators._textWidget).should("have.length", 6);

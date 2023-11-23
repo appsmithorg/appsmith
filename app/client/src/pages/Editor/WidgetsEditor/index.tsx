@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Debugger from "components/editorComponents/Debugger";
 
 import {
+  getCanvasWidth,
   getCurrentPageId,
   getCurrentPageName,
   previewModeSelector,
@@ -34,11 +35,9 @@ import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getAppSettingsPaneContext,
-  getIsAppSettingsPaneOpen,
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
-import PropertyPaneWrapper from "./PropertyPaneWrapper";
 import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -47,7 +46,12 @@ import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
+import {
+  LayoutSystemFeatures,
+  useLayoutSystemFeatures,
+} from "layoutSystems/common/useLayoutSystemFeatures";
+import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -57,6 +61,7 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
 
@@ -69,21 +74,24 @@ function WidgetsEditor() {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
+  const canvasWidth = useSelector(getCanvasWidth);
+
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
   const isMobile = useIsMobileDevice();
   const isPreviewingNavigation =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
-
-  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+    isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
 
-  const ref = useRef<HTMLDivElement>(null);
+  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
+
+  const [enableOverlayCanvas] = checkLayoutSystemFeatures([
+    LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI,
+  ]);
 
   useEffect(() => {
     if (navigationPreviewRef?.current) {
@@ -96,6 +104,7 @@ function WidgetsEditor() {
   }, [
     navigationPreviewRef,
     isPreviewMode,
+    isProtectedMode,
     appSettingsPaneContext?.type,
     currentApplicationDetails?.applicationDetail?.navigationSetting,
   ]);
@@ -192,7 +201,7 @@ function WidgetsEditor() {
           })}
         >
           {!isAppSettingsPaneWithNavigationTabOpen && (
-            <EmptyCanvasPrompts isPreviewMode={isPreviewMode} />
+            <EmptyCanvasPrompts isPreview={isPreviewMode || isProtectedMode} />
           )}
           <AnonymousDataPopup />
           <div
@@ -222,9 +231,8 @@ function WidgetsEditor() {
                       NAVIGATION_SETTINGS.ORIENTATION.SIDE && isAppSidebarPinned
                   : false
               }
-              isPreviewMode={isPreviewMode}
+              isPreview={isPreviewMode || isProtectedMode}
               isPublished={isPublished}
-              ref={ref}
               sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
             >
               {shouldShowSnapShotBanner && (
@@ -233,24 +241,25 @@ function WidgetsEditor() {
                 </div>
               )}
               <MainContainerWrapper
+                canvasWidth={canvasWidth}
                 currentPageId={currentPageId}
                 isAppSettingsPaneWithNavigationTabOpen={
                   AppSettingsTabs.Navigation === appSettingsPaneContext?.type
                 }
                 isPreviewMode={isPreviewMode}
+                isProtectedMode={isProtectedMode}
                 navigationHeight={navigationHeight}
-                parentRef={ref}
                 shouldShowSnapShotBanner={shouldShowSnapShotBanner}
               />
+              {enableOverlayCanvas && (
+                <OverlayCanvasContainer canvasWidth={canvasWidth} />
+              )}
             </PageViewWrapper>
 
             <CrudInfoModal />
           </div>
           <Debugger />
         </div>
-        {!(isAppSettingsPaneOpen && isAppSidebarEnabled) && (
-          <PropertyPaneWrapper />
-        )}
       </div>
     </EditorContextProvider>
   );

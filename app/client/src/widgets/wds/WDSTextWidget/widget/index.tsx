@@ -7,6 +7,7 @@ import BaseWidget from "widgets/BaseWidget";
 import { Text } from "@design-system/widgets";
 import type { TextWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
+import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSTextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static type = "WDS_TEXT_WIDGET";
@@ -29,6 +30,10 @@ class WDSTextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   static getAutoLayoutConfig() {
     return {};
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return config.anvilConfig;
   }
 
   static getAutocompleteDefinitions() {

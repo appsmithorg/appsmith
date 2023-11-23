@@ -77,12 +77,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     cy.wait(2000);
 
-    dataSources.AssertTableInVirtuosoList(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
       datasourceName,
-      "assets-test--appsmith",
-    );
-
-    entityExplorer.ActionTemplateMenuByEntityName(
       "assets-test--appsmith",
       "List files",
     );
@@ -512,7 +508,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("7. Validate Deletion of the Newly Created Page", () => {
-    cy.NavigateToQueryEditor();
     dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Assets-test.appsmith.com",
@@ -522,6 +517,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   after("Deletes the datasource", () => {
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
   });
 });

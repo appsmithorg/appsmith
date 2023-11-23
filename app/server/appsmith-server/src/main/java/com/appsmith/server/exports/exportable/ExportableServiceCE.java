@@ -14,7 +14,7 @@ import java.util.Set;
 
 public interface ExportableServiceCE<T extends BaseDomain> {
 
-    Mono<List<T>> getExportableEntities(
+    Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,

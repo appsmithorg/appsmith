@@ -6,6 +6,7 @@ import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.exports.internal.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
@@ -27,7 +28,8 @@ public class ApplicationController extends ApplicationControllerCE {
             ExportApplicationService exportApplicationService,
             ThemeService themeService,
             ApplicationSnapshotService applicationSnapshotService,
-            PartialExportService partialExportService) {
+            PartialExportService partialExportService,
+            PartialImportService partialImportService) {
         super(
                 service,
                 applicationPageService,
@@ -37,6 +39,7 @@ public class ApplicationController extends ApplicationControllerCE {
                 exportApplicationService,
                 themeService,
                 applicationSnapshotService,
-                partialExportService);
+                partialExportService,
+                partialImportService);
     }
 }

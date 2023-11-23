@@ -65,5 +65,6 @@ describe("Auto conversion algorithm usecases for fixed Layout", function () {
               });
           });
       });
+    agHelper.Sleep();
   });
 });

@@ -37,6 +37,7 @@ export const initialState: EditorReduxState = {
   isSnipingMode: false,
   snipModeBindTo: undefined,
   isPreviewMode: false,
+  isProtectedMode: true,
   zoomLevel: 1,
 };
 
@@ -205,6 +206,15 @@ export const handlers = {
       isPreviewMode: action.payload,
     };
   },
+  [ReduxActionTypes.SET_PROTECTED_MODE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isProtectedMode: action.payload,
+    };
+  },
   /* This action updates the status of the savingEntity for any entity of the application in the store */
   [ReduxActionTypes.ENTITY_UPDATE_STARTED]: (state: EditorReduxState) => ({
     ...state,
@@ -242,6 +252,7 @@ export interface EditorReduxState {
   isSnipingMode: boolean;
   snipModeBindTo?: string;
   isPreviewMode: boolean;
+  isProtectedMode: boolean;
   zoomLevel: number;
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
   loadingStates: {

@@ -7,13 +7,13 @@ import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type {
   AuthenticationStatus,
   Datasource,
+  DatasourceStructureContext,
   FilePickerActionStatus,
   MockDatasource,
 } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
 import type { ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructure";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,

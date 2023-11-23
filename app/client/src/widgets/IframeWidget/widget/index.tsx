@@ -53,6 +53,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       widgetName: "Iframe",
       version: 1,
       animateLoading: true,
+      isVisible: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
       flexVerticalAlignment: FlexVerticalAlignment.Top,
     };
@@ -92,6 +93,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
@@ -180,6 +182,17 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            helpText: "Controls the visibility of the widget",
             defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
@@ -359,6 +372,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       borderColor,
       borderOpacity,
       borderWidth,
+      isVisible,
       renderMode,
       source,
       srcDoc,
@@ -374,6 +388,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         borderWidth={borderWidth}
         boxShadow={this.props.boxShadow}
+        isVisible={isVisible}
         onMessageReceived={this.handleMessageReceive}
         onSrcDocChanged={this.handleSrcDocChange}
         onURLChanged={this.handleUrlChange}

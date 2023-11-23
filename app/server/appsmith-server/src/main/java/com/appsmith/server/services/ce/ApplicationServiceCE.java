@@ -98,7 +98,9 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId);
 
-    Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
+    Mono<Boolean> isApplicationNameTaken(String applicationName, String workspaceId, AclPermission permission);
 
     Mono<Boolean> isApplicationConnectedToGit(String applicationId);
+
+    Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches);
 }

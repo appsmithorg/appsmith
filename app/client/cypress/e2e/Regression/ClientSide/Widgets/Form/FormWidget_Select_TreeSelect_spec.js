@@ -1,16 +1,21 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Form Widget Functionality", function () {
   before(() => {
-    _.agHelper.AddDsl("formSelectTreeselectDsl");
+    agHelper.AddDsl("formSelectTreeselectDsl");
   });
+
   it("Validate Select and TreeSelect Widget", function () {
     cy.get(widgetsPage.formButtonWidget)
       .contains("Submit")
       .should("have.attr", "disabled");
-    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
+    cy.wait(1000) //for dropdown to load for CI runs
+      .get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true })
+      .wait(500);
     cy.get(formWidgetsPage.treeSelectFilterInput).click().type("Blue");
     cy.treeSelectDropdown("Blue");
 

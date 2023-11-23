@@ -11,10 +11,10 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
+import com.appsmith.server.dtos.ImportActionResultDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
-import com.appsmith.server.dtos.ce.ImportActionResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
@@ -56,8 +56,12 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         this.actionCollectionService = actionCollectionService;
     }
 
+    // Requires pageNameMap, pageNameToOldNameMap, pluginMap and datasourceNameToIdMap to be present in importable
+    // resources.
+    // Updates actionResultDTO in importable resources.
+    // Also directly updates required information in DB
     @Override
-    public Mono<List<NewAction>> importEntities(
+    public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -66,10 +70,11 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
-        Mono<List<NewAction>> importedNewActionMono = Mono.just(importedNewActionList);
+        Mono<List<NewAction>> importedNewActionMono = Mono.justOrEmpty(importedNewActionList);
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
                 List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                        .distinct()
                         .toList();
                 Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
 
@@ -124,7 +129,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     log.error("Error while importing actions and deleting unused ones", throwable);
                     return Mono.error(throwable);
                 })
-                .thenReturn(List.of());
+                .then();
     }
 
     @Override

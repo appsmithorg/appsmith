@@ -89,6 +89,8 @@ public class GlobalExceptionHandler {
             if (baseError.getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
                 Sentry.configureScope(scope -> {
                     baseError.getContextMap().forEach(scope::setTag);
+                    scope.setExtra("downstreamErrorMessage", baseError.getDownstreamErrorMessage());
+                    scope.setExtra("downstreamErrorCode", baseError.getDownstreamErrorCode());
                 });
                 final User user = new User();
                 user.setEmail(baseError.getContextMap().getOrDefault(MDCFilter.USER_EMAIL, "unknownUser"));
@@ -236,8 +238,7 @@ public class GlobalExceptionHandler {
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
         ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
-                appsmithError.getHttpErrorCode(),
-                new ErrorDTO(appsmithError.getAppErrorCode(), e.getMessage(), e.getErrorType(), e.getTitle()));
+                e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getErrorType(), e.getMessage(), e.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
     }

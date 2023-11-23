@@ -52,8 +52,11 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
         this.sequenceService = sequenceService;
     }
 
+    // Requires pluginMap to be present in importable resources.
+    // Updates datasourceNameToIdMap in importable resources.
+    // Also directly updates required information in DB
     @Override
-    public Mono<List<Datasource>> importEntities(
+    public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -74,10 +77,9 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                     importingMetaDTO,
                     mappedImportableResourcesDTO);
 
-            return datasourceMapMono.map(datasourceMap -> {
-                mappedImportableResourcesDTO.setDatasourceNameToIdMap(datasourceMap);
-                return List.of();
-            });
+            return datasourceMapMono
+                    .doOnNext(mappedImportableResourcesDTO::setDatasourceNameToIdMap)
+                    .then();
         });
     }
 

@@ -12,7 +12,6 @@ describe("Reconnect Datasource Modal validation while importing application", fu
     // import application
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
-      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
         newWorkspaceName = createWorkspaceInterception.response.body.data.name;

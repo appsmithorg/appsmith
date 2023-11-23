@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
 const explorerLocators = require("../../../../locators/explorerlocators.json");
@@ -10,6 +14,7 @@ import {
   homePage,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry as _ } from "../../../../support/Objects/Registry";
 
 describe("excludeForAirgap", "Guided Tour", function () {
   it("1. Guided tour should work when started from the editor", function () {
@@ -39,7 +44,9 @@ describe("excludeForAirgap", "Guided Tour", function () {
     dataSources.RunQuery();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
-    entityExplorer.SelectEntityByName("CustomersTable");
+    cy.xpath(_.EntityExplorer._entityNameInExplorer("CustomersTable"))
+      .first()
+      .click({ force: true });
 
     // Step 3: Add binding to the tableData property
     propPane.UpdatePropertyFieldValue(
@@ -90,7 +97,10 @@ describe("excludeForAirgap", "Guided Tour", function () {
       true,
       false,
     );
-    cy.get(".t--entity-name").contains("CountryInput").click({ force: true });
+    cy.xpath(_.EntityExplorer._entityNameInExplorer("CountryInput"))
+      .first()
+      .click({ force: true });
+
     cy.wait(1000);
     cy.get(guidedTourLocators.inputfields)
       .eq(2)
@@ -102,11 +112,14 @@ describe("excludeForAirgap", "Guided Tour", function () {
       true,
       false,
     );
-    cy.get(".t--entity-name").contains("DisplayImage").click({ force: true });
+    cy.xpath(_.EntityExplorer._entityNameInExplorer("DisplayImage"))
+      .first()
+      .click({ force: true });
+
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
-      x: 800,
+      x: 845,
       y: 750,
     });
     cy.get(guidedTourLocators.successButton).click();

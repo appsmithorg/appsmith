@@ -36,8 +36,15 @@ class WidgetColumn extends BaseLayoutComponent {
   static rendersWidgets: boolean = true;
 
   render() {
-    const { canvasId, isDropTarget, layoutId, layoutStyle, renderMode } =
-      this.props;
+    const {
+      canvasId,
+      isDropTarget,
+      layoutId,
+      layoutIndex,
+      layoutStyle,
+      parentDropTarget,
+      renderMode,
+    } = this.props;
 
     return (
       <FlexLayout
@@ -45,6 +52,8 @@ class WidgetColumn extends BaseLayoutComponent {
         direction="column"
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
+        layoutIndex={layoutIndex}
+        parentDropTarget={parentDropTarget}
         renderMode={renderMode}
         {...(layoutStyle || {})}
       >

@@ -6,6 +6,9 @@ import {
   propPane,
   dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Multi Select widget Tests", function () {
   before(() => {
@@ -78,7 +81,7 @@ describe("Multi Select widget Tests", function () {
     const labelStylesProperties = ["fontcolor", "fontsize", "emphasis"];
     const borderShadows = ["borderradius", "boxshadow"];
 
-    entityExplorer.SelectEntityByName("MultiTreeSelect1", "Widgets");
+    EditorNavigation.SelectEntityByName("MultiTreeSelect1", EntityType.Widget);
     // Data section
     dataProperties.forEach((dataSectionProperty) => {
       agHelper.AssertElementVisibility(
@@ -162,7 +165,10 @@ describe("Multi Select widget Tests", function () {
     // Copy paste from property pane and delete from property pane
     propPane.CopyPasteWidgetFromPropertyPane("NewMultiTreeSelect");
     propPane.DeleteWidgetFromPropertyPane("NewMultiTreeSelectCopy");
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.MoveToTab("Content");
   });
 
@@ -210,15 +216,21 @@ describe("Multi Select widget Tests", function () {
     agHelper.AssertAttribute(locators._label, "position", "Left");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`);
     agHelper.AssertAttribute(locators._label, "position", "Top");
   });
 
   it("6. Verify tooltip", () => {
-    entityExplorer.SelectEntityByName("CurrencyInput1", "Widgets");
+    EditorNavigation.SelectEntityByName("CurrencyInput1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "1000");
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
     agHelper.HoverElement(locators._tooltipIcon);
     agHelper.AssertPopoverTooltip("1,000");
@@ -237,7 +249,10 @@ describe("Multi Select widget Tests", function () {
   });
 
   it("7. Verify Mode options", () => {
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.SelectPropertiesDropDown("Mode", "Display only parent items");
     agHelper.GetNClick(locators._dropDownMultiTreeSelect);
     agHelper.GetNClick(locators._switcherIcon);
@@ -296,9 +311,12 @@ describe("Multi Select widget Tests", function () {
       "Select new option",
     );
     // Binding with Text widget
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "Select value");
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.UpdatePropertyFieldValue("Placeholder", "{{Text1.text}}");
     agHelper.AssertText(
       locators._treeSelectPlaceholder,
@@ -308,7 +326,10 @@ describe("Multi Select widget Tests", function () {
   });
 
   it("9. Validate visible and disabled toggle", () => {
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.TogglePropertyState("visible", "Off");
 
     // Preview mode
@@ -325,7 +346,10 @@ describe("Multi Select widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.TogglePropertyState("visible", "On");
 
     // Preview mode
@@ -343,7 +367,10 @@ describe("Multi Select widget Tests", function () {
     deployMode.NavigateBacktoEditor();
 
     // Visible JS mode
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "false");
 
@@ -353,13 +380,19 @@ describe("Multi Select widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "true");
     propPane.ToggleJSMode("Visible", false);
 
     // Disabled
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.TogglePropertyState("disabled", "On");
     agHelper.AssertAttribute(
       locators._widgetInDeployed("multiselecttreewidget"),
@@ -385,7 +418,10 @@ describe("Multi Select widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.TogglePropertyState("disabled", "Off");
   });
 
@@ -466,7 +502,10 @@ describe("Multi Select widget Tests", function () {
     agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
     propPane.MoveToTab("Style");
 
     // Verify border

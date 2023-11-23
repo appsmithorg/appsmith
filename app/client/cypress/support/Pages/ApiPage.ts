@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import EditorNavigation, { SidebarButton } from "./EditorNavigation";
 
 type RightPaneTabs = "datasources" | "connections";
 
@@ -88,10 +89,11 @@ export class ApiPage {
   ) {
     if (aftDSSaved) this.agHelper.GetNClick(this._createQuery);
     else {
-      this.agHelper.RemoveEvaluatedPopUp();
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      this.agHelper.RemoveUIElement("EvaluatedPopUp");
       this.agHelper.GetHoverNClick(this.locator._createNew);
       this.agHelper.GetNClick(this._blankAPI, 0, true);
-      this.agHelper.RemoveTooltip("Add a new query/JS Object");
+      this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     }
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 

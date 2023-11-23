@@ -8,6 +8,9 @@ import {
   dataSources,
   dataManager,
 } from "../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
 
 describe("Content Management System App", function () {
   before(() => {
@@ -111,32 +114,27 @@ describe("Content Management System App", function () {
   });
 
   it("6. Connect app to git, verify data binding in edit and deploy mode", () => {
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
-    });
-    cy.latestDeployPreview();
-    cy.wait(2000);
-    cy.xpath("//span[text()='Curt50@gmail.com']")
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(appPage.mailButton).closest("div").click();
-    cy.xpath(appPage.sendMailText).should("be.visible");
-    cy.xpath(appPage.subjectField).type("Test");
-    cy.get(appPage.contentField)
-      .last()
-      .find("textarea")
-      .type("Task completed", { force: true });
-    cy.get(appPage.confirmButton).closest("div").click({ force: true });
-    cy.get(appPage.closeButton).closest("div").click({ force: true });
-    deployMode.NavigateBacktoEditor();
-  });
 
-  after(() => {
-    //clean up
-    gitSync.DeleteTestGithubRepo(repoName);
+      cy.latestDeployPreview();
+      cy.wait(2000);
+      cy.xpath("//span[text()='Curt50@gmail.com']")
+        .should("be.visible")
+        .click({ force: true });
+      cy.get(appPage.mailButton).closest("div").click();
+      cy.xpath(appPage.sendMailText).should("be.visible");
+      cy.xpath(appPage.subjectField).type("Test");
+      cy.get(appPage.contentField)
+        .last()
+        .find("textarea")
+        .type("Task completed", { force: true });
+      cy.get(appPage.confirmButton).closest("div").click({ force: true });
+      cy.get(appPage.closeButton).closest("div").click({ force: true });
+      deployMode.NavigateBacktoEditor();
+      gitSync.DeleteTestGithubRepo(repoName);
+    });
   });
 });

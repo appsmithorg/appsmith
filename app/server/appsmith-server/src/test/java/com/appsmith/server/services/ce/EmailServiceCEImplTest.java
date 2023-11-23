@@ -26,10 +26,10 @@ import static com.appsmith.server.constants.ce.EmailConstantsCE.INSTANCE_ADMIN_I
 import static com.appsmith.server.constants.ce.EmailConstantsCE.INSTANCE_NAME;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITER_FIRST_NAME;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITER_WORKSPACE_NAME;
+import static com.appsmith.server.constants.ce.EmailConstantsCE.INVITE_TO_WORKSPACE_EMAIL_SUBJECT_CE;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.PRIMARY_LINK_TEXT;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.PRIMARY_LINK_URL;
 import static com.appsmith.server.constants.ce.EmailConstantsCE.RESET_URL;
-import static com.appsmith.server.constants.ce.EmailConstantsCE.WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER;
 import static graphql.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -120,7 +120,7 @@ class EmailServiceCEImplTest {
                     Map<String, String> params = invocation.getArgument(3);
 
                     assertEquals(invitedUser.getEmail(), to);
-                    assertEquals(String.format(WORKSPACE_EMAIL_SUBJECT_FOR_NEW_USER, workspace.getName()), subject);
+                    assertEquals(String.format(INVITE_TO_WORKSPACE_EMAIL_SUBJECT_CE, workspace.getName()), subject);
                     assertTrue(params.containsKey(PRIMARY_LINK_URL));
                     assertTrue(params.containsKey(PRIMARY_LINK_TEXT));
                     assertEquals(expectedParams.get(INSTANCE_NAME), params.get(INSTANCE_NAME));

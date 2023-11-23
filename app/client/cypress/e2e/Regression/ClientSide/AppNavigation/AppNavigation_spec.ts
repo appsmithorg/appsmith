@@ -48,9 +48,9 @@ describe("General checks for app navigation", function () {
     homePage.ImportApp("appNavigationTestingApp.json");
     assertHelper
       .WaitForNetworkCall("@importNewApplication")
-      .then((interception) => {
+      .then((response) => {
         agHelper.Sleep();
-        const { isPartialImport } = interception.response.body.data;
+        const { isPartialImport } = response.body.data;
         if (isPartialImport) {
           homePage.AssertNCloseImport();
         } else {

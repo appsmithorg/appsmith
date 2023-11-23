@@ -165,6 +165,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
           const gitProfile = {
             authorName: "",
             authorEmail: "",
+            useGlobalProfile: true,
           };
           if (formData.remoteUrl) {
             if (!isImport) {
@@ -172,7 +173,6 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                 {
                   remoteUrl: formData.remoteUrl,
                   gitProfile,
-                  isDefaultProfile: true,
                 },
                 {
                   onErrorCallback: (error: any, response?: any) => {
@@ -195,7 +195,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                   payload: {
                     remoteUrl: formData.remoteUrl,
                     gitProfile,
-                    isDefaultProfile: true,
+                    // isDefaultProfile: true,
                   },
                   onErrorCallback(error, response) {
                     const errorResponse = response || error?.response?.data;

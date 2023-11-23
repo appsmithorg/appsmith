@@ -79,7 +79,7 @@ const goToGenPageForm = ({ pageId }: routeId): void => {
 };
 
 interface EmptyCanvasPromptsProps {
-  isPreviewMode: boolean;
+  isPreview: boolean;
 }
 
 /**
@@ -89,13 +89,13 @@ interface EmptyCanvasPromptsProps {
  * This Component encompasses the prompts for empty canvas
  * prompts like generate crud app or import from template
  * @param props Object that contains
- * @prop isPreviewMode, boolean to indicate preview mode
+ * @prop isPreview, boolean to indicate preview mode
  * @returns
  */
 function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
   const dispatch = useDispatch();
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
-  const { isPreviewMode } = props;
+  const { isPreview } = props;
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
@@ -105,12 +105,12 @@ function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
   ]);
 
   useEffect(() => {
-    if (!showCanvasTopSection && !isPreviewMode) {
+    if (!showCanvasTopSection && !isPreview) {
       dispatch(deleteCanvasCardsState());
     }
-  }, [showCanvasTopSection, isPreviewMode]);
+  }, [showCanvasTopSection, isPreview]);
 
-  if (!showCanvasTopSection) return null;
+  if (!showCanvasTopSection || isPreview) return null;
 
   const showTemplatesModal = () => {
     dispatch(showTemplatesModalAction(true));

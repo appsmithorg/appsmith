@@ -5,3 +5,4 @@ export { methodsConfig } from "./methodsConfig";
 export { defaultsConfig } from "./defaultsConfig";
 export { featuresConfig } from "./featuresConfig";
 export { autocompleteConfig } from "./autocompleteConfig";
+export { anvilConfig } from "./anvilConfig";

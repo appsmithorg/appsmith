@@ -223,3 +223,31 @@ export const loadGuidedTour = (guidedTourState: GuidedTourState) => {
     payload: guidedTourState,
   };
 };
+
+export const setCurrentApplicationIdForCreateNewApp = (
+  applicationId: string,
+) => {
+  return {
+    type: ReduxActionTypes.SET_CURRENT_APPLICATION_ID_FOR_CREATE_NEW_APP,
+    payload: applicationId,
+  };
+};
+
+export const resetCurrentApplicationIdForCreateNewApp = () => {
+  return {
+    type: ReduxActionTypes.RESET_CURRENT_APPLICATION_ID_FOR_CREATE_NEW_APP,
+  };
+};
+
+export const setCurrentPluginIdForCreateNewApp = (pluginId: string) => {
+  return {
+    type: ReduxActionTypes.SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP,
+    payload: pluginId,
+  };
+};
+
+export const resetCurrentPluginIdForCreateNewApp = () => {
+  return {
+    type: ReduxActionTypes.RESET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP,
+  };
+};

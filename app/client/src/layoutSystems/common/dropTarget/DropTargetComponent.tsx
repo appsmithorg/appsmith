@@ -11,34 +11,46 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 
-import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { calculateDropTargetRows } from "./DropTargetUtils";
-import { useDispatch } from "react-redux";
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
-import {
-  getOccupiedSpacesSelectorForContainer,
-  previewModeSelector,
-} from "selectors/editorSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getDragDetails } from "sagas/selectors";
-import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import {
   checkContainersForAutoHeightAction,
   updateDOMDirectlyBasedOnAutoHeightAction,
 } from "actions/autoHeightActions";
+import { useDispatch } from "react-redux";
+import { getDragDetails } from "sagas/selectors";
+import {
+  combinedPreviewModeSelector,
+  getIsMobileCanvasLayout,
+  getOccupiedSpacesSelectorForContainer,
+} from "selectors/editorSelectors";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
+import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { calculateDropTargetRows } from "./DropTargetUtils";
 
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getUsersFirstApplicationId,
+  isUserSignedUpFlagSet,
+} from "utils/storage";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import DragLayerComponent from "./DragLayerComponent";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import StarterBuildingBlocks from "./starterBuildingBlocks";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import useCurrentAppState from "pages/Editor/IDE/hooks";
+import { AppState as IDEAppState } from "entities/IDE/constants";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -63,11 +75,43 @@ const StyledDropTarget = styled.div`
 `;
 
 function Onboarding() {
-  return (
-    <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
-      Drag and drop a widget here
-    </h2>
+  const [isUsersFirstApp, setIsUsersFirstApp] = useState(false);
+  const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
+  const appState = useCurrentAppState();
+  const user = useSelector(getCurrentUser);
+  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
+    FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
   );
+
+  const currentApplicationId = useSelector(
+    (state: AppState) => state.ui.applications.currentApplication?.id,
+  );
+
+  const shouldShowStarterTemplates = useMemo(
+    () =>
+      showStarterTemplatesInsteadofBlankCanvas &&
+      !isMobileCanvas &&
+      isUsersFirstApp,
+    [isMobileCanvas, isUsersFirstApp, showStarterTemplatesInsteadofBlankCanvas],
+  );
+  useEffect(() => {
+    (async () => {
+      const firstApplicationId = await getUsersFirstApplicationId();
+      const isNew = !!user && (await isUserSignedUpFlagSet(user.email));
+      const isFirstApp = firstApplicationId === currentApplicationId;
+      setIsUsersFirstApp(isNew && isFirstApp);
+    })();
+  }, [user, currentApplicationId]);
+
+  if (shouldShowStarterTemplates && appState === IDEAppState.PAGES)
+    return <StarterBuildingBlocks />;
+  else if (!shouldShowStarterTemplates && appState === IDEAppState.PAGES)
+    return (
+      <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
+        Drag and drop a widget here
+      </h2>
+    );
+  else return null;
 }
 
 /*
@@ -196,7 +240,7 @@ function useUpdateRows(
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
   // Get if this is in preview mode.
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

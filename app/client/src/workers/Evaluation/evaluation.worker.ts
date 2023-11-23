@@ -1,7 +1,11 @@
 // Workers do not have access to log.error
 /* eslint-disable no-console */
 import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
-import { syncHandlerMap, asyncHandlerMap } from "./handlers";
+import {
+  syncHandlerMap,
+  asyncHandlerMap,
+  transmissionErrorHandlerMap,
+} from "./handlers";
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import { WorkerMessenger } from "./fns/utils/Messenger";
@@ -20,8 +24,14 @@ function syncRequestMessageListener(
   if (typeof messageHandler !== "function") return;
   const responseData = messageHandler(body);
   if (!responseData) return;
+  const transmissionErrorHandler = transmissionErrorHandlerMap[method];
   const endTime = performance.now();
-  WorkerMessenger.respond(messageId, responseData, endTime - startTime);
+  WorkerMessenger.respond(
+    messageId,
+    responseData,
+    endTime - startTime,
+    transmissionErrorHandler,
+  );
 }
 
 async function asyncRequestMessageListener(
@@ -38,7 +48,13 @@ async function asyncRequestMessageListener(
   const data = await messageHandler(body);
   if (!data) return;
   const end = performance.now();
-  WorkerMessenger.respond(messageId, data, end - start);
+  const transmissionErrorHandler = transmissionErrorHandlerMap[method];
+  WorkerMessenger.respond(
+    messageId,
+    data,
+    end - start,
+    transmissionErrorHandler,
+  );
 }
 
 self.addEventListener("message", syncRequestMessageListener);

@@ -1,15 +1,18 @@
 import {
   agHelper,
+  dataSources,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  deployMode,
-  propPane,
   locators,
-  dataSources,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
 import { format } from "date-fns";
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Date picker widget testcases", () => {
   before(() => {
@@ -61,7 +64,7 @@ describe("Date picker widget testcases", () => {
   });
 
   it("2. Assert time precision - None, Minute, Second ", () => {
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
 
     agHelper.GetNClick(propPane._selectPropDropdown("Date format"));
     agHelper
@@ -74,20 +77,23 @@ describe("Date picker widget testcases", () => {
     agHelper.GetNClick(datePickerlocators.input);
     agHelper.AssertElementAbsence(datePickerlocators.inputHour);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Time precision", "Minute");
     deployMode.DeployApp();
     agHelper.GetNClick(datePickerlocators.input);
     agHelper.AssertElementExist(datePickerlocators.inputHour);
     agHelper.AssertElementExist(datePickerlocators.inputMinute);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Time precision", "Second");
     deployMode.DeployApp();
     agHelper.GetNClick(datePickerlocators.input);
     agHelper.ClearNType(datePickerlocators.inputHour, "12", 0, true);
+    agHelper.Sleep(500); // wait for the input to be updated for CI runs
     agHelper.ClearNType(datePickerlocators.inputMinute, "58", 0, true);
+    agHelper.Sleep(500); // wait for the input to be updated for CI runs
     agHelper.ClearNType(datePickerlocators.inputSecond, "59", 0, true);
+    agHelper.Sleep(500); // wait for the input to be updated for CI runs
     agHelper.PressEnter();
     agHelper
       .GetAttribute(datePickerlocators.input, "value")
@@ -95,7 +101,7 @@ describe("Date picker widget testcases", () => {
         expect(labelValue).to.contain("12:58:59");
       });
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
 
     agHelper.GetNClick(propPane._selectPropDropdown("Date format"));
     agHelper
@@ -120,7 +126,7 @@ describe("Date picker widget testcases", () => {
   });
 
   it("3. Assert First day of the week - (0-6) Sunday - Saturday ", () => {
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("First Day Of Week", "0");
     deployMode.DeployApp();
     agHelper.GetNClick(datePickerlocators.input);
@@ -167,7 +173,7 @@ describe("Date picker widget testcases", () => {
       6,
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     // Change the first day of the week to Monday and assert
     propPane.UpdatePropertyFieldValue("First Day Of Week", "1");
     deployMode.DeployApp();
@@ -178,7 +184,7 @@ describe("Date picker widget testcases", () => {
       "have.text",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     // Change the first day of the week to Tuesday and assert
     propPane.UpdatePropertyFieldValue("First Day Of Week", "2");
     deployMode.DeployApp();
@@ -189,7 +195,7 @@ describe("Date picker widget testcases", () => {
       "have.text",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("First Day Of Week", "3");
     deployMode.DeployApp();
     agHelper.GetNClick(datePickerlocators.input);
@@ -199,7 +205,7 @@ describe("Date picker widget testcases", () => {
       "have.text",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("First Day Of Week", "4");
     deployMode.DeployApp();
     agHelper.GetNClick(datePickerlocators.input);
@@ -209,7 +215,7 @@ describe("Date picker widget testcases", () => {
       "have.text",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("First Day Of Week", "5");
     deployMode.DeployApp();
     agHelper.GetNClick(datePickerlocators.input);
@@ -219,7 +225,7 @@ describe("Date picker widget testcases", () => {
       "have.text",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("First Day Of Week", "6");
     deployMode.DeployApp();
     agHelper.GetNClick(datePickerlocators.input);
@@ -229,7 +235,7 @@ describe("Date picker widget testcases", () => {
       "have.text",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("First Day Of Week", "7");
     agHelper.VerifyEvaluatedErrorMessage("Number should be between 0-6.");
     propPane.UpdatePropertyFieldValue("First Day Of Week", "0");
@@ -237,7 +243,7 @@ describe("Date picker widget testcases", () => {
   });
 
   it("4. Assert Min Date and Max Date set ", () => {
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     // set min date
     agHelper.GetNClick(locators._existingFieldTextByName("Min Date"));
     agHelper.GetNClick(datePickerlocators.calendarHeader, 2);
@@ -265,7 +271,7 @@ describe("Date picker widget testcases", () => {
     agHelper.AssertElementExist(datePickerlocators.monthInDropdown("January"));
     agHelper.AssertElementExist(datePickerlocators.monthInDropdown("December"));
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     // set min date as same year as max date
     agHelper.GetNClick(locators._existingFieldTextByName("Min Date"));
     agHelper.GetNClick(datePickerlocators.calendarHeader, 2);
@@ -282,7 +288,7 @@ describe("Date picker widget testcases", () => {
   });
 
   it("5. Assert onDateSelected action ", () => {
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     // set an alert
     propPane.SelectPlatformFunction("onDateSelected", "Show alert");
     agHelper.EnterActionValue("Message", "Date selected");

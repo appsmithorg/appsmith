@@ -1,4 +1,4 @@
-import { installLibrary, uninstallLibrary } from "../jsLibrary";
+import { flattenModule, installLibrary, uninstallLibrary } from "../jsLibrary";
 import {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
@@ -97,5 +97,49 @@ describe("Tests to assert install/uninstall flows", function () {
     });
     expect(res).toEqual({ success: true });
     expect(self.lodash).toBeUndefined();
+  });
+
+  it("Test flatten of ESM module", () => {
+    /** ESM with default and named exports */
+    const library = {
+      default: {
+        method: "Hello",
+      },
+      method: "Hello",
+    };
+
+    const flatLibrary1 = flattenModule(library);
+
+    expect(flatLibrary1).toEqual({
+      method: "Hello",
+    });
+
+    expect(Object.getPrototypeOf(flatLibrary1)).toEqual({
+      method: "Hello",
+    });
+
+    /** ESM with named exports only */
+    const library2 = {
+      method: "Hello",
+    };
+
+    const flatLibrary2 = flattenModule(library2);
+
+    expect(flatLibrary2).toEqual({
+      method: "Hello",
+    });
+
+    /** ESM with default export only */
+    const library3 = {
+      default: {
+        method: "Hello",
+      },
+    };
+
+    const flatLibrary3 = flattenModule(library3);
+
+    expect(flatLibrary3).toEqual({
+      method: "Hello",
+    });
   });
 });

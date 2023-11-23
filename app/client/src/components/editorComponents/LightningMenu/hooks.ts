@@ -34,7 +34,8 @@ export const useActions = () => {
     .filter(
       (action) =>
         action.config.pluginType === PluginType.SAAS ||
-        action.config.pluginType === PluginType.REMOTE,
+        action.config.pluginType === PluginType.REMOTE ||
+        action.config.pluginType === PluginType.AI,
     )
     .map((action) => action.config);
 

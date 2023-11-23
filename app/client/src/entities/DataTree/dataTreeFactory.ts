@@ -1,5 +1,5 @@
-import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
-import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
+import { generateDataTreeAction } from "@appsmith/entities/DataTree/dataTreeAction";
+import { generateDataTreeJSAction } from "@appsmith/entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import log from "loglevel";
 import {
@@ -18,7 +18,7 @@ import type {
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
-
+import { generateModuleInstance } from "@appsmith/entities/DataTree/dataTreeModuleInstance";
 export class DataTreeFactory {
   static create({
     actions,
@@ -30,7 +30,8 @@ export class DataTreeFactory {
     loadingEntities,
     metaWidgets,
     moduleInputs,
-    pageList,
+    moduleInstanceEntities,
+    moduleInstances,
     pluginDependencyConfig,
     theme,
     widgets,
@@ -74,6 +75,19 @@ export class DataTreeFactory {
       }
     }
 
+    if (!isEmpty(moduleInstances)) {
+      Object.values(moduleInstances).forEach((moduleInstance) => {
+        const { configEntity, unEvalEntity } = generateModuleInstance(
+          moduleInstance,
+          moduleInstanceEntities,
+        );
+        if (!!configEntity && !!unEvalEntity) {
+          dataTree[moduleInstance.name] = unEvalEntity;
+          configTree[moduleInstance.name] = configEntity;
+        }
+      });
+    }
+
     Object.values(widgets).forEach((widget) => {
       const { configEntity, unEvalEntity } = generateDataTreeWidget(
         widget,
@@ -88,8 +102,6 @@ export class DataTreeFactory {
     });
 
     const endWidgets = performance.now();
-
-    dataTree.pageList = pageList;
 
     dataTree.appsmith = {
       ...appData,

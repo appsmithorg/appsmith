@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.dtos.ApplicationJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -79,9 +80,36 @@ public class ImportExportUtils {
         return "";
     }
 
+    /**
+     * This function sets the current applicationDetail properties to null if the user wants to discard the changes
+     * and accept from the git repo which doesn't contain these.
+     * @param importedApplicationDetail
+     * @param existingApplicationDetail
+     */
+    private static void setPropertiesToApplicationDetail(
+            ApplicationDetail importedApplicationDetail, ApplicationDetail existingApplicationDetail) {
+        // If the initial commit to git doesn't contain these keys and if we want to discard the changes,
+        // the function copyNestedNonNullProperties ignore these properties and the changes are not discarded
+        if (importedApplicationDetail != null && existingApplicationDetail != null) {
+            if (importedApplicationDetail.getAppPositioning() == null) {
+                existingApplicationDetail.setAppPositioning(null);
+            }
+
+            if (importedApplicationDetail.getNavigationSetting() == null) {
+                existingApplicationDetail.setNavigationSetting(null);
+            }
+        }
+    }
+
     public static void setPropertiesToExistingApplication(
             Application importedApplication, Application existingApplication) {
         importedApplication.setId(existingApplication.getId());
+
+        ApplicationDetail importedUnpublishedAppDetail = importedApplication.getUnpublishedApplicationDetail();
+        ApplicationDetail importedPublishedAppDetail = importedApplication.getPublishedApplicationDetail();
+        ApplicationDetail existingUnpublishedAppDetail = existingApplication.getUnpublishedApplicationDetail();
+        ApplicationDetail existingPublishedAppDetail = existingApplication.getPublishedApplicationDetail();
+
         // For the existing application we don't need to default
         // value of the flag
         // The isPublic flag has a default value as false and this
@@ -93,10 +121,10 @@ public class ImportExportUtils {
         // These properties are not present in the application when it is created, hence the initial commit
         // to git doesn't contain these keys and if we want to discard the changes, the function
         // copyNestedNonNullProperties ignore these properties and the changes are not discarded
-        if (importedApplication.getUnpublishedApplicationDetail() == null) {
+        if (importedUnpublishedAppDetail == null) {
             existingApplication.setUnpublishedApplicationDetail(null);
         }
-        if (importedApplication.getPublishedApplicationDetail() == null) {
+        if (importedPublishedAppDetail == null) {
             existingApplication.setPublishedApplicationDetail(null);
         }
         if (importedApplication.getPublishedAppLayout() == null) {
@@ -105,6 +133,9 @@ public class ImportExportUtils {
         if (importedApplication.getUnpublishedAppLayout() == null) {
             existingApplication.setUnpublishedAppLayout(null);
         }
+
+        setPropertiesToApplicationDetail(importedUnpublishedAppDetail, existingUnpublishedAppDetail);
+        setPropertiesToApplicationDetail(importedPublishedAppDetail, existingPublishedAppDetail);
 
         copyNestedNonNullProperties(importedApplication, existingApplication);
     }

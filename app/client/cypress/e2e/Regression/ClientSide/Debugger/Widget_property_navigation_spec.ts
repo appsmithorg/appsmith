@@ -1,5 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "Widget property navigation", () => {
   it("1. Collapsed field navigation", () => {
@@ -28,7 +31,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.AssertIfPropertyIsVisible("visible");
 
     _.debuggerHelper.CloseBottomBar();
-    _.entityExplorer.SelectEntityByName("Tabs1");
+    EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("Tabs1");
   });
 
@@ -49,7 +52,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.AssertIfPropertyIsVisible("icon");
 
     _.debuggerHelper.CloseBottomBar();
-    _.entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("ButtonGroup1");
   });
 
@@ -68,7 +71,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.AssertIfPropertyIsVisible("disabled");
 
     _.debuggerHelper.CloseBottomBar();
-    _.entityExplorer.SelectEntityByName("MenuButton1");
+    EditorNavigation.SelectEntityByName("MenuButton1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
   });
 
@@ -87,12 +90,12 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     );
     _.propPane.OpenTableColumnSettings("date_of_birth");
 
-    _.agHelper.SelectDropdownList("Field Type", "Object");
+    _.propPane.SelectPropertiesDropDown("Field Type", "Object");
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.propPane.OpenTableColumnSettings("customField1");
 
-    _.agHelper.SelectDropdownList("Field Type", "Object");
+    _.propPane.SelectPropertiesDropDown("Field Type", "Object");
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.agHelper.GetNClick(_.propPane._addColumnItem);
     _.propPane.OpenTableColumnSettings("customField2");
@@ -114,7 +117,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.propPane.AssertIfPropertyIsVisible("borderradius");
 
     _.debuggerHelper.CloseBottomBar();
-    _.entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("JSONForm1");
   });
 
@@ -136,7 +139,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.agHelper.GetElement(_.propPane._paneTitle).contains("First Menu Item");
 
     _.debuggerHelper.CloseBottomBar();
-    _.entityExplorer.SelectEntityByName("MenuButton1");
+    EditorNavigation.SelectEntityByName("MenuButton1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("MenuButton1");
   });
 
@@ -176,7 +179,7 @@ describe("excludeForAirgap", "Widget property navigation", () => {
     _.agHelper.GetElement(_.propPane._paneTitle).contains("imdb_id");
 
     _.debuggerHelper.CloseBottomBar();
-    _.entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");
   });
 });

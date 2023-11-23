@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useActiveAction } from "../hooks";
+import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import { Entity, EntityClassNames } from "../Entity/index";
 import {
   createMessage,
   ADD_QUERY_JS_BUTTON,
   EMPTY_QUERY_JS_BUTTON_TEXT,
   EMPTY_QUERY_JS_MAIN_TEXT,
+  ADD_QUERY_JS_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -30,6 +31,7 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { ExplorerModuleInstanceEntity } from "@appsmith/pages/Editor/Explorer/ModuleInstanceEntity";
 
 const StyledText = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis);
@@ -93,6 +95,17 @@ function Files() {
               {entity.name}
             </StyledText>
           );
+        } else if (type === "moduleInstance") {
+          return (
+            <ExplorerModuleInstanceEntity
+              id={entity.id}
+              isActive={entity.id === activeActionId}
+              key={entity.id}
+              searchKeyword={""}
+              step={2}
+              type={type}
+            />
+          );
         } else if (type === "JS") {
           return (
             <ExplorerJSCollectionEntity
@@ -146,6 +159,7 @@ function Files() {
           openMenu={isMenuOpen}
           query={query}
           setQuery={setQuery}
+          tooltipText={createMessage(ADD_QUERY_JS_TOOLTIP)}
         />
       }
       entityId={pageId + "_actions"}

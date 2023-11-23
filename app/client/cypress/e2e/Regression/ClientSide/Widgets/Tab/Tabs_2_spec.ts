@@ -8,6 +8,9 @@ import {
   tabs,
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Tabs widget Tests", function () {
   before(() => {
@@ -32,7 +35,7 @@ describe("Tabs widget Tests", function () {
       "boxshadow",
     ];
 
-    entityExplorer.SelectEntityByName("Tabs1", "Widgets");
+    EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
     // Data section
     dataProperties.forEach((dataSectionProperty) => {
       agHelper.AssertElementVisibility(
@@ -78,7 +81,7 @@ describe("Tabs widget Tests", function () {
     agHelper.AssertElementVisibility(locators._widgetName("NewTabs"));
 
     // Copy and paste widget using cmd+c and cmd+v
-    entityExplorer.SelectEntityByName("NewTabs", "Widgets");
+    EditorNavigation.SelectEntityByName("NewTabs", EntityType.Widget);
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{c}`);
     agHelper.Sleep(500);
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
@@ -90,21 +93,21 @@ describe("Tabs widget Tests", function () {
     // Copy paste from property pane and delete from property pane
     propPane.CopyPasteWidgetFromPropertyPane("NewTabs");
     propPane.DeleteWidgetFromPropertyPane("NewTabsCopy");
-    entityExplorer.SelectEntityByName("NewTabs", "Widgets");
+    EditorNavigation.SelectEntityByName("NewTabs", EntityType.Widget);
     propPane.MoveToTab("Content");
   });
 
   it("3. Verify Binding with text widget", () => {
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{NewTabs.selectedTab}}");
     agHelper.GetNClick(propPane._tabId1);
     agHelper.AssertText(locators._textInside, "text", "Tab 1");
     agHelper.GetNClick(propPane._tabId2);
     agHelper.AssertText(locators._textInside, "text", "Tab 2");
 
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{NewTabs.isVisible}}");
-    entityExplorer.SelectEntityByName("NewTabs", "Widgets");
+    EditorNavigation.SelectEntityByName("NewTabs", EntityType.Widget);
     propPane.TogglePropertyState("visible", "Off");
     agHelper.AssertText(locators._textInside, "text", "false");
     propPane.TogglePropertyState("visible", "On");
@@ -142,7 +145,7 @@ describe("Tabs widget Tests", function () {
     agHelper.AssertElementAbsence(propPane._tabId1);
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewTabs", "Widgets");
+    EditorNavigation.SelectEntityByName("NewTabs", EntityType.Widget);
 
     propPane.OpenTableColumnSettings("tab1");
     propPane.TogglePropertyState("visible", "On");
@@ -158,7 +161,7 @@ describe("Tabs widget Tests", function () {
     agHelper.AssertElementVisibility(propPane._tabId1);
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewTabs", "Widgets");
+    EditorNavigation.SelectEntityByName("NewTabs", EntityType.Widget);
 
     // Delete tab
     agHelper.GetNClick(table._deleteColumn, 1);
@@ -230,5 +233,45 @@ describe("Tabs widget Tests", function () {
       "box-shadow",
       "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     );
+  });
+
+  it("8. Checks validation error in default selected tab", () => {
+    EditorNavigation.SelectEntityByName("NewTabs", EntityType.Widget);
+
+    propPane.MoveToTab("Content");
+
+    propPane.TypeTextIntoField("Default tab", "Tab 11", true);
+
+    agHelper.VerifyEvaluatedErrorMessage("Tab name Tab 11 does not exist");
+
+    agHelper.ClearNType(
+      locators._draggableFieldConfig("tab1") + " input",
+      "Tab 11",
+      0,
+    );
+
+    agHelper.AssertAutoSave();
+
+    agHelper.Sleep(1000);
+
+    agHelper.FocusElement(locators._propertyInputField("Default tab"));
+
+    agHelper.AssertElementAbsence(locators._evaluatedErrorMessage);
+
+    propPane.TypeTextIntoField("Default tab", "Tab 13", true);
+
+    agHelper.VerifyEvaluatedErrorMessage("Tab name Tab 13 does not exist");
+
+    agHelper.AssertAutoSave();
+
+    agHelper.Sleep(1000);
+
+    cy.reload();
+
+    EditorNavigation.SelectEntityByName("NewTabs", EntityType.Widget);
+
+    agHelper.FocusElement(locators._propertyInputField("Default tab"));
+
+    agHelper.VerifyEvaluatedErrorMessage("Tab name Tab 13 does not exist");
   });
 });

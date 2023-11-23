@@ -10,9 +10,9 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
@@ -44,8 +44,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         this.repository = repository;
     }
 
+    // Requires pageNameMap, pageNameToOldNameMap, pluginMap and actionResultDTO to be present in importable resources.
+    // Updates actionCollectionResultDTO in importable resources.
+    // Also directly updates required information in DB
     @Override
-    public Mono<List<ActionCollection>> importEntities(
+    public Mono<Void> importEntities(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
@@ -61,7 +64,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
         return importActionCollectionMono
                 .doOnNext(mappedImportableResourcesDTO::setActionCollectionResultDTO)
-                .thenReturn(List.of());
+                .then();
     }
 
     private Mono<ImportActionCollectionResultDTO> createImportActionCollectionMono(
@@ -74,6 +77,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         if (importingMetaDTO.getAppendToApp()) {
             importedActionCollectionMono = importedActionCollectionMono.map(importedActionCollectionList1 -> {
                 List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()
+                        .distinct()
                         .toList();
                 Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getNewPageNameToOldPageNameMap();
 

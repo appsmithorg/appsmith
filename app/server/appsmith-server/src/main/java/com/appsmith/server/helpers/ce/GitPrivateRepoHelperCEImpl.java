@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class GitPrivateRepoHelperCEImpl implements GitPrivateRepoHelperCE {
@@ -43,7 +45,16 @@ public class GitPrivateRepoHelperCEImpl implements GitPrivateRepoHelperCE {
     }
 
     @Override
-    public Mono<Boolean> isProtectedBranch(String branchName, GitApplicationMetadata gitApplicationMetadata) {
-        return Mono.just(Boolean.FALSE);
+    public Mono<Boolean> isBranchProtected(GitApplicationMetadata metaData, String branchName) {
+        boolean result = false;
+        if (metaData != null) {
+            String defaultBranch = metaData.getDefaultBranchName();
+            List<String> branchProtectionRules = metaData.getBranchProtectionRules();
+
+            result = branchProtectionRules != null
+                    && branchName.equals(defaultBranch)
+                    && branchProtectionRules.contains(branchName);
+        }
+        return Mono.just(result);
     }
 }

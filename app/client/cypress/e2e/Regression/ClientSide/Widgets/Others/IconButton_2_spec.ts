@@ -5,7 +5,11 @@ import {
   entityExplorer,
   propPane,
   draggableWidgets,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Icon Button widget Tests", function () {
   before(() => {
@@ -16,7 +20,7 @@ describe("Icon Button widget Tests", function () {
       600,
     );
 
-    entityExplorer.SelectEntityByName("IconButton1", "Widgets");
+    EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
   });
 
   it("1. Verify property visibility", function () {
@@ -60,7 +64,7 @@ describe("Icon Button widget Tests", function () {
     // Copy paste from property pane and delete from property pane
     propPane.CopyPasteWidgetFromPropertyPane("NewIconButton");
     propPane.DeleteWidgetFromPropertyPane("NewIconButtonCopy");
-    entityExplorer.SelectEntityByName("NewIconButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewIconButton", EntityType.Widget);
     propPane.MoveToTab("Content");
   });
 
@@ -68,6 +72,7 @@ describe("Icon Button widget Tests", function () {
     // Select from dropdown
     agHelper.GetNClick(`${locators._propertyControl}icon`);
     agHelper.GetElement(propPane._iconDropdown).scrollTo("top");
+    agHelper.Sleep();
     agHelper.GetNClick(propPane._dataIcon("airplane"));
     agHelper.AssertElementVisibility(
       `${locators._widgetInDeployed("iconbuttonwidget")} ${propPane._dataIcon(
@@ -102,18 +107,26 @@ describe("Icon Button widget Tests", function () {
       "onClick",
       "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
     );
-    deployMode.DeployApp();
+    deployMode.DeployApp(
+      locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
+    );
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
     agHelper.AssertURL("yahoo.com");
-    agHelper.BrowserNavigation(-1);
+    // agHelper.BrowserNavigation(-1);
+    cy.window({ timeout: 60000 }).then((win) => {
+      win.history.back();
+    });
+    assertHelper.AssertNetworkResponseData("@viewPage");
+    assertHelper.AssertDocumentReady();
+    agHelper.Sleep(3000); //for view page to complete loading & then navigate back
     deployMode.NavigateBacktoEditor();
   });
 
   it("5. Verify tooltip", () => {
     // entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 500, 300);
-    entityExplorer.SelectEntityByName("CurrencyInput1", "Widgets");
+    EditorNavigation.SelectEntityByName("CurrencyInput1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "1000");
-    entityExplorer.SelectEntityByName("NewIconButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewIconButton", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
     agHelper
       .GetElement(locators._widgetInDeployed("iconbuttonwidget"))
@@ -138,7 +151,7 @@ describe("Icon Button widget Tests", function () {
   });
 
   it("6. Validate visible and disabled toggle", () => {
-    entityExplorer.SelectEntityByName("NewIconButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewIconButton", EntityType.Widget);
     propPane.TogglePropertyState("visible", "Off");
 
     // Preview mode
@@ -155,7 +168,7 @@ describe("Icon Button widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewIconButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewIconButton", EntityType.Widget);
     propPane.TogglePropertyState("visible", "On");
 
     // Preview mode
@@ -173,7 +186,7 @@ describe("Icon Button widget Tests", function () {
     deployMode.NavigateBacktoEditor();
 
     // Visible JS mode
-    entityExplorer.SelectEntityByName("NewIconButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewIconButton", EntityType.Widget);
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "false");
 
@@ -183,13 +196,13 @@ describe("Icon Button widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewIconButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewIconButton", EntityType.Widget);
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "true");
     propPane.ToggleJSMode("Visible", false);
 
     // Disabled
-    entityExplorer.SelectEntityByName("NewIconButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewIconButton", EntityType.Widget);
     propPane.TogglePropertyState("disabled", "On");
     agHelper.AssertAttribute(
       locators._widgetInDeployed("iconbuttonwidget"),
@@ -215,7 +228,7 @@ describe("Icon Button widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewIconButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewIconButton", EntityType.Widget);
     propPane.TogglePropertyState("disabled", "Off");
   });
 

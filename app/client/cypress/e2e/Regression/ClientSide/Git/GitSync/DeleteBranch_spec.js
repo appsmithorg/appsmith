@@ -95,6 +95,7 @@ describe("Delete branch flow", () => {
   });
 
   it("4. Verify Default branch deletion not allowed ", () => {
+    agHelper.Sleep(2000); //for toasts to appear then wait for disappear
     agHelper.WaitUntilAllToastsDisappear();
     DeleteBranchFromUI(0);
     cy.get(gitSyncLocators.closeBranchList).click({ force: true });

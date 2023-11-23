@@ -2,7 +2,7 @@
 .inline-label {
   display: flex;
   align-items: center;
-  gap: var(--inner-spacing-2);
+  gap: var(--inner-spacing-1);
   min-height: var(--sizing-4);
   position: relative;
   cursor: pointer;
@@ -22,7 +22,7 @@
   * DISABLED
   *-----------------------------------------------------------------------------
   */
-  &[data-disabled] {
+  &[data-disabled]:not([data-field-type="field-group"] &) {
     opacity: var(--opacity-disabled);
     cursor: default;
   }

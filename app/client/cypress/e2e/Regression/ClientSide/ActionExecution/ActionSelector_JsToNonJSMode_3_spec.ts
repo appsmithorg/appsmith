@@ -1,9 +1,11 @@
 import {
   agHelper,
   locators,
-  entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("JS to non-JS mode in Action Selector", () => {
   before(() => {
@@ -11,8 +13,8 @@ describe("JS to non-JS mode in Action Selector", () => {
   });
 
   it("1. should show fields appropriately for setinterval", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{setInterval()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -80,8 +82,8 @@ describe("JS to non-JS mode in Action Selector", () => {
   });
 
   it("2. should show fields appropriately for clearInterval", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{clearInterval()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -116,8 +118,8 @@ describe("JS to non-JS mode in Action Selector", () => {
   });
 
   it("3. should show no fields for clear store", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{clearStore()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -135,8 +137,8 @@ describe("JS to non-JS mode in Action Selector", () => {
   });
 
   it("4. should show no fields for watch geolocation position", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext(
       "onClick",
@@ -159,8 +161,8 @@ describe("JS to non-JS mode in Action Selector", () => {
   });
 
   it("5. should show no fields for stop watching geolocation position", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext(
       "onClick",
@@ -183,8 +185,8 @@ describe("JS to non-JS mode in Action Selector", () => {
   });
 
   it("6. should show appropriate fields for get geolocation", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext(
       "onClick",
@@ -230,8 +232,8 @@ describe("JS to non-JS mode in Action Selector", () => {
   });
 
   it("7. should show post message fields appropriately", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{postWindowMessage()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -251,16 +253,16 @@ describe("JS to non-JS mode in Action Selector", () => {
       0,
     );
     agHelper.GetNAssertElementText(
-      propPane._actionPopupTextLabel,
-      "Target iframe",
+      propPane._windowTargetDropdown,
+      "Window",
       "have.text",
-      1,
+      0,
     );
     agHelper.GetNAssertElementText(
       propPane._actionPopupTextLabel,
       "Allowed origins",
       "have.text",
-      2,
+      1,
     );
 
     propPane.EnterJSContext(

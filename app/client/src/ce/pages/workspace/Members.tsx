@@ -52,12 +52,13 @@ export const MembersWrapper = styled.div<{
   isMobile?: boolean;
 }>`
   &.members-wrapper {
+    overflow: scroll;
+    height: 100%;
     ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
     table {
       table-layout: fixed;
 
       thead {
-        z-index: 1;
         tr {
           border-bottom: 1px solid var(--ads-v2-color-border);
           th {
@@ -125,7 +126,7 @@ export const UserCard = styled(Card)`
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
   padding: ${(props) =>
-    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
+    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`};
   width: 100%;
   height: 201px;
   margin: auto;

@@ -50,8 +50,10 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
         this.datasourceStorageService = datasourceStorageService;
     }
 
+    // Updates datasourceId to name map in exportable resources. Also directly updates required datasources information
+    // in application json
     @Override
-    public Mono<List<Datasource>> getExportableEntities(
+    public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
@@ -68,32 +70,36 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             return datasourceService.getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), optionalPermission);
         });
 
-        return datasourceFlux.collectList().zipWith(defaultEnvironmentIdMono).map(tuple2 -> {
-            List<Datasource> datasourceList = tuple2.getT1();
-            String environmentId = tuple2.getT2();
-            mapNameToIdForExportableEntities(mappedExportableResourcesDTO, datasourceList);
+        return datasourceFlux
+                .collectList()
+                .zipWith(defaultEnvironmentIdMono)
+                .map(tuple2 -> {
+                    List<Datasource> datasourceList = tuple2.getT1();
+                    String environmentId = tuple2.getT2();
+                    mapNameToIdForExportableEntities(mappedExportableResourcesDTO, datasourceList);
 
-            List<DatasourceStorage> storageList = datasourceList.stream()
-                    .map(datasource -> {
-                        DatasourceStorage storage =
-                                datasourceStorageService.getDatasourceStorageFromDatasource(datasource, environmentId);
+                    List<DatasourceStorage> storageList = datasourceList.stream()
+                            .map(datasource -> {
+                                DatasourceStorage storage = datasourceStorageService.getDatasourceStorageFromDatasource(
+                                        datasource, environmentId);
 
-                        if (storage == null) {
-                            // This means we were unable to find a storage for default environment
-                            // We still need the user to be able to configure this datasource in a
-                            // new workspace,
-                            // So we will create a fallback storage using transient fields from the
-                            // datasource
-                            storage = new DatasourceStorage();
-                            storage.prepareTransientFields(datasource);
-                        }
-                        return storage;
-                    })
-                    .collect(Collectors.toList());
-            applicationJson.setDatasourceList(storageList);
+                                if (storage == null) {
+                                    // This means we were unable to find a storage for default environment
+                                    // We still need the user to be able to configure this datasource in a
+                                    // new workspace,
+                                    // So we will create a fallback storage using transient fields from the
+                                    // datasource
+                                    storage = new DatasourceStorage();
+                                    storage.prepareTransientFields(datasource);
+                                }
+                                return storage;
+                            })
+                            .collect(Collectors.toList());
+                    applicationJson.setDatasourceList(storageList);
 
-            return datasourceList;
-        });
+                    return datasourceList;
+                })
+                .then();
     }
 
     private void removeSensitiveFields(DatasourceStorage datasourceStorage) {

@@ -6,7 +6,7 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
-import { extractReferencesFromPath } from "plugins/Linting/utils/getEntityDependencies";
+import { extractReferencesFromPath } from "@appsmith/plugins/Linting/utils/getEntityDependencies";
 import { groupDifferencesByType } from "plugins/Linting/utils/groupDifferencesByType";
 import type {
   LintTreeRequestPayload,
@@ -17,7 +17,7 @@ import type {
   TJSPropertiesState,
   TJSpropertyState,
 } from "workers/Evaluation/JSObject/jsPropertiesState";
-import { isJSEntity } from "plugins/Linting/lib/entity";
+import { isJSEntity } from "@appsmith/plugins/Linting/lib/entity";
 import DependencyMap from "entities/DependencyMap";
 import {
   LintEntityTree,

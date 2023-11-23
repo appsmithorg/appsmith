@@ -213,6 +213,9 @@ export const getIsDatasourceConfigForImportFetched = (state: AppState) =>
 export const getIsImportingApplication = (state: AppState) =>
   state.ui.applications.importingApplication;
 
+export const getIsImportingPartialApplication = (state: AppState) =>
+  state.ui.applications.partialImportExport.isImporting;
+
 export const getWorkspaceIdForImport = (state: AppState) =>
   state.ui.applications.workspaceIdForImport;
 
@@ -284,3 +287,29 @@ export const getApplicationLoadingStates = (state: AppState) => {
 };
 
 export const getAllAppUsers = () => [];
+
+export const getCurrentApplicationIdForCreateNewApp = (state: AppState) => {
+  return state.ui.applications.currentApplicationIdForCreateNewApp;
+};
+
+// Get application from id from userWorkspaces
+export const getApplicationByIdFromWorkspaces = createSelector(
+  getUserApplicationsWorkspaces,
+  (_: AppState, applicationId: string) => applicationId,
+  (userWorkspaces, applicationId) => {
+    let application: ApplicationPayload | undefined;
+    userWorkspaces.forEach((userWorkspace) => {
+      if (!application)
+        application = userWorkspace.applications.find(
+          (i) => i.id === applicationId,
+        );
+    });
+    return application;
+  },
+);
+export const getPartialImportExportLoadingState = (state: AppState) =>
+  state.ui.applications.partialImportExport;
+
+export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
+  return state.ui.applications.currentPluginIdForCreateNewApp;
+};

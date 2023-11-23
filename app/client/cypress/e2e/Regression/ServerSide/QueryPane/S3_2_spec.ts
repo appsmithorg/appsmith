@@ -4,17 +4,20 @@ import generatePage from "../../../../locators/GeneratePage.json";
 import formControls from "../../../../locators/FormControl.json";
 import {
   agHelper,
-  entityExplorer,
-  dataSources,
-  entityItems,
-  draggableWidgets,
-  propPane,
-  deployMode,
-  locators,
   assertHelper,
+  dataSources,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
+  entityItems,
+  locators,
+  propPane,
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function () {
   let bucketName = "assets-test--appsmith",
@@ -358,7 +361,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   it("4. Verifying Max file size - 'Base64' file - CRUD page - Bug #18245 - 10 Mb & 40 Mb", function () {
     let video = "Videos/defaultVideo.y4m";
 
-    entityExplorer.SelectEntityByName("FilePicker", "Container6");
+    EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget, {}, [
+      "Container6",
+    ]);
     propPane.UpdatePropertyFieldValue("Max no. of files", "2");
 
     propPane.UpdatePropertyFieldValue("Max file size(Mb)", "10");
@@ -375,7 +380,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     agHelper.ClickButton("Close");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("FilePicker", "Container6");
+    EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget, {}, [
+      "Container6",
+    ]);
     propPane.UpdatePropertyFieldValue("Max file size(Mb)", "40");
     deployMode.DeployApp();
     video = "Videos/rotatedQRCode.y4m";
@@ -409,7 +416,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("5. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     dataSources.NavigateFromActiveDS(datasourceName, true);
 
     agHelper.GetObjectName().then(($queryName) => {
@@ -420,12 +427,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       dataSources.AddSuggestedWidget(Widgets.Dropdown);
       propPane.DeleteWidgetDirectlyFromPropertyPane();
 
-      entityExplorer.SelectEntityByName($queryName, "Queries/JS");
+      EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
       dataSources.AddSuggestedWidget(Widgets.Table);
       table.WaitUntilTableLoad(0, 0, "v2");
       propPane.DeleteWidgetDirectlyFromPropertyPane();
 
-      entityExplorer.SelectEntityByName($queryName, "Queries/JS");
+      EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -433,22 +440,23 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
   });
 
-  it("6. Verify Adding Suggested widget with specific name functionality - S3 ", () => {
+  it("6. Verify Adding Suggested widget with already present widget - S3 ", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     agHelper.Sleep(2500); //allowing sometime for widget to settle down
     dataSources.NavigateFromActiveDS(datasourceName, true);
     agHelper.GetObjectName().then(($queryName) => {
-      entityExplorer.SelectEntityByName($queryName, "Queries/JS");
+      EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
       dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
       agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
       dataSources.RunQuery();
+      agHelper.Sleep(); //for CI runs
+      agHelper.ScrollIntoView("." + dataSources._addSuggestedExisting);
       dataSources.AddSuggestedWidget(
         Widgets.Table,
         dataSources._addSuggestedExisting,
       );
-
       propPane.DeleteWidgetDirectlyFromPropertyPane();
-      entityExplorer.SelectEntityByName($queryName, "Queries/JS");
+      EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -459,7 +467,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   after("Deletes the datasource", () => {
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409); //since crud page is still active
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409); //since crud page is still active
   });
 
   function DeleteS3FileFromUI(

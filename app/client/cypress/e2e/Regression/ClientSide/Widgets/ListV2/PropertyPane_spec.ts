@@ -1,11 +1,14 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  draggableWidgets,
   deployMode,
+  draggableWidgets,
+  entityExplorer,
+  locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("List widget V2 PropertyPane", () => {
   it("1. Validate isVisible", () => {
@@ -17,7 +20,7 @@ describe("List widget V2 PropertyPane", () => {
     );
     deployMode.NavigateBacktoEditor();
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     //Check the disableed checkbox and Validate
     propPane.TogglePropertyState("Visible", "On");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.LIST_V2));
@@ -32,7 +35,7 @@ describe("List widget V2 PropertyPane", () => {
     agHelper.AssertElementVisibility(
       locators._widgetInDeployed(draggableWidgets.LIST_V2),
     );
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     //Uncheck the disabled checkbox using JS and validate
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "false");
@@ -43,7 +46,7 @@ describe("List widget V2 PropertyPane", () => {
     );
     deployMode.NavigateBacktoEditor();
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     //Check the disabled checkbox using JS and Validate
     propPane.UpdatePropertyFieldValue("Visible", "true");
     deployMode.DeployApp();
@@ -55,18 +58,18 @@ describe("List widget V2 PropertyPane", () => {
 
   it("3. Renaming the widget from Property pane and Entity explorer ", function () {
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     // Change the list widget name from property pane and Verify it
     propPane.RenameWidget("List1", "List2");
     // Change the list widget name from Entity Explorer
     entityExplorer.RenameEntityFromExplorer("List2", "List1", true);
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     // Verify the list name is changed
     agHelper.AssertElementVisibility(locators._widgetName("List1"));
   });
 
   it("4. Item Spacing Validation ", function () {
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.Search("item spacing");
     propPane.UpdatePropertyFieldValue("Item Spacing (px)", "-1");
     agHelper.VerifyEvaluatedErrorMessage("Minimum allowed value: 0");

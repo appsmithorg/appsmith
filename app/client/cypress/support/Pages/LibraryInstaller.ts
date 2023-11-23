@@ -2,8 +2,7 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 export class LibraryInstaller {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
-  private _installer_trigger_locator =
-    ".t--entity-add-btn.group.libraries button";
+  private _installer_trigger_locator = ".t--install-library-button";
   private _installer_close_locator =
     ".ads-v2-popover__body-header .ads-v2-icon";
 
@@ -26,7 +25,7 @@ export class LibraryInstaller {
     this._aggregateHelper.GetNClick(this._installer_close_locator);
   }
 
-  public installLibrary(
+  public InstallLibrary(
     libraryName: string,
     accessor: string,
     checkIfSuccessful = true,
@@ -37,7 +36,7 @@ export class LibraryInstaller {
     if (checkIfSuccessful) this.assertInstall(libraryName, accessor);
   }
 
-  public installLibraryViaURL(
+  public InstallLibraryViaURL(
     url: string,
     accessor: string,
     checkIfSuccessful = true,
@@ -71,7 +70,7 @@ export class LibraryInstaller {
   }
 
   public assertUnInstall(libraryName: string) {
-    this._aggregateHelper.AssertContains(
+    this._aggregateHelper.WaitUntilToastDisappear(
       `${libraryName} is uninstalled successfully.`,
     );
     this._aggregateHelper.AssertElementAbsence(

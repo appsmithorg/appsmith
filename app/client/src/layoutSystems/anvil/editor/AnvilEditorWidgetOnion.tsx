@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import { useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
-import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
@@ -26,15 +25,14 @@ import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
  * @returns Enhanced Widget
  */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
-  const { layoutId, parentId } = props;
+  const { layoutId } = props;
   // if layoutId is not present on widget props then we need a selector to fetch layout id of a widget.
   // const layoutId = useSelector(getLayoutIdByWidgetId(props.widgetId));
   const generateDragState = useCallback(() => {
     return generateDragStateForAnvilLayout({
-      canvasId: parentId || "",
-      layoutId: layoutId,
+      layoutId,
     });
-  }, [layoutId, parentId]);
+  }, [layoutId]);
   const widgetSize: SizeConfig = useMemo(
     () => getWidgetSizeConfiguration(props.type, props),
     [props.type],
@@ -43,29 +41,30 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   return (
     <AnvilFlexComponent
       isResizeDisabled={props.resizeDisabled}
+      isVisible={!!props.isVisible}
+      layoutId={props.layoutId}
       parentId={props.parentId}
+      rowIndex={props.rowIndex}
       widgetId={props.widgetId}
       widgetName={props.widgetName}
       widgetSize={widgetSize}
       widgetType={props.type}
     >
-      <SnipeableComponent type={props.type} widgetId={props.widgetId}>
-        <DraggableComponent
-          dragDisabled={!!props.dragDisabled}
-          generateDragState={generateDragState}
-          isFlexChild
-          parentId={props.parentId}
-          resizeDisabled={props.resizeDisabled}
-          type={props.type}
-          widgetId={props.widgetId}
-        >
-          <AnvilResizableLayer {...props}>
-            <AnvilWidgetComponent {...props}>
-              {props.children}
-            </AnvilWidgetComponent>
-          </AnvilResizableLayer>
-        </DraggableComponent>
-      </SnipeableComponent>
+      <DraggableComponent
+        dragDisabled={!!props.dragDisabled}
+        generateDragState={generateDragState}
+        isFlexChild
+        parentId={props.parentId}
+        resizeDisabled={props.resizeDisabled}
+        type={props.type}
+        widgetId={props.widgetId}
+      >
+        <AnvilResizableLayer {...props}>
+          <AnvilWidgetComponent {...props}>
+            {props.children}
+          </AnvilWidgetComponent>
+        </AnvilResizableLayer>
+      </DraggableComponent>
     </AnvilFlexComponent>
   );
 };

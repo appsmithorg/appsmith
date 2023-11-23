@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createNewBranchInit,
   fetchBranchesInit,
+  fetchGitProtectedBranchesInit,
   switchGitBranchInit,
 } from "actions/gitSyncActions";
 import {
@@ -14,6 +15,8 @@ import {
   getFetchingBranches,
   getGitBranches,
   getGitBranchNames,
+  getIsGetProtectedBranchesLoading,
+  getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
 
 import Skeleton from "components/utils/Skeleton";
@@ -24,6 +27,9 @@ import BranchListHotkeys from "./BranchListHotkeys";
 import {
   createMessage,
   FIND_OR_CREATE_A_BRANCH,
+  // GO_TO_SETTINGS,
+  // LEARN_MORE,
+  // NOW_PROTECT_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
@@ -34,6 +40,7 @@ import {
   Button,
   SearchInput,
   Text,
+  // Callout,
 } from "design-system";
 import { get } from "lodash";
 import {
@@ -52,19 +59,15 @@ import { Space } from "./StyledComponents";
 const ListContainer = styled.div`
   flex: 1;
   overflow: auto;
-  width: 300px;
+  width: calc(300px + 5px);
+  margin-right: -5px;
   position: relative;
 `;
 
 const BranchDropdownContainer = styled.div`
-  height: 40vh;
+  height: 45vh;
   display: flex;
   flex-direction: column;
-
-  // & .title {
-  //   ${getTypographyByKey("h3")};
-  //   color: var(--ads-v2-color-fg-emphasis-plus);
-  // }
 
   padding: ${(props) => props.theme.spaces[5]}px;
   min-height: 0;
@@ -238,6 +241,7 @@ export default function BranchList(props: {
       source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
     });
     dispatch(fetchBranchesInit({ pruneBranches: true }));
+    dispatch(fetchGitProtectedBranchesInit());
   };
 
   const branches = useSelector(getGitBranches);
@@ -245,7 +249,10 @@ export default function BranchList(props: {
   const currentBranch = useSelector(getCurrentGitBranch);
   const fetchingBranches = useSelector(getFetchingBranches);
   const defaultBranch = useSelector(getDefaultGitBranchName);
-
+  const protectedBranches = useSelector(getProtectedBranchesSelector);
+  const isGetProtectedBranchesLoading = useSelector(
+    getIsGetProtectedBranchesLoading,
+  );
   const [searchText, changeSearchTextInState] = useState("");
   const changeSearchText = (text: string) => {
     changeSearchTextInState(removeSpecialChars(text));
@@ -330,7 +337,11 @@ export default function BranchList(props: {
     activeHoverIndex,
     defaultBranch,
     switchBranch,
+    protectedBranches,
   );
+
+  const loading = fetchingBranches || isGetProtectedBranchesLoading;
+
   return (
     <BranchListHotkeys
       handleDownKey={handleDownKey}
@@ -349,12 +360,12 @@ export default function BranchList(props: {
         />
         <Space size={3} />
         <div style={{ width: 300 }}>
-          {fetchingBranches && (
+          {loading && (
             <div style={{ width: "100%", height: textInputHeight }}>
               <Skeleton />
             </div>
           )}
-          {!fetchingBranches && (
+          {!loading && (
             <SearchInput
               autoFocus
               className="branch-search t--branch-search-input"
@@ -366,9 +377,37 @@ export default function BranchList(props: {
           )}
         </div>
         <Space size={3} />
-        {fetchingBranches && <BranchesLoading />}
-        {!fetchingBranches && (
+
+        {loading && <BranchesLoading />}
+        {!loading && (
           <ListContainer>
+            {/* keeping it commented for future use */}
+            {/* <Callout
+              isClosable
+              links={[
+                {
+                  children: createMessage(GO_TO_SETTINGS),
+                  onClick: () => {
+                    props.setIsPopupOpen?.(false);
+                    dispatch(
+                      setIsGitSyncModalOpen({
+                        isOpen: true,
+                        tab: GitSyncModalTab.SETTINGS,
+                      }),
+                    );
+                  },
+                },
+                {
+                  children: createMessage(LEARN_MORE),
+                  to: "https://docs.appsmith.com/advanced-concepts/version-control-with-git",
+                  target: "_blank",
+                },
+              ]}
+              style={{ width: 300 }}
+            >
+              {createMessage(NOW_PROTECT_BRANCH)}
+            </Callout> */}
+            <Space size={5} />
             {isCreateNewBranchInputValid && (
               <CreateNewBranch
                 branch={searchText}
@@ -381,6 +420,7 @@ export default function BranchList(props: {
               />
             )}
             {localBranchList}
+            <Space size={5} />
             {remoteBranchList}
           </ListContainer>
         )}
