@@ -61,10 +61,9 @@ const LeftPane = () => {
           exact
           path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
         />
-        {!isPagesPaneEnabled && (
-          <SentryRoute component={WidgetsEditorEntityExplorer} />
-        )}
-        {isPagesPaneEnabled && <SentryRoute component={PagesPane} />}
+        {isPagesPaneEnabled ? (<SentryRoute component={PagesPane} />) : 
+          (<SentryRoute component={WidgetsEditorEntityExplorer} />)
+        }
       </Switch>
     </LeftPaneContainer>
   );
