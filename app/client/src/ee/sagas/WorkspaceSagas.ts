@@ -10,6 +10,7 @@ import {
   deleteWorkspaceSaga,
   uploadWorkspaceLogoSaga,
   deleteWorkspaceLogoSaga,
+  getAllWorkspacesSaga,
 } from "ce/sagas/WorkspaceSagas";
 import type { DeleteWorkspaceUserRequest } from "@appsmith/api/WorkspaceApi";
 import WorkspaceApi from "@appsmith/api/WorkspaceApi";
@@ -96,6 +97,7 @@ export function* deleteWorkspaceUserSaga(
 
 export default function* workspaceSagas() {
   yield all([
+    takeLatest(ReduxActionTypes.GET_ALL_WORKSPACES_INIT, getAllWorkspacesSaga),
     takeLatest(ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT, fetchRolesSaga),
     takeLatest(ReduxActionTypes.FETCH_CURRENT_WORKSPACE, fetchWorkspaceSaga),
     takeLatest(ReduxActionTypes.SAVE_WORKSPACE_INIT, saveWorkspaceSaga),

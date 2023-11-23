@@ -31,7 +31,6 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
-import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import type { Template } from "api/TemplatesApi";
 import LoadingScreen from "./TemplatesModal/LoadingScreen";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
@@ -235,7 +234,6 @@ function Templates() {
         <SecondaryWrapper>
           <ReconnectDatasourceModal />
           <Filters />
-          <LeftPaneBottomSection />
         </SecondaryWrapper>
       </SidebarWrapper>
       <TemplateListWrapper>

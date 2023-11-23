@@ -25,6 +25,7 @@ import type {
   ChangeUserRoleRequest,
   FetchAllRolesRequest,
   SaveWorkspaceLogo,
+  FetchWorkspacesResponse,
 } from "@appsmith/api/WorkspaceApi";
 import WorkspaceApi from "@appsmith/api/WorkspaceApi";
 import type { ApiResponse } from "api/ApiResponses";
@@ -42,6 +43,52 @@ import {
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
 import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
+
+export function* getAllWorkspacesSaga() {
+  try {
+    const response: FetchWorkspacesResponse = yield call(
+      WorkspaceApi.fetchAllWorkspaces,
+    );
+    // const isEnabledForStartWithData: boolean = yield select(
+    //   selectFeatureFlagCheck,
+    //   FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
+    // );
+    // const isEnabledForCreateNew: boolean = yield select(
+    //   selectFeatureFlagCheck,
+    //   FEATURE_FLAG.ab_create_new_apps_enabled,
+    // );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      const workspaces: Workspace[] = response.data;
+
+      yield put({
+        type: ReduxActionTypes.GET_ALL_WORKSPACES_SUCCESS,
+        payload: workspaces,
+      });
+
+      // if (
+      //   isEnabledForStartWithData &&
+      //   isEnabledForCreateNew &&
+      //   workspaceApplication.length > 0
+      // ) {
+      //   yield put({
+      //     type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
+      //     payload: workspaceApplication[0]?.workspace,
+      //   });
+      // }
+    }
+    // if (!isAirgappedInstance) {
+    //   yield call(fetchReleases);
+    // }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
 
 export function* fetchRolesSaga() {
   try {
@@ -109,6 +156,10 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
       }));
       yield put({
         type: ReduxActionTypes.FETCH_ALL_USERS_SUCCESS,
+        payload: users,
+      });
+      yield put({
+        type: ReduxActionTypes.GET_ALL_USERS_OF_WORKSPACE_SUCCESS,
         payload: users,
       });
     }
@@ -250,6 +301,7 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
       toast.show(createMessage(DELETE_WORKSPACE_SUCCESSFUL), {
         kind: "success",
       });
+      window.location.assign("/applications");
     }
   } catch (error) {
     yield put({

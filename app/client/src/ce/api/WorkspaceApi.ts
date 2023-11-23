@@ -74,10 +74,10 @@ class WorkspaceApi extends Api {
   > {
     return Api.get(WorkspaceApi.rolesURL);
   }
-  static async fetchWorkspaces(): Promise<
+  static async fetchAllWorkspaces(): Promise<
     AxiosPromise<FetchWorkspacesResponse>
   > {
-    return Api.get(WorkspaceApi.workspacesURL);
+    return Api.get(`${WorkspaceApi.workspacesURL}/home`);
   }
   static async fetchWorkspace(
     request: FetchWorkspaceRequest,

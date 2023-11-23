@@ -166,6 +166,9 @@ export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
     releaseItems?: Array<Record<string, any>>;
   };
 }
+export interface FetchApplicationsOfWorkspaceResponse extends ApiResponse {
+  data: Array<ApplicationObject>;
+}
 export interface FetchReleaseItemsResponse extends ApiResponse {
   data: {
     newReleasesCount: string;
@@ -286,6 +289,11 @@ export class ApplicationApi extends Api {
     AxiosPromise<GetAllApplicationResponse>
   > {
     return Api.get(ApplicationApi.baseURL + "/new");
+  }
+  static async getAllApplicationsOfWorkspace(
+    workspaceId: string,
+  ): Promise<any> {
+    return Api.get(ApplicationApi.baseURL + "/home?workspaceId=" + workspaceId);
   }
 
   static async getReleaseItems(): Promise<

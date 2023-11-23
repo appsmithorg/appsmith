@@ -1,6 +1,5 @@
 import React from "react";
-import { Button } from "design-system";
-import { importSvg } from "design-system-old";
+import { Button, Text } from "design-system";
 import { useSelector } from "react-redux";
 
 import CardList from "pages/Applications/CardList";
@@ -15,12 +14,9 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
   APPLICATION_CARD_LIST_ZERO_STATE,
+  NEW_APPLICATION,
   createMessage,
 } from "@appsmith/constants/messages";
-
-const NoAppsFoundIcon = importSvg(
-  async () => import("assets/svg/no-apps-icon.svg"),
-);
 
 interface ApplicationCardListProps {
   applications: ApplicationPayload[];
@@ -59,7 +55,7 @@ function ApplicationCardList({
     <CardList
       isLoading={isFetchingApplications}
       isMobile={isMobile}
-      title="Apps"
+      title="Applications"
     >
       {applications.map((application: any) => {
         return (
@@ -84,8 +80,13 @@ function ApplicationCardList({
       })}
       {applications.length === 0 && (
         <NoAppsFound>
-          <NoAppsFoundIcon />
-          <span>{createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}</span>
+          <img
+            className="mb-7"
+            src="https://assets.appsmith.com/no-applications.svg"
+          />
+          <Text kind="heading-xs">
+            {createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}
+          </Text>
           {/* below component is duplicate. This is because of cypress test were failing */}
           {hasCreateNewApplicationPermission && (
             <Button
@@ -95,7 +96,7 @@ function ApplicationCardList({
               size="md"
               startIcon={"plus"}
             >
-              New
+              {createMessage(NEW_APPLICATION)}
             </Button>
           )}
         </NoAppsFound>
