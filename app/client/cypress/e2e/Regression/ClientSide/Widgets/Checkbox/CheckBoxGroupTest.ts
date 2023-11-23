@@ -121,6 +121,7 @@ describe("Checkbox Tests", function () {
     agHelper.GetElementLength(propPane._placeholderName).then((len) => {
       agHelper.GetNClick(propPane._addOptionProperty);
       agHelper.RemoveCharsNType(propPane._placeholderName, -1, "Black", 3);
+      agHelper.Sleep(500);
       agHelper.RemoveCharsNType(propPane._placeholderValue, -1, "BLACK", 3);
       // Verify option added
       agHelper.AssertElementLength(propPane._placeholderName, len + 1);

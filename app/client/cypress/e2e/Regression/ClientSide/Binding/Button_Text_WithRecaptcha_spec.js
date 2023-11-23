@@ -4,7 +4,6 @@ import EditorNavigation, {
 
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import EntityName from "../../../../../src/pages/Editor/Explorer/Entity/Name";
 
 describe(
   "excludeForAirgap",
