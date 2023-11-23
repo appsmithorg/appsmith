@@ -37,25 +37,16 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   const onlyBuildingBlocksFilterSet =
-    selectedFilters &&
-    selectedFilters.functions &&
-    selectedFilters.functions.length === 1 &&
+    selectedFilters?.functions?.length === 1 &&
     selectedFilters.functions[0] ===
       TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE;
 
-  const noBuildingBlockFilterSet =
-    selectedFilters &&
-    selectedFilters.functions &&
-    selectedFilters.functions.includes(
-      TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
-    )
-      ? false
-      : true;
+  const noBuildingBlockFilterSet = !selectedFilters?.functions?.includes(
+    TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
+  );
 
   const allFiltersSet =
-    selectedFilters &&
-    selectedFilters.functions &&
-    selectedFilters.functions.length === 1 &&
+    selectedFilters?.functions?.length === 1 &&
     selectedFilters.functions[0] === TEMPLATE_ALL_FILTER_FUNCTION_VALUE;
 
   const showBuildingBlocksSection = !noBuildingBlockFilterSet || allFiltersSet;
@@ -93,6 +84,7 @@ function StartWithTemplateList(props: StartWithTemplateListProps) {
                 template={template}
               />
             ))}
+            {onlyBuildingBlocksFilterSet && <RequestTemplate />}
           </Masonry>
         </>
       )}
