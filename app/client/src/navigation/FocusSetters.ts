@@ -1,6 +1,7 @@
 import history from "utils/history";
 import {
   datasourcesEditorIdURL,
+  jsCollectionIdURL,
   queryEditorIdURL,
 } from "@appsmith/RouteBuilder";
 
@@ -19,6 +20,16 @@ export function setSelectedQuery(id: string | undefined) {
     history.push(
       queryEditorIdURL({
         queryId: id,
+      }),
+    );
+  }
+}
+
+export function setSelectedJSObject(id: string | undefined) {
+  if (id) {
+    history.push(
+      jsCollectionIdURL({
+        collectionId: id,
       }),
     );
   }

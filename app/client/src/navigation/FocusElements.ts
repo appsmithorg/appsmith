@@ -55,7 +55,10 @@ import { PluginPackageName } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getExplorerWidth } from "selectors/explorerSelector";
-import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
+import {
+  getFirstJSObjectId,
+  getJSPaneConfigSelectedTab,
+} from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
   getPropertyPaneWidth,
@@ -67,8 +70,11 @@ import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import { NavigationMethod } from "../utils/history";
 import { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
-import { getSelectedDatasourceId } from "./FocusSelectors";
-import { setSelectedDatasource } from "./FocusSetters";
+import {
+  getSelectedDatasourceId,
+  getSelectedJSObjectId,
+} from "./FocusSelectors";
+import { setSelectedDatasource, setSelectedJSObject } from "./FocusSetters";
 import { getFirstDatasourceId } from "../selectors/datasourceSelectors";
 
 export enum FocusElement {
@@ -311,5 +317,13 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
     },
   ],
   [FocusEntity.QUERY_LIST]: [],
-  [FocusEntity.JS_OBJECT_LIST]: [],
+  [FocusEntity.JS_OBJECT_LIST]: [
+    {
+      type: ConfigType.URL,
+      name: FocusElement.SelectedJSObject,
+      selector: getSelectedJSObjectId,
+      setter: setSelectedJSObject,
+      defaultValue: getFirstJSObjectId,
+    },
+  ],
 };
