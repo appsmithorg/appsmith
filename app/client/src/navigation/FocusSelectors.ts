@@ -5,6 +5,7 @@ import {
   BUILDER_PATH_DEPRECATED,
   DATA_SOURCES_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
+  QUERIES_EDITOR_ID_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "../constants/routes";
 import { shouldStorePageURLForFocus } from "./FocusUtils";
@@ -36,8 +37,14 @@ export const getCurrentAppUrl = (path: string): string | undefined => {
   }
 };
 
-export const getSelectedQueryId = (): string | undefined => {
-  return undefined;
+export const getSelectedQueryId = (path: string): string | undefined => {
+  const match = matchPath<{ queryId?: string }>(path, [
+    BUILDER_PATH_DEPRECATED + QUERIES_EDITOR_ID_PATH,
+    BUILDER_PATH + QUERIES_EDITOR_ID_PATH,
+    BUILDER_CUSTOM_PATH + QUERIES_EDITOR_ID_PATH,
+  ]);
+  if (!match) return undefined;
+  return match.params.queryId;
 };
 
 export const getSelectedJSObjectId = (path: string): string | undefined => {

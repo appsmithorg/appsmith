@@ -3,7 +3,8 @@ import { FocusEntity, identifyEntityFromPath } from "./FocusEntity";
 import {
   builderURL,
   datasourcesEditorURL,
-  jsCollectionURL,
+  jsCollectionListURL,
+  queryListURL,
 } from "@appsmith/RouteBuilder";
 
 export const getEntityParentUrl = (
@@ -18,7 +19,10 @@ export const getEntityParentUrl = (
     return datasourcesEditorURL({ pageId: entityInfo.pageId });
   }
   if (parentEntity === FocusEntity.JS_OBJECT_LIST) {
-    return jsCollectionURL({ pageId: entityInfo.pageId });
+    return jsCollectionListURL({ pageId: entityInfo.pageId });
+  }
+  if (parentEntity === FocusEntity.QUERY_LIST) {
+    return queryListURL({ pageId: entityInfo.pageId });
   }
   return "";
 };

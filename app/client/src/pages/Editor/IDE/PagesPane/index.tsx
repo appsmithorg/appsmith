@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { withProfiler } from "@sentry/react";
-import { Divider, Flex, SegmentedControl } from "design-system";
+import { Flex, SegmentedControl } from "design-system";
 import { useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { QueriesJS } from "./Queries_JS";
 import ExplorerWidgetGroup from "pages/Editor/Explorer/Widgets/WidgetGroup";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -20,6 +19,8 @@ import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import Pages from "pages/Editor/Explorer/Pages";
+import { JSSection } from "./JS_Section";
+import { QueriesSection } from "./Queries_Section";
 
 enum TabsType {
   QUERIES = "queries",
@@ -130,7 +131,6 @@ const _pagesPane = () => {
           value={selected}
         />
       </Flex>
-      <Divider orientation="horizontal" />
       <Flex
         className="ide-pages-pane__content"
         flexDirection="column"
@@ -138,9 +138,9 @@ const _pagesPane = () => {
         overflow="hidden"
         width="100%"
       >
-        {(selected === TabsType.QUERIES || selected === TabsType.JS) && (
-          <QueriesJS paneType={selected} />
-        )}
+        {selected === TabsType.QUERIES && <QueriesSection />}
+
+        {selected === TabsType.JS && <JSSection />}
 
         {selected === TabsType.UI && (
           <ExplorerWidgetGroup

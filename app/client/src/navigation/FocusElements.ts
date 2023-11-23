@@ -64,7 +64,10 @@ import {
   getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
-import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
+import {
+  getFirstQueryId,
+  getQueryPaneConfigSelectedTabIndex,
+} from "selectors/queryPaneSelectors";
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
@@ -75,12 +78,14 @@ import {
   getCurrentPageUrl,
   getSelectedDatasourceId,
   getSelectedJSObjectId,
+  getSelectedQueryId,
 } from "./FocusSelectors";
 import {
   setSelectedDatasource,
   setSelectedJSObject,
   setPageUrl,
   setAppUrl,
+  setSelectedQuery,
 } from "./FocusSetters";
 import { getFirstDatasourceId } from "../selectors/datasourceSelectors";
 
@@ -341,7 +346,15 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   ],
   [FocusEntity.LIBRARY]: [],
   [FocusEntity.SETTINGS]: [],
-  [FocusEntity.QUERY_LIST]: [],
+  [FocusEntity.QUERY_LIST]: [
+    {
+      type: ConfigType.URL,
+      name: FocusElement.SelectedQuery,
+      selector: getSelectedQueryId,
+      setter: setSelectedQuery,
+      defaultValue: getFirstQueryId,
+    },
+  ],
   [FocusEntity.JS_OBJECT_LIST]: [
     {
       type: ConfigType.URL,
