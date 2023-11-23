@@ -55,7 +55,6 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { updateWidgetsToBeDeleted } from "layoutSystems/anvil/utils/widgetDeletionUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -153,30 +152,16 @@ function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
     return;
   }
 
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widgetsToBeDeleted: string[] = yield call(
-    updateWidgetsToBeDeleted,
-    selectedWidgets,
-  );
-
   if (selectedWidgets.length > 1) {
     yield put({
       type: WidgetReduxActionTypes.WIDGET_BULK_DELETE,
-      payload: widgetsToBeDeleted?.length
-        ? { ...deleteAction.payload, widgetIds: widgetsToBeDeleted }
-        : deleteAction.payload,
+      payload: deleteAction.payload,
     });
   }
   if (!!widgetId || !!selectedWidget) {
     yield put({
       type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
-      payload: widgetsToBeDeleted?.length
-        ? {
-            ...deleteAction.payload,
-            widgetId: widgetsToBeDeleted[0],
-            parentId: allWidgets[widgetsToBeDeleted[0]].parentId,
-          }
-        : deleteAction.payload,
+      payload: deleteAction.payload,
     });
   }
 }
