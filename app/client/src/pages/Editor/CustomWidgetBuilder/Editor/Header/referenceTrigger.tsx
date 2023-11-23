@@ -3,21 +3,18 @@ import React, { useContext } from "react";
 import { CustomWidgetBuilderContext } from "../..";
 import styles from "./styles.module.css";
 
-export default function ReferrenceTrigger() {
+export default function ReferenceTrigger() {
   const context = useContext(CustomWidgetBuilderContext);
 
   const onClick = () => {
-    context.toggleReferrence?.();
+    context.toggleReference?.();
   };
 
   return (
-    <div className={styles.referrenceTrigger} onClick={onClick}>
-      <div>Referrences</div>
+    <div className={styles.referenceTrigger} onClick={onClick}>
+      <div>References</div>
       <div>
-        <Icon
-          name={context.isReferrenceOpen ? "eye-on" : "eye-off"}
-          size="md"
-        />
+        <Icon name={context.isReferenceOpen ? "eye-on" : "eye-off"} size="md" />
       </div>
     </div>
   );

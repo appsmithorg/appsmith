@@ -82,6 +82,7 @@ export interface PropertyPaneControlConfig {
   additionalAutoComplete?: (props: any) => AdditionalDynamicDataTree;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   dependencies?: string[];
+  dynamicDependencies?: (widget: WidgetProps) => string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
   getStylesheetValue?: (

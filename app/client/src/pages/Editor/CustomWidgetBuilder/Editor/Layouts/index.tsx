@@ -31,7 +31,7 @@ export default function Layout(props: Props) {
   return (
     <div
       className={
-        context.isReferrenceOpen
+        context.isReferenceOpen
           ? styles.editorLayoutPartialWidth
           : styles.editorLayoutFullWidth
       }

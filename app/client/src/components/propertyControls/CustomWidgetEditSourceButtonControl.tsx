@@ -24,7 +24,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
       this.state.sourceEditor
     ) {
       this.state.sourceEditor.focus();
-      this.state.sourceEditor.location.href = builderUrl;
+      window.removeEventListener("beforeunload", this.beforeWindowUnload);
     } else {
       const editSourceWindow = window.open(builderUrl, "_blank");
 
@@ -35,7 +35,10 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
         });
 
         editSourceWindow?.addEventListener("message", (event: any) => {
-          if (event.origin === window.location.origin) {
+          if (
+            event.origin === window.location.origin &&
+            event.source === editSourceWindow
+          ) {
             switch (event.data.type) {
               case CUSTOM_WIDGET_BUILDER_EVENTS.READY:
                 editSourceWindow.postMessage({
@@ -65,33 +68,55 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
                   success: true,
                 });
                 break;
+              case CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED:
+                this.setState({
+                  isSourceEditorOpen: false,
+                  sourceEditor: undefined,
+                });
+                break;
             }
           }
         });
+
+        window.addEventListener("beforeunload", this.beforeWindowUnload);
       }
     }
   };
+
+  beforeWindowUnload = () => {
+    if (
+      this.state.sourceEditor &&
+      !this.state.sourceEditor.closed &&
+      this.state.isSourceEditorOpen
+    ) {
+      this.state.sourceEditor.close();
+    }
+  };
+
+  componentWillUnmount(): void {
+    this.beforeWindowUnload();
+    window.removeEventListener("beforeunload", this.beforeWindowUnload);
+  }
 
   componentDidUpdate(prevProps: Readonly<ControlProps>): void {
     const hasEventChanged = this.props.widgetProperties.events.some(
       (event: string) => {
         return (
           prevProps.widgetProperties[event] !==
-          this.props.widgetProperties[event]
+            this.props.widgetProperties[event] ||
+          !prevProps.widgetProperties.events.includes(event)
         );
       },
     );
 
     if (
       hasEventChanged ||
-      prevProps.widgetProperties.events.length !==
-        this.props.widgetProperties.events.length ||
       prevProps.widgetProperties.__evaluation__.evaluatedValues.defaultModel !==
         this.props.widgetProperties.__evaluation__.evaluatedValues.defaultModel
     ) {
       this.state.sourceEditor?.postMessage(
         {
-          type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_REFERRENCES,
+          type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_REFERENCES,
           model:
             this.props.widgetProperties.__evaluation__.evaluatedValues
               .defaultModel,
@@ -119,7 +144,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
           width: "100%",
         }}
       >
-        Edit Source
+        {this.state.isSourceEditorOpen ? "Go to source editor" : "Edit Source"}
       </Button>
     );
   }

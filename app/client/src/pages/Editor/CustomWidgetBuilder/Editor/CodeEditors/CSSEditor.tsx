@@ -8,8 +8,8 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { CustomWidgetBuilderContext } from "../..";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 export default function CSSEditor(props: ContentProps) {
   const { srcDoc, update } = useContext(CustomWidgetBuilderContext);
@@ -28,6 +28,7 @@ export default function CSSEditor(props: ContentProps) {
           border={CodeEditorBorder.NONE}
           borderLess
           className={"js-editor"}
+          focusElementName="custom-widget-css-editor"
           folding
           height={height - 38}
           hideEvaluatedValue

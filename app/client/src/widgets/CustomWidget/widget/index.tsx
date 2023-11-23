@@ -95,11 +95,12 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
             isTriggerProperty: false,
             dependencies: ["srcDoc", "events"],
             evaluatedDependencies: ["defaultModel"],
+            dynamicDependencies: (widget: WidgetProps) => widget.events,
           },
         ],
       },
       {
-        sectionName: "Model variables",
+        sectionName: "Default Model",
         children: [
           {
             propertyName: "defaultModel",
@@ -247,6 +248,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         execute={(eventName: string) => this.execute(eventName)}
         height={this.props.componentHeight}
         model={this.props.model}
+        needsOverlay={!this.props.isWidgetSelected}
         srcDoc={this.props.srcDoc}
         update={(data: any) => this.update(data)}
         width={this.props.componentWidth}

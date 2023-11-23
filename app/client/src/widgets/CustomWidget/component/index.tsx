@@ -8,14 +8,25 @@ import script from "!!raw-loader!./script.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import css from "!!raw-loader!./reset.css";
+import clsx from "clsx";
 
-const StyledIframe = styled.iframe`
-  width: ${(props) => props.width}px;
-  height: ${(props) => props.height}px;
+const StyledIframe = styled.iframe<{ width: number; height: number }>`
+  width: ${(props) => props.width - 8}px;
+  height: ${(props) => props.height - 8}px;
+`;
+
+const OverlayDiv = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 `;
 
 function CustomComponent(props: CustomComponentProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
+
+  const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
@@ -101,10 +112,22 @@ function CustomComponent(props: CustomComponentProps) {
     </html>
   `;
 
+  useEffect(() => {
+    setLoading(true);
+  }, [srcDoc]);
+
   return (
-    <div>
+    <div
+      className={clsx({
+        "bp3-skeleton": loading,
+      })}
+    >
+      {props.needsOverlay && <OverlayDiv data-testid="iframe-overlay" />}
       <StyledIframe
         height={props.height}
+        onLoad={() => {
+          setLoading(false);
+        }}
         ref={iframe}
         sandbox="allow-scripts"
         srcDoc={srcDoc}
@@ -125,6 +148,8 @@ export interface CustomComponentProps {
   };
   width: number;
   height: number;
+  onLoadingStateChange?: (state: string) => void;
+  needsOverlay?: boolean;
 }
 
 export default CustomComponent;

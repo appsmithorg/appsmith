@@ -3,5 +3,5 @@
 }
 
 .editorLayoutPartialWidth {
-  flex-basis: 67%;
+  flex-basis: calc(100% - 250px);
 }

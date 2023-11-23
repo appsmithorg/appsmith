@@ -90,6 +90,7 @@ const PropertyControl = memo((props: Props) => {
     props.propertyName,
     props.dependencies,
     props.evaluatedDependencies,
+    props.dynamicDependencies,
   );
 
   const widgetProperties: WidgetProperties = useSelector(propsSelector, equal);

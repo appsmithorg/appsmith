@@ -464,6 +464,10 @@ export interface WidgetPositionProps extends WidgetRowCols {
   width?: number;
 }
 
+export interface WidgetCanvasProps {
+  isWidgetSelected?: boolean;
+}
+
 export const WIDGET_DISPLAY_PROPS = {
   isVisible: true,
   isLoading: true,
@@ -495,7 +499,8 @@ export interface WidgetDataProps
   extends WidgetBaseProps,
     WidgetErrorProps,
     WidgetPositionProps,
-    WidgetDisplayProps {}
+    WidgetDisplayProps,
+    WidgetCanvasProps {}
 
 export interface WidgetProps
   extends WidgetDataProps,

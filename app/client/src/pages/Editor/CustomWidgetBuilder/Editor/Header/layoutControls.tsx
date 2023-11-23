@@ -1,6 +1,7 @@
 import { SegmentedControl } from "design-system";
 import React, { useContext } from "react";
 import { CustomWidgetBuilderContext } from "../..";
+import styles from "./styles.module.css";
 
 export default function LayoutControls() {
   const context = useContext(CustomWidgetBuilderContext);
@@ -10,7 +11,7 @@ export default function LayoutControls() {
   };
 
   return (
-    <div>
+    <div className={styles.layoutControl}>
       <SegmentedControl
         onChange={onChange}
         options={[

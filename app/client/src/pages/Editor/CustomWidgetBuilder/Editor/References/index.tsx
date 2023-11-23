@@ -2,14 +2,14 @@ import React from "react";
 import styles from "./styles.module.css";
 import Collapsible from "./collapsible";
 import Help from "./help";
-import ModelVariables from "./modelVariables";
+import LiveModel from "./liveModel";
 import Events from "./events";
 
-export default function Referrences() {
+export default function References() {
   return (
-    <div className={styles.referrences}>
-      <Collapsible label="Model variables">
-        <ModelVariables />
+    <div className={styles.references}>
+      <Collapsible label="Live Model">
+        <LiveModel />
       </Collapsible>
       <Collapsible label="Events">
         <Events />

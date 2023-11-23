@@ -1,16 +1,16 @@
 import React, { useContext } from "react";
 import styles from "./styles.module.css";
 import Layout from "./Layouts";
-import Referrences from "./Referrences";
 import Header from "./Header";
 import { CustomWidgetBuilderContext } from "..";
 import HTMLEditor from "./CodeEditors/HTMLEditor";
 import CSSEditor from "./CodeEditors/CSSEditor";
 import JSEditor from "./CodeEditors/JSEditor";
 import type { ContentProps } from "./CodeEditors/types";
+import References from "./References";
 
 export default function Editor() {
-  const { isReferrenceOpen } = useContext(CustomWidgetBuilderContext);
+  const { isReferenceOpen } = useContext(CustomWidgetBuilderContext);
 
   return (
     <div className={styles.contentRight}>
@@ -34,7 +34,7 @@ export default function Editor() {
             },
           ]}
         />
-        {isReferrenceOpen && <Referrences />}
+        {isReferenceOpen && <References />}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./styles.module.css";
 import type { ContentProps } from "../../CodeEditors/types";
 
@@ -13,25 +13,29 @@ export default function SplitLayout(props: Props) {
   const { rows } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = React.useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (containerRef.current) {
       setHeight(
         window.innerHeight - containerRef.current.getBoundingClientRect().top,
       );
+
+      setLoading(false);
     }
   }, []);
 
   return (
     <div className={styles.wrapper} ref={containerRef}>
-      {rows.map((row) => (
-        <div key={row.title}>
-          {row.children({
-            height: height / 3,
-            width: "100%",
-          })}
-        </div>
-      ))}
+      {!loading &&
+        rows.map((row) => (
+          <div key={row.title}>
+            {row.children({
+              height: height / 3,
+              width: "100%",
+            })}
+          </div>
+        ))}
     </div>
   );
 }

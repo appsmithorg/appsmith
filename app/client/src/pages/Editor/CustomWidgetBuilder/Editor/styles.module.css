@@ -3,11 +3,13 @@
   flex-basis: 50%;
   flex-direction: column;
   border-width: 1px;
+  border-top: none;
 }
 
 .contentRightBody {
   display: flex;
   flex-grow: 1;
+  overflow: hidden;
 }
 
 .headerControls {

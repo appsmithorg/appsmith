@@ -4,6 +4,15 @@
   justify-content: space-between;
 }
 
+.header.header {
+  margin-left: 10px;
+}
+
+.autosave.autosave {
+  font-size: 12px !important;
+  color: #999 !important;
+}
+
 .headerControls {
   gap: 1rem;
   justify-content: right !important;
@@ -17,7 +26,7 @@
 
 .contentLeft {
   flex-basis: 50%;
-  border-width: 1px;
+  border: none;
 }
 
 .loader {

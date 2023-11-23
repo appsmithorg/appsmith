@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Header from "./header";
 import styles from "./styles.module.css";
 import Preview from "./Preview";
@@ -9,7 +9,7 @@ import history from "utils/history";
 
 interface CustomWidgetBuilderContextValueType {
   name: string;
-  isReferrenceOpen: boolean;
+  isReferenceOpen: boolean;
   selectedLayout: string;
   srcDoc: {
     html: string;
@@ -17,20 +17,20 @@ interface CustomWidgetBuilderContextValueType {
     css: string;
   };
   model: Record<string, unknown>;
-  transientModel: Record<string, unknown>;
-  useTransientModel: boolean;
   events: Record<string, string>;
-  saving: boolean;
+  key: number;
+  lastSaved?: number;
+  initialSrcDoc?: CustomWidgetBuilderContextValueType["srcDoc"];
 }
 
 interface CustomWidgetBuilderContextFunctionType {
-  toggleReferrence: () => void;
+  toggleReference: () => void;
   selectLayout: (layout: string) => void;
   save: () => void;
   discard: () => void;
   update: (editor: string, value: string) => void;
   updateModel: (model: Record<string, unknown>) => void;
-  toggleUseTransientModel: () => void;
+  bulkUpdate: (srcDoc: CustomWidgetBuilderContextValueType["srcDoc"]) => void;
 }
 
 interface CustomWidgetBuilderContextType
@@ -49,7 +49,7 @@ export default function CustomWidgetBuilder() {
   const [contextValue, setContextValue] =
     useState<CustomWidgetBuilderContextValueType>({
       name: "",
-      isReferrenceOpen: true,
+      isReferenceOpen: true,
       selectedLayout: "tabs",
       srcDoc: {
         html: "<div>Hello World</div>",
@@ -57,19 +57,38 @@ export default function CustomWidgetBuilder() {
         css: "div {color: red;}",
       },
       model: {},
-      transientModel: {},
       events: {},
-      saving: false,
-      useTransientModel: true,
+      key: Math.random(),
     });
+
+  useEffect(() => {
+    if (contextValue.lastSaved) {
+      window.parent.postMessage(
+        {
+          type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC,
+          srcDoc: contextValue.srcDoc,
+        },
+        "*",
+      );
+    }
+  }, [contextValue.srcDoc, contextValue.lastSaved]);
+
+  const replay = useCallback(() => {
+    setContextValue((prev) => {
+      return {
+        ...prev,
+        key: Math.random(),
+      };
+    });
+  }, []);
 
   const contextFunctions: CustomWidgetBuilderContextFunctionType = useMemo(
     () => ({
-      toggleReferrence: () => {
+      toggleReference: () => {
         setContextValue((prev) => {
           return {
             ...prev,
-            isReferrenceOpen: !prev.isReferrenceOpen,
+            isReferenceOpen: !prev.isReferenceOpen,
           };
         });
       },
@@ -88,18 +107,19 @@ export default function CustomWidgetBuilder() {
             saving: true,
           };
         });
-
-        window.parent.postMessage(
-          {
-            type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC,
-            srcDoc: contextValue.srcDoc,
-          },
-          "*",
-        );
       },
       discard: () => {
         window.parent.focus();
         window.close();
+      },
+      bulkUpdate: (srcDoc: CustomWidgetBuilderContextValueType["srcDoc"]) => {
+        setContextValue((prev) => {
+          return {
+            ...prev,
+            srcDoc,
+            lastSaved: Date.now(),
+          };
+        });
       },
       update: (editor, value) => {
         setContextValue((prev) => {
@@ -109,25 +129,18 @@ export default function CustomWidgetBuilder() {
               ...prev.srcDoc,
               [editor]: value,
             },
+            lastSaved: Date.now(),
           };
         });
       },
-      updateModel: (transientModel: Record<string, unknown>) => {
+      updateModel: (model: Record<string, unknown>) => {
         setContextValue((prev) => {
           return {
             ...prev,
-            transientModel: {
-              ...prev.transientModel,
-              ...transientModel,
+            model: {
+              ...prev.model,
+              ...model,
             },
-          };
-        });
-      },
-      toggleUseTransientModel: () => {
-        setContextValue((prev) => {
-          return {
-            ...prev,
-            useTransientModel: !prev.useTransientModel,
           };
         });
       },
@@ -143,6 +156,8 @@ export default function CustomWidgetBuilder() {
     [contextValue, contextFunctions],
   );
 
+  useEffect(replay, [contextValue.srcDoc]);
+
   useEffect(() => {
     window.addEventListener("message", (event: any) => {
       switch (event.data.type) {
@@ -153,6 +168,7 @@ export default function CustomWidgetBuilder() {
               ...prev,
               name: event.data.name,
               srcDoc: event.data.srcDoc,
+              initialSrcDoc: event.data.srcDoc,
               model: event.data.model,
               transientModel: event.data.model,
               events: event.data.events,
@@ -160,7 +176,7 @@ export default function CustomWidgetBuilder() {
           });
           setLoading(false);
           break;
-        case CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_REFERRENCES:
+        case CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_REFERENCES:
           setContextValue((prev) => {
             return {
               ...prev,
@@ -170,6 +186,7 @@ export default function CustomWidgetBuilder() {
               events: event.data.events,
             };
           });
+          replay();
           break;
         case CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC_ACK:
           setContextValue((prev) => {
@@ -188,6 +205,15 @@ export default function CustomWidgetBuilder() {
       },
       "*",
     );
+
+    window.addEventListener("beforeunload", () => {
+      window.parent.postMessage(
+        {
+          type: CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED,
+        },
+        "*",
+      );
+    });
 
     connectionTimeout = setTimeout(() => {
       history.replace(window.location.pathname.replace("/builder", ""));

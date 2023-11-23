@@ -1,12 +1,13 @@
-import React, { useContext, useLayoutEffect, useMemo, useRef } from "react";
+import React, { useContext, useLayoutEffect, useRef } from "react";
 import styles from "./styles.module.css";
 import CustomComponent from "widgets/CustomWidget/component";
 import { CustomWidgetBuilderContext } from ".";
 import { toast } from "design-system";
 
 export default function Preview() {
-  const { model, srcDoc, transientModel, updateModel, useTransientModel } =
-    useContext(CustomWidgetBuilderContext);
+  const { key, model, srcDoc, updateModel } = useContext(
+    CustomWidgetBuilderContext,
+  );
 
   const [dimensions, setDimensions] = React.useState({
     width: 300,
@@ -25,8 +26,6 @@ export default function Preview() {
     }
   }, [containerRef.current]);
 
-  const key = useMemo(() => Math.random(), [model, srcDoc, useTransientModel]);
-
   return (
     <div className={styles.contentLeft} ref={containerRef}>
       <CustomComponent
@@ -35,7 +34,7 @@ export default function Preview() {
         }}
         height={dimensions.height}
         key={key}
-        model={(useTransientModel ? transientModel : model) || {}}
+        model={model || {}}
         srcDoc={srcDoc || { html: "", js: "", css: "" }}
         update={(data) => {
           updateModel?.(data);

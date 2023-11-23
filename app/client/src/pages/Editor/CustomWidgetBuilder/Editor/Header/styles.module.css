@@ -1,5 +1,6 @@
 .widgetName {
   font-weight: 500;
+  flex-grow: 1;
 }
 .headerControlsRight {
   display: flex;
@@ -8,7 +9,8 @@
   justify-content: space-between;
   padding-left: 1rem;
   padding-right: 0.5rem;
-  flex-basis: 33%;
+  flex-basis: 250px;
+  flex-grow: 0;
   border-left: 1px solid #cdd5df;
   height: 48px;
 }
@@ -20,13 +22,24 @@
   justify-content: space-between;
   padding-left: 0.5rem;
   padding-right: 1rem;
-  flex-basis: 67%;
+  flex-basis: calc(100% - 250px);
+  flex-grow: 0;
+  gap: 1rem;
 }
 
-.referrenceTrigger {
+.referenceTrigger {
   display: flex;
   cursor: pointer;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+.layoutControl {
+  flex-grow: 0;
+  flex-basis: 100px;
+}
+
+.templateMenu {
+  flex-grow: 0;
 }
