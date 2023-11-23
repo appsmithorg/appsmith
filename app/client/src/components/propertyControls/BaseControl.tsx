@@ -130,6 +130,7 @@ export interface ControlFunctions {
     }[],
     isUpdatedViaKeyboard?: boolean,
   ) => void;
+  toggleDynamicProperty?: () => void;
   onBatchUpdateProperties?: (updates: Record<string, unknown>) => void;
   openNextPanel: (props: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;

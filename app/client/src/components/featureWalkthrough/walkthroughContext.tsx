@@ -27,8 +27,6 @@ export interface FeatureDetails {
   description: string;
   // Gif or Image to give a walkthrough
   imageURL?: string;
-  // mp4s to give a walkthrough
-  videoURL?: string;
   // footer details
   footerDetails?: FeatureFooterDetails;
 }

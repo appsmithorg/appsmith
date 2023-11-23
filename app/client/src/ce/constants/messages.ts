@@ -766,9 +766,7 @@ export const LOADING_SCHEMA = () => "Loading schema...";
 export const SCHEMA_WALKTHROUGH_TITLE = () => "Query data fast";
 export const SCHEMA_WALKTHROUGH_DESC = () =>
   "Select a template from a database table to quickly create your first query. ";
-export const CUSTOMIZE_ONE_CLICK_DATA_TITLE = () => "Customize data using JS";
-export const CUSTOMIZE_ONE_CLICK_DATA_DESC = () =>
-  "<span class='text-sm'>Click on the <span class='p-[2px] bg-white border border-gray-300 rounded text-[10px]'>JS</span> button and customize the data rendered using javascript code. You can write your custom logic between <span class='p-1 bg-gray-100'>{{ }}</span></span>";
+
 export const SUGGESTED_TAG = () => "Suggested";
 
 // structure - View Mode

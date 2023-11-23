@@ -1,4 +1,4 @@
-import { Text, Button, Divider } from "design-system";
+import { Icon, Text, Button, Divider } from "design-system";
 import { showIndicator } from "pages/Editor/GuidedTour/utils";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -16,7 +16,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 const CLIPID = "clip__feature";
 const Z_INDEX = 1000;
 
-const WalkthroughDescription = styled.div`
+const WalkthroughDescription = styled(Text)`
   // CSS to add new line for each \n in the description
   white-space: pre-line;
 `;
@@ -65,20 +65,15 @@ const ImageWrapper = styled.div`
   }
 `;
 
-const VideoWrapper = styled.div`
-  border-radius: var(--ads-radius-1);
-  background: var(--ads-v2-color-bg-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 8px;
-  padding: var(--ads-v2-spaces-2);
-`;
-
 const InstructionsHeaderWrapper = styled.div`
   display: flex;
   p {
     flex-grow: 1;
+  }
+  span {
+    align-self: flex-start;
+    margin-top: 5px;
+    cursor: pointer;
   }
 `;
 
@@ -306,27 +301,19 @@ const InstructionsComponent = ({
         <Text kind="heading-s" renderAs="p">
           {details.title}
         </Text>
-        <Button
+        <Icon
           className="t--walkthrough-close"
-          isIconButton
-          kind="tertiary"
+          color="black"
+          name="close"
           onClick={onClose}
-          size="sm"
-          startIcon="close-line"
+          size="md"
         />
       </InstructionsHeaderWrapper>
-      <WalkthroughDescription
-        dangerouslySetInnerHTML={{ __html: details.description }}
-      />
+      <WalkthroughDescription>{details.description}</WalkthroughDescription>
       {details.imageURL && (
         <ImageWrapper>
           <img src={details.imageURL} />
         </ImageWrapper>
-      )}
-      {details.videoURL && (
-        <VideoWrapper>
-          <video autoPlay loop src={details.videoURL} />
-        </VideoWrapper>
       )}
       {!!details.footerDetails &&
         isFeatureFooterDetails(details.footerDetails) && (

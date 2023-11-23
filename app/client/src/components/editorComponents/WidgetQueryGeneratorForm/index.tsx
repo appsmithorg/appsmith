@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import produce from "immer";
 import { noop, set } from "lodash";
 
@@ -23,23 +17,18 @@ import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingA
 import type { AlertMessage, Alias, OtherField } from "./types";
 import {
   CONNECT_BUTTON_TEXT,
-  CUSTOMIZE_ONE_CLICK_DATA_DESC,
-  CUSTOMIZE_ONE_CLICK_DATA_TITLE,
   createMessage,
 } from "@appsmith/constants/messages";
 
 import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getFeatureWalkthroughShown,
   isUserSignedUpFlagSet,
-  setFeatureWalkthroughShown,
 } from "utils/storage";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import type { User } from "constants/userConstants";
 
 interface WidgetQueryGeneratorFormContextType {
   widgetId: string;
@@ -119,6 +108,7 @@ interface Props {
   propertyPath: string;
   propertyValue: string;
   onUpdate: (snippet?: string, makeDynamicPropertyPath?: boolean) => void;
+  toggleDynamicProperty?: () => void;
   widgetId: string;
   errorMsg: string;
   expectedType: string;
@@ -240,11 +230,30 @@ function WidgetQueryGeneratorForm(props: Props) {
     );
   };
 
+  const isFeatureEnabled = useFeatureFlag(
+    "ab_one_click_learning_popover_enabled",
+  );
+  const user = useSelector(getCurrentUser) as User;
+
+  const toggleDynamicProperty = useCallback(async () => {
+    if ((window as any).Cypress) return;
+    if (!isFeatureEnabled) return;
+    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
+      FEATURE_WALKTHROUGH_KEYS.customize_one_click_data,
+    );
+    if (isFeatureWalkthroughShown) return;
+    const isSignUpFlagSet = await isUserSignedUpFlagSet(user.email);
+    const isNewUser = user && isSignUpFlagSet;
+    if (!isNewUser) return;
+    props.toggleDynamicProperty?.();
+  }, [props.toggleDynamicProperty, isFeatureEnabled, user]);
+
   const addBinding = useCallback(
-    (binding?: string, makeDynamicPropertyPath?: boolean) => {
+    async (binding?: string, makeDynamicPropertyPath?: boolean) => {
       onUpdate(binding, makeDynamicPropertyPath);
+      if (!makeDynamicPropertyPath) toggleDynamicProperty();
     },
-    [onUpdate],
+    [onUpdate, toggleDynamicProperty],
   );
 
   const contextValue = useMemo(() => {
@@ -293,57 +302,9 @@ function WidgetQueryGeneratorForm(props: Props) {
   useEffect(() => {
     if (!pristine && propertyValue && !isConnecting) {
       updateConfig("datasource", "");
-      checkAndShowWalkthrough();
+      toggleDynamicProperty();
     }
-  }, [isConnecting]);
-
-  const { pushFeature } = useContext(WalkthroughContext) || {};
-
-  const user = useSelector(getCurrentUser);
-
-  const isFeatureEnabled = useFeatureFlag(
-    "ab_one_click_learning_popover_enabled",
-  );
-
-  const checkAndShowWalkthrough = async () => {
-    if (!pushFeature) return;
-    if ((window as any).Cypress) return;
-    if (!isFeatureEnabled) return;
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.customize_one_click_data,
-    );
-    if (isFeatureWalkthroughShown) return;
-    const isNewUser = user && (await isUserSignedUpFlagSet(user.email));
-    if (!isNewUser) return;
-    pushFeature({
-      targetId: `[data-guided-tour-iid='${propertyPath}'] .t--js-toggle`,
-      onDismiss: async () => {
-        await setFeatureWalkthroughShown(
-          FEATURE_WALKTHROUGH_KEYS.customize_one_click_data,
-          true,
-        );
-      },
-      details: {
-        description: createMessage(CUSTOMIZE_ONE_CLICK_DATA_DESC),
-        title: createMessage(CUSTOMIZE_ONE_CLICK_DATA_TITLE),
-        videoURL: getAssetUrl(`${ASSETS_CDN_URL}/binding_customization.mp4`),
-      },
-      offset: {
-        position: "left",
-        left: -80,
-        highlightPad: 2,
-        indicatorLeft: 30,
-        indicatorTop: -15,
-        style: {
-          transform: "none",
-        },
-      },
-      eventParams: {
-        [FEATURE_WALKTHROUGH_KEYS.customize_one_click_data]: true,
-      },
-      delay: 100,
-    });
-  };
+  }, [isConnecting, toggleDynamicProperty]);
 
   return (
     <Wrapper>
