@@ -21,7 +21,7 @@ import {
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
-import { SAAS_EDITOR_API_ID_PATH } from "../SaaSEditor/constants";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {

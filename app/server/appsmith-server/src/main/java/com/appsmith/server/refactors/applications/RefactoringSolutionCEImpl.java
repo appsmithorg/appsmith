@@ -50,10 +50,10 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final SessionUserService sessionUserService;
     private final TransactionalOperator transactionalOperator;
 
-    private final EntityRefactoringService<Void> jsActionEntityRefactoringService;
-    private final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
-    private final EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
-    private final EntityRefactoringService<Layout> widgetEntityRefactoringService;
+    protected final EntityRefactoringService<Void> jsActionEntityRefactoringService;
+    protected final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
+    protected final EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
+    protected final EntityRefactoringService<Layout> widgetEntityRefactoringService;
 
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
@@ -241,12 +241,17 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
         boolean isFQN = newName.contains(".");
 
+        return getAllExistingEntitiesMono(contextId, contextType, layoutId, isFQN)
+                .map(existingNames -> !existingNames.contains(newName));
+    }
+
+    @Override
+    public Mono<Set<String>> getAllExistingEntitiesMono(
+            String contextId, CreatorContextType contextType, String layoutId, boolean isFQN) {
         Iterable<Flux<String>> existingEntityNamesFlux =
                 getExistingEntityNamesFlux(contextId, layoutId, isFQN, contextType);
 
-        return Flux.merge(existingEntityNamesFlux)
-                .collect(Collectors.toSet())
-                .map(existingNames -> !existingNames.contains(newName));
+        return Flux.merge(existingEntityNamesFlux).collect(Collectors.toSet());
     }
 
     protected Iterable<Flux<String>> getExistingEntityNamesFlux(
