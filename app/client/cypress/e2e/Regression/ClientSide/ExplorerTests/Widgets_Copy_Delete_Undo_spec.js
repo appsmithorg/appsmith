@@ -9,6 +9,7 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 before(() => {
   agHelper.AddDsl("formWidgetdsl");
@@ -40,6 +41,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "FormTest",
       action: "Delete",
+      entityType: EntityItems.Widget,
     });
 
     cy.get("body").type(`{${modifierKey}}z`, { force: true });
