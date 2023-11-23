@@ -32,6 +32,40 @@ export class AssertHelper extends ReusableHelper {
     //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
   }
 
+  public AssertReduxLoad() {
+    this.Sleep(500);
+    const timeout = Cypress.config("pageLoadTimeout"); // Set your desired timeout value
+    const checkLoadingState = () => {
+      return cy
+        .window()
+        .its("store")
+        .invoke("getState")
+        .then((state) => {
+          const loadingStates = state.ui.editor.loadingStates;
+
+          cy.wrap(loadingStates).should("deep.include", { loading: false });
+
+          const actions = state.actions || [];
+          const actionPromises = actions.map((action: any) => {
+            return cy.wrap(action.isLoading).then((isLoading) => {
+              expect(isLoading).to.eq(false);
+            });
+          });
+
+          return Promise.all(actionPromises).then(() => {
+            return loadingStates; // Return loadingStates after all promises are resolved
+          });
+        });
+    };
+    cy.waitUntil(() => checkLoadingState().then(() => true), {
+      timeout,
+      interval: 1000,
+      errorMsg:
+        "Loading state did not become false within the specified timeout.",
+    });
+    this.Sleep(500);
+  }
+
   public AssertDelete(entityType: EntityItemsType) {
     let networkCall = "";
     switch (entityType) {

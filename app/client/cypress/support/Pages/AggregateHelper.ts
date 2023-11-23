@@ -1075,8 +1075,8 @@ export class AggregateHelper extends ReusableHelper {
   public RefreshPage(
     networkCallAlias = "getWorkspace", //    reloadWithoutCache = true,
   ) {
-    this.Sleep(2000);
-    this.assertHelper.AssertDocumentReady();
+    // this.Sleep(2000);
+    this.assertHelper.AssertReduxLoad();
     // // cy.window()
     // //   .then((win) => {
     // //     win.location.reload();
@@ -1093,10 +1093,10 @@ export class AggregateHelper extends ReusableHelper {
     this.AssertElementAbsence(
       this.locator._specificToast("Cannot read properties of undefined"),
     );
-    this.assertHelper.AssertDocumentReady();
-    this.Sleep(4000); //for page to load for CI runs
     networkCallAlias &&
       this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
+    this.assertHelper.AssertReduxLoad();
+    // this.Sleep(4000); //for page to load for CI runs
   }
 
   public ActionContextMenuWithInPane({

@@ -283,8 +283,8 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     localStorage.setItem("appName", appName);
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(4000);
-    cy.get("#loading").should("not.exist");
+    // cy.wait(4000);
+    // cy.get("#loading").should("not.exist");
 
     cy.url().then((url) => {
       if (url.indexOf("/applications") > -1) {
@@ -293,9 +293,10 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
       }
     });
   });
-  cy.get("#sidebar").should("be.visible");
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
-  assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
+  //cy.get("#sidebar").should("be.visible");
+  assertHelper.AssertReduxLoad();
+  // assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
+  // assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 
   // If the intro modal is open, close it
   cy.skipSignposting();

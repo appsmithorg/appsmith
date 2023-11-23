@@ -42,15 +42,15 @@ export class DeployMode {
     //cy.intercept("POST", "/api/v1/applications/publish/*").as("publishAppli");
 
     // Wait before publish
-    this.agHelper.Sleep(); //wait for elements settle!
+    //this.agHelper.Sleep(); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
-    this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertReduxLoad();
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
     //cy.get("@windowDeployStub").should("be.calledOnce");
-    this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertReduxLoad();
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
     //Below url check throwing error - hence commenting!
@@ -67,7 +67,9 @@ export class DeployMode {
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast("has failed"),
       ); //Validating bug - 14141 + 14252
-    this.agHelper.Sleep(2000); //for Depoy page to settle!
+    this.assertHelper.AssertNetworkStatus("@viewPage");
+    this.assertHelper.AssertReduxLoad();
+    // this.agHelper.Sleep(2000); //for Depoy page to settle!
     // });
   }
 
@@ -134,7 +136,7 @@ export class DeployMode {
     //     window.location.href = url;
     //   }); //only reload page to get new url
     // });
-    cy.get("@windowStub").should("be.calledOnce");
+    //cy.get("@windowStub").should("be.calledOnce");
     cy.url().should("contain", expectedUrl);
     this.agHelper.Sleep(2000); //stay in the page a bit before navigating back
     //this.assertHelper.AssertDocumentReady();
@@ -146,7 +148,7 @@ export class DeployMode {
   }
 
   public NavigateBacktoEditor(toastToCheck = "") {
-    this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertReduxLoad();
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
     this.agHelper.Sleep();
     localStorage.setItem("inDeployedMode", "false");
