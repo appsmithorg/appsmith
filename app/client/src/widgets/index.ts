@@ -67,8 +67,10 @@ import ExternalWidget from "./ExternalWidget";
 import { WDSTableWidget } from "./wds/WDSTableWidget";
 import { WDSCurrencyInputWidget } from "./wds/WDSCurrencyInputWidget";
 import { WDSButtonGroupWidget } from "./wds/WDSButtonGroupWidget";
+import { WDSPhoneInputWidget } from "./wds/WDSPhoneInputWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
 import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
+import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
 
 const Widgets = [
   CanvasWidget,
@@ -129,8 +131,10 @@ const Widgets = [
   WDSTableWidget,
   WDSCurrencyInputWidget,
   WDSButtonGroupWidget,
+  WDSPhoneInputWidget,
   WDSCheckboxGroupWidget,
   WDSSwitchWidget,
+  WDSSwitchGroupWidget,
 
   //Deprecated Widgets
   InputWidget,

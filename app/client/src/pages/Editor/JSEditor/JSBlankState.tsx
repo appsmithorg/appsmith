@@ -3,11 +3,15 @@ import { Flex, Text, Button } from "design-system";
 import { importSvg } from "design-system-old";
 
 import { createMessage, PAGES_PANE_TEXTS } from "@appsmith/constants/messages";
-import { getPagePermissions } from "selectors/editorSelectors";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { createNewJSCollection } from "../../../actions/jsPaneActions";
 
 const JSBlankState = () => {
   const pagePermissions = useSelector(getPagePermissions);
@@ -22,6 +26,9 @@ const JSBlankState = () => {
   const BlankStateIllustration = importSvg(
     async () => import("assets/images/no-js-min.svg"),
   );
+  const dispatch = useDispatch();
+
+  const pageId = useSelector(getCurrentPageId);
 
   return (
     <Flex
@@ -37,7 +44,15 @@ const JSBlankState = () => {
         {createMessage(PAGES_PANE_TEXTS.js_blank_state)}
       </Text>
       {canCreateActions && (
-        <Button size={"md"} startIcon={"add-line"}>
+        <Button
+          onClick={() =>
+            dispatch(
+              createNewJSCollection(pageId, "JS_OBJECT_GUTTER_RUN_BUTTON"),
+            )
+          }
+          size={"md"}
+          startIcon={"add-line"}
+        >
           {createMessage(PAGES_PANE_TEXTS.js_blank_button)}
         </Button>
       )}

@@ -33,14 +33,20 @@ import {
   CREATE_NEW_DATASOURCE_DATABASE_HEADER,
   CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
 } from "@appsmith/constants/messages";
+import { Divider } from "design-system";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
   overflow: auto;
   flex: 1;
   & > div {
-    margin-bottom: 20px;
+    margin-bottom: var(--ads-spaces-9);
   }
+`;
+
+const StyledDivider = styled(Divider)`
+  margin-bottom: var(--ads-spaces-9);
 `;
 
 interface MockDataSourcesProps {
@@ -198,6 +204,7 @@ interface CreateNewDatasourceScreenProps {
   pageId: string;
   isAppSidebarEnabled: boolean;
   isEnabledForStartWithData: boolean;
+  currentApplicationIdForCreateNewApp?: string;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -247,20 +254,29 @@ class CreateNewDatasourceTab extends React.Component<
         })}
         id="new-integrations-wrapper"
       >
-        {dataSources.length === 0 && <AddDatasourceSecurely />}
         {dataSources.length === 0 &&
-          this.props.mockDatasources.length > 0 &&
-          mockDataSection}
+          !this.props.currentApplicationIdForCreateNewApp && (
+            <AddDatasourceSecurely />
+          )}
+        {dataSources.length === 0 && this.props.mockDatasources.length > 0 && (
+          <>
+            {mockDataSection}
+            <StyledDivider />
+          </>
+        )}
         {isEnabledForStartWithData && (
-          <CreateNewDatasource
-            active={false}
-            history={history}
-            isCreating={isCreating}
-            location={location}
-            pageId={pageId}
-            showMostPopularPlugins
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
+          <>
+            <CreateNewDatasource
+              active={false}
+              history={history}
+              isCreating={isCreating}
+              location={location}
+              pageId={pageId}
+              showMostPopularPlugins
+              showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+            />
+            <StyledDivider />
+          </>
         )}
         <CreateNewAPI
           active={false}
@@ -270,6 +286,7 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
+        <StyledDivider />
         <CreateNewDatasource
           active={false}
           history={history}
@@ -278,6 +295,7 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
+        <StyledDivider />
         <CreateNewSaasIntegration
           active={false}
           history={history}
@@ -286,6 +304,9 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
+        {dataSources.length > 0 && this.props.mockDatasources.length > 0 && (
+          <StyledDivider />
+        )}
         {dataSources.length > 0 &&
           this.props.mockDatasources.length > 0 &&
           mockDataSection}
@@ -313,6 +334,8 @@ const mapStateToProps = (state: AppState) => {
       FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled
     ];
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
+  const currentApplicationIdForCreateNewApp =
+    getCurrentApplicationIdForCreateNewApp(state);
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
@@ -323,6 +346,7 @@ const mapStateToProps = (state: AppState) => {
     pageId,
     isAppSidebarEnabled,
     isEnabledForStartWithData,
+    currentApplicationIdForCreateNewApp,
   };
 };
 
