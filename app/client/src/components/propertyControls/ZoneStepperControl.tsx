@@ -32,6 +32,7 @@ const ZoneNumInput = ({
   const dispatch = useDispatch();
   return (
     <NumberInput
+      disableTextInput
       max={max}
       min={min}
       onChange={(value: string | undefined) => {

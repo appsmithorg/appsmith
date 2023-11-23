@@ -327,7 +327,7 @@ function generateHighlight(
   } else if (isFinalHighlight) {
     posX = Math.min(
       currDimension.left + currDimension.width,
-      layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE,
+      layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE - 2,
     );
   } else {
     // highlight before a widget.

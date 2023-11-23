@@ -508,7 +508,7 @@ export function generateHighlights(
     } else {
       posX = Math.min(
         currentDimension.left + currentDimension.width,
-        layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE,
+        layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE - 2,
       );
     }
   } else {
