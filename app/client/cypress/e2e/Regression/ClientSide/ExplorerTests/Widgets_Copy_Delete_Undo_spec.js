@@ -42,7 +42,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       action: "Delete",
     });
 
-    cy.get("body").type(`{${modifierKey}}z`);
+    cy.get("body").type(`{${modifierKey}}z`, { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -52,7 +52,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     cy.wait(500);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "FormTest",
-      action: "Show",
+      action: "Show bindings",
     });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);

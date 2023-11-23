@@ -24,7 +24,7 @@ describe("Hide / Show page test functionality", function () {
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "MyPage2",
-      action: "Show bindings",
+      action: "Show",
     });
     cy.ClearSearch();
     _.deployMode.DeployApp();
