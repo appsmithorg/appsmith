@@ -7,6 +7,9 @@ import {
   draggableWidgets,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
@@ -24,10 +27,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     // Drag and drop table widget
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
-    // close Widget side bar
-    entityExplorer.NavigateToSwitcher("Explorer");
-    cy.wait(2000);
-    entityExplorer.SelectEntityByName("Table2");
+    EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
     // Verify default array data
     cy.get(widgetsPage.tabedataField).should("not.be.empty");
     cy.deleteWidget(widgetsPage.tableWidgetV2);

@@ -4,11 +4,14 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Rich Text Editor widget Tests", function () {
   before(() => {
     agHelper.AddDsl("richTextEditorDsl");
-    entityExplorer.SelectEntityByName("RichTextEditor1", "Widgets");
+    EditorNavigation.SelectEntityByName("RichTextEditor1", EntityType.Widget);
     //   entityExplorer.DragDropWidgetNVerify("richtexteditorwidget", 500, 200);
   });
 
