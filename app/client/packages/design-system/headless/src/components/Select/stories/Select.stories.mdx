@@ -1,0 +1,15 @@
+import { Canvas, Meta, Story } from "@storybook/addon-docs";
+import { AutocompleteExample } from "./AutocompleteExample";
+
+<Meta
+  title="Design-system/Headless/Autocomplete"
+  component={AutocompleteExample}
+/>
+
+export const Template = () => {
+  return <AutocompleteExample />;
+};
+
+<Canvas>
+  <Story name="Menu">{Template.bind({})}</Story>
+</Canvas>

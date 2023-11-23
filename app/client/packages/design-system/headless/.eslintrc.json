@@ -1,3 +1,4 @@
 {
+  "ignorePatterns": ["src/components/Select/src/hooks"],
   "extends": ["../../../.eslintrc.base.json"]
 }
