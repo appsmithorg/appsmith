@@ -2,7 +2,10 @@
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
 
-import EditorNavigation, { SidebarButton } from "./Pages/EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
@@ -426,17 +429,6 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
   });
 });
 
-Cypress.Commands.add("NavigateToWidgets", (pageName) => {
-  cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(".t--page-sidebar-" + pageName + "")
-    .find(">div")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
-  cy.get(pages.widgetsEditor).click();
-  cy.wait("@getPage");
-  cy.get("#loading").should("not.exist");
-});
-
 Cypress.Commands.add("SearchApp", (appname) => {
   cy.get(homePage.searchInput).type(appname, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -448,50 +440,6 @@ Cypress.Commands.add("SearchApp", (appname) => {
   cy.get("#loading").should("not.exist");
   // Wait added because after opening the application editor, sometimes it takes a little time.
 });
-
-Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.get(".t--entity-name").click({ multiple: true });
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname2).concat("')"),
-  ).should("not.exist");
-});
-
-Cypress.Commands.add("GlobalSearchEntity", (apiname1, dontAssertVisibility) => {
-  // entity explorer search will be hidden
-  cy.get(commonlocators.searchEntityInExplorer).type(apiname1, { force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.CheckAndUnfoldWidgets();
-  cy.wait(500);
-  if (!dontAssertVisibility) {
-    cy.get(
-      commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-    ).should("be.visible");
-  }
-});
-
-Cypress.Commands.add(
-  "EditEntityNameByDoubleClick",
-  (entityName, updatedName) => {
-    cy.get(explorer.entity).contains(entityName).dblclick({ force: true });
-    cy.log(updatedName);
-    cy.get(explorer.editEntityField)
-      .clear()
-      .type(updatedName + "{enter}", { force: true });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-  },
-);
 
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
@@ -538,78 +486,6 @@ Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
         cy.get(commonlocators.widgetSection).click({ force: true });
       }
     });
-});
-
-Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  cy.CheckAndUnfoldWidgets();
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .first()
-    .scrollIntoView({ easing: "linear" });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .last()
-    .click({ force: true });
-  //cy.get(".bp3-editable-text-content").should("contain.text", apiname1);
-  //cy.get('.t--entity-name').click({multiple:true})
-});
-
-Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.CheckAndUnfoldWidgets();
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .parents(commonlocators.entityItem)
-    .first()
-    .children(commonlocators.entityCollapseToggle)
-    .last()
-    .click({ force: true });
-});
-
-Cypress.Commands.add("OpenBindings", (apiname1) => {
-  cy.wait(500);
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  cy.CheckAndUnfoldWidgets();
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .parents(commonlocators.entityItem)
-    .first()
-    .trigger("mouseover")
-    .find(commonlocators.entityContextMenu)
-    .last()
-    .click({ force: true });
-  cy.get(commonlocators.entityContextMenuContent)
-    .children("li")
-    .contains("Show bindings")
-    .click({ force: true });
-});
-
-Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  return cy
-    .get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .dblclick()
-    .get("input[type=text]")
-    .last();
 });
 
 Cypress.Commands.add("clickTest", (testbutton) => {
@@ -805,10 +681,6 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
     201,
   );
   */
-});
-
-Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
-  cy.get(explorer.entityWidget).click({ force: true });
 });
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
@@ -1299,8 +1171,7 @@ Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("Queries/JS");
-  cy.get(".t--entity-name").contains("Api2").click({ force: true });
+  EditorNavigation.SelectEntityByName("Api2", EntityType.Api);
   cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
@@ -1315,7 +1186,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-      cy.get(".t--entity-name").contains("Table1").click({ force: true });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.isSelectRow(0);
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
@@ -1325,8 +1196,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("Queries/JS");
-  cy.get(".t--entity-name").contains("Api2").click({ force: true });
+  EditorNavigation.SelectEntityByName("Api2", EntityType.Api);
   cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
@@ -1341,7 +1211,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-      cy.get(".t--entity-name").contains("Table1").click({ force: true });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.wait(2000);
       cy.isSelectRow(0);
       cy.readTableV2data("0", "5").then((tabData) => {

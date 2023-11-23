@@ -314,14 +314,6 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
    */
   //cy.wait("@updateLayout");
 });
-
-Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
-  cy.get(`.t--entity-item:contains(${entityName})`).within(() => {
-    cy.get(".t--context-menu").click({ force: true });
-  });
-  cy.selectAction("Edit name");
-  cy.get(explorer.editEntity).last().type(`${renamedEntity}`, { force: true });
-});
 Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {
   cy.openWorkspaceOptionsPopup(newWorkspaceName);
   cy.get(homePage.workspaceNamePopoverContent)
