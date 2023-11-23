@@ -161,6 +161,7 @@ import {
   getCurrentEnvironmentName,
 } from "@appsmith/selectors/environmentSelectors";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { getIsActionCreatedInApp } from "@appsmith/utils/getIsActionCreatedInApp";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1379,6 +1380,7 @@ function* executePluginActionSaga(
       executePluginActionSuccess({
         id: actionId,
         response: payload,
+        isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
       }),
     );
 
@@ -1439,6 +1441,7 @@ function* executePluginActionSaga(
       executePluginActionSuccess({
         id: actionId,
         response: EMPTY_RESPONSE,
+        isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
       }),
     );
     yield put(
