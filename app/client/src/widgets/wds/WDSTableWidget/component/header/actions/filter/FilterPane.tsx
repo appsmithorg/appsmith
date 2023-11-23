@@ -14,7 +14,6 @@ import TableFilterPaneContent from "./FilterPaneContent";
 import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
 import { Layers } from "constants/Layers";
 import Popper from "pages/Editor/Popper";
-import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -53,8 +52,7 @@ export interface TableFilterPaneProps {
   columns: ReactTableColumnProps[];
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  accentColor: string;
-  borderRadius: string;
+  targetNode?: Element;
 }
 
 interface PositionPropsInt {
@@ -84,10 +82,6 @@ class TableFilterPane extends Component<Props> {
       this.props.tableFilterPane.widgetId === this.props.widgetId
     ) {
       log.debug("tablefilter pane rendered");
-      const className =
-        "t--table-filter-toggle-btn " +
-        generateClassName(this.props.tableFilterPane.widgetId);
-      const el = document.getElementsByClassName(className)[0];
 
       /*
         Prevent the FilterPane from overflowing the canvas when the
@@ -97,7 +91,6 @@ class TableFilterPane extends Component<Props> {
 
       return (
         <Popper
-          borderRadius={this.props.borderRadius}
           boundaryParent={boundaryParent || "viewport"}
           disablePopperEvents={
             get(this.props, "metaProps.isMoved", false) as boolean
@@ -120,7 +113,7 @@ class TableFilterPane extends Component<Props> {
           renderDragBlockPositions={{
             left: "0px",
           }}
-          targetNode={el}
+          targetNode={this.props.targetNode}
           themeMode={this.getPopperTheme()}
           zIndex={Layers.tableFilterPane}
         >

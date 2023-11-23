@@ -113,8 +113,6 @@ interface TableFilterProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   hideFilterPane: (widgetId: string) => void;
   widgetId: string;
-  accentColor: string;
-  borderRadius: string;
 }
 
 const defaultFilters = [{ ...DEFAULT_FILTER }];
@@ -187,7 +185,6 @@ function TableFilterPaneContent(props: TableFilterProps) {
 
   return (
     <TableFilterOuterWrapper
-      borderRadius={props.borderRadius}
       onClick={(e) => {
         e.stopPropagation();
       }}
@@ -204,7 +201,6 @@ function TableFilterPaneContent(props: TableFilterProps) {
         {filters.map((filter: ReactTableFilter, index: number) => {
           return (
             <CascadeFields
-              accentColor={props.accentColor}
               applyFilter={(
                 filter: ReactTableFilter,
                 index: number,
@@ -226,7 +222,6 @@ function TableFilterPaneContent(props: TableFilterProps) {
                 }
                 updateFilters(updatedFilters);
               }}
-              borderRadius={props.borderRadius}
               column={filter.column}
               columns={columns}
               condition={filter.condition}
@@ -260,27 +255,21 @@ function TableFilterPaneContent(props: TableFilterProps) {
         {hasAnyFilters ? (
           <ButtonWrapper>
             <Button
-              borderRadius={props.borderRadius}
-              buttonColor={props.accentColor}
               buttonVariant={ButtonVariantTypes.TERTIARY}
               className="t--add-filter-btn"
-              icon={<AddIcon className="w-5 h-5" color={props.accentColor} />}
+              icon={<AddIcon className="w-5 h-5" />}
               onClick={addFilter}
               size="small"
               text="Add Filter"
             />
             <ButtonActionsWrapper>
               <Button
-                borderRadius={props.borderRadius}
-                buttonColor={props.accentColor}
                 buttonVariant={ButtonVariantTypes.SECONDARY}
                 className="t--clear-all-filter-btn"
                 onClick={clearFilters}
                 text="CLEAR ALL"
               />
               <Button
-                borderRadius={props.borderRadius}
-                buttonColor={props.accentColor}
                 buttonVariant={ButtonVariantTypes.PRIMARY}
                 className="t--apply-filter-btn"
                 onClick={applyFilter}

@@ -1,7 +1,7 @@
 import { INTEGRATION_TABS } from "constants/routes";
 import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
-import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
+import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
 import { getPageList, getPagePermissions } from "selectors/editorSelectors";
 import {
