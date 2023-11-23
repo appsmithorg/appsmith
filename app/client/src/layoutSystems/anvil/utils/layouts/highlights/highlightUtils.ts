@@ -93,25 +93,13 @@ export function deriveHighlights(
   hasAlignments: boolean,
   hasFillWidget?: boolean,
 ): HighlightPayload {
-  /**
-   * Step 1: Check if draggedWidgets will exceed the maxChildLimit of the layout.
-   */
-  const { allowedWidgetTypes, layout, maxChildLimit } = layoutProps;
-  if (maxChildLimit && layout?.length + draggedWidgets.length > maxChildLimit) {
-    return defaultHighlightPayload;
-  }
+  const res: HighlightPayload | undefined = performInitialChecks(
+    layoutProps,
+    widgetPositions,
+    draggedWidgets,
+  );
 
-  /**
-   * Step 2: Check if dragged widgets are allowed by this layout.
-   */
-  if (allowedWidgetTypes && allowedWidgetTypes.length) {
-    const draggedTypes: string[] = draggedWidgets.map(
-      (each: DraggedWidget) => each.type,
-    );
-    if (!areWidgetsWhitelisted(draggedTypes, allowedWidgetTypes)) {
-      return defaultHighlightPayload;
-    }
-  }
+  if (res) return res;
 
   const getDimensions: GetDimensions = getRelativeDimensions(widgetPositions);
   // If layout is empty, return an initial set of highlights to demarcate the starting position.

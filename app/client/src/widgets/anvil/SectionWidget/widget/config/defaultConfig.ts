@@ -29,6 +29,7 @@ export const defaultConfig: WidgetDefaultProps = {
           canExtend: false,
           children: [],
           containerStyle: "none",
+          deleteIfEmpty: true,
           detachFromLayout: true,
           version: 1,
         },

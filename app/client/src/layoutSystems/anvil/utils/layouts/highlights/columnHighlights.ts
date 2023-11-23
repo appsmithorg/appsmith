@@ -35,14 +35,6 @@ export const deriveColumnHighlights =
     draggedWidgets: DraggedWidget[],
     isReorderingWidgets: boolean,
   ): HighlightPayload => {
-    const res: HighlightPayload | undefined = performInitialChecks(
-      layoutProps,
-      positions,
-      draggedWidgets,
-    );
-
-    if (res) return res;
-
     const { layoutStyle } = layoutProps;
 
     const baseHighlight: AnvilHighlightInfo = {

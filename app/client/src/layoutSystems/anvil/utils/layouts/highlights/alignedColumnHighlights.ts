@@ -8,7 +8,7 @@ import type {
   HighlightPayload,
   LayoutProps,
 } from "../../anvilTypes";
-import { HIGHLIGHT_SIZE, defaultHighlightPayload } from "../../constants";
+import { HIGHLIGHT_SIZE } from "../../constants";
 import {
   getHighlightsForLayouts,
   getHighlightsForWidgets,
@@ -38,14 +38,6 @@ export const deriveAlignedColumnHighlights =
     draggedWidgets: DraggedWidget[],
     isReorderingWidgets: boolean,
   ): HighlightPayload => {
-    if (
-      !layoutProps ||
-      !positions ||
-      !positions[layoutProps.layoutId] ||
-      !draggedWidgets.length
-    )
-      return defaultHighlightPayload;
-
     const { layoutStyle } = layoutProps;
 
     const baseHighlight: AnvilHighlightInfo = {

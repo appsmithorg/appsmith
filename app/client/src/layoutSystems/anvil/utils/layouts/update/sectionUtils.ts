@@ -59,6 +59,7 @@ export function* createSectionAndAddWidget(
   const canvasProps: WidgetProps = {
     bottomRow: 10,
     children: [],
+    deleteIfEmpty: true,
     isLoading: false,
     layout: preset,
     leftColumn: 0,

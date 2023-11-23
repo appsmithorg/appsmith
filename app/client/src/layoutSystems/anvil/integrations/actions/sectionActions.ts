@@ -12,3 +12,12 @@ export const updateZoneCountAction = (
     },
   };
 };
+
+export const checkSectionAutoDeleteAction = (widgetId: string) => {
+  return {
+    type: AnvilReduxActionTypes.ANVIL_CHECK_SECTION_DELETE,
+    payload: {
+      widgetId,
+    },
+  };
+};
