@@ -8,8 +8,8 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import FiltersRevamp from "./FiltersRevamp";
-import { TemplatesContentRevamp } from "./TemplatesContentRevamp";
+import StartWithTemplateFilters from "./StartWithTemplateFilter";
+import { StartWithTemplateContent } from "./StartWithTemplateContent";
 import {
   getApplicationByIdFromWorkspaces,
   getIsFetchingApplications,
@@ -33,15 +33,15 @@ const TemplateContentWrapper = styled.div`
   overflow: auto;
 `;
 
-interface TemplatesHomeWrapperProps {
+interface StartWithTemplatesProps {
   currentApplicationIdForCreateNewApp: string;
   setSelectedTemplate: (id: string) => void;
 }
 
-const TemplatesHomeWrapper = ({
+const StartWithTemplates = ({
   currentApplicationIdForCreateNewApp,
   setSelectedTemplate,
-}: TemplatesHomeWrapperProps) => {
+}: StartWithTemplatesProps) => {
   const dispatch = useDispatch();
   const workspaceList = useSelector(getForkableWorkspaces);
   const allTemplates = useSelector(getTemplatesSelector);
@@ -74,8 +74,7 @@ const TemplatesHomeWrapper = ({
   };
 
   const getTemplateById = (id: string) => {
-    const template = allTemplates.find((template) => template.id === id);
-    return template;
+    return allTemplates.find((template) => template.id === id);
   };
 
   const onTemplateClick = (id: string) => {
@@ -93,7 +92,7 @@ const TemplatesHomeWrapper = ({
   return (
     <>
       <TemplateContentWrapper>
-        <TemplatesContentRevamp
+        <StartWithTemplateContent
           isForkingEnabled={!!workspaceList.length}
           onForkTemplateClick={onForkTemplateClick}
           onTemplateClick={onTemplateClick}
@@ -102,11 +101,11 @@ const TemplatesHomeWrapper = ({
 
       {!isLoading && (
         <FiltersWrapper>
-          <FiltersRevamp />
+          <StartWithTemplateFilters />
         </FiltersWrapper>
       )}
     </>
   );
 };
 
-export default TemplatesHomeWrapper;
+export default StartWithTemplates;

@@ -3,7 +3,7 @@ import {
   filterTemplates,
   setTemplateSearchQuery,
 } from "actions/templateActions";
-import { Icon, SearchInput, Text } from "design-system";
+import { Icon, SearchInput } from "design-system";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,78 +12,16 @@ import {
   getTemplateFilterSelector,
   getTemplateSearchQuery,
 } from "selectors/templatesSelectors";
-import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const FilterWrapper = styled.div`
-  margin-top: 120px;
-  padding-top: 11px;
-  overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 256}px);
-
-  .more {
-    padding-left: ${(props) => props.theme.spaces[11]}px;
-    cursor: pointer;
-  }
-
-  .hide {
-    visibility: hidden;
-  }
-`;
-
-const FilterItemWrapper = styled.div<{ selected: boolean }>`
-  padding: 8px;
-  background-color: ${(props) =>
-    props.selected ? "var(--ads-v2-color-bg)" : "inherit"};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-  border-radius: var(--ads-v2-border-radius);
-  cursor: pointer;
-`;
-
-const FilterItemText = styled(Text)`
-  font-size: 14px;
-  font-weight: 400;
-`;
-
-const StyledFilterCategory = styled(Text)`
-  margin-top: 12px;
-  padding-left: 8px;
-  text-transform: capitalize;
-  font-size: 14px;
-  font-weight: 500;
-
-  &.title {
-    color: var(--ads-v2-color-fg-emphasis);
-  }
-`;
-
-const ListWrapper = styled.div`
-  margin-top: ${(props) => props.theme.spaces[2]}px;
-`;
-
-const FilterCategoryWrapper = styled.div`
-  padding-bottom: ${(props) => props.theme.spaces[13] - 11}px;
-`;
-
-const SearchWrapper = styled.div<{ sticky?: boolean }>`
-  /* max-width: 250px; */
-  .templates-search {
-    max-width: 250px;
-  }
-  ${(props) =>
-    props.sticky &&
-    `position: sticky;
-  top: 0;
-  position: -webkit-sticky;
-  z-index: 1;
-  background-color: var(--ads-v2-color-bg);
-  padding: var(--ads-v2-spaces-7);
-  margin-left: 0; 
-  `}
-`;
+import {
+  FilterCategoryWrapper,
+  FilterItemText,
+  FilterItemWrapper,
+  FilterWrapper,
+  ListWrapper,
+  SearchWrapper,
+  StyledFilterCategory,
+} from "./StyledComponents";
 
 export interface Filter {
   label: string;
@@ -92,8 +30,8 @@ export interface Filter {
 
 interface FilterItemProps {
   item: Filter;
-  selected: boolean;
-  onSelect: (item: string, action: string) => void;
+  selectedFilter: boolean;
+  onSelectFilter: (item: string, action: "add" | "remove") => void;
 }
 
 interface FilterCategoryProps {
@@ -106,11 +44,18 @@ interface FilterWrapperProps {
   stickySearchBar?: boolean;
 }
 
-function FilterItem({ item, onSelect, selected }: FilterItemProps) {
+const ALL_TEMPLATES_UPDATED_LABEL = "All Templates";
+const ALL_TEMPLATES_FILTER_VALUE = "All";
+
+const FilterItem = ({
+  item,
+  onSelectFilter,
+  selectedFilter,
+}: FilterItemProps) => {
   const onClick = () => {
-    const action = selected ? "remove" : "add";
+    const action = selectedFilter ? "remove" : "add";
     const filterValue = item?.value ?? item.label;
-    onSelect(filterValue, action);
+    onSelectFilter(filterValue, action);
     if (action === "add") {
       AnalyticsUtil.logEvent("TEMPLATE_FILTER_SELECTED", {
         filter: filterValue,
@@ -119,9 +64,9 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
   };
 
   return (
-    <FilterItemWrapper onClick={onClick} selected={selected}>
+    <FilterItemWrapper onClick={onClick} selected={selectedFilter}>
       <FilterItemText kind="body-m">{item.label}</FilterItemText>
-      {selected && (
+      {selectedFilter && (
         <Icon
           color="var(--ads-v2-color-bg-brand-secondary-emphasis-plus)"
           name="check-line"
@@ -130,10 +75,7 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
       )}
     </FilterItemWrapper>
   );
-}
-
-const ALL_TEMPLATES_UPDATED_LABEL = "All Templates";
-const ALL_TEMPLATES_FILTER_VALUE = "All";
+};
 
 function modifyAndSortFilterList(originalFilterList: Filter[]) {
   // Change the label from "All" to "All Templates"
@@ -154,11 +96,11 @@ function modifyAndSortFilterList(originalFilterList: Filter[]) {
   return modifiedFilterList;
 }
 
-function FilterCategory({
+const FilterCategory = ({
   filterList,
   label,
   selectedFilters,
-}: FilterCategoryProps) {
+}: FilterCategoryProps) => {
   const filterLabelsToDisplay: Record<string, string> = useMemo(
     () => ({
       functions: "categories",
@@ -166,7 +108,7 @@ function FilterCategory({
     [],
   );
   const dispatch = useDispatch();
-  const onSelect = (item: string, type: string) => {
+  const onSelectFilter = (item: string, type: string) => {
     // Check if "All" or "All Templates" is selected
     const allTemplatesFilterSelected =
       item === ALL_TEMPLATES_FILTER_VALUE ||
@@ -212,20 +154,20 @@ function FilterCategory({
             <FilterItem
               item={filter}
               key={filter.label}
-              onSelect={onSelect}
-              selected={isSelected(filter)}
+              onSelectFilter={onSelectFilter}
+              selectedFilter={isSelected(filter)}
             />
           );
         })}
       </ListWrapper>
     </FilterCategoryWrapper>
   );
-}
+};
 
 const INPUT_DEBOUNCE_TIMER = 500;
 const DEFAULT_FILTER_LABEL = "functions";
 const DEFAULT_FILTER_LIST = ["All"];
-function FiltersRevamp(props: FilterWrapperProps) {
+const StartWithTemplateFilters = (props: FilterWrapperProps) => {
   const dispatch = useDispatch();
   const filters = useSelector(getFilterListSelector);
   const selectedFilters = useSelector(getTemplateFilterSelector);
@@ -266,6 +208,6 @@ function FiltersRevamp(props: FilterWrapperProps) {
       })}
     </FilterWrapper>
   );
-}
+};
 
-export default FiltersRevamp;
+export default StartWithTemplateFilters;

@@ -39,7 +39,7 @@ import { Flex, Link, Text } from "design-system";
 import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import { TemplateView } from "pages/Templates/TemplateView";
-import TemplatesHomeWrapper from "pages/Templates/TemplatesHomeWrapper";
+import StartWithTemplates from "pages/Templates/StartWithTemplates";
 import { default as React, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -50,6 +50,8 @@ import {
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import history from "utils/history";
+import { builderURL } from "@appsmith/RouteBuilder";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -256,7 +258,25 @@ const CreateNewAppsOption = ({
   };
 
   const onClickSkipButton = () => {
-    onClickBack();
+    if (application) {
+      urlBuilder.updateURLParams(
+        {
+          applicationSlug: application.slug,
+          applicationVersion: application.applicationVersion,
+          applicationId: application.id,
+        },
+        application.pages.map((page) => ({
+          pageSlug: page.slug,
+          customSlug: page.customSlug,
+          pageId: page.id,
+        })),
+      );
+      history.push(
+        builderURL({
+          pageId: application.pages[0].id,
+        }),
+      );
+    }
 
     // TODO:Handle analytics for this
   };
@@ -389,12 +409,14 @@ const CreateNewAppsOption = ({
               subtitle={createMessage(START_WITH_TEMPLATE_CONNECT_SUBHEADING)}
               title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
             />
-            <TemplatesHomeWrapper
-              currentApplicationIdForCreateNewApp={
-                currentApplicationIdForCreateNewApp
-              }
-              setSelectedTemplate={setSelectedTemplate}
-            />
+            <TemplateWrapper>
+              <StartWithTemplates
+                currentApplicationIdForCreateNewApp={
+                  currentApplicationIdForCreateNewApp
+                }
+                setSelectedTemplate={setSelectedTemplate}
+              />
+            </TemplateWrapper>
           </Flex>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
