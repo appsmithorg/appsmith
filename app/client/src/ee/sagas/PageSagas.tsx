@@ -11,7 +11,6 @@ import {
   deletePageSaga,
   savePageSaga,
   updateWidgetNameSaga,
-  fetchAllPublishedPagesSaga,
   generateTemplatePageSaga,
   setPageOrderSaga,
   populatePageDSLsSaga,
@@ -49,10 +48,6 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.DELETE_PAGE_INIT, deletePageSaga),
     debounce(500, ReduxActionTypes.SAVE_PAGE_INIT, savePageSaga),
     takeLatest(ReduxActionTypes.UPDATE_WIDGET_NAME_INIT, updateWidgetNameSaga),
-    takeLatest(
-      ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
-      fetchAllPublishedPagesSaga,
-    ),
     takeLatest(
       ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT,
       generateTemplatePageSaga,
