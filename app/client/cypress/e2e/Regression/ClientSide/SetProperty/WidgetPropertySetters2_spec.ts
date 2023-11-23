@@ -171,10 +171,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
       false,
     );
     jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false);
-    deployMode.DeployApp();
-    agHelper.AssertElementVisibility(
-      locators._widgetInDeployed(draggableWidgets.BUTTON), //Asserting before setTimeout JS function execution, button is visible
-    );
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON)); //Asserting before setTimeout JS function execution, button is visible
     agHelper.Sleep(2000); //waiting for settimeout to execute
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.BUTTON),
