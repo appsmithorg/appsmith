@@ -48,7 +48,7 @@ const injectPackagesAndWorkflowsToWorkspacesList = (
   workflows: WorkflowMetadata[] = [],
 ) => {
   const packagesGroupByWorkspaceId = groupBy(packages, (p) => p.workspaceId);
-  const workflowsGroupByWorkspaceId = groupBy(workflows, (w) => w.workspaceId);
+  const workflowsGroupByWorkspaceId = groupBy(workflows, (w) => w?.workspaceId);
 
   return workspacesList.map((workspacesObj) => {
     const { workspace } = workspacesObj;
