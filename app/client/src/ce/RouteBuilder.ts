@@ -170,20 +170,14 @@ export function adminSettingsCategoryUrl({
 export const templateIdUrl = ({ id }: { id: string }): string =>
   `${TEMPLATES_PATH}/${id}`;
 
-export const jsCollectionURL = (props: URLBuilderParams): string => {
+export const jsCollectionListURL = (props: URLBuilderParams): string => {
   return urlBuilder.build({
     ...props,
     suffix: `jsObjects`,
   });
 };
 
-export const apiEditorURL = (props: URLBuilderParams): string =>
-  urlBuilder.build({
-    ...props,
-    suffix: `api`,
-  });
-
-export const queryEditorURL = (props: URLBuilderParams): string =>
+export const queryListURL = (props: URLBuilderParams): string =>
   urlBuilder.build({
     ...props,
     suffix: `queries`,
