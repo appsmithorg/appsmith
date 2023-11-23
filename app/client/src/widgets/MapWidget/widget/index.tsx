@@ -342,6 +342,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             propertyName: "enableMapTypeControl",
             label: "Enable map types",
             controlType: "SWITCH",
+            helpText: "Allows users to change the map type",
             isJSConvertible: false,
             isBindProperty: false,
             isTriggerProperty: false,
