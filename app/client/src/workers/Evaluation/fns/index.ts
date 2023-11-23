@@ -42,10 +42,7 @@ import type {
   TRunDescription,
 } from "./actionFns";
 import run, { clear } from "./actionFns";
-import {
-  isAction,
-  isAppsmithEntity,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isAppsmithEntity } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { ActionEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type {
@@ -62,6 +59,7 @@ import {
   watchGeoLocation,
 } from "./geolocationFns";
 import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
+import { isRunNClearFnQualifierEntity } from "@appsmith/workers/Evaluation/fns/utils/isRunNClearFnQualifierEntity";
 
 export const getPlatformFunctions = () => {
   return platformFns;
@@ -117,7 +115,7 @@ const platformFns = [
 export const entityFns = [
   {
     name: "run",
-    qualifier: (entity: DataTreeEntity) => isAction(entity),
+    qualifier: (entity: DataTreeEntity) => isRunNClearFnQualifierEntity(entity),
     fn: (entity: DataTreeEntity, entityName: string) => {
       const actionEntity = entity as ActionEntity;
       // @ts-expect-error: name is not defined on ActionEntity
@@ -131,7 +129,7 @@ export const entityFns = [
   },
   {
     name: "clear",
-    qualifier: (entity: DataTreeEntity) => isAction(entity),
+    qualifier: (entity: DataTreeEntity) => isRunNClearFnQualifierEntity(entity),
     fn: (entity: DataTreeEntity, entityName: string) =>
       getFnWithGuards(
         clear.bind(entity as ActionEntity),

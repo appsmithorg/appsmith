@@ -44,8 +44,9 @@ import type { JSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 import type { Plugin } from "api/PluginApi";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
@@ -1313,3 +1314,14 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
 export function getInputsForModule(): Module["inputsForm"] {
   return [];
 }
+
+export const getModuleInstances = (): Record<string, ModuleInstance> => {
+  return {};
+};
+
+export const getModuleInstanceEntities = () => {
+  return {
+    actions: [],
+    jsCollections: [],
+  };
+};
