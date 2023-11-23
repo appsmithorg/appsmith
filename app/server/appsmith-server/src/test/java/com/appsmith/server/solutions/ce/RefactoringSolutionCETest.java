@@ -27,6 +27,7 @@ import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
@@ -100,6 +101,9 @@ class RefactoringSolutionCETest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     RefactoringSolution refactoringSolution;
@@ -195,7 +199,7 @@ class RefactoringSolutionCETest {
 
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
-        layoutActionService
+        updateLayoutService
                 .updateLayout(pageId, testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -291,7 +295,7 @@ class RefactoringSolutionCETest {
         ActionDTO createdAction =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        LayoutDTO firstLayout = layoutActionService
+        LayoutDTO firstLayout = updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -367,7 +371,7 @@ class RefactoringSolutionCETest {
         ActionDTO createdAction =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        LayoutDTO firstLayout = layoutActionService
+        LayoutDTO firstLayout = updateLayoutService
                 .updateLayout(gitConnectedPage.getId(), testApp.getId(), layout.getId(), layout, null)
                 .block();
 
@@ -434,8 +438,8 @@ class RefactoringSolutionCETest {
         ActionDTO firstAction =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-        LayoutDTO firstLayout = layoutActionService
+        layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+        LayoutDTO firstLayout = updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -495,7 +499,7 @@ class RefactoringSolutionCETest {
         ActionDTO createdAction =
                 layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        LayoutDTO firstLayout = layoutActionService
+        LayoutDTO firstLayout = updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -569,7 +573,7 @@ class RefactoringSolutionCETest {
         // Now save this action directly in the repo to create a duplicate action name scenario
         actionRepository.save(duplicateNameCompleteAction).block();
 
-        LayoutDTO firstLayout = layoutActionService
+        LayoutDTO firstLayout = updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -622,7 +626,7 @@ class RefactoringSolutionCETest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService
+        updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -672,7 +676,7 @@ class RefactoringSolutionCETest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService
+        updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -725,7 +729,7 @@ class RefactoringSolutionCETest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService
+        updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
 
@@ -762,7 +766,7 @@ class RefactoringSolutionCETest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        layoutActionService
+        updateLayoutService
                 .updateLayout(testPage.getId(), testApp.getId(), layout.getId(), layout)
                 .block();
 

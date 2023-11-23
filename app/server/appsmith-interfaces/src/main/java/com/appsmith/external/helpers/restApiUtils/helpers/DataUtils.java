@@ -53,6 +53,8 @@ public class DataUtils {
         TEXT,
         FILE,
         ARRAY,
+        // this is for allowing application/json in Multipart from data
+        JSON,
     }
 
     public DataUtils() {
@@ -148,6 +150,13 @@ public class DataUtils {
                     continue;
                 }
 
+                // null values are not accepted by the Mutli-part form data standards,
+                // null values cannot be achieved via client side changes, hence skipping the form-data property
+                // altogether instead of throwing an error over here.
+                if (property.getValue() == null) {
+                    continue;
+                }
+
                 // This condition is for the current scenario, while we wait for client changes to come in
                 // before the migration can be introduced
                 if (property.getType() == null) {
@@ -195,6 +204,39 @@ public class DataUtils {
                             }
                         } else {
                             bodyBuilder.part(key, property.getValue());
+                        }
+                        break;
+                    case JSON:
+                        // apart from String we can expect json list or a JSON dictionary as input,
+                        // while spring would typecast a json list to List, a Json Dictionary is not always expected to
+                        // be type-casted as a map, hence this has been chosen to be built as it is.
+                        if (!(property.getValue() instanceof String jsonString)) {
+                            bodyBuilder.part(key, property.getValue(), MediaType.APPLICATION_JSON);
+                            break;
+                        }
+
+                        if (!StringUtils.hasText(jsonString)) {
+                            // the jsonString is empty, it could be intended by the user hence continuing execution.
+                            bodyBuilder.part(key, "", MediaType.APPLICATION_JSON);
+                            break;
+                        }
+
+                        Object objectFromJson;
+                        try {
+                            objectFromJson = objectFromJson(jsonString);
+                        } catch (JsonSyntaxException | ParseException e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    jsonString,
+                                    "Malformed JSON: " + e.getMessage());
+                        }
+
+                        if (objectFromJson == null) {
+                            // Although this is not expected to be true; However, in case the parsed object is null,
+                            // choosing to error out as the value provided by user has not transformed into json.
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, jsonString);
+                        } else {
+                            bodyBuilder.part(key, objectFromJson, MediaType.APPLICATION_JSON);
                         }
                         break;
                 }
