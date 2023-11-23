@@ -686,6 +686,7 @@ export function ApplicationsSection(props: any) {
                     setSelectedWorkspaceIdForImportApplication
                   }
                   workspace={activeWorkspace}
+                  workspaceId={activeWorkspaceId}
                 />
                 {(currentUser || isLoadingResources) &&
                   !isMobile &&

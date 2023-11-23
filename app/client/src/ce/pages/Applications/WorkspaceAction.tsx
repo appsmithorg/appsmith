@@ -28,6 +28,7 @@ export interface WorkspaceActionProps {
   isMobile: boolean;
   applications: Application[];
   enableImportExport: boolean;
+  workspaceId: string;
   onCreateNewApplication: (workspaceId: string) => void;
   setSelectedWorkspaceIdForImportApplication: (workspaceId?: string) => void;
 }
