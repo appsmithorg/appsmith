@@ -1,4 +1,7 @@
 const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -30,7 +33,7 @@ describe("Iframe Widget functionality", function () {
     cy.testJsontext("srcdoc", "<h1>Hello World!</h1>");
     cy.wait(2000);
     cy.get(`.t--entity .page`).last().should("have.class", "activePage");
-    cy.get(`.t--entity-name:contains(${page1})`).first().click();
+    EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     cy.get(`.t--entity .page`).first().should("have.class", "activePage");
   });
 });

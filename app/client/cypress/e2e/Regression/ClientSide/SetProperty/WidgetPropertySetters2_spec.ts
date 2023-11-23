@@ -1,14 +1,17 @@
 import {
-  entityExplorer,
-  jsEditor,
   agHelper,
-  locators,
-  propPane,
-  draggableWidgets,
-  deployMode,
   apiPage,
   dataManager,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
+  jsEditor,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Widget Property Setters - Part II - Tc #2409", () => {
   it("1. Bug 25287 - CurrencyInput does not update value when set using CurrencyInput.text", () => {
@@ -30,7 +33,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
         prettify: false,
       },
     );
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "{{JSObject1.myFun1()}}");
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
@@ -44,7 +47,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
   });
 
   it("2. Update Visible property via JS function - using appmsith store", () => {
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
       myFun1 () {
@@ -68,7 +71,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 300, 300);
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         async myFun1 () {
@@ -110,7 +113,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
   });
 
   it("4. Update Input value via JS Call back function - in Edit mode itself + OnPage load", () => {
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         async myFun1 () {
@@ -127,7 +130,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
       false,
     );
     jsEditor.RunJSObj();
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -139,7 +142,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
         expect(val).contains("@");
       });
 
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{appsmith.user.name}}",
@@ -158,7 +161,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
   });
 
   it("5. Update Widget property through framework function - Settimeout", () => {
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         async myFun1 () {
@@ -176,7 +179,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
   });
 
   it("6. Verify SetWidget for unsupported properties - setPlaying(Audio widget) property for Button, set property via try/catch block", () => {
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         myFun1 () {
@@ -190,7 +193,7 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
     agHelper.AssertContains(`"setPlaying" doesn't exist in Button1`);
 
     //try catch block
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         myFun1 () {
@@ -211,10 +214,10 @@ describe("Widget Property Setters - Part II - Tc #2409", () => {
   });
 
   it("7.Update set property using mutative values", () => {
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TogglePropertyState("Visible", "Off"); //due to bug, element state is not altereed when set via settimeout
     propPane.TogglePropertyState("Visible", "On");
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         var1: [true,false,true,false],

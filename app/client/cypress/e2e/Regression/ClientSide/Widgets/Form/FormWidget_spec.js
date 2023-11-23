@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -45,9 +49,9 @@ describe("Form Widget Functionality", function () {
     _.deployMode.NavigateBacktoEditor();
 
     //Rename Form widget from Entity Explorer
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.entityExplorer.SelectEntityByName("Form1");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     _.entityExplorer.RenameEntityFromExplorer("Form1", "Form");
 
     //Form Widget Functionality To Verify The Colour

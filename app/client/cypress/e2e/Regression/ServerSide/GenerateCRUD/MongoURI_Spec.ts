@@ -1,16 +1,17 @@
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
-  locators,
   assertHelper,
+  dataSources,
+  deployMode,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -51,8 +52,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
   it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
     //Update documents query to handle the int _id data
-    entityExplorer.NavigateToSwitcher("Explorer", 0, true);
-    entityExplorer.SelectEntityByName("UpdateQuery");
+    EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
     agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
       propFieldName: "",
       directInput: false,

@@ -1,4 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -23,16 +27,16 @@ describe("Test Create Api and Bind to Table widget", function () {
     apiPage.RunAPI();
     //Test: Validate Table with API data and then add a column
     // Open property pane
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     // Clear Table data and enter Apil data into table data
     cy.testJsontext("tabledata", "{{Api1.data}}");
     // Check Widget properties
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open Text1 in propert pane
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
     // Open Table1 propert pane
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     // Compare table 1st index data with itself
     cy.readTabledata("0", "0").then((tabData) => {
       const tableData = tabData;
@@ -73,7 +77,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.closePropertyPane();
     //Test: Update table json data and check the column names updated
     // Open table propert pane
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.backFromPropertyPanel();
     // Change the table data
     cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInputUpdate));

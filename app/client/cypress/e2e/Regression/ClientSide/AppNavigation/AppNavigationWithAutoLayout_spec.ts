@@ -8,6 +8,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -21,7 +22,7 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
   });
 
   it("2. Change App navigation settings and valdiate the layout settings", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     EditorNavigation.ViaSidebar(SidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -19,7 +23,7 @@ describe("Binding the API with pageOnLoad and input Widgets", function () {
   });
 
   it("2. Input widget updated with deafult data", function () {
-    _.entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     cy.get(widgetsPage.defaultInput).type("3");
 
     cy.wait("@updateLayout")

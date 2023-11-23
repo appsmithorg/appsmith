@@ -1,5 +1,8 @@
 import commonlocators from "../../../../locators/commonlocators.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let logString;
 
@@ -284,7 +287,7 @@ describe("Debugger logs", function () {
       shouldCreateNewJSObj: true,
     });
 
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     _.agHelper.GetNClick(_.locators._errorTab);
 
     _.debuggerHelper.ClicklogEntityLink();
@@ -295,7 +298,7 @@ describe("Debugger logs", function () {
   it("10. Bug #24039 - Logs errors from setInterval callback into debugger", () => {
     _.entityExplorer.NavigateToSwitcher("Widgets");
     _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 400, 600);
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.SelectPlatformFunction("onClick", "Set interval");
     _.agHelper.EnterActionValue(
       "Callback function",
