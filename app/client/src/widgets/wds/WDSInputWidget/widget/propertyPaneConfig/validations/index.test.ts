@@ -8,7 +8,7 @@ import {
 import type { InputWidgetProps } from "../../types";
 
 describe("defaultValueValidation", () => {
-  let result: any;
+  let result: ReturnType<typeof defaultValueValidation>;
 
   it("should validate defaulttext of text type", () => {
     result = defaultValueValidation(
