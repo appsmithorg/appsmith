@@ -1,5 +1,12 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
 
+interface UpdatePageNameAndVerifyUrlObj {
+  newPageName: string;
+  reset?: boolean;
+  verifyPageNameAs?: string;
+  restOfUrl?: string;
+}
+
 export class PageSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private homePage = ObjectsRegistry.HomePage;
@@ -61,11 +68,12 @@ export class PageSettings {
     });
   }
 
-  UpdatePageNameAndVerifyUrl(
-    newPageName: string,
-    verifyPageNameAs?: string,
+  UpdatePageNameAndVerifyUrl({
+    newPageName,
     reset = true,
-  ) {
+    restOfUrl = "",
+    verifyPageNameAs,
+  }: UpdatePageNameAndVerifyUrlObj) {
     const pageNameToBeVerified = verifyPageNameAs ?? newPageName;
     this.agHelper
       .GetText(this.locators._pageNameField, "val")
@@ -80,7 +88,13 @@ export class PageSettings {
           );
           this.agHelper.PressEnter();
           this.assertHelper.AssertNetworkStatus("@updatePage", 200);
-          this.appSettings.CheckUrl(appName as string, pageNameToBeVerified);
+          this.appSettings.CheckUrl(
+            appName as string,
+            pageNameToBeVerified,
+            undefined,
+            true,
+            restOfUrl,
+          );
           if (reset) {
             this.agHelper.RemoveCharsNType(
               this.locators._pageNameField,
@@ -92,13 +106,16 @@ export class PageSettings {
             this.appSettings.CheckUrl(
               appName as string,
               currentPageName as string,
+              undefined,
+              true,
+              restOfUrl,
             );
           }
         });
       });
   }
 
-  UpdateCustomSlugAndVerifyUrl(customSlug: string) {
+  UpdateCustomSlugAndVerifyUrl(customSlug: string, restOfUrl = "") {
     this.agHelper
       .GetText(this.locators._customSlugField, "val")
       .then((currentCustomSlug) => {
@@ -116,7 +133,13 @@ export class PageSettings {
           }
           this.agHelper.PressEnter();
           this.assertHelper.AssertNetworkStatus("@updatePage", 200);
-          this.appSettings.CheckUrl(appName as string, "", customSlug);
+          this.appSettings.CheckUrl(
+            appName as string,
+            "",
+            customSlug,
+            true,
+            restOfUrl,
+          );
         });
       });
   }

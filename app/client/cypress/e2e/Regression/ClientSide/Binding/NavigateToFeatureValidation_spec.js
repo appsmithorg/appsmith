@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -14,7 +18,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
   });
 
   it("1. Table Widget Functionality with multiple page", function () {
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidget,
@@ -26,14 +30,11 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     agHelper.AddDsl("navigateToInputDsl");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
+    EditorNavigation.SelectEntityByName(pageid, EntityType.Page);
   });
 
   it("2. Validate NavigateTo Page functionality ", function () {
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(4000);
     deployMode.DeployApp();
     cy.readTabledataPublish("1", "0").then((tabDataP) => {

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
@@ -174,7 +178,7 @@ describe("List widget V2 page number and page size", () => {
 
       cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 
@@ -221,7 +225,7 @@ describe("List widget V2 page number and page size", () => {
 
       cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 

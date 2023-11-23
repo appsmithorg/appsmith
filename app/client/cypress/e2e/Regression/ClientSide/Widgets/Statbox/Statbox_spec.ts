@@ -9,6 +9,9 @@ import {
   deployMode,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Statbox spec", () => {
   before(() => {
@@ -73,7 +76,7 @@ describe("Statbox spec", () => {
     agHelper.GetNClick(locators._enterPreviewMode);
     agHelper.AssertElementAbsence(locators._widgetInDeployed("statbox1"));
     agHelper.GetNClick(locators._exitPreviewMode);
-    entityExplorer.SelectEntityByName("Statbox1", "Widgets");
+    EditorNavigation.SelectEntityByName("Statbox1", EntityType.Widget);
     propPane.TogglePropertyState("Visible", "On");
     //Ensure that the widget is visible once deployed
     deployMode.DeployApp();
@@ -117,7 +120,7 @@ describe("Statbox spec", () => {
   });
 
   it("5: Verify statbox widget styles", () => {
-    entityExplorer.SelectEntityByName("Statbox1", "Widgets");
+    EditorNavigation.SelectEntityByName("Statbox1", EntityType.Widget);
     //Switch to Style tab
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Background color", "#f3e8ff");

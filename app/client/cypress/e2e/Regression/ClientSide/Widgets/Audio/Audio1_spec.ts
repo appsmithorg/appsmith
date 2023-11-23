@@ -6,6 +6,9 @@ import {
   propPane,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const URL = "https://assets.appsmith.com/widgets/birds_chirping.mp3";
 
@@ -14,7 +17,7 @@ describe("excludeForAirgap", "Audio Widget functionality tests", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.AUDIO, 200, 200);
   });
   it("1. Audio widget property verification", () => {
-    entityExplorer.SelectEntityByName("Audio1", "Widgets");
+    EditorNavigation.SelectEntityByName("Audio1", EntityType.Widget);
     // assert properties are present
     propPane.Search("general");
     propPane.AssertIfPropertyOrSectionExists("general", "CONTENT");
@@ -45,7 +48,7 @@ describe("excludeForAirgap", "Audio Widget functionality tests", () => {
     );
     //Exit preview mode
     agHelper.GetNClick(locators._exitPreviewMode);
-    entityExplorer.SelectEntityByName("Audio1", "Widgets");
+    EditorNavigation.SelectEntityByName("Audio1", EntityType.Widget);
     propPane.SelectPlatformFunction("onPlay", "Show alert");
     agHelper.EnterActionValue("Message", "Audio Played");
     propPane.ToggleJSMode("onPlay", true);

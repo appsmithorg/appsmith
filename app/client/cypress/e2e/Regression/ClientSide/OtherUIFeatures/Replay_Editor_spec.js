@@ -49,8 +49,6 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("2. Checks undo/redo for Api pane", function () {
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
     cy.get(`${apiwidget.resourceUrl} .CodeMirror-placeholder`).should(
       "have.text",

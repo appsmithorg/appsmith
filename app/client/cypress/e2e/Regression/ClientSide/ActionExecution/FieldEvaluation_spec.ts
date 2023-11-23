@@ -1,9 +1,12 @@
 import {
   agHelper,
+  draggableWidgets,
   entityExplorer,
   propPane,
-  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Field value evaluation", () => {
   before(() => {
@@ -11,7 +14,7 @@ describe("Field value evaluation", () => {
   });
 
   it("1. Evaluation works for fields", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.EnterActionValue("Message", "{{Button1.text}}");
     agHelper.VerifyEvaluatedValue("Submit");

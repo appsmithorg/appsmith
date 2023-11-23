@@ -1175,11 +1175,13 @@ function* executePageLoadAction(pageAction: PageAction) {
         }),
       );
       yield put(
-        updateActionData({
-          entityName: action.name,
-          dataPath: "data",
-          data: payload.body,
-        }),
+        updateActionData([
+          {
+            entityName: action.name,
+            dataPath: "data",
+            data: payload.body,
+          },
+        ]),
       );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -1230,11 +1232,13 @@ function* executePageLoadAction(pageAction: PageAction) {
         pageAction.id,
       );
       yield put(
-        updateActionData({
-          entityName: action.name,
-          dataPath: "data",
-          data: payload.body,
-        }),
+        updateActionData([
+          {
+            entityName: action.name,
+            dataPath: "data",
+            data: payload.body,
+          },
+        ]),
       );
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
@@ -1377,6 +1381,7 @@ function* executePluginActionSaga(
   let response: ActionExecutionResponse;
   try {
     response = yield ActionAPI.executeAction(formData, timeout);
+    const isError = isErrorResponse(response);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
     );
@@ -1391,11 +1396,13 @@ function* executePluginActionSaga(
     );
 
     yield put(
-      updateActionData({
-        entityName: pluginAction.name,
-        dataPath: "data",
-        data: payload.body,
-      }),
+      updateActionData([
+        {
+          entityName: pluginAction.name,
+          dataPath: "data",
+          data: isError ? undefined : payload.body,
+        },
+      ]),
     );
     // TODO: Plugins are not always fetched before on page load actions are executed.
     try {
@@ -1413,7 +1420,6 @@ function* executePluginActionSaga(
       log.error("plugin no found", e);
     }
 
-    const isError = isErrorResponse(response);
     if (filePickerInstrumentation.numberOfFiles > 0) {
       triggerFileUploadInstrumentation(
         filePickerInstrumentation,
@@ -1451,11 +1457,13 @@ function* executePluginActionSaga(
       }),
     );
     yield put(
-      updateActionData({
-        entityName: pluginAction.name,
-        dataPath: "data",
-        data: EMPTY_RESPONSE.body,
-      }),
+      updateActionData([
+        {
+          entityName: pluginAction.name,
+          dataPath: "data",
+          data: EMPTY_RESPONSE.body,
+        },
+      ]),
     );
     if (e instanceof UserCancelledActionExecutionError) {
       // Case: user cancelled the request of file upload
@@ -1526,11 +1534,13 @@ function* clearTriggerActionResponse() {
     if (action.data && !action.config.executeOnLoad) {
       yield put(clearActionResponse(action.config.id));
       yield put(
-        updateActionData({
-          entityName: action.config.name,
-          dataPath: "data",
-          data: undefined,
-        }),
+        updateActionData([
+          {
+            entityName: action.config.name,
+            dataPath: "data",
+            data: undefined,
+          },
+        ]),
       );
     }
   }
@@ -1587,16 +1597,14 @@ function* handleUpdateActionData(
     entityName: string;
     dataPath: string;
     data: unknown;
+    dataPathRef?: string;
   }>,
 ) {
-  const { data, dataPath, entityName } = action.payload;
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA, [
-    {
-      entityName,
-      dataPath,
-      data,
-    },
-  ]);
+  yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
+    action.payload,
+  );
 }
 
 export function* watchPluginActionExecutionSagas() {

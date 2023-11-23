@@ -1,5 +1,9 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "./EditorNavigation";
 
 type templateActions =
   | "Find"
@@ -56,10 +60,6 @@ export class EntityExplorer {
     this._expandCollapseArrow(entityNameinLeftSidebar) +
     "/ancestor::div[contains(@class, 't--entity')]//div[@class='bp3-collapse']";
 
-  private _templateMenuTrigger = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 't--entity-name')][text()='" +
-    entityNameinLeftSidebar +
-    "']/ancestor::div[contains(@class, 't--entity-item')]//button[contains(@class, 't--template-menu-trigger')]";
   private _moreOptionsPopover =
     "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
   private _pageClone = ".single-select >div:contains('Clone')";
@@ -92,27 +92,6 @@ export class EntityExplorer {
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
   _widgetTagSuggestedWidgets = ".widget-tag-collapisble-suggested";
 
-  public SelectEntityByName(
-    entityNameinLeftSidebar: string,
-    section:
-      | "Widgets"
-      | "Queries/JS"
-      | "Datasources"
-      | "Pages"
-      | ""
-      | string = "",
-    ctrlKey = false,
-  ) {
-    this.NavigateToSwitcher("Explorer");
-    if (section) this.ExpandCollapseEntity(section); //to expand respective section
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
-      .last()
-      .click(
-        ctrlKey ? { ctrlKey, force: true } : { multiple: true, force: true },
-      );
-    this.agHelper.Sleep(); //for selection to settle
-  }
-
   public SelectEntityInModal(
     modalNameinEE: string,
     section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
@@ -133,6 +112,7 @@ export class EntityExplorer {
       | "Generate page with data"
       | "Add page from template" = "New blank page",
   ) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper.GetNClick(this.locator._newPage);
     this.agHelper.GetNClick(this._newPageOptions(option));
     if (option === "New blank page") {
@@ -148,6 +128,7 @@ export class EntityExplorer {
     index = 0,
     force = false,
   ) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper
       .GetAttribute(this._openNavigationTab(navigationTab), "data-selected")
       .then(($value) => {
@@ -162,6 +143,7 @@ export class EntityExplorer {
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper.AssertElementLength(
       this._entityNameInExplorer(entityNameinLeftSidebar),
       1,
@@ -169,12 +151,14 @@ export class EntityExplorer {
   }
 
   public AssertEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper.AssertElementAbsence(
       this._entityNameInExplorer(entityNameinLeftSidebar),
     );
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper.AssertElementVisibility(
       this._expandCollapseArrow(entityName),
       true,
@@ -225,19 +209,6 @@ export class EntityExplorer {
       });
   }
 
-  public GetEntityNamesInSection(
-    sectionName: string,
-    entityFilterSelector: string,
-  ) {
-    return cy
-      .xpath(this._expandCollapseSection(sectionName))
-      .find(entityFilterSelector)
-      .then((entities) => {
-        const entityNames = entities.map((_, el) => Cypress.$(el).text()).get();
-        return entityNames;
-      });
-  }
-
   public ActionContextMenuByEntityName({
     action = "Delete",
     entityNameinLeftSidebar,
@@ -246,6 +217,7 @@ export class EntityExplorer {
     toAssertAction,
     toastToValidate = "",
   }: EntityActionParams) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper.Sleep();
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
       .scrollIntoView()
@@ -266,6 +238,7 @@ export class EntityExplorer {
   }
 
   public DeleteWidgetFromEntityExplorer(widgetNameinLeftSidebar: string) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     cy.xpath(this._contextMenu(widgetNameinLeftSidebar))
       .last()
       .click({ force: true });
@@ -280,6 +253,7 @@ export class EntityExplorer {
   }
 
   public DeleteAllQueriesForDB(dsName: string) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el: any) => {
       cy.wrap($el)
         .invoke("text")
@@ -291,25 +265,6 @@ export class EntityExplorer {
           });
         });
     });
-  }
-
-  public HoverOnEntityItem(entityNameinLeftSidebar: string) {
-    this.agHelper.ClickOutside();
-    //cy.get("body").trigger("mousedown");
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).realHover();
-  }
-
-  public ActionTemplateMenuByEntityName(
-    entityNameinLeftSidebar: string,
-    action: templateActions,
-  ) {
-    this.HoverOnEntityItem(entityNameinLeftSidebar);
-    cy.xpath(this._templateMenuTrigger(entityNameinLeftSidebar))
-      .first()
-      .click()
-      .wait(100); //for menu template to appear
-    this.agHelper.GetNClick(this.locator._contextMenuItem(action), 0, true);
-    this.agHelper.Sleep(500);
   }
 
   public SearchWidgetPane(widgetType: string) {
@@ -399,7 +354,8 @@ export class EntityExplorer {
   }
 
   public ClonePage(pageName = "Page1") {
-    this.SelectEntityByName(pageName, "Pages");
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     this.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: pageName,
       action: "Clone",
@@ -408,6 +364,7 @@ export class EntityExplorer {
   }
 
   public CreateNewDsQuery(dsName: string, isQuery = true) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
     cy.get(this.locator._createNew).last().click();
     const searchText = isQuery ? dsName + " query" : dsName;
@@ -422,7 +379,7 @@ export class EntityExplorer {
 
   public CopyPasteWidget(widgetName: string) {
     this.NavigateToSwitcher("Widgets");
-    this.SelectEntityByName(widgetName);
+    EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);
   }
@@ -449,6 +406,7 @@ export class EntityExplorer {
     renameVal: string,
     viaMenu = false,
   ) {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,

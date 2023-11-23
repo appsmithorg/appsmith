@@ -5,7 +5,7 @@ import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
 import type { DatasourceTable } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { useCloseMenuOnScroll } from "../Explorer/hooks";
+import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
