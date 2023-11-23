@@ -4,7 +4,7 @@ import { useRouteMatch } from "react-router";
 import styled from "styled-components";
 import CE_EditorRoutes from "ce/pages/Editor/routes";
 import * as Sentry from "@sentry/react";
-import { MODULE_INSTANCE_ID_PATH } from "@appsmith/constants/routes/additonalEditorRoutes";
+import { MODULE_INSTANCE_ID_PATH } from "@appsmith/constants/routes/eeAppRoutes";
 import QueryModuleInstanceEditor from "@appsmith/pages/Editor/ModuleInstanceEditor/Query";
 
 const SentryRoute = Sentry.withSentryRouting(Route);

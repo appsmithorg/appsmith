@@ -2,9 +2,9 @@ import type { AppState } from "@appsmith/reducers";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Action } from "entities/Action";
 
-export const getAllModules = (state: AppState) => state.entities.modules;
-
 const DEFAULT_INPUT_EVAL_VALUES = {};
+
+export const getAllModules = (state: AppState) => state.entities.modules;
 
 export const getCurrentModuleId = (state: AppState) =>
   state.ui.editor.currentModuleId || "";

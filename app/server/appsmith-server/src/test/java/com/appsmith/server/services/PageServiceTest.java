@@ -34,6 +34,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -121,6 +122,9 @@ public class PageServiceTest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -615,7 +619,7 @@ public class PageServiceTest {
 
         action.setPageId(page.getId());
 
-        final LayoutDTO layoutDTO = layoutActionService
+        final LayoutDTO layoutDTO = updateLayoutService
                 .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
                 .block();
 
@@ -825,7 +829,7 @@ public class PageServiceTest {
 
         layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        final LayoutDTO layoutDTO = layoutActionService
+        final LayoutDTO layoutDTO = updateLayoutService
                 .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
                 .block();
 

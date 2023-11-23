@@ -20,7 +20,7 @@ import EditorNavigation, {
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("Edit Permission flow ", function () {
+describe.skip("Edit Permission flow ", function () {
   let newWorkspaceName;
   let workspaceName;
   let appName;

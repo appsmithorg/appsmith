@@ -17,9 +17,6 @@ export interface ModuleInstance {
   inputs: {
     [key: string]: string;
   };
-  dynamicBindingPathList: {
-    [key: string]: boolean;
-  };
   jsonPathKeys: {
     [key: string]: any;
   };

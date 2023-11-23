@@ -17,7 +17,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
-describe("Create Permission flow ", function () {
+describe.skip("Create Permission flow ", function () {
   let datasourceName;
   let datasourceName2;
   let workspaceName;

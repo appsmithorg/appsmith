@@ -1,6 +1,4 @@
 export * from "ce/selectors/entitiesSelector";
-
-import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import {
   getActions,
@@ -8,16 +6,25 @@ import {
   getCurrentPageId,
   selectFilesForExplorer as CE_selectFilesForExplorer,
 } from "ce/selectors/entitiesSelector";
-import type { Module } from "@appsmith/constants/ModuleConstants";
 import {
   getAllModules,
   getCurrentModuleId,
 } from "@appsmith/selectors/modulesSelector";
+import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { AppState } from "@appsmith/reducers";
 import { sortBy } from "lodash";
 import { getAllModuleInstances } from "./moduleInstanceSelectors";
 import { getPackages } from "./packageSelectors";
 import type { ExplorerFileEntityForModule } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getPackageNameForModule } from "@appsmith/utils/Packages/moduleHelpers";
+
+export const getCurrentModule = createSelector(
+  getAllModules,
+  getCurrentModuleId,
+  (modules, currentModuleId) => {
+    return modules[currentModuleId];
+  },
+);
 
 export const getInputsForModule = (state: AppState): Module["inputsForm"] => {
   const moduleId = getCurrentModuleId(state);

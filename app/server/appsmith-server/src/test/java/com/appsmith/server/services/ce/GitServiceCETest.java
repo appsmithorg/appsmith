@@ -45,6 +45,7 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -172,6 +173,9 @@ public class GitServiceCETest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     NewPageService newPageService;
@@ -1233,7 +1237,7 @@ public class GitServiceCETest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleAction(action, Boolean.FALSE)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
@@ -2558,7 +2562,7 @@ public class GitServiceCETest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleActionWithBranch(action, null)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),

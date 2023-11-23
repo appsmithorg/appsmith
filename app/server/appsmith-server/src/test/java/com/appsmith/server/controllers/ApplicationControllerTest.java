@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.configurations.InMemoryReactiveClientRegistrationRepositoryConfiguration;
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.configurations.solutions.OidcAccessTokenUpdateSolution;
@@ -42,7 +43,12 @@ import java.io.IOException;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(ApplicationController.class)
-@Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
+@Import({
+    SecurityTestConfig.class,
+    RedisUtils.class,
+    RedisTestContainerConfig.class,
+    InMemoryReactiveClientRegistrationRepositoryConfiguration.class
+})
 public class ApplicationControllerTest {
     @MockBean
     ApplicationService applicationService;

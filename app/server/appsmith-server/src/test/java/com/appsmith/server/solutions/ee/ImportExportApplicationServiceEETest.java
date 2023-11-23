@@ -19,6 +19,7 @@ import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
@@ -101,6 +102,9 @@ public class ImportExportApplicationServiceEETest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
@@ -305,7 +309,7 @@ public class ImportExportApplicationServiceEETest {
                     return layoutActionService
                             .createSingleAction(action, Boolean.FALSE)
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
-                            .then(layoutActionService.updateLayout(
+                            .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
                 });

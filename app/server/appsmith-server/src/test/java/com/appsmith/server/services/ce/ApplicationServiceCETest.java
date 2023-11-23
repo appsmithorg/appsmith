@@ -48,6 +48,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -206,6 +207,9 @@ public class ApplicationServiceCETest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -2129,7 +2133,7 @@ public class ApplicationServiceCETest {
                     return Mono.zip(
                             layoutCollectionService.createCollection(actionCollectionDTO),
                             layoutActionService.createSingleAction(action, Boolean.FALSE),
-                            layoutActionService.updateLayout(
+                            updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
                             Mono.just(application));
                 })
@@ -2500,7 +2504,7 @@ public class ApplicationServiceCETest {
                     return Mono.zip(
                             Mono.just(tuple.getT1()),
                             Mono.just(tuple.getT2()),
-                            layoutActionService.updateLayout(
+                            updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
                             Mono.just(tuple.getT3()));
                 })

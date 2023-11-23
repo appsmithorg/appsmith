@@ -8,7 +8,9 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isAPathDynamicBindingPath as CE_isAPathDynamicBindingPath } from "ce/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
-export function isModuleInput(entity: DataTreeEntity) {
+export function isModuleInput(
+  entity: DataTreeEntity,
+): entity is ModuleInputsEntity {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&

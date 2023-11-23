@@ -16,12 +16,9 @@ import {
   updateFirstTimeUserOnboardingSage,
   fetchProductAlertSaga,
 } from "ce/sagas/userSagas";
-import type {
-  ReduxAction,
-  ReduxActionWithPromise,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxActionWithPromise } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { takeLatest, all, call, put, select } from "redux-saga/effects";
+import { takeLatest, all, call, put } from "redux-saga/effects";
 import type { ApiResponse } from "api/ApiResponses";
 import {
   callAPI,
@@ -31,13 +28,9 @@ import {
 import UserApi from "@appsmith/api/UserApi";
 import { reset } from "redux-form";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
-import type { User } from "@sentry/react";
-import { flushErrorsAndRedirect } from "actions/errorActions";
-import { logoutUserSuccess, logoutUserError } from "actions/userActions";
-import { AUTH_LOGIN_URL } from "constants/routes";
 import log from "loglevel";
-import { getCurrentUser } from "selectors/usersSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { logoutUserError } from "actions/userActions";
+import { logoutApiURL } from "@appsmith/constants/ApiConstants";
 
 export function* inviteUsers(
   action: ReduxActionWithPromise<{
@@ -92,19 +85,9 @@ export function* inviteUsers(
   }
 }
 
-export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
+export function* logoutSagaWithRedirect() {
   try {
-    const redirectURL = action.payload?.redirectURL;
-    const response: ApiResponse = yield call(UserApi.logoutUser);
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      AnalyticsUtil.reset();
-      const currentUser: User | undefined = yield select(getCurrentUser);
-      yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
-      yield put({ type: ReduxActionTypes.STOP_LICENSE_STATUS_CHECK });
-      localStorage.clear();
-      yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
-    }
+    location.href = logoutApiURL;
   } catch (error) {
     log.error(error);
     yield put(logoutUserError(error));
@@ -126,7 +109,7 @@ export default function* userSagas() {
       verifyResetPasswordTokenSaga,
     ),
     takeLatest(ReduxActionTypes.INVITE_USERS_TO_WORKSPACE_INIT, inviteUsers),
-    takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
+    takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSagaWithRedirect),
     takeLatest(ReduxActionTypes.VERIFY_INVITE_INIT, verifyUserInviteSaga),
     takeLatest(
       ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
