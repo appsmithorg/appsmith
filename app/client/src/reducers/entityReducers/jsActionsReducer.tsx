@@ -19,12 +19,6 @@ export interface JSCollectionData {
   isDirty?: Record<string, boolean>;
 }
 export type JSCollectionDataState = JSCollectionData[];
-export interface PartialActionData {
-  isLoading: boolean;
-  config: { id: string };
-  data: Record<string, unknown>;
-  isExecuting: Record<string, boolean>;
-}
 
 export interface JSExecutionData {
   data: unknown;

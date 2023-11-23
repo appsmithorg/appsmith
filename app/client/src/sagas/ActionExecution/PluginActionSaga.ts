@@ -161,6 +161,7 @@ import {
   getCurrentEnvironmentName,
 } from "@appsmith/selectors/environmentSelectors";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import getIsActionCreatedInApp from "@appsmith/utils/getIsActionCreatedInApp";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1298,10 +1299,9 @@ function* executePluginActionSaga(
   params?: Record<string, unknown>,
   isUserInitiated?: boolean,
 ) {
-  let pluginAction;
+  let pluginAction: ReturnType<typeof getAction>;
   let actionId;
   if (isString(actionOrActionId)) {
-    // @ts-expect-error: plugin Action can take many types
     pluginAction = yield select(getAction, actionOrActionId);
     actionId = actionOrActionId;
   } else {
@@ -1311,6 +1311,7 @@ function* executePluginActionSaga(
     );
     actionId = actionOrActionId.id;
   }
+  if (!pluginAction) return;
 
   if (pluginAction.confirmBeforeExecute) {
     const modalPayload = {
@@ -1392,6 +1393,7 @@ function* executePluginActionSaga(
       executePluginActionSuccess({
         id: actionId,
         response: payload,
+        isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
       }),
     );
 
@@ -1454,6 +1456,7 @@ function* executePluginActionSaga(
       executePluginActionSuccess({
         id: actionId,
         response: EMPTY_RESPONSE,
+        isActionCreatedInApp: true,
       }),
     );
     yield put(
