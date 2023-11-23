@@ -214,6 +214,15 @@ public class AmazonS3Plugin extends BasePlugin {
             return urlList;
         }
 
+        /**
+         * This function returns the unsigned file urls for the files present in the body
+         * @param connection
+         * @param bucketName
+         * @param path
+         * @param body
+         * @return
+         * @throws AppsmithPluginException
+         */
         ArrayList<String> getFileUrls(AmazonS3 connection, String bucketName, String path, String body)
                 throws AppsmithPluginException {
             List<MultipartFormDataDTO> multipartFormDataDTOs;
@@ -666,6 +675,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 actionResult = new HashMap<String, Object>();
                                 ((HashMap<String, Object>) actionResult).put("signedUrl", signedUrl);
                                 ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
+                                // Adds the unsigned url in the response
                                 ((HashMap<String, Object>) actionResult)
                                         .put(
                                                 "url",
@@ -720,6 +730,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 actionResult = new HashMap<String, Object>();
                                 ((HashMap<String, Object>) actionResult).put("signedUrls", signedUrls);
                                 ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
+                                // Adds the unsigned urls in the response
                                 ((HashMap<String, Object>) actionResult)
                                         .put("urls", getFileUrls(connection, bucketName, path, body));
 
