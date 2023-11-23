@@ -153,11 +153,16 @@ export const getUserApplicationsWorkspacesList = createSelector(
           ...fuzzySearchOptions,
           keys: ["name"],
         });
+        const workflowFuzzy = new Fuse(workspace.workflows, {
+          ...fuzzySearchOptions,
+          keys: ["name"],
+        });
 
         return {
           ...workspace,
           applications: appFuzzy.search(keyword),
           packages: packageFuzzy.search(keyword),
+          workflows: workflowFuzzy.search(keyword),
         };
       });
     } else if (
