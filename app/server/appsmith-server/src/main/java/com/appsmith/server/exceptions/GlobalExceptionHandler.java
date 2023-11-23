@@ -233,7 +233,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     @ResponseBody
     public Mono<ResponseDTO<ErrorDTO>> catchPluginException(AppsmithPluginException e, ServerWebExchange exchange) {
-        exchange.getResponse().setStatusCode(HttpStatus.resolve(e.getHttpStatus()));
+        AppsmithError appsmithError = AppsmithError.INTERNAL_SERVER_ERROR;
+        exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
         ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
