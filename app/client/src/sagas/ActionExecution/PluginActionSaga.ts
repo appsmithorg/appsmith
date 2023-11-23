@@ -560,7 +560,7 @@ export default function* executePluginActionTriggerSaga(
   });
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
-    action.id,
+    action,
     pagination,
     params,
   );
@@ -733,11 +733,12 @@ interface RunActionError {
   clientDefinedError?: boolean;
 }
 
-function* runActionSaga(
+export function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
-    paginationField: PaginationField;
+    paginationField?: PaginationField;
     skipOpeningDebugger: boolean;
+    action?: Action;
   }>,
 ) {
   const actionId = reduxAction.payload.id;
@@ -754,10 +755,12 @@ function* runActionSaga(
   const currentEnvDetails: { id: string; name: string } = yield select(
     getCurrentEnvironmentDetails,
   );
-  const actionObject = shouldBeDefined<Action>(
-    yield select(getAction, actionId),
-    `action not found for id - ${actionId}`,
-  );
+  const actionObject =
+    reduxAction.payload.action ||
+    shouldBeDefined<Action>(
+      yield select(getAction, actionId),
+      `action not found for id - ${actionId}`,
+    );
   const plugin: Plugin = yield select(getPlugin, actionObject?.pluginId);
   const datasource: Datasource = yield select(
     getDatasource,
@@ -787,7 +790,7 @@ function* runActionSaga(
     },
   });
 
-  const { id, paginationField } = reduxAction.payload;
+  const { paginationField } = reduxAction.payload;
   // open response tab in debugger on exection of action.
   if (!reduxAction.payload.skipOpeningDebugger) {
     yield call(openDebugger);
@@ -802,7 +805,7 @@ function* runActionSaga(
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
-      id,
+      actionObject,
       paginationField,
       {},
       true,
@@ -1119,7 +1122,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
     try {
       const executePluginActionResponse: ExecutePluginActionResponse =
-        yield call(executePluginActionSaga, pageAction);
+        yield call(executePluginActionSaga, action);
       payload = executePluginActionResponse.payload;
       isError = executePluginActionResponse.isError;
     } catch (e) {
@@ -1289,24 +1292,12 @@ interface ExecutePluginActionResponse {
  * PluginActionExecutionError which needs to be handled by any saga that calls this.
  * */
 function* executePluginActionSaga(
-  actionOrActionId: PageAction | string,
+  pluginAction: Action,
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
   isUserInitiated?: boolean,
 ) {
-  let pluginAction;
-  let actionId;
-  if (isString(actionOrActionId)) {
-    // @ts-expect-error: plugin Action can take many types
-    pluginAction = yield select(getAction, actionOrActionId);
-    actionId = actionOrActionId;
-  } else {
-    pluginAction = shouldBeDefined<Action>(
-      yield select(getAction, actionOrActionId.id),
-      `Action not found for id -> ${actionOrActionId.id}`,
-    );
-    actionId = actionOrActionId.id;
-  }
+  const actionId = pluginAction.id;
 
   if (pluginAction.confirmBeforeExecute) {
     const modalPayload = {
