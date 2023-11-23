@@ -1,10 +1,13 @@
 import {
   agHelper,
+  deployMode,
   entityExplorer,
   jsEditor,
   propPane,
-  deployMode,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("removeValue Action test", () => {
   before(() => {
@@ -34,7 +37,7 @@ describe("removeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "StoreValue");
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -46,7 +49,7 @@ describe("removeValue Action test", () => {
     });
 
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    entityExplorer.SelectEntityByName("Button2", "Widgets");
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "RemoveValue");
     cy.get("@jsObjName").then((jsObj: any) => {

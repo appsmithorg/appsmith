@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
@@ -24,7 +28,7 @@ describe("Table Widget row multi select validation", function () {
     agHelper.GetNClick(table._multirowselect, 2);
     agHelper.AssertElementLength(table._selectedrow, 2);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.TogglePropertyState("Enable multi row selection", "Off");
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(table._multirowselect);

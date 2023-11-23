@@ -2265,6 +2265,12 @@ export const START_WITH_TEMPLATE_CONNECT_HEADING = () => "Select a template";
 export const START_WITH_TEMPLATE_CONNECT_SUBHEADING = () =>
   "Choose an option below to embark on your app-building adventure!";
 
+export const PAGES_PANE_TEXTS = {
+  queries_tab: () => "Queries",
+  js_tab: () => "JS",
+  ui_tab: () => "UI",
+};
+
 export const PARTIAL_IMPORT_EXPORT = {
   export: {
     modalHeading: () => "Export",

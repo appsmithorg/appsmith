@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -5,8 +9,8 @@ const pageid = "MyPage";
 import {
   agHelper,
   propPane,
-  entityExplorer,
   deployMode,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget and Navigate to functionality validation", function () {
@@ -25,11 +29,12 @@ describe("Table Widget and Navigate to functionality validation", function () {
   it("1. Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
     agHelper.AddDsl("displayWidgetDsl");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
+    entityExplorer.AssertEntityPresenceInExplorer(pageid);
     //Table Widget Functionality with multiple page
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Table1", "Container3");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     cy.widgetText(
       "Table1",
       widgetsPage.tableWidget,

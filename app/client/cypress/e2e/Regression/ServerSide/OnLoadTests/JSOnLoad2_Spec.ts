@@ -1,13 +1,16 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  jsEditor,
-  deployMode,
-  homePage,
   dataSources,
+  deployMode,
+  entityExplorer,
   entityItems,
+  homePage,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 let datasourceName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
@@ -164,17 +167,16 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   it("7. Tc #1909 - Verify the sequence of of JS Object on page load", () => {
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EnableDisableAsyncFuncSettings("astros", true, false);
     jsEditor.EnableDisableAsyncFuncSettings("city", true, false);
-    entityExplorer.SelectEntityByName("JSObject2");
+    EditorNavigation.SelectEntityByName("JSObject2", EntityType.JSObject);
     jsEditor.EnableDisableAsyncFuncSettings("cat", true, false);
     jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, false);
-    entityExplorer.SelectEntityByName("JSObject3");
+    EditorNavigation.SelectEntityByName("JSObject3", EntityType.JSObject);
     jsEditor.EnableDisableAsyncFuncSettings("film", true, false);
 
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.RefreshPage();
 
     agHelper.ValidateToastMessage("ran successfully", 0, 5);
@@ -214,7 +216,10 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      EditorNavigation.SelectEntityByName(
+        jsName as string,
+        EntityType.JSObject,
+      );
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",

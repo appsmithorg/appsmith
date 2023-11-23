@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -78,7 +82,7 @@ describe(" Nested List Widgets ", function () {
         y: 50,
       },
     );
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
 
     cy.dragAndDropToWidgetBySelector(
