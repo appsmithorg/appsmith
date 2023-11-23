@@ -11,6 +11,9 @@ import {
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -29,7 +32,7 @@ describe("Table widget one click binding feature", () => {
     cy.get("@dsName").then((dsName) => {
       entityExplorer.NavigateToSwitcher("Widgets");
 
-      entityExplorer.SelectEntityByName("MultiSelect1", "Widgets");
+      EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
         label: "name",

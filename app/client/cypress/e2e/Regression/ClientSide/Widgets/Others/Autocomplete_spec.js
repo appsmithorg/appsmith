@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -134,7 +138,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
   );
 
   it("Bug 9003: Autocomplete not working for Appsmith specific JS APIs", function () {
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.ToggleJSMode("onClick", true);
     _.propPane.TypeTextIntoField("onClick", "{{storeValue", true);
     _.agHelper.GetNAssertElementText(_.locators._hints, "storeValue");

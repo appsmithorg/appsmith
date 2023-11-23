@@ -1,70 +1,14 @@
 import React, { memo } from "react";
-import {
-  Popover,
-  Classes,
-  PopoverInteractionKind,
-  Position,
-} from "@blueprintjs/core";
-import { IconWrapper } from "constants/IconConstants";
-import { Colors } from "constants/Colors";
 import type { ReactTableColumnProps } from "../../Constants";
-import { TableIconWrapper } from "../../TableStyledWrappers";
-import styled, { createGlobalStyle } from "styled-components";
-import ActionItem from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
 import zipcelx from "zipcelx";
 import { importSvg } from "design-system-old";
+import { Menu, MenuList, Item, Button } from "@design-system/widgets";
 
 const DownloadIcon = importSvg(
   async () => import("assets/icons/control/download-data-icon.svg"),
 );
 
-const DropDownWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  background: white;
-  z-index: 1;
-  border-radius: 4px;
-  box-shadow: 0px 12px 28px -8px rgba(0, 0, 0, 0.1);
-  padding: 0;
-`;
-
-const OptionWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  height: 32px;
-  box-sizing: border-box;
-  padding: 6px 12px;
-  color: var(--wds-color-text);
-  min-width: 200px;
-  cursor: pointer;
-  background: var(--wds-color-bg);
-  border-left: none;
-  border-radius: none;
-  .option-title {
-    font-weight: 500;
-    font-size: 13px;
-    line-height: 20px;
-  }
-  &:hover {
-    background: var(--wds-color-bg-hover);
-  }
-`;
-
-const PopoverStyles = createGlobalStyle<{
-  id?: string;
-  borderRadius?: string;
-}>`
-  ${({ borderRadius, id }) => `
-    .${id}.${Classes.POPOVER} {
-      border-radius: min(${borderRadius}, 0.375rem);
-      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-    }
-  `}
-`;
 interface TableDataDownloadProps {
   data: Array<Record<string, unknown>>;
   columns: ReactTableColumnProps[];
@@ -82,17 +26,17 @@ interface DataCellProps {
 
 interface DownloadOptionProps {
   label: string;
-  value: FileDownloadType;
+  key: FileDownloadType;
 }
 
-const dowloadOptions: DownloadOptionProps[] = [
+const downloadOptions: DownloadOptionProps[] = [
   {
     label: "Download as CSV",
-    value: "CSV",
+    key: "CSV",
   },
   {
     label: "Download as Excel",
-    value: "EXCEL",
+    key: "EXCEL",
   },
 ];
 
@@ -131,14 +75,14 @@ const downloadDataAsCSV = (props: {
 };
 
 function TableDataDownload(props: TableDataDownloadProps) {
-  const [selected, selectMenu] = React.useState(false);
-  const downloadFile = (type: string) => {
+  const downloadFile = (type: FileDownloadType) => {
     if (type === "CSV") {
       downloadTableDataAsCsv();
     } else if (type === "EXCEL") {
       downloadTableDataAsExcel();
     }
   };
+
   const downloadTableDataAsExcel = () => {
     const tableData: Array<Array<DataCellProps>> = [];
     const tableHeaders: Array<DataCellProps> = props.columns
@@ -180,8 +124,8 @@ function TableDataDownload(props: TableDataDownloadProps) {
       },
     });
   };
+
   const downloadTableDataAsCsv = () => {
-    selectMenu(true);
     const csvData = transformTableDataIntoCsv({
       columns: props.columns,
       data: props.data,
@@ -191,64 +135,26 @@ function TableDataDownload(props: TableDataDownloadProps) {
       delimiter: props.delimiter,
       fileName: `${props.widgetName}.csv`,
     });
-    selectMenu(false);
   };
 
-  const handleCloseMenu = () => {
-    selectMenu(false);
-  };
-
-  if (props.columns.length === 0) {
-    return (
-      <TableIconWrapper disabled>
-        <IconWrapper color={Colors.CADET_BLUE} height={20} width={20}>
-          <DownloadIcon />
-        </IconWrapper>
-        <span className="action-title">Download</span>
-      </TableIconWrapper>
-    );
-  }
   return (
-    <>
-      <Popover
-        enforceFocus={false}
-        interactionKind={PopoverInteractionKind.CLICK}
-        isOpen={selected}
-        minimal
-        onClose={handleCloseMenu}
-        popoverClassName="table-download-popover"
-        position={Position.BOTTOM}
+    <Menu
+      items={downloadOptions}
+      onAction={(key) => downloadFile(key as FileDownloadType)}
+    >
+      <Button
+        icon={DownloadIcon}
+        isDisabled={props.columns.length === 0}
+        variant="ghost"
       >
-        <ActionItem
-          borderRadius={props.borderRadius}
-          className="t--table-download-btn"
-          icon="download"
-          selectMenu={selectMenu}
-          selected={selected}
-          title="Download"
-          width={16}
-        />
-        <DropDownWrapper>
-          {dowloadOptions.map((item: DownloadOptionProps, index: number) => {
-            return (
-              <OptionWrapper
-                className={`${Classes.POPOVER_DISMISS} t--table-download-data-option`}
-                key={index}
-                onClick={() => {
-                  downloadFile(item.value);
-                }}
-              >
-                {item.label}
-              </OptionWrapper>
-            );
-          })}
-        </DropDownWrapper>
-      </Popover>
-      <PopoverStyles
-        borderRadius={props.borderRadius}
-        id="table-download-popover"
-      />
-    </>
+        Download
+      </Button>
+      <MenuList>
+        {(item: DownloadOptionProps) => (
+          <Item key={item.key}>{item.label}</Item>
+        )}
+      </MenuList>
+    </Menu>
   );
 }
 

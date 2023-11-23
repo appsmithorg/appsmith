@@ -387,23 +387,6 @@ export const OptionWrapper = styled.div<{
   }
 `;
 
-export const IconOptionWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  cursor: pointer;
-`;
-
-export const PaginationWrapper = styled.div`
-  box-sizing: border-box;
-  display: flex;
-  width: 100%;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 8px;
-  color: var(--wds-color-text-light);
-`;
-
 export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
@@ -594,7 +577,7 @@ export const CellWrapper = styled.div<{
     height: ${(props) =>
       props.imageSize ? ImageSizes[props.imageSize] : ImageSizes.DEFAULT};
     margin: 0 5px 0 0;
-    ${BORDER_RADIUS}
+    ${BORDER_RADIUS};
     object-fit: contain;
   }
   video {
@@ -677,59 +660,6 @@ export const CellCheckbox = styled.div`
   }
 `;
 
-const MIN_WIDTH_TO_SHOW_PAGE_ITEMS = 700;
-
-export const TableHeaderWrapper = styled.div<{
-  serverSidePaginationEnabled: boolean;
-  width: number;
-  tableSizes: TableSizes;
-  backgroundColor?: Color;
-}>`
-  position: relative;
-  display: flex;
-  width: 100%;
-  .show-page-items {
-    display: ${(props) =>
-      props.width < MIN_WIDTH_TO_SHOW_PAGE_ITEMS ? "none" : "flex"};
-  }
-  height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
-  min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
-`;
-
-export const TableHeaderInnerWrapper = styled.div<{
-  serverSidePaginationEnabled: boolean;
-  width: number;
-  tableSizes: TableSizes;
-  backgroundColor?: Color;
-  variant?: TableVariant;
-}>`
-  position: relative;
-  display: flex;
-  width: 100%;
-  height: 100%;
-  border-bottom: ${(props) =>
-    props.variant !== "VARIANT2" &&
-    `1px solid var(--wds-color-border-onaccent)`};
-`;
-
-export const CommonFunctionsMenuWrapper = styled.div<{
-  tableSizes: TableSizes;
-}>`
-  display: flex;
-  align-items: center;
-  height: 100%;
-
-  & .bp3-popover-target,
-  & .bp3-popover-wrapper {
-    height: 100%;
-  }
-
-  & .bp3-popover-target {
-    display: flex;
-    align-items: center;
-  }
-`;
-
 export const TableHeaderContentWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -781,18 +711,6 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
     font-size: ${HEADER_CONTROL_FONT_SIZE} !important;
     color: ${Colors.GREY_10};
   }
-`;
-
-export const MenuCategoryWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  color: ${Colors.RIVER_BED};
-`;
-
-export const MenuStyledOptionHeader = styled.div`
-  font-weight: 600;
 `;
 
 export const TooltipContentWrapper = styled.div<{ width?: number }>`

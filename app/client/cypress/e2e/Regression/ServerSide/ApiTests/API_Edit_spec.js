@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -32,7 +33,7 @@ describe("API Panel Test Functionality", function () {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    entityExplorer.SelectEntityByName("FirstAPI", "Queries/JS");
+    EditorNavigation.SelectEntityByName("FirstAPI", EntityType.Api);
     entityExplorer.RenameEntityFromExplorer("FirstAPI", "SecondAPI", true);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",

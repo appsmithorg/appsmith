@@ -38,6 +38,7 @@ import {
   moveActionError,
   moveActionSuccess,
   updateAction,
+  updateActionData,
   updateActionProperty,
   updateActionSuccess,
 } from "actions/pluginActionActions";
@@ -752,6 +753,16 @@ export function* refactorActionName(
           actionId: id,
         },
       });
+      yield put(
+        updateActionData([
+          {
+            entityName: newName,
+            dataPath: "data",
+            data: undefined,
+            dataPathRef: `${oldName}.data`,
+          },
+        ]),
+      );
       if (currentPageId === pageId) {
         // @ts-expect-error: refactorResponse is of type unknown
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -47,7 +51,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
-    _.entityExplorer.SelectEntityByName("Text2");
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
 
     cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
@@ -113,7 +117,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   it("6. Datepicker input value changes to work with selected date formats", function () {
     _.agHelper.AddDsl("datePickerdsl");
 
-    _.entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     _.propPane.EnterJSContext("Min Date", "2021-01-01");
     _.propPane.EnterJSContext("Max Date", "2021-10-10");
     cy.selectDateFormat("DD/MM/YYYY HH:mm");

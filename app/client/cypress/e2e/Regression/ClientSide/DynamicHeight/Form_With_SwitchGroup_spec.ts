@@ -1,22 +1,29 @@
 import {
-  entityExplorer,
-  locators,
   agHelper,
-  propPane,
-  pageSettings,
   draggableWidgets,
+  locators,
+  pageSettings,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for Form/Switch", function () {
     agHelper.AddDsl("dynamicHeightFormSwitchdsl");
 
-    entityExplorer.SelectEntityByName("Form1", "Widgets");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.FORM))
       .then((formheight) => {
         propPane.SelectPropertiesDropDown("height", "Auto Height");
-        entityExplorer.SelectEntityByName("SwitchGroup1", "Form1");
+        EditorNavigation.SelectEntityByName(
+          "SwitchGroup1",
+          EntityType.Widget,
+          {},
+          ["Form1"],
+        );
         propPane.SelectPropertiesDropDown("height", "Auto Height");
         agHelper
           .GetWidgetCSSHeight(
@@ -72,7 +79,7 @@ describe("Dynamic Height Width validation", function () {
     );
     agHelper.AssertElementLength(locators._modal, 1);
     //propPane.TogglePropertyState("Switch","On");
-    entityExplorer.SelectEntityByName("Modal1");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     agHelper.GetNClick(locators._closeModal, 0, true);
   });

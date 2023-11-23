@@ -1,12 +1,14 @@
 import {
   agHelper,
   assertHelper,
-  propPane,
   deployMode,
-  locators,
-  entityExplorer,
   draggableWidgets,
+  locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const widgetLocators = require("../../../../../locators/Widgets.json");
 
@@ -25,17 +27,17 @@ describe("Input widget test with default value from chart datapoint", () => {
   });
 
   it("1. Chart widget - Input widget test with default value from another Input widget", () => {
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Default value",
       dataSet.bindChartData + "}}",
     );
     assertHelper.AssertNetworkStatus("@updateLayout");
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.TogglePropertyState("Show Labels", "On");
     propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
     agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);
-    entityExplorer.SelectEntityByName("Input2");
+    EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Default value",
       dataSet.bindingSeriesTitle + "}}",
@@ -60,7 +62,7 @@ describe("Input widget test with default value from chart datapoint", () => {
 
   it("2. onDataPointClick should work and respond with x, y, seriesTitle, and rawEventData (in case of custom fusion chart).", () => {
     agHelper.AddDsl("chartCustomSankeyDataDsl");
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     agHelper.Sleep(1500); //waiting for chart to load!
     propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
     agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);

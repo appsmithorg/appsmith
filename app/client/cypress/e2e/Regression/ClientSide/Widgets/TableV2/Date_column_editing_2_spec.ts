@@ -1,13 +1,15 @@
 import {
-  table,
-  entityExplorer,
   agHelper,
+  dataSources,
   locators,
   propPane,
-  dataSources,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Table widget date column inline editing functionality", () => {
   before(() => {
@@ -15,12 +17,12 @@ describe("Table widget date column inline editing functionality", () => {
   });
 
   it("1. should check visible property control functionality", () => {
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Visible", "Off");
     agHelper.Sleep(1000);
     table.AssertHiddenColumns(["release_date"]);
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.NavigateBackToPropertyPane();
     table.EditColumn("release_date", "v2");
     propPane.TogglePropertyState("Visible", "On");
@@ -29,7 +31,7 @@ describe("Table widget date column inline editing functionality", () => {
   });
 
   it("2. should check min date and max date property control functionality", () => {
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.TogglePropertyState("Editable", "On");
     agHelper.AssertElementExist(
       propPane._propertyPanePropertyControl("validation", "mindate"),
@@ -64,7 +66,7 @@ describe("Table widget date column inline editing functionality", () => {
   });
 
   it("3. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.NavigateBackToPropertyPane();
     propPane.UpdatePropertyFieldValue(
       "Table data",

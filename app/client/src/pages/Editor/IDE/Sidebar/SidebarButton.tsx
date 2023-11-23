@@ -49,6 +49,7 @@ function SidebarButton(props: Props) {
       >
         <IconContainer
           className={`t--sidebar-${props.title || props.tooltip}`}
+          data-selected={props.selected}
           onClick={props.onClick}
           selected={props.selected}
         >
