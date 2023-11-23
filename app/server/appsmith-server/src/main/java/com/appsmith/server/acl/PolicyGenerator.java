@@ -59,6 +59,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPROVAL_REQUESTS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_MODULES;
 import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_PACKAGES;
@@ -145,6 +146,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(MANAGE_WORKFLOWS, EXECUTE_WORKFLOWS);
 
         lateralGraph.addEdge(READ_WORKFLOWS, EXECUTE_WORKFLOWS);
+        lateralGraph.addEdge(READ_WORKFLOWS, READ_HISTORY_WORKFLOWS);
 
         lateralGraph.addEdge(DELETE_WORKFLOWS, MANAGE_WORKFLOWS);
         lateralGraph.addEdge(DELETE_WORKFLOWS, READ_WORKFLOWS);

@@ -29,6 +29,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
+import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static java.lang.Boolean.TRUE;
@@ -86,7 +87,8 @@ public class CrudWorkflowServiceTest {
                             DELETE_WORKFLOWS.getValue(),
                             EXPORT_WORKFLOWS.getValue(),
                             EXECUTE_WORKFLOWS.getValue(),
-                            RESOLVE_WORKFLOWS.getValue());
+                            RESOLVE_WORKFLOWS.getValue(),
+                            READ_HISTORY_WORKFLOWS.getValue());
 
                     assertThat(userPermissions).containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
                 })

@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.QWorkflow;
 import com.appsmith.server.domains.Workflow;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -34,5 +35,19 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
                 Criteria.where(fieldName(QWorkflow.workflow.workspaceId)).is(workspaceId);
 
         return queryAll(List.of(workspaceCriterion), permission);
+    }
+
+    @Override
+    public Flux<Workflow> findAllById(
+            List<String> workflowIds, Optional<AclPermission> permission, Optional<List<String>> includeFields) {
+        Criteria workflowIdCriteria =
+                Criteria.where(fieldName(QWorkflow.workflow.id)).in(workflowIds);
+        return queryAll(List.of(workflowIdCriteria), includeFields, permission, Optional.empty());
+    }
+
+    @Override
+    public Flux<Workflow> findAll(
+            Optional<AclPermission> permission, Optional<List<String>> includeFields, Optional<Sort> sortBy) {
+        return queryAll(List.of(), includeFields, permission, sortBy);
     }
 }

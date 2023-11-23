@@ -5,10 +5,13 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
+import com.appsmith.server.workflows.proxy.ProxyWorkflowService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,8 +35,11 @@ public class WorkflowController {
 
     private final CrudWorkflowService crudWorkflowService;
 
-    public WorkflowController(CrudWorkflowService crudWorkflowService) {
+    private final ProxyWorkflowService proxyWorkflowService;
+
+    public WorkflowController(CrudWorkflowService crudWorkflowService, ProxyWorkflowService proxyWorkflowService) {
         this.crudWorkflowService = crudWorkflowService;
+        this.proxyWorkflowService = proxyWorkflowService;
     }
 
     @JsonView(Views.Public.class)
@@ -89,5 +95,24 @@ public class WorkflowController {
         return crudWorkflowService
                 .deleteWorkflow(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/history")
+    public Mono<ResponseDTO<JSONObject>> getWorkflowHistory(@RequestParam MultiValueMap<String, String> filters) {
+        return proxyWorkflowService
+                .getWorkflowHistory(filters)
+                .map(workflowHistory -> new ResponseDTO<>(HttpStatus.OK.value(), workflowHistory, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/history/{id}")
+    public Mono<ResponseDTO<JSONObject>> getWorkflowHistoryForWorkflowId(
+            @PathVariable String id, @RequestParam MultiValueMap<String, String> filters) {
+        return proxyWorkflowService
+                .getWorkflowHistoryByWorkflowId(id, filters)
+                .map(workflowHistory -> new ResponseDTO<>(HttpStatus.OK.value(), workflowHistory, null));
     }
 }
