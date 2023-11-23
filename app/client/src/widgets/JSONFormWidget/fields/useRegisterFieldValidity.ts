@@ -8,11 +8,11 @@ import { klona } from "klona";
 import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
 
-export type UseRegisterFieldValidityProps = {
+export interface UseRegisterFieldValidityProps {
   isValid: boolean;
   fieldName: ControllerProps["name"];
   fieldType: FieldType;
-};
+}
 /**
  * This hook is used to register the isValid property of the field
  * the meta property "fieldState".

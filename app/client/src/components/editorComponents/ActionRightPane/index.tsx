@@ -1,19 +1,14 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
-import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import { Classes, getTypographyByKey } from "design-system-old";
-import { Divider, Icon, Link, Text } from "design-system";
-import { useState } from "react";
+import { getTypographyByKey } from "design-system-old";
+import { Divider } from "design-system";
 import SuggestedWidgets from "./SuggestedWidgets";
-import type { ReactNode } from "react";
-import { useEffect } from "react";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
-  BACK_TO_CANVAS,
   BINDINGS_DISABLED_TOOLTIP,
   BINDING_SECTION_LABEL,
   createMessage,
@@ -25,21 +20,15 @@ import type {
   SuggestedWidget,
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
-import {
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { builderURL } from "RouteBuilder";
-import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
-import DatasourceStructureHeader from "pages/Editor/Explorer/Datasources/DatasourceStructureHeader";
+import { getPagePermissions } from "selectors/editorSelectors";
+import DatasourceStructureHeader from "pages/Editor/DatasourceInfo/DatasourceStructureHeader";
 import {
   DatasourceStructureContainer as DataStructureList,
   SCHEMALESS_PLUGINS,
-} from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { DatasourceStructureContext } from "pages/Editor/Explorer/Datasources/DatasourceStructureContainer";
-import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+} from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import {
   getDatasourceStructureById,
+  getIsFetchingDatasourceStructure,
   getPluginDatasourceComponentFromId,
   getPluginNameFromId,
 } from "@appsmith/selectors/entitiesSelector";
@@ -53,13 +42,18 @@ import {
 } from "utils/storage";
 import { SCHEMA_SECTION_ID } from "entities/Action";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Tooltip } from "design-system";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import history from "utils/history";
-import { SignpostingWalkthroughConfig } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { DatasourceStructureContext } from "entities/Datasource";
+import Collapsible, {
+  CollapsibleGroup,
+  CollapsibleGroupContainer,
+  DisabledCollapsible,
+} from "components/common/Collapsible";
 
 const SCHEMA_GUIDE_GIF = `${ASSETS_CDN_URL}/schema.gif`;
 
@@ -112,49 +106,6 @@ const SideBar = styled.div`
   }
 `;
 
-const BackToCanvasLink = styled(Link)`
-  margin-left: ${(props) => props.theme.spaces[1] + 1}px;
-  margin-top: ${(props) => props.theme.spaces[11]}px;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
-`;
-
-const Label = styled.span`
-  cursor: pointer;
-`;
-
-const CollapsibleWrapper = styled.div<{
-  isOpen: boolean;
-  isDisabled?: boolean;
-}>`
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  ${(props) => !!props.isDisabled && `opacity: 0.6`};
-
-  &&&&&& .${BPClasses.COLLAPSE} {
-    flex-grow: 1;
-    overflow-y: auto !important;
-  }
-
-  .${BPClasses.COLLAPSE_BODY} {
-    padding-top: ${(props) => props.theme.spaces[3]}px;
-    height: 100%;
-  }
-
-  & > .icon-text:first-child {
-    color: var(--ads-v2-color-fg);
-    ${getTypographyByKey("h4")}
-    cursor: pointer;
-    .${Classes.ICON} {
-      ${(props) => !props.isOpen && `transform: rotate(-90deg);`}
-    }
-
-    .label {
-      padding-left: ${(props) => props.theme.spaces[1] + 1}px;
-    }
-  }
-`;
-
 const Placeholder = styled.div`
   display: flex;
   justify-content: center;
@@ -166,89 +117,30 @@ const Placeholder = styled.div`
 `;
 
 const DataStructureListWrapper = styled.div`
-  overflow-y: scroll;
+  overflow-y: hidden;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
-const SchemaSideBarSection = styled.div<{ height: number; marginTop?: number }>`
+export const CollapsibleSection = styled.div<{
+  height: string;
+  marginTop?: number;
+}>`
   margin-top: ${(props) => props?.marginTop && `${props.marginTop}px`};
   height: auto;
   display: flex;
   width: 100%;
   flex-direction: column;
-  ${(props) => props.height && `max-height: ${props.height}%;`}
+  ${(props) => props.height && `height: ${props.height};`}
+  & > div {
+    height: 100%;
+  }
 `;
 
-type CollapsibleProps = {
-  expand?: boolean;
-  children: ReactNode;
-  label: string;
-  CustomLabelComponent?: (props: any) => JSX.Element;
-  isDisabled?: boolean;
-  datasourceId?: string;
-};
-
-type DisabledCollapsibleProps = {
-  label: string;
-  tooltipLabel?: string;
-};
-
-export function Collapsible({
-  children,
-  CustomLabelComponent,
-  datasourceId,
-  expand = true,
-  label,
-}: CollapsibleProps) {
-  const [isOpen, setIsOpen] = useState(!!expand);
-
-  useEffect(() => {
-    setIsOpen(expand);
-  }, [expand]);
-
-  return (
-    <CollapsibleWrapper isOpen={isOpen}>
-      <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon
-          className="collapsible-icon"
-          name={isOpen ? "down-arrow" : "arrow-right-s-line"}
-          size="lg"
-        />
-        {!!CustomLabelComponent ? (
-          <CustomLabelComponent
-            datasourceId={datasourceId}
-            onRefreshCallback={() => setIsOpen(true)}
-          />
-        ) : (
-          <Text className="label" kind="heading-xs">
-            {label}
-          </Text>
-        )}
-      </Label>
-      <Collapse isOpen={isOpen} keepChildrenMounted>
-        {children}
-      </Collapse>
-    </CollapsibleWrapper>
-  );
-}
-
-export function DisabledCollapsible({
-  label,
-  tooltipLabel = "",
-}: DisabledCollapsibleProps) {
-  return (
-    <Tooltip content={tooltipLabel}>
-      <CollapsibleWrapper isDisabled isOpen={false}>
-        <Label className="icon-text">
-          <Icon name="arrow-right-s-line" size="lg" />
-          <Text className="label" kind="heading-xs">
-            {label}
-          </Text>
-        </Label>
-      </CollapsibleWrapper>
-    </Tooltip>
-  );
-}
+const StyledDivider = styled(Divider)`
+  display: block;
+`;
 
 export function useEntityDependencies(actionName: string) {
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
@@ -272,6 +164,8 @@ export function useEntityDependencies(actionName: string) {
 
 function ActionSidebar({
   actionName,
+  actionRightPaneBackLink,
+  additionalSections,
   context,
   datasourceId,
   hasConnections,
@@ -286,16 +180,14 @@ function ActionSidebar({
   datasourceId: string;
   pluginId: string;
   context: DatasourceStructureContext;
+  additionalSections?: React.ReactNode;
+  actionRightPaneBackLink: React.ReactNode;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
-  const pageId = useSelector(getCurrentPageId);
   const user = useSelector(getCurrentUser);
-  const {
-    isOpened: isWalkthroughOpened,
-    popFeature,
-    pushFeature,
-  } = useContext(WalkthroughContext) || {};
+  const { pushFeature } = useContext(WalkthroughContext) || {};
+  const schemaRef = useRef(null);
   const params = useParams<{
     pageId: string;
     apiId?: string;
@@ -308,6 +200,10 @@ function ActionSidebar({
 
   const pluginDatasourceForm = useSelector((state) =>
     getPluginDatasourceComponentFromId(state, pluginId || ""),
+  );
+
+  const isLoadingSchema = useSelector((state: AppState) =>
+    getIsFetchingDatasourceStructure(state, datasourceId),
   );
 
   const datasourceStructure = useSelector((state) =>
@@ -367,25 +263,9 @@ function ActionSidebar({
         eventParams: {
           [FEATURE_WALKTHROUGH_KEYS.ds_schema]: true,
         },
-        delay: 5000,
+        delay: 2500,
       });
   };
-
-  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
-  const adaptiveSignposting = useSelector(adaptiveSignpostingEnabled);
-  const checkAndShowBackToCanvasWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.back_to_canvas,
-    );
-    !isFeatureWalkthroughShown &&
-      pushFeature &&
-      pushFeature(SignpostingWalkthroughConfig.BACK_TO_CANVAS);
-  };
-  useEffect(() => {
-    if (!hasWidgets && adaptiveSignposting && signpostingEnabled) {
-      checkAndShowBackToCanvasWalkthrough();
-    }
-  }, [hasWidgets, adaptiveSignposting, signpostingEnabled]);
 
   const showSchema =
     pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm &&
@@ -399,7 +279,12 @@ function ActionSidebar({
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canEditPage = hasManagePagePermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canEditPage = getHasManagePagePermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
 
   const showSuggestedWidgets =
     canEditPage && hasResponse && suggestedWidgets && !!suggestedWidgets.length;
@@ -415,64 +300,68 @@ function ActionSidebar({
     return <Placeholder>{createMessage(NO_CONNECTIONS)}</Placeholder>;
   }
 
-  const handleCloseWalkthrough = () => {
-    if (isWalkthroughOpened && popFeature) {
-      popFeature();
-    }
-  };
-
   return (
     <SideBar>
-      <BackToCanvasLink
-        id="back-to-canvas"
-        kind="secondary"
-        onClick={() => {
-          history.push(builderURL({ pageId }));
+      {actionRightPaneBackLink}
+      <CollapsibleGroupContainer>
+        {additionalSections && (
+          <>
+            <CollapsibleGroup maxHeight={"50%"}>
+              {additionalSections}
+            </CollapsibleGroup>
+            <StyledDivider />
+          </>
+        )}
+        <CollapsibleGroup height={additionalSections ? "50%" : "100%"}>
+          {showSchema && (
+            <CollapsibleSection
+              data-testId="datasource-schema-container"
+              height={
+                datasourceStructure?.tables?.length && !isLoadingSchema
+                  ? "50%"
+                  : "auto"
+              }
+              id={SCHEMA_SECTION_ID}
+              ref={schemaRef}
+            >
+              <Collapsible
+                CustomLabelComponent={DatasourceStructureHeader}
+                containerRef={schemaRef}
+                datasource={{ id: datasourceId }}
+                expand={!showSuggestedWidgets}
+                label="Schema"
+              >
+                <DataStructureListWrapper>
+                  <DataStructureList
+                    context={context}
+                    currentActionId={params?.queryId || ""}
+                    datasourceId={datasourceId || ""}
+                    datasourceStructure={datasourceStructure}
+                    pluginName={pluginName}
+                    step={0}
+                  />
+                </DataStructureListWrapper>
+              </Collapsible>
+            </CollapsibleSection>
+          )}
 
-          handleCloseWalkthrough();
-        }}
-        startIcon="arrow-left-line"
-      >
-        {createMessage(BACK_TO_CANVAS)}
-      </BackToCanvasLink>
-
-      {showSchema && (
-        <SchemaSideBarSection height={50} id={SCHEMA_SECTION_ID}>
-          <Collapsible
-            CustomLabelComponent={DatasourceStructureHeader}
-            datasourceId={datasourceId}
-            expand={!showSuggestedWidgets}
-            label="Schema"
-          >
-            <DataStructureListWrapper>
-              <DataStructureList
-                context={context}
-                currentActionId={params?.queryId || ""}
-                datasourceId={datasourceId || ""}
-                datasourceStructure={datasourceStructure}
-                pluginName={pluginName}
-                step={0}
+          {showSchema && <StyledDivider />}
+          {showSuggestedWidgets ? (
+            <CollapsibleSection height={"40%"} marginTop={12}>
+              <SuggestedWidgets
+                actionName={actionName}
+                hasWidgets={hasWidgets}
+                suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
               />
-            </DataStructureListWrapper>
-          </Collapsible>
-        </SchemaSideBarSection>
-      )}
-
-      {showSchema && <Divider />}
-      {showSuggestedWidgets ? (
-        <SchemaSideBarSection height={40} marginTop={12}>
-          <SuggestedWidgets
-            actionName={actionName}
-            hasWidgets={hasWidgets}
-            suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
-          />
-        </SchemaSideBarSection>
-      ) : (
-        <DisabledCollapsible
-          label={createMessage(BINDING_SECTION_LABEL)}
-          tooltipLabel={createMessage(BINDINGS_DISABLED_TOOLTIP)}
-        />
-      )}
+            </CollapsibleSection>
+          ) : (
+            <DisabledCollapsible
+              label={createMessage(BINDING_SECTION_LABEL)}
+              tooltipLabel={createMessage(BINDINGS_DISABLED_TOOLTIP)}
+            />
+          )}
+        </CollapsibleGroup>
+      </CollapsibleGroupContainer>
     </SideBar>
   );
 }

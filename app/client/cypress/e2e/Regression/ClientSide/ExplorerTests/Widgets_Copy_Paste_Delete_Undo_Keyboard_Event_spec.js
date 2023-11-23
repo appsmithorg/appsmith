@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
@@ -13,9 +17,9 @@ before(() => {
 describe("Test Suite to validate copy/delete/undo functionalites", function () {
   it("1. Drag and drop form widget and validate copy widget via toast message", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    entityExplorer.SelectEntityByName("Form1", "Widgets");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
     propPane.RenameWidget("Form1", "FormTest");
-    entityExplorer.SelectEntityByName("FormTest", "Widgets");
+    EditorNavigation.SelectEntityByName("FormTest", EntityType.Widget);
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
@@ -30,8 +34,9 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       200,
     );
     cy.wait(1000);
-    entityExplorer.ExpandCollapseEntity("FormTest");
-    entityExplorer.SelectEntityByName("FormTestCopy");
+    EditorNavigation.SelectEntityByName("FormTestCopy", EntityType.Widget, {}, [
+      "FormTest",
+    ]);
     cy.get("body").type("{del}", { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -40,8 +45,9 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     );
     agHelper.Sleep();
     cy.get("body").type(`{${modifierKey}}z`, { force: true });
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("FormTest");
+    EditorNavigation.SelectEntityByName("FormTestCopy", EntityType.Widget, {}, [
+      "FormTest",
+    ]);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "FormTestCopy",
       action: "Show bindings",
@@ -58,5 +64,6 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       cy.get(".bp3-input").first().click({ force: true });
       cy.get(".bp3-input").first().type(`{${modifierKey}}v`, { force: true });
     });
+    agHelper.RemoveUIElement("Toast", "7 widgets are added back.");
   });
 });

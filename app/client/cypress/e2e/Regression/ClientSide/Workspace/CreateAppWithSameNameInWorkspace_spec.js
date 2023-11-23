@@ -3,6 +3,7 @@ import homePage from "../../../../locators/HomePage";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Create workspace and a new app / delete and recreate app", function () {
   let workspaceId;
@@ -13,6 +14,8 @@ describe("Create workspace and a new app / delete and recreate app", function ()
     cy.get("@guid").then((uid) => {
       workspaceId = uid;
       appid = uid;
+      featureFlagIntercept({ license_gac_enabled: true });
+      cy.wait(2000);
       _.homePage.CreateNewWorkspace(uid);
       //Automated as part of Bug19506
       cy.get(application.shareButton).first().click({ force: true });

@@ -6,7 +6,6 @@ import ecma from "constants/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
-import xmlJs from "constants/defs/xmlParser.json";
 import forge from "constants/defs/forge.json";
 import browser from "constants/defs/browser.json";
 import {
@@ -64,7 +63,6 @@ function startServer(plugins = {}, scripts?: string[]) {
       lodash,
       base64,
       moment,
-      xmlJs,
       forge,
     ] as Def[],
     plugins: plugins,

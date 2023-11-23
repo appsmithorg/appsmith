@@ -92,7 +92,6 @@ describe("Text Widget color/font/alignment Functionality", function () {
     cy.readTextDataValidateCSS("color", "rgb(219, 234, 254)");
     propPane.EnterJSContext("Text color", "purple");
     agHelper.Sleep(1000);
-    cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
 
     //Checks the cell background with color picker
@@ -113,8 +112,6 @@ describe("Text Widget color/font/alignment Functionality", function () {
 
     //Toggle JS check with cell background:
     propPane.EnterJSContext("Background color", "purple");
-
-    cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
   });
 

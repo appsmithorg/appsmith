@@ -3,12 +3,14 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   entityItems,
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate MySQL query UI flows - Bug 14054", () => {
   let dsName: any;
@@ -76,7 +78,10 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("SuggestedWidgetBinding");
+    EditorNavigation.SelectEntityByName(
+      "SuggestedWidgetBinding",
+      EntityType.Query,
+    );
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -84,7 +89,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
   });
 
   after("Verify Deletion of the datasource", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
     agHelper.ValidateToastMessage(
       "Cannot delete datasource since it has 1 action(s) using it.",
     ); //table is 1 action

@@ -8,7 +8,9 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 import { DISCORD_URL } from "constants/ThirdPartyConstants";
 
-const DiscordIcon = importSvg(() => import("assets/icons/help/discord.svg"));
+const DiscordIcon = importSvg(
+  async () => import("assets/icons/help/discord.svg"),
+);
 
 const Container = styled.div`
   display: flex;

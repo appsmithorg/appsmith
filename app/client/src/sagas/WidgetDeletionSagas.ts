@@ -5,7 +5,10 @@ import type {
 import { updateAndSaveLayout } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type {
+  ApplicationPayload,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -48,16 +51,20 @@ import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
-type WidgetDeleteTabChild = {
+interface WidgetDeleteTabChild {
   id: string;
   index: number;
   isVisible: boolean;
   label: string;
   widgetId: string;
-};
+}
 
 function* deleteTabChildSaga(
   deleteChildTabAction: ReduxAction<WidgetDeleteTabChild>,
@@ -100,12 +107,15 @@ function* deleteTabChildSaga(
           tabsObj: updatedObj,
         },
       };
-      // Update flex layers of a canvas upon deletion of a widget.
-      const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-      const mainCanvasWidth: number = yield select(getCanvasWidth);
-      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
-      const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState =
-        yield call(
+      const layoutSystemType: LayoutSystemTypes =
+        yield select(getLayoutSystemType);
+      let finalData: CanvasWidgetsReduxState = parentUpdatedWidgets;
+      if (layoutSystemType === LayoutSystemTypes.AUTO) {
+        // Update flex layers of a canvas upon deletion of a widget.
+        const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+        const mainCanvasWidth: number = yield select(getCanvasWidth);
+        const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+        finalData = yield call(
           updateFlexLayersOnDelete,
           parentUpdatedWidgets,
           widgetId,
@@ -114,7 +124,14 @@ function* deleteTabChildSaga(
           mainCanvasWidth,
           metaProps,
         );
-      yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
+      } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+        finalData = updateAnvilParentPostWidgetDeletion(
+          finalData,
+          tabWidget.parentId,
+          widgetId,
+        );
+      }
+      yield put(updateAndSaveLayout(finalData));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
     }
   }
@@ -122,9 +139,8 @@ function* deleteTabChildSaga(
 
 function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const { widgetId } = deleteAction.payload;
-  const selectedWidget: FlattenedWidgetProps | undefined = yield select(
-    getSelectedWidget,
-  );
+  const selectedWidget: FlattenedWidgetProps | undefined =
+    yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
   const guidedTourEnabled: boolean = yield select(inGuidedTour);
   const isExploring: boolean = yield select(isExploringSelector);
@@ -209,9 +225,8 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
     if (!widgetId) {
-      const selectedWidget: FlattenedWidgetProps | undefined = yield select(
-        getSelectedWidget,
-      );
+      const selectedWidget: FlattenedWidgetProps | undefined =
+        yield select(getSelectedWidget);
       if (!selectedWidget) return;
 
       // if widget is not deletable, don't do anything
@@ -233,12 +248,17 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
-        const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-        const mainCanvasWidth: number = yield select(getCanvasWidth);
-        const metaProps: Record<string, any> = yield select(getWidgetsMeta);
-        // Update flex layers of a canvas upon deletion of a widget.
-        const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState =
-          updateFlexLayersOnDelete(
+        const layoutSystemType: LayoutSystemTypes =
+          yield select(getLayoutSystemType);
+        let finalData: CanvasWidgetsReduxState = finalWidgets;
+        if (layoutSystemType === LayoutSystemTypes.AUTO) {
+          const isMobile: boolean = yield select(
+            getIsAutoLayoutMobileBreakPoint,
+          );
+          const mainCanvasWidth: number = yield select(getCanvasWidth);
+          const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+          // Update flex layers of a canvas upon deletion of a widget.
+          finalData = updateFlexLayersOnDelete(
             finalWidgets,
             widgetId,
             parentId,
@@ -246,8 +266,19 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             mainCanvasWidth,
             metaProps,
           );
-        yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
+        } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+          finalData = updateAnvilParentPostWidgetDeletion(
+            finalData,
+            parentId,
+            widgetId,
+          );
+        }
+        yield put(updateAndSaveLayout(finalData));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
+
+        const currentApplication: ApplicationPayload = yield select(
+          getCurrentApplication,
+        );
         const analyticsEvent = isShortcut
           ? "WIDGET_DELETE_VIA_SHORTCUT"
           : "WIDGET_DELETE";
@@ -255,6 +286,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         AnalyticsUtil.logEvent(analyticsEvent, {
           widgetName: widget.widgetName,
           widgetType: widget.type,
+          templateTitle: currentApplication?.forkedFromTemplateTitle,
         });
         if (!disallowUndo) {
           // close property pane after delete
@@ -313,23 +345,35 @@ function* deleteAllSelectedWidgetsSaga(
       parentUpdatedWidgets,
       flattenedWidgets.map((widgets: any) => widgets.widgetId),
     );
+    let finalData = finalWidgets;
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
-    let widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState = finalWidgets;
     if (parentId) {
-      const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-      const mainCanvasWidth: number = yield select(getCanvasWidth);
-      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
-      for (const widgetId of selectedWidgets) {
-        widgetsAfterUpdatingFlexLayers = yield call(
-          updateFlexLayersOnDelete,
-          widgetsAfterUpdatingFlexLayers,
-          widgetId,
-          parentId,
-          isMobile,
-          mainCanvasWidth,
-          metaProps,
-        );
+      const layoutSystemType: LayoutSystemTypes =
+        yield select(getLayoutSystemType);
+      if (layoutSystemType === LayoutSystemTypes.AUTO) {
+        const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+        const mainCanvasWidth: number = yield select(getCanvasWidth);
+        const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+        for (const widgetId of selectedWidgets) {
+          finalData = yield call(
+            updateFlexLayersOnDelete,
+            finalWidgets,
+            widgetId,
+            parentId,
+            isMobile,
+            mainCanvasWidth,
+            metaProps,
+          );
+        }
+      } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+        for (const widgetId of selectedWidgets) {
+          finalData = updateAnvilParentPostWidgetDeletion(
+            finalData,
+            parentId,
+            widgetId,
+          );
+        }
       }
     }
     //Main canvas's minheight keeps varying, hence retrieving updated value
@@ -352,7 +396,7 @@ function* deleteAllSelectedWidgetsSaga(
     //   );
     // }
 
-    yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
+    yield put(updateAndSaveLayout(finalData));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));

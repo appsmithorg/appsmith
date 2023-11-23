@@ -128,9 +128,9 @@ const Map = (props: MapProps) => {
       />
       {map && (
         <MarkersOrCluster
-          key={`markers-${allowClustering ? "cluster" : "markers"}-${
-            markers?.length
-          }`}
+          key={`markers-${
+            allowClustering ? "cluster" : "markers"
+          }-${markers?.length}`}
           map={map}
           markers={markers}
           selectMarker={selectMarker}

@@ -1,14 +1,17 @@
 import {
   agHelper,
-  entityExplorer,
-  entityItems,
+  dataManager,
   dataSources,
   draggableWidgets,
-  propPane,
-  dataManager,
+  entityExplorer,
+  entityItems,
   homePage,
+  propPane,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
 
 describe("Validate Arango & CURL Import Datasources", () => {
   let dsName: any,
@@ -49,15 +52,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementVisibility(
-      entityExplorer._entityNameInExplorer(collectionName),
-    );
+
     //Add data into this newly created collection
     let curlDataAdd =
       `curl --request POST --url http://` +
@@ -138,19 +133,14 @@ describe("Validate Arango & CURL Import Datasources", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    }); //needed for the added data to reflect in template queries
   });
 
   it("2. Run Select, Create, Update, Delete & few more queries on the created collection + Widget Binding", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue("Default value", "Brazil");
-    entityExplorer.NavigateToSwitcher("Explorer");
-    //Select's own query
-    entityExplorer.ActionTemplateMenuByEntityName(
+    //Create a select query
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Select",
     );
@@ -174,7 +164,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(0, "Japan");
 
     //Insert a new place
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Create",
     );
@@ -228,7 +219,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.AssertQueryTableResponse(7, "Iguazu Falls"); //making sure new inserted record is also considered for filtering
 
     //Update Japan to Australia
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Update",
     );
@@ -255,27 +247,38 @@ describe("Validate Arango & CURL Import Datasources", () => {
     dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews();
 
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Select",
     );
+    query = `FOR document IN ${collectionName}
+    FILTER document._key == "1"
+    RETURN document`;
+    dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews(1);
     dataSources.AssertQueryTableResponse(3, "Australia");
 
     //Delete record from collection
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Delete",
     );
+    query = `REMOVE "1" in ${collectionName}`;
+    dataSources.EnterQuery(query);
     dataSources.RunQueryNVerifyResponseViews(1); //Removing Australia
 
     //Verify no records return for the deleted key
     query = `FOR document IN ${collectionName}
-    RETURN { country: document.country }`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    FILTER document._key == "1"
+    RETURN document`;
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       `${collectionName}`,
       "Select",
     );
+    dataSources.EnterQuery(query);
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
@@ -298,14 +301,14 @@ describe("Validate Arango & CURL Import Datasources", () => {
     agHelper.RefreshPage();
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.SelectEntityByName("Query6");
-    dataSources.FilterAndVerifyDatasourceSchemaBySearch(collectionName);
+    EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
+    //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
+    dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
     dataSources.RunQuery();
     dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
     propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
 
-    entityExplorer.SelectEntityByName("Query6");
+    EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
     dataSources.AddSuggestedWidget(
       Widgets.Table,
       dataSources._addSuggestedExisting,
@@ -335,14 +338,8 @@ describe("Validate Arango & CURL Import Datasources", () => {
       entityType: entityItems.Api,
     }); //Deleting api created
 
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    }); //needed for the deletion of ds to reflect
-    agHelper.AssertElementVisibility(dataSources._noSchemaAvailable(dsName));
     //Deleting datasource finally
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
 
     dataSources.StopNDeleteContainer(containerName);
   });

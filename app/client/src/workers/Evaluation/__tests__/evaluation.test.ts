@@ -1,11 +1,12 @@
 import type {
-  ConfigTree,
   WidgetEntity,
-  UnEvalTree,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  ActionEntityConfig,
+  ActionEntity,
+} from "@appsmith/entities/DataTree/types";
+import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
@@ -16,7 +17,15 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "WidgetProvider/factory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
-import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
+import klona from "klona";
+
+const klonaFullSpy = jest.fn();
+jest.mock("klona/full", () => ({
+  klona: (arg: any) => {
+    klonaFullSpy(arg);
+    return klona.klona(arg);
+  },
+}));
 
 const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
@@ -236,7 +245,7 @@ const BASE_WIDGET = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   meta: {},
 } as unknown as WidgetEntity;
 
@@ -244,7 +253,7 @@ const BASE_WIDGET_CONFIG = {
   logBlackList: {},
   widgetId: "randomID",
   type: "SKELETON_WIDGET",
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
 } as unknown as WidgetEntityConfig;
 
 export const BASE_ACTION: ActionEntity = {
@@ -258,7 +267,7 @@ export const BASE_ACTION: ActionEntity = {
   run: {},
   data: {},
   responseMeta: { isExecutionSuccess: false },
-  ENTITY_TYPE: ENTITY_TYPE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
 };
 export const BASE_ACTION_CONFIG: ActionEntityConfig = {
   actionId: "randomId",
@@ -267,7 +276,7 @@ export const BASE_ACTION_CONFIG: ActionEntityConfig = {
   name: "randomActionName",
   dynamicBindingPathList: [],
   pluginType: PluginType.API,
-  ENTITY_TYPE: ENTITY_TYPE.ACTION,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
   bindingPaths: {},
   reactivePaths: {
     isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -334,6 +343,9 @@ const initialdependencies = {
 };
 
 describe("DataTreeEvaluator", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   metaMock.mockImplementation((type) => {
     return WIDGET_CONFIG_MAP[type].metaProperties;
   });
@@ -359,6 +371,7 @@ describe("DataTreeEvaluator", () => {
       },
     },
     {},
+    new Set(),
   );
   const input1unEvalEntity = unEvalEntity;
   const input1ConfigEntity = configEntity;
@@ -374,6 +387,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text2: generateDataTreeWidget(
       {
@@ -385,6 +399,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text3: generateDataTreeWidget(
       {
@@ -396,6 +411,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Dropdown1: generateDataTreeWidget(
       {
@@ -415,6 +431,7 @@ describe("DataTreeEvaluator", () => {
         type: "SELECT_WIDGET",
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Table1: generateDataTreeWidget(
       {
@@ -430,6 +447,7 @@ describe("DataTreeEvaluator", () => {
         selectedRowIndices: undefined,
       },
       {},
+      new Set(),
     ).unEvalEntity,
     Text4: generateDataTreeWidget(
       {
@@ -447,6 +465,7 @@ describe("DataTreeEvaluator", () => {
         },
       },
       {},
+      new Set(),
     ).unEvalEntity,
   };
 
@@ -460,6 +479,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text2: generateDataTreeWidget(
       {
@@ -471,6 +491,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text3: generateDataTreeWidget(
       {
@@ -482,6 +503,7 @@ describe("DataTreeEvaluator", () => {
         type: "TEXT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Dropdown1: generateDataTreeWidget(
       {
@@ -501,6 +523,7 @@ describe("DataTreeEvaluator", () => {
         type: "SELECT_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Table1: generateDataTreeWidget(
       {
@@ -513,6 +536,7 @@ describe("DataTreeEvaluator", () => {
         type: "TABLE_WIDGET",
       },
       {},
+      new Set(),
     ).configEntity,
     Text4: generateDataTreeWidget(
       {
@@ -531,12 +555,19 @@ describe("DataTreeEvaluator", () => {
         dynamicTriggerPathList: [],
       },
       {},
+      new Set(),
     ).configEntity,
   };
 
   const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
-  evaluator.setupFirstTree(unEvalTree, configTree);
-  evaluator.evalAndValidateFirstTree();
+
+  it("Checks the number of clone operations in first tree flow", () => {
+    evaluator.setupFirstTree(unEvalTree, configTree);
+    evaluator.evalAndValidateFirstTree();
+    // Hard check to not regress on the number of clone operations. Try to improve this number.
+    expect(klonaFullSpy).toBeCalledTimes(41);
+  });
+
   it("Evaluates a binding in first run", () => {
     const evaluation = evaluator.evalTree;
     const dependencies = evaluator.dependencies;
@@ -562,11 +593,12 @@ describe("DataTreeEvaluator", () => {
         ...configTree.Text1,
       },
     };
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -598,11 +630,12 @@ describe("DataTreeEvaluator", () => {
       ["Text3.text"]: [],
     };
 
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -642,11 +675,12 @@ describe("DataTreeEvaluator", () => {
       "Input1.value": ["Input1.text"],
     };
 
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -702,12 +736,13 @@ describe("DataTreeEvaluator", () => {
       },
     } as unknown as ConfigTree;
     const expectedDependencies = { ...initialdependencies };
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
 
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -743,11 +778,12 @@ describe("DataTreeEvaluator", () => {
       },
     } as unknown as ConfigTree;
 
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -805,12 +841,13 @@ describe("DataTreeEvaluator", () => {
       },
     } as unknown as ConfigTree;
 
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      evaluator.setupUpdateTree(updatedUnEvalTree, updatedConfigTree);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
 
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree,
       unEvalUpdates,
     );
@@ -875,14 +912,12 @@ describe("DataTreeEvaluator", () => {
       },
     } as unknown as ConfigTree;
 
-    const {
-      evalOrder,
-      nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
-      unEvalUpdates,
-    } = evaluator.setupUpdateTree(updatedTree1, updatedConfigTree1);
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedTree1,
+      updatedConfigTree1,
+    );
     evaluator.evalAndValidateSubTree(
       evalOrder,
-      nonDynamicFieldValidationOrder2,
       updatedConfigTree1,
       unEvalUpdates,
     );
@@ -912,14 +947,10 @@ describe("DataTreeEvaluator", () => {
       },
     };
 
-    const {
-      evalOrder: newEvalOrder,
-      nonDynamicFieldValidationOrder,
-      unEvalUpdates: unEvalUpdates2,
-    } = evaluator.setupUpdateTree(updatedTree2, updatedConfigTree2);
+    const { evalOrder: newEvalOrder, unEvalUpdates: unEvalUpdates2 } =
+      evaluator.setupUpdateTree(updatedTree2, updatedConfigTree2);
     evaluator.evalAndValidateSubTree(
       newEvalOrder,
-      nonDynamicFieldValidationOrder,
       updatedConfigTree2,
       unEvalUpdates2,
     );
@@ -955,14 +986,10 @@ describe("DataTreeEvaluator", () => {
       },
     };
 
-    const {
-      evalOrder: newEvalOrder2,
-      nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
-      unEvalUpdates: unEvalUpdates3,
-    } = evaluator.setupUpdateTree(updatedTree3, updatedConfigTree3);
+    const { evalOrder: newEvalOrder2, unEvalUpdates: unEvalUpdates3 } =
+      evaluator.setupUpdateTree(updatedTree3, updatedConfigTree3);
     evaluator.evalAndValidateSubTree(
       newEvalOrder2,
-      nonDynamicFieldValidationOrder3,
       updatedConfigTree3,
       unEvalUpdates3,
     );
@@ -973,5 +1000,75 @@ describe("DataTreeEvaluator", () => {
     ]);
     // @ts-expect-error: Types are not available
     expect(dataTree3.Api2.config.body).toBe("{ 'name': \"Test\" }");
+  });
+  it("Prevents data mutation in eval cycle", () => {
+    const { configEntity, unEvalEntity } = generateDataTreeWidget(
+      {
+        ...BASE_WIDGET_CONFIG,
+        ...BASE_WIDGET,
+        widgetName: "TextX",
+        text: "{{Text1.text = 123}}",
+        dynamicBindingPathList: [{ key: "text" }],
+        type: "TEXT_WIDGET",
+      },
+      {},
+      new Set(),
+    );
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      TextX: unEvalEntity,
+    };
+    const updatedConfigTree = {
+      ...configTree,
+      TextX: configEntity,
+    };
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
+    expect(evalOrder).toContain("TextX.text");
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      updatedConfigTree,
+      unEvalUpdates,
+    );
+    const dataTree = evaluator.evalTree;
+    expect(dataTree).toHaveProperty("TextX.text", 123);
+    expect(dataTree).toHaveProperty("Text1.text", "Label");
+  });
+  it("Checks the number of clone operations performed in update tree flow", () => {
+    const { configEntity, unEvalEntity } = generateDataTreeWidget(
+      {
+        ...BASE_WIDGET_CONFIG,
+        ...BASE_WIDGET,
+        widgetName: "TextY",
+        text: "{{Text1.text = 123}}",
+        dynamicBindingPathList: [{ key: "text" }],
+        type: "TEXT_WIDGET",
+      },
+      {},
+      new Set(),
+    );
+    const updatedUnEvalTree = {
+      ...unEvalTree,
+      TextY: unEvalEntity,
+    };
+    const updatedConfigTree = {
+      ...configTree,
+      TextY: configEntity,
+    };
+    const { evalOrder, unEvalUpdates } = evaluator.setupUpdateTree(
+      updatedUnEvalTree,
+      updatedConfigTree,
+    );
+    expect(evalOrder).toContain("TextY.text");
+    expect(evalOrder.length).toBe(2);
+    evaluator.evalAndValidateSubTree(
+      evalOrder,
+      updatedConfigTree,
+      unEvalUpdates,
+    );
+    // Hard check to not regress on the number of clone operations. Try to improve this number.
+    expect(klonaFullSpy).toBeCalledTimes(7);
   });
 });

@@ -13,7 +13,7 @@ class WorkspaceLoader extends React.PureComponent<any, { Page: any }> {
 
   componentDidMount() {
     retryPromise(
-      () => import(/* webpackChunkName: "workspace" */ "./index"),
+      async () => import(/* webpackChunkName: "workspace" */ "./index"),
     ).then((module) => {
       this.setState({ Page: module.default });
     });

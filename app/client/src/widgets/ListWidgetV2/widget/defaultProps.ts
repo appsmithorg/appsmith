@@ -13,12 +13,14 @@ import { GridDefaults } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
+  FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
+} from "layoutSystems/common/utils/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 const DEFAULT_LIST_DATA = [
   {
@@ -53,6 +55,7 @@ export default {
   //positioning: Positioning.Fixed,
   minWidth: FILL_WIDGET_MIN_WIDTH,
   responsiveBehavior: ResponsiveBehavior.Fill,
+  flexVerticalAlignment: FlexVerticalAlignment.Top,
   dynamicBindingPathList: [
     {
       key: "currentItemsView",
@@ -83,7 +86,7 @@ export default {
     },
   },
   itemSpacing: 8,
-  templateBottomRow: 16,
+  templateHeight: 160,
   listData: DEFAULT_LIST_DATA,
   pageSize: DEFAULT_LIST_DATA.length,
   widgetName: "List",
@@ -267,9 +270,11 @@ export default {
           widget: FlattenedWidgetProps,
           widgets: CanvasWidgetsReduxState,
           parent: FlattenedWidgetProps,
-          isAutoLayout: boolean,
+          layoutSystemType: LayoutSystemTypes,
         ) => {
-          if (!isAutoLayout) return [];
+          if (layoutSystemType !== LayoutSystemTypes.AUTO) {
+            return [];
+          }
 
           const firstCanvas = get(widget, "children.0");
 
@@ -379,14 +384,14 @@ export default {
           widgetId: string,
           parentId: string,
           widgetPropertyMaps: { defaultPropertyMap: Record<string, string> },
-          isAutoLayout: boolean,
+          layoutSystemType: LayoutSystemTypes,
         ) => {
           if (!parentId) return { widgets };
           const widget = { ...widgets[widgetId] };
 
           widget.dynamicHeight = DynamicHeight.FIXED;
 
-          if (isAutoLayout) {
+          if (layoutSystemType === LayoutSystemTypes.AUTO) {
             widget.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
           }
 

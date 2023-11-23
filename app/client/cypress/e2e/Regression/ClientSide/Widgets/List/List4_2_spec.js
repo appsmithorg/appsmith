@@ -1,5 +1,9 @@
 /// <reference types="Cypress" />
 
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/listdsl.json");
@@ -24,7 +28,7 @@ describe("Container Widget Functionality", function () {
 
   it("2. List widget background colour and deploy ", function () {
     // Open Property pane
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     cy.moveToStyleTab();
     // Scroll down to Styles and Add background colour
@@ -50,7 +54,7 @@ describe("Container Widget Functionality", function () {
 
   it("3. Toggle JS - List widget background colour and deploy ", function () {
     // Open Property pane
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     cy.moveToStyleTab();
     // Scroll down to Styles and Add background colour
@@ -78,7 +82,7 @@ describe("Container Widget Functionality", function () {
 
   it("4. Add new item in the list widget array object", function () {
     // Open Property pane
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     //Add the new item in the list
     _.propPane.UpdatePropertyFieldValue(
@@ -92,7 +96,7 @@ describe("Container Widget Functionality", function () {
 
   it("5. Adding large item Spacing for item card", function () {
     // Open Property pane
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     _.propPane.MoveToTab("Style");
     // Scroll down to Styles and Add item spacing for item card
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", 12);
@@ -103,19 +107,13 @@ describe("Container Widget Functionality", function () {
   });
 
   it("6. Renaming the widget from Property pane and Entity explorer ", function () {
-    // Open Property pane
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
-
-    // Change the list widget name from property pane and Verify it
-    cy.widgetText(
-      "List2",
-      widgetsPage.listWidgetName,
-      widgetsPage.widgetNameSpan,
-    );
+    // Open Property pane & rename the list widget
+    _.propPane.RenameWidget("List1", "List2");
+    _.agHelper.Sleep(); //for renaming the widget
     // Change the list widget name from Entity Explorer
-    cy.renameEntity("List2", "List1");
+    _.entityExplorer.RenameEntityFromExplorer("List2", "List1", false);
     // Mouse over to list name
-    _.entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     cy.get(widgetsPage.listWidgetName)
       .first()
@@ -126,6 +124,5 @@ describe("Container Widget Functionality", function () {
       "List1",
     );
     _.deployMode.DeployApp();
-    _.deployMode.NavigateBacktoEditor();
   });
 });

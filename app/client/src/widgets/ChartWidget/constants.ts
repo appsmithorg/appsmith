@@ -44,6 +44,33 @@ export interface ChartSelectedDataPoint {
   rawEventData?: Record<string, unknown>;
 }
 
+// export type IFrameChartWidgetEventTypes = "click-event" | "load-complete" | "error"
+
+export interface CustomEChartClickEventData {
+  event: echarts.ECElementEvent; // Record<string, unknown>
+}
+export interface CustomEChartErrorData {
+  message: string;
+  stack: string;
+}
+
+export interface CustomEChartIFrameMessageData {
+  options: Record<string, unknown>;
+  shouldUpdateOptions: boolean;
+  shouldResize: boolean;
+  width: number;
+  height: number;
+}
+
+export interface CustomEChartIFrameMessage {
+  type: "click-event" | "load-complete" | "error" | "update-options";
+  data:
+    | CustomEChartClickEventData
+    | CustomEChartIFrameMessageData
+    | CustomEChartErrorData
+    | Record<string, unknown>;
+}
+
 export const messages = {
   ErrorTitle: "Error in Chart Data/Configuration",
   MoreDetails: "More Details",

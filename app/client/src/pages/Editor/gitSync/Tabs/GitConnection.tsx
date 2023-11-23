@@ -99,14 +99,14 @@ const RemoteUrlInfoWrapper = styled.div`
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
 
-type AuthorInfo = {
+interface AuthorInfo {
   authorName: string;
   authorEmail: string;
-};
+}
 
-type Props = {
+interface Props {
   isImport?: boolean;
-};
+}
 
 function GitConnection({ isImport }: Props) {
   const placeholderText = createMessage(REMOTE_URL_INPUT_PLACEHOLDER);
@@ -285,15 +285,19 @@ function GitConnection({ isImport }: Props) {
             importAppFromGit({
               payload: {
                 remoteUrl,
-                gitProfile: authorInfo,
-                isDefaultProfile: useGlobalConfigInputVal,
+                gitProfile: {
+                  ...authorInfo,
+                  useDefaultProfile: useGlobalConfigInputVal,
+                },
               },
             }),
           )
         : connectToGit({
             remoteUrl,
-            gitProfile: authorInfo,
-            isDefaultProfile: useGlobalConfigInputVal,
+            gitProfile: {
+              ...authorInfo,
+              useDefaultProfile: useGlobalConfigInputVal,
+            },
           });
     }
   }, [

@@ -24,10 +24,6 @@ export const FixedLayoutEditorWrapper = (props: WidgetProps) => {
       ? FixedLayoutEditorModalOnion
       : FixedLayoutEditorWidgetOnion;
   }, [props.type]);
-  const canvasWidget = props.type === "CANVAS_WIDGET";
-  if (canvasWidget) {
-    return props.children;
-  }
 
   return <WidgetOnion {...props}>{props.children}</WidgetOnion>;
 };

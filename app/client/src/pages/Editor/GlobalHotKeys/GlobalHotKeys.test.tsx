@@ -29,7 +29,7 @@ import {
 import { MockCanvas } from "test/testMockedWidgets";
 import { act, fireEvent, render, waitFor } from "test/testUtils";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import WidgetsEditorWrapper from "../WidgetsEditorWrapper";
+import IDE from "../IDE";
 import GlobalHotKeys from "./GlobalHotKeys";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -55,7 +55,7 @@ describe("Canvas Hot Keys", () => {
 
   function UpdatedEditor({ dsl }: any) {
     useMockDsl(dsl);
-    return <WidgetsEditorWrapper />;
+    return <IDE />;
   }
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
@@ -74,8 +74,8 @@ describe("Canvas Hot Keys", () => {
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
     }));
-    jest.mock("sagas/PageSagas", () => ({
-      ...jest.requireActual("sagas/PageSagas"),
+    jest.mock("@appsmith/sagas/PageSagas", () => ({
+      ...jest.requireActual("@appsmith/sagas/PageSagas"),
       default: mockGenerator,
     }));
   });

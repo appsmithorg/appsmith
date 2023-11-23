@@ -1,8 +1,12 @@
 import type {
+  JSActionEntityConfig,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
+import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get, find } from "lodash";
@@ -21,10 +25,6 @@ import {
   isJSAction,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import JSObjectCollection from "./Collection";
-import type {
-  JSActionEntityConfig,
-  JSActionEntity,
-} from "entities/DataTree/types";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.

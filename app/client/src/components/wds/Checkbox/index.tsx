@@ -7,7 +7,7 @@ import DisabledIndeterminate from "assets/icons/widget/checkbox//disabled-indete
 
 import { darkenColor } from "widgets/WidgetUtils";
 
-type StyledCheckboxProps = {
+interface StyledCheckboxProps {
   checked?: boolean;
   disabled?: boolean;
   borderRadius?: string;
@@ -15,7 +15,7 @@ type StyledCheckboxProps = {
   hasError?: boolean;
   accentColor?: string;
   inputRef?: (el: HTMLInputElement | null) => any;
-};
+}
 
 const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
   ${({ accentColor, alignIndicator, borderRadius, hasError }) => `

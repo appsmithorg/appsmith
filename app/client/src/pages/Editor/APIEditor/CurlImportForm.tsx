@@ -1,26 +1,17 @@
 import React from "react";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm, Form, Field } from "redux-form";
-import { connect } from "react-redux";
-import type { RouteComponentProps } from "react-router";
-import { withRouter } from "react-router";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
-import type { BuilderRouteParams } from "constants/routes";
 import type { curlImportFormValues } from "./helpers";
 import { curlImportSubmitHandler } from "./helpers";
-import { createNewApiName } from "utils/AppsmithUtils";
 import CurlLogo from "assets/images/Curl-logo.svg";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import { Button } from "design-system";
 import FormRow from "components/editorComponents/FormRow";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const MainConfiguration = styled.div`
   padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-7);
@@ -99,25 +90,28 @@ const MainContainer = styled.div`
     padding: 0px var(--ads-v2-spaces-7);
   }
 `;
-interface ReduxStateProps {
-  actions: ActionDataState;
-  initialValues: Record<string, unknown>;
+
+interface OwnProps {
   isImportingCurl: boolean;
   showDebugger: boolean;
+  curlImportSubmitHandler: (
+    values: curlImportFormValues,
+    dispatch: any,
+  ) => void;
+  initialValues: Record<string, unknown>;
+  closeEditorLink?: React.ReactNode;
 }
 
-export type StateAndRouteProps = ReduxStateProps &
-  RouteComponentProps<BuilderRouteParams>;
-
-type Props = StateAndRouteProps &
-  InjectedFormProps<curlImportFormValues, StateAndRouteProps>;
+type Props = OwnProps & InjectedFormProps<curlImportFormValues, OwnProps>;
 
 class CurlImportForm extends React.Component<Props> {
   render() {
-    const { handleSubmit, isImportingCurl, showDebugger } = this.props;
+    const { closeEditorLink, handleSubmit, isImportingCurl, showDebugger } =
+      this.props;
+
     return (
       <MainContainer>
-        <CloseEditor />
+        {closeEditorLink}
         <MainConfiguration>
           <FormRow className="form-row-header">
             <div
@@ -171,35 +165,6 @@ class CurlImportForm extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
-  const { pageId: destinationPageId } = props.match.params;
-
-  // Debugger render flag
-  const showDebugger = showDebuggerFlag(state);
-
-  if (destinationPageId) {
-    return {
-      actions: state.entities.actions,
-      initialValues: {
-        pageId: destinationPageId,
-        name: createNewApiName(state.entities.actions, destinationPageId),
-      },
-      isImportingCurl: state.ui.imports.isImportingCurl,
-      showDebugger,
-    };
-  }
-  return {
-    actions: state.entities.actions,
-    initialValues: {},
-    isImportingCurl: state.ui.imports.isImportingCurl,
-    showDebugger,
-  };
-};
-
-export default withRouter(
-  connect(mapStateToProps)(
-    reduxForm<curlImportFormValues, StateAndRouteProps>({
-      form: CURL_IMPORT_FORM,
-    })(CurlImportForm),
-  ),
-);
+export default reduxForm<curlImportFormValues, OwnProps>({
+  form: CURL_IMPORT_FORM,
+})(CurlImportForm);

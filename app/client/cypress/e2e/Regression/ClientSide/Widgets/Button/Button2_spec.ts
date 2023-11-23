@@ -1,18 +1,21 @@
 import {
   agHelper,
-  fakerHelper,
+  apiPage,
+  assertHelper,
+  dataManager,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  deployMode,
-  propPane,
-  apiPage,
+  fakerHelper,
   jsEditor,
-  dataManager,
   locators,
-  assertHelper,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
 import clocators from "../../../../../locators/commonlocators.json";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Button widget testcases", () => {
   before(() => {
@@ -39,7 +42,7 @@ describe("Button widget testcases", () => {
       shouldCreateNewJSObj: true,
       prettify: true,
     });
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     // on submitting the button run the query and assert the toast message
     propPane.EnterJSContext("onClick", "{{JSObject1.run()}}");
     deployMode.DeployApp();
@@ -71,8 +74,9 @@ describe("Button widget testcases", () => {
     // assert submit button us disabled
     agHelper.AssertElementEnabledDisabled(locators._buttonWidgetInForm);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Form1");
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     // disable form validation
     propPane.TogglePropertyState("Disabled invalid forms", "Off");
     // set invalid text
@@ -104,27 +108,28 @@ describe("Button widget testcases", () => {
       "Default value",
       "{{Api1.data[0].email}}",
     );
-    entityExplorer.SelectEntityByName("Api1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
     apiPage.RunAPI();
-    entityExplorer.SelectEntityByName("Form1");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
     // assert submit button us enabled
     agHelper.AssertElementEnabledDisabled(
       locators._buttonWidgetInForm,
       0,
       false,
     );
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       "{{Input1.text}}",
     );
-    entityExplorer.SelectEntityByName("Form1");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
     agHelper.ClickButton("Submit");
     // assert form value before deploy
     agHelper.ValidateToastMessage("@example");
     // assert after deploy
     deployMode.DeployApp();
+    agHelper.Sleep();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("@example");
     deployMode.NavigateBacktoEditor();
@@ -139,26 +144,30 @@ describe("Button widget testcases", () => {
       "Default value",
       "{{Api1.data[0].email}}",
     );
-    entityExplorer.SelectEntityByName("Api1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
     apiPage.RunAPI();
-    entityExplorer.ExpandCollapseEntity("Form1");
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       "{{Input1.text}}",
     );
     deployMode.DeployApp();
+    agHelper.Sleep();
     // set the email
     agHelper.ClickButton("Submit");
     agHelper.WaitUntilEleAppear(locators._toastMsg);
     // on submit form should be reset and default value should ahve populated
     agHelper.ValidateToastMessage("@example");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Form1");
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.TogglePropertyState("Reset form on success", "Off");
     deployMode.DeployApp();
+    agHelper.Sleep();
     // set the email
     agHelper.ClearNType(clocators.inputField, Cypress.env("USERNAME"));
     agHelper.ClickButton("Submit");

@@ -261,3 +261,45 @@ describe("IconSelectControl.canDisplayValue", () => {
     );
   });
 });
+
+describe("<IconSelectControl /> - (none) icon", () => {
+  const getTestComponent = (hideNoneIcon?: boolean) => (
+    <IconSelectControl {...requiredParams} hideNoneIcon={hideNoneIcon} />
+  );
+
+  it("Should display (none) icon when hideNoneIcon property is false/undefined", async () => {
+    render(getTestComponent());
+    userEvent.tab();
+    expect(screen.queryByRole("button")?.textContent).toEqual(
+      "(none)caret-down",
+    );
+    userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(screen.queryByRole("textbox")).toHaveFocus();
+    }, waitForParamsForSearchFocus);
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
+
+    // Check if the (none) icon is in the list
+    expect(screen.getByText("(none)", { selector: "div" })).toBeInTheDocument();
+  });
+
+  it("Should not display (none) icon when hideNoneIcon property is true", async () => {
+    render(getTestComponent(true));
+    userEvent.tab();
+    expect(screen.queryByRole("button")?.textContent).toEqual(
+      "(none)caret-down",
+    );
+    userEvent.keyboard("{Enter}");
+    await waitFor(() => {
+      expect(screen.queryByRole("textbox")).toHaveFocus();
+    }, waitForParamsForSearchFocus);
+    expect(
+      document.querySelector("a.bp3-active")?.children[0].classList,
+    ).toMatchSnapshot();
+
+    // Check if the (none) icon is in the list
+    expect(screen.queryByText("(none)", { selector: "div" })).toBeNull();
+  });
+});

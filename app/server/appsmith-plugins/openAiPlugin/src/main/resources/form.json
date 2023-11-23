@@ -1,0 +1,41 @@
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
+        {
+          "label": "Authentication type",
+          "description": "Select the authentication type to use",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "DROP_DOWN",
+          "initialValue" : "bearerToken",
+          "options": [
+            {
+              "label": "Bearer token",
+              "value": "bearerToken"
+            }
+          ]
+        },
+        {
+          "label": "API Key",
+          "configProperty": "datasourceConfiguration.authentication.bearerToken",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "initialValue": "",
+          "isRequired": true,
+          "encrypted": true
+        },
+        {
+          "label": "Endpoint URL (with or without protocol and port no)",
+          "configProperty": "datasourceConfiguration.url",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "https://api.openai.com",
+          "isRequired": true,
+          "hidden": true
+        }
+      ]
+    }
+  ],
+  "formButton" : ["TEST", "CANCEL", "SAVE"]
+}

@@ -8,7 +8,6 @@ import {
   propPane,
 } from "../../../support/Objects/ObjectsCore";
 
-let appName = "";
 let datasourceName = "GraphQL_DS";
 let tokenToAuthorizeGraphQl = "";
 let authoemail = "";
@@ -48,7 +47,6 @@ const GRAPHQL_LIMIT_DATA = [
 
 describe("GraphQL Datasource Implementation", function () {
   before(() => {
-    appName = localStorage.getItem("AppName") || "";
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       //apiName = `${apiName}${uid}`;
@@ -250,7 +248,7 @@ describe("GraphQL Datasource Implementation", function () {
       RunNValidateGraphQL();
     });
     cy.get("@dsName").then(($dsName: any) => {
-      dataSources.DeleteDatasouceFromActiveTab($dsName);
+      dataSources.DeleteDatasourceFromWithinDS($dsName);
     });
   });
 

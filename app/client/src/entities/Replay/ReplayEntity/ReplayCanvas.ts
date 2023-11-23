@@ -13,10 +13,10 @@ import {
 import type { AppTheme } from "entities/AppTheming";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
-export type Canvas = {
+export interface Canvas {
   widgets: CanvasWidgetsReduxState;
   theme: AppTheme;
-};
+}
 export type CanvasDiff = Diff<Canvas, Canvas>;
 export type DSLDiff = Diff<CanvasWidgetsReduxState, CanvasWidgetsReduxState>;
 

@@ -2,14 +2,14 @@ import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
 
-type StyledWrapperProps = {
+interface StyledWrapperProps {
   backgroundColor?: string;
   borderColor?: string;
   borderRadius?: string;
   borderWidth?: number;
   boxShadow?: string;
   withoutPadding?: boolean;
-};
+}
 
 const NESTED_FORM_WRAPPER_PADDING = 10;
 const DEFAULT_BORDER_RADIUS = 0;

@@ -10,10 +10,8 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type {
-  DataTreeEntity,
-  DataTreeEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
@@ -145,13 +143,14 @@ export enum EvalErrorTypes {
   PARSE_JS_ERROR = "PARSE_JS_ERROR",
   EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
   CLONE_ERROR = "CLONE_ERROR",
+  SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
 }
 
-export type EvalError = {
+export interface EvalError {
   type: EvalErrorTypes;
   message: string;
   context?: Record<string, any>;
-};
+}
 
 export interface DynamicPath {
   key: string;
@@ -380,7 +379,7 @@ export enum PropertyEvaluationErrorType {
 }
 
 export enum PropertyEvaluationErrorCategory {
-  INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD = "INVALID_JS_FUNCTION_INVOCATION_IN_DATA_FIELD",
+  ACTION_INVOCATION_IN_DATA_FIELD = "ACTION_INVOCATION_IN_DATA_FIELD",
 }
 export interface PropertyEvaluationErrorKind {
   category: PropertyEvaluationErrorCategory;
@@ -398,7 +397,7 @@ export interface EvaluationError extends DataTreeError {
     | PropertyEvaluationErrorType.PARSE
     | PropertyEvaluationErrorType.VALIDATION;
   originalBinding?: string;
-  kind?: PropertyEvaluationErrorKind;
+  kind?: Partial<PropertyEvaluationErrorKind>;
 }
 
 export interface LintError extends DataTreeError {

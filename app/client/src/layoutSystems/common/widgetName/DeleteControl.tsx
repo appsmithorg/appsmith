@@ -26,10 +26,10 @@ const StyledDeleteIcon = styled.div`
   }
 `;
 
-type DeleteControlProps = {
+interface DeleteControlProps {
   deleteWidget: () => void;
   show: boolean;
-};
+}
 
 function DeleteControl(props: DeleteControlProps) {
   return props.show ? (

@@ -16,7 +16,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
 import equal from "fast-deep-equal/es6";
 

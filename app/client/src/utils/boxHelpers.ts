@@ -1,9 +1,9 @@
-export type Rect = {
+export interface Rect {
   top: number;
   left: number;
   right: number;
   bottom: number;
-};
+}
 
 export const areIntersecting = (r1: Rect, r2: Rect) => {
   return !(

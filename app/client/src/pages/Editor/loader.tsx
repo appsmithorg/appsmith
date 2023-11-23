@@ -44,11 +44,11 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
 
   componentDidMount() {
     this.initialise();
-    retryPromise(() => import(/* webpackChunkName: "editor" */ "./index")).then(
-      (module) => {
-        this.setState({ Page: module.default });
-      },
-    );
+    retryPromise(
+      async () => import(/* webpackChunkName: "editor" */ "./index"),
+    ).then((module) => {
+      this.setState({ Page: module.default });
+    });
   }
 
   componentWillUnmount() {

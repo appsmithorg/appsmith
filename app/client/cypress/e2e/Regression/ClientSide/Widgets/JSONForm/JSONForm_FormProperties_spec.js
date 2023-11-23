@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
@@ -8,22 +12,25 @@ const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const submitButtonStylesSection =
   ".t--property-pane-section-submitbuttonstyles";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  propPane,
+  locators,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSON Form Widget Form Bindings", () => {
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
-  before(() => {
+  before("Add dsl and check fields under field configuration", () => {
     cy.addDsl(dslWithSchema);
-  });
-
-  it("1. should have all the fields under field configuration", () => {
     cy.openPropertyPane("jsonformwidget");
     const fieldNames = [
       "name",
@@ -40,7 +47,7 @@ describe("JSON Form Widget Form Bindings", () => {
     });
   });
 
-  it("2. Field Configuration - adds new custom field", () => {
+  it("1. Field Configuration - adds new custom field", () => {
     cy.openPropertyPane("jsonformwidget");
 
     // Add new field
@@ -48,11 +55,16 @@ describe("JSON Form Widget Form Bindings", () => {
       force: true,
     });
 
+    deployMode.DeployApp();
     // Check for the presence of newly added custom field
-    cy.get(`[data-rbd-draggable-id='customField1']`).should("exist");
+    cy.get(`.t--jsonformfield-customField1`).should("exist");
+
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
+  it("2. Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+
     cy.get("button")
       .contains("Submit")
       .parent("button")
@@ -60,9 +72,9 @@ describe("JSON Form Widget Form Bindings", () => {
 
     // make name field required
     cy.openFieldConfiguration("name");
-    cy.togglebar(`${propertyControlPrefix}-required input`);
+    propPane.TogglePropertyState("Required", "On");
+    deployMode.DeployApp();
 
-    cy.get(backBtn).click({ force: true });
     cy.get(`${fieldPrefix}-name input`).clear().wait(300);
     cy.get("button")
       .contains("Submit")
@@ -75,36 +87,24 @@ describe("JSON Form Widget Form Bindings", () => {
       .contains("Submit")
       .parent("button")
       .should("not.have.attr", "disabled");
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("4. Should set isValid to false when form is invalid", () => {
+  it("3. Should set isValid to false when form is invalid", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
-
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
-
     cy.get(`${fieldPrefix}-name input`).clear().wait(300);
-
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("false");
-
     cy.get(`${fieldPrefix}-name input`).type("JOHN").wait(300);
-
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
   });
 
-  it("5. show show icon select when a collapsed section is opened", () => {
+  it("4. show show icon select when a collapsed section is opened", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.moveToStyleTab();
-    // Check Submit Button Styles hidden
-    //cy.get(submitButtonStylesSection).should("not.be.visible");
-    // .parent()
-    // .should("have.attr", "aria-hidden", "true");
-    /*
-    // Open Submit Button Section
-    cy.get(".t--property-pane-section-collapse-submitbuttonstyles").click({
-      force: true,
-    });
-    */
+
     // Click Icon property
     cy.get(submitButtonStylesSection).contains("(none)").parent().click({
       force: true,
@@ -114,7 +114,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get(".bp3-select-popover .virtuoso-grid-item").should("be.visible");
   });
 
-  it("6. Should set isValid to false on first load when form is invalid", () => {
+  it("5. Should set isValid to false on first load when form is invalid", () => {
     cy.addDsl(dslWithoutSchema);
 
     const schema = {
@@ -125,20 +125,20 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     // make name field required
     cy.openFieldConfiguration("name");
     cy.togglebar(`${propertyControlPrefix}-required input`);
 
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
 
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("7. Should set isValid to false on reset when form is invalid", () => {
+  it("6. Should set isValid to false on reset when form is invalid", () => {
     cy.addDsl(dslWithoutSchema);
 
     const schema = {
@@ -149,13 +149,13 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     // make name field required
     cy.openFieldConfiguration("name");
     cy.togglebar(`${propertyControlPrefix}-required input`);
 
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
 
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
@@ -171,10 +171,10 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.get("button").contains("Reset").click({ force: true });
     cy.get(".t--widget-textwidget .bp3-ui-text").contains("false");
 
-    _.deployMode.NavigateBacktoEditor();
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("8. Form value should contain hidden fields value if useSourceData is set to true", () => {
+  it("7. Form value should contain hidden fields value if useSourceData is set to true", () => {
     cy.addDsl(dslWithoutSchema);
 
     const schema = {
@@ -183,7 +183,7 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.togglebar(`${propertyControlPrefix}-hiddenfieldsindata input`);
 
@@ -198,7 +198,7 @@ describe("JSON Form Widget Form Bindings", () => {
     );
   });
 
-  it("9. Form value should not contain hidden fields value if useSourceData is set to false", () => {
+  it("8. Form value should not contain hidden fields value if useSourceData is set to false", () => {
     cy.addDsl(dslWithoutSchema);
 
     const name = "JOHN";
@@ -209,7 +209,7 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.togglebarDisable(`${propertyControlPrefix}-hiddenfieldsindata input`);
 

@@ -37,6 +37,12 @@ describe("Test API execution with dynamic binding in URL - Bug #24218", () => {
       "{{appsmith.store.api_url}}",
       "Api_with_dynamic_binding",
     );
+    agHelper.VerifyEvaluatedValue(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl.replace(
+        "?records=10",
+        "",
+      ), //removing query param here due to open bug with DI team
+    );
     apiPage.RunAPI();
     apiPage.ResponseStatusCheck("200 OK");
     agHelper.ActionContextMenuWithInPane({

@@ -1,4 +1,4 @@
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
   getEntityNameAndPropertyPath,
   isATriggerPath,

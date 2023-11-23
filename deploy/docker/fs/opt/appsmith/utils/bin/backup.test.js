@@ -6,7 +6,7 @@ const utils = require('./utils');
 const shell = require('shelljs');
 
 describe('Backup Tests', () => {
-  
+
 test('Timestamp string in ISO format', () => {
   console.log(backup.getTimeStampInISO())
   expect(backup.getTimeStampInISO()).toMatch(/(\d{4})-(\d{2})-(\d{2})T(\d{2})\-(\d{2})\-(\d{2})\.(\d{3})Z/)
@@ -78,14 +78,8 @@ test('Test ln command generation', async () => {
 })
 
 it('Checks for the current Appsmith Version.', async () => {
-  
-  fsPromises.readFile =  jest.fn().mockImplementation(async (a) => 
-  `Object.defineProperty(exports, "__esModule", { value: true });
-  exports.VERSION = void 0;
-  exports.VERSION = "v0.0.0-SNAPSHOT";`);
-  const res = await utils.getCurrentAppsmithVersion()
-  expect(res).toBe("v0.0.0-SNAPSHOT")
-  console.log(res)
+  fsPromises.readFile = jest.fn().mockImplementation(async () => `{"githubRef":"refs/tags/v1.2.3"}`);
+  await expect(utils.getCurrentAppsmithVersion()).resolves.toBe("v1.2.3")
 })
 
 test('If Encryption env values are being removed', () => {

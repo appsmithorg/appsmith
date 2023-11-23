@@ -1,5 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -10,12 +14,11 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("1. Table widget V2 toggle test for text alignment", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.editColumn("id");
     cy.moveToStyleTab();
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Text align", testdata.bindingAlign);
-    cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "justify-content", "flex-start");
     cy.readTableV2dataValidateCSS("1", "0", "justify-content", "flex-end");
   });
@@ -36,7 +39,6 @@ describe("Table Widget V2 property pane feature validation", function () {
       "Vertical alignment",
       testdata.bindingVerticalAlig,
     );
-    cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "align-items", "flex-start");
     cy.readTableV2dataValidateCSS("1", "0", "align-items", "flex-end");
   });
@@ -45,7 +47,6 @@ describe("Table Widget V2 property pane feature validation", function () {
     //cy.movetoStyleTab();
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Text size", testdata.bindingNewSize);
-    cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
     cy.readTableV2dataValidateCSS("1", "0", "font-size", "24px");
   });
@@ -53,7 +54,6 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("5. Table widget V2 toggle test for style Alignment", function () {
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Emphasis", testdata.bindingStyle);
-    cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "font-style", "normal");
     cy.readTableV2dataValidateCSS("1", "0", "font-style", "italic");
   });
@@ -62,7 +62,6 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.moveToStyleTab();
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Text color", testdata.bindingTextColor);
-    cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
   });
@@ -71,7 +70,6 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.moveToStyleTab();
     _.agHelper.Sleep();
     _.propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
-    cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS(
       "0",
       "0",

@@ -1,7 +1,7 @@
 import DataTreeEvaluator from ".";
 import { unEvalTree } from "./mockData/mockUnEvalTree";
 import { configTree } from "./mockData/mockConfigTree";
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   arrayAccessorCyclicDependency,
@@ -16,7 +16,7 @@ import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 import widgets from "widgets";
 import type { WidgetConfiguration } from "WidgetProvider/constants";
-import { klona } from "klona";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 
 const widgetConfigMap: Record<
   string,
@@ -151,14 +151,12 @@ describe("DataTreeEvaluator", () => {
     });
 
     it("initial dependencyMap computation", () => {
-      const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-        dataTreeEvaluator.setupUpdateTree(
-          unEvalTree as unknown as DataTree,
-          configTree as unknown as ConfigTree,
-        );
+      const { evalOrder, unEvalUpdates } = dataTreeEvaluator.setupUpdateTree(
+        unEvalTree as unknown as DataTree,
+        configTree as unknown as ConfigTree,
+      );
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
-        nonDynamicFieldValidationOrder,
         configTree as unknown as ConfigTree,
         unEvalUpdates,
       );
@@ -180,10 +178,11 @@ describe("DataTreeEvaluator", () => {
           event: "EDIT",
         },
       ];
+      const button2 = dataTreeEvaluator.oldUnEvalTree.Button2 as WidgetEntity;
       const newUnevalTree = {
         ...dataTreeEvaluator.oldUnEvalTree,
         Button2: {
-          ...dataTreeEvaluator.oldUnEvalTree.Button2,
+          ...button2,
           text: '{{""}}',
         },
       };
@@ -211,10 +210,11 @@ describe("DataTreeEvaluator", () => {
           event: "EDIT",
         },
       ];
+      const button2 = dataTreeEvaluator.oldUnEvalTree.Button2 as WidgetEntity;
       const newUnevalTree = {
         ...dataTreeEvaluator.oldUnEvalTree,
         Button2: {
-          ...dataTreeEvaluator.oldUnEvalTree.Button2,
+          ...button2,
           text: "abc",
         },
       };
@@ -248,17 +248,13 @@ describe("DataTreeEvaluator", () => {
         // cyclic dependency case
         for (let i = 0; i < 2; i++) {
           // success: response -> [{...}, {...}, {...}]
-          const {
-            evalOrder,
-            nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder1,
-            unEvalUpdates,
-          } = dataTreeEvaluator.setupUpdateTree(
-            arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
-            arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
-          );
+          const { evalOrder, unEvalUpdates } =
+            dataTreeEvaluator.setupUpdateTree(
+              arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+              arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
+            );
           dataTreeEvaluator.evalAndValidateSubTree(
             evalOrder,
-            nonDynamicFieldValidationOrder1,
             arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             unEvalUpdates,
           );
@@ -276,17 +272,13 @@ describe("DataTreeEvaluator", () => {
           ]);
 
           // failure: response -> {}
-          const {
-            evalOrder: order,
-            nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
-            unEvalUpdates: unEvalUpdates2,
-          } = dataTreeEvaluator.setupUpdateTree(
-            arrayAccessorCyclicDependency.apiFailureUnEvalTree,
-            arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
-          );
+          const { evalOrder: order, unEvalUpdates: unEvalUpdates2 } =
+            dataTreeEvaluator.setupUpdateTree(
+              arrayAccessorCyclicDependency.apiFailureUnEvalTree,
+              arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
+            );
           dataTreeEvaluator.evalAndValidateSubTree(
             order,
-            nonDynamicFieldValidationOrder2,
             arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             unEvalUpdates2,
           );
@@ -307,33 +299,25 @@ describe("DataTreeEvaluator", () => {
       // when Text1.text has a binding Api1.data[2].id
       it("on API response array length change", () => {
         // success: response -> [{...}, {...}, {...}]
-        const {
-          evalOrder: order1,
-          nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder3,
-          unEvalUpdates,
-        } = dataTreeEvaluator.setupUpdateTree(
-          arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
-          arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
-        );
+        const { evalOrder: order1, unEvalUpdates } =
+          dataTreeEvaluator.setupUpdateTree(
+            arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+            arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
+          );
         dataTreeEvaluator.evalAndValidateSubTree(
           order1,
-          nonDynamicFieldValidationOrder3,
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
         );
 
         // success: response -> [{...}, {...}]
-        const {
-          evalOrder: order2,
-          nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder4,
-          unEvalUpdates: unEvalUpdates2,
-        } = dataTreeEvaluator.setupUpdateTree(
-          arrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
-          arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
-        );
+        const { evalOrder: order2, unEvalUpdates: unEvalUpdates2 } =
+          dataTreeEvaluator.setupUpdateTree(
+            arrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
+            arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
+          );
         dataTreeEvaluator.evalAndValidateSubTree(
           order2,
-          nonDynamicFieldValidationOrder4,
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           unEvalUpdates2,
         );
@@ -355,17 +339,13 @@ describe("DataTreeEvaluator", () => {
         // cyclic dependency case
         for (let i = 0; i < 2; i++) {
           // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
-          const {
-            evalOrder: order,
-            nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder5,
-            unEvalUpdates,
-          } = dataTreeEvaluator.setupUpdateTree(
-            klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
-            nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
-          );
+          const { evalOrder: order, unEvalUpdates } =
+            dataTreeEvaluator.setupUpdateTree(
+              nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+              nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
+            );
           dataTreeEvaluator.evalAndValidateSubTree(
             order,
-            nonDynamicFieldValidationOrder5,
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             unEvalUpdates,
           );
@@ -386,17 +366,13 @@ describe("DataTreeEvaluator", () => {
           ]);
 
           // failure: response -> {}
-          const {
-            evalOrder: order1,
-            nonDynamicFieldValidationOrder,
-            unEvalUpdates: unEvalUpdates2,
-          } = dataTreeEvaluator.setupUpdateTree(
-            nestedArrayAccessorCyclicDependency.apiFailureUnEvalTree,
-            nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
-          );
+          const { evalOrder: order1, unEvalUpdates: unEvalUpdates2 } =
+            dataTreeEvaluator.setupUpdateTree(
+              nestedArrayAccessorCyclicDependency.apiFailureUnEvalTree,
+              nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
+            );
           dataTreeEvaluator.evalAndValidateSubTree(
             order1,
-            nonDynamicFieldValidationOrder,
             nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             unEvalUpdates2,
           );
@@ -419,33 +395,25 @@ describe("DataTreeEvaluator", () => {
       // when Text1.text has a binding Api1.data[2][2].id
       it("on API response array length change", () => {
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
-        const {
-          evalOrder: order,
-          nonDynamicFieldValidationOrder,
-          unEvalUpdates,
-        } = dataTreeEvaluator.setupUpdateTree(
-          klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
-          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
-        );
+        const { evalOrder: order, unEvalUpdates } =
+          dataTreeEvaluator.setupUpdateTree(
+            nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+            nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
+          );
         dataTreeEvaluator.evalAndValidateSubTree(
           order,
-          nonDynamicFieldValidationOrder,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
         );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}] ]
-        const {
-          evalOrder: order1,
-          nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
-          unEvalUpdates: unEvalUpdates2,
-        } = dataTreeEvaluator.setupUpdateTree(
-          nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
-          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
-        );
+        const { evalOrder: order1, unEvalUpdates: unEvalUpdates2 } =
+          dataTreeEvaluator.setupUpdateTree(
+            nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
+            nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
+          );
         dataTreeEvaluator.evalAndValidateSubTree(
           order1,
-          nonDynamicFieldValidationOrder2,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           unEvalUpdates2,
         );
@@ -466,33 +434,25 @@ describe("DataTreeEvaluator", () => {
       // when Text1.text has a binding Api1.data[2][2].id
       it("on API response nested array length change", () => {
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [{...}, {...}, {...}] ]
-        const {
-          evalOrder: order,
-          nonDynamicFieldValidationOrder: nonDynamicFieldValidationOrder2,
-          unEvalUpdates,
-        } = dataTreeEvaluator.setupUpdateTree(
-          klona(nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree),
-          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
-        );
+        const { evalOrder: order, unEvalUpdates } =
+          dataTreeEvaluator.setupUpdateTree(
+            nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
+            nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
+          );
         dataTreeEvaluator.evalAndValidateSubTree(
           order,
-          nonDynamicFieldValidationOrder2,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           unEvalUpdates,
         );
 
         // success: response -> [ [{...}, {...}, {...}], [{...}, {...}, {...}], [] ]
-        const {
-          evalOrder: order1,
-          nonDynamicFieldValidationOrder,
-          unEvalUpdates: unEvalUpdates2,
-        } = dataTreeEvaluator.setupUpdateTree(
-          nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree3,
-          nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
-        );
+        const { evalOrder: order1, unEvalUpdates: unEvalUpdates2 } =
+          dataTreeEvaluator.setupUpdateTree(
+            nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree3,
+            nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
+          );
         dataTreeEvaluator.evalAndValidateSubTree(
           order1,
-          nonDynamicFieldValidationOrder,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
           unEvalUpdates2,
         );

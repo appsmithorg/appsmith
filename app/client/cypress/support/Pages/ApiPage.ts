@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import EditorNavigation, { SidebarButton } from "./EditorNavigation";
 
 type RightPaneTabs = "datasources" | "connections";
 
@@ -64,7 +65,7 @@ export class ApiPage {
   _imageSrc = "//img/parent::div";
   private _trashDelete = "[data-testid=t--trash-icon]";
   private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']";
-  private _confirmBeforeRunningAPI =
+  private _confirmBeforeRunning =
     "input[name='confirmBeforeExecute'][type='checkbox']";
   private _paginationTypeLabels = ".t--apiFormPaginationType label";
   _saveAsDS = ".t--store-as-datasource";
@@ -88,10 +89,11 @@ export class ApiPage {
   ) {
     if (aftDSSaved) this.agHelper.GetNClick(this._createQuery);
     else {
-      this.agHelper.RemoveEvaluatedPopUp();
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      this.agHelper.RemoveUIElement("EvaluatedPopUp");
       this.agHelper.GetHoverNClick(this.locator._createNew);
       this.agHelper.GetNClick(this._blankAPI, 0, true);
-      this.agHelper.RemoveTooltip("Add a new query/JS Object");
+      this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     }
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
@@ -244,10 +246,10 @@ export class ApiPage {
     else this.agHelper.CheckUncheck(this._onPageLoad, false);
   }
 
-  ToggleConfirmBeforeRunningApi(enable = true || false) {
+  ToggleConfirmBeforeRunning(enable = true || false) {
     this.SelectPaneTab("Settings");
-    if (enable) this.agHelper.CheckUncheck(this._confirmBeforeRunningAPI, true);
-    else this.agHelper.CheckUncheck(this._confirmBeforeRunningAPI, false);
+    if (enable) this.agHelper.CheckUncheck(this._confirmBeforeRunning, true);
+    else this.agHelper.CheckUncheck(this._confirmBeforeRunning, false);
   }
 
   SelectPaneTab(

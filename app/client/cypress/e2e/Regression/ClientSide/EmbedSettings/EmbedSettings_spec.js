@@ -3,7 +3,6 @@ import adminSettings from "../../../../locators/AdminsSettings";
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe("Embed settings options", function () {
-  let deployUrl;
   const getIframeBody = () => {
     // get the iframe > document > body
     // and retry until the body element is not empty
@@ -76,7 +75,7 @@ describe("Embed settings options", function () {
     _.deployMode.NavigateToHomeDirectly();
   });
 
-  it("1. Limit embedding", function () {
+  it("1. Limit embedding then Allow embedding everywhere then Disable everywhere", function () {
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
       cy.get("input").eq(1).click();
@@ -84,17 +83,16 @@ describe("Embed settings options", function () {
     });
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
+    _.agHelper.Sleep(2000);
     cy.get("@deployUrl").then((depUrl) => {
       cy.log("deployUrl is " + depUrl);
-      deployUrl = depUrl;
-      cy.visit(deployUrl, { timeout: 60000 });
+      cy.visit(depUrl, { timeout: 60000 });
     });
     getIframeBody().contains("Submit").should("exist");
-
     ValidateEditModeSetting(_.embedSettings.locators._restrictedText);
-  });
+    // });
 
-  it("2. Allow embedding everywhere", function () {
+    // it("2. Allow embedding everywhere", function () {
     _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
@@ -109,16 +107,16 @@ describe("Embed settings options", function () {
     //   } = interception[1].response.body.data;
     //   expect(APPSMITH_ALLOWED_FRAME_ANCESTORS).to.equal("*");
     // });
+    _.agHelper.Sleep(2000);
     cy.get("@deployUrl").then((depUrl) => {
       cy.log("deployUrl is " + depUrl);
-      deployUrl = depUrl;
-      cy.visit(deployUrl, { timeout: 60000 });
+      cy.visit(depUrl, { timeout: 60000 });
     });
     getIframeBody().contains("Submit").should("exist");
     ValidateEditModeSetting(_.embedSettings.locators._allowAllText);
-  });
+    // });
 
-  it("3. Disable everywhere", function () {
+    // it("3. Disable everywhere", function () {
     _.homePage.NavigateToHome();
     cy.get(".admin-settings-menu-option").click();
     cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(() => {
@@ -126,12 +124,11 @@ describe("Embed settings options", function () {
     });
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
+    _.agHelper.Sleep(2000);
     cy.get("@deployUrl").then((depUrl) => {
       cy.log("deployUrl is " + depUrl);
-      deployUrl = depUrl;
-      cy.visit(deployUrl, { timeout: 60000 });
-    });
-    // TODO: Commented out as it is flaky
+      cy.visit(depUrl, { timeout: 60000 });
+    }); // TODO: Commented out as it is flaky
     // cy.wait(["@getEnvVariables", "@getEnvVariables"]).then((interception) => {
     //   const {
     //     APPSMITH_ALLOWED_FRAME_ANCESTORS,

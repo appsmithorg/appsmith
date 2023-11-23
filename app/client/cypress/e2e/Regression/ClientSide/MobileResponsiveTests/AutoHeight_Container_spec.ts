@@ -1,5 +1,5 @@
 import { WIDGET_PADDING } from "../../../../../src/constants/WidgetConstants";
-import { MOBILE_ROW_GAP } from "../../../../../src/layoutSystems/autolayout/utils/constants";
+import { MOBILE_ROW_GAP } from "../../../../../src/layoutSystems/common/utils/constants";
 import {
   agHelper,
   autoLayout,

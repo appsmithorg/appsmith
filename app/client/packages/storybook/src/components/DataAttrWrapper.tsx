@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
 
-type DataAttrWrapperProps = {
+interface DataAttrWrapperProps {
   children: React.ReactNode;
   attr: string;
-};
+}
 
 export const DataAttrWrapper = (props: DataAttrWrapperProps) => {
   const { attr, children } = props;
@@ -14,9 +14,9 @@ export const DataAttrWrapper = (props: DataAttrWrapperProps) => {
   const ref = useRef<any>(null);
 
   useEffect(() => {
-    if (attr && ref?.current) {
+    if (attr && Boolean(ref?.current)) {
       if (
-        ref.current.setAttribute &&
+        Boolean(ref.current.setAttribute) &&
         typeof ref.current.setAttribute === "function"
       ) {
         ref.current.setAttribute(attr, "");
@@ -27,7 +27,7 @@ export const DataAttrWrapper = (props: DataAttrWrapperProps) => {
       if (typeof ref.current.UNSAFE_getDOMNode === "function") {
         const domNode = ref.current.UNSAFE_getDOMNode();
 
-        if (domNode) domNode.setAttribute(attr, "");
+        if (Boolean(domNode)) domNode.setAttribute(attr, "");
 
         return;
       }

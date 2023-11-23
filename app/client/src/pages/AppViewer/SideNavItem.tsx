@@ -14,14 +14,14 @@ const Content = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-export type SideNavItemProps = {
+export interface SideNavItemProps {
   id: string;
   icon?: ReactNode;
   text: string;
   path: string;
   loading: boolean;
   showText?: boolean;
-};
+}
 
 export function SideNavItem(props: SideNavItemProps) {
   const match = useRouteMatch({

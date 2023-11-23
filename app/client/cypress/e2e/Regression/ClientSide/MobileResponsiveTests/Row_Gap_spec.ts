@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import {
   MOBILE_ROW_GAP,
   ROW_GAP,
-} from "../../../../../src/layoutSystems/autolayout/utils/constants";
+} from "../../../../../src/layoutSystems/common/utils/constants";
 
 describe("Validating use cases for Auto Dimension", () => {
   before(() => {

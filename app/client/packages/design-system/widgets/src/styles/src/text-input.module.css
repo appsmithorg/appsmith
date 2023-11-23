@@ -1,0 +1,120 @@
+/* NOTE: these input styles are used in text area and text input */
+.text-input {
+  & [data-field-input] {
+    display: flex;
+    align-items: center;
+    gap: var(--inner-spacing-1);
+    border-radius: var(--border-radius-1);
+    box-shadow: 0 0 0 1px var(--color-bd-neutral);
+    padding-inline: var(--inner-spacing-1);
+    padding-block: var(--inner-spacing-1);
+    flex: 1;
+  }
+
+  & [data-field-input] :is(input, textarea) {
+    border: 0;
+    background-color: transparent;
+    font-family: inherit;
+    flex-grow: 1;
+    color: var(--color-fg);
+    text-overflow: ellipsis;
+
+    &:autofill,
+    &:autofill:hover,
+    &:autofill:focus,
+    &:autofill:active {
+      font-size: initial;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * FOCUSSED
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-input][data-focused] {
+    box-shadow: 0 0 0 2px var(--color-bd-focus);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * ERROR
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-input][data-invalid] {
+    box-shadow: 0 0 0 1px var(--color-bd-negative);
+  }
+
+  & [data-field-input][data-invalid][data-focused] {
+    box-shadow: 0 0 0 2px var(--color-bd-negative);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * ICON
+  *-----------------------------------------------------------------------------
+  */
+  & [data-icon] {
+    color: var(--color-fg-neutral);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DESCRIPTION
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-description-text] {
+    color: var(--color-fg-neutral);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * PLACEHOLDER
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-input] :is(input, textarea)::placeholder {
+    color: var(--color-fg-neutral-subtle);
+    opacity: 1;
+  }
+
+  & [data-field-input] :is(input, textarea):placeholder-shown {
+    text-overflow: ellipsis;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * ICON BUTTON ( used in password input type )
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-input] [data-icon-button] {
+    block-size: calc(100% - var(--inner-spacing-1));
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled],
+  &[data-disabled] :is(input, textarea),
+  &[data-disabled] label {
+    cursor: not-allowed;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * START ICON AND END ICON
+  *-----------------------------------------------------------------------------
+  */
+  & [data-field-input-start-icon] {
+    width: max-content;
+  }
+
+  & [data-field-input-end-icon] {
+    width: max-content;
+  }
+}

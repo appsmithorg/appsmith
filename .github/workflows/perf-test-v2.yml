@@ -29,6 +29,11 @@ jobs:
       run:
         working-directory: app/client
         shell: bash
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [0, 1]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -222,6 +227,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           NODE_TLS_REJECT_UNAUTHORIZED: "0"
           MACHINE: ubuntu-latest-4-cores
+          JOB: ${{ matrix.job }}
 
         run: ./start-test.sh
 

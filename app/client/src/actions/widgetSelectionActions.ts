@@ -3,12 +3,12 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { NavigationMethod } from "utils/history";
 
-export type WidgetSelectionRequestPayload = {
+export interface WidgetSelectionRequestPayload {
   selectionRequestType: SelectionRequestType;
   payload?: string[];
   invokedBy?: NavigationMethod;
   pageId?: string;
-};
+}
 
 export type WidgetSelectionRequest = (
   selectionRequestType: SelectionRequestType,
@@ -28,10 +28,10 @@ export const selectWidgetInitAction: WidgetSelectionRequest = (
   payload: { selectionRequestType, payload, pageId, invokedBy },
 });
 
-export type SetSelectedWidgetsPayload = {
+export interface SetSelectedWidgetsPayload {
   widgetIds: string[];
   invokedBy?: NavigationMethod;
-};
+}
 
 // To be used to collect selected widget state from url and set on state
 export const setSelectedWidgets = (

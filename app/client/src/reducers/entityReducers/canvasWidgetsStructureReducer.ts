@@ -16,14 +16,14 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
-export type CanvasWidgetsStructureReduxState = {
+export interface CanvasWidgetsStructureReduxState {
   children?: CanvasWidgetsStructureReduxState[];
   type: WidgetType;
   widgetId: string;
   parentId?: string;
   bottomRow: number;
   topRow: number;
-};
+}
 
 const initialState: CanvasWidgetsStructureReduxState = {
   type: "CANVAS_WIDGET",

@@ -28,9 +28,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
@@ -101,7 +101,11 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
      * @return a url String to continue the authorization flow
      */
     public Mono<String> getAuthorizationCodeURLForGenericOAuth2(
-            String datasourceId, String environmentId, String pageId, ServerHttpRequest httpRequest) {
+            String datasourceId,
+            String environmentId,
+            String pageId,
+            String branchName,
+            ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
 
@@ -130,6 +134,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     OAuth2 oAuth2 = (OAuth2)
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
+                    final String state = StringUtils.hasText(branchName)
+                            ? String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, branchName)
+                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(
                                     oAuth2.getAuthorizationUrl())
@@ -138,7 +145,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             .queryParam(REDIRECT_URI, redirectUri + Url.DATASOURCE_URL + "/authorize")
                             // The state is used internally to calculate the redirect url when returning control to the
                             // client
-                            .queryParam(STATE, String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri));
+                            .queryParam(STATE, state);
                     // Adding optional scope parameter
                     if (oAuth2.getScope() != null && !oAuth2.getScope().isEmpty()) {
                         uriComponentsBuilder.queryParam(
@@ -196,7 +203,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
                 .flatMap(localState -> {
                     String[] splitStates = localState.split(",");
-                    if (splitStates.length != 4) {
+                    if (splitStates.length < 4) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     } else
                         return datasourceService
@@ -324,13 +331,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         final String datasourceId = splitState[1];
         final String environmentId = splitState[2];
         final String redirectOrigin = splitState[3];
+        final String branchName = splitState.length == 5 ? splitState[4] : null;
         String response = SUCCESS;
         if (error != null) {
             response = error;
         }
         final String responseStatus = response;
         return newPageService
-                .getById(pageId)
+                .findByIdAndBranchName(pageId, branchName)
                 .map(newPage -> redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + Entity.SLASH + newPage.getApplicationId()
                         + Entity.SLASH + Entity.PAGES
@@ -339,7 +347,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         + Entity.SLASH + Entity.DATASOURCE
                         + Entity.SLASH + datasourceId
                         + "?response_status="
-                        + responseStatus + "&view_mode=true")
+                        + responseStatus
+                        + "&view_mode=true"
+                        + (StringUtils.hasText(branchName) ? "&branch=" + branchName : ""))
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
                         + responseStatus + "&view_mode=true"));

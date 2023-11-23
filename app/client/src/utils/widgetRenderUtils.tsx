@@ -3,12 +3,11 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
-  ConfigTree,
-  DataTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
 import {
   WIDGET_DSL_STRUCTURE_PROPS,
@@ -97,7 +96,7 @@ export const createLoadingWidget = (
   return {
     ...widgetStaticProps,
     type: WidgetTypes.SKELETON_WIDGET,
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
     bindingPaths: {},
     reactivePaths: {},
     triggerPaths: {},
@@ -177,25 +176,6 @@ export function buildChildWidgetTree(
   }
 
   return [];
-}
-
-export function buildFlattenedChildCanvasWidgets(
-  canvasWidgets: CanvasWidgetsReduxState,
-  parentWidgetId: string,
-  flattenedChildCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
-) {
-  const parentWidget = canvasWidgets[parentWidgetId];
-  parentWidget?.children?.forEach((childId) => {
-    flattenedChildCanvasWidgets[childId] = canvasWidgets[childId];
-
-    buildFlattenedChildCanvasWidgets(
-      canvasWidgets,
-      childId,
-      flattenedChildCanvasWidgets,
-    );
-  });
-
-  return flattenedChildCanvasWidgets;
 }
 
 function getWidgetSpecificChildProps(type: string) {

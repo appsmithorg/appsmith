@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -262,5 +263,35 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 .getCollection(mongoOperations.getCollectionName(ActionCollection.class))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
                 .collectList();
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
+        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission) {
+        String contextIdPath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId);
+        String contextTypePath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission) {
+        String contextIdPath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.publishedCollection.pageId);
+        String contextTypePath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.publishedCollection.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
     }
 }

@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import EditorNavigation, { EntityType } from "./EditorNavigation";
 
 type filedTypeValues =
   | "Array"
@@ -23,6 +24,7 @@ export class PropertyPane {
   private locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
+  _propertyPaneSidebar = ".t--property-pane-sidebar";
   _jsonFieldEdit = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
@@ -53,11 +55,11 @@ export class PropertyPane {
   _mode = (modeName: string) =>
     "//span[contains(text(),'" + modeName + "')]//parent::span";
   _propertyToggle = (controlToToggle: string) =>
-    ".t--property-control-" +
+    "//div[contains(@class,'t--property-control-" +
     controlToToggle.replace(/ +/g, "").toLowerCase() +
-    " input[type='checkbox'], label:contains('" +
+    "')]//input[@type='checkbox'] | //label[text()='" +
     controlToToggle +
-    "') input[type='checkbox']";
+    "']//input[@type='checkbox']";
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorInput = (option: string) =>
@@ -84,6 +86,7 @@ export class PropertyPane {
   _selectorViewButton = ".selector-view .bp3-button-text";
   _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-page";
   _sameWindowDropdownOption = ".t--open-dropdown-Same-window";
+  _windowTargetDropdown = ".t--open-dropdown-Window";
   _navigateToType = (type: string) =>
     "div.tab-view span:contains('" + type + "')";
 
@@ -162,6 +165,14 @@ export class PropertyPane {
     ".currency-change-dropdown-trigger .remixicon-icon";
   _countryCodeChangeDropDown = ".t--input-country-code-change .remixicon-icon";
   _searchCountryPlaceHolder = "[placeholder='Search by ISD code or country']";
+  _closeModal = "//*[contains(@class,'ads-v2-button t--close')]";
+  _zoomLevelInput = ".t--property-control-zoomlevel input";
+  _zoomLevelControl = (control: "start" | "end") =>
+    ".t--property-control-zoomlevel .ads-v2-input__input-section-icon-" +
+    control;
+
+  _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
+  _iconDropdown = "[data-test-id='virtuoso-scroller']";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -177,7 +188,7 @@ export class PropertyPane {
     //   }
     // });
     this.OpenJsonFormFieldSettings(fieldName);
-    this.agHelper.SelectDropdownList("Field Type", newDataType);
+    this.SelectPropertiesDropDown("Field Type", newDataType);
     this.agHelper.AssertAutoSave();
     this.assertHelper.AssertNetworkStatus("@updateLayout");
   }
@@ -192,7 +203,7 @@ export class PropertyPane {
   }
 
   public CopyPasteWidgetFromPropertyPane(widgetName: string) {
-    this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+    EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     this.agHelper.GetNClick(this._copyWidget);
     this.agHelper.Sleep(200);
     cy.get("body").type(`{${this.agHelper._modifierKey}}v`);
@@ -205,7 +216,7 @@ export class PropertyPane {
   }
 
   public DeleteWidgetFromPropertyPane(widgetName: string) {
-    this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+    EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     this.DeleteWidgetDirectlyFromPropertyPane();
     this.agHelper.Sleep(500);
     this.entityExplorer.AssertEntityAbsenceInExplorer(widgetName);
@@ -277,6 +288,7 @@ export class PropertyPane {
     action: "Action" | "Page" = "Action",
     index = 0,
     optionIndex = 0,
+    force = false,
   ) {
     if (action == "Action")
       this.agHelper.GetNClick(this._selectPropDropdown(endpoint), index);
@@ -285,7 +297,11 @@ export class PropertyPane {
         this.locator._selectPropPageDropdown(endpoint),
         index,
       );
-    this.agHelper.GetNClick(this._dropDownValue(dropdownOption), optionIndex);
+    this.agHelper.GetNClick(
+      this._dropDownValue(dropdownOption),
+      optionIndex,
+      force,
+    );
   }
 
   public AssertPropertiesDropDownCurrentValue(
@@ -588,7 +604,7 @@ export class PropertyPane {
   }
 
   public RenameWidget(oldName: string, newName: string) {
-    this.entityExplorer.SelectEntityByName(oldName, "Widgets");
+    EditorNavigation.SelectEntityByName(oldName, EntityType.Widget);
     this.agHelper.GetNClick(this.locator._widgetName(oldName), 0, true);
     cy.get(this.locator._widgetNameTxt)
       .clear({ force: true })
@@ -627,6 +643,22 @@ export class PropertyPane {
       this.agHelper.AssertElementVisibility(
         this._propertyPanePropertyControl(sectionTitle, property),
       );
+    });
+  }
+
+  public SetZoomLevel(zoom: number) {
+    this.agHelper.GetAttribute(this._zoomLevelInput, "value").then((value) => {
+      const currentValue = Number(value?.replace("%", ""));
+
+      if (currentValue === zoom || currentValue === 100 || currentValue === 0) {
+        return;
+      }
+      if (zoom > currentValue) {
+        this.agHelper.GetElement(this._zoomLevelControl("end")).click();
+      } else if (zoom < currentValue) {
+        this.agHelper.GetElement(this._zoomLevelControl("start")).click();
+      }
+      this.SetZoomLevel(zoom);
     });
   }
 }

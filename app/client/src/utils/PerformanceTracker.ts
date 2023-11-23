@@ -37,10 +37,10 @@ export enum PerformanceTransactionName {
   SHOW_RESIZE_HANDLES = "SHOW_RESIZE_HANDLES",
 }
 
-export type PerfTag = {
+export interface PerfTag {
   name: string;
   value: string;
-};
+}
 export interface PerfLog {
   sentrySpan: Span;
   skipLog?: boolean;

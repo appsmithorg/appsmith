@@ -3,25 +3,19 @@ import { DarkModeTheme, LightModeTheme } from "../../color";
 
 import type { ColorMode, ColorTypes } from "../../color";
 import type { FontFamily, Typography } from "../../typography";
-import type {
-  RootUnit,
-  ThemeToken,
-  TokenObj,
-  TokenSource,
-  TokenType,
-} from "./types";
+import type { ThemeToken, TokenObj, TokenSource, TokenType } from "./types";
 
 export class TokensAccessor {
   private seedColor?: ColorTypes;
   private colorMode?: ColorMode;
   private borderRadius?: TokenObj;
-  private rootUnit?: RootUnit;
   private boxShadow?: TokenObj;
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
   private typography?: Typography;
   private fontFamily?: FontFamily;
-  private spacing?: TokenObj;
+  private outerSpacing?: TokenObj;
+  private innerSpacing?: TokenObj;
   private sizing?: TokenObj;
   private zIndex?: TokenObj;
 
@@ -31,31 +25,27 @@ export class TokensAccessor {
     boxShadow,
     colorMode,
     fontFamily,
+    innerSpacing,
     opacity,
-    rootUnit,
+    outerSpacing,
     seedColor,
     sizing,
-    spacing,
     typography,
     zIndex,
   }: TokenSource) {
     this.seedColor = seedColor;
     this.colorMode = colorMode;
-    this.rootUnit = rootUnit;
     this.borderRadius = borderRadius;
     this.boxShadow = boxShadow;
     this.borderWidth = borderWidth;
     this.opacity = opacity;
     this.fontFamily = fontFamily;
     this.sizing = sizing;
-    this.spacing = spacing;
+    this.outerSpacing = outerSpacing;
+    this.innerSpacing = innerSpacing;
     this.typography = typography;
     this.zIndex = zIndex;
   }
-
-  updateRootUnit = (rootUnit: RootUnit) => {
-    this.rootUnit = rootUnit;
-  };
 
   updateFontFamily = (fontFamily?: FontFamily) => {
     this.fontFamily = fontFamily;
@@ -93,8 +83,12 @@ export class TokensAccessor {
     this.zIndex = zIndex;
   };
 
-  updateSpacing = (spacing: TokenObj) => {
-    this.spacing = spacing;
+  updateOuterSpacing = (outerSpacing: TokenObj) => {
+    this.outerSpacing = outerSpacing;
+  };
+
+  updateInnerSpacing = (innerSpacing: TokenObj) => {
+    this.innerSpacing = innerSpacing;
   };
 
   updateSizing = (sizing: TokenObj) => {
@@ -103,11 +97,10 @@ export class TokensAccessor {
 
   getAllTokens = () => {
     return {
-      rootUnit: this.getRootUnit(),
       typography: this.getTypography(),
       fontFamily: this.getFontFamily(),
-      ...this.getSpacing(),
-      ...this.getSizing(),
+      ...this.getOuterSpacing(),
+      ...this.getInnerSpacing(),
       ...this.getSizing(),
       ...this.getColors(),
       ...this.getBorderRadius(),
@@ -115,11 +108,8 @@ export class TokensAccessor {
       ...this.getBorderWidth(),
       ...this.getOpacity(),
       ...this.getZIndex(),
+      colorMode: this.getColorMode(),
     };
-  };
-
-  getRootUnit = () => {
-    return this.rootUnit;
   };
 
   getTypography = () => {
@@ -152,10 +142,16 @@ export class TokensAccessor {
     }
   };
 
-  getSpacing = () => {
-    if (this.spacing == null) return {} as ThemeToken;
+  getOuterSpacing = () => {
+    if (this.outerSpacing == null) return {} as ThemeToken;
 
-    return this.createTokenObject(this.spacing, "spacing");
+    return this.createTokenObject(this.outerSpacing, "outerSpacing");
+  };
+
+  getInnerSpacing = () => {
+    if (this.innerSpacing == null) return {} as ThemeToken;
+
+    return this.createTokenObject(this.innerSpacing, "innerSpacing");
   };
 
   getSizing = () => {
@@ -192,6 +188,10 @@ export class TokensAccessor {
     if (this.zIndex == null) return {} as ThemeToken;
 
     return this.createTokenObject(this.zIndex, "zIndex");
+  };
+
+  getColorMode = () => {
+    return this.colorMode;
   };
 
   private get isLightMode() {

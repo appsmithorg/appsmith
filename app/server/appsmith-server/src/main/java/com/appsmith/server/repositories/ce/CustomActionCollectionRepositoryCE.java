@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
@@ -52,4 +53,12 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     Mono<List<InsertManyResult>> bulkInsert(List<ActionCollection> newActions);
 
     Mono<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections);
+
+    Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
+
+    Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission);
+
+    Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission);
 }

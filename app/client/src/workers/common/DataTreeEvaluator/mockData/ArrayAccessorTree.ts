@@ -1,14 +1,15 @@
 import { PluginType, PaginationType } from "entities/Action";
 import type {
-  DataTree,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  ActionEntityConfig,
+  ActionEntity,
+} from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   EvaluationSubstitutionType,
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
 } from "entities/DataTree/dataTreeFactory";
-import type { ActionEntityConfig, ActionEntity } from "entities/DataTree/types";
 
 export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {
@@ -42,7 +43,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       responseMeta: {
         isExecutionSuccess: false,
       },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     } as unknown as ActionEntity,
@@ -77,7 +78,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       meta: {},
     } as unknown as WidgetEntity,
   },
@@ -157,7 +158,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
           "X-APPSMITH-DATATYPE": ["JSON"],
         },
       },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
@@ -193,7 +194,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       meta: {},
     } as unknown as WidgetEntity,
   },
@@ -252,7 +253,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
           "X-APPSMITH-DATATYPE": ["JSON"],
         },
       },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
@@ -288,7 +289,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       meta: {},
     } as unknown as WidgetEntity,
   },
@@ -363,7 +364,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
           "X-APPSMITH-DATATYPE": ["JSON"],
         },
       },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       isLoading: false,
       datasourceUrl: "https://jsonplaceholder.typicode.com",
     },
@@ -399,7 +400,7 @@ export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       fontSize: "1rem",
       value: "{{ Text1.text }}",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       meta: {},
     } as unknown as WidgetEntity,
   },
@@ -413,7 +414,7 @@ export const arrayAccessorCyclicDependencyConfig = {
       pluginId: "5ca385dc81b37f0004b4db85",
       pluginType: PluginType.API,
       dynamicBindingPathList: [],
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       bindingPaths: {
         "config.path": EvaluationSubstitutionType.TEMPLATE,
         "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -457,7 +458,7 @@ export const arrayAccessorCyclicDependencyConfig = {
       ],
       dynamicTriggerPathList: [],
       privateWidgets: {},
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       defaultProps: {},
       defaultMetaProps: [],
       logBlackList: {
@@ -557,7 +558,7 @@ export const arrayAccessorCyclicDependencyConfig = {
       pluginId: "5ca385dc81b37f0004b4db85",
       pluginType: PluginType.API,
       dynamicBindingPathList: [],
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       bindingPaths: {
         "config.path": EvaluationSubstitutionType.TEMPLATE,
         "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -593,7 +594,7 @@ export const arrayAccessorCyclicDependencyConfig = {
         },
       ],
       privateWidgets: {},
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       defaultProps: {},
       defaultMetaProps: [],
       logBlackList: {
@@ -693,7 +694,7 @@ export const arrayAccessorCyclicDependencyConfig = {
       pluginId: "5ca385dc81b37f0004b4db85",
       pluginType: PluginType.API,
       dynamicBindingPathList: [],
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       bindingPaths: {
         "config.path": EvaluationSubstitutionType.TEMPLATE,
         "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -728,7 +729,7 @@ export const arrayAccessorCyclicDependencyConfig = {
         },
       ],
       widgetId: "1p9hcl50i8",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       privateWidgets: {},
       defaultProps: {},
       defaultMetaProps: [],
@@ -829,7 +830,7 @@ export const arrayAccessorCyclicDependencyConfig = {
       actionId: "6285d928db0f9c6e620d454a",
       pluginType: PluginType.API,
       dynamicBindingPathList: [],
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       bindingPaths: {
         "config.path": EvaluationSubstitutionType.TEMPLATE,
         "config.body": EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -864,7 +865,7 @@ export const arrayAccessorCyclicDependencyConfig = {
         },
       ],
       widgetId: "1p9hcl50i8",
-      ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
       privateWidgets: {},
       defaultProps: {},
       defaultMetaProps: [],

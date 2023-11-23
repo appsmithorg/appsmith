@@ -1,9 +1,11 @@
+import { useContext, useEffect } from "react";
 import type { RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString, noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
 import {
   getPluginImages,
   getPluginNameFromId,
@@ -42,7 +44,6 @@ import Resizable, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   checkIfSectionCanRender,
@@ -67,8 +68,6 @@ import {
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
@@ -99,12 +98,6 @@ import {
   ResponseTabErrorDefaultMessage,
 } from "components/editorComponents/ApiResponseView";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  hasCreateDatasourcePermission,
-  hasDeleteActionPermission,
-  hasExecuteActionPermission,
-  hasManageActionPermission,
-} from "@appsmith/utils/permissionHelpers";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -131,11 +124,14 @@ import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
-import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
-import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
-import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
-import { DatasourceStructureContext } from "../Explorer/Datasources/DatasourceStructureContainer";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  getHasCreateDatasourcePermission,
+  getHasExecuteActionPermission,
+  getHasManageActionPermission,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { QueryEditorContext } from "./QueryEditorContext";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -315,7 +311,7 @@ const DocumentationButton = styled(Button)`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border-left: 1px solid var(--ads-v2-color-border);
-  padding: 0 var(--ads-v2-spaces-4) var(--ads-v2-spaces-4);
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-4);
   overflow: hidden;
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
@@ -326,6 +322,7 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
 
 export const SegmentedControlContainer = styled.div`
   padding: 0 var(--ads-v2-spaces-7);
+  padding-top: var(--ads-v2-spaces-4);
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
@@ -333,7 +330,7 @@ export const SegmentedControlContainer = styled.div`
   overflow-x: scroll;
 `;
 
-type QueryFormProps = {
+interface QueryFormProps {
   onDeleteClick: () => void;
   onRunClick: () => void;
   onCreateDatasourceClick: () => void;
@@ -366,15 +363,16 @@ type QueryFormProps = {
     value,
   }: UpdateActionPropertyActionPayload) => void;
   datasourceId: string;
-};
+  showCloseEditor: boolean;
+}
 
-type ReduxProps = {
+interface ReduxProps {
   actionName: string;
   plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
   formEvaluationState: FormEvalOutput;
-};
+}
 
 export type EditorJSONtoFormProps = QueryFormProps & ReduxProps;
 
@@ -401,6 +399,15 @@ export function EditorJSONtoForm(props: Props) {
     uiComponent,
     updateActionResponseDisplayFormat,
   } = props;
+
+  const {
+    actionRightPaneAdditionSections,
+    actionRightPaneBackLink,
+    closeEditorLink,
+    moreActionsMenu,
+    saveActionName,
+  } = useContext(QueryEditorContext);
+
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
@@ -418,14 +425,14 @@ export function EditorJSONtoForm(props: Props) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const { pageId } = useParams<ExplorerURLParams>();
-  const isChangePermitted = hasManageActionPermission(
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const isChangePermitted = getHasManageActionPermission(
+    isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
-  const isExecutePermitted = hasExecuteActionPermission(
-    currentActionConfig?.userPermissions,
-  );
-  const isDeletePermitted = hasDeleteActionPermission(
+  const isExecutePermitted = getHasExecuteActionPermission(
+    isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
 
@@ -433,7 +440,11 @@ export function EditorJSONtoForm(props: Props) {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
+    useState<boolean>(false);
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
 
@@ -491,6 +502,30 @@ export function EditorJSONtoForm(props: Props) {
       hintMessages = executedQueryData.messages;
     }
   }
+
+  // These useEffects are used to open the response tab by default for page load queries
+  // as for page load queries, query response is available and can be shown in response tab
+  useEffect(() => {
+    // output and responseDisplayFormat is present only when query has response available
+    if (
+      responseDisplayFormat &&
+      !!responseDisplayFormat?.title &&
+      output &&
+      !showResponseOnFirstLoad
+    ) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+      setShowResponseOnFirstLoad(true);
+    }
+  }, [responseDisplayFormat, output, showResponseOnFirstLoad]);
+
+  // When multiple page load queries exist, we want to response tab by default for all of them
+  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
+  useEffect(() => {
+    if (!!currentActionConfig?.id) {
+      setShowResponseOnFirstLoad(false);
+    }
+  }, [currentActionConfig?.id]);
 
   const dispatch = useDispatch();
 
@@ -839,11 +874,11 @@ export function EditorJSONtoForm(props: Props) {
 
   const pluginImages = useSelector(getPluginImages);
 
-  type DATASOURCES_OPTIONS_TYPE = {
+  interface DATASOURCES_OPTIONS_TYPE {
     label: string;
     value: string;
     image: string;
-  };
+  }
 
   // Filtering the datasources for listing the similar datasources only rather than having all the active datasources in the list, which on switching resulted in error.
   const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> =
@@ -876,15 +911,6 @@ export function EditorJSONtoForm(props: Props) {
     dispatch(setDebuggerSelectedTab(tabKey));
   }, []);
 
-  const isPostgresPlugin = currentActionPluginName === PluginName.POSTGRES;
-  const featureFlags = useSelector(selectFeatureFlags);
-  const editorMode = isPostgresPlugin
-    ? editorSQLModes.POSTGRESQL_WITH_BINDING
-    : editorSQLModes.MYSQL_WITH_BINDING;
-
-  const isAIEnabledForPosting =
-    isPostgresPlugin && isAIEnabled(featureFlags, editorMode);
-
   // close the debugger
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
@@ -903,22 +929,18 @@ export function EditorJSONtoForm(props: Props) {
 
   return (
     <>
-      {!guidedTourEnabled && <CloseEditor />}
+      {!guidedTourEnabled && closeEditorLink}
       {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit(noop)}>
         <StyledFormRow>
           <NameWrapper>
-            <ActionNameEditor disabled={!isChangePermitted} />
+            <ActionNameEditor
+              disabled={!isChangePermitted}
+              saveActionName={saveActionName}
+            />
           </NameWrapper>
           <ActionsWrapper>
-            <MoreActionsMenu
-              className="t--more-action-menu"
-              id={currentActionConfig ? currentActionConfig.id : ""}
-              isChangePermitted={isChangePermitted}
-              isDeletePermitted={isDeletePermitted}
-              name={currentActionConfig ? currentActionConfig.name : ""}
-              pageId={pageId}
-            />
+            {moreActionsMenu}
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
@@ -979,11 +1001,6 @@ export function EditorJSONtoForm(props: Props) {
                     className="tab-panel"
                     value={EDITOR_TABS.QUERY}
                   >
-                    <EditorFormSignPosting
-                      isAIEnabled={isAIEnabledForPosting}
-                      mode={editorMode}
-                    />
-
                     <SettingsWrapper>
                       {editorConfig && editorConfig.length > 0 ? (
                         renderConfig(editorConfig)
@@ -1103,6 +1120,8 @@ export function EditorJSONtoForm(props: Props) {
           <SidebarWrapper show={shouldOpenActionPaneByDefault}>
             <ActionRightPane
               actionName={actionName}
+              actionRightPaneBackLink={actionRightPaneBackLink}
+              additionalSections={actionRightPaneAdditionSections}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}
               hasConnections={hasDependencies}

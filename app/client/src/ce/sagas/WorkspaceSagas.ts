@@ -41,7 +41,7 @@ import {
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
-import { resetCurrentWorkspace } from "../actions/workspaceActions";
+import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
 
 export function* fetchRolesSaga() {
   try {
@@ -273,9 +273,8 @@ export function* createWorkspaceSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
-      const errorMessage: string | undefined = yield getResponseErrorMessage(
-        response,
-      );
+      const errorMessage: string | undefined =
+        yield getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({

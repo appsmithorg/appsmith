@@ -30,7 +30,7 @@ const PositionedWidget = styled.div<{
     z-index: ${(props) => props.zIndexOnHover} !important;
   }
 `;
-export type PositionedContainerProps = {
+export interface PositionedContainerProps {
   componentWidth: number;
   componentHeight: number;
   children: ReactNode;
@@ -48,7 +48,7 @@ export type PositionedContainerProps = {
   isDisabled?: boolean;
   isVisible?: boolean;
   widgetName: string;
-};
+}
 
 export function PositionedContainer(
   props: PositionedContainerProps,

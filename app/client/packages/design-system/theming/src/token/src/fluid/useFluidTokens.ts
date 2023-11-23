@@ -1,30 +1,36 @@
 import { useEffect, useState, useCallback } from "react";
 import debounce from "lodash/debounce";
-import { getFluidRootUnit } from "./getFluidRootUnit";
 import { getFluidSizing } from "./getFluidSizing";
 import { getFluidSpacing } from "./getFluidSpacing";
 import { getFluidTypography } from "./getFluidTypography";
 
+import type { Typography } from "../../../typography";
+import type { TokenObj } from "../types";
 import type { FluidConfig } from "./types";
 
 const RESIZE_DEBOUNCE_TIME = 300;
 
-export const useFluidTokens = (fluidConfig: FluidConfig, rootUnitRatio = 1) => {
-  const [typography, setTypography] = useState(
-    getFluidTypography(fluidConfig, rootUnitRatio, window.innerWidth),
-  );
-
-  const [rootUnit, setRootUnit] = useState(
-    getFluidRootUnit(fluidConfig, rootUnitRatio),
-  );
-
-  const [spacing, setSpacing] = useState(
-    getFluidSpacing(fluidConfig, rootUnitRatio),
-  );
+export const useFluidTokens = (
+  fluidConfig: FluidConfig,
+  userDensity = 1,
+  userSizing = 1,
+) => {
+  const { maxVw, minVw } = fluidConfig;
+  const [typography, setTypography] = useState<Typography>();
+  const [sizing, setSizing] = useState<TokenObj>();
+  const [outerSpacing, setOuterSpacing] = useState<TokenObj>();
+  const [innerSpacing, setInnerSpacing] = useState<TokenObj>();
 
   const onResize = () => {
     setTypography(
-      getFluidTypography(fluidConfig, rootUnitRatio, window.innerWidth),
+      getFluidTypography(
+        maxVw,
+        minVw,
+        fluidConfig.typography,
+        userDensity,
+        userSizing,
+        window.innerWidth,
+      ),
     );
   };
 
@@ -34,12 +40,41 @@ export const useFluidTokens = (fluidConfig: FluidConfig, rootUnitRatio = 1) => {
   );
 
   useEffect(() => {
-    setTypography(
-      getFluidTypography(fluidConfig, rootUnitRatio, window.innerWidth),
+    setOuterSpacing(
+      getFluidSpacing(
+        maxVw,
+        minVw,
+        fluidConfig.outerSpacing,
+        userDensity,
+        userSizing,
+      ),
     );
-    setRootUnit(getFluidRootUnit(fluidConfig, rootUnitRatio));
-    setSpacing(getFluidSpacing(fluidConfig, rootUnitRatio));
-  }, [rootUnitRatio]);
+    setInnerSpacing(
+      getFluidSpacing(
+        maxVw,
+        minVw,
+        fluidConfig.innerSpacing,
+        userDensity,
+        userSizing,
+      ),
+    );
+  }, [userDensity, userSizing]);
+
+  useEffect(() => {
+    setTypography(
+      getFluidTypography(
+        maxVw,
+        minVw,
+        fluidConfig.typography,
+        userDensity,
+        userSizing,
+        window.innerWidth,
+      ),
+    );
+    setSizing(
+      getFluidSizing(maxVw, minVw, fluidConfig.sizing, userDensity, userSizing),
+    );
+  }, [userDensity, userSizing]);
 
   useEffect(() => {
     window.addEventListener("resize", debouncedResize);
@@ -50,8 +85,8 @@ export const useFluidTokens = (fluidConfig: FluidConfig, rootUnitRatio = 1) => {
 
   return {
     typography,
-    rootUnit,
-    spacing,
-    sizing: getFluidSizing(),
+    outerSpacing,
+    innerSpacing,
+    sizing,
   };
 };

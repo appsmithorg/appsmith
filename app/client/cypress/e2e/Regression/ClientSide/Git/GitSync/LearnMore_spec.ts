@@ -5,9 +5,9 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 const httpsRepoURL = "https://github.com/test/test.git";
 const invalidURL = "test";
 
-let repoName;
+let repoName: string;
 let generatedKey;
-let windowOpenSpy;
+let windowOpenSpy: any;
 describe("Git sync modal: Learn more links", function () {
   it("1. validates repo URL", function () {
     // open gitSync modal
@@ -62,11 +62,11 @@ describe("Git sync modal: Learn more links", function () {
       });
     });
 
-    // Click the "Learn More" link
+    // Click the "Learn more" link
     cy.get(gitSyncLocators.learnMoreSshUrl).click();
     cy.get(gitSyncLocators.generateDeployKeyBtn).click();
 
-    cy.wait("@generateKey").then((result) => {
+    cy.wait("@generateKey").then((result: any) => {
       generatedKey = result.response.body.data.publicKey;
     });
     cy.xpath(gitSyncLocators.learnMoreDeployKey).click({ force: true });

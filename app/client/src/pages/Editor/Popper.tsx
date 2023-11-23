@@ -9,7 +9,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { draggableElement } from "./utils";
 
-export type PopperProps = {
+export interface PopperProps {
   boundaryParent?: Element | PopperJS.Boundary;
   parentElement?: Element | null;
   zIndex: number;
@@ -43,7 +43,7 @@ export type PopperProps = {
   customParent?: Element | undefined;
   editorRef?: React.RefObject<HTMLDivElement>;
   // DraggableNode?: any;
-};
+}
 
 const PopperWrapper = styled.div<{ zIndex: number; borderRadius?: string }>`
   z-index: ${(props) => props.zIndex};
@@ -75,7 +75,9 @@ const DragHandleBlock = styled.div`
   }
 `;
 
-type PopperDragHandleProps = { dragFn?: (val: boolean) => void };
+interface PopperDragHandleProps {
+  dragFn?: (val: boolean) => void;
+}
 
 /* eslint-disable react/display-name */
 export default (props: PopperProps) => {
@@ -104,14 +106,14 @@ export default (props: PopperProps) => {
 
   const {
     boundaryParent = "viewport",
-    isDraggable = false,
+    cypressSelectorDragHandle,
     disablePopperEvents = false,
+    isDraggable = false,
+    onPositionChange = onPositionChangeFn,
     position,
     renderDragBlock,
-    onPositionChange = onPositionChangeFn,
-    themeMode = props.themeMode || ThemeMode.LIGHT,
     renderDragBlockPositions,
-    cypressSelectorDragHandle,
+    themeMode = props.themeMode || ThemeMode.LIGHT,
   } = props;
 
   // Memoizing to avoid rerender of draggable icon.

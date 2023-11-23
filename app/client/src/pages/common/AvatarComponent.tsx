@@ -1,7 +1,7 @@
 import React from "react";
 import { Avatar } from "design-system";
 
-export type AvatarProps = {
+export interface AvatarProps {
   className?: string;
   commonName?: string;
   userName?: string;
@@ -9,7 +9,7 @@ export type AvatarProps = {
   source?: string;
   label?: string;
   isTooltipEnabled?: boolean;
-};
+}
 
 export function AvatarComponent(props: any) {
   const getInitials = (name: string) => {

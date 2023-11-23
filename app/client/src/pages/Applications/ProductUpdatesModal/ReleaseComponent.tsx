@@ -72,16 +72,16 @@ const StyledContent = styled.div<{ maxHeight: number }>`
   max-height: ${(props) => props.maxHeight}px;
 `;
 
-export type Release = {
+export interface Release {
   descriptionHtml: string;
   name: string;
   publishedAt?: string;
   tagName: string;
-};
+}
 
-type ReleaseProps = {
+interface ReleaseProps {
   release: Release;
-};
+}
 
 enum ReleaseComponentViewState {
   "collapsed",

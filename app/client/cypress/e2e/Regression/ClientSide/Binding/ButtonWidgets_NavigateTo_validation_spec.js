@@ -23,16 +23,14 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
         cy.get(".t--code-editor-wrapper").type(testdata.externalPage);
       });
     cy.wait(300);
-    //. Button click should take the control to page link validation", function () {
+    // Button click should take the control to page link validation", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     cy.wait(2000);
     agHelper.ClickButton("Submit");
-    cy.wait(2000); //for page to load
+    cy.wait(4000); //for page to load
     agHelper.AssertElementAbsence(
       locators._widgetInDeployed(draggableWidgets.BUTTON),
     );
-    agHelper.AssertElementVisibility(
-      locators._visibleTextSpan("Build the tools"),
-    );
+    cy.url().should("contain", testdata.externalPage);
   });
 });

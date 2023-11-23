@@ -1,3 +1,3 @@
 package com.appsmith.server.datasourcestorages.base;
 
-public interface DatasourceStorageService extends DatasourceStorageServiceCE {}
+public interface DatasourceStorageService extends DatasourceStorageServiceCECompatible {}

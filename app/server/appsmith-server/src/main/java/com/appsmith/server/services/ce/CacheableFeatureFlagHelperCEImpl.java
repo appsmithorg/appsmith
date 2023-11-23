@@ -6,15 +6,16 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.FeaturesRequestDTO;
+import com.appsmith.server.dtos.FeaturesResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
-import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.SignatureVerifier;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserIdentifierService;
@@ -24,6 +25,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
@@ -31,8 +36,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
+import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 
 @Slf4j
@@ -212,17 +219,30 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
      */
     @Override
     public Mono<FeaturesResponseDTO> getRemoteFeaturesForTenant(FeaturesRequestDTO featuresRequestDTO) {
-        return WebClientUtils.create(cloudServicesConfig.getBaseUrlWithSignatureVerification())
+        Mono<ResponseEntity<ResponseDTO<FeaturesResponseDTO>>> responseEntityMono = WebClientUtils.create(
+                        cloudServicesConfig.getBaseUrlWithSignatureVerification())
                 .post()
                 .uri("/api/v1/business-features")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(featuresRequestDTO))
-                .exchangeToMono(clientResponse -> {
-                    if (clientResponse.statusCode().is2xxSuccessful()) {
-                        return clientResponse.bodyToMono(
-                                new ParameterizedTypeReference<ResponseDTO<FeaturesResponseDTO>>() {});
-                    } else {
-                        return clientResponse.createError();
+                .retrieve()
+                .onStatus(
+                        HttpStatusCode::isError,
+                        response -> Mono.error(new AppsmithException(
+                                AppsmithError.CLOUD_SERVICES_ERROR,
+                                "unable to connect to cloud-services with error status ",
+                                response.statusCode())))
+                .toEntity(new ParameterizedTypeReference<>() {});
+
+        return responseEntityMono
+                .flatMap(entity -> {
+                    HttpHeaders headers = entity.getHeaders();
+                    if (!SignatureVerifier.isSignatureValid(headers)) {
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.INVALID_PARAMETER, CLOUD_SERVICES_SIGNATURE));
                     }
+                    return Mono.just(Objects.requireNonNull(entity.getBody()));
                 })
                 .map(ResponseDTO::getData)
                 .onErrorMap(

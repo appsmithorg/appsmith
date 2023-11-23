@@ -36,10 +36,10 @@ const handleCancelActionExecution = () => {
   ActionAPI.abortActionExecutionTokenSource.cancel();
 };
 
-type ActionExecutionInProgressViewProps = {
+interface ActionExecutionInProgressViewProps {
   actionType: string;
   theme?: EditorTheme;
-};
+}
 
 const ActionExecutionInProgressView = ({
   actionType,

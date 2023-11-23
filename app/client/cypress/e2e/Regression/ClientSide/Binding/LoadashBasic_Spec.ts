@@ -1,11 +1,13 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
   assertHelper,
-  propPane,
   deployMode,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Loadash basic test with input Widget", () => {
   before(() => {
@@ -14,14 +16,14 @@ describe("Loadash basic test with input Widget", () => {
 
   it("1. Input widget test with default value for atob method", () => {
     cy.fixture("testdata").then(function (dataSet: any) {
-      entityExplorer.SelectEntityByName("Input1", "Widgets");
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Default value",
         dataSet.defaultInputBinding + "}}",
       );
       assertHelper.AssertNetworkStatus("@updateLayout");
       //Input widget test with default value for btoa method
-      entityExplorer.SelectEntityByName("Input2");
+      EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Default value",
         dataSet.loadashInput + "}}",

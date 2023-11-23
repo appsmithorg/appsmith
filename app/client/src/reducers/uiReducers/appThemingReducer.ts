@@ -4,7 +4,7 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export type AppThemingState = {
+export interface AppThemingState {
   isSaving: boolean;
   isChanging: boolean;
   stack: AppThemingMode[];
@@ -13,7 +13,7 @@ export type AppThemingState = {
   themesLoading: boolean;
   selectedThemeLoading: boolean;
   isBetaCardShown: boolean;
-};
+}
 
 const initialState: AppThemingState = {
   stack: [],
@@ -30,6 +30,7 @@ const initialState: AppThemingState = {
     created_by: "",
     created_at: "",
     config: {
+      order: 0,
       colors: {
         backgroundColor: "#F8FAFC",
         primaryColor: "",

@@ -1,5 +1,8 @@
 import { RenderModes } from "constants/WidgetConstants";
-import { LayoutDirection, ResponsiveBehavior } from "./constants";
+import {
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "../../common/utils/constants";
 
 export const data = {
   "0": {

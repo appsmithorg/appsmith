@@ -19,15 +19,15 @@ const EmbedSnippetContainer = styled.div`
   gap: 1.5rem;
 `;
 
-type EmbedCodeSnippetProps = {
+interface EmbedCodeSnippetProps {
   snippet: string;
   isAppSettings?: boolean;
-};
+}
 
-type SnippetProps = {
+interface SnippetProps {
   onCopy: () => void;
   snippet: string;
-};
+}
 
 function AppSettings(props: SnippetProps) {
   return (

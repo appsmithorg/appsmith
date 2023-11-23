@@ -1,15 +1,10 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import styled from "styled-components";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { useEffect } from "react";
-import { playWelcomeAnimation } from "utils/helpers";
-import {
-  createMessage,
-  WELCOME_BODY,
-  WELCOME_HEADER,
-} from "@appsmith/constants/messages";
+import { createMessage, WELCOME_HEADER } from "@appsmith/constants/messages";
 import NonSuperUserForm from "./GetStarted";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const LandingPageWrapper = styled.div`
   width: 100%;
@@ -20,6 +15,7 @@ const LandingPageWrapper = styled.div`
   margin: 0 auto;
   overflow: auto;
   min-width: 800px;
+  background: var(--ads-v2-color-gray-50);
 `;
 
 const LandingPageContent = styled.div`
@@ -34,81 +30,107 @@ const LandingPageContent = styled.div`
 
 const StyledTextBanner = styled.div`
   width: 60%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  margin-top: 6%;
+  margin-left: 8rem;
 `;
 
 const StyledBannerHeader = styled.div`
-  font-size: 72px;
-  margin: 0px 0px;
+  font-size: 40px;
+  margin: 0px;
   font-weight: 600;
-  margin-right: 3rem;
-  width: 100%;
-  text-align: center;
   color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
-const StyledBannerBody = styled.div`
-  font-size: 24px;
-  margin: ${(props) => props.theme.spaces[7]}px 0px;
-  font-weight: 500;
-  margin-right: 9rem;
-  width: 100%;
-  text-align: center;
-  color: var(--ads-v2-color-fg);
-`;
-
 const StyledImageBanner = styled.div`
-  width: 40%;
+  width: 50%;
   display: flex;
-  justify-content: center;
   height: 100%;
-  flex-direction: column;
-  align-items: end;
+  position: relative;
+  overflow: hidden;
+  /* Animations */
+  @keyframes falling-confetti {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 0 972px;
+    }
+  }
 `;
 
-const getWelcomeImage = () => `${ASSETS_CDN_URL}/welcome-banner-v2.svg`;
-const getAppsmithLogo = () => `${ASSETS_CDN_URL}/appsmith-logo.svg`;
+const LayerImage = styled.div`
+  width: 100%; /* Adjust the image width as needed */
+  height: 100%;
+  position: absolute; /* Position the image absolutely within the container */
+  top: 0;
+  left: 0;
+  background-size: auto 972px;
+  background-repeat: repeat;
+  &#layer1 {
+    background-image: url(${getAssetUrl(`${ASSETS_CDN_URL}/layer-1.png`)});
+    animation: falling-confetti 7s linear infinite;
+  }
+  &#layer2 {
+    background-image: url(${getAssetUrl(`${ASSETS_CDN_URL}/layer-2.png`)});
+    animation: falling-confetti 10s linear infinite;
+  }
+  &#layer3 {
+    background-image: url(${getAssetUrl(`${ASSETS_CDN_URL}/layer-3.png`)});
+    animation: falling-confetti 15s linear infinite;
+  }
+`;
 
-type LandingPageProps = {
-  onGetStarted?: (role?: string, useCase?: string) => void;
-};
+const ElementImage1 = styled.img`
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  top: 50%;
+  right: -80px;
+  transform: translateY(-50%);
+`;
 
-const WELCOME_PAGE_ANIMATION_CONTAINER = "welcome-page-animation-container";
+const ElementImage2 = styled.img`
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  top: 50%;
+  right: 125px;
+  transform: translateY(-100%);
+`;
 
-function Banner() {
-  return (
-    <>
-      <StyledBannerHeader>{createMessage(WELCOME_HEADER)}</StyledBannerHeader>
-      <StyledBannerBody>{createMessage(WELCOME_BODY)}</StyledBannerBody>
-    </>
-  );
+interface LandingPageProps {
+  onGetStarted?: (proficiency?: string, useCase?: string) => void;
 }
 
 export default memo(function NonSuperUserWelcome(props: LandingPageProps) {
   useEffect(() => {
-    playWelcomeAnimation(`#${WELCOME_PAGE_ANIMATION_CONTAINER}`);
+    AnalyticsUtil.logEvent("PAGE_VIEW", {
+      pageType: "profilingQuestions",
+    });
   }, []);
+
   return (
-    <LandingPageWrapper
-      data-testid={"welcome-page"}
-      id={WELCOME_PAGE_ANIMATION_CONTAINER}
-    >
+    <LandingPageWrapper data-testid={"welcome-page"}>
       <LandingPageContent>
         <StyledTextBanner>
-          <Banner />
+          <StyledBannerHeader>
+            {createMessage(WELCOME_HEADER)}
+          </StyledBannerHeader>
           <NonSuperUserForm onGetStarted={props.onGetStarted} />
         </StyledTextBanner>
         <StyledImageBanner>
-          <div className="flex self-start w-2/6 h-16 ml-56">
-            <img src={getAssetUrl(getAppsmithLogo())} />
-          </div>
-          <div className="flex w-5/6 my-1 h-4/6">
-            <img className="w-full" src={getAssetUrl(getWelcomeImage())} />
-          </div>
+          <LayerImage id="layer3" />
+          <LayerImage id="layer2" />
+          <ElementImage1
+            src={getAssetUrl(`${ASSETS_CDN_URL}/send-message-1.png`)}
+          />
+          <ElementImage2
+            src={getAssetUrl(`${ASSETS_CDN_URL}/send-message-2.png`)}
+          />
+          <LayerImage id="layer1" />
         </StyledImageBanner>
       </LandingPageContent>
     </LandingPageWrapper>

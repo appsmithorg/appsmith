@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
 import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+
 describe("Leave workspace test spec", function () {
   let newWorkspaceName;
 
@@ -23,6 +25,8 @@ describe("Leave workspace test spec", function () {
 
   it("2. Bug 17235 & 17987 - Non admin users can only access leave workspace popup menu validation", function () {
     agHelper.VisitNAssert("/applications", "getReleaseItems");
+    featureFlagIntercept({ license_gac_enabled: true });
+    cy.wait(2000);
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       newWorkspaceName = "LeaveWorkspace" + uid;

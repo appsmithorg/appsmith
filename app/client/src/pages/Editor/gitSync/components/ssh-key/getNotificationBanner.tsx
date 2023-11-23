@@ -24,7 +24,7 @@ export default function getNotificationBanner(
         isClosable
         links={[
           {
-            children: "Learn More",
+            children: "Learn more",
             onClick: learnMoreClickHandler,
             to: deployKeyDocUrl,
             target: "_blank",

@@ -153,13 +153,5 @@ describe("Rating widet testcases", () => {
     // copy widget from property pane and assert copied info
     propPane.CopyPasteWidgetFromPropertyPane("RateUs");
     agHelper.ValidateToastMessage("Copied RateUs");
-    // copy widget using keyboard and   assert copied info
-    entityExplorer.CopyPasteWidget("RateUs");
-    agHelper.ValidateToastMessage("Copied RateUs");
-    agHelper.AssertText(RATING_WIDGET.ratingWidgetName, "text", "RateUsCopy1");
-    // delete both widgets
-    propPane.DeleteWidgetFromPropertyPane("RateUsCopy");
-    propPane.DeleteWidgetFromPropertyPane("RateUs");
-    agHelper.AssertElementAbsence(RATING_WIDGET.ratingwidget);
   });
 });

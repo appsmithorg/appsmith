@@ -23,7 +23,7 @@ export const useSSHKeyPair = () => {
   const [failedGeneratingSSHKey, setFailedGeneratingSSHKey] = useState(false);
 
   const fetchSSHKeyPair = useCallback(
-    ({ onSuccessCallback = noop, onErrorCallback = noop } = {}) => {
+    ({ onErrorCallback = noop, onSuccessCallback = noop } = {}) => {
       setIsFetchingSSHKeyPair(true);
       dispatch(
         getSSHKeyPair({
@@ -44,7 +44,7 @@ export const useSSHKeyPair = () => {
   const generateSSHKey = useCallback(
     (
       keyType = "ECDSA",
-      { onSuccessCallback = noop, onErrorCallback = noop } = {},
+      { onErrorCallback = noop, onSuccessCallback = noop } = {},
     ) => {
       // if (currentApplication?.id) {
       setIsGeneratingSSHKey(true);

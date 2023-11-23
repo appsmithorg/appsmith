@@ -7,9 +7,9 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type { UpdateWidgetsPayload } from "./canvasWidgetsReducer";
 
-export type MetaWidgetsReduxState = {
+export interface MetaWidgetsReduxState {
   [widgetId: string]: FlattenedWidgetProps;
-};
+}
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
@@ -26,26 +26,26 @@ export type FlattenedWidgetProps<orType = never> =
  *  addOrUpdate/deleteIds. If a list widget creates creates/adds a bunch of meta widgets then
  *  the creatorId would be the list widget's widgetId.
  */
-export type ModifyMetaWidgetPayload = {
+export interface ModifyMetaWidgetPayload {
   addOrUpdate: Record<string, FlattenedWidgetProps>;
   deleteIds: string[];
   propertyUpdates?: MetaWidgetPropertyUpdate[];
   creatorId?: string;
-};
+}
 
-export type UpdateMetaWidgetPropertyPayload = {
+export interface UpdateMetaWidgetPropertyPayload {
   updates: BatchPropertyUpdatePayload;
   widgetId: string;
   creatorId?: string;
-};
-export type DeleteMetaWidgetsPayload = {
+}
+export interface DeleteMetaWidgetsPayload {
   creatorIds: string[];
-};
+}
 
-type MetaWidgetPropertyUpdate = {
+interface MetaWidgetPropertyUpdate {
   path: string;
   value: unknown;
-};
+}
 
 const initialState: MetaWidgetsReduxState = {};
 

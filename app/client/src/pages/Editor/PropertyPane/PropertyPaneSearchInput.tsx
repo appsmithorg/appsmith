@@ -37,10 +37,10 @@ const StyledSearchInput = styled(SearchInput)`
   }
 `;
 
-type PropertyPaneSearchInputProps = {
+interface PropertyPaneSearchInputProps {
   onTextChange: (text: string) => void;
   isPanel?: boolean;
-};
+}
 
 export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);

@@ -24,11 +24,11 @@ export enum ModalType {
 }
 
 // some meta-data about the Modal.
-export type ModalInfo = {
+export interface ModalInfo {
   name: string;
   modalOpen: boolean;
   modalType: ModalType;
-};
+}
 export interface ModalActionReduxState {
   modals: ModalInfo[];
 }

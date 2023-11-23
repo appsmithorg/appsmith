@@ -16,12 +16,12 @@ const OperatorDropdownWidth = 100; // operators should have longer dropdown widt
 const Margin = 8;
 
 // Type of the value for each condition
-export type whereClauseValueType = {
+export interface whereClauseValueType {
   condition?: string;
   children?: [whereClauseValueType];
   key?: string;
   value?: string;
-};
+}
 
 // Form config for the value field
 const valueFieldConfig: any = {

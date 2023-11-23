@@ -9,11 +9,11 @@ import DashboardPreview from "./DashboardPreview";
 import type { brandColorsKeys } from "../BrandingPage";
 import { ContentBox } from "pages/AdminSettings/components";
 
-export type PreviewsProps = {
+export interface PreviewsProps {
   shades: Record<brandColorsKeys, string>;
   logo: string | Blob;
   favicon: string;
-};
+}
 
 const Previews = (props: PreviewsProps) => {
   const { favicon, logo } = props;

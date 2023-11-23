@@ -7,9 +7,9 @@ export type RampSection =
   | "bottom_bar_env_switcher"
   | "ds_editor";
 
-export type RampsForRolesTypes = {
+export interface RampsForRolesTypes {
   [key: string]: boolean;
-};
+}
 
 export type SupportedRampsType = {
   [key in EnvTypes]: RampsForRolesTypes;

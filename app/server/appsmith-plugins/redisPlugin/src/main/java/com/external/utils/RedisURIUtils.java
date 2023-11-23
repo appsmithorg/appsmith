@@ -10,7 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class RedisURIUtils {
-    private static final Long DEFAULT_PORT = 6379L;
+    public static final Long DEFAULT_PORT = 6379L;
     private static final String REDIS_SCHEME = "redis://";
 
     public static URI getURI(DatasourceConfiguration datasourceConfiguration) throws URISyntaxException {

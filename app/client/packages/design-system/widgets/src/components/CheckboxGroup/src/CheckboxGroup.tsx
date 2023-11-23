@@ -4,9 +4,11 @@ import type {
   CheckboxGroupRef as HeadlessCheckboxGroupRef,
   CheckboxGroupProps as HeadlessCheckboxGroupProps,
 } from "@design-system/headless";
+import { CheckboxGroup as HeadlessCheckboxGroup } from "@design-system/headless";
 
-import { Text } from "../../Text";
-import { StyledCheckboxGroup } from "./index.styled";
+import { fieldStyles } from "../../../styles";
+import { ContextualHelp } from "../../TextInput/src/ContextualHelp";
+import { getTypographyClassName } from "@design-system/theming";
 
 export interface CheckboxGroupProps extends HeadlessCheckboxGroupProps {
   className?: string;
@@ -16,14 +18,18 @@ const _CheckboxGroup = (
   props: CheckboxGroupProps,
   ref: HeadlessCheckboxGroupRef,
 ) => {
-  const { errorMessage, label, ...rest } = props;
-  const wrappedErrorMessage = errorMessage && <Text>{errorMessage}</Text>;
-  const wrappedLabel = label && <Text>{label}</Text>;
+  const { contextualHelp: contextualHelpProp, ...rest } = props;
+
+  const contextualHelp = Boolean(contextualHelpProp) && (
+    <ContextualHelp contextualHelp={contextualHelpProp} />
+  );
 
   return (
-    <StyledCheckboxGroup
-      errorMessage={wrappedErrorMessage}
-      label={wrappedLabel}
+    <HeadlessCheckboxGroup
+      contextualHelp={contextualHelp}
+      fieldClassName={fieldStyles.field}
+      helpTextClassName={getTypographyClassName("footnote")}
+      labelClassName={getTypographyClassName("body")}
       ref={ref}
       {...rest}
     />

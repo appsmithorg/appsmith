@@ -1,8 +1,4 @@
-import type {
-  AlignmentColumnData,
-  FlexLayer,
-  LayerChild,
-} from "./autoLayoutTypes";
+import type { AlignmentColumnData } from "../../autolayout/utils/types";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -17,8 +13,9 @@ import {
   updateFlexLayersOnDelete,
 } from "./AutoLayoutUtils";
 import { data, dataForgetCanvasDimensions } from "./testData";
-import { FlexLayerAlignment } from "./constants";
+import { FlexLayerAlignment } from "../../common/utils/constants";
 import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
+import type { FlexLayer, LayerChild } from "./types";
 
 describe("test AutoLayoutUtils methods", () => {
   const mainCanvasWidth = 960;

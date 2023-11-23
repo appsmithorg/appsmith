@@ -1,5 +1,10 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
+import type {
+  ENTITY_TYPE,
+  Log,
+  Message,
+  SourceEntity,
+} from "entities/AppsmithConsole";
 import type { DebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import type { APP_MODE } from "entities/App";
@@ -17,6 +22,10 @@ export interface LogDebuggerErrorAnalyticsPayload {
   errorSubType?: Message["subType"];
   analytics?: Log["analytics"];
   appMode: APP_MODE;
+  source: SourceEntity;
+  logId: string;
+  environmentId?: string;
+  environmentName?: string;
 }
 
 export const debuggerLogInit = (payload: Log[]) => ({
@@ -59,14 +68,6 @@ export const deleteErrorLogsInit = (
 export const deleteErrorLog = (ids: string[]) => ({
   type: ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG,
   payload: ids,
-});
-
-// Only used for analytics
-export const logDebuggerErrorAnalytics = (
-  payload: LogDebuggerErrorAnalyticsPayload,
-) => ({
-  type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-  payload,
 });
 
 export const hideDebuggerErrors = (payload: boolean) => ({

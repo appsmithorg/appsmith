@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionExceptio
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.SSHTunnelContext;
+import com.appsmith.external.helpers.SSHUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -16,11 +17,13 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSHConnection;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
@@ -89,6 +92,7 @@ import static com.external.utils.MySqlGetStructureUtils.getTemplates;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
@@ -99,6 +103,8 @@ public class MySqlPlugin extends BasePlugin {
     public static final String JSON_DB_TYPE = "JSON";
     public static final int CONNECTION_METHOD_INDEX = 1;
     public static final MySqlErrorUtils mySqlErrorUtils = MySqlErrorUtils.getInstance();
+
+    public static final Long MYSQL_DEFAULT_PORT = 3306L;
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -253,6 +259,31 @@ public class MySqlPlugin extends BasePlugin {
             pluginSpecifiedTemplates.add(preparedStatement);
             actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
             return actionConfig;
+        }
+
+        @Override
+        public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            SSHConnection sshProxy = datasourceConfiguration.getSshProxy();
+            String identifier = "";
+            // When hostname and port both are available, both will be used as identifier
+            // When port is not present, default port along with hostname will be used
+            // This ensures rate limiting will only be applied if hostname is present
+            if (endpoints.size() > 0) {
+                String hostName = endpoints.get(0).getHost();
+                if (!isBlank(hostName)) {
+                    identifier = hostName + "_"
+                            + SSHUtils.getDBPortFromConfigOrDefault(datasourceConfiguration, MYSQL_DEFAULT_PORT);
+                }
+            }
+
+            if (SSHUtils.isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)
+                    && sshProxy != null
+                    && !isBlank(sshProxy.getHost())) {
+                identifier += "_" + sshProxy.getHost() + "_"
+                        + SSHUtils.getSSHPortFromConfigOrDefault(datasourceConfiguration);
+            }
+            return Mono.just(identifier);
         }
 
         public Mono<ActionExecutionResult> executeCommon(
@@ -555,7 +586,7 @@ public class MySqlPlugin extends BasePlugin {
                     columnValue = DateTimeFormatter.ISO_TIME.format(row.get(columnName, LocalTime.class));
                 } else if (java.time.Year.class.toString().equalsIgnoreCase(javaTypeName) && columnValue != null) {
                     columnValue = row.get(columnName, LocalDate.class).getYear();
-                } else if (JSON_DB_TYPE.equals(sqlColumnType)) {
+                } else if (columnValue != null && JSON_DB_TYPE.equals(sqlColumnType)) {
                     /**
                      * In case of MySQL the JSON DB type is stored as a binary object in the DB. This is different from
                      * MariaDB where it is stored as a text.Since we currently use MariaDB driver for MySQL plugin as
@@ -615,7 +646,7 @@ public class MySqlPlugin extends BasePlugin {
                 ConnectionContext<ConnectionPool> connectionContext;
                 try {
                     connectionContext = getConnectionContext(
-                            datasourceConfiguration, CONNECTION_METHOD_INDEX, ConnectionPool.class);
+                            datasourceConfiguration, CONNECTION_METHOD_INDEX, MYSQL_DEFAULT_PORT, ConnectionPool.class);
                     ConnectionPool pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
                     connectionContext.setConnection(pool);
                     return Mono.just(connectionContext);

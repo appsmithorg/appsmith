@@ -28,7 +28,6 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Group;
-import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -346,13 +345,6 @@ public class DatabaseChangelog1 {
 
         ensureIndexes(
                 mongoTemplate,
-                InviteUser.class,
-                createdAtIndex,
-                makeIndex("token").unique().expire(3600, TimeUnit.SECONDS),
-                makeIndex("email").unique());
-
-        ensureIndexes(
-                mongoTemplate,
                 Page.class,
                 createdAtIndex,
                 makeIndex("applicationId", "name").unique().named("application_page_compound_index"));
@@ -642,7 +634,7 @@ public class DatabaseChangelog1 {
                 plugin.setDocumentationLink("");
 
             } else if ("mongo-plugin".equals(plugin.getPackageName())) {
-                plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
+                plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-mongodb/");
 
             } else {
                 continue;
@@ -1056,7 +1048,7 @@ public class DatabaseChangelog1 {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-elasticsearch");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1076,7 +1068,7 @@ public class DatabaseChangelog1 {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.JSON);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/DynamoDB.png");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-dynamodb");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1106,7 +1098,7 @@ public class DatabaseChangelog1 {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/redis.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-redis");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1126,7 +1118,7 @@ public class DatabaseChangelog1 {
         plugin1.setUiComponent("DbEditorForm");
         plugin1.setResponseType(Plugin.ResponseType.TABLE);
         plugin1.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/MsSQL.jpg");
-        plugin1.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
+        plugin1.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-mssql");
         plugin1.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin1);
@@ -1309,7 +1301,7 @@ public class DatabaseChangelog1 {
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Firestore.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
+        plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-firestore");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -1579,7 +1571,7 @@ public class DatabaseChangelog1 {
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Redshift.png");
-        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
+        plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-redshift");
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -1600,40 +1592,32 @@ public class DatabaseChangelog1 {
         for (Plugin plugin : mongoTemplate.findAll(Plugin.class)) {
             switch (plugin.getPackageName()) {
                 case "postgres-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-postgres");
                     break;
                 case "mongo-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-mongodb/");
                     break;
                 case "elasticsearch-plugin":
                     plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-elasticsearch");
+                            "https://docs.appsmith.com/reference/datasources/querying-elasticsearch");
                     break;
                 case "dynamo-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-dynamodb");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-dynamodb");
                     break;
                 case "redis-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redis");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-redis");
                     break;
                 case "mssql-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mssql");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-mssql");
                     break;
                 case "firestore-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-firestore");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-firestore");
                     break;
                 case "redshift-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-redshift");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-redshift");
                     break;
                 case "mysql-plugin":
-                    plugin.setDocumentationLink(
-                            "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mysql");
+                    plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-mysql");
                     break;
                 default:
                     continue;

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Button, Divider, Text, Tooltip } from "design-system";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,21 +44,15 @@ import {
   SIGNPOSTING_TOOLTIP,
 } from "@appsmith/constants/messages";
 import type { Datasource } from "entities/Datasource";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SIGNPOSTING_STEP, SignpostingWalkthroughConfig } from "./Utils";
-import { builderURL, integrationEditorURL } from "RouteBuilder";
+import { SIGNPOSTING_STEP } from "./Utils";
+import { builderURL, integrationEditorURL } from "@appsmith/RouteBuilder";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
 import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-
-import { getFeatureWalkthroughShown } from "utils/storage";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import { adaptiveSignpostingEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 const { intercomAppID } = getAppsmithConfigs();
 
@@ -368,9 +362,6 @@ export default function OnboardingChecklist() {
     getFirstTimeUserOnboardingComplete,
   );
 
-  const { pushFeature } = useContext(WalkthroughContext) || {};
-  const adapativeSignposting = useSelector(adaptiveSignpostingEnabled);
-
   const onconnectYourWidget = () => {
     const action = actions[0];
     dispatch(showSignpostingModal(false));
@@ -447,26 +438,6 @@ export default function OnboardingChecklist() {
     );
   }
 
-  const checkAndShowWalkthrough = async () => {
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.add_datasouce,
-    );
-
-    // Adding walkthrough tutorial
-    if (!isFeatureWalkthroughShown) {
-      dispatch(setExplorerSwitchIndex(0));
-      pushFeature &&
-        pushFeature(SignpostingWalkthroughConfig.CONNECT_A_DATASOURCE);
-    } else {
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
-        }),
-      );
-    }
-  };
-
   return (
     <>
       <div className="flex-1">
@@ -523,16 +494,12 @@ export default function OnboardingChecklist() {
             );
             dispatch(showSignpostingModal(false));
 
-            if (adapativeSignposting) {
-              checkAndShowWalkthrough();
-            } else {
-              history.push(
-                integrationEditorURL({
-                  pageId,
-                  selectedTab: INTEGRATION_TABS.NEW,
-                }),
-              );
-            }
+            history.push(
+              integrationEditorURL({
+                pageId,
+                selectedTab: INTEGRATION_TABS.NEW,
+              }),
+            );
           }}
           step={SIGNPOSTING_STEP.CONNECT_A_DATASOURCE}
           testid={"checklist-datasource"}

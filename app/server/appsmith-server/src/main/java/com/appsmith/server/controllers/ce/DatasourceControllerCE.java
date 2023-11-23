@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
@@ -52,6 +53,7 @@ public class DatasourceControllerCE {
     private final MockDataService mockDataService;
     private final DatasourceTriggerSolution datasourceTriggerSolution;
     private final DatasourceService datasourceService;
+    private final RateLimitService rateLimitService;
 
     @Autowired
     public DatasourceControllerCE(
@@ -59,12 +61,14 @@ public class DatasourceControllerCE {
             DatasourceStructureSolution datasourceStructureSolution,
             AuthenticationService authenticationService,
             MockDataService datasourceService,
-            DatasourceTriggerSolution datasourceTriggerSolution) {
+            DatasourceTriggerSolution datasourceTriggerSolution,
+            RateLimitService rateLimitService) {
         this.datasourceService = service;
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
         this.mockDataService = datasourceService;
         this.datasourceTriggerSolution = datasourceTriggerSolution;
+        this.rateLimitService = rateLimitService;
     }
 
     @JsonView(Views.Public.class)
@@ -154,13 +158,14 @@ public class DatasourceControllerCE {
     public Mono<Void> getTokenRequestUrl(
             @PathVariable String datasourceId,
             @PathVariable String pageId,
-            ServerWebExchange serverWebExchange,
-            @RequestParam String environmentId) {
+            @RequestParam String environmentId,
+            @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            ServerWebExchange serverWebExchange) {
         log.debug(
                 "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
         return authenticationService
                 .getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, environmentId, pageId, serverWebExchange.getRequest())
+                        datasourceId, environmentId, pageId, branchName, serverWebExchange.getRequest())
                 .flatMap(url -> {
                     serverWebExchange.getResponse().setStatusCode(HttpStatus.FOUND);
                     serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));

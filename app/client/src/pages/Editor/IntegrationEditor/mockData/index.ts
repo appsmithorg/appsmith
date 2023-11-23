@@ -12,7 +12,7 @@ export const mockPlugins = [
     packageName: PluginPackageName.POSTGRES,
     iconLocation: getAssetUrl(`${ASSETS_CDN_URL}/logo/postgresql.svg`),
     documentationLink:
-      "https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-postgres",
+      "https://docs.appsmith.com/connect-data/reference/querying-postgres#query-postgresql",
     responseType: "TABLE",
     uiComponent: "DbEditorForm",
     datasourceComponent: "AutoForm",

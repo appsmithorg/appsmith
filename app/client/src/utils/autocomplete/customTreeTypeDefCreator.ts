@@ -1,6 +1,6 @@
 import type { Def } from "tern";
 import type { TruthyPrimitiveTypes } from "utils/TypeHelpers";
-import { generateTypeDef } from "./dataTreeTypeDefCreator";
+import { generateTypeDef } from "./defCreatorUtils";
 
 export type AdditionalDynamicDataTree = Record<
   string,

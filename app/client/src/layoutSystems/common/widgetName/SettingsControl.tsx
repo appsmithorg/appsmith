@@ -64,14 +64,14 @@ const StyledErrorIcon = styled(Icon)`
   margin-right: ${(props) => props.theme.spaces[1]}px;
 `;
 
-type SettingsControlProps = {
+interface SettingsControlProps {
   toggleSettings: (e: any) => void;
   activity: Activities;
   name: string;
   errorCount: number;
   inverted: boolean;
   widgetWidth: number;
-};
+}
 
 const getStyles = (
   activity: Activities,

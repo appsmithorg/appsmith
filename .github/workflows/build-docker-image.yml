@@ -83,13 +83,15 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: "."
         run: |
+          set -o xtrace
           declare -a args
-          if [[ "${{ inputs.pr }}" != 0 ]]; then
-            args+=(--cache-from "${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release")
-          fi
           if [[ "${{ inputs.pr }}" != 0 || "${{ github.ref_name }}" != master ]]; then
             args+=(--build-arg "APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com")
+            base_tag=release
+          else
+            base_tag=nightly
           fi
+          args+=(--build-arg "BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:$base_tag")
           docker build -t cicontainer "${args[@]}" .
 
       # Saving the docker image to tar file

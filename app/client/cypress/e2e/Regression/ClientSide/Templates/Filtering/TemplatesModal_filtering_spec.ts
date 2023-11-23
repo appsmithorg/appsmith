@@ -12,6 +12,7 @@ describe("excludeForAirgap", "Bug 17276 - Templates modal filtering", () => {
 
     agHelper.GetText(templates.locators._resultsHeader).then((headerText) => {
       templates.FilterTemplatesByName(NAME_FILTER);
+      agHelper.Sleep();
       if (typeof headerText === "string") {
         templates.AssertResultsHeaderText(headerText, "not.have.text");
       }

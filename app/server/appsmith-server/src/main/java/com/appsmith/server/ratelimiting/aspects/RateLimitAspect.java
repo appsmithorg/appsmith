@@ -42,8 +42,7 @@ public class RateLimitAspect {
                     Object result = joinPoint.proceed();
                     return result instanceof Mono ? (Mono) result : Mono.just(result);
                 } catch (Throwable e) {
-                    AppsmithError error = AppsmithError.INTERNAL_SERVER_ERROR;
-                    throw new AppsmithException(error, e.getMessage());
+                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                 }
             });
         });

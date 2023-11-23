@@ -2,7 +2,7 @@ import type { AppState } from "@appsmith/reducers";
 import type {
   ActionData,
   ActionDataState,
-} from "reducers/entityReducers/actionsReducer";
+} from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
 import type {
@@ -12,6 +12,7 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
@@ -39,11 +40,14 @@ import {
 
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
+import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { Plugin } from "api/PluginApi";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -75,6 +79,44 @@ export const getDatasourceStructureById = (
 ): DatasourceStructure => {
   return state.entities.datasources.structure[id];
 };
+
+/**
+ * Selector to indicate if the widget name should be shown/drawn on canvas
+ */
+export const getShouldShowWidgetName = createSelector(
+  (state: AppState) => state.ui.widgetDragResize.isResizing,
+  (state: AppState) => state.ui.widgetDragResize.isDragging,
+  (state: AppState) => state.ui.editor.isPreviewMode,
+  (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  // cannot import other selectors, breaks the app
+  (state) => {
+    const gitMetaData =
+      state.ui.applications.currentApplication?.gitApplicationMetadata;
+    const isGitConnected = !!(gitMetaData && gitMetaData?.remoteUrl);
+    const currentBranch = gitMetaData?.branchName;
+    const { protectedBranches = [] } = state.ui.gitSync;
+    if (!isGitConnected || !currentBranch) {
+      return false;
+    } else {
+      return protectedBranches.includes(currentBranch);
+    }
+  },
+  (
+    isResizing,
+    isDragging,
+    isPreviewMode,
+    isAutoCanvasResizing,
+    isProtectedMode,
+  ) => {
+    return (
+      !isResizing &&
+      !isDragging &&
+      !isPreviewMode &&
+      !isAutoCanvasResizing &&
+      !isProtectedMode
+    );
+  },
+);
 
 export const getDatasourceTableColumns =
   (datasourceId: string, tableName: string) => (state: AppState) => {
@@ -351,10 +393,42 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
+// Most popular datasources are hardcoded right now to include these 4 plugins and REST API
+// Going forward we may want to have separate list for each instance based on usage
+export const getMostPopularPlugins = createSelector(getPlugins, (plugins) => {
+  const popularPlugins: Plugin[] = [];
+
+  const gsheetPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
+  );
+  const restPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.REST_API,
+  );
+  const postgresPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.POSTGRES,
+  );
+  const mysqlPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MY_SQL,
+  );
+  const mongoPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MONGO,
+  );
+
+  gsheetPlugin && popularPlugins.push(gsheetPlugin);
+  restPlugin && popularPlugins.push(restPlugin);
+  postgresPlugin && popularPlugins.push(postgresPlugin);
+  mysqlPlugin && popularPlugins.push(mysqlPlugin);
+  mongoPlugin && popularPlugins.push(mongoPlugin);
+
+  return popularPlugins;
+});
+
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter(
     (plugin) =>
-      plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
+      plugin.type === PluginType.DB ||
+      plugin.type === PluginType.REMOTE ||
+      plugin.type === PluginType.AI,
   ),
 );
 
@@ -668,7 +742,9 @@ export const getCurrentPageWidgets = createSelector(
   getPageWidgets,
   getCurrentPageId,
   (widgetsByPage, currentPageId) =>
-    currentPageId ? widgetsByPage[currentPageId].dsl : {},
+    currentPageId && widgetsByPage[currentPageId]
+      ? widgetsByPage[currentPageId].dsl
+      : {},
 );
 
 export const getParentModalId = (
@@ -844,10 +920,13 @@ export const getPageActions = (pageId = "") => {
 export const selectDatasourceIdToNameMap = createSelector(
   getDatasources,
   (datasources) => {
-    return datasources.reduce((acc, datasource) => {
-      acc[datasource.id] = datasource.name;
-      return acc;
-    }, {} as Record<string, string>);
+    return datasources.reduce(
+      (acc, datasource) => {
+        acc[datasource.id] = datasource.name;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
   },
 );
 
@@ -1080,7 +1159,7 @@ export const selectLibrariesForExplorer = createSelector(
           version: recommendedLibrary?.version || "",
           url: recommendedLibrary?.url || url,
           accessor: [],
-        } as TJSLibrary;
+        } as JSLibrary;
       });
     return [...queuedInstalls, ...libs];
   },
@@ -1141,6 +1220,7 @@ export const getAllDatasourceTableKeys = createSelector(
         tables[table.name] = "table";
         table.columns.forEach((column) => {
           tables[`${table.name}.${column.name}`] = column.type;
+          tables[`${column.name}`] = column.type;
         });
       }
     });
@@ -1168,9 +1248,8 @@ export const getDatasourceScopeValue = (
   const options = formConfig[0]?.children?.find(
     (child: any) => child?.configProperty === configProperty,
   )?.options;
-  const label = options?.find(
-    (option: any) => option.value === scopeValue,
-  )?.label;
+  const label = options?.find((option: any) => option.value === scopeValue)
+    ?.label;
   return label;
 };
 
@@ -1230,4 +1309,19 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
     0,
     MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
   );
+};
+
+export function getInputsForModule(): Module["inputsForm"] {
+  return [];
+}
+
+export const getModuleInstances = (): Record<string, ModuleInstance> => {
+  return {};
+};
+
+export const getModuleInstanceEntities = () => {
+  return {
+    actions: [],
+    jsCollections: [],
+  };
 };

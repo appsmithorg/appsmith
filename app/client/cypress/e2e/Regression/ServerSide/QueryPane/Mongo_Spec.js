@@ -1,3 +1,8 @@
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
@@ -9,7 +14,9 @@ import {
   dataSources,
   entityItems,
   assertHelper,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let datasourceName;
 
@@ -27,9 +34,9 @@ describe("Validate Mongo query commands", function () {
 
   before("Creates a new Mongo datasource", function () {
     dataSources.CreateDataSource("Mongo");
-    dataSources.CreateQueryAfterDSSaved();
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
     });
   });
 
@@ -45,11 +52,7 @@ describe("Validate Mongo query commands", function () {
       "Find document(s)",
       "Raw",
     );
-    cy.get(queryLocators.templateMenu).click();
-    cy.typeValueNValidate(
-      '{"find": "listingAndReviews","limit": 10}',
-      formControls.rawBody,
-    );
+    agHelper.GetNClick(dataSources._templateMenu);
 
     // cy.get(".CodeMirror textarea")
     //   .first()
@@ -59,7 +62,9 @@ describe("Validate Mongo query commands", function () {
     //   });
     // cy.EvaluateCurrentValue(`{"find": "listingAndReviews","limit": 10}`);
 
-    cy.runQuery();
+    dataSources.EnterQuery(`{"find": "listingAndReviews","limit": 10}`);
+    agHelper.FocusElement(locators._codeMirrorTextArea);
+    dataSources.RunQuery();
     dataSources.CheckResponseRecordsCount(10);
     cy.deleteQueryUsingContext();
   });
@@ -276,25 +281,23 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("7. Validate Deletion of the Newly Created Page", () => {
-    cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "ListingAndReviews",
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
   });
 
   it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
     let id;
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(`${datasourceName}`);
-    cy.get("[data-testid='t--entity-item-listingAndReviews']")
-      .find(".t--template-menu-trigger")
-      .click({ force: true });
-
-    entityExplorer.ActionTemplateMenuByEntityName("listingAndReviews", "Find");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      datasourceName,
+      "listingAndReviews",
+      "Find",
+    );
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
 
     cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
       .then(($field) => {
@@ -370,8 +373,7 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("9. Delete the datasource after NewPage deletion is success", () => {
-    cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
   });
 
   it("10. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {
@@ -428,19 +430,7 @@ describe("Validate Mongo query commands", function () {
     dataSources.RunQuery();
     dataSources.CheckResponseRecordsCount(3);
 
-    cy.get("@dSName").then((dbName) => {
-      //cy.CheckAndUnfoldEntityItem("Datasources");
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dbName,
-        action: "Refresh",
-        entityType: entityItems.Datasource,
-      });
-      // cy.get(`.t--entity.datasource:contains(${dbName})`)
-      //   .find(explorer.collapse)
-      //   .first()
-      //   .click();
-    });
-    cy.xpath("//div[text()='NonAsciiTest']").should("exist");
+    dataSources.AssertTableInVirtuosoList(datasourceName, "NonAsciiTest");
 
     //Verifying Suggested Widgets functionality
     cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
@@ -569,15 +559,14 @@ describe("Validate Mongo query commands", function () {
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}', formControls.rawBody);
     cy.wait(1000); //Waiting a bit before runing the command
     dataSources.RunQuery({ waitTimeInterval: 2000 });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    cy.get("@dSName").then((dbName) => {
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dbName,
-        action: "Refresh",
-        entityType: entityItems.Datasource,
-      });
+    dataSources.AssertTableInVirtuosoList(
+      datasourceName,
+      "NonAsciiTest",
+      false,
+    );
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
     });
-    cy.xpath("//div[text()='NonAsciiTest']").should("not.exist"); //validating drop is successful!
-    cy.deleteQueryUsingContext();
   });
 });

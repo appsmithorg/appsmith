@@ -8,8 +8,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { generateAssistiveBindingCommands } from "./assistiveBindingCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import type {
@@ -20,9 +19,8 @@ import type {
 const PARTIAL_BINDING = "{}";
 
 export const assistiveBindingHinter: HintHelper = (
-  editor,
-  data: DataTree,
-  entitiesForNavigation?: EntityNavigationData,
+  _,
+  entitiesForNavigation: EntityNavigationData,
 ) => {
   const entitiesForSuggestions: NavigationData[] = Object.values(
     entitiesForNavigation || {},
@@ -35,6 +33,7 @@ export const assistiveBindingHinter: HintHelper = (
         enableAIAssistance,
         executeCommand,
         featureFlags,
+        focusEditor,
         pluginIdToImageLocation,
         recentEntities,
       }: {
@@ -46,12 +45,14 @@ export const assistiveBindingHinter: HintHelper = (
         entityId: string;
         featureFlags: FeatureFlags;
         enableAIAssistance: boolean;
+        focusEditor: (focusOnLine?: number, chOffset?: number) => void;
       },
     ): boolean => {
       // @ts-expect-error: Types are not available
       editor.closeHint();
       const currentEntityName = entityInfo.entityName;
-      const currentEntityType = entityInfo.entityType || ENTITY_TYPE.WIDGET;
+      const currentEntityType =
+        entityInfo.entityType || ENTITY_TYPE_VALUE.WIDGET;
       const expectedType =
         entityInfo.expectedType || AutocompleteDataType.UNKNOWN;
 
@@ -136,15 +137,7 @@ export const assistiveBindingHinter: HintHelper = (
             }
             const cursor = editor.getCursor();
             const currentLine = cursor.line;
-            const currentCursorPosition = cursor.ch;
-            const newCursorPosition = currentCursorPosition - 2; //offset cursor before the ending moustache braces '}}'
-            setTimeout(() => {
-              editor.focus();
-              editor.setCursor({
-                line: currentLine,
-                ch: newCursorPosition,
-              });
-            });
+            focusEditor(currentLine, 2);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { data } = selected;
             const { name, type } = data as NavigationData;

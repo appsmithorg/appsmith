@@ -243,9 +243,8 @@ export function* updateWidgetAutoHeightSaga(
     // Get the canvas level map from the store
     // This map tells us the nesting of each canvas widget in the DSL.
     // MainContainer's level is 0.
-    const canvasLevelMap: CanvasLevelsReduxState = yield select(
-      getCanvasLevelMap,
-    );
+    const canvasLevelMap: CanvasLevelsReduxState =
+      yield select(getCanvasLevelMap);
     // 1. Get all siblings together.
 
     // Get all updates for that level.

@@ -1,15 +1,15 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+import EditorNavigation, { SidebarButton } from "../EditorNavigation";
 export class AppSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private theme = ObjectsRegistry.ThemeSettings;
 
   public locators = {
-    _appSettings: ".t--app-settings-cta",
-    _closeSettings: "#t--close-app-settings-pane",
     _themeSettingsHeader: "#t--theme-settings-header",
     _generalSettingsHeader: "#t--general-settings-header",
     _embedSettingsHeader: "#t--share-embed-settings",
     _navigationSettingsTab: "#t--navigation-settings-header",
+    _importHeader: "#t--update-via-import",
     _navigationSettings: {
       _showNavbar: "#t--navigation-settings-show-navbar",
       _showSignIn: "#t--navigation-settings-show-sign-in",
@@ -68,11 +68,11 @@ export class AppSettings {
   };
 
   public OpenAppSettings() {
-    this.agHelper.GetNClick(this.locators._appSettings, 0, true);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
   }
 
   public ClosePane() {
-    this.agHelper.GetNClick(this.locators._closeSettings);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
   }
 
   public GoToThemeSettings() {
@@ -85,6 +85,10 @@ export class AppSettings {
 
   public GoToEmbedSettings() {
     this.agHelper.GetNClick(this.locators._embedSettingsHeader);
+  }
+
+  public GoToImport() {
+    this.agHelper.GetNClick(this.locators._importHeader);
   }
 
   public GoToPageSettings(pageName: string) {
@@ -115,7 +119,9 @@ export class AppSettings {
     pageName: string,
     customSlug?: string,
     editMode = true,
+    restOfUrl = "",
   ) {
+    appName = appName.replace(/\s+/g, "-");
     this.agHelper.AssertElementAbsence(this.locators._updateStatus, 10000);
     cy.location("pathname").then((pathname) => {
       if (customSlug && customSlug.length > 0) {
@@ -123,14 +129,14 @@ export class AppSettings {
         expect(pathname).to.be.equal(
           `/app/${customSlug}-${pageId}${
             editMode ? "/edit" : ""
-          }`.toLowerCase(),
+          }${restOfUrl}`.toLowerCase(),
         );
       } else {
         const pageId = pathname.split("/")[3]?.split("-").pop();
         expect(pathname).to.be.equal(
           `/app/${appName}/${pageName}-${pageId}${
             editMode ? "/edit" : ""
-          }`.toLowerCase(),
+          }${restOfUrl}`.toLowerCase(),
         );
       }
     });

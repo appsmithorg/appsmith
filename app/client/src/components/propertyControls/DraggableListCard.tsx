@@ -17,7 +17,7 @@ const ItemWrapper = styled.div`
   }
 `;
 
-type RenderComponentProps = {
+interface RenderComponentProps {
   focusedIndex: number | null | undefined;
   index: number;
   item: {
@@ -40,7 +40,7 @@ type RenderComponentProps = {
   toggleVisibility?: (index: number) => void;
   toggleCheckbox?: (index: number, checked: boolean) => void;
   isAllColumnEditable?: boolean;
-};
+}
 
 const PADDING_WITHOUT_CHECKBOX = 60;
 const PADDING_WITH_CHECKBOX = 90;

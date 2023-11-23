@@ -14,7 +14,7 @@ const renderComponent = (
   return <TagInput {...componentProps} />;
 };
 
-type TagListFieldProps = {
+interface TagListFieldProps {
   autofocus?: boolean;
   className?: string;
   name: string;
@@ -25,7 +25,7 @@ type TagListFieldProps = {
   customError: (err: string, values?: string[]) => void;
   suggestions?: { id: string; name: string; icon?: string }[];
   suggestionLeftIcon?: ReactElement;
-};
+}
 
 function TagListField(props: TagListFieldProps) {
   return <Field component={renderComponent} {...props} />;

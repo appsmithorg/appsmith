@@ -3,12 +3,12 @@ import styled from "styled-components";
 import type { Color } from "constants/Colors";
 import { Button } from "@blueprintjs/core";
 
-type CloseButtonProps = {
+interface CloseButtonProps {
   color: Color;
   size: number;
   onClick: React.MouseEventHandler;
   className?: string;
-};
+}
 
 const StyledButton = styled(Button)<CloseButtonProps>`
   position: absolute;

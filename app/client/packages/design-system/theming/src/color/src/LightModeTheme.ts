@@ -52,6 +52,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.to("sRGB").toString(),
       bgAssistive: this.bgAssistive.to("sRGB").toString(),
       bgNeutral: this.bgNeutral.to("sRGB").toString(),
+      bgNeutralOpacity: this.bgNeutralOpacity.to("sRGB").toString(),
       bgNeutralHover: this.bgNeutralHover.to("sRGB").toString(),
       bgNeutralActive: this.bgNeutralActive.to("sRGB").toString(),
       bgNeutralSubtle: this.bgNeutralSubtle.to("sRGB").toString(),
@@ -79,6 +80,7 @@ export class LightModeTheme implements ColorModeTheme {
       fg: this.fg.to("sRGB").toString(),
       fgAccent: this.fgAccent.to("sRGB").toString(),
       fgNeutral: this.fgNeutral.to("sRGB").toString(),
+      fgNeutralSubtle: this.fgNeutralSubtle.to("sRGB").toString(),
       fgPositive: this.fgPositive.to("sRGB").toString(),
       fgNegative: this.fgNegative.to("sRGB").toString(),
       fgWarning: this.fgWarning.to("sRGB").toString(),
@@ -216,7 +218,7 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
-  private get bgAccentActive() {
+  public get bgAccentActive() {
     // Active state of bgAccent. Slightly darker than the resting state to produce the effect of moving further from the viewer / being pushed down.
     const color = this.bgAccent.clone();
 
@@ -296,6 +298,14 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       color.oklch.c = 0;
     }
+
+    return color;
+  }
+
+  private get bgNeutralOpacity() {
+    const color = this.bgNeutral.clone();
+
+    color.alpha = 0.5;
 
     return color;
   }
@@ -666,6 +676,14 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
+  private get fgNeutralSubtle() {
+    const color = this.fgNeutral.clone();
+
+    color.oklch.l += 0.1;
+
+    return color;
+  }
+
   private get fgPositive() {
     // Positive foreground is produced from the initially adjusted background color (see above). Additional tweaks are applied to make sure it's distinct from fgAccent when seed is green.
     const color = this.bgPositive.clone();
@@ -863,28 +881,12 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bdFocus() {
-    // Keyboard focus outline. Doesn't match the seed to increase contrast
-    const color = this.seedColor.clone();
-
-    if (this.seedLightness < 0.6) {
-      color.oklch.l = 0.6;
-    }
-
-    if (this.seedLightness > 0.8) {
-      color.oklch.l = 0.8;
-    }
+    // Keyboard focus outline
+    const color = this.bdAccent.clone();
 
     // Achromatic seeds still produce colorful focus; this is good for accessibility even though it affects visual style
     if (this.seedChroma < 0.15) {
       color.oklch.c = 0.15;
-    }
-
-    // Green-red color blindness is among the most prevalent, so instead of 180 we're rotating hue by additional 60°
-    color.oklch.h -= 240;
-
-    // Additional adjustments for red, pinks, magentas
-    if ((this.seedHue >= 0 && this.seedHue <= 55) || this.seedHue >= 340) {
-      color.oklch.h += 160;
     }
 
     return color;

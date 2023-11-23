@@ -1,4 +1,3 @@
-import { createSelector } from "reselect";
 import type { AppState } from "@appsmith/reducers";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 
@@ -16,17 +15,3 @@ export const selectFeatureFlagCheck = (
   }
   return false;
 };
-
-export const datasourceEnvEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) => {
-    return !!flags.release_datasource_environments_enabled;
-  },
-);
-
-export const adaptiveSignpostingEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) => {
-    return !!flags.ab_gif_signposting_enabled;
-  },
-);

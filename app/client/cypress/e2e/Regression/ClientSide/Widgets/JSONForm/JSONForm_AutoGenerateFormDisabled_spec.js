@@ -1,21 +1,31 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const fieldPrefix = ".t--jsonformfield";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  propPane,
+  locators,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSON Form Widget AutoGenerate Disabled", () => {
+  before(() => {
+    agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");
+  });
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   it("generates fields with valid source data json", () => {
-    _.agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");
-
-    cy.openPropertyPane("jsonformwidget");
-
-    cy.togglebarDisable(`.t--property-control-autogenerateform input`);
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    propPane.TogglePropertyState("Auto generate form", "Off");
 
     const sourceData = {
       name: "John",
@@ -37,9 +47,9 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
       ],
     };
 
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
-    cy.closePropertyPane();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+    deployMode.DeployApp();
 
     // Fields that should exist
     cy.get(`${fieldPrefix}-name label`).contains("Name");
@@ -108,15 +118,11 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
 
     cy.get(`${fieldPrefix}-education-0--course label`).should("not.exist");
     cy.get(`${fieldPrefix}-education-0--course input`).should("not.exist");
+
+    deployMode.NavigateBacktoEditor();
   });
 
   it("modifies field when generate form button is pressed", () => {
-    _.agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");
-
-    cy.openPropertyPane("jsonformwidget");
-
-    cy.togglebarDisable(`.t--property-control-autogenerateform input`);
-
     const sourceData = {
       name: "John",
       age: 30,
@@ -137,15 +143,10 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
       ],
     };
 
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
-
-    cy.wait(500);
-    cy.openPropertyPane("jsonformwidget");
-    cy.get(".t--property-control-")
-      .contains("Generate form")
-      .click({ force: true });
-    cy.closePropertyPane();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+    propPane.TogglePropertyState("Auto generate form", "On");
+    deployMode.DeployApp();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
     cy.get(`${fieldPrefix}-name input`).should("have.value", "John");

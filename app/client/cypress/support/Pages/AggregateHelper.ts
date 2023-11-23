@@ -37,18 +37,26 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 
 export class AggregateHelper extends ReusableHelper {
   private locator = ObjectsRegistry.CommonLocators;
-  public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
 
-  public isMac = Cypress.platform === "darwin";
+  public get isMac() {
+    return Cypress.platform === "darwin";
+  }
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
-  private removeLine = "{backspace}";
+  public get removeLine() {
+    return "{backspace}";
+  }
+  public _modifierKey = `${this.isMac ? "meta" : "ctrl"}`;
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
   private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
   private toolTipSpan = ".rc-tooltip-inner span";
+  _walkthroughOverlay = ".t--walkthrough-overlay";
+  _walkthroughOverlayClose = ".t--walkthrough-overlay .t--walkthrough-close";
+  _walkthroughOverlayTitle = (title: string) =>
+    `//div[contains(@class, 't--walkthrough-overlay')]//p[text()='${title}']`;
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -92,6 +100,28 @@ export class AggregateHelper extends ReusableHelper {
     });
   }
 
+  public SimulateCopyPaste(action: "copy" | "paste" | "cut") {
+    const actionToKey = {
+      copy: "c",
+      paste: "v",
+      cut: "x",
+    };
+    const keyToSimulate = actionToKey[action];
+
+    // Simulate Ctrl keypress (Ctrl down)
+    this.GetElement(this.locator._body).type(`{${this._modifierKey}}`, {
+      release: false,
+    });
+
+    // Simulate 'C' keypress while Ctrl is held (Ctrl + C)
+    this.GetElement(this.locator._body).type(keyToSimulate, { release: false });
+
+    // Release the Ctrl key
+    this.GetElement(this.locator._body).type(`{${this._modifierKey}}`, {
+      release: true,
+    });
+  }
+
   public AddDsl(
     dslFile: string,
     elementToCheckPresenceaftDslLoad: string | "" = "", //    reloadWithoutCache = true,
@@ -125,11 +155,12 @@ export class AggregateHelper extends ReusableHelper {
           }).then((dslDumpResp) => {
             //cy.log("Pages resposne is : " + dslDumpResp.body);
             expect(dslDumpResp.status).equal(200);
-            this.Sleep(3000); //for dsl to settle in layouts api & then refresh
+            //this.Sleep(3000); //for dsl to settle in layouts api & then refresh
             this.RefreshPage();
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-            this.Sleep(2000); //settling time for dsl
+            //this.Sleep(2000); //settling time for dsl
+            this.assertHelper.AssertNetworkResponseData("@getPluginForm");
             this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
             this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
           });
@@ -178,6 +209,7 @@ export class AggregateHelper extends ReusableHelper {
       .blur();
     this.PressEnter(); //allow lil more time for new name to settle
     this.AssertElementVisibility(this.locator._editIcon);
+    this.Sleep(); // wait for url update
   }
 
   public CheckForPageSaveError() {
@@ -292,30 +324,57 @@ export class AggregateHelper extends ReusableHelper {
     } else this.GetNAssertContains(this.locator._toastMsg, text);
   }
 
-  public RemoveTooltip(toolTip: string) {
-    cy.get("body").then(($body) => {
-      if ($body.find(this.locator._appLeveltooltip(toolTip)).length > 0) {
-        this.GetElement(this.locator._appLeveltooltip(toolTip))
-          .parents("div.rc-tooltip")
-          .then(($tooltipElement) => {
-            $tooltipElement.remove();
-            cy.log(toolTip + " tooltip removed");
-          });
-      }
-    });
-  }
-
   public AssertTooltip(toolTipText: string) {
     this.GetNAssertContains(this.toolTipSpan, toolTipText);
   }
 
-  public RemoveEvaluatedPopUp() {
+  public RemoveUIElement(
+    elementToRemove: "EvaluatedPopUp" | "Tooltip" | "Toast",
+    toolTipOrToasttext = "",
+  ) {
     cy.get("body").then(($body) => {
-      if ($body.find(this.locator._evalPopup).length > 0) {
-        this.GetElement(this.locator._evalPopup).then(($evalPopUp) => {
-          $evalPopUp.remove();
-          cy.log("Eval pop up removed");
-        });
+      switch (elementToRemove) {
+        case "EvaluatedPopUp":
+          if ($body.find(this.locator._evalPopup).length > 0) {
+            this.GetElement(this.locator._evalPopup).then(($evalPopUp) => {
+              $evalPopUp.remove();
+              cy.log("Eval pop up removed");
+            });
+          }
+          break;
+        case "Tooltip":
+          if (
+            $body.find(this.locator._appLeveltooltip(toolTipOrToasttext))
+              .length > 0
+          ) {
+            this.GetElement(this.locator._appLeveltooltip(toolTipOrToasttext))
+              .parents("div.rc-tooltip")
+              .then(($tooltipElement) => {
+                $tooltipElement.remove();
+                cy.log(toolTipOrToasttext + " tooltip removed");
+              });
+          }
+          break;
+        case "Toast":
+          if (
+            $body.find(
+              this.locator._toastContainer +
+                " span:contains(" +
+                toolTipOrToasttext +
+                ")",
+            ).length > 0
+          ) {
+            this.GetElement(
+              this.locator._toastContainer +
+                ":has(:contains('" +
+                toolTipOrToasttext +
+                "'))",
+            ).then(($toastContainer) => {
+              $toastContainer.remove();
+              cy.log(toolTipOrToasttext + " toast removed");
+            });
+          }
+          break;
       }
     });
   }
@@ -516,10 +575,10 @@ export class AggregateHelper extends ReusableHelper {
     this.Sleep(); //for selected value to reflect!
   }
 
-  public SelectDropdownList(ddName: string, dropdownOption: string) {
-    this.GetNClick(this.locator._existingFieldTextByName(ddName));
-    cy.get(this.locator._dropdownText).contains(dropdownOption).click();
-  }
+  // public SelectDropdownList(ddName: string, dropdownOption: string) {
+  //   this.GetNClick(this.locator._existingFieldTextByName(ddName));
+  //   cy.get(this.locator._dropdownText).contains(dropdownOption).click();
+  // }
 
   public SelectFromMultiSelect(
     options: string[],
@@ -683,7 +742,11 @@ export class AggregateHelper extends ReusableHelper {
     metaKey = false,
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({ force: force, ctrlKey: ctrlKey, metaKey })
+      .click({
+        force: force,
+        ctrlKey: ctrlKey,
+        metaKey,
+      })
       .wait(waitTimeInterval);
   }
 
@@ -877,7 +940,7 @@ export class AggregateHelper extends ReusableHelper {
   ) {
     return cy
       .get(selector)
-      .contains(containsText)
+      .contains(containsText, { matchCase: false })
       .eq(index)
       .click({ force: force })
       .wait(waitTimeInterval);
@@ -1027,16 +1090,19 @@ export class AggregateHelper extends ReusableHelper {
         win.location.href = url;
       });
     });
+    this.AssertElementAbsence(
+      this.locator._specificToast("Cannot read properties of undefined"),
+    );
     this.assertHelper.AssertDocumentReady();
-    this.Sleep(2000);
+    this.Sleep(4000); //for page to load for CI runs
     networkCallAlias &&
       this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
   public ActionContextMenuWithInPane({
     action = "Delete",
-    subAction = "",
     entityType = EntityItems.JSObject,
+    subAction = "",
     toastToValidate = "",
   }: DeleteParams) {
     cy.get(this.locator._contextMenuInPane).click();
@@ -1182,9 +1248,9 @@ export class AggregateHelper extends ReusableHelper {
               setTimeout(() => {
                 // Move cursor to the end of the line
                 input.execCommand("goLineEnd");
-              }, 300);
-            }, 300);
-          }, 300);
+              }, 1000);
+            }, 500);
+          }, 500);
         } else {
           input.focus();
           this.Sleep(200);
@@ -1194,7 +1260,7 @@ export class AggregateHelper extends ReusableHelper {
           this.Sleep(200);
         }
       });
-    this.Sleep(500); //for value set to settle
+    this.Sleep(); //for value set to settle
   }
 
   public UpdateFieldInput(selector: string, value: string) {
@@ -1517,6 +1583,14 @@ export class AggregateHelper extends ReusableHelper {
     return this.GetElement(selector).scrollTo(position).wait(2000);
   }
 
+  public ScrollToXY(
+    selector: ElementType,
+    x: number | string,
+    y: number | string,
+  ) {
+    return this.GetElement(selector).scrollTo(x, y).wait(2000);
+  }
+
   public GetWidth(widgetSelector: string) {
     this.GetElement(widgetSelector).then(($element) => {
       cy.wrap(Number($element.width())).as("eleWidth");
@@ -1645,6 +1719,10 @@ export class AggregateHelper extends ReusableHelper {
 
   public AssertClassExists(selector: string, className: string) {
     this.GetElement(selector).should("have.class", className);
+  }
+
+  public VerifySnapshot(selector: string, identifier: string) {
+    this.GetElement(selector).matchImageSnapshot(identifier);
   }
 
   //Not used:

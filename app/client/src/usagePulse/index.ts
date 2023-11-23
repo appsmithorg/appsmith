@@ -8,12 +8,14 @@ import {
   PULSE_API_ENDPOINT,
   PULSE_API_MAX_RETRY_COUNT,
   PULSE_API_RETRY_TIMEOUT,
-  PULSE_INTERVAL,
   USER_ACTIVITY_LISTENER_EVENTS,
 } from "@appsmith/constants/UsagePulse";
 import PageApi from "api/PageApi";
 import { APP_MODE } from "entities/App";
 import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { PULSE_INTERVAL as PULSE_INTERVAL_CE } from "ce/constants/UsagePulse";
+import { PULSE_INTERVAL as PULSE_INTERVAL_EE } from "ee/constants/UsagePulse";
 
 class UsagePulse {
   static userAnonymousId: string | undefined;
@@ -21,6 +23,7 @@ class UsagePulse {
   static unlistenRouteChange: () => void;
   static isTelemetryEnabled: boolean;
   static isAnonymousUser: boolean;
+  static isFreePlan: boolean;
 
   /*
    * Function to check if the given URL is trakable or not.
@@ -99,7 +102,7 @@ class UsagePulse {
 
     UsagePulse.Timer = setTimeout(
       UsagePulse.registerActivityListener,
-      PULSE_INTERVAL,
+      UsagePulse.isFreePlan ? PULSE_INTERVAL_CE : PULSE_INTERVAL_EE,
     );
   }
 
@@ -109,9 +112,11 @@ class UsagePulse {
   static async startTrackingActivity(
     isTelemetryEnabled: boolean,
     isAnonymousUser: boolean,
+    isFree: boolean,
   ) {
     UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
     UsagePulse.isAnonymousUser = isAnonymousUser;
+    UsagePulse.isFreePlan = isFree;
     if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
       await UsagePulse.sendPulseAndScheduleNext();
     }

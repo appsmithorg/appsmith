@@ -46,4 +46,6 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission);
 
     Mono<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages);
+
+    Flux<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 }

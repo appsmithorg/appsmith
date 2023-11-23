@@ -2,19 +2,17 @@ import {
   entityExplorer,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
-let pageid;
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
-describe("Login from UI and check the functionality", function () {
-  it("1. Login/create page/delete page/delete app from UI", function () {
-    const appname = localStorage.getItem("AppName");
-    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.SearchApp(appname);
-    cy.get("#loading").should("not.exist");
-    //cy.wait(5000);
+describe("Create page & delete page from UI", function () {
+  let pageid;
+  it("1. Create page & delete page from UI", function () {
     cy.generateUUID().then((uid) => {
       pageid = uid;
       cy.Createpage(pageid);
-      cy.get(`.t--entity-name`).contains(pageid).trigger("mouseover");
+      EditorNavigation.SelectEntityByName(pageid, EntityType.Page);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: pageid,
         action: "Delete",

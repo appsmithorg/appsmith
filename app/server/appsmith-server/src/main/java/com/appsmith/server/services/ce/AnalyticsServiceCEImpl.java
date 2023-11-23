@@ -36,6 +36,7 @@ import static com.appsmith.external.constants.AnalyticsConstants.IP;
 import static com.appsmith.external.constants.AnalyticsConstants.IP_ADDRESS;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
+import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
 
 @Slf4j
@@ -136,6 +137,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                                     "instanceId", instanceId,
                                     "mostRecentlyUsedWorkspaceId", tuple.getT4(),
                                     "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
+                                    "proficiency", ObjectUtils.defaultIfNull(userData.getProficiency(), ""),
                                     "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), ""))));
                     analytics.flush();
                     return savedUser;
@@ -143,7 +145,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     }
 
     public void identifyInstance(
-            String instanceId, String role, String useCase, String adminEmail, String adminFullName, String ip) {
+            String instanceId,
+            String role,
+            String proficiency,
+            String useCase,
+            String adminEmail,
+            String adminFullName,
+            String ip) {
         if (!isActive()) {
             return;
         }
@@ -155,6 +163,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         true, // Is this "identify" data-point for a user or an instance?
                         ROLE,
                         ObjectUtils.defaultIfNull(role, ""),
+                        PROFICIENCY,
+                        ObjectUtils.defaultIfNull(proficiency, ""),
                         GOAL,
                         ObjectUtils.defaultIfNull(useCase, ""),
                         EMAIL,
@@ -189,12 +199,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         final String emailDomainHash = getEmailDomainHash(immutableUserId);
 
         // Hash usernames at all places for self-hosted instance
-        if (userId != null
-                && hashUserId
-                && !commonConfig.isCloudHosting()
-                // But send the email intact for the subscribe event, which is sent only if the user has explicitly
-                // agreed to it.
-                && !AnalyticsEvents.SUBSCRIBE_MARKETING_EMAILS.name().equals(event)) {
+        if (shouldHashUserId(event, userId, hashUserId, commonConfig.isCloudHosting())) {
             final String hashedUserId = hash(userId);
             analyticsProperties.remove("request");
             for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
@@ -361,6 +366,26 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 AnalyticsEvents.DS_TEST_EVENT_SUCCESS,
                 AnalyticsEvents.DS_TEST_EVENT_FAILED,
                 AnalyticsEvents.DS_SCHEMA_FETCH_EVENT);
+    }
+
+    /**
+     * Tells whether to hash userId or not for events
+     *
+     * @param String  event
+     * @param String  userId
+     * @param Boolean  hashUserId
+     * @return Boolean
+     */
+    public static Boolean shouldHashUserId(String event, String userId, boolean hashUserId, boolean isCloudHosting) {
+        // In case of anonymous users and self hosted instance, we do not need to hash userId
+        // If we hash userId in such case, mixpanel will club all of such events as one unique instance
+        return userId != null
+                && hashUserId
+                && !userId.equals(FieldName.ANONYMOUS_USER)
+                && !isCloudHosting
+                // But send the email intact for the subscribe event, which is sent only if the user has explicitly
+                // agreed to it.
+                && !AnalyticsEvents.SUBSCRIBE_MARKETING_EMAILS.name().equals(event);
     }
 
     public <T extends BaseDomain> Mono<T> sendCreateEvent(T object, Map<String, Object> extraProperties) {

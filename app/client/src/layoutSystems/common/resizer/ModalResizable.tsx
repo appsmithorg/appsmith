@@ -25,7 +25,7 @@ const getSnappedValues = (
   };
 };
 
-type ResizableHandleProps = {
+interface ResizableHandleProps {
   allowResize: boolean;
   showLightBorder?: boolean;
   isHovered: boolean;
@@ -38,11 +38,11 @@ type ResizableHandleProps = {
     x: number;
     y: number;
   };
-};
+}
 
 function ResizableHandle(props: ResizableHandleProps) {
   const bind = useDrag(
-    ({ first, last, dragging, movement: [mx, my], memo }) => {
+    ({ dragging, first, last, memo, movement: [mx, my] }) => {
       if (!props.allowResize) {
         return;
       }
@@ -69,7 +69,7 @@ function ResizableHandle(props: ResizableHandleProps) {
   return <props.component {...propsToPass} />;
 }
 
-type ResizableProps = {
+interface ResizableProps {
   allowResize: boolean;
   handles: {
     left?: StyledComponent<"div", Record<string, unknown>>;
@@ -101,7 +101,7 @@ type ResizableProps = {
   widgetId: string;
   showLightBorder?: boolean;
   zWidgetType?: string;
-};
+}
 
 export function ModalResizable(props: ResizableProps) {
   // Performance tracking start

@@ -37,13 +37,13 @@ type WidgetCollidingSpace = CollidingSpace & {
   isDropTarget: boolean;
 };
 
-type WidgetCollidingSpaceMap = {
+interface WidgetCollidingSpaceMap {
   horizontal: WidgetCollisionMap;
   vertical: WidgetCollisionMap;
-};
-export type WidgetCollisionMap = {
+}
+export interface WidgetCollisionMap {
   [key: string]: WidgetCollidingSpace;
-};
+}
 
 export interface ReflowInterface {
   (

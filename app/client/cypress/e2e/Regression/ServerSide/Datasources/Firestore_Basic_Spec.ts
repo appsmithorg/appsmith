@@ -3,22 +3,61 @@ import {
   entityExplorer,
   dataSources,
   entityItems,
+  deployMode,
+  locators,
+  draggableWidgets,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any,
+  guid: any,
   cities: any,
   newCityPath: any,
   createCity: any,
   cityName = "LA_";
 describe("Validate Firestore DS", () => {
-  before("Create a new Firestore DS", () => {
-    dataSources.CreateDataSource("Firestore");
-    cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
+  before("Generate GUID for new Firestore DS", () => {
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      guid = uid;
+      dsName = "Firestore" + " " + uid;
     });
   });
 
-  it("1. Validate List/Create/Update/Get", () => {
+  it("1. Firestore placeholder & mandatory mark verification", () => {
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("Firestore");
+    agHelper.AssertElementVisibility(dataSources._imgFireStoreLogo);
+    agHelper.GetNAssertContains(locators._dsName, "Untitled datasource");
+    agHelper.GetNClick(locators._dsName);
+    agHelper.ClearTextField(locators._dsNameTxt); //removing ds name
+    agHelper.AssertTooltip("Please enter a valid name");
+    //agHelper.ValidateToastMessage("Invalid name");
+    agHelper.TypeText(locators._dsNameTxt, dsName);
+    agHelper.PressEnter();
+    agHelper.AssertAttribute(
+      locators._inputFieldByName("Database URL") + "//" + locators._inputField,
+      "placeholder",
+      "https://your-project-id.firebaseio.com",
+    );
+    agHelper
+      .GetElement(
+        locators._inputFieldByName("Project Id") + "//" + locators._inputField,
+      )
+      .should("not.have.attr", "placeholder");
+    dataSources.TestDatasource(false);
+    agHelper.ValidateToastMessage("Missing Firestore URL.");
+    agHelper.ValidateToastMessage("Missing ProjectID in datasource.");
+    agHelper.ValidateToastMessage("Missing ClientJSON in datasource.");
+    dataSources.FillFirestoreDSForm();
+    dataSources.TestSaveDatasource();
+  });
+
+  it("2. Validate List/Create/Update/Get", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       cityName += uid;
@@ -187,11 +226,31 @@ describe("Validate Firestore DS", () => {
     });
   });
 
-  it("2. Validate Upsert [Update & Insert]/Delete documents", () => {
-    //Validating Upsert
+  it("3. Validate Widget binding & Deploy app", () => {
     dataSources.ValidateNSelectDropdown(
       "Commands",
       "Get Document",
+      "List Documents",
+    );
+    agHelper.EnterValue("cities", {
+      propFieldName: "",
+      directInput: false,
+      inputFieldName: "Collection Name",
+    });
+    agHelper.GetNClick(dataSources._whereDelete(0)); //removign where clause, add new condition
+    dataSources.RunQuery();
+    dataSources.AddSuggestedWidget(Widgets.Table);
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    table.WaitUntilTableLoad(0, 0, "v2");
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
+  });
+
+  it("4. Validate Upsert [Update & Insert]/Delete documents", () => {
+    //Validating Upsert
+    dataSources.ValidateNSelectDropdown(
+      "Commands",
+      "List Documents",
       "Upsert Document",
     );
 
@@ -297,11 +356,16 @@ describe("Validate Firestore DS", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.SelectEntityByName(dsName, "Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: entityItems.Datasource,
-    });
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
+    //commenting below since after query delete, we run into risk of not seeing the datasource in EntityExplorer
+    // EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+    // entityExplorer.ActionContextMenuByEntityName({
+    //   entityNameinLeftSidebar: dsName,
+    //   action: "Delete",
+    //   entityType: entityItems.Datasource,
+    // });
+    deployMode.DeployApp();
+    deployMode.NavigateBacktoEditor();
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 });

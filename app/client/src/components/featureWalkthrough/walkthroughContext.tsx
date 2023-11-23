@@ -4,7 +4,7 @@ export type PositionType = "top" | "bottom" | "left" | "right";
 
 export const DEFAULT_DELAY = 0;
 
-export type OffsetType = {
+export interface OffsetType {
   // Position for the instructions and indicator
   position?: PositionType;
   // Adds an offset to top or bottom properties (of Instruction div) depending upon the position
@@ -18,18 +18,35 @@ export type OffsetType = {
   indicatorLeft?: number;
   // container offset for highlight
   highlightPad?: number;
-};
+}
 
-export type FeatureDetails = {
+export interface FeatureDetails {
   // Title to show on the instruction screen
   title: string;
   // Description to show on the instruction screen
   description: string;
   // Gif or Image to give a walkthrough
   imageURL?: string;
+  // footer details
+  footerDetails?: FeatureFooterDetails;
+}
+
+export interface FeatureFooterDetails {
+  // footer text
+  footerText: string;
+  // footer button text
+  footerButtonText: string;
+  // footer button onClick handler
+  onClickHandler: () => void;
+}
+
+export const isFeatureFooterDetails = (
+  obj: FeatureFooterDetails,
+): obj is FeatureFooterDetails => {
+  return !!obj;
 };
 
-export type FeatureParams = {
+export interface FeatureParams {
   // To execute a function on dismissing the tutorial walkthrough.
   onDismiss?: () => void;
   // Target Id without # to highlight the feature
@@ -48,14 +65,16 @@ export type FeatureParams = {
   overlayColor?: string;
   // Close popup when clicking on the overlay
   dismissOnOverlayClick?: boolean;
-};
+  // execute function just before showing walkthrough highlight
+  runBeforeWalkthrough?: () => void;
+}
 
-type WalkthroughContextType = {
+interface WalkthroughContextType {
   pushFeature: (feature: FeatureParams, prioritize?: boolean) => void;
   popFeature: (triggeredFrom?: string) => void;
   feature: FeatureParams[];
   isOpened: boolean;
-};
+}
 
 const WalkthroughContext = React.createContext<
   WalkthroughContextType | undefined

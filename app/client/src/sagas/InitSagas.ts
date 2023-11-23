@@ -69,10 +69,10 @@ export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
 ];
 
-export type ReduxURLChangeAction = {
+export interface ReduxURLChangeAction {
   type: typeof URL_CHANGE_ACTIONS;
   payload: ApplicationPagePayload | ApplicationPayload | Page;
-};
+}
 
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,

@@ -65,7 +65,7 @@ describe("Form Login test functionality", function () {
     "excludeForAirgap",
     "2. Go to admin settings and disable Form Login",
     function () {
-      cy.LogOut();
+      cy.LogOut(false);
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.openAuthentication();
       cy.get(adminSettings.formloginButton)

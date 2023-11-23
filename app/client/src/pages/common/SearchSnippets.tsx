@@ -9,14 +9,14 @@ export enum ENTITY_TYPE {
   JSACTION = "JSACTION",
 }
 
-type Props = {
+interface Props {
   className?: string;
   entityId?: string;
   entityType: ENTITY_TYPE;
   // TODO: be more precise with the function type
   onClick: any;
   showIconOnly?: boolean;
-};
+}
 
 export default function SearchSnippets(props: Props) {
   const className = props.className || "";

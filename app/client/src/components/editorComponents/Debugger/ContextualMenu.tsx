@@ -69,12 +69,12 @@ const getOptions = (type?: string, subType?: string) => {
   }
 };
 
-type ContextualMenuProps = {
+interface ContextualMenuProps {
   error: Message;
   children: JSX.Element;
   entity?: FieldEntityInformation | SourceEntity;
   enableTooltip?: boolean;
-};
+}
 
 const searchAction: Record<
   CONTEXT_MENU_ACTIONS,

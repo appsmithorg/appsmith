@@ -1,5 +1,16 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const locators = ObjectsRegistry.CommonLocators;
+const {
+  deployMode,
+  entityExplorer,
+  propPane,
+} = require("../../../../../support/Objects/ObjectsCore");
 
 const fieldPrefix = ".t--jsonformfield";
 
@@ -45,9 +56,10 @@ describe("JSON Form Widget Custom Field", () => {
       ],
     };
 
-    cy.openPropertyPane("jsonformwidget");
-    cy.backFromPropertyPanel();
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    propPane.NavigateBackToPropertyPane();
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+    deployMode.DeployApp();
 
     cy.wait(500);
 

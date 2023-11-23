@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandlerCE;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -32,7 +33,8 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             WorkspacePermission workspacePermission,
             RateLimitService rateLimitService,
             TenantService tenantService,
-            UserService userService) {
+            UserService userService,
+            WorkspaceServiceHelper workspaceServiceHelper) {
         super(
                 redirectHelper,
                 sessionUserService,
@@ -45,6 +47,7 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 workspacePermission,
                 rateLimitService,
                 tenantService,
-                userService);
+                userService,
+                workspaceServiceHelper);
     }
 }

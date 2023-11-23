@@ -1,51 +1,26 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
-import type { RenderMode, WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import {
-  previewModeSelector,
+  combinedPreviewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
-import type {
-  FlexVerticalAlignment,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
-
-export type AutoLayoutProps = {
-  alignment: FlexVerticalAlignment;
-  children: ReactNode;
-  componentHeight: number;
-  componentWidth: number;
-  direction: LayoutDirection;
-  focused?: boolean;
-  parentId?: string;
-  responsiveBehavior?: ResponsiveBehavior;
-  selected?: boolean;
-  isResizeDisabled?: boolean;
-  widgetId: string;
-  widgetName: string;
-  widgetType: WidgetType;
-  parentColumnSpace: number;
-  flexVerticalAlignment: FlexVerticalAlignment;
-  isMobile: boolean;
-  renderMode: RenderMode;
-};
+import type { FlexComponentProps } from "../../autolayout/utils/types";
 
 const FlexWidget = styled.div`
   position: relative;
 `;
 
-export function FlexComponent(props: AutoLayoutProps) {
+export function FlexComponent(props: FlexComponentProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
 
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
@@ -77,7 +52,7 @@ export function FlexComponent(props: AutoLayoutProps) {
       )} t--widget-${props.widgetName.toLowerCase()}`,
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
   const isResizing = useSelector(getIsResizing);
   const widgetDimensionsViewCss = {

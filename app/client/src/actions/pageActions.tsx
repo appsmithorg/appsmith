@@ -46,11 +46,11 @@ export interface CreatePageActionPayload {
   blockNavigation?: boolean;
 }
 
-export type updateLayoutOptions = {
+export interface updateLayoutOptions {
   isRetry?: boolean;
   shouldReplay?: boolean;
   updatedWidgetIds?: string[];
-};
+}
 
 export const fetchPage = (
   pageId: string,
@@ -275,12 +275,12 @@ export const updatePageError = (payload: UpdatePageErrorPayload) => {
   };
 };
 
-export type UpdatePageErrorPayload = {
+export interface UpdatePageErrorPayload {
   request: UpdatePageRequest;
   error: unknown;
-};
+}
 
-export type WidgetAddChild = {
+export interface WidgetAddChild {
   widgetId: string;
   widgetName?: string;
   type: WidgetType;
@@ -294,27 +294,27 @@ export type WidgetAddChild = {
   tabId: string;
   props?: Record<string, any>;
   dynamicBindingPathList?: DynamicPath[];
-};
+}
 
-export type WidgetRemoveChild = {
+export interface WidgetRemoveChild {
   widgetId: string;
   childWidgetId: string;
-};
+}
 
-export type WidgetDelete = {
+export interface WidgetDelete {
   widgetId?: string;
   parentId?: string;
   disallowUndo?: boolean;
   isShortcut?: boolean;
-};
+}
 
-export type MultipleWidgetDeletePayload = {
+export interface MultipleWidgetDeletePayload {
   widgetIds: string[];
   disallowUndo?: boolean;
   isShortcut?: boolean;
-};
+}
 
-export type WidgetResize = {
+export interface WidgetResize {
   widgetId: string;
   parentId: string;
   leftColumn?: number;
@@ -327,16 +327,16 @@ export type WidgetResize = {
   mobileBottomRow?: number;
   snapColumnSpace: number;
   snapRowSpace: number;
-};
+}
 
-export type ModalWidgetResize = {
+export interface ModalWidgetResize {
   height: number;
   width: number;
   widgetId: string;
   canvasWidgetId: string;
-};
+}
 
-export type WidgetAddChildren = {
+export interface WidgetAddChildren {
   widgetId: string;
   children: Array<{
     type: WidgetType;
@@ -350,13 +350,13 @@ export type WidgetAddChildren = {
     bottomRow: number;
     isLoading: boolean;
   }>;
-};
+}
 
-export type WidgetUpdateProperty = {
+export interface WidgetUpdateProperty {
   widgetId: string;
   propertyPath: string;
   propertyValue: any;
-};
+}
 
 export const updateWidget = (
   operation: WidgetOperation,
@@ -404,7 +404,7 @@ export interface ReduxActionWithExtraParams<T> extends ReduxAction<T> {
   extraParams: Record<any, any>;
 }
 
-export type GenerateCRUDSuccess = {
+export interface GenerateCRUDSuccess {
   page: {
     layouts: Array<any>;
     id: string;
@@ -414,7 +414,7 @@ export type GenerateCRUDSuccess = {
     description?: string;
   };
   isNewPage: boolean;
-};
+}
 
 export const generateTemplateSuccess = (payload: GenerateCRUDSuccess) => {
   return {
@@ -550,4 +550,28 @@ export const resetApplicationWidgets = () => ({
 
 export const fetchPageDSLs = () => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+});
+
+export const setupPage = (
+  pageId: string,
+  isFirstLoad = false,
+): ReduxAction<FetchPageRequest> => ({
+  type: ReduxActionTypes.SETUP_PAGE_INIT,
+  payload: {
+    id: pageId,
+    isFirstLoad,
+  },
+});
+
+export const setupPublishedPage = (
+  pageId: string,
+  bustCache = false,
+  firstLoad = false,
+) => ({
+  type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
+  payload: {
+    pageId,
+    bustCache,
+    firstLoad,
+  },
 });

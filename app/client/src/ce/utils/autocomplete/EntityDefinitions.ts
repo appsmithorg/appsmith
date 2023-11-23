@@ -1,11 +1,11 @@
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AppsmithEntity } from "entities/DataTree/dataTreeFactory";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { AppsmithEntity } from "@appsmith/entities/DataTree/types";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { Def } from "tern";
-import type { ActionEntity } from "entities/DataTree/types";
+import type { ActionEntity } from "@appsmith/entities/DataTree/types";
 
 export const entityDefinitions = {
   APPSMITH: (entity: AppsmithEntity, extraDefsToDefine: ExtraDef) => {
@@ -19,16 +19,65 @@ export const entityDefinitions = {
     ) {
       return {
         ...generatedTypeDef,
+        "!doc":
+          "A global object that provides access to information and functionalities within an application",
+        "!url": "https://docs.appsmith.com/reference/appsmith-framework",
+        store: {
+          ...(generatedTypeDef.store as Def),
+          "!doc":
+            "Object to access any app-level data or temporary state that is stored on the user's browser",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#store-object",
+        },
+        user: {
+          ...(generatedTypeDef.user as Def),
+          "!doc":
+            "Object that contains the data of the currently authenticated user.",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#user-object",
+        },
+        URL: {
+          ...(generatedTypeDef.URL as Def),
+          "!doc": "Object containing all the attributes of the current URL",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#url-object",
+        },
+        theme: {
+          ...(generatedTypeDef.theme as Def),
+          "!doc":
+            "Object containing the details of the theme properties applied to the application",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#theme-object",
+        },
+        mode: {
+          "!type": generatedTypeDef.mode as Def,
+          "!doc":
+            "An enum that contains whether the app runs in view or edit mode. It takes the values VIEW or EDIT",
+          "!url":
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#mode-enum",
+        },
         geolocation: {
           ...generatedTypeDef.geolocation,
           "!doc":
-            "The user's geo location information. Only available when requested",
+            "Object containing functions that allow you to retrieve the current user's location and the coordinates received from the user's device using the Geolocation API.",
           "!url":
-            "https://docs.appsmith.com/v/v1.2.1/framework-reference/geolocation",
-          getCurrentPosition:
-            "fn(onSuccess: fn() -> void, onError: fn() -> void, options: object) -> void",
-          watchPosition: "fn(options: object) -> void",
-          clearWatch: "fn() -> void",
+            "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocation-object",
+          getCurrentPosition: {
+            "!type":
+              "fn(onSuccess: fn() -> void, onError: fn() -> void, options: object) -> +Promise|void",
+            "!url":
+              "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationgetcurrentposition",
+          },
+          watchPosition: {
+            "!type": "fn(options: object) -> void",
+            "!url":
+              "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationwatchposition",
+          },
+          clearWatch: {
+            "!type": "fn() -> +Promise|void",
+            "!url":
+              "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationclearwatch",
+          },
         },
       };
     }
@@ -36,28 +85,59 @@ export const entityDefinitions = {
   },
   ACTION: (entity: ActionEntity, extraDefsToDefine: ExtraDef) => {
     const dataDef = generateTypeDef(entity.data, extraDefsToDefine);
+    let responseMetaDef = generateTypeDef(
+      entity.responseMeta,
+      extraDefsToDefine,
+    );
 
-    let data: Def = {
-      "!doc": "The response of the action",
+    if (_.isString(responseMetaDef)) {
+      responseMetaDef = {
+        "!type": responseMetaDef,
+      };
+    }
+
+    let dataCustomDef: Def = {
+      "!doc":
+        "A read-only property that contains the response body from the last successful execution of this query.",
+      "!url":
+        "https://docs.appsmith.com/reference/appsmith-framework/query-object#data-array",
     };
 
     if (_.isString(dataDef)) {
-      data["!type"] = dataDef;
+      dataCustomDef["!type"] = dataDef;
     } else {
-      data = { ...data, ...dataDef };
+      dataCustomDef = { ...dataCustomDef, ...dataDef };
     }
     return {
       "!doc":
-        "Actions allow you to connect your widgets to your backend data in a secure manner.",
-      "!url": "https://docs.appsmith.com/v/v1.2.1/framework-reference/run",
-      isLoading: "bool",
-      data,
-      responseMeta: {
-        "!doc": "The response meta of the action",
-        "!type": "?",
+        "Object that contains the properties required to run queries and access the query data.",
+      "!url":
+        "https://docs.appsmith.com/reference/appsmith-framework/query-object",
+      isLoading: {
+        "!type": "bool",
+        "!doc":
+          "Boolean that indicates whether the query is currently being executed.",
       },
-      run: "fn(params: ?) -> +Promise[:t=[!0.<i>.:t]]",
-      clear: "fn() -> +Promise[:t=[!0.<i>.:t]]",
+      data: dataCustomDef,
+      responseMeta: {
+        "!doc":
+          "Object that contains details about the response, such as the status code, headers, and other relevant information related to the query's execution and the server's response.",
+        "!url":
+          "https://docs.appsmith.com/reference/appsmith-framework/query-object#responsemeta-object",
+        ...responseMetaDef,
+      },
+      run: {
+        "!type": "fn(params?: {}) -> +Promise",
+        "!url":
+          "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryrun",
+        "!doc": "Executes the query with the given parameters.",
+      },
+      clear: {
+        "!type": "fn() -> +Promise",
+        "!url":
+          "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryclear",
+        "!doc": "Clears the query data.",
+      },
     };
   },
 };
@@ -98,57 +178,89 @@ export const GLOBAL_DEFS = {
 export const GLOBAL_FUNCTIONS = {
   "!name": "DATA_TREE.APPSMITH.FUNCTIONS",
   navigateTo: {
-    "!doc": "Action to navigate the user to another page or url",
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/navigate-to",
+    "!doc":
+      "Enables navigation between the internal pages of the App or to an external URL.",
     "!type":
-      "fn(pageNameOrUrl: string, params: {}, target?: string) -> +Promise[:t=[!0.<i>.:t]]",
+      "fn(pageNameOrUrl: string, params: {}, target?: string) -> +Promise",
   },
   showAlert: {
-    "!doc": "Show a temporary notification style message to the user",
-    "!type": "fn(message: string, style: string) -> +Promise[:t=[!0.<i>.:t]]",
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/show-alert",
+    "!doc":
+      "Displays a temporary toast-style alert message to the user for precisely 5 seconds. The duration of the alert message can't be modified.",
+    "!type": "fn(message: string, style: string) -> +Promise",
   },
   showModal: {
-    "!doc": "Open a modal",
-    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/show-modal",
+    "!doc":
+      "Opens an existing Modal widget and bring it into focus on the page",
+    "!type": "fn(modalName: string) -> +Promise",
   },
   closeModal: {
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/close-modal",
     "!doc": "Close a modal",
-    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(modalName: string) -> +Promise",
   },
   storeValue: {
-    "!doc": "Store key value data locally",
-    "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/store-value",
+    "!doc":
+      "Stores the data in the browser's local storage as key-value pairs that represent storage objects and can be later accessed anywhere in the application via <code>appsmith.store</code>.",
+    "!type": "fn(key: string, value: any, persist?: bool) -> +Promise",
   },
   removeValue: {
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/remove-value",
     "!doc": "Remove key value data locally",
-    "!type": "fn(key: string) -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn(key: string) -> +Promise",
   },
   clearStore: {
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/clear-store",
     "!doc": "Clear all key value data locally",
-    "!type": "fn() -> +Promise[:t=[!0.<i>.:t]]",
+    "!type": "fn() -> +Promise",
   },
   download: {
-    "!doc": "Download anything as a file",
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/download",
+    "!doc":
+      "Download any data as a file, leveraging the capabilities of the downloadjs library.",
     "!type":
-      "fn(data: any, fileName: string, fileType?: string) -> +Promise[:t=[!0.<i>.:t]]",
+      "fn(data: string|+Blob, fileName: string, fileType?: string) -> +Promise",
   },
   copyToClipboard: {
-    "!doc": "Copy text to clipboard",
-    "!type": "fn(data: string, options: object) -> +Promise[:t=[!0.<i>.:t]]",
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/copy-to-clipboard",
+    "!doc": "Copies the given text to clipboard",
+    "!type": "fn(data: string, options: object) -> +Promise",
   },
   resetWidget: {
-    "!doc": "Reset widget values",
-    "!type":
-      "fn(widgetName: string, resetChildren: boolean) -> +Promise[:t=[!0.<i>.:t]]",
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/reset-widget",
+    "!doc":
+      "Resets a widget to its default state. All user input changes are reverted and its properties' default values are applied.",
+    "!type": "fn(widgetName: string, resetChildren: bool) -> +Promise",
   },
   setInterval: {
-    "!doc": "Execute triggers at a given interval",
-    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/intervals-time-events",
+    "!doc": "Executes a function at a given interval",
+    "!type":
+      "fn(callback: fn() -> void, interval: number, id?: string) -> number",
   },
   clearInterval: {
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/clear-interval",
     "!doc": "Stop executing a setInterval with id",
     "!type": "fn(id: string) -> void",
   },
   postWindowMessage: {
+    "!url":
+      "https://docs.appsmith.com/reference/appsmith-framework/widget-actions/post-message",
     "!doc":
       "Establish cross-origin communication between Window objects/page and iframes",
     "!type": "fn(message: unknown, source: string, targetOrigin: string)",
@@ -177,6 +289,57 @@ export const getPropsForJSActionEntity = ({
     }
   }
   return properties;
+};
+
+export const ternDocsInfo: Record<string, any> = {
+  showAlert: {
+    exampleArgs: [
+      "'This is a success message', 'success'",
+      "'This is an error message', 'error'",
+    ],
+  },
+  showModal: {
+    exampleArgs: ["'Modal1'"],
+  },
+  closeModal: {
+    exampleArgs: ["'Modal1'"],
+  },
+  navigateTo: {
+    exampleArgs: [
+      "'Page1', { id: 1 }",
+      "'https://appsmith.com', {}, 'NEW_WINDOW'",
+    ],
+  },
+  copyToClipboard: {
+    exampleArgs: ["'Hello'"],
+  },
+  download: {
+    exampleArgs: [
+      "'Hello World', 'hello.txt', 'text/plain'",
+      "FilePicker1.files[0].data, 'data.json'",
+    ],
+  },
+  storeValue: {
+    exampleArgs: ["'key', 'value'"],
+  },
+  removeValue: {
+    exampleArgs: ["'key'"],
+  },
+  clearStore: {
+    exampleArgs: [""],
+  },
+  resetWidget: {
+    exampleArgs: ["'Table1', false"],
+  },
+  setInterval: {
+    exampleArgs: ["() => showAlert('Hello'), 1000, 'id'"],
+  },
+  clearInterval: {
+    exampleArgs: ["'id'"],
+  },
+  postWindowMessage: {
+    exampleArgs: ["message, 'Iframe1', '*'"],
+  },
 };
 
 export type EntityDefinitionsOptions = keyof typeof entityDefinitions;

@@ -13,7 +13,7 @@ const QueryHomePage = styled.div`
   }
 `;
 
-type QueryHomeScreenProps = {
+interface QueryHomeScreenProps {
   pageId: string;
   isCreating: boolean;
   location: {
@@ -23,20 +23,29 @@ type QueryHomeScreenProps = {
     replace: (data: string) => void;
     push: (data: string) => void;
   };
+  showMostPopularPlugins?: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
-};
+}
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
   render() {
-    const { history, location, pageId, showUnsupportedPluginDialog } =
-      this.props;
+    const {
+      history,
+      isCreating,
+      location,
+      pageId,
+      showMostPopularPlugins,
+      showUnsupportedPluginDialog,
+    } = this.props;
 
     return (
       <QueryHomePage>
         <DataSourceHome
           history={history}
+          isCreating={isCreating}
           location={location}
           pageId={pageId}
+          showMostPopularPlugins={showMostPopularPlugins}
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
         />
       </QueryHomePage>

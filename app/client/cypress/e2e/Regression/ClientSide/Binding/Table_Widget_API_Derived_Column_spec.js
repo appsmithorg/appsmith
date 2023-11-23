@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -23,13 +27,12 @@ describe("Test Create Api and Bind to Table widget", function () {
     );
     cy.RunAPI();
     //Validate Table with API data and then add a column
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
-    entityExplorer.SelectEntityByName("Text1");
-
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     cy.readTabledata("0", "4").then((tabData) => {
       const tableData = tabData;
@@ -54,21 +57,21 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("2. Check Image alignment is working as expected", function () {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.editColumn("avatar");
     cy.changeColumnType("Image", false);
     propPane.NavigateBackToPropertyPane();
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()
       .should("have.css", "background-position", "50% 50%");
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()
       .should("have.css", "background-position", "100% 50%");
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()
@@ -76,7 +79,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("3. Update table json data and check the derived column values after update", function () {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.backFromPropertyPanel();
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("name");

@@ -25,6 +25,7 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
+@Service
 public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceRepository workspaceRepository;
@@ -97,7 +99,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
                     return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(
-                            user, workspace, permissionGroupPermission.getUnAssignPermission());
+                            user, workspace, permissionGroupPermission.getAssignPermission());
                 })
                 /*
                  * The below switchIfEmpty will be invoked in 2 cases.
@@ -106,6 +108,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                  */
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Workspace is not assigned to the user.")))
+                // User must be assigned to a single default role of the workspace. We can safely use single() here.
                 .single()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
@@ -123,9 +126,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         Mono<UpdateResult> updateUserDataMono =
                 userMono.flatMap(user -> userDataService.removeRecentWorkspaceAndApps(user.getId(), workspaceId));
 
-        Mono<PermissionGroup> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono
-                .zipWith(userMono)
-                .flatMap(tuple -> permissionGroupService.unassignFromUser(tuple.getT1(), tuple.getT2()));
+        Mono<Boolean> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono.flatMap(
+                permissionGroup -> permissionGroupService.leaveExplicitlyAssignedSelfRole(permissionGroup.getId()));
 
         return removeUserFromOldPermissionGroupMono.then(updateUserDataMono).then(userMono);
     }

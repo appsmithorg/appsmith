@@ -43,8 +43,8 @@ import type {
   JSCollectionCreateUpdateResponse,
   RefactorAction,
   SetFunctionPropertyPayload,
-} from "api/JSActionAPI";
-import JSActionAPI from "api/JSActionAPI";
+} from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
@@ -72,10 +72,10 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
-import { jsCollectionIdURL } from "RouteBuilder";
+import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { ApiResponse } from "api/ApiResponses";
 import { shouldBeDefined } from "utils/helpers";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
@@ -251,7 +251,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
 export function* makeUpdateJSCollection(
   action: ReduxAction<Record<string, JSUpdate>>,
 ) {
-  const jsUpdates: Record<string, JSUpdate> = action.payload;
+  const jsUpdates: Record<string, JSUpdate> = action.payload || {};
 
   yield all(
     Object.keys(jsUpdates).map((key) =>
@@ -557,10 +557,8 @@ function* handleRefactorJSActionNameSaga(
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     const requestData = {
-      refactorAction: {
-        ...data.payload.refactorAction,
-        layoutId: layoutId,
-      },
+      ...data.payload.refactorAction,
+      layoutId: layoutId,
       actionCollection: data.payload.actionCollection,
     };
     // call to refactor action
@@ -568,9 +566,8 @@ function* handleRefactorJSActionNameSaga(
       const refactorResponse: ApiResponse =
         yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
 
-      const isRefactorSuccessful: boolean = yield validateResponse(
-        refactorResponse,
-      );
+      const isRefactorSuccessful: boolean =
+        yield validateResponse(refactorResponse);
 
       const currentPageId: string | undefined = yield select(getCurrentPageId);
 

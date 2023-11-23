@@ -39,6 +39,11 @@ const initialState: GitSyncReducerState = {
   isSwitchingBranch: false,
   switchingToBranch: null,
   isDeploying: false,
+
+  protectedBranchesLoading: false,
+  protectedBranches: [],
+
+  isUpdateProtectedBranchesLoading: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -563,9 +568,39 @@ const gitSyncReducer = createReducer(initialState, {
     switchingToBranch: null,
     isSwitchingBranch: false,
   }),
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    protectedBranchesLoading: true,
+  }),
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<{ protectedBranches: string[] }>,
+  ) => ({
+    ...state,
+    protectedBranchesLoading: false,
+    protectedBranches: action.payload.protectedBranches,
+  }),
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR]: (state) => ({
+    ...state,
+    protectedBranchesLoading: false,
+  }),
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]: (state) => ({
+    ...state,
+    isUpdateProtectedBranchesLoading: true,
+  }),
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_SUCCESS]: (state) => ({
+    ...state,
+    isUpdateProtectedBranchesLoading: false,
+  }),
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR]: (state) => ({
+    ...state,
+    isUpdateProtectedBranchesLoading: false,
+  }),
 });
 
-export type GitStatusData = {
+export interface GitStatusData {
   aheadCount: number;
   behindCount: number;
   conflicting: Array<string>;
@@ -579,36 +614,36 @@ export type GitStatusData = {
   modifiedJSLibs: number;
   discardDocUrl?: string;
   migrationMessage?: string;
-};
+}
 
-export type GitRemoteStatusData = {
+export interface GitRemoteStatusData {
   aheadCount: number;
   behindCount: number;
   remoteTrackingBranch: string;
-};
+}
 
-type GitErrorPayloadType = {
+interface GitErrorPayloadType {
   code: number | string;
   errorType?: string;
   message: string;
   referenceDoc?: string;
-};
+}
 
-export type GitErrorType = {
+export interface GitErrorType {
   error: GitErrorPayloadType;
   show?: boolean;
   crash?: boolean;
   logToSentry?: boolean;
-};
+}
 
-export type GitBranchDeleteState = {
+export interface GitBranchDeleteState {
   deleteBranch?: any;
   deleteBranchError?: any;
   deleteBranchWarning?: any;
   deletingBranch?: boolean;
-};
+}
 
-export type GitDiscardResponse = {
+export interface GitDiscardResponse {
   id: string;
   modifiedBy: string;
   userPermissions: string[];
@@ -640,7 +675,7 @@ export type GitDiscardResponse = {
   };
   new: boolean;
   modifiedAt: string;
-};
+}
 
 export type GitSyncReducerState = GitBranchDeleteState & {
   isGitSyncModalOpen: boolean;
@@ -698,6 +733,10 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isSwitchingBranch: boolean;
   switchingToBranch: string | null;
   isDeploying: boolean;
+
+  protectedBranches: string[];
+  protectedBranchesLoading: boolean;
+  isUpdateProtectedBranchesLoading: boolean;
 };
 
 export default gitSyncReducer;

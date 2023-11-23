@@ -25,7 +25,7 @@ import handlePageLevelSocketEvents from "./handlePageLevelSocketEvents";
 import * as Sentry from "@sentry/react";
 import { SOCKET_CONNECTION_EVENTS } from "./socketEvents";
 
-function connect(namespace?: string) {
+async function connect(namespace?: string) {
   const options: Partial<ManagerOptions & SocketOptions> = {
     path: RTS_BASE_PATH,
     // The default transports is ["polling", "websocket"], so polling is tried first. But polling

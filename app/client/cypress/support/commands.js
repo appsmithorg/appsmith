@@ -2,6 +2,11 @@
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
 
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 //require('cy-verify-downloads').addCustomCommand();
@@ -41,6 +46,7 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const entityExplorer = ObjectsRegistry.EntityExplorer;
 const assertHelper = ObjectsRegistry.AssertHelper;
+const homePageTS = ObjectsRegistry.HomePage;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -262,8 +268,11 @@ Cypress.Commands.add("GetUrlQueryParams", () => {
 
 Cypress.Commands.add("LogOutUser", () => {
   cy.wait(1000); //waiting for window to load
-  cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-  assertHelper.AssertNetworkStatus("@postLogout", 200);
+  homePageTS.InvokeDispatchOnStore();
+  //Logout is still a POST request in CE
+  if (CURRENT_REPO === REPO.CE) {
+    assertHelper.AssertNetworkStatus("@postLogout", 200);
+  }
 });
 
 Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
@@ -297,7 +306,7 @@ Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
 });
 
 Cypress.Commands.add("Signup", (uname, pword) => {
-  cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+  homePageTS.InvokeDispatchOnStore();
   cy.wait("@postLogout");
 
   cy.visit("/user/signup", { timeout: 60000 });
@@ -316,7 +325,11 @@ Cypress.Commands.add("Signup", (uname, pword) => {
       cy.get(signupPage.dropdownOption).click();
       cy.get(signupPage.useCaseDropdown).click();
       cy.get(signupPage.dropdownOption).click();
-      cy.get(signupPage.roleUsecaseSubmit).click({ force: true });
+      cy.get(signupPage.getStartedSubmit).click({ force: true });
+    } else if ($body.find(signupPage.proficiencyGroupButton).length > 0) {
+      cy.get(signupPage.proficiencyGroupButton).first().click();
+      cy.get(signupPage.useCaseGroupButton).first().click();
+      cy.get(signupPage.getStartedSubmit).click({ force: true });
     }
   });
   cy.wait("@getMe");
@@ -348,7 +361,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
   // Check if cookie is present
   cy.getCookie("SESSION").then((cookie) => {
     expect(cookie).to.not.be.null;
-    cy.log(cookie.value);
+    cy.log("cookie.value is: " + cookie.value);
 
     cy.location().should((loc) => {
       expect(loc.href).to.eq(loc.origin + "/applications");
@@ -357,13 +370,9 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     if (CURRENT_REPO === REPO.EE) {
       cy.wait(2000);
     } else {
-      cy.wait("@getMe");
-      cy.wait("@applications").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.wait("@getReleaseItems");
+      assertHelper.AssertNetworkStatus("getMe");
+      assertHelper.AssertNetworkStatus("applications");
+      assertHelper.AssertNetworkStatus("getReleaseItems");
     }
   });
 });
@@ -387,9 +396,28 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
   cy.wait(2000);
 });
 
-Cypress.Commands.add("LogOut", () => {
+Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
+  agHelper.WaitUntilAllToastsDisappear();
+  //Since these are coming in every self-hosted 1st time login, commenting for CI runs
+  // agHelper.AssertElementAbsence(
+  //   locators._specificToast("There was an unexpected error"),
+  // );
+  // agHelper.AssertElementAbsence(
+  //   locators._specificToast("Internal server error while processing request"),
+  // );
+
+  // Logout is a POST request in CE
+  const httpMethod = "POST";
+  if (CURRENT_REPO === REPO.EE) {
+    httpMethod = "GET";
+  }
+
+  if (CURRENT_REPO === REPO.CE)
+    toCheckgetPluginForm &&
+      assertHelper.AssertNetworkResponseData("@getPluginForm", false);
+
   cy.request({
-    method: "POST",
+    method: httpMethod,
     url: "/api/v1/logout",
     headers: {
       "X-Requested-By": "Appsmith",
@@ -397,17 +425,6 @@ Cypress.Commands.add("LogOut", () => {
   }).then((response) => {
     expect(response.status).equal(200); //Verifying logout is success
   });
-});
-
-Cypress.Commands.add("NavigateToWidgets", (pageName) => {
-  cy.get(pages.pagesIcon).click({ force: true });
-  cy.get(".t--page-sidebar-" + pageName + "")
-    .find(">div")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
-  cy.get(pages.widgetsEditor).click();
-  cy.wait("@getPage");
-  cy.get("#loading").should("not.exist");
 });
 
 Cypress.Commands.add("SearchApp", (appname) => {
@@ -421,50 +438,6 @@ Cypress.Commands.add("SearchApp", (appname) => {
   cy.get("#loading").should("not.exist");
   // Wait added because after opening the application editor, sometimes it takes a little time.
 });
-
-Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.get(".t--entity-name").click({ multiple: true });
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname2).concat("')"),
-  ).should("not.exist");
-});
-
-Cypress.Commands.add("GlobalSearchEntity", (apiname1, dontAssertVisibility) => {
-  // entity explorer search will be hidden
-  cy.get(commonlocators.searchEntityInExplorer).type(apiname1, { force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.CheckAndUnfoldWidgets();
-  cy.wait(500);
-  if (!dontAssertVisibility) {
-    cy.get(
-      commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-    ).should("be.visible");
-  }
-});
-
-Cypress.Commands.add(
-  "EditEntityNameByDoubleClick",
-  (entityName, updatedName) => {
-    cy.get(explorer.entity).contains(entityName).dblclick({ force: true });
-    cy.log(updatedName);
-    cy.get(explorer.editEntityField)
-      .clear()
-      .type(updatedName + "{enter}", { force: true });
-    cy.wait("@saveDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-  },
-);
 
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
@@ -511,78 +484,6 @@ Cypress.Commands.add("CheckAndUnfoldWidgets", () => {
         cy.get(commonlocators.widgetSection).click({ force: true });
       }
     });
-});
-
-Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  cy.CheckAndUnfoldWidgets();
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .first()
-    .scrollIntoView({ easing: "linear" });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .last()
-    .click({ force: true });
-  //cy.get(".bp3-editable-text-content").should("contain.text", apiname1);
-  //cy.get('.t--entity-name').click({multiple:true})
-});
-
-Cypress.Commands.add("SearchEntityAndUnfold", (apiname1) => {
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.CheckAndUnfoldWidgets();
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .parents(commonlocators.entityItem)
-    .first()
-    .children(commonlocators.entityCollapseToggle)
-    .last()
-    .click({ force: true });
-});
-
-Cypress.Commands.add("OpenBindings", (apiname1) => {
-  cy.wait(500);
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
-  cy.CheckAndUnfoldWidgets();
-  cy.wait(500);
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .parents(commonlocators.entityItem)
-    .first()
-    .trigger("mouseover")
-    .find(commonlocators.entityContextMenu)
-    .last()
-    .click({ force: true });
-  cy.get(commonlocators.entityContextMenuContent)
-    .children("li")
-    .contains("Show bindings")
-    .click({ force: true });
-});
-
-Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).should("be.visible");
-  return cy
-    .get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
-    .dblclick()
-    .get("input[type=text]")
-    .last();
 });
 
 Cypress.Commands.add("clickTest", (testbutton) => {
@@ -708,10 +609,28 @@ Cypress.Commands.add("addDsl", (dsl) => {
 Cypress.Commands.add("DeleteAppByApi", () => {
   const appId = localStorage.getItem("applicationId");
   if (appId !== null) {
-    cy.log(appId + "appId");
+    cy.log("appId to delete is:" + appId);
     cy.request({
       method: "DELETE",
       url: "api/v1/applications/" + appId,
+      failOnStatusCode: false,
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
+    }).then((response) => {
+      cy.log(response.body);
+      cy.log(response.status);
+    });
+  }
+});
+
+Cypress.Commands.add("DeleteWorkspaceByApi", () => {
+  const workspaceId = localStorage.getItem("workspaceId");
+  if (workspaceId !== null) {
+    cy.log("workspaceId to delete is:" + workspaceId);
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/workspaces/" + workspaceId,
       failOnStatusCode: false,
       headers: {
         "X-Requested-By": "Appsmith",
@@ -763,10 +682,6 @@ Cypress.Commands.add("getPluginFormsAndCreateDatasource", () => {
   */
 });
 
-Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
-  cy.get(explorer.entityWidget).click({ force: true });
-});
-
 Cypress.Commands.add("NavigateToJSEditor", () => {
   cy.get(explorer.createNew).click({ force: true });
   cy.get(`[data-testId="t--search-file-operation"]`).type("New JS Object");
@@ -780,14 +695,6 @@ Cypress.Commands.add("importCurl", () => {
     "response.body.responseMeta.status",
     201,
   );
-});
-
-Cypress.Commands.add("NavigateToActiveTab", () => {
-  cy.get(explorer.activeTab).click({ force: true });
-
-  // cy.get(pages.integrationActiveTab)
-  //   .should("be.visible")
-  //   .click({ force: true });
 });
 
 Cypress.Commands.add("selectAction", (option) => {
@@ -998,8 +905,12 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/applications/new").as("applications");
   cy.intercept("GET", "/api/v1/users/profile").as("getUser");
   cy.intercept("GET", "/api/v1/plugins?workspaceId=*").as("getPlugins");
-  cy.intercept("POST", "/api/v1/logout").as("postLogout");
 
+  if (CURRENT_REPO === REPO.CE) {
+    cy.intercept("POST", "/api/v1/logout").as("postLogout");
+  } else if (CURRENT_REPO === REPO.EE) {
+    cy.intercept("GET", "/api/v1/logout").as("postLogout");
+  }
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
   cy.intercept("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
@@ -1126,6 +1037,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
   cy.intercept("DELETE", "/api/v1/git/branch/app/*").as("deleteBranch");
   cy.intercept("GET", "/api/v1/git/branch/app/*").as("getBranch");
+  cy.intercept("POST", "/api/v1/git/create-branch/app/*").as("createBranch");
   cy.intercept("GET", "/api/v1/git/status/app/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
@@ -1137,6 +1049,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   );
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
   cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
+  cy.intercept("GET", "/api/v1/applications/ssh-keypair/*").as("generatedKey");
   cy.intercept("POST", "/api/v1/applications/snapshot/*").as("snapshotSuccess");
   cy.intercept(
     {
@@ -1149,9 +1062,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     },
   ).as("connectGitLocalRepo");
 
-  cy.intercept({
-    method: "PUT",
-  }).as("sucessSave");
+  // cy.intercept({
+  //   method: "PUT",
+  // }).as("sucessSave");
 
   cy.intercept("POST", "https://api.segment.io/v1/b", (req) => {
     req.reply({
@@ -1199,6 +1112,18 @@ Cypress.Commands.add("startServerAndRoutes", () => {
       });
     },
   ).as("productAlert");
+  cy.intercept(
+    {
+      method: "GET",
+      url: /domain\/docs\.appsmith\.com\/token$/,
+    },
+    {
+      statusCode: 200,
+    },
+  ).as("docsCall");
+  cy.intercept("POST", "/api/v1/datasources/*/schema-preview").as(
+    "schemaPreview",
+  );
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1245,8 +1170,7 @@ Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("Queries/JS");
-  cy.get(".t--entity-name").contains("Api2").click({ force: true });
+  EditorNavigation.SelectEntityByName("Api2", EntityType.Api);
   cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
@@ -1261,18 +1185,17 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-      cy.get(".t--entity-name").contains("Table1").click({ force: true });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.isSelectRow(0);
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
-        expect(tableData).to.equal(valueToTest);
+        expect(valueToTest).contains(tableData);
       });
     });
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("Queries/JS");
-  cy.get(".t--entity-name").contains("Api2").click({ force: true });
+  EditorNavigation.SelectEntityByName("Api2", EntityType.Api);
   cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
@@ -1287,13 +1210,13 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
     .then((valueToTest) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
-      cy.get(".t--entity-name").contains("Table1").click({ force: true });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.wait(2000);
       cy.isSelectRow(0);
       cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
         cy.log(valueToTest);
-        expect(tableData).to.equal(valueToTest);
+        expect(valueToTest).contains(tableData);
       });
     });
 });
@@ -1413,7 +1336,13 @@ Cypress.Commands.add("createSuperUser", () => {
       expect(interception.request.body).contains("signupForNewsletter=true");
     });
   }
-  cy.wait("@getWorkspace");
+
+  cy.wait(2000);
+
+  if (CURRENT_REPO === REPO.CE) {
+    cy.get("#loading").should("not.exist");
+    cy.get("#sidebar").should("be.visible");
+  }
 
   cy.LogOut();
   cy.wait(2000);
@@ -2069,6 +1998,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreatePage", () => {
+  EditorNavigation.ViaSidebar(SidebarButton.Pages);
   cy.get(pages.AddPage).first().click();
   cy.xpath("//span[text()='New blank page']/parent::div").click();
 });

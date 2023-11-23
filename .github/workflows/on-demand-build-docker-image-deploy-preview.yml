@@ -47,6 +47,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
+      skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}      
 
   vercel-build:
     name: vercel-build
@@ -187,6 +188,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
           build-args: |
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
 
     outputs:
       imageHash: ${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}

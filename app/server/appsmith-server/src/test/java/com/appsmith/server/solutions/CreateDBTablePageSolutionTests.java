@@ -28,17 +28,20 @@ import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceStructureService;
-import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,7 +77,7 @@ public class CreateDBTablePageSolutionTests {
     // Regex to break string in separate words
     static final String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*_]+";
     private static final String DATA = "data";
-    private static final Datasource testDatasource = new Datasource();
+    private static Datasource testDatasource = new Datasource();
     private static final DatasourceStorageStructure testDatasourceStructure = new DatasourceStorageStructure();
     private static Workspace testWorkspace;
     private static String testDefaultEnvironmentId;
@@ -87,42 +90,43 @@ public class CreateDBTablePageSolutionTests {
     private final String UPDATE_QUERY = "UpdateQuery";
     private final String INSERT_QUERY = "InsertQuery";
     private final Map<String, String> actionNameToBodyMap = Map.of(
-            "DeleteQuery", "DELETE FROM sampleTable\n" + "  WHERE \"id\" = {{data_table.triggeredRow.id}};",
+            "DeleteQuery",
+            "DELETE FROM sampleTable\n" + "  WHERE \"id\" = {{data_table.triggeredRow.id}};",
             "InsertQuery",
-                    "INSERT INTO sampleTable (\n" + "\t\"field1.something\", \n"
-                            + "\t\"field2\",\n"
-                            + "\t\"field3\", \n"
-                            + "\t\"field4\"\n"
-                            + ")\n"
-                            + "VALUES (\n"
-                            + "\t\t\t\t{{insert_form.formData.field1.something}}, \n"
-                            + "\t\t\t\t{{insert_form.formData.field2}}, \n"
-                            + "\t\t\t\t{{insert_form.formData.field3}}, \n"
-                            + "\t\t\t\t{{insert_form.formData.field4}}\n"
-                            + ");",
+            "INSERT INTO sampleTable (\n" + "\t\"field1.something\", \n"
+                    + "\t\"field2\",\n"
+                    + "\t\"field3\", \n"
+                    + "\t\"field4\"\n"
+                    + ")\n"
+                    + "VALUES (\n"
+                    + "\t\t\t\t{{insert_form.formData.field1.something}}, \n"
+                    + "\t\t\t\t{{insert_form.formData.field2}}, \n"
+                    + "\t\t\t\t{{insert_form.formData.field3}}, \n"
+                    + "\t\t\t\t{{insert_form.formData.field4}}\n"
+                    + ");",
             "SelectQuery",
-                    "SELECT * FROM sampleTable\n"
-                            + "WHERE \"field1.something\" like '%{{data_table.searchText || \"\"}}%'\n"
-                            + "ORDER BY \"{{data_table.sortOrder.column || 'id'}}\" {{data_table.sortOrder.order || 'ASC'}}\n"
-                            + "LIMIT {{data_table.pageSize}}"
-                            + "OFFSET {{(data_table.pageNo - 1) * data_table.pageSize}};",
+            "SELECT * FROM sampleTable\n"
+                    + "WHERE \"field1.something\" like '%{{data_table.searchText || \"\"}}%'\n"
+                    + "ORDER BY \"{{data_table.sortOrder.column || 'id'}}\" {{data_table.sortOrder.order || 'ASC'}}\n"
+                    + "LIMIT {{data_table.pageSize}}"
+                    + "OFFSET {{(data_table.pageNo - 1) * data_table.pageSize}};",
             "UpdateQuery",
-                    "UPDATE sampleTable SET\n"
-                            + "\t\t\"field1.something\" = '{{update_form.fieldState.field1.something.isVisible ? update_form.formData.field1.something : update_form.sourceData.field1.something}}',\n"
-                            + "    \"field2\" = '{{update_form.fieldState.field2.isVisible ? update_form.formData.field2 : update_form.sourceData.field2}}',\n"
-                            + "    \"field3\" = '{{update_form.fieldState.field3.isVisible ? update_form.formData.field3 : update_form.sourceData.field3}}',\n"
-                            + "\t\t\"field4\" = '{{update_form.fieldState.field4.isVisible ? update_form.formData.field4 : update_form.sourceData.field4}}'\n"
-                            + "  WHERE \"id\" = {{data_table.selectedRow.id}};",
+            "UPDATE sampleTable SET\n"
+                    + "\t\t\"field1.something\" = '{{update_form.fieldState.field1.something.isVisible ? update_form.formData.field1.something : update_form.sourceData.field1.something}}',\n"
+                    + "    \"field2\" = '{{update_form.fieldState.field2.isVisible ? update_form.formData.field2 : update_form.sourceData.field2}}',\n"
+                    + "    \"field3\" = '{{update_form.fieldState.field3.isVisible ? update_form.formData.field3 : update_form.sourceData.field3}}',\n"
+                    + "\t\t\"field4\" = '{{update_form.fieldState.field4.isVisible ? update_form.formData.field4 : update_form.sourceData.field4}}'\n"
+                    + "  WHERE \"id\" = {{data_table.selectedRow.id}};",
             "UpdateActionWithLessColumns",
-                    "UPDATE limitedColumnTable SET\n"
-                            + "\t\t\"field1.something\" = '{{update_form.fieldState.field1.something.isVisible ? update_form.formData.field1.something : update_form.sourceData.field1.something}}'\n"
-                            + "  WHERE \"id\" = {{data_table.selectedRow.id}};",
+            "UPDATE limitedColumnTable SET\n"
+                    + "\t\t\"field1.something\" = '{{update_form.fieldState.field1.something.isVisible ? update_form.formData.field1.something : update_form.sourceData.field1.something}}'\n"
+                    + "  WHERE \"id\" = {{data_table.selectedRow.id}};",
             "InsertActionWithLessColumns",
-                    "INSERT INTO limitedColumnTable (\n" + "\t\"field1.something\" \n"
-                            + ")\n"
-                            + "VALUES (\n"
-                            + "\t\t\t\t{{insert_form.formData.field1.something}} \n"
-                            + ");");
+            "INSERT INTO limitedColumnTable (\n" + "\t\"field1.something\" \n"
+                    + ")\n"
+                    + "VALUES (\n"
+                    + "\t\t\t\t{{insert_form.formData.field1.something}} \n"
+                    + ");");
 
     @Autowired
     CreateDBTablePageSolution solution;
@@ -149,13 +153,19 @@ public class CreateDBTablePageSolutionTests {
     PluginRepository pluginRepository;
 
     @Autowired
-    ImportExportApplicationService importExportApplicationService;
+    ImportApplicationService importApplicationService;
+
+    @Autowired
+    ExportApplicationService exportApplicationService;
 
     @Autowired
     ApplicationService applicationService;
 
     @Autowired
     EnvironmentPermission environmentPermission;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
 
     DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
 
@@ -167,7 +177,6 @@ public class CreateDBTablePageSolutionTests {
     private final CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(spyMockPluginExecutor));
@@ -175,66 +184,71 @@ public class CreateDBTablePageSolutionTests {
                 .thenReturn(Mono.just(spyMockPluginExecutor))
                 .thenReturn(Mono.just(spyMockPluginExecutor));
 
-        if (testWorkspace == null) {
-            Workspace workspace = new Workspace();
-            workspace.setName("Create-DB-Table-Page-Org");
-            testWorkspace = workspaceService.create(workspace).block();
-            testDefaultEnvironmentId = workspaceService
-                    .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
-                    .block();
-        }
+        Workspace workspace = new Workspace();
+        workspace.setName("Create-DB-Table-Page-Org");
+        testWorkspace = workspaceService.create(workspace).block();
+        testDefaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(testWorkspace.getId(), environmentPermission.getExecutePermission())
+                .block();
 
-        if (testApp == null) {
-            Application testApplication = new Application();
-            testApplication.setName("DB-Table-Page-Test-Application");
-            testApplication.setWorkspaceId(testWorkspace.getId());
-            testApp = applicationPageService
-                    .createApplication(testApplication, testWorkspace.getId())
-                    .block();
-        }
+        Application testApplication = new Application();
+        testApplication.setName("DB-Table-Page-Test-Application");
+        testApplication.setWorkspaceId(testWorkspace.getId());
+        testApp = applicationPageService
+                .createApplication(testApplication, testWorkspace.getId())
+                .block();
 
-        if (StringUtils.isEmpty(testDatasource.getId())) {
-            postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
-            // This datasource structure includes only 1 table with 2 columns. This is to test the scenario where
-            // template table
-            // have more number of columns than the user provided table which leads to deleting the column names from
-            // action configuration
+        postgreSQLPlugin = pluginRepository.findByName("PostgreSQL").block();
+        // This datasource structure includes only 1 table with 2 columns. This is to test the scenario where
+        // template table
+        // have more number of columns than the user provided table which leads to deleting the column names from
+        // action configuration
 
-            List<Column> limitedColumns = List.of(
-                    new Column("id", "type1", null, true), new Column("field1.something", "VARCHAR(23)", null, false));
-            List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("id")));
-            List<Column> columns = List.of(
-                    new Column("id", "type1", null, true),
-                    new Column("field1.something", "VARCHAR(23)", null, false),
-                    new Column("field2", "type3", null, false),
-                    new Column("field3", "type4", null, false),
-                    new Column("field4", "type5", null, false));
-            List<Table> tables = List.of(
-                    new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
-                    new Table(TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>()));
-            structure.setTables(tables);
-            testDatasource.setPluginId(postgreSQLPlugin.getId());
-            testDatasource.setWorkspaceId(testWorkspace.getId());
-            testDatasource.setName("CRUD-Page-Table-DS");
+        List<Column> limitedColumns = List.of(
+                new Column("id", "type1", null, true), new Column("field1.something", "VARCHAR(23)", null, false));
+        List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("id")));
+        List<Column> columns = List.of(
+                new Column("id", "type1", null, true),
+                new Column("field1.something", "VARCHAR(23)", null, false),
+                new Column("field2", "type3", null, false),
+                new Column("field3", "type4", null, false),
+                new Column("field4", "type5", null, false));
+        List<Table> tables = List.of(
+                new Table(TableType.TABLE, "", "sampleTable", columns, keys, new ArrayList<>()),
+                new Table(TableType.TABLE, "", "limitedColumnTable", limitedColumns, keys, new ArrayList<>()));
+        structure.setTables(tables);
+        Datasource datasource = new Datasource();
+        datasource.setPluginId(postgreSQLPlugin.getId());
+        datasource.setWorkspaceId(testWorkspace.getId());
+        datasource.setName("CRUD-Page-Table-DS");
 
-            datasourceConfiguration.setUrl("http://test.com");
+        datasourceConfiguration.setUrl("http://test.com");
 
-            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-            storages.put(
-                    testDefaultEnvironmentId,
-                    new DatasourceStorageDTO(
-                            testDatasource.getId(), testDefaultEnvironmentId, datasourceConfiguration));
-            testDatasource.setDatasourceStorages(storages);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                testDefaultEnvironmentId,
+                new DatasourceStorageDTO(datasource.getId(), testDefaultEnvironmentId, datasourceConfiguration));
+        datasource.setDatasourceStorages(storages);
 
-            Datasource datasource = datasourceService.create(testDatasource).block();
+        testDatasource = datasourceService.create(datasource).block();
 
-            testDatasourceStructure.setDatasourceId(datasource.getId());
-            testDatasourceStructure.setEnvironmentId(testDefaultEnvironmentId);
-            testDatasourceStructure.setStructure(structure);
-            datasourceStructureService.save(testDatasourceStructure).block();
-        }
+        testDatasourceStructure.setDatasourceId(testDatasource.getId());
+        testDatasourceStructure.setEnvironmentId(testDefaultEnvironmentId);
+        testDatasourceStructure.setStructure(structure);
+        datasourceStructureService.save(testDatasourceStructure).block();
         resource.setTableName(structure.getTables().get(0).getName());
         resource.setDatasourceId(testDatasource.getId());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(testWorkspace.getId(), applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace =
+                workspaceService.archiveById(testWorkspace.getId()).block();
     }
 
     Mono<List<NewAction>> getActions(String pageId) {
@@ -355,11 +369,11 @@ public class CreateDBTablePageSolutionTests {
                     gitData.setDefaultApplicationId(application.getId());
                     return applicationService
                             .save(application)
-                            .zipWhen(application1 -> importExportApplicationService.exportApplicationById(
+                            .zipWhen(application1 -> exportApplicationService.exportApplicationById(
                                     application1.getId(), gitData.getBranchName()));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importExportApplicationService.importApplicationInWorkspaceFromGit(
+                .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
                         testWorkspace.getId(), tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
                 .block();
 

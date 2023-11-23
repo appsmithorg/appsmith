@@ -5,13 +5,13 @@ import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { getQueryStringfromObject } from "RouteBuilder";
+import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";
 import history from "utils/history";
-import { setDataUrl } from "sagas/PageSagas";
+import { setDataUrl } from "@appsmith/sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { TriggerFailureError } from "./errorUtils";
-import { isValidURL } from "utils/URLUtils";
+import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
 import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
 
@@ -19,19 +19,6 @@ export enum NavigationTargetType_Dep {
   SAME_WINDOW = "SAME_WINDOW",
   NEW_WINDOW = "NEW_WINDOW",
 }
-
-const isValidUrlScheme = (url: string): boolean => {
-  return (
-    // Standard http call
-    url.startsWith("http://") ||
-    // Secure http call
-    url.startsWith("https://") ||
-    // Mail url to directly open email app prefilled
-    url.startsWith("mailto:") ||
-    // Tel url to directly open phone app prefilled
-    url.startsWith("tel:")
-  );
-};
 
 const isValidPageName = (
   pageNameOrUrl: string,
@@ -47,24 +34,7 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
 
   const page = isValidPageName(pageNameOrUrl, pageList);
 
-  if (isValidURL(pageNameOrUrl)) {
-    AnalyticsUtil.logEvent("NAVIGATE", {
-      navUrl: pageNameOrUrl,
-    });
-
-    let url = pageNameOrUrl + getQueryStringfromObject(params);
-
-    // Add a default protocol if it doesn't exist.
-    if (!isValidUrlScheme(url)) {
-      url = "https://" + url;
-    }
-
-    if (target === NavigationTargetType.SAME_WINDOW) {
-      window.location.assign(url);
-    } else if (target === NavigationTargetType.NEW_WINDOW) {
-      window.open(url, "_blank");
-    }
-  } else if (page) {
+  if (page) {
     const currentPageId: string = yield select(getCurrentPageId);
 
     AnalyticsUtil.logEvent("NAVIGATE", {
@@ -92,7 +62,6 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
     }
-
     AppsmithConsole.info({
       text: `navigateTo('${page.pageName}') was triggered`,
       state: {
@@ -100,6 +69,33 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
       },
     });
   } else {
-    throw new TriggerFailureError("Enter a valid URL or page name");
+    let url = pageNameOrUrl + getQueryStringfromObject(params);
+
+    if (!isValidURL(url)) {
+      const looksLikeURL = matchesURLPattern(url);
+
+      // Filter out cases like navigateTo("1");
+      if (!looksLikeURL)
+        throw new TriggerFailureError("Enter a valid URL or page name");
+
+      // Default to https protocol to support navigation to URLs like www.google.com
+      url = `https://${url}`;
+      if (!isValidURL(url))
+        throw new TriggerFailureError("Enter a valid URL or page name");
+    }
+    if (target === NavigationTargetType.SAME_WINDOW) {
+      window.location.assign(url);
+    } else if (target === NavigationTargetType.NEW_WINDOW) {
+      window.open(url, "_blank");
+    }
+    AppsmithConsole.info({
+      text: `navigateTo('${url}') was triggered`,
+      state: {
+        params,
+      },
+    });
+    AnalyticsUtil.logEvent("NAVIGATE", {
+      navUrl: pageNameOrUrl,
+    });
   }
 }

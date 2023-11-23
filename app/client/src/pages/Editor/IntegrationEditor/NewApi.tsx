@@ -17,11 +17,11 @@ import { PluginPackageName, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { curlImportPageURL } from "RouteBuilder";
+import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Spinner } from "design-system";
 
-const StyledContainer = styled.div`
+export const StyledContainer = styled.div`
   flex: 1;
   margin-top: 8px;
   .textBtn {
@@ -63,7 +63,7 @@ const StyledContainer = styled.div`
   }
 `;
 
-const ApiCardsContainer = styled.div`
+export const ApiCardsContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
@@ -79,7 +79,7 @@ const ApiCardsContainer = styled.div`
   }
 `;
 
-const ApiCard = styled.div`
+export const ApiCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -110,14 +110,14 @@ const ApiCard = styled.div`
   }
 `;
 
-const CardContentWrapper = styled.div`
+export const CardContentWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 13px;
   padding-left: 13.5px;
 `;
 
-type ApiHomeScreenProps = {
+interface ApiHomeScreenProps {
   createNewApiAction: (
     pageId: string,
     from: EventLocation,
@@ -137,11 +137,11 @@ type ApiHomeScreenProps = {
   showUnsupportedPluginDialog: (callback: any) => void;
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
-};
+}
 
 type Props = ApiHomeScreenProps;
 
-const API_ACTION = {
+export const API_ACTION = {
   IMPORT_CURL: "IMPORT_CURL",
   CREATE_NEW_API: "CREATE_NEW_API",
   CREATE_NEW_GRAPHQL_API: "CREATE_NEW_GRAPHQL_API",
@@ -261,7 +261,9 @@ function NewApiScreen(props: Props) {
   const API_PLUGINS = plugins.filter((p) =>
     !showSaasAPIs
       ? p.packageName === PluginPackageName.GRAPHQL
-      : p.type === PluginType.SAAS || p.type === PluginType.REMOTE,
+      : p.type === PluginType.SAAS ||
+        p.type === PluginType.REMOTE ||
+        p.type === PluginType.AI,
   );
 
   return (

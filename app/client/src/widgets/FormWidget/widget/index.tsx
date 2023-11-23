@@ -5,28 +5,35 @@ import type { WidgetProps } from "../../BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { Positioning } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexLayerAlignment,
+  FlexVerticalAlignment,
+  Positioning,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  FlexLayerAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/autolayout/utils/constants";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/autoLayoutTypes";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { formPreset } from "layoutSystems/anvil/layoutComponents/presets/FormPreset";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 class FormWidget extends ContainerWidget {
   static type = "FORM_WIDGET";
@@ -154,9 +161,9 @@ class FormWidget extends ContainerWidget {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
               widgetId: string,
               parentId: string,
-              isAutoLayout: boolean,
+              layoutSystemType: LayoutSystemTypes,
             ) => {
-              if (!isAutoLayout) return {};
+              if (layoutSystemType === LayoutSystemTypes.FIXED) return {};
               return { rows: 10 };
             },
           },
@@ -166,10 +173,11 @@ class FormWidget extends ContainerWidget {
               widget: FlattenedWidgetProps,
               widgets: CanvasWidgetsReduxState,
               parent: FlattenedWidgetProps,
-              isAutoLayout: boolean,
+              layoutSystemType: LayoutSystemTypes,
             ) => {
-              if (!isAutoLayout) return [];
-
+              if (layoutSystemType === LayoutSystemTypes.FIXED) {
+                return [];
+              }
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
@@ -217,6 +225,12 @@ class FormWidget extends ContainerWidget {
                 },
               ];
 
+              const layout: LayoutProps[] = formPreset(
+                textWidget.widgetId,
+                buttonWidget1.widgetId,
+                buttonWidget2.widgetId,
+              );
+
               //create properties to be updated
               return getWidgetBluePrintUpdates({
                 [widget.widgetId]: {
@@ -230,6 +244,7 @@ class FormWidget extends ContainerWidget {
                   positioning: Positioning.Vertical,
                   bottomRow: 100,
                   mobileBottomRow: 100,
+                  layout,
                 },
                 [textWidget.widgetId]: {
                   responsiveBehavior: ResponsiveBehavior.Fill,
@@ -262,6 +277,7 @@ class FormWidget extends ContainerWidget {
       },
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+      flexVerticalAlignment: FlexVerticalAlignment.Stretch,
     };
   }
 
@@ -280,6 +296,18 @@ class FormWidget extends ContainerWidget {
       ],
       disableResizeHandles: {
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "100px" },
+        minWidth: { base: "280px" },
       },
     };
   }
@@ -369,6 +397,8 @@ class FormWidget extends ContainerWidget {
   renderChildWidget(): React.ReactNode {
     const childContainer = this.getChildContainer();
 
+    const { componentHeight, componentWidth } = this.props;
+
     if (childContainer.children) {
       const isInvalid = this.checkInvalidChildren(childContainer.children);
       childContainer.children = childContainer.children.map(
@@ -381,7 +411,8 @@ class FormWidget extends ContainerWidget {
         },
       );
     }
-
+    childContainer.rightColumn = componentWidth;
+    childContainer.bottomRow = componentHeight;
     return super.renderChildWidget(childContainer);
   }
 

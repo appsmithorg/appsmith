@@ -21,6 +21,8 @@ import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants
 import { getUniqueKeysFromSourceData } from "widgets/MenuButtonWidget/widget/helper";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -41,7 +43,7 @@ const CurlyBraces = styled.span`
   font-weight: var(--ads-v2-font-weight-bold);
 `;
 
-type InputTextProp = {
+interface InputTextProp {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
@@ -51,7 +53,7 @@ type InputTextProp = {
   dataTreePath?: string;
   additionalDynamicData: AdditionalDynamicDataTree;
   theme: EditorTheme;
-};
+}
 
 function InputText(props: InputTextProp) {
   const {
@@ -72,7 +74,11 @@ function InputText(props: InputTextProp) {
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
-        hinting={[assistiveBindingHinter]}
+        hinting={[
+          bindingHintHelper,
+          assistiveBindingHinter,
+          slashCommandHintHelper,
+        ]}
         input={{
           value: value,
           onChange: onChange,

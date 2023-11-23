@@ -198,6 +198,10 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     Boolean isCommunityTemplate;
 
+    /* Template title of the template from which this app was forked, if any */
+    @JsonView(Views.Public.class)
+    String forkedFromTemplateTitle;
+
     @JsonView(Views.Internal.class)
     @Deprecated
     String defaultPermissionGroup;
@@ -405,7 +409,8 @@ public class Application extends BaseDomain {
 
         public enum Type {
             FIXED,
-            AUTO
+            AUTO,
+            ANVIL
         }
     }
 }

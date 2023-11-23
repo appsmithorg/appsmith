@@ -57,10 +57,10 @@ export type BaseInputComponentProps = FieldComponentBaseProps &
     validation?: boolean;
   };
 
-export type OnValueChangeOptions = {
+export interface OnValueChangeOptions {
   fieldOnChangeHandler: (...event: any[]) => void;
   isValueValid: boolean;
-};
+}
 
 type BaseInputFieldProps<TSchemaItem extends SchemaItem = SchemaItem> =
   BaseFieldComponentProps<BaseInputComponentProps & TSchemaItem> & {
@@ -73,13 +73,13 @@ type BaseInputFieldProps<TSchemaItem extends SchemaItem = SchemaItem> =
     isValid: (schemaItem: TSchemaItem, value?: string | null) => boolean;
   };
 
-type IsValidOptions = {
+interface IsValidOptions {
   fieldType: FieldType;
-};
+}
 
-type StyledInputWrapperProps = {
+interface StyledInputWrapperProps {
   multiline: boolean;
-};
+}
 
 const COMPONENT_DEFAULT_VALUES: BaseInputComponentProps = {
   isDisabled: false,

@@ -4,7 +4,7 @@ import { withLazyRender } from "widgets/withLazyRender";
 import type BaseWidget from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
 import * as Sentry from "@sentry/react";
-import { withLayoutSystemHOC } from "../../layoutSystems/withLayoutSystemHOC";
+import { withLayoutSystemWidgetHOC } from "../../layoutSystems/withLayoutSystemWidgetHOC";
 
 export interface BaseWidgetProps extends WidgetProps, WidgetState {}
 
@@ -20,7 +20,7 @@ export const withBaseWidgetHOC = (
     ? MetaWidget
     : withLazyRender(MetaWidget as any);
   // Adds respective layout specific layers to a widget
-  const LayoutWrappedWidget = withLayoutSystemHOC(LazyRenderedWidget);
+  const LayoutWrappedWidget = withLayoutSystemWidgetHOC(LazyRenderedWidget);
   // Adds/Enhances widget props
   const HydratedWidget = withWidgetProps(LayoutWrappedWidget as any);
   // Wraps the widget to be profiled via sentry

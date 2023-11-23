@@ -1,6 +1,6 @@
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { get } from "lodash";
-import React from "react";
+import React, { useCallback } from "react";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import SnipeableComponent from "../../common/snipeable/SnipeableComponent";
@@ -9,6 +9,7 @@ import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLa
 import { FixedLayoutWidgetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
 import { FixedResizableLayer } from "../common/resizer/FixedResizableLayer";
 import { PositionedComponentLayer } from "../common/PositionedComponentLayer";
+import { generateDragStateForFixedLayout } from "../common/utils";
 
 /**
  * FixedLayoutEditorWidgetOnion
@@ -29,11 +30,43 @@ import { PositionedComponentLayer } from "../common/PositionedComponentLayer";
  */
 
 export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
+  const {
+    bottomRow,
+    leftColumn,
+    parentColumnSpace,
+    parentId,
+    parentRowSpace,
+    rightColumn,
+    topRow,
+    widgetId,
+  } = props;
+  const generateDragState = useCallback(
+    (e: React.DragEvent<Element>, draggableRef: HTMLElement) => {
+      return generateDragStateForFixedLayout(e, draggableRef, props);
+    },
+    [
+      bottomRow,
+      topRow,
+      leftColumn,
+      rightColumn,
+      parentRowSpace,
+      parentColumnSpace,
+      parentId,
+      widgetId,
+    ],
+  );
   return (
     <AutoHeightOverlayLayer {...props}>
       <PositionedComponentLayer {...props}>
         <SnipeableComponent type={props.type} widgetId={props.widgetId}>
-          <DraggableComponent {...props}>
+          <DraggableComponent
+            dragDisabled={!!props.dragDisabled}
+            generateDragState={generateDragState}
+            parentId={props.parentId}
+            resizeDisabled={props.resizeDisabled}
+            type={props.type}
+            widgetId={props.widgetId}
+          >
             <WidgetNameLayer
               componentWidth={props.componentWidth}
               detachFromLayout={props.detachFromLayout}

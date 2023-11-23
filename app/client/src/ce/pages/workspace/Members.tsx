@@ -30,18 +30,17 @@ import {
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { APPLICATIONS_URL } from "constants/routes";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getInitials } from "utils/AppsmithUtils";
-import { CustomRolesRamp } from "./WorkspaceInviteUsersForm";
+import { CustomRolesRamp } from "@appsmith/pages/workspace/InviteUsersForm";
 import { showProductRamps } from "@appsmith/selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-
-const { cloudHosting } = getAppsmithConfigs();
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;
@@ -53,12 +52,13 @@ export const MembersWrapper = styled.div<{
   isMobile?: boolean;
 }>`
   &.members-wrapper {
+    overflow: scroll;
+    height: 100%;
     ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
     table {
       table-layout: fixed;
 
       thead {
-        z-index: 1;
         tr {
           border-bottom: 1px solid var(--ads-v2-color-border);
           th {
@@ -126,7 +126,7 @@ export const UserCard = styled(Card)`
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
   padding: ${(props) =>
-    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
+    `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`};
   width: 100%;
   height: 201px;
   margin: auto;
@@ -265,6 +265,8 @@ export default function MemberSettings(props: PageProps) {
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
 
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
   useEffect(() => {
     if (!!userToBeDeleted && showMemberDeletionConfirmation) {
       const userBeingDeleted = allUsers.find(
@@ -322,7 +324,7 @@ export default function MemberSettings(props: PageProps) {
   const columns = [
     {
       Header: createMessage(() =>
-        MEMBERS_TAB_TITLE(filteredData?.length, cloudHosting),
+        MEMBERS_TAB_TITLE(filteredData?.length, !isGACEnabled),
       ),
       accessor: "users",
       Cell: function UserCell(props: any) {

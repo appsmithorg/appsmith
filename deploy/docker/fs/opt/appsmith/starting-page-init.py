@@ -9,7 +9,7 @@ import urllib.request
 
 
 LOADING_TEMPLATE_PAGE = r'/opt/appsmith/templates/appsmith_starting.html'
-LOADING_PAGE_EDITOR = r'/opt/appsmith/editor/loading.html'
+LOADING_PAGE_EDITOR = os.getenv("NGINX_WWW_PATH") + '/loading.html'
 BACKEND_HEALTH_ENDPOINT = "http://localhost:8080/api/v1/health"
 LOG_FILE = r'/appsmith-stacks/logs/backend/starting_page_init.log'
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s -  %(message)s'

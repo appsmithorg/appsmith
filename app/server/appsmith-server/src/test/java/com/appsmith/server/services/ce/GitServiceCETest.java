@@ -12,6 +12,8 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -43,22 +45,26 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
+import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,6 +77,7 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,6 +86,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -107,6 +115,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -153,7 +162,7 @@ public class GitServiceCETest {
     @Autowired
     ApplicationPageService applicationPageService;
 
-    @Autowired
+    @SpyBean
     ApplicationService applicationService;
 
     @Autowired
@@ -164,6 +173,9 @@ public class GitServiceCETest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     NewPageService newPageService;
@@ -201,40 +213,64 @@ public class GitServiceCETest {
     @Autowired
     EnvironmentPermission environmentPermission;
 
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    WorkspacePermission workspacePermission;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
+    @Autowired
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
     @BeforeEach
     public void setup() throws IOException, GitAPIException {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("Git Service Test");
 
-        if (StringUtils.isEmpty(workspaceId)) {
-
-            User apiUser = userService.findByEmail("api_user").block();
-            Workspace toCreate = new Workspace();
-            toCreate.setName("Git Service Test");
-
-            if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
-                Workspace workspace = workspaceService
-                        .create(toCreate, apiUser, Boolean.FALSE)
-                        .block();
-                workspaceId = workspace.getId();
-                defaultEnvironmentId = workspaceService
-                        .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                        .block();
-            }
-        }
+        Set<String> beforeCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
 
         Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(workspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(-1));
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        if (TRUE.equals(isSetupDone)) {
-            return;
-        }
-
         gitConnectedApplication = createApplicationConnectedToGit("gitConnectedApplication", DEFAULT_BRANCH);
         // applicationPermission = new ApplicationPermissionImpl();
         testUserProfile.setAuthorEmail("test@email.com");
         testUserProfile.setAuthorName("testUser");
-        isSetupDone = true;
+
+        Set<String> afterCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+
+        log.info("Workspace ID: {}", workspaceId);
+        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.info("Policy for created Workspace: {}", workspace.getPolicies());
+        log.info("Current User ID: {}", currentUser.getId());
+    }
+
+    @AfterEach
+    public void cleanup() {
+        Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     private Mono<ApplicationJson> createAppJson(String filePath) {
@@ -1201,7 +1237,7 @@ public class GitServiceCETest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleAction(action, Boolean.FALSE)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
@@ -2136,6 +2172,32 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void commitApplication_BranchIsProtected_Failure() throws GitAPIException, IOException {
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setDoPush(false);
+        commitDTO.setCommitMessage("commit message");
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+                        any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
+                .thenReturn(Mono.just(Paths.get("")));
+        Mockito.when(gitExecutor.commitApplication(
+                        any(Path.class),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyString(),
+                        Mockito.anyBoolean(),
+                        Mockito.anyBoolean()))
+                .thenReturn(Mono.just("sample response for commit"));
+
+        Mono<String> commitMono = gitService
+                .updateProtectedBranches(gitConnectedApplication.getId(), List.of(DEFAULT_BRANCH))
+                .then(gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH));
+
+        StepVerifier.create(commitMono).verifyError();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void commitAndPushApplication_commitAndPushChanges_success() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
@@ -2500,7 +2562,7 @@ public class GitServiceCETest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleActionWithBranch(action, null)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
@@ -3732,6 +3794,23 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void deleteBranch_BranchIsProtected_Success() throws IOException, GitAPIException {
+        String branchName = "master";
+        Application application = createApplicationConnectedToGit("deleteBranch_existsInDB_Success", branchName);
+        application.getGitApplicationMetadata().setDefaultBranchName(branchName);
+        applicationService.save(application).block();
+        Mockito.when(gitExecutor.deleteBranch(any(Path.class), Mockito.anyString()))
+                .thenReturn(Mono.just(true));
+
+        Mono<Application> applicationMono = gitService
+                .updateProtectedBranches(application.getId(), List.of("master"))
+                .then(gitService.deleteBranch(application.getId(), branchName));
+
+        StepVerifier.create(applicationMono).verifyError();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void deleteBranch_branchDoesNotExist_ThrowError() throws IOException, GitAPIException {
         Application application =
                 createApplicationConnectedToGit("deleteBranch_branchDoesNotExist_ThrowError", "master");
@@ -4091,6 +4170,303 @@ public class GitServiceCETest {
                     assertThat(app.getId()).isEqualTo(application.getId());
                     assertThat(app.getGitApplicationMetadata().getBranchName()).isEqualTo("develop");
                     assertThat(app.getGitApplicationMetadata().getGitAuth()).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This method creates an workspace, creates an application in the workspace and removes the
+     * create application permission from the workspace for the api_user.
+     * @return Created Application
+     */
+    private Application createApplicationAndRemoveCreateAppPermissionFromWorkspace() {
+        User apiUser = userService.findByEmail("api_user").block();
+
+        Workspace toCreate = new Workspace();
+        toCreate.setName("Workspace_" + UUID.randomUUID());
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+
+        Application testApplication = new Application();
+        testApplication.setWorkspaceId(workspace.getId());
+        testApplication.setName("Test App");
+        Application application1 =
+                applicationPageService.createApplication(testApplication).block();
+
+        // remove create application permission from the workspace for the api user
+        Set<Policy> existingPolicies = workspace.getPolicies();
+        Set<Policy> newPoliciesWithoutExport = existingPolicies.stream()
+                .filter(policy -> !policy.getPermission()
+                        .equals(workspacePermission
+                                .getApplicationCreatePermission()
+                                .getValue()))
+                .collect(Collectors.toSet());
+        workspace.setPolicies(newPoliciesWithoutExport);
+        workspaceRepository.save(workspace).block();
+        return application1;
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void ConnectApplicationToGit_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
+        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
+        Mono<Application> applicationMono =
+                gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
+
+        StepVerifier.create(applicationMono)
+                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Connect to Git"))
+                .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void detachRemote_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
+        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Mono<Application> applicationMono = gitService.detachRemote(application.getId());
+
+        StepVerifier.create(applicationMono)
+                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Disconnect from Git"))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void getProtectedBranches_WhenProtectedBranchListExists_ListReturned() {
+        Application testApplication = new Application();
+        testApplication.setName("App" + UUID.randomUUID());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<List<String>> branchListMono = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setBranchProtectionRules(List.of("main", "develop"));
+                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.getProtectedBranches(application.getId()));
+
+        StepVerifier.create(branchListMono)
+                .assertNext(branches -> {
+                    assertThat(branches).isNullOrEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void getProtectedBranches_WhenProtectedBranchListDoestNotExists_EmptyListReturned() {
+        Application testApplication = new Application();
+        testApplication.setName("App" + UUID.randomUUID());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<List<String>> branchListMono = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.getProtectedBranches(application.getId()));
+
+        StepVerifier.create(branchListMono)
+                .assertNext(branches -> {
+                    assertThat(branches).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This method will create n number of applications with the given branch list where n = branchList.size()
+     * The first branch in the list will be set as default branch.
+     * It'll return the default application id for all the created branches.
+     *
+     * @param branchList List of branches to create
+     * @return Default application id
+     */
+    private String createBranchedApplication(List<String> branchList) {
+        String appName = "App" + UUID.randomUUID();
+        String defaultAppId = null, defaultBranchName = null;
+
+        for (String s : branchList) {
+            Application testApplication = new Application();
+            testApplication.setName(appName);
+            testApplication.setWorkspaceId(workspaceId);
+            Application createdApp =
+                    applicationPageService.createApplication(testApplication).block();
+            assert createdApp != null;
+
+            if (defaultAppId == null) { // set the first app id as default app id
+                defaultAppId = createdApp.getId();
+                defaultBranchName = s;
+            }
+
+            // set the git app meta data
+            GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+            gitApplicationMetadata.setBranchName(s);
+            gitApplicationMetadata.setDefaultBranchName(defaultBranchName);
+            gitApplicationMetadata.setDefaultApplicationId(defaultAppId);
+            createdApp.setGitApplicationMetadata(gitApplicationMetadata);
+
+            applicationRepository.save(createdApp).block();
+        }
+        return defaultAppId;
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateProtectedBranches_WhenListDoesNotContainOnlyDefaultBranch_ExceptionThrown() {
+        List<String> branchList = List.of("master", "develop", "feature");
+        // create three app with master as the default branch
+        String defaultAppId = createBranchedApplication(branchList);
+
+        StepVerifier.create(gitService.updateProtectedBranches(defaultAppId, List.of("develop", "feature")))
+                .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+
+        StepVerifier.create(gitService.updateProtectedBranches(defaultAppId, List.of("develop")))
+                .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+
+        StepVerifier.create(gitService.updateProtectedBranches(defaultAppId, List.of("master", "develop")))
+                .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateProtectedBranches_WhenListContainsOnlyDefaultBranch_Success() {
+        List<String> branchList = List.of("master", "develop", "feature");
+        // create three app with master as the default branch
+        String defaultAppId = createBranchedApplication(branchList);
+        Flux<Application> applicationFlux = gitService
+                .updateProtectedBranches(defaultAppId, List.of("master"))
+                .thenMany(applicationService.findAllApplicationsByDefaultApplicationId(
+                        defaultAppId, applicationPermission.getEditPermission()));
+
+        StepVerifier.create(applicationFlux.collectList())
+                .assertNext(applicationList -> {
+                    for (Application application : applicationList) {
+                        GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                        assertThat(metadata.getDefaultBranchName()).isEqualTo("master");
+                        // only the master branch should be protected
+                        assertThat(metadata.getBranchName().equals("master"))
+                                .isEqualTo(metadata.getIsProtectedBranch());
+                        if (application.getId().equals(defaultAppId)) {
+                            // the default app should have the protected branch list
+                            assertThat(metadata.getBranchProtectionRules()).containsExactly("master");
+                        }
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateProtectedBranches_WhenListIsEmpty_CurrentProtectedBranchesRemoved() {
+        List<String> branchList = List.of("master", "develop", "feature");
+        // create three app with master as the default branch
+        String defaultAppId = createBranchedApplication(branchList);
+        Flux<Application> applicationFlux = gitService
+                .updateProtectedBranches(defaultAppId, List.of("master"))
+                .then(gitService.updateProtectedBranches(defaultAppId, List.of())) // unset the protected branch list
+                .thenMany(applicationService.findAllApplicationsByDefaultApplicationId(
+                        defaultAppId, applicationPermission.getEditPermission()));
+
+        StepVerifier.create(applicationFlux.collectList())
+                .assertNext(applicationList -> {
+                    for (Application application : applicationList) {
+                        GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                        assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
+                        if (application.getId().equals(defaultAppId)) {
+                            // the default app should have the empty protected branch list
+                            assertThat(metadata.getBranchProtectionRules()).isEmpty();
+                        }
+                    }
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void updateProtectedBranches_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
+        Application application = createApplicationAndRemoveCreateAppPermissionFromWorkspace();
+        Mono<List<String>> updateProtectedBranchesMono =
+                gitService.updateProtectedBranches(application.getId(), List.of());
+
+        StepVerifier.create(updateProtectedBranchesMono)
+                .expectErrorMessage(AppsmithError.ACTION_IS_NOT_AUTHORIZED.getMessage("Protect branch"))
+                .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void updateProtectedBranches_WhenOneOperationFails_ChangesReverted() {
+        List<String> branchList = List.of("master", "develop", "feature");
+        // create three app with master as the default branch
+        String defaultAppId = createBranchedApplication(branchList);
+
+        Mockito.when(applicationService.updateProtectedBranches(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Test error")));
+
+        Mono<List<String>> updateProtectedBranchesMono = gitService.updateProtectedBranches(defaultAppId, List.of());
+
+        StepVerifier.create(updateProtectedBranchesMono)
+                .expectErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Test error"))
+                .verify();
+
+        StepVerifier.create(applicationService.findById(defaultAppId))
+                .assertNext(application -> {
+                    GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                    assertThat(metadata.getIsProtectedBranch()).isNotEqualTo(TRUE);
+                    // the default app should have the empty protected branch list
+                    assertThat(metadata.getBranchProtectionRules()).isNullOrEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void getProtectedBranches_WhenUserHasMultipleBranchProtected_ReturnsEmptyOrDefaultBranchOnly() {
+        Application testApplication = new Application();
+        testApplication.setName("App" + UUID.randomUUID());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Application> applicationMono = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                    gitApplicationMetadata.setDefaultBranchName("master");
+                    // include default branch in the list of the protected branches
+                    gitApplicationMetadata.setBranchProtectionRules(List.of("master", "develop"));
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationRepository.save(application);
+                })
+                .cache();
+
+        Mono<List<String>> branchListMonoWithDefaultBranch =
+                applicationMono.flatMap(application -> gitService.getProtectedBranches(application.getId()));
+
+        StepVerifier.create(branchListMonoWithDefaultBranch)
+                .assertNext(branchList -> {
+                    assertThat(branchList).containsExactly("master");
+                })
+                .verifyComplete();
+
+        Mono<List<String>> branchListMonoWithoutDefaultBranch = applicationMono
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    // remove the default branch from the protected branches
+                    gitApplicationMetadata.setBranchProtectionRules(List.of("develop", "feature"));
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.getProtectedBranches(application.getId()));
+
+        StepVerifier.create(branchListMonoWithoutDefaultBranch)
+                .assertNext(branchList -> {
+                    assertThat(branchList).isNullOrEmpty();
                 })
                 .verifyComplete();
     }

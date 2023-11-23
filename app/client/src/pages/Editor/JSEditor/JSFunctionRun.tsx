@@ -10,7 +10,7 @@ import {
 import type { JSActionDropdownOption } from "./utils";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
 
-type Props = {
+interface Props {
   disabled: boolean;
   isLoading: boolean;
   jsCollection: JSCollection;
@@ -19,11 +19,11 @@ type Props = {
   options: JSActionDropdownOption[];
   selected: JSActionDropdownOption;
   showTooltip: boolean;
-};
+}
 
-export type DropdownWithCTAWrapperProps = {
+export interface DropdownWithCTAWrapperProps {
   isDisabled: boolean;
-};
+}
 
 const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;

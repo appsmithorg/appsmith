@@ -21,9 +21,9 @@ export enum CONVERSION_STATES {
   RESTORING_SNAPSHOT_SPINNER = "RESTORING_SNAPSHOT_SPINNER",
 }
 
-export type SnapShotDetails = {
+export interface SnapShotDetails {
   lastUpdatedTime: string;
-};
+}
 
 const initialState: layoutConversionReduxState = {
   snapshotDetails: undefined,

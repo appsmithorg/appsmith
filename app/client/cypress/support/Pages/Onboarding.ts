@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import localForage from "localforage";
+import EditorNavigation, { EntityType } from "./EditorNavigation";
 
 const OnboardingLocator = require("../../locators/FirstTimeUserOnboarding.json");
 
@@ -33,7 +34,7 @@ export class Onboarding {
       true,
     );
     this._aggregateHelper.AssertElementVisibility(
-      OnboardingLocator.datasourcePage,
+      this._datasources._newDatasourceContainer,
     );
     this.closeIntroModal();
     this._aggregateHelper.AssertElementAbsence(
@@ -57,6 +58,7 @@ export class Onboarding {
       .should("have.css", "cursor", "not-allowed");
     cy.get(OnboardingLocator.checklistActionBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistActionBtn).click();
+    EditorNavigation.SelectEntityByName("Movies", EntityType.Datasource);
     cy.get(OnboardingLocator.createQuery).should("be.visible");
     cy.get(OnboardingLocator.createQuery).click();
     cy.wait(1000);
@@ -123,7 +125,7 @@ export class Onboarding {
   skipSignposting() {
     cy.get("body").then(($body) => {
       if ($body.find(OnboardingLocator.introModalCloseBtn).length) {
-        cy.wrap(null).then(() => {
+        cy.wrap(null).then(async () => {
           localForage.config({
             name: "Appsmith",
           });
@@ -131,7 +133,10 @@ export class Onboarding {
           // is awaited until it resolves
           return localForage.setItem("ENABLE_START_SIGNPOSTING", false);
         });
-        cy.reload();
+        //this._aggregateHelper.RefreshPage();//this is causing CI flakiness, so using below
+        cy.window().then((win) => {
+          win.location.reload();
+        });
       }
     });
   }

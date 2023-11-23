@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   locators,
@@ -24,6 +25,10 @@ describe("Delete workspace test spec", function () {
   it("2. Should show option to delete workspace for an admin user", function () {
     agHelper.VisitNAssert("/applications", "getReleaseItems");
     agHelper.Sleep(2000);
+
+    featureFlagIntercept({ license_gac_enabled: true });
+    agHelper.Sleep(2000);
+
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       newWorkspaceName = uid;

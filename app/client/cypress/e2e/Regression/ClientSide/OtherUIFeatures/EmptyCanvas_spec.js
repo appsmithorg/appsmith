@@ -1,5 +1,8 @@
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const { CommonLocators: locators, EntityExplorer: ee } = ObjectsRegistry;
 
@@ -10,7 +13,7 @@ describe("Empty canvas ctas", () => {
     cy.get(locators._emptyCanvasCta).should("be.visible");
     ee.AddNewPage();
     cy.get(locators._emptyCanvasCta).should("not.exist");
-    ee.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     //Ctas should continue to show on refresh
     cy.get(locators._emptyCanvasCta).should("be.visible");

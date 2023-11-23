@@ -54,3 +54,6 @@ export const getDatasourceCollapsibleState = createSelector(
     return datasourceCollapsibleState[key];
   },
 );
+
+export const getIsImportingCurl = (state: AppState) =>
+  state.ui.imports.isImportingCurl;

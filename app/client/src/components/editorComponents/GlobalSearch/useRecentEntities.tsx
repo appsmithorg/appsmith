@@ -10,7 +10,7 @@ import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { FocusEntity } from "navigation/FocusEntity";
-import type { DataTreeEntityObject } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
 import { useMemo } from "react";
 
 const recentEntitiesSelector = (state: AppState) =>

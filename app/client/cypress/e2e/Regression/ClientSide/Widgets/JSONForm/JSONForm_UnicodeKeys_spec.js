@@ -3,6 +3,8 @@ const jsonFormUnicodeDSLWithoutSourceData = require("../../../../../fixtures/jso
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
+const locators = ObjectsRegistry.CommonLocators;
+const propPane = ObjectsRegistry.PropertyPane;
 
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = "[data-testid='t--property-pane-back-btn']";
@@ -31,7 +33,8 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+
     cy.closePropertyPane();
 
     cy.get(`${fieldPrefix}-xn__l2bm1c label`).contains("नाम");
@@ -85,7 +88,12 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(modifiedSourceData));
+    propPane.EnterJSContext(
+      "Source data",
+      JSON.stringify(modifiedSourceData),
+      true,
+    );
+
     cy.closePropertyPane();
 
     cy.get(`${fieldPrefix}-xn____xvdesr5bxbc label`).contains("पहला नाम");
@@ -152,7 +160,8 @@ describe("JSON Form Widget Unicode keys", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+
     cy.closePropertyPane();
 
     const expectedInitialFormData = sourceData;

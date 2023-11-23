@@ -2,10 +2,7 @@ import { all, call, put, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
-import {
-  evalErrorHandler,
-  logJSVarMutationEvent,
-} from "../sagas/PostEvaluationSagas";
+import { logJSVarMutationEvent } from "../sagas/PostEvaluationSagas";
 import type { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
 import type {
@@ -27,13 +24,14 @@ import type {
   JSVarMutatedEvents,
 } from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
-import type { UnEvalTree } from "entities/DataTree/dataTreeFactory";
+import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
-export type UpdateDataTreeMessageData = {
+import { evalErrorHandler } from "./EvalErrorHandler";
+export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
-};
+}
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
   while (true) {

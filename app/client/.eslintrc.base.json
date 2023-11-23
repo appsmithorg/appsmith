@@ -3,6 +3,12 @@
   "$schema": "http://json.schemastore.org/eslintrc",
   "root": true,
   "parser": "@typescript-eslint/parser",
+  "ignorePatterns": [
+    "jest.config.js",
+    "jest.setup.ts",
+    "rollup.config.js",
+    ".eslintrc.js"
+  ],
   "plugins": [
     "react",
     "@typescript-eslint",
@@ -25,9 +31,14 @@
     "sourceType": "module", // Allows for the use of imports
     "ecmaFeatures": {
       "jsx": true // Allows for the parsing of JSX
-    }
+    },
+    "project": "./tsconfig.json"
   },
   "rules": {
+    "@typescript-eslint/consistent-type-definitions": "error",
+    "@typescript-eslint/prefer-nullish-coalescing": "error",
+    "@typescript-eslint/promise-function-async": "error",
+    "@typescript-eslint/strict-boolean-expressions": "error",
     "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/no-unused-vars": "error",
     "jest/no-focused-tests": "error",

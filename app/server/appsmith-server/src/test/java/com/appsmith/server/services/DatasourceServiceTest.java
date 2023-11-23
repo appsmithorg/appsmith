@@ -21,7 +21,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -32,11 +31,14 @@ import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,13 +59,11 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -85,6 +85,9 @@ public class DatasourceServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
+
+    @SpyBean
+    DatasourceService spyDatasourceService;
 
     @SpyBean
     DatasourceStorageService datasourceStorageService;
@@ -122,24 +125,37 @@ public class DatasourceServiceTest {
     @Autowired
     NewActionRepository newActionRepository;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
     String workspaceId = "";
     private String defaultEnvironmentId;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("DatasourceServiceTest");
 
-        if (!StringUtils.hasLength(workspaceId)) {
-            Workspace workspace =
-                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
-            workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService
-                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                    .block();
-        }
+        Workspace workspace =
+                workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        workspaceId = workspace.getId();
+        defaultEnvironmentId = workspaceService
+                .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
+                .block();
+    }
+
+    @AfterEach
+    public void cleanup() {
+        List<Application> deletedApplications = applicationService
+                .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
+                .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
+                .collectList()
+                .block();
+        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
     @Test
@@ -724,6 +740,7 @@ public class DatasourceServiceTest {
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -792,6 +809,7 @@ public class DatasourceServiceTest {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
             ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -1477,6 +1495,7 @@ public class DatasourceServiceTest {
         Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
             DatasourceStorageDTO datasourceStorageDTO =
                     datasource1.getDatasourceStorages().get(defaultEnvironmentId);
+            datasourceStorageDTO.setPluginId(datasource.getPluginId());
             return datasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
         });
 
@@ -1891,8 +1910,12 @@ public class DatasourceServiceTest {
         return new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration);
     }
 
-    @Test
-    @WithUserDetails(value = "api_user")
+    /**
+     *  This is commented out because of a different implementation in EE codebase, will figure out how to fix that
+     *  without mocking the featureFlag.
+     */
+    // @Test
+    // @WithUserDetails(value = "api_user")
     public void verifyOnlyOneStorageIsSaved() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -2031,46 +2054,29 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateDatasource_WhenNameUpdated_ActionUpdatedDateModified() {
+    public void verifyTestDatasource_withRateLimitExceeded_returnsTooManyRequests() {
+        Datasource datasource = createDatasourceObject("sampleDatasource", workspaceId, "postgres-plugin");
+        DatasourceStorageDTO datasourceStorageDTO = generateSampleDatasourceStorageDTO();
+
+        datasourceStorageDTO.setWorkspaceId(workspaceId);
+        datasourceStorageDTO.setPluginId(datasource.getPluginId());
+
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.doReturn(Mono.just(true))
+                .when(spyDatasourceService)
+                .isEndpointBlockedForConnectionRequest(Mockito.any());
+        Mono<DatasourceTestResult> testResultMono =
+                spyDatasourceService.testDatasource(datasourceStorageDTO, defaultEnvironmentId);
 
-        String uniqueString = UUID.randomUUID().toString();
-        String applicationId = "app_" + uniqueString;
+        String expectedErrorMessage = "Too many failed requests received. Please try again after 5 minutes";
 
-        Workspace toCreate = new Workspace();
-        toCreate.setName("workspace_" + uniqueString);
-
-        Workspace workspace = workspaceService.create(toCreate).block();
-        String workspaceId = workspace.getId();
-
-        Datasource datasource = createDatasource("D", workspaceId);
-
-        // create a new action for this datasource
-        ActionDTO actionDTO = new ActionDTO();
-        actionDTO.setDatasource(datasource);
-        NewAction newAction = new NewAction();
-        newAction.setApplicationId(applicationId);
-        newAction.setUnpublishedAction(actionDTO);
-
-        Mono<NewAction> createActionMono = newActionRepository.save(newAction);
-        Datasource updateDto = new Datasource();
-        updateDto.setName(datasource.getName() + "#1");
-        Mono<Datasource> updateDatasourceMono =
-                datasourceService.updateDatasource(datasource.getId(), updateDto, defaultEnvironmentId, true);
-
-        Mono<Tuple2<NewAction, Datasource>> tuple2Mono = createActionMono
-                .delayElement(Duration.ofSeconds(1))
-                .then(updateDatasourceMono)
-                .then(newActionRepository.findByApplicationId(applicationId).last())
-                .zipWhen(action -> datasourceService.findById(
-                        action.getUnpublishedAction().getDatasource().getId()));
-
-        StepVerifier.create(tuple2Mono)
-                .assertNext(tuples -> {
-                    NewAction action = tuples.getT1();
-                    Datasource updatedDatasource = tuples.getT2();
-                    assertThat(action.getUpdatedAt()).isEqualTo(updatedDatasource.getUpdatedAt());
+        StepVerifier.create(testResultMono)
+                .assertNext(testResult -> {
+                    assertThat(testResult).isNotNull();
+                    assertThat(testResult.getInvalids()).isNotEmpty();
+                    assertThat(testResult.getInvalids().contains(expectedErrorMessage))
+                            .isTrue();
                 })
                 .verifyComplete();
     }

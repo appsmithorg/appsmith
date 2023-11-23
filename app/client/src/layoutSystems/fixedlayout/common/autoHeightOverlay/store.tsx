@@ -10,19 +10,31 @@ interface AutoHeightLimitsUIState {
   mindY: number; // the difference during dragging
 }
 
-type SET_MAX_Y = { type: "SET_MAX_Y"; payload: { maxY: number } };
-type SET_MIN_Y = { type: "SET_MIN_Y"; payload: { minY: number } };
-type SET_MAX_D_Y = { type: "SET_MAX_D_Y"; payload: { maxdY: number } };
-type SET_MIN_D_Y = { type: "SET_MIN_D_Y"; payload: { mindY: number } };
-type SET_IS_MIN_DOT_DRAGGING = {
+interface SET_MAX_Y {
+  type: "SET_MAX_Y";
+  payload: { maxY: number };
+}
+interface SET_MIN_Y {
+  type: "SET_MIN_Y";
+  payload: { minY: number };
+}
+interface SET_MAX_D_Y {
+  type: "SET_MAX_D_Y";
+  payload: { maxdY: number };
+}
+interface SET_MIN_D_Y {
+  type: "SET_MIN_D_Y";
+  payload: { mindY: number };
+}
+interface SET_IS_MIN_DOT_DRAGGING {
   type: "SET_IS_MIN_DOT_DRAGGING";
   payload: { isMinDotDragging: boolean };
-};
+}
 
-type SET_IS_MAX_DOT_DRAGGING = {
+interface SET_IS_MAX_DOT_DRAGGING {
   type: "SET_IS_MAX_DOT_DRAGGING";
   payload: { isMaxDotDragging: boolean };
-};
+}
 
 type AutoHeightLimitsUIAction =
   | SET_MAX_Y

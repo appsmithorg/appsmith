@@ -10,6 +10,7 @@ import {
 import {
   actionChannel,
   call,
+  delay,
   fork,
   put,
   select,
@@ -31,7 +32,13 @@ import type {
   GetSSHKeyResponseData,
   GitStatusParams,
 } from "actions/gitSyncActions";
-import { fetchGitRemoteStatusSuccess } from "actions/gitSyncActions";
+import {
+  fetchGitRemoteStatusInit,
+  fetchGitProtectedBranchesInit,
+  updateGitProtectedBranchesInit,
+  fetchGitRemoteStatusSuccess,
+  clearCommitSuccessfulState,
+} from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
   connectToGitSuccess,
@@ -78,9 +85,11 @@ import {
 import {
   createMessage,
   DELETE_BRANCH_SUCCESS,
+  DISCARD_SUCCESS,
   ERROR_GIT_AUTH_FAIL,
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
+  PROTECT_BRANCH_SUCCESS,
 } from "@appsmith/constants/messages";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 
@@ -89,6 +98,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
+  getIsGitConnectV2Enabled,
   getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
@@ -98,7 +108,7 @@ import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import { APP_MODE } from "entities/App";
 import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -109,6 +119,7 @@ import {
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
+import { updateGitDefaultBranchSaga } from "@appsmith/sagas/GitExtendedSagas";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -132,6 +143,9 @@ function* commitToGitRepoSaga(
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+    const isGitStatusLiteEnabled: boolean = yield select(
+      getIsGitStatusLiteEnabled,
+    );
     const gitMetaData: GitApplicationMetadata = yield select(
       getCurrentAppGitMetaData,
     );
@@ -159,7 +173,12 @@ function* commitToGitRepoSaga(
           payload: curApplication,
         });
       }
-      yield put(fetchGitStatusInit());
+      if (isGitStatusLiteEnabled) {
+        yield put(fetchGitRemoteStatusInit());
+        yield put(fetchGitStatusInit({ compareRemote: false }));
+      } else {
+        yield put(fetchGitStatusInit({ compareRemote: true }));
+      }
     } else {
       yield put({
         type: ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR,
@@ -195,11 +214,16 @@ function* commitToGitRepoSaga(
 }
 
 function* connectToGitSaga(action: ConnectToGitReduxAction) {
-  let response: ApiResponse | undefined;
+  let response:
+    | ApiResponse<{ gitApplicationMetadata: { branchName: string } }>
+    | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
     response = yield GitSyncAPI.connect(action.payload, applicationId);
+    const isGitConnectV2Enabled: boolean = yield select(
+      getIsGitConnectV2Enabled,
+    );
 
     const isValidResponse: boolean = yield validateResponse(
       response,
@@ -210,19 +234,28 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     if (isValidResponse) {
       // @ts-expect-error: response is of type unknown
       yield put(connectToGitSuccess(response?.data));
+      const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
+
+      if (isGitConnectV2Enabled) {
+        yield put(
+          updateGitProtectedBranchesInit({
+            protectedBranches: defaultBranch ? [defaultBranch] : [],
+          }),
+        );
+      }
+
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
         // @ts-expect-error: response is of type unknown
         action.onSuccessCallback(response?.data);
       }
-      // @ts-expect-error: response is of type unknown
       const branch = response?.data?.gitApplicationMetadata?.branchName;
-
-      const updatedPath = addBranchParam(branch);
+      const updatedPath = addBranchParam(branch || "");
       history.replace(updatedPath);
 
       /* commit effect START */
       yield put(commitToRepoSuccess());
+      yield put(clearCommitSuccessfulState());
       const curApplication: ApplicationPayload = yield select(
         getCurrentApplication,
       );
@@ -235,7 +268,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       }
       /* commit effect END */
     }
-  } catch (error) {
+  } catch (error: any) {
     if (action.onErrorCallback) {
       action.onErrorCallback(error as Error, response);
     }
@@ -248,11 +281,14 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 
     // Api error
     // Display on the UI
-    if (response && !response?.responseMeta?.success) {
+
+    const errorResponse = response || error?.response?.data;
+
+    if (errorResponse && !errorResponse?.responseMeta?.success) {
       yield put({
         type: ReduxActionErrorTypes.CONNECT_TO_GIT_ERROR,
         payload: {
-          error: response?.responseMeta.error,
+          error: errorResponse?.responseMeta.error,
           show: false,
         },
       });
@@ -990,11 +1026,13 @@ export function* deleteBranch({ payload }: ReduxAction<any>) {
       yield put(fetchBranchesInit({ pruneBranches: true }));
     }
   } catch (error) {
-    yield put(deleteBranchError(error));
+    yield put(deleteBranchError({ error, show: true }));
   }
 }
 
-function* discardChanges() {
+function* discardChanges({
+  payload,
+}: ReduxAction<{ successToastMessage: string } | null | undefined>) {
   let response: ApiResponse<GitDiscardResponse>;
   try {
     const appId: string = yield select(getCurrentApplicationId);
@@ -1006,10 +1044,15 @@ function* discardChanges() {
     );
     if (isValidResponse) {
       yield put(discardChangesSuccess(response.data));
-      // const applicationId: string = response.data.id;
+      const successToastMessage =
+        payload?.successToastMessage ?? createMessage(DISCARD_SUCCESS);
+      toast.show(successToastMessage, {
+        kind: "success",
+      });
+      // adding delay to show toast animation before reloading
+      yield delay(500);
       const pageId: string =
         response.data?.pages?.find((page: any) => page.isDefault)?.id || "";
-      localStorage.setItem("GIT_DISCARD_CHANGES", "success");
       const branch = response.data.gitApplicationMetadata.branchName;
       window.open(builderURL({ pageId, branch }), "_self");
     } else {
@@ -1019,11 +1062,85 @@ function* discardChanges() {
           show: true,
         }),
       );
-      localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
     }
   } catch (error) {
     yield put(discardChangesFailure({ error, show: true }));
-    localStorage.setItem("GIT_DISCARD_CHANGES", "failure");
+  }
+}
+
+function* fetchGitProtectedBranchesSaga() {
+  let response: ApiResponse<string[]>;
+  try {
+    const appId: string = yield select(getCurrentApplicationId);
+    response = yield GitSyncAPI.getProtectedBranches(appId);
+
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      const protectedBranches: string[] = response?.data;
+      yield put({
+        type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_SUCCESS,
+        payload: { protectedBranches },
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_ERROR,
+      payload: { error, show: true },
+    });
+  }
+}
+
+function* updateGitProtectedBranchesSaga({
+  payload,
+}: ReduxAction<{ protectedBranches: string[] }>) {
+  const { protectedBranches } = payload;
+  const applicationId: string = yield select(getCurrentApplicationId);
+  let response: ApiResponse<string[]>;
+  try {
+    response = yield call(
+      GitSyncAPI.updateProtectedBranches,
+      applicationId,
+      protectedBranches,
+    );
+    const isValidResponse: boolean = yield validateResponse(
+      response,
+      false,
+      getLogToSentryFromResponse(response),
+    );
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_SUCCESS,
+      });
+      yield put(fetchGitProtectedBranchesInit());
+      toast.show(createMessage(PROTECT_BRANCH_SUCCESS), {
+        kind: "success",
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR,
+        payload: {
+          error: response?.responseMeta?.error?.message,
+          show: true,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_ERROR,
+      payload: { error, show: true },
+    });
   }
 }
 
@@ -1052,6 +1169,11 @@ const gitRequestActions: Record<
   [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
   [ReduxActionTypes.DELETE_BRANCH_INIT]: deleteBranch,
   [ReduxActionTypes.GIT_DISCARD_CHANGES]: discardChanges,
+  [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
+    fetchGitProtectedBranchesSaga,
+  [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
+    updateGitProtectedBranchesSaga,
 };
 
 /**
@@ -1069,9 +1191,8 @@ function* watchGitRequests() {
   );
 
   while (true) {
-    const { type, ...args }: ReduxAction<unknown> = yield take(
-      gitActionChannel,
-    );
+    const { type, ...args }: ReduxAction<unknown> =
+      yield take(gitActionChannel);
     yield call(gitRequestActions[type], { type, ...args });
   }
 }

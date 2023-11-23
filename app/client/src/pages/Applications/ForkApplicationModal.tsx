@@ -17,7 +17,6 @@ import {
   Option,
 } from "design-system";
 import { ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
-import { useLocation } from "react-router";
 import {
   CANCEL,
   createMessage,
@@ -27,20 +26,20 @@ import {
   FORK_APP_MODAL_SUCCESS_TITLE,
 } from "@appsmith/constants/messages";
 import { getAllApplications } from "@appsmith/actions/applicationActions";
-import history from "utils/history";
 
-type ForkApplicationModalProps = {
+interface ForkApplicationModalProps {
   applicationId: string;
   // if a trigger is passed
   // it renders that component
   trigger?: React.ReactNode;
   isModalOpen?: boolean;
-  setModalClose?: (isOpen: boolean) => void;
+  handleOpen?: () => void;
+  handleClose?: () => void;
   isInEditMode?: boolean;
-};
+}
 
 function ForkApplicationModal(props: ForkApplicationModalProps) {
-  const { isModalOpen, setModalClose } = props;
+  const { handleClose, handleOpen, isModalOpen } = props;
   const [workspace, selectWorkspace] = useState<{
     label: string;
     value: string;
@@ -52,20 +51,12 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   );
 
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-
-  useEffect(() => {
-    if (queryParams.get("fork") === "true") {
-      handleOpen();
-    }
-  }, []);
 
   useEffect(() => {
     // This effect makes sure that no if <ForkApplicationModel />
     // is getting controlled from outside, then we always load workspaces
     if (isModalOpen) {
-      handleOpen();
+      getApplicationsListAndOpenModal();
       return;
     }
   }, [isModalOpen]);
@@ -73,9 +64,16 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   useEffect(() => {
     // when we fork from within the appeditor, fork modal remains open
     // even on the landing page of "Forked" app, this closes it
+    const url = new URL(window.location.href);
     const shouldCloseForcibly =
-      !forkingApplication && isModalOpen && setModalClose;
-    shouldCloseForcibly && setModalClose(false);
+      !forkingApplication &&
+      isModalOpen &&
+      handleClose &&
+      !url.searchParams.has("fork");
+
+    if (shouldCloseForcibly) {
+      handleClose();
+    }
   }, [forkingApplication]);
 
   const forkApplication = () => {
@@ -118,41 +116,21 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     ? createMessage(FORK_APP_MODAL_EMPTY_TITLE)
     : createMessage(FORK_APP_MODAL_SUCCESS_TITLE);
 
-  const handleClose = () => {
-    if (!props.setModalClose) {
-      const url = new URL(window.location.href);
-      if (url.searchParams.has("fork")) {
-        url.searchParams.delete("fork");
-        history.push(url.toString().slice(url.origin.length));
-      }
-    }
-  };
-
-  const handleOpen = () => {
-    if (!props.setModalClose) {
-      const url = new URL(window.location.href);
-      if (!url.searchParams.has("fork")) {
-        url.searchParams.append("fork", "true");
-        history.push(url.toString().slice(url.origin.length));
-      }
-    }
+  const getApplicationsListAndOpenModal = () => {
     !workspaceList.length && dispatch(getAllApplications());
+    handleOpen && handleOpen();
   };
 
   const handleOnOpenChange = (isOpen: boolean) => {
     if (isOpen) {
-      handleOpen();
+      getApplicationsListAndOpenModal();
     } else {
-      setModalClose && setModalClose(false);
-      handleClose();
+      handleClose && handleClose();
     }
   };
 
   return (
-    <Modal
-      onOpenChange={handleOnOpenChange}
-      open={isModalOpen || queryParams.has("fork")}
-    >
+    <Modal onOpenChange={handleOnOpenChange} open={isModalOpen}>
       <ModalContent className={"fork-modal"} style={{ width: "640px" }}>
         <ModalHeader>{modalHeading}</ModalHeader>
         {isFetchingApplications ? (
@@ -185,8 +163,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
                   isDisabled={forkingApplication}
                   kind="secondary"
                   onClick={() => {
-                    setModalClose && setModalClose(false);
-                    handleClose();
+                    handleClose && handleClose();
                   }}
                   size="md"
                 >

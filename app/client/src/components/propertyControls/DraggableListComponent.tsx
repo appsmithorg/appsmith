@@ -2,13 +2,16 @@ import equal from "fast-deep-equal/es6";
 import React from "react";
 import { DraggableList } from "design-system-old";
 
-export type BaseItemProps = {
+export interface BaseItemProps {
   id: string;
   isVisible?: boolean;
   label: string;
-};
+  isDuplicateLabel?: boolean;
+  isChecked?: boolean;
+  isDragDisabled?: boolean;
+}
 
-export type RenderComponentProps<TItem extends BaseItemProps> = {
+export interface RenderComponentProps<TItem extends BaseItemProps> {
   focusedIndex: number | null | undefined;
   index: number;
   item: TItem;
@@ -20,9 +23,9 @@ export type RenderComponentProps<TItem extends BaseItemProps> = {
   updateFocus?: (index: number, isFocused: boolean) => void;
   isDragging: boolean;
   isDelete?: boolean;
-};
+}
 
-export type DroppableComponentProps<TItem extends BaseItemProps> = {
+export interface DroppableComponentProps<TItem extends BaseItemProps> {
   className?: string;
   fixedHeight?: number | boolean;
   focusedIndex: number | null | undefined;
@@ -37,7 +40,7 @@ export type DroppableComponentProps<TItem extends BaseItemProps> = {
   onEdit?: (index: number) => void;
   updateFocus?: (index: number, isFocused: boolean) => void;
   keyAccessor?: string;
-};
+}
 
 export class DroppableComponent<
   TItem extends BaseItemProps,
@@ -63,7 +66,7 @@ export class DroppableComponent<
     );
   }
 
-  getVisibleObject(item: Record<string, unknown>) {
+  getVisibleObject(item: TItem) {
     if (!item) return {};
 
     return {

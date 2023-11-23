@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm, formValueSelector } from "redux-form";
@@ -22,6 +22,7 @@ import { getActionData } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { Icon } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import { ApiEditorContext } from "./ApiEditorContext";
 
 const Form = styled.form`
   display: flex;
@@ -142,6 +143,8 @@ function RapidApiEditorForm(props: Props) {
     templateId,
   } = props;
 
+  const { saveActionName } = useContext(ApiEditorContext);
+
   const postbodyResponsePresent =
     templateId &&
     actionConfiguration &&
@@ -158,7 +161,7 @@ function RapidApiEditorForm(props: Props) {
       <MainConfiguration>
         <FormRow>
           <NameWrapper>
-            <ActionNameEditor />
+            <ActionNameEditor saveActionName={saveActionName} />
             <a
               className="t--apiDocumentationLink"
               href={providerURL && `http://${providerURL}`}

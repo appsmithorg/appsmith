@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
+import SignupPageLocators from "../../locators/SignupPage.json";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -114,10 +115,6 @@ export class HomePage {
   _modeSwitchToggle = ".t--comment-mode-switch-toggle";
   _importFromGitBtn = "div.t--import-json-card + div";
   private signupUsername = "input[name='email']";
-  private roleDropdown = ".setup-dropdown:first";
-  private useCaseDropdown = ".setup-dropdown:last";
-  private dropdownOption = ".rc-select-item-option:first";
-  private roleUsecaseSubmit = ".t--get-started-button";
   _multipleSelectedApplication = ".t--application-card-selected";
   private _applicationEditedText = (applicationName: string) =>
     this._appCard(applicationName) +
@@ -127,22 +124,42 @@ export class HomePage {
     this.agHelper.GetNClick(this._homeTab);
   }
 
-  public CreateNewWorkspace(
-    workspaceNewName: string,
-    toNavigateToHome = false,
-  ) {
+  //trying to wrap multiple values, not used
+  public WrapAndAliasMultipleValues(
+    values: Record<string, string>,
+  ): Record<string, string> {
+    const aliases: Record<string, string> = {};
+    Object.keys(values).forEach((key) => {
+      aliases[key] = values[key];
+      cy.wrap(values[key]).as(key);
+    });
+    return aliases;
+  }
+
+  public CreateNewWorkspace(workspaceNewName = "", toNavigateToHome = false) {
     if (toNavigateToHome) this.NavigateToHome();
     let oldName = "";
     this.agHelper.GetNClick(this._newWorkSpaceLink);
     this.assertHelper.AssertNetworkStatus("createWorkspace", 201);
     this.agHelper.Sleep(2000);
-    cy.xpath(this._lastWorkspaceInHomePage)
-      .first()
-      .then(($ele) => {
-        oldName = $ele.text();
-        cy.log("oldName is : " + oldName);
-        this.RenameWorkspace(oldName, workspaceNewName);
-      });
+    cy.get("@createWorkspace").then((interception: any) => {
+      localStorage.setItem("workspaceId", interception.response.body.data.id);
+      localStorage.setItem(
+        "workspaceName",
+        interception.response.body.data.name,
+      );
+      cy.wrap(interception.response.body.data.name).as("workspaceName");
+    });
+
+    workspaceNewName &&
+      cy
+        .xpath(this._lastWorkspaceInHomePage)
+        .first()
+        .then(($ele) => {
+          oldName = $ele.text();
+          cy.log("oldName is : " + oldName);
+          this.RenameWorkspace(oldName, workspaceNewName);
+        });
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
@@ -168,6 +185,7 @@ export class HomePage {
     this.agHelper.Sleep(2000);
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
+    this.agHelper.Sleep(2000); //for new workspace to settle for CI
   }
 
   //Maps to CheckShareIcon in command.js
@@ -236,8 +254,8 @@ export class HomePage {
   }
 
   public NavigateToHome() {
-    cy.get(this._homeIcon).click({ force: true });
-    this.agHelper.Sleep(2000);
+    this.agHelper.Sleep(2000); //to avoid CI flakyness
+    this.agHelper.GetNClick(this._homeIcon, 0, true, 2500);
     if (!Cypress.env("AIRGAPPED")) {
       this.assertHelper.AssertNetworkStatus("@getReleaseItems");
     } else {
@@ -247,29 +265,40 @@ export class HomePage {
     this.agHelper.AssertElementVisibility(this._homeAppsmithImage);
   }
 
+  public AssertApplicationCreated() {
+    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
+    cy.get("@createNewApplication").then((interception: any) => {
+      localStorage.setItem("applicationId", interception.response.body.data.id);
+      localStorage.setItem("appName", interception.response.body.data.name);
+      cy.wrap(interception.response.body.data.name).as("appName");
+      cy.wrap(interception.response.body.data.id).as("applicationId");
+    });
+    this.agHelper.AssertElementAbsence(this.locator._loading);
+  }
+
   public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
-    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
-    cy.get(this.locator._loading).should("not.exist");
-
+    this.AssertApplicationCreated();
     if (skipSignposting) {
       this.agHelper.AssertElementVisibility(
         this.entityExplorer._entityExplorer,
       );
       this.onboarding.skipSignposting();
     }
+    this.agHelper.Sleep(2000); //for getWorkspace to go thru!
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
 
   //Maps to CreateAppForWorkspace in command.js
   public CreateAppInWorkspace(workspaceName: string, appname = "") {
-    cy.xpath(this._existingWorkspaceCreateNewApp(workspaceName))
+    this.agHelper
+      .GetElement(this._existingWorkspaceCreateNewApp(workspaceName))
       .last()
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
-    this.assertHelper.AssertNetworkStatus("@createNewApplication", 201);
-    cy.get(this.locator._loading).should("not.exist");
+    this.AssertApplicationCreated();
+    this.agHelper.AssertElementAbsence(this.locator._loading);
     this.agHelper.Sleep(2000);
     if (appname) this.RenameApplication(appname);
     //this.assertHelper.AssertNetworkStatus("@updateApplication", 200);
@@ -288,7 +317,7 @@ export class HomePage {
     });
     cy.get(this._applicationName).type(appName);
     this.agHelper.PressEnter();
-    this.agHelper.RemoveTooltip("Rename application");
+    this.agHelper.RemoveUIElement("Tooltip", "Rename application");
   }
 
   public GetAppName() {
@@ -297,8 +326,12 @@ export class HomePage {
 
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
+    let httpMethod = "POST";
+    if (CURRENT_REPO === REPO.EE) {
+      httpMethod = "GET";
+    }
     cy.request({
-      method: "POST",
+      method: httpMethod,
       url: "/api/v1/logout",
       headers: {
         "X-Requested-By": "Appsmith",
@@ -313,7 +346,10 @@ export class HomePage {
     if (toNavigateToHome) this.NavigateToHome();
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
-    this.assertHelper.AssertNetworkStatus("@postLogout");
+    //Logout is still a POST request in CE
+    if (CURRENT_REPO === REPO.CE) {
+      this.assertHelper.AssertNetworkStatus("@postLogout");
+    }
     return this.agHelper.Sleep(); //for logout to complete!
   }
 
@@ -331,13 +367,25 @@ export class HomePage {
     });
   }
 
+  public InvokeDispatchOnStore() {
+    cy.window().then((win: any) => {
+      if (win && win.store) {
+        cy.window()
+          .its("store")
+          .invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+      } else {
+        // Handle the case where "store" is not present, or simply ignore and continue.
+      }
+    });
+  }
+
   public LogintoApp(
     uname: string,
     pswd: string,
     role: "App Viewer" | "Developer" | "Administrator" = "Administrator",
   ) {
     this.agHelper.Sleep(); //waiting for window to load
-    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
+    this.InvokeDispatchOnStore();
     cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/login", "signUpLogin");
     this.agHelper.AssertElementVisibility(this._username);
@@ -357,9 +405,6 @@ export class HomePage {
   }
 
   public SignUp(uname: string, pswd: string) {
-    this.agHelper.Sleep(); //waiting for window to load
-    cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
-    cy.wait("@postLogout");
     this.agHelper.VisitNAssert("/user/signup", "signUpLogin");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.TypeText(this.signupUsername, uname);
@@ -367,12 +412,26 @@ export class HomePage {
     this.agHelper.GetNClick(this._submitBtn);
     this.agHelper.Sleep(1000);
     cy.get("body").then(($body) => {
-      if ($body.find(this.roleDropdown).length > 0) {
-        this.agHelper.GetNClick(this.roleDropdown);
-        this.agHelper.GetNClick(this.dropdownOption);
-        this.agHelper.GetNClick(this.useCaseDropdown);
-        this.agHelper.GetNClick(this.dropdownOption);
-        this.agHelper.GetNClick(this.roleUsecaseSubmit, undefined, true);
+      if ($body.find(SignupPageLocators.roleDropdown).length > 0) {
+        this.agHelper.GetNClick(SignupPageLocators.roleDropdown);
+        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
+        this.agHelper.GetNClick(SignupPageLocators.useCaseDropdown);
+        this.agHelper.GetNClick(SignupPageLocators.dropdownOption);
+        this.agHelper.GetNClick(
+          SignupPageLocators.getStartedSubmit,
+          undefined,
+          true,
+        );
+      } else if (
+        $body.find(SignupPageLocators.proficiencyGroupButton).length > 0
+      ) {
+        this.agHelper.GetNClick(SignupPageLocators.proficiencyGroupButton);
+        this.agHelper.GetNClick(SignupPageLocators.useCaseGroupButton);
+        this.agHelper.GetNClick(
+          SignupPageLocators.getStartedSubmit,
+          undefined,
+          true,
+        );
       }
     });
     this.assertHelper.AssertNetworkStatus("@getMe");
@@ -401,7 +460,7 @@ export class HomePage {
   public SearchAndOpenApp(appName: string) {
     this.agHelper.TypeText(this._searchInput, appName);
     this.agHelper.Sleep(2000);
-    this.EditAppFromAppHover();
+    this.EditAppFromAppHover(appName);
   }
 
   //Maps to launchApp in command.js
@@ -411,8 +470,17 @@ export class HomePage {
     this.assertHelper.AssertNetworkStatus("getPagesForViewApp");
   }
 
-  public EditAppFromAppHover() {
-    cy.get(this._applicationCard).first().trigger("mouseover");
+  public EditAppFromAppHover(appName = "") {
+    if (appName)
+      this.agHelper
+        .GetElement(this._appCard(appName))
+        .first()
+        .trigger("mouseover");
+    else
+      this.agHelper
+        .GetElement(this._applicationCard)
+        .first()
+        .trigger("mouseover");
     this.agHelper.GetNClick(this._appHoverIcon("edit"));
     this.agHelper.AssertElementAbsence(this.locator._loading);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
@@ -494,17 +562,29 @@ export class HomePage {
     this.NavigateToHome();
   }
 
-  public ImportApp(fixtureJson: string, intoWorkspaceName = "") {
-    cy.get(this._homeIcon).click({ force: true });
-    if (intoWorkspaceName)
-      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
-    else this.agHelper.GetNClick(this._optionsIcon);
-    this.agHelper.GetNClick(this._workspaceImport, 0, true);
-    this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
+  public ImportApp(
+    fixtureJson: string,
+    intoWorkspaceName = "",
+    onlyImport = false,
+  ) {
+    this.agHelper.Sleep(3000); //for new workspace to settle for CI
+    if (onlyImport === false) {
+      cy.get(this._homeIcon).click({ force: true });
+      if (intoWorkspaceName)
+        this.agHelper.GetNClick(
+          this._optionsIconInWorkspace(intoWorkspaceName),
+        );
+      else this.agHelper.GetNClick(this._optionsIcon);
+      this.agHelper.GetNClick(this._workspaceImport, 0, true);
+      this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
+    }
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
     this.agHelper.Sleep(3500);
+    this.agHelper.AssertElementAbsence(
+      this.locator._specificToast("Unable to import application in workspace"),
+    );
   }
 
   public ImportGitApp(intoWorkspaceName = "") {
@@ -616,6 +696,17 @@ export class HomePage {
     this.agHelper.GetNClick(this._deleteApp);
     this.agHelper.GetNClick(this._deleteAppConfirm);
     this.agHelper.WaitUntilToastDisappear("Deleting application...");
+  }
+
+  public DeleteAppviaAPI(appId: any) {
+    cy.request({
+      method: "DELETE",
+      url: "api/v1/applications/" + appId,
+      failOnStatusCode: false,
+      headers: {
+        "X-Requested-By": "Appsmith",
+      },
+    });
   }
 
   //Maps to leaveworkspace in command.js

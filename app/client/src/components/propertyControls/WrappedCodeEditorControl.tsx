@@ -16,8 +16,10 @@ import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTyp
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
-type InputTextProp = {
+interface InputTextProp {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
@@ -27,7 +29,7 @@ type InputTextProp = {
   dataTreePath?: string;
   additionalDynamicData?: AdditionalDynamicDataTree;
   theme: EditorTheme;
-};
+}
 
 function InputText(props: InputTextProp) {
   const {
@@ -48,7 +50,11 @@ function InputText(props: InputTextProp) {
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
-        hinting={[assistiveBindingHinter]}
+        hinting={[
+          bindingHintHelper,
+          assistiveBindingHinter,
+          slashCommandHintHelper,
+        ]}
         input={{
           value: value,
           onChange: onChange,

@@ -1,5 +1,6 @@
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
@@ -9,7 +10,6 @@ import {
   addPlatformFunctionsToEvalContext,
 } from "@appsmith/workers/Evaluation/Actions";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
-import type { ActionEntity } from "entities/DataTree/types";
 
 jest.mock("lodash/uniqueId");
 
@@ -35,7 +35,7 @@ describe("Add functions", () => {
       run: {},
       clear: {},
       responseMeta: { isExecutionSuccess: false },
-      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.ACTION,
       dependencyMap: {},
       logBlackList: {},
     } as ActionEntity,
@@ -397,22 +397,6 @@ const dataTree = {
     backgroundColor: "",
     borderColor: "",
   },
-  pageList: [
-    {
-      pageName: "Page1",
-      pageId: "63349fb5d39f215f89b8245e",
-      isDefault: false,
-      isHidden: false,
-      slug: "page1",
-    },
-    {
-      pageName: "Page2",
-      pageId: "637cc6b4a3664a7fe679b7b0",
-      isDefault: true,
-      isHidden: false,
-      slug: "page2",
-    },
-  ],
   appsmith: {
     store: {},
     geolocation: {

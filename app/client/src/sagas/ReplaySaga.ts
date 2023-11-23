@@ -75,15 +75,15 @@ import {
 import { AppThemingMode } from "selectors/appThemingSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { startFormEvaluations } from "@appsmith/actions/evaluationActions";
+import { startFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 
-export type UndoRedoPayload = {
+export interface UndoRedoPayload {
   operation: ReplayReduxActionTypes;
-};
+}
 
 export default function* undoRedoListenerSaga() {
   yield all([

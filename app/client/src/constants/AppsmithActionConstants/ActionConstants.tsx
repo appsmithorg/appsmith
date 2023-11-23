@@ -7,31 +7,31 @@ import apiActionEditorConfig from "constants/AppsmithActionConstants/formConfig/
 import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/GoogleSheetsSettingsConfig";
 import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
 import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
-import type { ENTITY_TYPE } from "entities/DataTree/types";
+import type { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
-export type ExecuteActionPayloadEvent = {
+export interface ExecuteActionPayloadEvent {
   type: EventType;
   callback?: (result: ExecutionResult) => void;
-};
+}
 
-export type ExecutionResult = {
+export interface ExecutionResult {
   success: boolean;
-};
+}
 
-export type TriggerSource = {
+export interface TriggerSource {
   id: string;
   name: string;
   entityType?: ENTITY_TYPE;
   collectionId?: string;
   isJSAction?: boolean;
   actionId?: string;
-};
+}
 export enum TriggerKind {
   EVENT_EXECUTION = "EVENT_EXECUTION", // Eg. Button onClick
   JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION", // Executing js function from jsObject page
 }
 
-export type ExecuteTriggerPayload = {
+export interface ExecuteTriggerPayload {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   callbackData?: Array<any>;
@@ -39,7 +39,7 @@ export type ExecuteTriggerPayload = {
   source?: TriggerSource;
   widgetId?: string;
   globalContext?: Record<string, unknown>;
-};
+}
 
 export type ContentType =
   | "application/json"
@@ -169,6 +169,7 @@ export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.SAAS]: saasActionSettingsConfig,
   [PluginType.REMOTE]: saasActionSettingsConfig,
   [PluginType.JS]: [],
+  [PluginType.AI]: saasActionSettingsConfig,
 };
 
 export const defaultActionEditorConfigs: Record<PluginType, any> = {
@@ -177,6 +178,7 @@ export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.SAAS]: [],
   [PluginType.REMOTE]: [],
   [PluginType.JS]: [],
+  [PluginType.AI]: [],
 };
 
 export const defaultActionDependenciesConfig: Record<
@@ -188,6 +190,7 @@ export const defaultActionDependenciesConfig: Record<
   [PluginType.SAAS]: {},
   [PluginType.REMOTE]: {},
   [PluginType.JS]: {},
+  [PluginType.AI]: {},
 };
 
 export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
@@ -196,4 +199,5 @@ export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
   [PluginType.SAAS]: apiActionDatasourceFormButtonConfig.SAAS,
   [PluginType.REMOTE]: apiActionDatasourceFormButtonConfig.REMOTE,
   [PluginType.JS]: [],
+  [PluginType.AI]: apiActionDatasourceFormButtonConfig.AI,
 };

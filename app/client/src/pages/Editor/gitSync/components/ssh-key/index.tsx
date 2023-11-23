@@ -31,13 +31,13 @@ import {
   MenuGroupName,
 } from "design-system";
 
-type KeysProps = {
+interface KeysProps {
   copyToClipboard: () => void;
   deployKeyDocUrl: string;
   showCopied: boolean;
   SSHKeyPair: string;
   isImport?: boolean;
-};
+}
 
 const defaultKeyTypes: SSHKeyType[] = [
   {

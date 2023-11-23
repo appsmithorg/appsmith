@@ -3,7 +3,7 @@ import { AddButtonWrapper, EntityClassNames } from "../Entity";
 import EntityAddButton from "../Entity/AddButton";
 import styled from "styled-components";
 import history from "utils/history";
-import { generateTemplateFormURL } from "RouteBuilder";
+import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import { useParams } from "react-router";
 import { useDispatch } from "react-redux";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
@@ -40,12 +40,12 @@ const Wrapper = styled.div`
   }
 `;
 
-type SubMenuProps = {
+interface SubMenuProps {
   className: string;
   openMenu: boolean;
   onMenuClose: () => void;
   createPageCallback: () => void;
-};
+}
 
 function AddPageContextMenu({
   className,

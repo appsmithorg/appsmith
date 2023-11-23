@@ -11,7 +11,7 @@ type ControlType = {
   };
 }[keyof ControlPropsType];
 
-type ControlPropsType = {
+interface ControlPropsType {
   [SettingTypes.RADIO]: RadioOptionProps;
   [SettingTypes.TEXTINPUT]: unknown;
   [SettingTypes.TOGGLE]: unknown;
@@ -25,7 +25,7 @@ type ControlPropsType = {
   [SettingTypes.TAGINPUT]: unknown;
   [SettingTypes.DROPDOWN]: unknown;
   [SettingTypes.CHECKBOX]: unknown;
-};
+}
 
 export enum SettingTypes {
   RADIO = "RADIO",
@@ -86,6 +86,7 @@ export type Setting = ControlType & {
   dropdownOptions?: Partial<SelectOptionProps>[];
   isFeatureEnabled?: boolean;
   tooltip?: string;
+  isEnterprise?: boolean;
 };
 
 export interface Category {
@@ -104,7 +105,6 @@ export interface Category {
 export const SettingCategories = {
   GENERAL: "general",
   EMAIL: "email",
-  GOOGLE_MAPS: "google-maps",
   VERSION: "version",
   ADVANCED: "advanced",
   AUTHENTICATION: "authentication",
@@ -117,6 +117,7 @@ export const SettingCategories = {
   BRANDING: "branding",
   SAML_AUTH: "saml-auth",
   OIDC_AUTH: "oidc-auth",
+  DEVELOPER_SETTINGS: "developer-settings",
 };
 
 export enum CategoryType {
@@ -125,7 +126,7 @@ export enum CategoryType {
   OTHER = "other",
 }
 
-export type AdminConfigType = {
+export interface AdminConfigType {
   type: string;
   controlType: SettingTypes;
   title: string;
@@ -140,4 +141,4 @@ export type AdminConfigType = {
   categoryType: CategoryType;
   isEnterprise?: boolean;
   isFeatureEnabled?: boolean;
-};
+}

@@ -17,10 +17,11 @@ export class Templates {
   };
 
   FilterTemplatesByName(query: string) {
-    return ObjectsRegistry.AggregateHelper.TypeText(
+    ObjectsRegistry.AggregateHelper.TypeText(
       this.locators._templatesSearchInput,
       query,
     );
+    this.agHelper.Sleep();
   }
 
   AssertResultsHeaderText(

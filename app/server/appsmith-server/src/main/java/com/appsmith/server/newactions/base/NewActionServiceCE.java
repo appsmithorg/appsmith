@@ -1,25 +1,25 @@
 package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
+import com.appsmith.server.dtos.ImportActionResultDTO;
+import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
-import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
-import com.appsmith.server.dtos.ce.ImportActionResultDTO;
-import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.services.CrudService;
 import com.mongodb.bulk.BulkWriteResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +41,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     NewAction extractAndSetJsonPathKeys(NewAction newAction);
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
+
+    Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
+            String id, ActionDTO action, Optional<AclPermission> permission);
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
@@ -125,15 +128,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     void populateDefaultResources(NewAction newAction, NewAction branchedAction, String branchName);
 
-    Mono<ImportActionResultDTO> importActions(
-            List<NewAction> importedNewActionList,
-            Application importedApplication,
-            String branchName,
-            Map<String, NewPage> pageNameMap,
-            Map<String, String> pluginMap,
-            Map<String, String> datasourceMap,
-            ImportApplicationPermissionProvider permissionProvider);
-
     Mono<ImportedActionAndCollectionMapsDTO> updateActionsWithImportedCollectionIds(
             ImportActionCollectionResultDTO importActionCollectionResultDTO,
             ImportActionResultDTO importActionResultDTO);
@@ -141,4 +135,13 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission);
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
+
+    Flux<NewAction> findByListOfPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+
+    Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            boolean viewMode,
+            boolean includeJs);
 }

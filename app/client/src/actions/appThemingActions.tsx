@@ -8,39 +8,39 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
  * ----------------------------------------------------------------------------
  */
 
-export type FetchAppThemesAction = {
+export interface FetchAppThemesAction {
   applicationId: string;
-};
+}
 
-export type FetchSelectedAppThemeAction = {
+export interface FetchSelectedAppThemeAction {
   applicationId: string;
-};
+}
 
-export type UpdateSelectedAppThemeAction = {
-  applicationId: string;
-  theme: AppTheme;
-  shouldReplay?: boolean;
-};
-
-export type ChangeSelectedAppThemeAction = {
+export interface UpdateSelectedAppThemeAction {
   applicationId: string;
   theme: AppTheme;
   shouldReplay?: boolean;
-};
+}
 
-export type HydrateSelectedAppThemeAction = {
+export interface ChangeSelectedAppThemeAction {
+  applicationId: string;
   theme: AppTheme;
-};
+  shouldReplay?: boolean;
+}
 
-export type SaveAppThemeAction = {
+export interface HydrateSelectedAppThemeAction {
+  theme: AppTheme;
+}
+
+export interface SaveAppThemeAction {
   applicationId: string;
   name: string;
-};
+}
 
-export type DeleteAppThemeAction = {
+export interface DeleteAppThemeAction {
   themeId: string;
   name: string;
-};
+}
 
 /**
  * ----------------------------------------------------------------------------

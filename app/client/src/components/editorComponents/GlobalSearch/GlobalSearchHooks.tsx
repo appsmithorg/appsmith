@@ -1,8 +1,7 @@
-import React from "react";
 import { INTEGRATION_TABS } from "constants/routes";
 import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
-import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
+import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
 import { getPageList, getPagePermissions } from "selectors/editorSelectors";
 import {
@@ -19,52 +18,34 @@ import type { ActionOperation } from "./utils";
 import {
   actionOperations,
   attachKind,
+  createQueryOption,
+  generateCreateQueryForDSOption,
+  generateCreateNewDSOption,
   isMatching,
   SEARCH_ITEM_TYPES,
 } from "./utils";
 import { PluginType } from "entities/Action";
-import { integrationEditorURL } from "RouteBuilder";
-import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { createNewQueryAction } from "actions/apiPaneActions";
-import {
-  hasCreateActionPermission,
-  hasCreateDatasourceActionPermission,
-  hasCreateDatasourcePermission,
-} from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { importRemixIcon } from "design-system-old";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-const AddLineIcon = importRemixIcon(
-  () => import("remixicon-react/AddLineIcon"),
-);
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import {
+  getHasCreateActionPermission,
+  getHasCreateDatasourcePermission,
+  hasCreateDSActionPermissionInApp,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import type { Plugin } from "api/PluginApi";
+import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
-  const recentDatasourceIds = useSelector(getRecentDatasourceIds);
-  // helper map for sorting based on recent usage
-  const recentlyUsedOrderMap = useMemo(
-    () =>
-      recentDatasourceIds.reduce((map: Record<string, number>, id, index) => {
-        map[id] = index;
-        return map;
-      }, {}),
-    [recentDatasourceIds],
-  );
-  /**
-   *  Work around to get the rest api cloud image.
-   *  We don't have it store as a svg
-   */
   const plugins = useSelector(getPlugins);
-  const restApiPlugin = plugins.find(
-    (plugin) => plugin.type === PluginType.API,
-  );
-  const newApiActionIdx = actionOperations.findIndex(
-    (op) => op.title === "New blank API",
-  );
-  if (newApiActionIdx > -1) {
-    actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
-  }
+  const moduleOptions = useModuleOptions();
+
+  // helper map for sorting based on recent usage
+  const recentlyUsedDSMap = useRecentlyUsedDSMap();
 
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
@@ -72,135 +53,115 @@ export const useFilteredFileOperations = (query = "") => {
 
   const pagePermissions = useSelector(getPagePermissions);
 
-  const canCreateActions = hasCreateActionPermission(pagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canCreateDatasource = hasCreateDatasourcePermission(
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+
+  const canCreateDatasource = getHasCreateDatasourcePermission(
+    isFeatureEnabled,
     userWorkspacePermissions,
   );
 
-  return useMemo(
-    () =>
-      getFilteredAndSortedFileOperations(
-        query,
-        appWideDS,
-        otherDS,
-        recentlyUsedOrderMap,
-        canCreateActions,
-        canCreateDatasource,
-        pagePermissions,
-      ),
-    [
-      appWideDS,
-      canCreateActions,
-      canCreateDatasource,
-      otherDS,
+  // get all datasources, app ds listed first
+  const allDatasources = [...appWideDS, ...otherDS].filter((ds) =>
+    hasCreateDSActionPermissionInApp(
+      isFeatureEnabled,
+      ds.userPermissions ?? [],
       pagePermissions,
-      query,
-      recentlyUsedOrderMap,
-    ],
+    ),
   );
+
+  return useFilteredAndSortedFileOperations({
+    allDatasources,
+    canCreateActions,
+    canCreateDatasource,
+    moduleOptions,
+    plugins,
+    recentlyUsedDSMap,
+    query,
+  });
 };
 
-export const getFilteredAndSortedFileOperations = (
-  query: string,
-  appWideDS: Datasource[] = [],
-  otherDS: Datasource[] = [],
-  recentlyUsedOrderMap: Record<string, number> = {},
+export const useFilteredAndSortedFileOperations = ({
+  allDatasources = [],
   canCreateActions = true,
   canCreateDatasource = true,
-  pagePermissions: string[] = [],
-) => {
+  moduleOptions = [],
+  plugins = [],
+  query,
+  recentlyUsedDSMap = {},
+}: {
+  allDatasources?: Datasource[];
+  canCreateActions?: boolean;
+  canCreateDatasource?: boolean;
+  moduleOptions?: ActionOperation[];
+  plugins?: Plugin[];
+  recentlyUsedDSMap?: Record<string, number>;
+  query: string;
+}) => {
   const fileOperations: ActionOperation[] = [];
   if (!canCreateActions) return fileOperations;
 
-  // Add JS Object operation
-  fileOperations.push(actionOperations[2]);
-  // Add app datasources
-  if (appWideDS.length > 0 || otherDS.length > 0) {
-    const showCreateQuery = [...appWideDS, ...otherDS].some((ds: Datasource) =>
-      hasCreateDatasourceActionPermission([
-        ...(ds.userPermissions ?? []),
-        ...pagePermissions,
-      ]),
-    );
+  /**
+   *  Work around to get the rest api cloud image.
+   *  We don't have it store as a svg
+   */
+  const actionOps = updateActionOperations(plugins, actionOperations);
 
-    if (showCreateQuery) {
-      fileOperations.push({
-        desc: "",
-        title: "Create a query",
-        kind: SEARCH_ITEM_TYPES.sectionTitle,
-      });
-    }
+  // Add JS Object operation
+  fileOperations.push(actionOps[2]);
+
+  // Add Module operations
+  if (moduleOptions.length > 0) {
+    moduleOptions.map((moduleOp) => fileOperations.push(moduleOp));
   }
 
-  // get all datasources, app ds listed first
-  const datasources = [...appWideDS, ...otherDS].filter((ds) =>
-    hasCreateDatasourceActionPermission([
-      ...(ds.userPermissions ?? []),
-      ...pagePermissions,
-    ]),
-  );
+  // Add app datasources
+  if (allDatasources.length > 0) {
+    fileOperations.push(createQueryOption);
+  }
 
   // Sort datasources based on recency
-  datasources.sort((a, b) => {
-    const orderA = recentlyUsedOrderMap[a.id];
-    const orderB = recentlyUsedOrderMap[b.id];
-    if (orderA !== undefined && orderB !== undefined) {
-      return orderA - orderB;
-    } else if (orderA !== undefined) {
-      return -1;
-    } else if (orderB !== undefined) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
+  const datasources = getSortedDatasources(allDatasources, recentlyUsedDSMap);
+
+  const createQueryAction =
+    (dsId: string) => (pageId: string, from: EventLocation) =>
+      createNewQueryAction(pageId, from, dsId);
 
   // map into operations
-  const dsOperations = datasources.map((ds) => ({
-    title: `New ${ds.name} query`,
-    shortTitle: `${ds.name} query`,
-    desc: `Create a query in ${ds.name}`,
-    pluginId: ds.pluginId,
-    kind: SEARCH_ITEM_TYPES.actionOperation,
-    action: (pageId: string, from: EventLocation) =>
-      createNewQueryAction(pageId, from, ds.id),
-  }));
+  const dsOperations = datasources.map((ds) =>
+    generateCreateQueryForDSOption(ds, createQueryAction(ds.id)),
+  );
   fileOperations.push(...dsOperations);
 
   // Add generic action creation
   fileOperations.push(
-    ...actionOperations.filter((op) => op.title !== actionOperations[2].title),
+    ...actionOps.filter((op) => op.title !== actionOps[2].title),
   );
   // Filter out based on query
-  const filteredFileOperations = fileOperations
+  let filteredFileOperations = fileOperations
     .filter(Boolean)
     .filter((ds) => ds.title.toLowerCase().includes(query.toLowerCase()));
+
   // Add genetic datasource creation
-  if (canCreateDatasource) {
-    filteredFileOperations.push({
-      desc: "Create a new datasource in the organisation",
-      title: "New datasource",
-      icon: (
-        <EntityIcon>
-          <AddLineIcon size={22} />
-        </EntityIcon>
-      ),
-      kind: SEARCH_ITEM_TYPES.actionOperation,
-      redirect: (pageId: string, entryPoint: string) => {
-        history.push(
-          integrationEditorURL({
-            pageId,
-            selectedTab: INTEGRATION_TABS.NEW,
-          }),
-        );
-        // Event for datasource creation click
-        AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-          entryPoint,
-        });
-      },
-    });
-  }
+  const onRedirect = (pageId: string) => {
+    history.push(
+      integrationEditorURL({
+        pageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
+    );
+  };
+
+  if (canCreateDatasource)
+    filteredFileOperations = generateCreateNewDSOption(
+      filteredFileOperations,
+      onRedirect,
+    );
+
   return filteredFileOperations;
 };
 
@@ -277,4 +238,54 @@ export const useFilteredPages = (query: string) => {
       SEARCH_ITEM_TYPES.page,
     );
   }, [pages, query]);
+};
+
+export const useRecentlyUsedDSMap = () => {
+  const recentDatasourceIds = useSelector(getRecentDatasourceIds);
+  // helper map for sorting based on recent usage
+  const recentlyUsedOrderMap = useMemo(
+    () =>
+      recentDatasourceIds.reduce((map: Record<string, number>, id, index) => {
+        map[id] = index;
+        return map;
+      }, {}),
+    [recentDatasourceIds],
+  );
+  return recentlyUsedOrderMap;
+};
+
+export const updateActionOperations = (
+  plugins: Plugin[],
+  actionOps: ActionOperation[],
+) => {
+  const restApiPlugin = plugins.find(
+    (plugin) => plugin.type === PluginType.API,
+  );
+  const newApiActionIdx = actionOps.findIndex(
+    (op) => op.title === "New blank API",
+  );
+  if (newApiActionIdx > -1) {
+    actionOps[newApiActionIdx].pluginId = restApiPlugin?.id;
+  }
+  return actionOps;
+};
+
+export const getSortedDatasources = (
+  datasources: Datasource[],
+  recentlyUsedDSMap: Record<string, number>,
+) => {
+  const sortedDS = datasources.sort((a, b) => {
+    const orderA = recentlyUsedDSMap[a.id];
+    const orderB = recentlyUsedDSMap[b.id];
+    if (orderA !== undefined && orderB !== undefined) {
+      return orderA - orderB;
+    } else if (orderA !== undefined) {
+      return -1;
+    } else if (orderB !== undefined) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+  return sortedDS;
 };

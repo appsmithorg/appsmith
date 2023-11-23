@@ -61,10 +61,10 @@ function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
   );
 }
 
-type State = {
+interface State {
   focusedIndex: number | null;
   duplicateTabIds: string[];
-};
+}
 
 class TabControl extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {

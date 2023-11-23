@@ -1,5 +1,9 @@
 import commonlocators from "../../../../locators/commonlocators.json";
+import { homePage } from "../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const {
   AggregateHelper: agHelper,
@@ -34,10 +38,8 @@ describe("Debugger logs", function () {
     cy.get(".t--property-control-visible").find(".t--js-toggle").click();
     cy.testJsontext("visible", "Test");
     cy.get(commonlocators.homeIcon).click({ force: true });
-    cy.generateUUID().then((id) => {
-      cy.CreateAppInFirstListedWorkspace(id);
-      debuggerHelper.AssertErrorCount(0);
-    });
+    homePage.CreateNewApplication();
+    debuggerHelper.AssertErrorCount(0);
   });
 
   it("3. Console log on button click with normal moustache binding", function () {
@@ -53,7 +55,7 @@ describe("Debugger logs", function () {
 
   it("4. Console log on button click with arrow function IIFE", function () {
     debuggerHelper.ClearLogs();
-    ee.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     // Testing with normal log in iifee
     propPane.EnterJSContext(
       "onClick",
@@ -67,7 +69,7 @@ describe("Debugger logs", function () {
 
   it("5. Console log on button click with function keyword IIFE", function () {
     debuggerHelper.ClearLogs();
-    ee.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     // Testing with normal log in iifee
     propPane.EnterJSContext(
       "onClick",
@@ -82,7 +84,7 @@ describe("Debugger logs", function () {
   it("6. Console log on button click with async function IIFE", function () {
     debuggerHelper.ClearLogs();
     // Testing with normal log in iifee
-    ee.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{(async() => {
@@ -96,7 +98,7 @@ describe("Debugger logs", function () {
   it("7. Console log on button click with mixed function IIFE", function () {
     debuggerHelper.ClearLogs();
     // Testing with normal log in iifee
-    ee.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     const logStringChild = generateTestLogString();
     propPane.EnterJSContext(
       "onClick",
@@ -113,7 +115,7 @@ describe("Debugger logs", function () {
   it("8. Console log grouping on button click", function () {
     debuggerHelper.ClearLogs();
     // Testing with normal log in iifee
-    ee.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{ function () {
@@ -133,7 +135,7 @@ describe("Debugger logs", function () {
   it("9. Console log grouping on button click with different log in between", function () {
     debuggerHelper.ClearLogs();
     // Testing with normal log in iifee
-    ee.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{ function () {
@@ -152,7 +154,7 @@ describe("Debugger logs", function () {
   it("10. Console log grouping on button click from different source", function () {
     debuggerHelper.ClearLogs();
     // Testing with normal log in iifee
-    ee.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", `{{console.log("${logString}")}}`);
     // Add another button
     ee.DragDropWidgetNVerify("buttonwidget", 400, 400);

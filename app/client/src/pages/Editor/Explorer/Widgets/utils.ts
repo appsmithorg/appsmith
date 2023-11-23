@@ -1,4 +1,4 @@
-import { builderURL } from "RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
 
 export const navigateToCanvas = (pageId: string) => {

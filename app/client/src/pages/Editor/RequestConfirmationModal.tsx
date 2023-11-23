@@ -21,10 +21,10 @@ import {
 } from "@appsmith/constants/messages";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
-type Props = {
+interface Props {
   modals: ModalInfo[];
   dispatch: any;
-};
+}
 
 class RequestConfirmationModal extends React.Component<Props> {
   addEventListener = () => {

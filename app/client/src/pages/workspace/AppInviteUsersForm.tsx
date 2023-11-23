@@ -8,10 +8,10 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { viewerURL } from "RouteBuilder";
+import { viewerURL } from "@appsmith/RouteBuilder";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import {
   createMessage,
@@ -20,12 +20,11 @@ import {
   MAKE_APPLICATION_PUBLIC,
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
 import { Button, Icon, Switch, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-const { cloudHosting } = getAppsmithConfigs();
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const SwitchContainer = styled.div`
   flex-basis: 220px;
@@ -68,6 +67,9 @@ function AppInviteUsersForm(props: any) {
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
+
+  const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
   const copyToClipboard = () => {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(appViewEndPoint);
@@ -110,8 +112,8 @@ function AppInviteUsersForm(props: any) {
       {canInviteToApplication && (
         <WorkspaceInviteUsersForm
           applicationId={applicationId}
-          isApplicationInvite
-          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+          isApplicationPage
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, !isGACEnabled)}
           workspaceId={props.workspaceId}
         />
       )}

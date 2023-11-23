@@ -1,14 +1,32 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const {
+  deployMode,
+  entityExplorer,
+  locators,
+  propPane,
+} = require("../../../../../support/Objects/ObjectsCore");
 
 describe("JsonForm widget basis c usecases", function () {
-  it("Validate Drag and drop jsonform widget", function () {
+  before(() => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("jsonformwidget", { x: 200, y: 200 });
-    cy.openPropertyPane("jsonformwidget");
-    cy.get(widgetsPage.jsonFormWidget).should("have.length", 1);
+    cy.fixture("TestDataSet1").then(function (dataSet) {
+      cy.openPropertyPane("jsonformwidget");
+      propPane.EnterJSContext(
+        "Source data",
+        JSON.stringify(dataSet.defaultSource),
+        true,
+      );
+      cy.get(widgetsPage.jsonFormWidget).should("have.length", 1);
+    });
   });
 
   it("json form widget validate default data", function () {
@@ -28,7 +46,7 @@ describe("JsonForm widget basis c usecases", function () {
   });
 
   it("json form widget validate reset button function", function () {
-    cy.openPropertyPane("jsonformwidget");
+    deployMode.DeployApp();
     cy.get(jsonform.jsformInput).clear({ force: true });
     cy.get(jsonform.jsformInput).type("TestReset");
     cy.get(jsonform.jsformEmpID).clear({ force: true });
@@ -50,9 +68,11 @@ describe("JsonForm widget basis c usecases", function () {
       "have.value",
       this.dataSet.defaultSource.employee_id,
     );
+    deployMode.NavigateBacktoEditor();
   });
 
   it("Validate copy/paste/delete widget ", function () {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //copy and paste
     cy.openPropertyPane("jsonformwidget");

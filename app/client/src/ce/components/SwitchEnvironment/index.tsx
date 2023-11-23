@@ -46,15 +46,15 @@ const StyledIcon = styled(Icon)`
   margin-right: 8px;
 `;
 
-type Props = {
+interface Props {
   viewMode?: boolean;
-};
+}
 
-type EnvironmentType = {
+interface EnvironmentType {
   id: string;
   name: string;
   selected: boolean;
-};
+}
 
 const environmentList: Array<EnvironmentType> = [
   {
@@ -110,7 +110,11 @@ export default function SwitchEnvironment({}: Props) {
 
   const DisabledTooltipContent = () => {
     return (
-      <Text color="var(--ads-v2-color-white)" kind="action-m">
+      <Text
+        color="var(--ads-v2-color-white)"
+        data-testid="t--switch-env-tooltip"
+        kind="action-m"
+      >
         {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
         <TooltipLink kind="primary" target="_blank" to={rampLink}>
           {createMessage(BUSINESS_EDITION_TEXT)}

@@ -1,14 +1,18 @@
 import {
   agHelper,
   apiPage,
+  dataManager,
   dataSources,
   entityExplorer,
   entityItems,
   jsEditor,
   locators,
   propPane,
-  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
   let dsName: any;
@@ -41,6 +45,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     dataSources.CreateDataSource("MySql", true, false);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
       //Selecting paintings table from MySQL DS
       //Initialize new JSObject with custom code
@@ -87,7 +92,10 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
 
   it("2. Verify refactoring updates in JS Object", () => {
     //Verify JSObject refactoring in API pane
-    entityExplorer.SelectEntityByName(refactorInput.api.newName);
+    EditorNavigation.SelectEntityByName(
+      refactorInput.api.newName,
+      EntityType.Api,
+    );
     agHelper.Sleep(1000);
     agHelper.GetNAssertContains(
       locators._editorVariable,
@@ -95,7 +103,10 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     );
 
     //Verify JSObject refactoring in Query pane
-    entityExplorer.SelectEntityByName(refactorInput.query.newName);
+    EditorNavigation.SelectEntityByName(
+      refactorInput.query.newName,
+      EntityType.Query,
+    );
     agHelper.Sleep(1000);
     agHelper.GetNAssertContains(
       locators._editorVariable,
@@ -104,7 +115,10 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
 
     //Verify TextWidget, InputWidget, QueryRefactor, RefactorAPI refactor
     //Verify Names in JS Object string shouldn't be updated
-    entityExplorer.SelectEntityByName(refactorInput.jsObject.newName);
+    EditorNavigation.SelectEntityByName(
+      refactorInput.jsObject.newName,
+      EntityType.JSObject,
+    );
     agHelper.GetNAssertContains(
       locators._consoleString,
       refactorInput.textWidget.newName,
@@ -183,6 +197,6 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
       action: "Delete",
       entityType: entityItems.Api,
     });
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 });

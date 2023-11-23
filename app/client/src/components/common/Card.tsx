@@ -29,12 +29,12 @@ type CardProps = PropsWithChildren<{
   isSelected?: boolean;
 }>;
 
-type NameWrapperProps = {
+interface NameWrapperProps {
   hasReadPermission: boolean;
   showOverlay: boolean;
   isContextMenuOpen: boolean;
   testId: string;
-};
+}
 
 type ModifiedMenuItemProps = MenuItemProps & {
   key?: string;
@@ -102,7 +102,12 @@ const CircleAppIcon = styled(AppIcon)`
 
 const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   <div
-    {...omit(props, ["hasReadPermission", "showOverlay", "isContextMenuOpen"])}
+    {...omit(props, [
+      "hasReadPermission",
+      "showOverlay",
+      "isContextMenuOpen",
+      "testId",
+    ])}
   />
 ))`
   .bp3-card {

@@ -11,6 +11,9 @@ import {
   assertHelper,
   draggableWidgets,
 } from "../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
 
 describe("AForce - Community Issues page validations", function () {
   before(function () {
@@ -31,12 +34,15 @@ describe("AForce - Community Issues page validations", function () {
     homePage.ImportApp("CommunityIssuesExport.json");
     assertHelper
       .WaitForNetworkCall("importNewApplication")
-      .then((interception: any) => {
+      .then((response: any) => {
         agHelper.Sleep();
-        const { isPartialImport } = interception.response.body.data;
+        const { isPartialImport } = response.body.data;
         if (isPartialImport) {
           // should reconnect modal
-          dataSources.ReconnectSingleDSNAssert("AForceDB", "PostgreSQL");
+          dataSources.ReconnectSingleDSNAssert(
+            String.raw`AForceDB`,
+            "PostgreSQL",
+          );
           homePage.AssertNCloseImport();
         } else {
           homePage.AssertImportToast();
@@ -66,7 +72,7 @@ describe("AForce - Community Issues page validations", function () {
   });
 
   it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Server side pagination", "true");
 
     propPane
@@ -110,7 +116,7 @@ describe("AForce - Community Issues page validations", function () {
   it("3. Validate table navigation with Server Side pagination disabled with Default selected row selection", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.TogglePropertyState("Server side pagination", "Off");
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -118,7 +124,7 @@ describe("AForce - Community Issues page validations", function () {
     table.AssertSelectedRow(selectedRow);
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.TogglePropertyState("Server side pagination", "On");
   });
 
@@ -136,7 +142,7 @@ describe("AForce - Community Issues page validations", function () {
   });
 
   it("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     //propPane.EnterJSContext("Default search text", "Bug", false);
     propPane.TypeTextIntoField("Default search text", "Bug");
     deployMode.DeployApp();
@@ -145,7 +151,7 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     //propPane.EnterJSContext("Default search text", "Question", false);
     propPane.TypeTextIntoField("Default search text", "Quest", true, false);
 
@@ -155,7 +161,7 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 0, "v2");
 
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     //propPane.EnterJSContext("Default search text", "Epic", false);
     propPane.TypeTextIntoField("Default search text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
     deployMode.DeployApp();
@@ -163,14 +169,14 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitForTableEmpty("v2");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.RemoveText("defaultsearchtext");
     agHelper.GetNClick(dataSources._refreshIcon, 0, true);
     table.WaitUntilTableLoad(0, 0, "v2");
   });
 
   it("6. Validate Search table with Client Side Search enabled & disabled & onSearchTextChanged is set", () => {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Client side search", "true");
 
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
@@ -187,7 +193,7 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 1, "v2");
 
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.TogglePropertyState("Client side search", "Off");
 
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
@@ -204,7 +210,7 @@ describe("AForce - Community Issues page validations", function () {
     //Remove onSearchTextChanged & test
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 1, "v2");
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.TogglePropertyState("Client side search", "On");
     propPane.EnterJSContext("onSearchTextChanged", "");
     propPane.ToggleJSMode("onSearchTextChanged", false);
@@ -223,7 +229,7 @@ describe("AForce - Community Issues page validations", function () {
     //if the client side search is off, and there is no text in onSearchTextChanged, we still go ahead with client side search. this is a known limitation    deployMode.NavigateBacktoEditor();
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(0, 1, "v2");
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.TogglePropertyState("Client side search", "Off");
 
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
@@ -345,6 +351,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.Sleep(2000);
     table.SelectTableRow(0, 1, true, "v2");
     agHelper.AssertElementVisibility(locators._widgetInDeployed("tabswidget"));
+    agHelper.Sleep(2000);
     agHelper
       .GetNClick(locators._inputWidgetv1InDeployed, 0, true, 0)
       .type("-updating title");

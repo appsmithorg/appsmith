@@ -11,7 +11,7 @@ const DroppableWrapper = styled.div`
   width: 250px;
 `;
 
-type RenderComponentProps = {
+interface RenderComponentProps {
   index: number;
   item: {
     label: string;
@@ -22,7 +22,7 @@ type RenderComponentProps = {
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
   onEdit?: (index: number) => void;
-};
+}
 
 interface DroppableComponentProps {
   items: Array<Record<string, unknown>>;

@@ -1,6 +1,11 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "./EditorNavigation";
+import datasource from "../../locators/DatasourcesEditor.json";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -26,6 +31,7 @@ export enum Widgets {
   Chart,
   Text,
 }
+type AppModes = "Edit" | "View";
 
 interface RunQueryParams {
   toValidateResponse?: boolean;
@@ -51,7 +57,7 @@ export class DataSources {
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _dsReviewSection = "[data-testid='t--ds-review-section']";
-  private _addNewDataSource = ".t--entity-add-btn.datasources button";
+  public _addNewDataSource = ".t--add-datasource-button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   public _host = (index = "0") =>
@@ -78,7 +84,7 @@ export class DataSources {
   _reconnectDataSourceModal = "[data-testid=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
-  _activeDS = "[data-testid='active-datasource-name']";
+  _activeDS = "[data-selected='true']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
   _addSuggestedExisting = "t--suggested-widget-existing";
@@ -150,9 +156,7 @@ export class DataSources {
     `//div/span[text()='Result:']/span[number(substring-before(normalize-space(text()), ' Record')) >= ${recordCount}]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
-    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
-  _queriesOnPageText = (dsName: string) =>
-    ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
+    "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox'], input[name='actionConfiguration.formData.preparedStatement.data'][type='checkbox']";
   _mockDB = (dbName: string) =>
     "//span[text()='" +
     dbName +
@@ -251,12 +255,10 @@ export class DataSources {
     "//p[contains(text(),'" +
     ddName +
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
-  private _datasourceTableSchemaInQueryEditor = (schemaName: string) =>
-    `//div[contains(@class, 'datasourceStructure-query-editor')]//div[contains(@class, 't--entity-name')][text()='${schemaName}']`;
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
-  private _datasourceColumnSchemaInQueryEditor = ".t--datasource-column";
-  private _datasourceStructureSearchInput = ".datasourceStructure-search input";
+  _datasourceSchemaColumn = ".t--datasource-column";
+  _datasourceStructureSearchInput = ".datasourceStructure-search input";
   _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
   _globalSearchTrigger = ".t--global-search-modal-trigger";
@@ -283,8 +285,22 @@ export class DataSources {
   _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
   _graphQlDsFromRightPane = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
+  _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
+  _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
+  private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
+  private _dsSchemaContainer = `[data-testId="datasource-schema-container"]`;
+  private _dsVirtuosoElementTable = (targetTableName: string) =>
+    `.t--entity-item[data-testid='t--entity-item-${targetTableName}']`;
+  private _dsPageTabListItem = (buttonText: string) =>
+    `//div[contains(@class, 't--datasource-tab-list')]/button/span[text()='${buttonText}']`;
+  _dsPageTabContainerTableName = (tableName: string) =>
+    `.t--datasource-tab-container ${this._entityExplorerID(tableName)}`;
+  _dsPageTableTriggermenuTarget = (tableName: string) =>
+    `${this._dsPageTabContainerTableName(tableName)} .t--template-menu-trigger`;
+  _gSheetQueryPlaceholder = ".CodeMirror-placeholder";
+  _dsStructurePreviewMode = ".datasourceStructure-datasource-view-mode";
 
-  public AssertDSEditViewMode(mode: "Edit" | "View") {
+  public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
     else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
   }
@@ -317,7 +333,7 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     this.agHelper.GetNClickByContains(this._dropdownOption, "public.users");
-    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.GetNClick(this._generatePageBtn, 0, true);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.ClickButton("Got it");
   }
@@ -429,21 +445,19 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    this.entityExplorer.HoverOnEntityItem("Datasources");
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
     Cypress._.times(2, () => {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
-    });
-    this.agHelper.RemoveTooltip("Add a new datasource");
-    cy.get(this._newDatasourceContainer).scrollTo("bottom", {
-      ensureScrollable: false,
     });
     cy.get(this._newDatabases).should("be.visible");
   }
 
   CreateMockDB(dbName: "Users" | "Movies"): Cypress.Chainable<string> {
     this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._mockDB(dbName));
+    cy.get(this._mockDatasourceName)
+      .contains(dbName, { matchCase: false })
+      .click();
     this.assertHelper.AssertNetworkStatus("@getMockDb"); //To return the right mock DB name
     return cy
       .get("@getMockDb")
@@ -570,7 +584,10 @@ export class DataSources {
     );
   }
 
-  public FillMsSqlDSForm(environment = this.dataManager.defaultEnviorment) {
+  public FillMsSqlDSForm(
+    environment = this.dataManager.defaultEnviorment,
+    leaveDBNameEmpty = true,
+  ) {
     this.agHelper.UpdateInputValue(
       this._host(),
       this.dataManager.dsValues[environment].mssql_host,
@@ -579,7 +596,14 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].mssql_port.toString(),
     );
-    this.agHelper.ClearTextField(this._databaseName);
+
+    if (leaveDBNameEmpty) {
+      this.agHelper.ClearTextField(this._databaseName);
+    } else {
+      const databaseName =
+        this.dataManager.dsValues[environment].mssql_databaseName;
+      this.agHelper.ClearNType(this._databaseName, databaseName);
+    }
     // this.agHelper.UpdateInputValue(
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
@@ -670,7 +694,9 @@ export class DataSources {
     //   );
     this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
-      JSON.stringify(Cypress.env("FIRESTORE_PRIVATE_KEY")),
+      JSON.stringify(
+        this.dataManager.dsValues[environment].firestore_serviceaccountkey,
+      ),
     );
     //});
   }
@@ -778,9 +804,9 @@ export class DataSources {
     );
   }
 
-  public TestSaveDatasource(expectedRes = true, isForkModal = false) {
+  public TestSaveDatasource(expectedRes = true, isReconnectModal = false) {
     this.TestDatasource(expectedRes);
-    this.SaveDatasource(isForkModal);
+    this.SaveDatasource(isReconnectModal);
   }
 
   public TestDatasource(expectedRes = true) {
@@ -792,10 +818,10 @@ export class DataSources {
     }
   }
 
-  public SaveDatasource(isForkModal = false, isSavingEnvInOldDS = false) {
+  public SaveDatasource(isReconnectModal = false, isSavingEnvInOldDS = false) {
     this.agHelper.Sleep(500); //bit of time for CI!
     this.agHelper.GetNClick(this._saveDs);
-    if (!isForkModal) {
+    if (!isReconnectModal) {
       this.assertHelper.AssertNetworkStatus("@saveDatasource", 201);
       if (!isSavingEnvInOldDS)
         this.agHelper.AssertContains("datasource created");
@@ -819,55 +845,13 @@ export class DataSources {
     this.agHelper.AssertContains("datasource updated");
   }
 
-  public ShowAllDatasources() {
-    this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length === 0) {
-        this.agHelper.ClickButton("Show all datasources");
-      }
-    });
-  }
-
-  public ClickActiveTabDSContextMenu(datasourceName: string) {
-    this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if (
-        $body.find(this.locator._visibleTextSpan("Show all datasources", true))
-          .length !== 0
-      ) {
-        this.ShowAllDatasources();
-      } else this.NavigateToActiveTab();
-    });
-
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
-      .parents(this._datasourceCard)
-      .find(this._dsMenuoptions)
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
-  }
-
-  public DeleteDatasouceFromActiveTab(
+  public DeleteDatasourceFromWithinDS(
     datasourceName: string,
-    expectedRes = 200 || 409 || [200 | 409],
+    expectedRes: number | number[] = 200 || 409 || [200, 409],
   ) {
-    this.ClickActiveTabDSContextMenu(datasourceName);
-    this.agHelper.GetNClick(this._dsOptionMenuItem("Delete"), 0, false, 200);
-    this.agHelper.GetNClick(this._dsOptionMenuItem("Are you sure?"));
-    this.ValidateDSDeletion(expectedRes);
-  }
-
-  public DeleteDatasouceFromWinthinDS(
-    datasourceName: string,
-    expectedRes: number | number[] = 200 || 409 || [200 | 409],
-  ) {
-    this.NavigateToActiveTab();
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     this.agHelper.Sleep(); //for the Datasource page to open
-    this.DeleteDSDirectly(expectedRes);
+    this.DeleteDSDirectly(expectedRes, false);
   }
 
   // this initiates saving via the cancel button.
@@ -886,7 +870,7 @@ export class DataSources {
   }
 
   public DeleteDSDirectly(
-    expectedRes: number | number[] = 200 || 409 || [200 | 409],
+    expectedRes: number | number[] = 200 || 409 || [200, 409],
     toNavigateToDSInfoPage = true,
   ) {
     toNavigateToDSInfoPage &&
@@ -897,43 +881,16 @@ export class DataSources {
     this.ValidateDSDeletion(expectedRes);
   }
 
-  public DeleteDSFromEntityExplorer(
-    dsName: string,
-    expectedRes: number | number[] = 200,
-  ) {
-    this.entityExplorer.SelectEntityByName(dsName, "Datasources");
-    this.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Delete",
-      entityType: EntityItems.Datasource,
-    });
-    this.ValidateDSDeletion(expectedRes);
-  }
-
   public ValidateDSDeletion(expectedRes: number | number[] = 200) {
-    let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
-    if (toValidateRes) {
-      if (expectedRes == 200)
-        this.agHelper.AssertContains("datasource deleted successfully");
-      else this.agHelper.AssertContains("action(s) using it.");
-      this.assertHelper.AssertNetworkStatus(
-        "@deleteDatasource",
-        expectedRes as number,
-      );
-    } else {
-      cy.wait("@deleteDatasource")
-        .its("response.body.responseMeta.status")
-        .should("be.oneOf", [200, 409]);
-    }
-  }
-
-  public NavigateToActiveTab() {
-    this.agHelper.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(this._selectedActiveTab).length === 0) {
-        this.NavigateToDSCreateNew();
-        this.agHelper.GetNClick(this._activeTab, 0, true);
-      }
-    });
+    this.assertHelper
+      .AssertNetworkStatus("@deleteDatasource", expectedRes)
+      .then((responseStatus) => {
+        this.agHelper.AssertContains(
+          responseStatus === 200
+            ? "datasource deleted successfully"
+            : "action(s) using it",
+        );
+      });
   }
 
   public NavigateFromActiveDS(
@@ -949,13 +906,8 @@ export class DataSources {
     this.AssertDSInActiveList(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
       .should("be.visible")
-      .then(($element) => {
-        cy.wrap($element)
-          .closest(this._datasourceCard)
-          .within(() => {
-            this.agHelper.GetNClick(btnLocator, 0, true);
-          });
-      });
+      .click();
+    this.agHelper.GetNClick(btnLocator, 0, true);
     this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
     createQuery && this.AssertRunButtonVisibility();
     validateTableDropdown &&
@@ -964,29 +916,13 @@ export class DataSources {
   }
 
   public AssertDSInActiveList(dsName: string | RegExp) {
-    this.entityExplorer.NavigateToSwitcher("Explorer", 0, true);
-    this.entityExplorer.ExpandCollapseEntity("Datasources", false);
-    //this.entityExplorer.SelectEntityByName(datasourceName, "Datasources");
-    //this.entityExplorer.ExpandCollapseEntity(datasourceName, false);
-    this.NavigateToActiveTab();
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
-  public CreateQueryFromActiveTab(
-    datasourceName: string,
-    toNavigateToActive = true,
-  ) {
-    if (toNavigateToActive) this.NavigateToActiveTab();
-    cy.get(this._datasourceCard, { withinSubject: null })
-      .find(this._activeDS)
-      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
-      .scrollIntoView()
-      .should("be.visible")
-      .closest(this._datasourceCard)
-      .scrollIntoView()
-      .within(() => {
-        this.agHelper.GetNClick(this._createQuery, 0, true);
-      });
+  public CreateQueryFromActiveTab(datasourceName: string) {
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
+    this.agHelper.GetNClick(this._createQuery, 0, true);
     this.agHelper.Sleep(2000); //for the CreateQuery
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
     this.AssertRunButtonVisibility();
@@ -1018,7 +954,7 @@ export class DataSources {
     queryName = "",
     cancelEditDs = true,
   ) {
-    this.NavigateToActiveTab();
+    EditorNavigation.ViaSidebar(SidebarButton.Data);
     cy.get(this._datasourceCard)
       .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
@@ -1078,7 +1014,7 @@ export class DataSources {
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
-    this.SaveDatasource(true);
+    this.TestSaveDatasource(true, true);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
@@ -1207,17 +1143,13 @@ export class DataSources {
     });
   }
 
-  public ToggleUsePreparedStatement(enable = true || false) {
-    if (enable)
-      cy.get(this._usePreparedStatement).check({
-        force: true,
-      });
-    else
-      cy.get(this._usePreparedStatement).uncheck({
-        force: true,
-      });
-
-    this.agHelper.AssertAutoSave();
+  ToggleUsePreparedStatement(
+    enable = true || false,
+    toNavigateToSettings = false,
+  ) {
+    toNavigateToSettings && this.apiPage.SelectPaneTab("Settings");
+    if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
+    else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
@@ -1335,7 +1267,7 @@ export class DataSources {
     queryName = "",
     sleep = 500,
   ) {
-    this.agHelper.RemoveEvaluatedPopUp(); //to close the evaluated pop-up
+    this.agHelper.RemoveUIElement("EvaluatedPopUp"); //to close the evaluated pop-up
     this.entityExplorer.CreateNewDsQuery(dsName);
     if (query) {
       this.EnterQuery(query, sleep);
@@ -1438,19 +1370,14 @@ export class DataSources {
     } else {
       this.SaveDatasource();
     }
-    this.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dataSourceName,
-      action: "Refresh",
-    });
+    this.selectTabOnDatasourcePage("View data");
     cy.wait("@getDatasourceStructure").then(() => {
-      cy.get(".bp3-collapse-body").contains(schema);
+      cy.get(this._dsSchemaContainer).contains(schema);
     });
   }
 
   public VerifyTableSchemaOnQueryEditor(schema: string) {
-    this.agHelper.AssertElementVisibility(
-      this._datasourceTableSchemaInQueryEditor(schema),
-    );
+    this.agHelper.AssertElementVisibility(this._dsVirtuosoElementTable(schema));
   }
 
   public VerifySchemaAbsenceInQueryEditor() {
@@ -1459,7 +1386,7 @@ export class DataSources {
 
   public VerifyColumnSchemaOnQueryEditor(schema: string, index = 0) {
     this.agHelper
-      .GetElement(this._datasourceColumnSchemaInQueryEditor)
+      .GetElement(this._datasourceSchemaColumn)
       .eq(index)
       .contains(schema);
   }
@@ -1484,8 +1411,24 @@ export class DataSources {
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
     this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
-    this.agHelper.Sleep(); //for search result to load
+    this.agHelper.Sleep(1000); //for search result to load
     this.VerifyTableSchemaOnQueryEditor(expectedTableName);
+  }
+
+  public createQueryWithDatasourceSchemaTemplate(
+    datasourceName: string,
+    tableName: string,
+    templateName: string,
+  ) {
+    this.CreateQueryFromActiveTab(datasourceName);
+    this.AssertTableInVirtuosoList(datasourceName, tableName);
+    cy.get(this._dsVirtuosoElementTable(tableName)).click();
+    this.agHelper.GetNClick(
+      this.entityExplorer.locator._contextMenuItem(templateName),
+      0,
+      true,
+    );
+    this.agHelper.Sleep(500);
   }
 
   public AssertDSDialogVisibility(isVisible = true) {
@@ -1516,11 +1459,12 @@ export class DataSources {
         true,
         0,
       );
+    this.AssertDSDialogVisibility(false);
   }
 
   // this initiates saving via the back button.
   public SaveDSFromDialog(save = true) {
-    this.agHelper.GoBack();
+    EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
     this.AssertDatasourceSaveModalVisibilityAndSave(save);
   }
 
@@ -1899,5 +1843,82 @@ export class DataSources {
         this.locator._visibleTextDiv($infs),
       );
     });
+  }
+
+  public AssertTableInVirtuosoList(
+    dsName: string,
+    targetTableName: string,
+    presence = true,
+  ) {
+    const ds_entity_name = dsName.replace(/\s/g, "_");
+    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
+      `getDatasourceStructureUpdated_${ds_entity_name}`,
+    );
+    this.RefreshDatasourceSchema();
+    this.assertHelper
+      .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)
+      .then(async (response) => {
+        const tables: any[] = response?.body.data?.tables || [];
+        const indexOfTable = tables.findIndex(
+          (table) => table.name === targetTableName,
+        );
+        if (presence) {
+          this.agHelper.Sleep();
+          this.agHelper
+            .GetNClick(this._dsVirtuosoElement)
+            .then((parentElement) => {
+              const heightOfParentElement = parentElement.outerHeight() || 0;
+
+              // Every element (tables in this scenario) in the virtual list has equal heights. Assumption: Every table element accordion is collapsed by default.
+              const containerElement = parentElement.find(this._dsVirtuosoList);
+              const elementHeight = parseInt(
+                containerElement.children().first().attr("data-known-size") ||
+                  "",
+                10,
+              );
+              // Total height of the parent container holding the tables in the dom normally without virtualization rendering
+              const totalScroll = tables.length * elementHeight;
+              cy.log(JSON.stringify({ heightOfParentElement, totalScroll }));
+              if (heightOfParentElement < totalScroll) {
+                // Index of the table present in the array of tables which will determine the presence of element inside the parent container
+                let offset = indexOfTable * elementHeight;
+                const scrollPercent = Math.max(
+                  (offset / (totalScroll || 1)) * 100,
+                  0,
+                );
+                if (scrollPercent > 0) {
+                  this.agHelper.ScrollToXY(
+                    this._dsVirtuosoElement,
+                    0,
+                    `${scrollPercent}%`,
+                  );
+                }
+              }
+              // To close any template pop up, click on the body
+              cy.get(this.locator._body).click({ force: true });
+              this.agHelper.AssertElementVisibility(
+                this._dsVirtuosoElementTable(targetTableName),
+              );
+            });
+        } else {
+          this.agHelper.AssertElementAbsence(
+            this._dsVirtuosoElementTable(targetTableName),
+          );
+          expect(indexOfTable).to.equal(-1);
+        }
+      });
+  }
+
+  public selectTabOnDatasourcePage(tab: "View data" | "Configurations") {
+    this.agHelper.GetNClick(this._dsPageTabListItem(tab));
+  }
+
+  public getDatasourceListItemDescription(name: string) {
+    return cy
+      .get(datasource.datasourceCard)
+      .contains(name)
+      .parents(datasource.datasourceCard)
+      .find(".ads-v2-listitem__bdesc")
+      .invoke("text");
   }
 }

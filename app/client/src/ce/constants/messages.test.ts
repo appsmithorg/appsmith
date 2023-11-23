@@ -208,17 +208,17 @@ describe("messages without input", () => {
     },
     {
       key: "REVOKE_EXISTING_REPOSITORIES",
-      value: "Revoke Existing Repositories",
+      value: "Revoke existing repositories",
     },
     {
       key: "REVOKE_EXISTING_REPOSITORIES_INFO",
       value:
         "To make space for newer repositories, you can remove existing repositories.",
     },
-    { key: "CONTACT_SUPPORT", value: "Contact Support" },
+    { key: "CONTACT_SUPPORT", value: "Contact support" },
     {
       key: "REPOSITORY_LIMIT_REACHED",
-      value: "Repository Limit Reached",
+      value: "Repository limit reached",
     },
     {
       key: "REPOSITORY_LIMIT_REACHED_INFO",

@@ -1,5 +1,6 @@
 import { get, isEmpty, merge, set } from "lodash";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
@@ -19,7 +20,6 @@ import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { jsPropertiesState } from "./jsPropertiesState";
-import type { JSActionEntity } from "entities/DataTree/types";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
 
 /**
@@ -92,6 +92,7 @@ export function saveResolvedFunctionsAndJSUpdates(
     try {
       JSObjectCollection.deleteResolvedFunction(entityName);
       JSObjectCollection.deleteUnEvalState(entityName);
+      JSObjectCollection.clearCachedVariablesForEvaluationContext(entityName);
 
       const parseStartTime = performance.now();
       const { parsedObject, success } = parseJSObject(entity.body);

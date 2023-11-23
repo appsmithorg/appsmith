@@ -212,10 +212,10 @@ public class SeedMongoData {
         };
         Object[][] pageData = {{"validPageName", Set.of(managePagePolicy, readPagePolicy)}};
         Object[][] pluginData = {
-            {"Installed Plugin Name", PluginType.API, "installed-plugin"},
-            {"Installed DB Plugin Name", PluginType.DB, "installed-db-plugin"},
-            {"Installed JS Plugin Name", PluginType.JS, "installed-js-plugin"},
-            {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
+            {"Installed Plugin Name", PluginType.API, "installed-plugin", true},
+            {"Installed DB Plugin Name", PluginType.DB, "installed-db-plugin", true},
+            {"Installed JS Plugin Name", PluginType.JS, "installed-js-plugin", true},
+            {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin", false}
         };
 
         // Seed the plugin data into the DB
@@ -223,9 +223,11 @@ public class SeedMongoData {
                 .map(array -> {
                     log.debug("Creating the plugins");
                     Plugin plugin = new Plugin();
+
                     plugin.setName((String) array[0]);
                     plugin.setType((PluginType) array[1]);
                     plugin.setPackageName((String) array[2]);
+                    plugin.setDefaultInstall((Boolean) array[3]);
                     log.debug("Create plugin: {}", plugin);
                     return plugin;
                 })

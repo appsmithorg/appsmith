@@ -1,5 +1,8 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiLocators from "../../../../locators/ApiEditor";
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -39,16 +42,12 @@ describe("Bind a button and Api usecase", function () {
   });
 
   it("2. Button-Name updation & API datasource binding with button name validation", function () {
-    _.entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     //changing the Button Name
-    cy.widgetText(
-      testdata.buttonName,
-      widgetsPage.buttonWidget,
-      widgetsPage.widgetNameSpan,
-    );
+    _.propPane.RenameWidget("Button1", testdata.buttonName);
 
     //API datasource binding with button name validation
-    _.entityExplorer.SelectEntityByName("Api1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
     cy.get(apiwidget.headerValue)
       .first()
       .invoke("text")

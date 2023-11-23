@@ -10,6 +10,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      skip-tests:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "false"
       branch:
         description: "This is the branch to be used for the build."
         required: false
@@ -68,9 +73,6 @@ jobs:
 
       - name: Print the Github event
         run: echo ${{ github.event_name }}
-
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -131,7 +133,7 @@ jobs:
 
       # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0 && inputs.skip-tests != 'true'
         run: yarn run test:unit
 
       - name: Build

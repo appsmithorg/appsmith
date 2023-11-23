@@ -1,88 +1,110 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  deployMode,
+  propPane,
+  locators,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
 
 describe("Text Field Property Control", () => {
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   before(() => {
     const schema = {
       name: "John",
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
-
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
   });
 
   it("1. Switch Field Property Control - pre condition", () => {
     const schema = {
       switch: true,
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     cy.openFieldConfiguration("switch");
-  });
-
-  it("2. has default property", () => {
+    // assert default property
     cy.get(".t--property-control-defaultselected").contains(
       "{{sourceData.switch}}",
     );
   });
 
-  it("3. should update field checked state when default selected changed", () => {
+  it("2. should update field checked state when default selected changed", () => {
     cy.testJsontext("defaultselected", "{{false}}");
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-switch label.bp3-control.bp3-switch`).should(
       "have.class",
       "t--switch-widget-inactive",
     );
+    entityExplorer.dra;
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("4. hides field when visible switched off", () => {
-    cy.togglebarDisable(`.t--property-control-visible input`);
+  it("3. hides field when visible switched off", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("switch");
+    propPane.TogglePropertyState("Visible", "Off");
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-switch`).should("not.exist");
-    cy.wait(500);
-    cy.togglebar(`.t--property-control-visible input`);
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("switch");
+    propPane.TogglePropertyState("Visible", "On");
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-switch`).should("exist");
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("5. disables field when disabled switched on", () => {
-    cy.togglebar(`.t--property-control-disabled input`);
+  it("4. disables field when disabled switched on", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("switch");
+    propPane.TogglePropertyState("Disabled", "On");
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-switch input`).each(($el) => {
       cy.wrap($el).should("have.attr", "disabled");
     });
 
-    cy.togglebarDisable(`.t--property-control-disabled input`);
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("switch");
+    propPane.TogglePropertyState("Disabled", "Off");
   });
 
-  it("6. Select Field Property Control - pre condition", () => {
+  it("5. Select Field Property Control - pre condition", () => {
     const schema = {
       state: "Karnataka",
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+
     cy.openFieldConfiguration("state");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
-  });
-
-  it("7. has valid default value", () => {
+    // assert valid default value
     cy.get(".t--property-control-defaultselectedvalue").contains(
       "{{sourceData.state}}",
     );
   });
 
-  it("8. makes select filterable", () => {
+  it("6. makes select filterable", () => {
     // click select field and filter input should not exist
     cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
     cy.get(`.bp3-select-popover .bp3-input-group`).should("not.exist");
@@ -90,75 +112,43 @@ describe("Text Field Property Control", () => {
     // toggle filterable -> true in property pane
     cy.togglebar(`.t--property-control-allowsearching input`);
 
+    deployMode.DeployApp();
+
     // click select field and filter input should exist
     cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
     cy.get(`.bp3-select-popover .bp3-input-group`).should("exist");
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("9. hides field when visible switched off", () => {
-    cy.togglebarDisable(`.t--property-control-visible input`);
-    cy.get(`${fieldPrefix}-state`).should("not.exist");
-    cy.wait(500);
-    cy.togglebar(`.t--property-control-visible input`);
-    cy.get(`${fieldPrefix}-state`).should("exist");
-  });
-
-  it("10. disables field when disabled switched on", () => {
-    cy.togglebar(`.t--property-control-disabled input`);
-    cy.get(`${fieldPrefix}-state button.bp3-button`).should(
-      "have.class",
-      "bp3-disabled",
-    );
-
-    cy.togglebarDisable(`.t--property-control-disabled input`);
-  });
-
-  it("11. Multi Field Property Control - pre condition", () => {
+  it("7. Multi Field Property Control - pre condition", () => {
     const schema = {
       hobbies: [],
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     cy.openFieldConfiguration("hobbies");
-  });
-
-  it("12. has valid default value", () => {
+    // assert valid default value
     cy.get(".t--property-control-defaultselectedvalues").contains(
       "{{sourceData.hobbies}}",
     );
     cy.closePropertyPane();
   });
 
-  it("13. adds placeholder text", () => {
+  it("8. adds placeholder text", () => {
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("hobbies");
 
     cy.testJsontext("placeholder", "Select placeholder");
-    cy.wait(2000);
+    deployMode.DeployApp();
     cy.get(`.rc-select-selection-placeholder`).contains("Select placeholder");
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("14. hides field when visible switched off", () => {
-    cy.togglebarDisable(`.t--property-control-visible input`);
-    cy.get(`${fieldPrefix}-hobbies`).should("not.exist");
-    cy.wait(500);
-    cy.togglebar(`.t--property-control-visible input`);
-    cy.get(`${fieldPrefix}-hobbies`).should("exist");
-  });
-
-  it("15. disables field when disabled switched on", () => {
-    cy.togglebar(`.t--property-control-disabled input`);
-    cy.get(`${fieldPrefix}-hobbies .rc-select-multiple`).should(
-      "have.class",
-      "rc-select-disabled",
-    );
-
-    cy.togglebarDisable(`.t--property-control-disabled input`);
-  });
-
-  it("16. Invalid options should not crash the widget", () => {
+  it("9. Invalid options should not crash the widget", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("hobbies");
     // clear Options
     cy.testJsonTextClearMultiline("options");
     // enter invalid options
@@ -180,27 +170,25 @@ describe("Text Field Property Control", () => {
     cy.get(`${fieldPrefix}-hobbies`).should("exist");
   });
 
-  it("17. Radio group Field Property Control - pre condition", () => {
+  it("10. Radio group Field Property Control - pre condition", () => {
     const sourceData = {
       radio: "Y",
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+
     cy.openFieldConfiguration("radio");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
-  });
-
-  it("18. has valid default value", () => {
+    // assert valid default value
     cy.get(".t--property-control-defaultselectedvalue").contains(
       "{{sourceData.radio}}",
     );
 
     cy.get(`${fieldPrefix}-radio input`).should("have.value", "Y");
-  });
 
-  it("19. hides field when visible switched off", () => {
+    // hides field when visible switched off"
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-radio`).should("not.exist");
     cy.wait(500);

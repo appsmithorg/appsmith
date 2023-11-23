@@ -16,6 +16,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSHConnection;
 import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MySQLErrorMessages;
 import com.external.plugins.exceptions.MySQLPluginError;
@@ -484,52 +485,6 @@ public class MySqlPluginTest {
     }
 
     @Test
-    public void testValidateDatasourceNullCredentials() {
-        dsConfig.setConnection(new com.appsmith.external.models.Connection());
-        DBAuth auth = (DBAuth) dsConfig.getAuthentication();
-        auth.setUsername(null);
-        auth.setPassword(null);
-        auth.setDatabaseName("someDbName");
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.contains("Missing username for authentication."));
-        assertTrue(output.contains("Missing password for authentication."));
-    }
-
-    @Test
-    public void testValidateDatasourceMissingDBName() {
-        ((DBAuth) dsConfig.getAuthentication()).setDatabaseName("");
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.stream().anyMatch(error -> error.contains("Missing database name.")));
-    }
-
-    @Test
-    public void testValidateDatasourceNullEndpoint() {
-        dsConfig.setEndpoints(null);
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.stream().anyMatch(error -> error.contains("Missing endpoint and url")));
-    }
-
-    @Test
-    public void testValidateDatasource_NullHost() {
-        dsConfig.setEndpoints(List.of(new Endpoint()));
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.stream().anyMatch(error -> error.contains("Host value cannot be empty")));
-
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost(address);
-        endpoint.setPort(port.longValue());
-        dsConfig.setEndpoints(List.of(endpoint));
-    }
-
-    @Test
-    public void testValidateDatasourceInvalidEndpoint() {
-        String hostname = "r2dbc:mysql://localhost";
-        dsConfig.getEndpoints().get(0).setHost(hostname);
-        Set<String> output = pluginExecutor.validateDatasource(dsConfig);
-        assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
-    }
-
-    @Test
     public void testAliasColumnNames() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<ConnectionContext<ConnectionPool>> connectionContextMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -879,9 +834,10 @@ public class MySqlPluginTest {
         String query_insert_data_types = "insert into test_data_types values ('test', 'test', 'a\\0\\t', 'a\\0\\t', "
                 + "'test', 'test', 'test', 'test',  'test', 'test', 'test', 'test', 'ONE', 'a');";
 
-        String query_create_table_json_data_type = "create table test_json_type (c_json JSON);";
-        String query_insert_json_data_type =
-                "insert into test_json_type values ('{\"key1\": \"value1\", \"key2\": " + "\"value2\"}');";
+        String query_create_table_json_data_type = "create table test_json_type (id INTEGER, c_json JSON);";
+        String query_insert_json_data_type_1 =
+                "insert into test_json_type values (1, '{\"key1\": \"value1\", \"key2\": " + "\"value2\"}');";
+        String query_insert_json_data_type_2 = "insert into test_json_type values (2, NULL);";
 
         String query_create_table_geometry_types =
                 "create table test_geometry_types (c_geometry GEOMETRY, c_point " + "POINT);";
@@ -890,7 +846,8 @@ public class MySqlPluginTest {
 
         String query_select_from_test_numeric_types = "select * from test_numeric_types;";
         String query_select_from_test_date_time_types = "select * from test_date_time_types;";
-        String query_select_from_test_json_data_type = "select * from test_json_type;";
+        String query_select_from_test_json_data_type_1 = "select c_json from test_json_type where id=1;";
+        String query_select_from_test_json_data_type_2 = "select c_json from test_json_type where id=2;";
         String query_select_from_test_data_types = "select * from test_data_types;";
         String query_select_from_test_geometry_types = "select * from test_geometry_types;";
 
@@ -906,7 +863,9 @@ public class MySqlPluginTest {
                 + "\"c_blob\":\"dGVzdA==\",\"c_mediumblob\":\"dGVzdA==\",\"c_longblob\":\"dGVzdA==\",\"c_tinytext\":\"test\","
                 + "\"c_text\":\"test\",\"c_mediumtext\":\"test\",\"c_longtext\":\"test\",\"c_enum\":\"ONE\",\"c_set\":\"a\"}]";
 
-        String expected_json_result = "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
+        String expected_json_result_1 =
+                "[{\"c_json\":\"{\\\"key1\\\": \\\"value1\\\", \\\"key2\\\": \\\"value2\\\"}\"}]";
+        String expected_json_result_2 = "[{\"c_json\":null}]";
 
         String expected_geometry_types_result = "[{\"c_geometry\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAADwPw==\","
                 + "\"c_point\":\"AAAAAAEBAAAAAAAAAAAA8D8AAAAAAABZQA==\"}]";
@@ -920,7 +879,8 @@ public class MySqlPluginTest {
                             .add(query_create_table_date_time_types)
                             .add(query_insert_into_table_date_time_types)
                             .add(query_create_table_json_data_type)
-                            .add(query_insert_json_data_type)
+                            .add(query_insert_json_data_type_1)
+                            .add(query_insert_json_data_type_2)
                             .add(query_create_table_data_types)
                             .add(query_insert_data_types)
                             .add(query_create_table_geometry_types)
@@ -936,7 +896,8 @@ public class MySqlPluginTest {
         /* Test data types */
         testExecute(query_select_from_test_data_types, expected_data_types_result);
         /* Test json type */
-        testExecute(query_select_from_test_json_data_type, expected_json_result);
+        testExecute(query_select_from_test_json_data_type_1, expected_json_result_1);
+        testExecute(query_select_from_test_json_data_type_2, expected_json_result_2);
         /* Test geometry types */
         testExecute(query_select_from_test_geometry_types, expected_geometry_types_result);
 
@@ -1081,23 +1042,6 @@ public class MySqlPluginTest {
                                         false),
                             },
                             usersTable.getTemplates().toArray());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testSslToggleMissingError() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        datasourceConfiguration.getConnection().getSsl().setAuthType(null);
-
-        Mono<Set<String>> invalidsMono =
-                Mono.just(pluginExecutor).map(executor -> executor.validateDatasource(datasourceConfiguration));
-
-        StepVerifier.create(invalidsMono)
-                .assertNext(invalids -> {
-                    String expectedError = "Appsmith server has failed to fetch SSL configuration from datasource "
-                            + "configuration form. Please reach out to Appsmith customer support to resolve this.";
-                    assertTrue(invalids.stream().anyMatch(error -> expectedError.equals(error)));
                 })
                 .verifyComplete();
     }
@@ -1511,5 +1455,178 @@ public class MySqlPluginTest {
                         .collect(Collectors.toList())
                         .size()
                 == 0);
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_endpointNotPresent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        // setting endpoints to empty list
+        dsConfig.setEndpoints(new ArrayList());
+
+        final Mono<String> rateLimitIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(rateLimitIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAbsent_ReturnsEmptyString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("");
+        dsConfig.getEndpoints().get(0).setPort(3306L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostAndPortPresent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(33L);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_33", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostPresentPortAbsent_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_3306", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostPresentPortAbsentSshEnabled_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_3306", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            testGetEndpointIdentifierForRateLimit_HostPresentPortAbsentSshEnabledwithHostAndPort_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        SSHConnection sshProxy = new SSHConnection();
+        sshProxy.setHost("sshHost");
+        sshProxy.setPort(223L);
+        dsConfig.setSshProxy(sshProxy);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_3306_sshHost_223", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            testGetEndpointIdentifierForRateLimit_HostPresentPortAbsentSshEnabledwithHostAndNullPort_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        SSHConnection sshProxy = new SSHConnection();
+        sshProxy.setHost("sshHost");
+        dsConfig.setSshProxy(sshProxy);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_3306_sshHost_22", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            testGetEndpointIdentifierForRateLimit_EndpointAbsentSshEnabledwithHostAndNullPort_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.setEndpoints(new ArrayList());
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        SSHConnection sshProxy = new SSHConnection();
+        sshProxy.setHost("sshHost");
+        dsConfig.setSshProxy(sshProxy);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("_sshHost_22", endpointIdentifier);
+                })
+                .verifyComplete();
     }
 }

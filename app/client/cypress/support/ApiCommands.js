@@ -50,7 +50,6 @@ Cypress.Commands.add("ResponseTextCheck", (textTocheck) => {
 });
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
-  cy.get(pages.addEntityAPI).last().should("be.visible").click({ force: true });
   dataSources.NavigateToDSCreateNew();
   cy.get("#loading").should("not.exist");
 });
@@ -110,16 +109,7 @@ Cypress.Commands.add(
   (apiName, baseurl, path, verb, error = false) => {
     cy.get(".ads-v2-tabs__list").contains("Logs").click();
     cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
-    agHelper.PressEnter(1000);
-    cy.get("body").then(($ele) => {
-      if ($ele.find(ApiEditor.apiResponseObject).length <= 0) {
-        agHelper
-          .GetElement(ApiEditor.apiDebuggerLink)
-          .last()
-          .contains(apiName)
-          .click();
-      }
-    });
+    agHelper.PressEnter(2000);
     if (!error) {
       cy.get(ApiEditor.apiResponseObject).last().contains("request").click();
     }
@@ -205,9 +195,7 @@ Cypress.Commands.add("EnterSourceDetailsWithbody", (baseUrl, v1method) => {
 });
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
-  cy.get(pages.addEntityAPI).click();
   dataSources.NavigateToDSCreateNew();
-
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
@@ -282,6 +270,7 @@ Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
 });
 
 Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
+  dataSources.NavigateToDSCreateNew();
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
@@ -358,10 +347,6 @@ Cypress.Commands.add("DeleteAPI", () => {
     .should("eq", 200);
 });
 
-Cypress.Commands.add("NavigateToApiEditor", () => {
-  cy.get(explorer.addEntityAPI).click({ force: true });
-});
-
 Cypress.Commands.add("testCreateApiButton", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
   cy.wait("@createNewApi");
@@ -371,7 +356,6 @@ Cypress.Commands.add("testCreateApiButton", () => {
 });
 
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
-  cy.NavigateToApiEditor();
   dataSources.NavigateToDSCreateNew();
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {

@@ -55,7 +55,7 @@ const MultipleDeleteWrapper = styled.div`
   gap: 8px;
 `;
 
-type SubHeaderProps = {
+interface SubHeaderProps {
   add?: {
     form: ReactNode;
     title: string;
@@ -73,7 +73,7 @@ type SubHeaderProps = {
     defaultValue?: string;
   };
   isBannerVisible?: boolean;
-};
+}
 
 export function ApplicationsSubHeader(props: SubHeaderProps) {
   const [showModal, setShowModal] = useState(false);

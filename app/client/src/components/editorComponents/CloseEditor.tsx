@@ -9,7 +9,7 @@ import {
   builderURL,
   generateTemplateFormURL,
   integrationEditorURL,
-} from "RouteBuilder";
+} from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";

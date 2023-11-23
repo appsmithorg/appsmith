@@ -1,8 +1,18 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
+import {
+  entityExplorer,
+  deployMode,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
+let locators = ObjectsRegistry.CommonLocators;
 
 describe("JSON Form Widget AutoGenerate Enabled", () => {
   beforeEach(() => {
@@ -32,9 +42,9 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
       ],
     };
 
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
-    cy.closePropertyPane();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+    deployMode.DeployApp();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
     cy.get(`${fieldPrefix}-name input`).then((input) => {
@@ -90,6 +100,8 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
     cy.get(
       `${fieldPrefix}-education .t--jsonformfield-array-add-btn .t--text`,
     ).should("have.text", "Add New");
+
+    deployMode.NavigateBacktoEditor();
   });
 
   it("modifies field when source data changes", () => {
@@ -115,8 +127,12 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
     };
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(modifiedSourceData));
-    cy.closePropertyPane();
+    propPane.EnterJSContext(
+      "Source data",
+      JSON.stringify(modifiedSourceData),
+      true,
+    );
+    deployMode.DeployApp();
 
     cy.get(`${fieldPrefix}-name label`).contains("Name");
     cy.get(`${fieldPrefix}-name input`).should("have.value", "John");

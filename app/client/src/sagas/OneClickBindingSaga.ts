@@ -1,11 +1,17 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionErrorTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import type { Plugin } from "api/PluginApi";
-import type { Action, QueryActionConfig } from "entities/Action";
+import {
+  PluginType,
+  type Action,
+  type QueryActionConfig,
+} from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { invert, merge, omit, partition } from "lodash";
-import { all, call, put, select, takeLatest, take } from "redux-saga/effects";
+import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -16,14 +22,14 @@ import {
   getDatasource,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import { createNewQueryName } from "utils/AppsmithUtils";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import {
-  createDefaultActionPayload,
-  getPulginActionDefaultValues,
+  createDefaultActionPayloadWithPluginDefaults,
+  getPluginActionDefaultValues,
 } from "./ActionSagas";
 import "../WidgetQueryGenerators";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import "WidgetQueryGenerators";
 import { getWidgetByID } from "./selectors";
 import type {
@@ -107,7 +113,7 @@ function* BindWidgetToDatasource(
 
   try {
     const defaultValues: object | undefined = yield call(
-      getPulginActionDefaultValues,
+      getPluginActionDefaultValues,
       datasource?.pluginId,
     );
 
@@ -115,7 +121,10 @@ function* BindWidgetToDatasource(
       widget.type,
     );
 
-    const widgetQueryGenerationConfig = getQueryGenerationConfig?.(widget);
+    const widgetQueryGenerationConfig = getQueryGenerationConfig?.(
+      widget,
+      action.payload,
+    );
 
     const widgetQueryGenerator = WidgetQueryGeneratorRegistry.get(
       plugin.packageName,
@@ -127,11 +136,18 @@ function* BindWidgetToDatasource(
       defaultValues,
     );
 
+    const newActionName =
+      plugin.type === PluginType.DB
+        ? createNewQueryName(actions, pageId || "")
+        : createNewApiName(actions, pageId || "");
+
     const commonActionPayload: Partial<Action> = yield call(
-      createDefaultActionPayload,
-      pageId,
-      datasourceId,
-      "ONE_CLICK_BINDING",
+      createDefaultActionPayloadWithPluginDefaults,
+      {
+        datasourceId,
+        from: "ONE_CLICK_BINDING",
+        newActionName,
+      },
     );
 
     const queryNameMap: Record<string, string> = {};
@@ -149,12 +165,19 @@ function* BindWidgetToDatasource(
 
           queryNameMap[type] = createNewQueryName(actions, pageId || "", name);
 
-          return merge({}, commonActionPayload, {
-            actionConfiguration: payload,
-            name: queryNameMap[type],
-            dynamicBindingPathList,
-            type,
-          });
+          return merge(
+            {},
+            {
+              ...commonActionPayload,
+              pageId,
+            },
+            {
+              actionConfiguration: payload,
+              name: queryNameMap[type],
+              dynamicBindingPathList,
+              type,
+            },
+          );
         },
       );
 
@@ -221,6 +244,8 @@ function* BindWidgetToDatasource(
 
       const queryBindingConfig: WidgetQueryConfig = {};
 
+      const { alertMessage } = action.payload;
+
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.SELECT])) {
         queryBindingConfig[QUERY_TYPE.SELECT] = {
           data: `{{${queryNameMap[QUERY_TYPE.SELECT]}.data}}`,
@@ -236,11 +261,21 @@ function* BindWidgetToDatasource(
       }
 
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.UPDATE])) {
+        const selectQuery = queryNameMap[QUERY_TYPE.SELECT]
+          ? `${queryNameMap[QUERY_TYPE.SELECT]}.run()`
+          : "";
+
+        const successMessage = `${
+          alertMessage?.success
+            ? alertMessage.success?.update
+            : "Successfully saved!"
+        }`;
+
         queryBindingConfig[QUERY_TYPE.UPDATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.data}}`,
           run: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.run(() => {
-            showAlert("Successfully saved!");
-            ${queryNameMap[QUERY_TYPE.SELECT]}.run();
+            showAlert("${successMessage}");
+            ${selectQuery.toString()}
           }, () => {
             showAlert("Unable to save!");
           })}}`,
@@ -248,11 +283,21 @@ function* BindWidgetToDatasource(
       }
 
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.CREATE])) {
+        const selectQuery = queryNameMap[QUERY_TYPE.SELECT]
+          ? `${queryNameMap[QUERY_TYPE.SELECT]}.run()`
+          : "";
+
+        const successMessage = `${
+          alertMessage?.success
+            ? alertMessage.success?.create
+            : "Successfully created!"
+        }`;
+
         queryBindingConfig[QUERY_TYPE.CREATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.CREATE]}.data}}`,
           run: `{{${queryNameMap[QUERY_TYPE.CREATE]}.run(() => {
-            showAlert("Successfully created!");
-            ${queryNameMap[QUERY_TYPE.SELECT]}.run()
+            showAlert("${successMessage}");
+            ${selectQuery.toString()}
           }, () => {
             showAlert("Unable to create!");
           })}}`,
@@ -307,13 +352,14 @@ function* BindWidgetToDatasource(
     yield put({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_SUCCESS,
     });
-
+    const { otherFields } = action.payload;
     AnalyticsUtil.logEvent("1_CLICK_BINDING_SUCCESS", {
       widgetName: widget.widgetName,
       widgetType: widget.type,
       pluginType: plugin.type,
       pluginName: plugin.name,
       isMock: datasource.isMock,
+      formType: otherFields?.formType,
     });
   } catch (e: any) {
     Toaster.show({

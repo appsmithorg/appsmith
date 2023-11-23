@@ -4,11 +4,11 @@ import { TooltipComponent } from "design-system-old";
 import { isEllipsisActive } from "utils/helpers";
 import { StyledMenuItemText } from "./MenuText.styled";
 
-type MenuTextProps = {
+interface MenuTextProps {
   name: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
-};
+}
 
 const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {
   const tabNameRef = useRef<HTMLSpanElement>(null);

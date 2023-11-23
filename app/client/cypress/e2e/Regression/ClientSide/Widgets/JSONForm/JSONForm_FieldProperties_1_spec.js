@@ -1,51 +1,62 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  propPane,
+  locators,
+} from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
 
 describe("Text Field Property Control", () => {
   beforeEach(() => {
-    _.agHelper.RestoreLocalStorageCache();
+    agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    _.agHelper.SaveLocalStorageCache();
+    agHelper.SaveLocalStorageCache();
   });
 
   before(() => {
     const schema = {
       name: "John",
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
   });
 
-  it("1. has valid default text", () => {
+  it("1. updated field with change in default text", () => {
+    // check name  has valid default text
     cy.openFieldConfiguration("name");
     cy.get(".t--property-control-defaultvalue").contains("{{sourceData.name}}");
-  });
-
-  it("2. updated field with change in default text", () => {
     const defaultValue = "New default text";
-    cy.testJsontext("defaultvalue", "New default text").wait(200);
+    propPane.UpdatePropertyFieldValue("Default value", defaultValue);
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name input`).should("have.value", defaultValue);
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("3. throws max character error when exceeds maxChar limit for default text", () => {
-    cy.testJsontext("maxchars", 5);
+  it("2. throws max character error when exceeds maxChar limit for default text and input text", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("name");
+    cy.testJsontext("maxchars", 5).wait(200);
     cy.get(`${fieldPrefix}-name input`).click();
     cy.get(".bp3-popover-content").should(($x) => {
       expect($x).contain(
         "Default text length must be less than or equal to 5 characters",
       );
     });
-    cy.testJsontext("maxchars", "");
-  });
-
-  it("4. throws max character error when exceeds maxChar limit for input text", () => {
-    cy.testJsontext("defaultvalue", "").wait(200);
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("name");
+    cy.testJsontext("maxchars", "").wait(200);
+    cy.testJsontext("defaultvalue", 5).wait(200);
     cy.get(`${fieldPrefix}-name input`).clear().type("abcdefghi");
     cy.testJsontext("maxchars", 5).wait(200);
     cy.get(`${fieldPrefix}-name input`).click();
@@ -55,22 +66,37 @@ describe("Text Field Property Control", () => {
     cy.testJsontext("maxchars", "");
   });
 
-  it("5. sets placeholder", () => {
+  it("3. sets placeholder", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+
     const placeholderText = "First name";
     cy.testJsontext("placeholder", placeholderText);
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name input`)
       .invoke("attr", "placeholder")
       .should("contain", placeholderText);
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("6. sets valid property with custom error message", () => {
+  it("4. sets valid property with custom error message", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("name");
     cy.testJsontext("valid", "false");
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
     cy.get(".bp3-popover-content").contains("Invalid input");
-
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("name");
     cy.testJsontext("errormessage", "Custom error message");
+
+    deployMode.DeployApp();
+    cy.get(`${fieldPrefix}-name input`).clear().type("yuru camp");
     cy.get(`${fieldPrefix}-name input`).click({ force: true });
     cy.get(".bp3-popover-content").contains("Custom error message");
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("name");
 
     // Reset the error message
     cy.testJsontext("errormessage", "");
@@ -78,71 +104,89 @@ describe("Text Field Property Control", () => {
     cy.testJsontext("valid", "");
   });
 
-  it("7. hides field when visible switched off", () => {
-    cy.togglebarDisable(`.t--property-control-visible input`);
+  it("5. hides field when visible switched off", () => {
+    propPane.TogglePropertyState("Visible", "Off");
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name`).should("not.exist");
-    cy.wait(500);
-    cy.togglebar(`.t--property-control-visible input`);
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("name");
+    propPane.TogglePropertyState("Visible", "On");
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name`).should("exist");
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("8. disables field when disabled switched on and when autofill is disabled we should see the autofill attribute in the input field", () => {
+  it("6. disables field when disabled switched on and when autofill is disabled we should see the autofill attribute in the input field", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("name");
     cy.togglebar(`.t--property-control-disabled input`);
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name input`).each(($el) => {
       cy.wrap($el).should("have.attr", "disabled");
     });
 
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("name");
     cy.togglebarDisable(`.t--property-control-disabled input`);
     validateAutocompleteAttributeInJSONForm();
   });
 
-  it("9. throws error when REGEX does not match the input value", () => {
+  it("7. throws error when REGEX does not match the input value", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("name");
     cy.testJsontext("regex", "^\\d+$");
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
     cy.get(".bp3-popover-content").contains("Invalid input");
 
     cy.get(`${fieldPrefix}-name input`).clear().type("1234");
     cy.get(".bp3-popover-content").should("not.exist");
+    deployMode.NavigateBacktoEditor();
   });
 
-  it("10. Checkbox Field Property Control - pre condition", () => {
+  it("8. Checkbox Field Property Control - pre condition", () => {
     const schema = {
       check: false,
     };
-    _.agHelper.AddDsl("jsonFormDslWithoutSchema");
+    agHelper.AddDsl("jsonFormDslWithoutSchema");
 
     cy.openPropertyPane("jsonformwidget");
-    cy.testJsontext("sourcedata", JSON.stringify(schema));
+    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     cy.openFieldConfiguration("check");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Checkbox");
-  });
-
-  it("11. has default property", () => {
+    // check deafult property
     cy.get(".t--property-control-defaultstate").contains(
       "{{sourceData.check}}",
     );
   });
 
-  it("12. should update field checked state when default selected changed", () => {
+  it("9. should update field checked state when default selected changed", () => {
+    //should update field checked state when default selected changed
     cy.testJsontext("defaultstate", "{{true}}");
     cy.get(`${fieldPrefix}-check input`).should("be.checked");
-  });
 
-  it("13. hides field when visible switched off", () => {
+    // hides field when visible switched off
     cy.togglebarDisable(`.t--property-control-visible input`);
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-check`).should("not.exist");
-    cy.wait(500);
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("check");
     cy.togglebar(`.t--property-control-visible input`);
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-check`).should("exist");
-  });
+    deployMode.NavigateBacktoEditor();
 
-  it("14. disables field when disabled switched on", () => {
+    // disables field when disabled switched on
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openFieldConfiguration("check");
     cy.togglebar(`.t--property-control-disabled input`);
+    deployMode.DeployApp();
     cy.get(`${fieldPrefix}-check input`).each(($el) => {
       cy.wrap($el).should("have.attr", "disabled");
     });
-
-    cy.togglebarDisable(`.t--property-control-disabled input`);
   });
 });
 

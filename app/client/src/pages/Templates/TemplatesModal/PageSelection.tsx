@@ -59,11 +59,11 @@ const StyledButton = styled(Button)`
   margin-top: 12px;
 `;
 
-type PageSelectionProps = {
+interface PageSelectionProps {
   pages: ApplicationPagePayload[];
   template: Template;
   onPageSelection: (pageId: string) => void;
-};
+}
 
 function PageSelection(props: PageSelectionProps) {
   const dispatch = useDispatch();

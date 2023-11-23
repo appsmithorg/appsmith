@@ -1238,7 +1238,7 @@
                     }
                 ],
                 "displayName": "List",
-                "bottomRow": 48,
+                "bottomRow": 88,
                 "parentRowSpace": 10,
                 "hideCard": false,
                 "templateBottomRow": 16,

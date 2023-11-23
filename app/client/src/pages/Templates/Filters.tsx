@@ -10,10 +10,6 @@ import {
 import { thinScrollbar } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
-const FilterMainContainer = styled.div`
-  /* padding: 0 16px; */
-`;
-
 const FilterWrapper = styled.div`
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 256}px);
@@ -60,10 +56,10 @@ const FilterCategoryWrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[13] - 11}px;
 `;
 
-export type Filter = {
+export interface Filter {
   label: string;
   value?: string;
-};
+}
 
 interface FilterItemProps {
   item: Filter;
@@ -196,20 +192,18 @@ function Filters() {
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   return (
-    <FilterMainContainer>
-      <FilterWrapper className="filter-wrapper">
-        {Object.keys(filters).map((filter) => {
-          return (
-            <FilterCategory
-              filterList={filters[filter]}
-              key={filter}
-              label={filter}
-              selectedFilters={selectedFilters[filter] ?? []}
-            />
-          );
-        })}
-      </FilterWrapper>
-    </FilterMainContainer>
+    <FilterWrapper className="filter-wrapper">
+      {Object.keys(filters).map((filter) => {
+        return (
+          <FilterCategory
+            filterList={filters[filter]}
+            key={filter}
+            label={filter}
+            selectedFilters={selectedFilters[filter] ?? []}
+          />
+        );
+      })}
+    </FilterWrapper>
   );
 }
 

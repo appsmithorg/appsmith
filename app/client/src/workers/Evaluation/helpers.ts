@@ -1,9 +1,13 @@
+import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
-import produce from "immer";
 import { get, isNumber, isObject, set } from "lodash";
+import { isMoment } from "moment";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+
+export const fn_keys: string = "__fn_keys__";
 
 export interface DiffReferenceState {
   kind: "referenceState";
@@ -90,6 +94,71 @@ const generateWithKey = (basePath: any, key: any) => {
     path: basePath.join(".") + "." + key,
     segmentedPath,
   };
+};
+
+export const stringifyFnsInObject = (
+  userObject: Record<string, unknown>,
+): Record<string, unknown> => {
+  const paths: string[] = parseFunctionsInObject(userObject);
+  const fnStrings: string[] = [];
+
+  for (const path of paths) {
+    const fnValue: any = get(userObject, path);
+    fnStrings.push(fnValue.toString());
+  }
+
+  const output = JSON.parse(JSON.stringify(userObject));
+  for (const [index, parsedFnString] of fnStrings.entries()) {
+    set(output, paths[index], parsedFnString);
+  }
+
+  output[fn_keys] = paths;
+  return output;
+};
+
+const constructPath = (existingPath: string, suffix: string): string => {
+  if (existingPath.length > 0) {
+    return `${existingPath}.${suffix}`;
+  } else {
+    return suffix;
+  }
+};
+
+const parseFunctionsInObject = (
+  userObject: Record<string, unknown>,
+  paths: string[] = [],
+  path: string = "",
+): string[] => {
+  if (Array.isArray(userObject)) {
+    for (let i = 0; i < userObject.length; i++) {
+      const arrayValue = userObject[i];
+      if (typeof arrayValue == "function") {
+        paths.push(constructPath(path, `[${i}]`));
+      } else if (typeof arrayValue == "object") {
+        parseFunctionsInObject(
+          arrayValue,
+          paths,
+          constructPath(path, `[${i}]`),
+        );
+      }
+    }
+  } else {
+    const keys = Object.keys(userObject);
+    for (const key of keys) {
+      const value = userObject[key];
+      if (typeof value == "function") {
+        paths.push(constructPath(path, key));
+      } else if (typeof value == "object") {
+        parseFunctionsInObject(
+          value as Record<string, unknown>,
+          paths,
+          constructPath(path, key),
+        );
+      }
+    }
+  }
+
+  return paths;
 };
 
 const isLargeCollection = (val: any) => {
@@ -200,6 +269,29 @@ const generateDiffUpdates = (
 
       const lhs = get(oldDataTree, segmentedPath);
 
+      //convert all invalid moment objects to nulls ...
+      //large collect nodes are anyway getting serialised so the invalid objects will be converted to nulls
+      if (isMoment(rhs) && !rhs.isValid()) {
+        if (lhs === undefined || lhs !== null) {
+          attachDirectly.push({
+            kind: "E",
+            lhs,
+            rhs: null as any,
+            path: segmentedPath,
+          });
+        }
+        // ignore invalid moment objects
+        return true;
+      }
+      if (rhs === undefined) {
+        //if an undefined value is being set it should be a delete
+        if (lhs !== undefined) {
+          attachDirectly.push({ kind: "D", lhs, path: segmentedPath });
+        }
+        // if the lhs is also undefined ignore diff on this node
+        return true;
+      }
+
       const isLhsLarge = isLargeCollection(lhs);
       const isRhsLarge = isLargeCollection(rhs);
       if (!isLhsLarge && !isRhsLarge) {
@@ -246,16 +338,39 @@ export const generateOptimisedUpdates = (
   return updates;
 };
 
-export const decompressIdenticalEvalPaths = (
-  dataTree: any,
-  identicalEvalPathsPatches: Record<string, string>,
-) =>
-  produce(dataTree, (draft: any) =>
-    Object.entries(identicalEvalPathsPatches || {}).forEach(([key, value]) => {
-      const referencePathValue = get(dataTree, value);
-      set(draft, key, referencePathValue);
-    }),
+export const generateSerialisedUpdates = (
+  prevState: any,
+  currentState: any,
+  identicalEvalPathsPatches: any,
+): {
+  serialisedUpdates: string;
+  error?: { type: string; message: string };
+} => {
+  const updates = generateOptimisedUpdates(
+    prevState,
+    currentState,
+    identicalEvalPathsPatches,
   );
+
+  //remove lhs from diff to reduce the size of diff upload,
+  //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
+
+  try {
+    // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
+    // to the main thread. In the main thread parse this object there.
+    return { serialisedUpdates: serialiseToBigInt(removedLhs) };
+  } catch (error) {
+    return {
+      serialisedUpdates: "[]",
+      error: {
+        type: EvalErrorTypes.SERIALIZATION_ERROR,
+        message: (error as Error).message,
+      },
+    };
+  }
+};
 
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
@@ -264,12 +379,15 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
 
-  const updates = generateOptimisedUpdates(
-    dataTreeEvaluator?.getPrevState(),
+  const { error, serialisedUpdates } = generateSerialisedUpdates(
+    dataTreeEvaluator.getPrevState(),
     dataTree,
     identicalEvalPathsPatches,
   );
 
+  if (error) {
+    dataTreeEvaluator.errors.push(error);
+  }
   dataTreeEvaluator?.setPrevState(dataTree);
-  return updates;
+  return serialisedUpdates;
 };

@@ -16,4 +16,6 @@ public interface DomainPermissionCE {
      * @return The permission required to read the domain.
      */
     AclPermission getReadPermission();
+
+    AclPermission getExportPermission(boolean isGitSync, boolean exportWithConfiguration);
 }

@@ -8,7 +8,7 @@ export const useMaxModalWidth = () => {
 };
 export const useModalWidth = () => {
   const maxModalWidth = useMaxModalWidth();
-  const getModalWidth = (width: number) => {
+  const getModalWidth = (width = 0) => {
     return Math.min(maxModalWidth, width);
   };
   return getModalWidth;

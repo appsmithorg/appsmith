@@ -1,7 +1,7 @@
 import React from "react";
 import type { SearchItem, SelectEvent } from "./utils";
 
-type SearchContextType = {
+interface SearchContextType {
   handleItemLinkClick: (
     event: SelectEvent,
     item?: SearchItem,
@@ -9,7 +9,7 @@ type SearchContextType = {
   ) => void;
   setActiveItemIndex: (index: number) => void;
   activeItemIndex: number;
-};
+}
 
 const SearchContext = React.createContext<SearchContextType | undefined>(
   undefined,

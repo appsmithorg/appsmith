@@ -5,7 +5,6 @@ import {
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("Check Suggested Widgets Feature in auto-layout", function () {
   before(() => {

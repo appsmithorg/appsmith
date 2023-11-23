@@ -3,8 +3,11 @@ package com.appsmith.server.migrations;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.InvisibleActionFields;
+import com.appsmith.server.constants.ApplicationConstants;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QUser;
@@ -235,5 +238,57 @@ public class MigrationHelperMethods {
         final List<T> domainObject =
                 mongoTemplate.find(query(where(fieldName(path)).is(id)), type);
         return domainObject;
+    }
+
+    /**
+     * The method provides the criteria for any document to qualify as not deleted
+     * @return Criteria
+     */
+    public static Criteria notDeleted() {
+        return new Criteria()
+                .andOperator(
+                        // Older check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED).exists(false),
+                                        where(FieldName.DELETED).is(false)),
+                        // New check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED_AT).exists(false),
+                                        where(FieldName.DELETED_AT).is(null)));
+    }
+
+    /**
+     * This method takes customJSLibList from application JSON, checks if an entry for XML parser exists,
+     * otherwise adds the entry.
+     * This has been done to add the xmlParser entry in imported application as appsmith is stopping native support
+     * for xml parser.
+     * Read More: https://github.com/appsmithorg/appsmith/pull/28012
+     *
+     * @param applicationJson
+     */
+    public static void ensureXmlParserPresenceInCustomJsLibList(ApplicationJson applicationJson) {
+
+        if (CollectionUtils.isNullOrEmpty(applicationJson.getCustomJSLibList())) {
+            applicationJson.setCustomJSLibList(new ArrayList<>());
+        }
+
+        List<CustomJSLib> customJSLibList = applicationJson.getCustomJSLibList();
+        boolean isXmlParserLibFound = false;
+
+        for (CustomJSLib customJSLib : customJSLibList) {
+            if (!customJSLib.getUidString().equals(ApplicationConstants.XML_PARSER_LIBRARY_UID)) {
+                continue;
+            }
+
+            isXmlParserLibFound = true;
+            break;
+        }
+
+        if (!isXmlParserLibFound) {
+            CustomJSLib xmlParserJsLib = ApplicationConstants.getDefaultParserCustomJsLibCompatibilityDTO();
+            customJSLibList.add(xmlParserJsLib);
+        }
     }
 }

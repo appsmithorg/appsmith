@@ -26,6 +26,7 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
+  isCompactMode,
 } from "./WidgetUtils";
 import {
   getCustomTextColor,
@@ -695,5 +696,11 @@ describe("Should Update Widget Height Automatically?", () => {
 
     const result = shouldUpdateWidgetHeightAutomatically(input, props);
     expect(result).toStrictEqual(expected);
+  });
+  it("should return correct value for isCompactMode", () => {
+    const compactHeight = 40;
+    const unCompactHeight = 41;
+    expect(isCompactMode(compactHeight)).toBeTruthy();
+    expect(isCompactMode(unCompactHeight)).toBeFalsy();
   });
 });

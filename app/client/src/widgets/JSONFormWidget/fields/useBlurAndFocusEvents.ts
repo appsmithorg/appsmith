@@ -9,11 +9,11 @@ type BaseEvents = Pick<
   "onfocus" | "onblur" | "addEventListener" | "removeEventListener"
 >;
 
-type UseEventsProps = {
+interface UseEventsProps {
   fieldBlurHandler?: ControllerRenderProps["onBlur"];
   onFocusDynamicString?: string;
   onBlurDynamicString?: string;
-};
+}
 
 function useBlurAndFocusEvents<TElement extends BaseEvents>({
   fieldBlurHandler,

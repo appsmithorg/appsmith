@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
@@ -11,6 +12,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple6;
 
 import java.util.Map;
 
@@ -46,6 +49,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final UserRepository userRepository;
     private final ProjectProperties projectProperties;
     private final NetworkUtils networkUtils;
+    private final PermissionGroupService permissionGroupService;
 
     /**
      * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
@@ -114,15 +118,22 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
             return;
         }
 
-        Mono.zip(
+        Mono<String> publicPermissionGroupIdMono = permissionGroupService.getPublicPermissionGroupId();
+        Mono<Tuple6<Long, Long, Long, Long, Long, Long>> nonDeletedObjectsCountMono = Mono.zip(
+                workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                datasourceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                userRepository.countByDeletedAtNull().defaultIfEmpty(0L));
+
+        publicPermissionGroupIdMono
+                .flatMap(publicPermissionGroupId -> Mono.zip(
                         configService.getInstanceId().defaultIfEmpty("null"),
                         networkUtils.getExternalAddress(),
-                        workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                        applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                        newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                        newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                        datasourceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                        userRepository.countByDeletedAtNull().defaultIfEmpty(0L))
+                        nonDeletedObjectsCountMono,
+                        applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
+                                AclPermission.READ_APPLICATIONS, publicPermissionGroupId)))
                 .flatMap(statsData -> {
                     final String ipAddress = statsData.getT2();
                     return WebClientUtils.create("https://api.segment.io")
@@ -136,12 +147,17 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                                     "properties",
                                             Map.of(
                                                     "instanceId", statsData.getT1(),
-                                                    "numOrgs", statsData.getT3(),
-                                                    "numApps", statsData.getT4(),
-                                                    "numPages", statsData.getT5(),
-                                                    "numActions", statsData.getT6(),
-                                                    "numDatasources", statsData.getT7(),
-                                                    "numUsers", statsData.getT8(),
+                                                    "numOrgs", statsData.getT3().getT1(),
+                                                    "numApps", statsData.getT3().getT2(),
+                                                    "numPages",
+                                                            statsData.getT3().getT3(),
+                                                    "numActions",
+                                                            statsData.getT3().getT4(),
+                                                    "numDatasources",
+                                                            statsData.getT3().getT5(),
+                                                    "numUsers",
+                                                            statsData.getT3().getT6(),
+                                                    "numPublicApps", statsData.getT4(),
                                                     "version", projectProperties.getVersion(),
                                                     "edition", ProjectProperties.EDITION),
                                     "event", "instance_stats")))

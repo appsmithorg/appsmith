@@ -9,26 +9,26 @@ import {
   JSLibraries,
   libraryReservedIdentifiers,
 } from "../../common/JSLibrary";
+import type { JSLibrary } from "../../common/JSLibrary";
 import { resetJSLibraries } from "../../common/JSLibrary/resetJSLibraries";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "../types";
 import { dataTreeEvaluator } from "./evalTree";
+import log from "loglevel";
+
+declare global {
+  interface WorkerGlobalScope {
+    [x: string]: any;
+  }
+}
+
+declare const self: WorkerGlobalScope;
 
 enum LibraryInstallError {
   NameCollisionError,
   ImportError,
   TernDefinitionError,
   LibraryOverrideError,
-}
-
-class NameCollisionError extends Error {
-  code = LibraryInstallError.NameCollisionError;
-  constructor(accessors: string) {
-    super(
-      createMessage(customJSLibraryMessages.NAME_COLLISION_ERROR, accessors),
-    );
-    this.name = "NameCollisionError";
-  }
 }
 
 class ImportError extends Error {
@@ -47,25 +47,13 @@ class TernDefinitionError extends Error {
   }
 }
 
-class LibraryOverrideError extends Error {
-  code = LibraryInstallError.LibraryOverrideError;
-  data: any;
-  constructor(name: string, data: any) {
-    super(createMessage(customJSLibraryMessages.LIB_OVERRIDE_ERROR, name));
-    this.name = "LibraryOverrideError";
-    this.data = data;
-  }
-}
-
 const removeDataTreeFromContext = () => {
   if (!dataTreeEvaluator) return {};
   const evalTree = dataTreeEvaluator?.getEvalTree();
   const dataTreeEntityNames = Object.keys(evalTree);
   const tempDataTreeStore: Record<string, any> = {};
   for (const entityName of dataTreeEntityNames) {
-    // @ts-expect-error: self is a global variable
     tempDataTreeStore[entityName] = self[entityName];
-    // @ts-expect-error: self is a global variable
     delete self[entityName];
   }
   return tempDataTreeStore;
@@ -76,12 +64,17 @@ function addTempStoredDataTreeToContext(
 ) {
   const dataTreeEntityNames = Object.keys(tempDataTreeStore);
   for (const entityName of dataTreeEntityNames) {
-    // @ts-expect-error: self is a global variable
     self[entityName] = tempDataTreeStore[entityName];
   }
 }
 
-export async function installLibrary(request: EvalWorkerASyncRequest) {
+export async function installLibrary(
+  request: EvalWorkerASyncRequest<{
+    url: string;
+    takenNamesMap: Record<string, true>;
+    takenAccessors: Array<string>;
+  }>,
+) {
   const { data } = request;
   const { takenAccessors, takenNamesMap, url } = data;
   const defs: Def = {};
@@ -91,72 +84,104 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
    * We store the data tree in a temporary variable and add it back to the global scope after the library is imported.
    */
   const tempDataTreeStore = removeDataTreeFromContext();
+
+  // Map of all the currently installed libraries
+  const libStore = takenAccessors.reduce(
+    (acc: Record<string, unknown>, a: string) => {
+      acc[a] = self[a];
+      return acc;
+    },
+    {},
+  );
+
   try {
-    const currentEnvKeys = Object.keys(self);
+    const envKeysBeforeInstallation = Object.keys(self);
 
-    //@ts-expect-error Find libraries that were uninstalled.
-    const unsetKeys = currentEnvKeys.filter((key) => self[key] === undefined);
+    /** Holds keys of uninstalled libraries that cannot be removed from worker global.
+     * Certain libraries are added to the global scope with { configurable: false }
+     */
+    const unsetLibraryKeys = envKeysBeforeInstallation.filter(
+      (k) => self[k] === undefined,
+    );
 
-    const existingLibraries: Record<string, any> = {};
-    for (const acc of takenAccessors) {
-      existingLibraries[acc] = self[acc];
-    }
+    const accessors: string[] = [];
+
     let module = null;
     try {
       self.importScripts(url);
+      // Find keys add that were installed to the global scope.
+      const keysAfterInstallation = Object.keys(self);
+      accessors.push(
+        ...difference(keysAfterInstallation, envKeysBeforeInstallation),
+      );
+
+      // Check the list of installed library to see if their values have changed.
+      // This is to check if the newly installed library overwrites an already existing
+      accessors.push(
+        ...Object.keys(libStore).filter((k) => {
+          return libStore[k] !== self[k];
+        }),
+      );
+
+      accessors.push(...unsetLibraryKeys.filter((k) => self[k] !== undefined));
+
+      for (let i = 0; i < accessors.length; i++) {
+        if (
+          takenNamesMap.hasOwnProperty(accessors[i]) ||
+          takenAccessors.includes(accessors[i])
+        ) {
+          const uniqueName = generateUniqueAccessor(
+            accessors[i],
+            takenAccessors,
+            takenNamesMap,
+          );
+          self[uniqueName] = self[accessors[i]];
+          accessors[i] = uniqueName;
+        }
+      }
     } catch (e) {
+      log.debug(e, `importScripts failed for ${url}`);
       try {
         module = await import(/* webpackIgnore: true */ url);
+        if (module && typeof module === "object") {
+          const uniqAccessor = generateUniqueAccessor(
+            url,
+            takenAccessors,
+            takenNamesMap,
+          );
+          self[uniqAccessor] = flattenModule(module);
+          accessors.push(uniqAccessor);
+        }
       } catch (e) {
+        log.debug(e, `dynamic import failed for ${url}`);
         throw new ImportError(url);
       }
     }
 
-    // Find keys add that were installed to the global scope.
-    const accessors = difference(
-      Object.keys(self),
-      currentEnvKeys,
-    ) as Array<string>;
-
-    // If no keys were added to the global scope, check if the module is a ESM module.
+    // If no accessors at this point, installation likely failed.
     if (accessors.length === 0) {
-      if (module && typeof module === "object") {
-        const uniqAccessor = generateUniqueAccessor(
-          url,
-          takenAccessors,
-          takenNamesMap,
-        );
-        // @ts-expect-error no types
-        self[uniqAccessor] = flattenModule(module);
-        accessors.push(uniqAccessor);
-      }
+      throw new Error("Unable to determine a unique accessor");
     }
 
-    addTempStoredDataTreeToContext(tempDataTreeStore);
-    checkForNameCollision(accessors, takenNamesMap);
-    checkIfUninstalledEarlier(accessors, unsetKeys);
-    checkForOverrides(url, accessors, takenAccessors, existingLibraries);
-    if (accessors.length === 0)
-      return { status: false, defs, accessor: accessors };
-
-    //Reserves accessor names.
     const name = accessors[accessors.length - 1];
 
     defs["!name"] = `LIB/${name}`;
     try {
       for (const key of accessors) {
-        //@ts-expect-error no types
         defs[key] = makeTernDefs(self[key]);
       }
     } catch (e) {
       for (const acc of accessors) {
-        //@ts-expect-error no types
         self[acc] = undefined;
       }
+      log.debug(e, `ternDefinitions failed for ${url}`);
       throw new TernDefinitionError(
         `Failed to generate autocomplete definitions: ${name}`,
       );
     }
+
+    // All the existing library and the newly installed one is added to global.
+    Object.keys(libStore).forEach((k) => (self[k] = libStore[k]));
 
     //Reserve accessor names.
     for (const acc of accessors) {
@@ -167,21 +192,20 @@ export async function installLibrary(request: EvalWorkerASyncRequest) {
 
     return { success: true, defs, accessor: accessors };
   } catch (error) {
+    addTempStoredDataTreeToContext(tempDataTreeStore);
+    takenAccessors.forEach((k) => (self[k] = libStore[k]));
     return { success: false, defs, error };
   }
 }
 
-export function uninstallLibrary(request: EvalWorkerSyncRequest) {
+export function uninstallLibrary(
+  request: EvalWorkerSyncRequest<Array<string>>,
+) {
   const { data } = request;
   const accessor = data;
   try {
     for (const key of accessor) {
-      try {
-        delete self[key];
-      } catch (e) {
-        //@ts-expect-error ignore
-        self[key] = undefined;
-      }
+      self[key] = undefined;
       //we have to update invalidEntityIdentifiers as well
       delete libraryReservedIdentifiers[key];
       delete invalidEntityIdentifiers[key];
@@ -192,38 +216,66 @@ export function uninstallLibrary(request: EvalWorkerSyncRequest) {
   }
 }
 
-export async function loadLibraries(request: EvalWorkerASyncRequest) {
+export async function loadLibraries(
+  request: EvalWorkerASyncRequest<JSLibrary[]>,
+) {
   resetJSLibraries();
-  //Add types
   const { data: libs } = request;
   let message = "";
+  const libStore: Record<string, unknown> = {};
 
   try {
     for (const lib of libs) {
-      const url = lib.url;
-      const accessor = lib.accessor;
+      const url = lib.url as string;
+      const accessors = lib.accessor;
       const keysBefore = Object.keys(self);
       let module = null;
       try {
         self.importScripts(url);
-      } catch (e) {
-        message = (e as Error).message;
-        try {
-          module = await import(/* webpackIgnore: true */ url);
-        } catch (e) {
-          message = (e as Error).message;
+        const keysAfter = Object.keys(self);
+        const defaultAccessors = difference(keysAfter, keysBefore);
+
+        /**
+         * Installing 2 different version of lodash tries to add the same accessor on the self object. Let take version a & b for example.
+         * Installation of version a, will add _ to the self object and can be detected by looking at the differences in the previous step.
+         * Now when version b is installed, differences will be [], since _ already exists in the self object.
+         * We add all the installations to the libStore and see if the reference it points to in the self object changes.
+         * If the references changes it means that it a valid accessor.
+         */
+        defaultAccessors.push(
+          ...Object.keys(libStore).filter((k) => libStore[k] !== self[k]),
+        );
+
+        /** Sort the accessor list from backend and installed accessor list using the same rule to apply all modifications.
+         * This is required only for UMD builds, since we always generate unique names for ESM.
+         */
+        accessors.sort();
+        defaultAccessors.sort();
+
+        for (let i = 0; i < defaultAccessors.length; i++) {
+          self[accessors[i]] = self[defaultAccessors[i]];
+          libStore[defaultAccessors[i]] = self[defaultAccessors[i]];
+          libraryReservedIdentifiers[accessors[i]] = true;
+          invalidEntityIdentifiers[accessors[i]] = true;
         }
+
+        continue;
+      } catch (e) {
+        log.debug(e);
       }
-      const keysAfter = Object.keys(self);
-      const newKeys = difference(keysAfter, keysBefore);
-      if (newKeys.length === 0 && module && typeof module === "object") {
-        self[accessor[0]] = flattenModule(module);
-        newKeys.push(accessor[0]);
-      }
-      for (const key of newKeys) {
-        //we have to update invalidEntityIdentifiers as well
+
+      try {
+        module = await import(/* webpackIgnore: true */ url);
+        if (!module || typeof module !== "object") throw "Not an ESM module";
+        const key = accessors[0];
+        const flattenedModule = flattenModule(module);
+        libStore[key] = flattenedModule;
+        self[key] = flattenedModule;
         libraryReservedIdentifiers[key] = true;
         invalidEntityIdentifiers[key] = true;
+      } catch (e) {
+        log.debug(e);
+        throw new ImportError(url);
       }
     }
     JSLibraries.push(...libs);
@@ -234,48 +286,6 @@ export async function loadLibraries(request: EvalWorkerASyncRequest) {
   }
 }
 
-function checkForNameCollision(
-  accessor: string[],
-  takenNamesMap: Record<string, any>,
-) {
-  const collidingNames = accessor.filter((key: string) => takenNamesMap[key]);
-  if (collidingNames.length) {
-    for (const acc of accessor) {
-      //@ts-expect-error no types
-      self[acc] = undefined;
-    }
-    throw new NameCollisionError(collidingNames.join(", "));
-  }
-}
-
-function checkIfUninstalledEarlier(accessor: string[], unsetKeys: string[]) {
-  if (accessor.length > 0) return;
-  for (const key of unsetKeys) {
-    //@ts-expect-error no types
-    if (!self[key]) continue;
-    accessor.push(key);
-  }
-}
-
-function checkForOverrides(
-  url: string,
-  accessor: string[],
-  takenAccessors: string[],
-  existingLibraries: Record<string, any>,
-) {
-  if (accessor.length > 0) return;
-  const overriddenAccessors: Array<string> = [];
-  for (const acc of takenAccessors) {
-    //@ts-expect-error no types
-    if (existingLibraries[acc] === self[acc]) continue;
-    //@ts-expect-error no types
-    self[acc] = existingLibraries[acc];
-    overriddenAccessors.push(acc);
-  }
-  if (overriddenAccessors.length === 0) return;
-  throw new LibraryOverrideError(url, overriddenAccessors);
-}
-
 /**
  * This function is called only for ESM modules and generates a unique namespace for the module.
  * @param url
@@ -284,31 +294,33 @@ function checkForOverrides(
  * @returns
  */
 function generateUniqueAccessor(
-  url: string,
+  urlOrName: string,
   takenAccessors: Array<string>,
   takenNamesMap: Record<string, true>,
 ) {
+  let name = urlOrName;
   // extract file name from url
-  const urlObject = new URL(url);
-  // URL pattern for ESM modules from jsDelivr - https://cdn.jsdelivr.net/npm/stripe@13.3.0/+esm
-  // Assuming the file name is the last part of the path
-  const urlPathParts = urlObject.pathname.split("/");
-  let fileName = urlPathParts.pop();
-  fileName = fileName?.includes("esm") ? urlPathParts.pop() : fileName;
+  try {
+    // Checks to see if a URL was passed
+    const urlObject = new URL(urlOrName);
+    // URL pattern for ESM modules from jsDelivr - https://cdn.jsdelivr.net/npm/stripe@13.3.0/+esm
+    // Assuming the file name is the last part of the path
+    const urlPathParts = urlObject.pathname.split("/");
+    name = urlPathParts.pop() as string;
+    name = name?.includes("+esm") ? (urlPathParts.pop() as string) : name;
+  } catch (e) {}
 
-  // This should never happen. This is just to avoid the typescript error.
-  if (!fileName) throw new Error("Unable to generate a unique accessor");
   // Replace all non-alphabetic characters with underscores and remove trailing underscores
-  const validVar = fileName.replace(/[^a-zA-Z]/g, "_").replace(/_+$/, "");
+  const validVar = name.replace(/[^a-zA-Z]/g, "_").replace(/_+$/, "");
   if (
     !takenAccessors.includes(validVar) &&
     !takenNamesMap.hasOwnProperty(validVar)
   ) {
     return validVar;
   }
-  const index = 1;
-  while (true && index < 100) {
-    const name = `Library_${index}`;
+  let index = 0;
+  while (index++ < 100) {
+    const name = `${validVar}_${index}`;
     if (!takenAccessors.includes(name) && !takenNamesMap.hasOwnProperty(name)) {
       return name;
     }
@@ -316,13 +328,13 @@ function generateUniqueAccessor(
   throw new Error("Unable to generate a unique accessor");
 }
 
-function flattenModule(module: Record<string, any>) {
+export function flattenModule(module: Record<string, any>) {
   const keys = Object.keys(module);
   // If there are no keys other than default, return default.
   if (keys.length === 1 && keys[0] === "default") return module.default;
   // If there are keys other than default, return a new object with all the keys
   // and set its prototype of default export.
-  const libModule = Object.create(module.default);
+  const libModule = Object.create(module.default || {});
   for (const key of Object.keys(module)) {
     if (key === "default") continue;
     libModule[key] = module[key];

@@ -19,15 +19,13 @@ import {
 import {
   computeMainContainerWidget,
   getChildWidgets,
-  getCurrentAppPositioningType,
   getMainCanvasProps,
   getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
-  getFlattenedChildCanvasWidgets,
-  previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
+  combinedPreviewModeSelector,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -35,18 +33,18 @@ import {
 } from "utils/widgetRenderUtils";
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
-import type { WidgetEntityConfig } from "entities/DataTree/dataTreeFactory";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  defaultAutoLayoutWidgets,
-  Positioning,
-} from "layoutSystems/autolayout/utils/constants";
+import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constants";
+import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -64,7 +62,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetId,
     } = props;
 
-    const isPreviewMode = useSelector(previewModeSelector);
+    const isPreviewMode = useSelector(combinedPreviewModeSelector);
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
@@ -93,8 +91,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       equal,
     );
     const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
-    const appPositioningType = useSelector(getCurrentAppPositioningType);
-    const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
+    const layoutSystemType = useSelector(getLayoutSystemType);
+    const isAutoLayout = layoutSystemType === LayoutSystemTypes.AUTO;
 
     const configTree = ConfigTreeActions.getConfigTree();
     const evaluatedWidgetConfig = configTree[
@@ -166,7 +164,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps = { ...canvasWidgetProps };
 
       widgetProps.isMobile = !!isMobile;
-      widgetProps.appPositioningType = appPositioningType;
       widgetProps.selectedWidgetAncestry = selectedWidgetAncestry || [];
 
       /**
@@ -217,7 +214,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
     }
     //merging with original props
-    widgetProps = { ...props, ...widgetProps, renderMode };
+    widgetProps = { ...props, ...widgetProps, layoutSystemType, renderMode };
 
     // adding google maps api key to widget props (although meant for map widget only)
     widgetProps.googleMapsApiKey = googleMapsApiKey;
@@ -245,79 +242,85 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       !isPreviewMode;
 
     widgetProps.mainCanvasWidth = mainCanvasWidth;
-
-    // We don't render invisible widgets in view mode
-    if (shouldCollapseWidgetInViewOrPreviewMode) {
-      // This flag (isMetaWidget) is used to prevent the Auto height saga from updating
-      // the List widget Child Widgets. Auto height is disabled in the List widget and
-      // this flag serves as a way to avoid any unintended changes to the child widget's height.
-      if (
-        widgetProps.bottomRow !== widgetProps.topRow &&
-        !widgetProps.isMetaWidget
-      ) {
-        dispatch({
-          type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
-          payload: {
-            widgetId: props.widgetId,
-            height: 0,
-          },
-        });
+    if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+      if (shouldCollapseWidgetInViewOrPreviewMode) {
+        return null;
       }
-      return null;
-    } else if (
-      shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
-      shouldResetCollapsedContainerHeightInCanvasMode
-    ) {
-      // We also need to check if a non-auto height widget has collapsed earlier
-      // We can figure this out if the widget height is zero and the beforeCollapse
-      // topRow and bottomRow are available.
-
-      // If the above is true, we call an auto height update call
-      // so that the widget can be reset correctly.
-      if (
-        widgetProps.topRow === widgetProps.bottomRow &&
-        widgetProps.topRowBeforeCollapse !== undefined &&
-        widgetProps.bottomRowBeforeCollapse !== undefined &&
-        !isAutoHeightEnabledForWidget(widgetProps)
+    } else {
+      // We don't render invisible widgets in view mode
+      if (shouldCollapseWidgetInViewOrPreviewMode) {
+        // This flag (isMetaWidget) is used to prevent the Auto height saga from updating
+        // the List widget Child Widgets. Auto height is disabled in the List widget and
+        // this flag serves as a way to avoid any unintended changes to the child widget's height.
+        if (
+          widgetProps.bottomRow !== widgetProps.topRow &&
+          !widgetProps.isMetaWidget
+        ) {
+          dispatch({
+            type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
+            payload: {
+              widgetId: props.widgetId,
+              height: 0,
+            },
+          });
+        }
+        return null;
+      } else if (
+        shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
+        shouldResetCollapsedContainerHeightInCanvasMode
       ) {
-        const heightBeforeCollapse =
-          (widgetProps.bottomRowBeforeCollapse -
-            widgetProps.topRowBeforeCollapse) *
-          GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-        dispatch({
-          type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
-          payload: {
-            widgetId: props.widgetId,
-            height: heightBeforeCollapse,
-          },
-        });
-      } else {
-        dispatch(checkContainersForAutoHeightAction());
+        // We also need to check if a non-auto height widget has collapsed earlier
+        // We can figure this out if the widget height is zero and the beforeCollapse
+        // topRow and bottomRow are available.
+
+        // If the above is true, we call an auto height update call
+        // so that the widget can be reset correctly.
+        if (
+          widgetProps.topRow === widgetProps.bottomRow &&
+          widgetProps.topRowBeforeCollapse !== undefined &&
+          widgetProps.bottomRowBeforeCollapse !== undefined &&
+          !isAutoHeightEnabledForWidget(widgetProps)
+        ) {
+          const heightBeforeCollapse =
+            (widgetProps.bottomRowBeforeCollapse -
+              widgetProps.topRowBeforeCollapse) *
+            GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+          dispatch({
+            type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
+            payload: {
+              widgetId: props.widgetId,
+              height: heightBeforeCollapse,
+            },
+          });
+        } else {
+          dispatch(checkContainersForAutoHeightAction());
+        }
+      }
+
+      // Sets the min/max height/width of the widget
+      if (isAutoLayout) {
+        const minMaxDimensions = getWidgetMinMaxDimensionsInPixel(
+          widgetProps,
+          mainCanvasWidth,
+        );
+        widgetProps = {
+          ...widgetProps,
+          minWidth: minMaxDimensions.minWidth
+            ? minMaxDimensions.minWidth - 2 * WIDGET_PADDING
+            : undefined,
+          minHeight: minMaxDimensions.minHeight
+            ? minMaxDimensions.minHeight - 2 * WIDGET_PADDING
+            : undefined,
+          maxWidth: minMaxDimensions.maxWidth
+            ? minMaxDimensions.maxWidth - 2 * WIDGET_PADDING
+            : undefined,
+          maxHeight: minMaxDimensions.maxHeight
+            ? minMaxDimensions.maxHeight - 2 * WIDGET_PADDING
+            : undefined,
+        };
       }
     }
 
-    // Sets the min/max height/width of the widget
-    if (isAutoLayout) {
-      const minMaxDimensions = getWidgetMinMaxDimensionsInPixel(
-        widgetProps,
-        mainCanvasWidth,
-      );
-      widgetProps = {
-        ...widgetProps,
-        minWidth: minMaxDimensions.minWidth
-          ? minMaxDimensions.minWidth - 2 * WIDGET_PADDING
-          : undefined,
-        minHeight: minMaxDimensions.minHeight
-          ? minMaxDimensions.minHeight - 2 * WIDGET_PADDING
-          : undefined,
-        maxWidth: minMaxDimensions.maxWidth
-          ? minMaxDimensions.maxWidth - 2 * WIDGET_PADDING
-          : undefined,
-        maxHeight: minMaxDimensions.maxHeight
-          ? minMaxDimensions.maxHeight - 2 * WIDGET_PADDING
-          : undefined,
-      };
-    }
     return <WrappedWidget {...widgetProps} />;
   }
 

@@ -24,15 +24,21 @@ import {
   MapTypes,
 } from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/autolayout/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
-const MapChartComponent = lazy(() =>
+const MapChartComponent = lazy(async () =>
   retryPromise(
-    () => import(/* webpackChunkName: "mapCharts" */ "../component"),
+    async () => import(/* webpackChunkName: "mapCharts" */ "../component"),
   ),
 );
 
@@ -107,6 +113,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
         },
       ],
       responsiveBehavior: ResponsiveBehavior.Fill,
+      flexVerticalAlignment: FlexVerticalAlignment.Top,
       minWidth: FILL_WIDGET_MIN_WIDTH,
     };
   }
@@ -126,6 +133,19 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       ],
     };
   }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        maxHeight: {},
+        maxWidth: {},
+        minHeight: { base: "300px" },
+        minWidth: { base: "280px" },
+      },
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":

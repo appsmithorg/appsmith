@@ -4,7 +4,7 @@ import type { JSCollection, JSAction } from "entities/JSCollection";
 import type {
   RefactorAction,
   SetFunctionPropertyPayload,
-} from "api/JSActionAPI";
+} from "@appsmith/api/JSActionAPI";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import type { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 

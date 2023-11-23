@@ -2,7 +2,10 @@ import React from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
 import type { SlashCommandPayload } from "entities/Action";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  type ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
+} from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -41,7 +44,7 @@ export const generateAssistiveBindingCommands = (
   });
 
   const actionEntities = entitiesForSuggestions.filter((suggestion) => {
-    return suggestion.type === ENTITY_TYPE.ACTION;
+    return suggestion.type === ENTITY_TYPE_VALUE.ACTION;
   });
 
   const suggestionsAction = actionEntities.map((suggestion: any) => {
@@ -55,7 +58,8 @@ export const generateAssistiveBindingCommands = (
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
-      triggerCompletionsPostPick: suggestion.ENTITY_TYPE !== ENTITY_TYPE.ACTION,
+      triggerCompletionsPostPick:
+        suggestion.ENTITY_TYPE !== ENTITY_TYPE_VALUE.ACTION,
       render: (element: HTMLElement, self: any, data: any) => {
         const pluginId = data.data.pluginId;
         let icon = null;
@@ -75,7 +79,7 @@ export const generateAssistiveBindingCommands = (
   });
 
   const jsActionEntities = entitiesForSuggestions.filter((suggestion) => {
-    return suggestion.type === ENTITY_TYPE.JSACTION;
+    return suggestion.type === ENTITY_TYPE_VALUE.JSACTION;
   });
 
   const suggestionsJSAction = jsActionEntities.flatMap((suggestion) => {

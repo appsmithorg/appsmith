@@ -16,6 +16,8 @@ public interface EnvManagerCE {
 
     Mono<Void> applyChanges(Map<String, String> changes, String originHeader);
 
+    Mono<Map<String, String>> applyChangesToEnvFileWithoutAclCheck(Map<String, String> changes);
+
     Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader);
 
     void setAnalyticsEventAction(
@@ -25,6 +27,8 @@ public interface EnvManagerCE {
 
     Map<String, String> parseToMap(String content);
 
+    Mono<Map<String, String>> getAllWithoutAclCheck();
+
     Mono<Map<String, String>> getAll();
 
     Mono<Map<String, String>> getAllNonEmpty();
@@ -32,6 +36,8 @@ public interface EnvManagerCE {
     Mono<User> verifyCurrentUserIsSuper();
 
     Mono<Void> restart();
+
+    Mono<Void> restartWithoutAclCheck();
 
     Mono<Boolean> sendTestEmail(TestEmailConfigRequestDTO requestDTO);
 

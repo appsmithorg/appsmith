@@ -10,6 +10,9 @@ import {
   propPane,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Radio Widget test cases", function () {
   it("1. Validate radio widget bindings", () => {
@@ -47,7 +50,7 @@ describe("Radio Widget test cases", function () {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     apiPage.RunAPI();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext(
       "Options",
       `{{Api1.data.map((s)=>{
@@ -68,7 +71,7 @@ describe("Radio Widget test cases", function () {
     });
     agHelper.AssertElementLength(widgetLocators.radioBtn, 10);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
 
     //Array
     propPane.EnterJSContext(
@@ -98,7 +101,7 @@ describe("Radio Widget test cases", function () {
   it("2. Validate validation errors evaluated value poup", () => {
     //String
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext("Options", "test");
     agHelper.VerifyEvaluatedErrorMessage(
       `This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>`,
@@ -115,7 +118,7 @@ describe("Radio Widget test cases", function () {
 
     //Non array
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext("Options", `[{name:1,class:10}]`);
     agHelper.VerifyEvaluatedErrorMessage(
       `This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>`,
@@ -132,7 +135,7 @@ describe("Radio Widget test cases", function () {
 
     //Non array api data
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext(
       "Options",
       `{{Api1.data.map((s)=>{
@@ -160,7 +163,7 @@ describe("Radio Widget test cases", function () {
         shouldCreateNewJSObj: true,
       },
     );
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext("Options", `"{{JSObject2.myFun1()}}"`);
     agHelper.VerifyEvaluatedErrorMessage(
       `This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>`,
@@ -178,7 +181,7 @@ describe("Radio Widget test cases", function () {
   it("3. Verify default selected value property", () => {
     //String
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext(
       "Options",
       `[{
@@ -204,7 +207,7 @@ describe("Radio Widget test cases", function () {
     );
 
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext("Options", "{{JSObject1.myFun1()}}");
     propPane.UpdatePropertyFieldValue(
       "Default selected value",
@@ -226,7 +229,7 @@ describe("Radio Widget test cases", function () {
 
   it("4. Validate Label properties - Text , Position , Alignment , Width(in columns)", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     //Text
     propPane.TypeTextIntoField("Text", "Select Value");
 
@@ -252,7 +255,7 @@ describe("Radio Widget test cases", function () {
     agHelper.AssertCSS(
       widgetLocators.radioWidgetLabelContainer,
       "width",
-      "59.765625px",
+      "55.859375px",
     );
     agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
     agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
@@ -281,7 +284,7 @@ describe("Radio Widget test cases", function () {
     //Tooltip
     entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 300);
     propPane.UpdatePropertyFieldValue("Text", "Tooltip text");
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext(
       "Options",
       `{{Api1.data.map((s)=>{
@@ -296,6 +299,7 @@ describe("Radio Widget test cases", function () {
     deployMode.DeployApp(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
+    agHelper.Sleep(2000); //for Radio Group to load fully, for CI flakyness
     agHelper.HoverElement(locators._tooltipIcon);
     agHelper.AssertPopoverTooltip("Tooltip text");
     agHelper.AssertElementEnabledDisabled(
@@ -303,22 +307,27 @@ describe("Radio Widget test cases", function () {
       0,
       false,
     );
-    agHelper
-      .GetWidgetCSSHeight(
-        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-      )
-      .then((currentHeight) => {
-        const updatedHeight = parseInt(currentHeight?.split("px")[0]);
-        expect(updatedHeight).to.be.greaterThan(130);
-      });
+    agHelper.GetNClick(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
+
+    agHelper.GetHeight(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
+    cy.get("@eleHeight").then(($currentHeight: any) => {
+      expect($currentHeight).to.be.greaterThan(130);
+    });
 
     agHelper.GetWidth(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP));
-    agHelper.GetElement("@eleWidth").then((currentWidth) => {
-      expect(currentWidth).to.be.greaterThan(420);
+    agHelper.GetElement("@eleWidth").then(($currentWidth) => {
+      expect($currentWidth).to.be.greaterThan(420);
     });
+  });
+
+  it("6. Validate general section in radio group - Part2", function () {
     //Disable - should throw error for non boolean values
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext("Disabled", "test", true, true);
     agHelper.VerifyEvaluatedErrorMessage(
       `This value does not evaluate to type boolean`,
@@ -339,30 +348,32 @@ describe("Radio Widget test cases", function () {
     );
     propPane.EnterJSContext("Visible", "{{!!(Text1.text)}}", true, true);
 
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "false");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
+    agHelper.Sleep(2000); //for Radio Group to load fully, for CI flakyness
+    agHelper.WaitUntilEleAppear(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
     agHelper.AssertElementEnabledDisabled(
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
       0,
       true,
     );
-    agHelper
-      .GetWidgetCSSHeight(
-        locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
-      )
-      .then((currentHeight) => {
-        const updatedHeight = parseInt(currentHeight?.split("px")[0]);
-        expect(updatedHeight).to.be.greaterThan(270);
-      });
+    agHelper.GetHeight(
+      locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
+    );
+    cy.get("@eleHeight").then(($currentHeight: any) => {
+      expect($currentHeight).to.be.greaterThan(270);
+    });
 
     agHelper.GetWidth(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP));
-    agHelper.GetElement("@eleWidth").then((currentWidth) => {
-      expect(currentWidth).to.be.greaterThan(420);
+    agHelper.GetElement("@eleWidth").then(($currentWidth) => {
+      expect($currentWidth).to.be.greaterThan(420);
     });
   });
 
-  it("6. Validate set property methods for Radio group", () => {
+  it("7. Validate set property methods for Radio group", () => {
     deployMode.NavigateBacktoEditor();
     //JS Object
     jsEditor.CreateJSObject(
@@ -370,7 +381,7 @@ describe("Radio Widget test cases", function () {
         myVar1: [{
           label:'test',
           value:'test'}],
-        myFun1 () { 
+        myFun1 () {
           RadioGroup1.setData(this.myVar1);
           RadioGroup1.isVisible? RadioGroup1.setDisabled(true):RadioGroup1.setVisibility(false)
         }
@@ -382,7 +393,7 @@ describe("Radio Widget test cases", function () {
         shouldCreateNewJSObj: true,
       },
     );
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     propPane.EnterJSContext("Disabled", "false", true, true);
     propPane.EnterJSContext("onSelectionChange", "{{JSObject3.myFun1();}}");
 

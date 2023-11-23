@@ -30,11 +30,11 @@ const BadgeWrapper = styled.div`
   }
 `;
 
-type BadgeProps = {
+interface BadgeProps {
   imageURL?: string;
   text: string;
   subtext?: string;
-};
+}
 
 export function Badge(props: BadgeProps) {
   return (

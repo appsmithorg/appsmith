@@ -76,6 +76,7 @@ class InputComponent extends React.Component<InputComponentProps> {
         onKeyDown={this.props.onKeyDown}
         onValueChange={this.props.onValueChange}
         placeholder={this.props.placeholder}
+        rtl={this.props.rtl}
         showError={this.props.showError}
         spellCheck={this.props.spellCheck}
         stepSize={1}
@@ -96,6 +97,7 @@ export interface InputComponentProps extends BaseInputComponentProps {
   boxShadow?: string;
   accentColor?: string;
   autoComplete?: string;
+  rtl?: boolean;
 }
 
 export default InputComponent;

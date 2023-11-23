@@ -12,7 +12,10 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
 import { Colors } from "constants/Colors";
 import IconSVG from "../icon.svg";
 import type {
@@ -169,6 +172,24 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
       disableResizeHandles: {
         horizontal: true,
         vertical: true,
+      },
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: (props: RateWidgetProps) => {
+        let maxCount = props.maxCount;
+        if (typeof maxCount !== "number")
+          maxCount = parseInt(props.maxCount as any, 10);
+
+        return {
+          maxHeight: {},
+          maxWidth: {},
+          minHeight: { base: "40px" },
+          minWidth: { base: `${maxCount * 21 + (maxCount + 1) * 5}px` },
+        };
       },
     };
   }

@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo } from "react";
 import { Space } from "../../components/StyledComponents";
 import {
-  AUTHOR_EMAIL,
+  AUTHOR_EMAIL_ONLY,
   AUTHOR_EMAIL_CANNOT_BE_EMPTY,
-  AUTHOR_NAME,
+  AUTHOR_NAME_ONLY,
   AUTHOR_NAME_CANNOT_BE_EMPTY,
   FORM_VALIDATION_INVALID_EMAIL,
   GIT_USER_SETTINGS_TITLE,
-  UPDATE_CONFIG,
+  UPDATE,
   USE_DEFAULT_CONFIGURATION,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -30,7 +30,7 @@ import {
 } from "actions/gitSyncActions";
 
 const Container = styled.div`
-  padding-top: 16px;
+  padding-top: 8px;
   padding-bottom: 16px;
 `;
 
@@ -38,10 +38,17 @@ const HeadContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 12px;
+`;
+
+const BodyContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
 `;
 
 const InputContainer = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[5]}px;
+  margin-right: 12px;
+  width: 240px;
 `;
 
 const SectionTitle = styled(Text)`
@@ -124,11 +131,11 @@ const DummyField = () => {
   );
 };
 
-export type AuthorInfo = {
+export interface AuthorInfo {
   authorName: string;
   authorEmail: string;
   useGlobalProfile: boolean;
-};
+}
 
 const GitUserSettings = () => {
   const dispatch = useDispatch();
@@ -237,57 +244,61 @@ const GitUserSettings = () => {
             />
           </div>
         </HeadContainer>
-
         <Space size={5} />
-        <InputContainer>
-          {!loading ? (
-            <Input
-              data-testid="t--git-user-settings-author-name-input"
-              errorMessage={errors?.authorName?.message}
-              isReadOnly={useGlobalProfile}
-              isValid={!errors?.authorName}
-              label={createMessage(AUTHOR_NAME)}
-              size="md"
-              type="text"
-              {...register("authorName", {
-                required: createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY),
-              })}
-              // onChange is overwritten with setValue
-              onChange={(v) => setValue("authorName", v)}
-            />
-          ) : (
-            <DummyField />
-          )}
-        </InputContainer>
-        <InputContainer>
-          {!loading ? (
-            <Input
-              data-testid="t--git-user-settings-author-email-input"
-              errorMessage={errors?.authorEmail?.message}
-              isReadOnly={useGlobalProfile}
-              isValid={!errors?.authorEmail}
-              label={createMessage(AUTHOR_EMAIL)}
-              size="md"
-              // type="email"
-              {...register("authorEmail", {
-                required: createMessage(AUTHOR_EMAIL_CANNOT_BE_EMPTY),
-                pattern: {
-                  value: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-                  message: createMessage(FORM_VALIDATION_INVALID_EMAIL),
-                },
-              })}
-              // onChange is overwritten with setValue
-              onChange={(v) => setValue("authorEmail", v)}
-            />
-          ) : (
-            <DummyField />
-          )}
-        </InputContainer>
-        <div>
-          <Button isDisabled={!isSubmitAllowed} size="md" type="submit">
-            {createMessage(UPDATE_CONFIG)}
+        <BodyContainer>
+          <InputContainer>
+            {!loading ? (
+              <Input
+                data-testid="t--git-user-settings-author-name-input"
+                errorMessage={errors?.authorName?.message}
+                isReadOnly={useGlobalProfile}
+                isValid={!errors?.authorName}
+                label={createMessage(AUTHOR_NAME_ONLY)}
+                size="md"
+                type="text"
+                {...register("authorName", {
+                  required: createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY),
+                })}
+                // onChange is overwritten with setValue
+                onChange={(v) => setValue("authorName", v)}
+              />
+            ) : (
+              <DummyField />
+            )}
+          </InputContainer>
+          <InputContainer>
+            {!loading ? (
+              <Input
+                data-testid="t--git-user-settings-author-email-input"
+                errorMessage={errors?.authorEmail?.message}
+                isReadOnly={useGlobalProfile}
+                isValid={!errors?.authorEmail}
+                label={createMessage(AUTHOR_EMAIL_ONLY)}
+                size="md"
+                // type="email"
+                {...register("authorEmail", {
+                  required: createMessage(AUTHOR_EMAIL_CANNOT_BE_EMPTY),
+                  pattern: {
+                    value: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+                    message: createMessage(FORM_VALIDATION_INVALID_EMAIL),
+                  },
+                })}
+                // onChange is overwritten with setValue
+                onChange={(v) => setValue("authorEmail", v)}
+              />
+            ) : (
+              <DummyField />
+            )}
+          </InputContainer>
+          <Button
+            isDisabled={!isSubmitAllowed}
+            kind="secondary"
+            size="md"
+            type="submit"
+          >
+            {createMessage(UPDATE)}
           </Button>
-        </div>
+        </BodyContainer>
       </form>
     </Container>
   );

@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.external.models.QBranchAwareDomain;
@@ -376,9 +376,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                         fieldName(QNewAction.newAction.publishedAction) + ".datasource._id")
                 .is(new ObjectId(datasourceId));
 
-        Criteria datasourceCriteria = where(FieldName.DELETED_AT)
-                .is(null)
-                .orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
+        Criteria datasourceCriteria =
+                notDeleted().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
 
         Query query = new Query();
         query.addCriteria(datasourceCriteria);
@@ -638,30 +637,65 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 aggregation, mongoOperations.getCollectionName(NewAction.class), PluginTypeAndCountDTO.class);
     }
 
-    /**
-     * Sets the datasource.name and updatedAt fields of newAction as per the provided datasource. The actions which
-     * have unpublishedAction.datasource.id same as the provided datasource.id will be updated.
-     * @param datasource The datasource object
-     * @return result of the multi update query
-     */
     @Override
-    public Mono<UpdateResult> updateDatasourceNameInActions(Datasource datasource) {
-        String unpublishedActionDatasourceIdFieldPath = String.format(
-                "%s.%s.%s",
-                fieldName(QNewAction.newAction.unpublishedAction),
-                fieldName(QNewAction.newAction.unpublishedAction.datasource),
-                fieldName(QNewAction.newAction.unpublishedAction.datasource.id));
+    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(
+            List<String> applicationIds, List<String> includeFields) {
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
+        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+    }
 
-        String unpublishedActionDatasourceNameFieldPath = String.format(
-                "%s.%s.%s",
-                fieldName(QNewAction.newAction.unpublishedAction),
-                fieldName(QNewAction.newAction.unpublishedAction.datasource),
-                fieldName(QNewAction.newAction.unpublishedAction.datasource.name));
+    @Override
+    public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
+        List<Criteria> criteriaList = new ArrayList<>();
 
-        Criteria criteria = where(unpublishedActionDatasourceIdFieldPath).is(datasource.getId());
-        Update update = new Update();
-        update.set(FieldName.UPDATED_AT, datasource.getUpdatedAt());
-        update.set(unpublishedActionDatasourceNameFieldPath, datasource.getName());
-        return updateByCriteria(List.of(criteria), update, null);
+        String contextIdPath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.pageId);
+        String contextTypePath = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+
+        criteriaList.add(contextIdAndContextTypeCriteria);
+
+        Criteria jsInclusionOrExclusionCriteria;
+        if (includeJs) {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
+        } else {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        }
+
+        criteriaList.add(jsInclusionOrExclusionCriteria);
+
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+    }
+
+    @Override
+    public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        String contextIdPath = fieldName(QNewAction.newAction.publishedAction) + "."
+                + fieldName(QNewAction.newAction.publishedAction.pageId);
+        String contextTypePath = fieldName(QNewAction.newAction.publishedAction) + "."
+                + fieldName(QNewAction.newAction.publishedAction.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+
+        criteriaList.add(contextIdAndContextTypeCriteria);
+
+        Criteria jsInclusionOrExclusionCriteria;
+        if (includeJs) {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
+        } else {
+            jsInclusionOrExclusionCriteria =
+                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        }
+
+        criteriaList.add(jsInclusionOrExclusionCriteria);
+
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
     }
 }

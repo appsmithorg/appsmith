@@ -16,6 +16,10 @@
       "value": "rgb(31.537% 20.805% 88.597%)",
       "type": "color"
     },
+    "bg-accent-subtle": {
+      "value": "rgb(88.264% 89.286% 100%)",
+      "type": "color"
+    },
     "bg-accent-subtle-hover": {
       "value": "rgb(91.308% 92.034% 100%)",
       "type": "color"
@@ -32,12 +36,20 @@
       "value": "rgb(27.359% 28.199% 35.2%)",
       "type": "color"
     },
+    "bg-neutral-opacity": {
+      "value": "rgb(27.359% 28.199% 35.2% / 0.5)",
+      "type": "color"
+    },
     "bg-neutral-hover": {
       "value": "rgb(32.654% 33.544% 40.754%)",
       "type": "color"
     },
     "bg-neutral-active": {
       "value": "rgb(26.32% 27.149% 34.105%)",
+      "type": "color"
+    },
+    "bg-neutral-subtle": {
+      "value": "rgb(90.262% 90.681% 93.577%)",
       "type": "color"
     },
     "bg-neutral-subtle-hover": {
@@ -60,6 +72,10 @@
       "value": "rgb(0% 60.947% 15.563%)",
       "type": "color"
     },
+    "bg-positive-subtle": {
+      "value": "rgb(81.329% 100% 81.391%)",
+      "type": "color"
+    },
     "bg-positive-subtle-hover": {
       "value": "rgb(84.848% 100% 84.841%)",
       "type": "color"
@@ -77,6 +93,10 @@
       "type": "color"
     },
     "bg-negative-active": {
+      "value": "rgb(80.244% 0% 6.8069%)",
+      "type": "color"
+    },
+    "bg-negative-subtle": {
       "value": "rgb(80.244% 0% 6.8069%)",
       "type": "color"
     },
@@ -100,6 +120,10 @@
       "value": "rgb(83.854% 63.416% 4.0505%)",
       "type": "color"
     },
+    "bg-warning-subtle": {
+      "value": "rgb(100% 94.114% 80.142%)",
+      "type": "color"
+    },
     "bg-warning-subtle-hover": {
       "value": "rgb(100% 97.012% 87.859%)",
       "type": "color"
@@ -120,6 +144,10 @@
       "value": "rgb(37.193% 38.537% 50.855%)",
       "type": "color"
     },
+    "fg-neutral-subtle": {
+      "value": "rgb(48.439% 49.938% 62.827%)",
+      "type": "color"
+    },
     "fg-positive": {
       "value": "rgb(6.7435% 63.436% 18.481%)",
       "type": "color"
@@ -134,6 +162,10 @@
     },
     "fg-on-accent": {
       "value": "rgb(91.588% 90.378% 100%)",
+      "type": "color"
+    },
+    "fg-on-accent-subtle": {
+      "value": "rgb(1.6475% 1.7126% 6.8084%)",
       "type": "color"
     },
     "fg-on-assistive": {
@@ -156,12 +188,16 @@
       "value": "rgb(21.953% 9.0775% 0%)",
       "type": "color"
     },
+    "bd": {
+      "value": "rgb(72.54% 73.727% 82.602%)",
+      "type": "color"
+    },
     "bd-accent": {
       "value": "rgb(33.333% 23.922% 91.373%)",
       "type": "color"
     },
     "bd-focus": {
-      "value": "rgb(78.161% 34.431% 0%)",
+      "value": "rgb(33.333% 23.922% 91.373%)",
       "type": "color"
     },
     "bd-neutral": {
@@ -262,5 +298,6 @@
       "value": 9999,
       "type": "zIndex"
     }
-  }
+  },
+  "colorMode": "light"
 }

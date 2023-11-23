@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import type { ReactElement } from "react";
 import { FieldError } from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
-import type { SettingComponentProps } from "./Common";
+import { FormGroup, type SettingComponentProps } from "./Common";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
@@ -24,9 +24,9 @@ type RadioOption = {
   };
   label: string;
 } & RadioProps;
-export type RadioOptionProps = {
+export interface RadioOptionProps {
   options: RadioOption[];
-};
+}
 
 const StyledTag = styled(Tag)<{ selected?: boolean }>`
   /* 
@@ -84,6 +84,16 @@ const PopoverStyles = createGlobalStyle`
     .bp3-popover2-content {
       border-radius: var(--ads-v2-border-radius);
     }
+  }
+`;
+
+const StyledFormGroup = styled(FormGroup)`
+  .styled-label {
+    padding: 0 0 0.5rem;
+  }
+
+  .admin-settings-form-group-label {
+    font-weight: var(--ads-v2-h5-font-weight);
   }
 `;
 
@@ -201,20 +211,12 @@ export default function RadioField({ setting }: RadioGroupProps) {
   const controlTypeProps = setting.controlTypeProps as RadioOptionProps;
 
   return (
-    <div
+    <StyledFormGroup
       className={`t--admin-settings-radio t--admin-settings-${
         setting.name || setting.id
       }`}
+      setting={setting}
     >
-      <Text
-        className="admin-settings-form-group-label pt-2 pb-4"
-        color="var(--ads-v2-color-fg)"
-        data-testid="admin-settings-form-group-label"
-        kind="heading-xs"
-        renderAs="p"
-      >
-        {setting.label}
-      </Text>
       <Field
         component={RadioFieldWrapper}
         {...controlTypeProps}
@@ -222,6 +224,6 @@ export default function RadioField({ setting }: RadioGroupProps) {
         name={setting.name}
         parse={setting.parse}
       />
-    </div>
+    </StyledFormGroup>
   );
 }

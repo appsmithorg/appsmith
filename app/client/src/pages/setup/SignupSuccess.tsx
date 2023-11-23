@@ -1,4 +1,3 @@
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import React from "react";
@@ -15,6 +14,9 @@ import { Spinner } from "design-system";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
@@ -25,11 +27,20 @@ export function SignupSuccess() {
   );
   const validLicense = useSelector(isValidLicense);
   const user = useSelector(getCurrentUser);
+  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
+    FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
+  );
+  const isEnabledForCreateNew = useFeatureFlag(
+    FEATURE_FLAG.ab_create_new_apps_enabled,
+  );
 
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     user?.email && setUserSignedUpFlag(user?.email);
   }, []);
+
+  const isNonInvitedAndNonAdminUser =
+    !user?.isSuperUser && shouldEnableFirstTimeUserOnboarding === "true";
 
   const redirectUsingQueryParam = useCallback(
     () =>
@@ -38,27 +49,29 @@ export function SignupSuccess() {
         shouldEnableFirstTimeUserOnboarding,
         validLicense,
         dispatch,
+        showStarterTemplatesInsteadofBlankCanvas,
+        isNonInvitedAndNonAdminUser && isEnabledForCreateNew,
       ),
     [],
   );
 
-  const onGetStarted = useCallback((role?: string, useCase?: string) => {
+  const onGetStarted = useCallback((proficiency?: string, useCase?: string) => {
     dispatch({
       type: ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
       payload: {
-        role,
+        proficiency,
         useCase,
       },
+    });
+    AnalyticsUtil.logEvent("GET_STARTED_CLICKED", {
+      proficiency,
+      goal: useCase,
     });
     redirectUsingQueryParam();
   }, []);
 
-  const { cloudHosting } = getAppsmithConfigs();
-  const isCypressEnv = !!(window as any).Cypress;
-
   /*
    *  Proceed with redirection,
-   *    For all local deployments
    *    For a super user, since we already collected role and useCase during signup
    *    For a normal user, who has filled in their role and useCase and try to visit signup-success url by entering manually.
    *    For an invited user, we don't want to collect the data. we just want to redirect to the workspace they have been invited to.
@@ -66,7 +79,6 @@ export function SignupSuccess() {
    */
   //TODO(Balaji): Factor in case, where user had closed the tab, while filling the form.And logs back in again.
   if (
-    (!cloudHosting && !isCypressEnv) ||
     user?.isSuperUser ||
     (user?.role && user?.useCase) ||
     shouldEnableFirstTimeUserOnboarding !== "true"

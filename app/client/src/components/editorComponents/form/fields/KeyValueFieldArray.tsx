@@ -21,9 +21,9 @@ import {
 import { Button, Text } from "design-system";
 import RequestDropdownField from "./RequestDropdownField";
 
-type CustomStack = {
+interface CustomStack {
   removeTopPadding?: boolean;
-};
+}
 
 const KeyValueStackContainer = styled.div<CustomStack>`
   padding: 0 0 var(--ads-v2-spaces-7) 0;
@@ -269,7 +269,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
   );
 }
 
-type Props = {
+interface Props {
   name: string;
   label: string;
   rightIcon?: React.ReactNode;
@@ -285,7 +285,7 @@ type Props = {
   theme?: EditorTheme;
   hasType?: boolean;
   removeTopPadding?: boolean;
-};
+}
 
 function KeyValueFieldArray(props: Props) {
   return (

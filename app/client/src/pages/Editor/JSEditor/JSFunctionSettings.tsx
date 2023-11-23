@@ -12,22 +12,22 @@ import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon, Radio, RadioGroup, Tooltip } from "design-system";
 
-type SettingsHeadingProps = {
+interface SettingsHeadingProps {
   text: string;
   hasInfo?: boolean;
   info?: string;
   grow: boolean;
-};
+}
 
-type SettingsItemProps = {
+interface SettingsItemProps {
   action: JSAction;
   disabled?: boolean;
-};
+}
 
-type JSFunctionSettingsProps = {
+interface JSFunctionSettingsProps {
   actions: JSAction[];
   disabled?: boolean;
-};
+}
 
 const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
   display: flex;

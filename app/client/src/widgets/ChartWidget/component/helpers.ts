@@ -1,6 +1,9 @@
 import { get } from "lodash";
 import type { ChartType, ChartSelectedDataPoint } from "../constants";
 import { omit, cloneDeep } from "lodash";
+import type { ChartComponentProps } from ".";
+import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
+import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 
 export const parseOnDataPointClickParams = (evt: any, chartType: ChartType) => {
   switch (chartType) {
@@ -78,6 +81,7 @@ export const labelKeyForChart = (
 export const getTextWidth = (text: string, font: string) => {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
+
   if (context) {
     context.font = font;
     const metrics = context.measureText(text);
@@ -85,4 +89,67 @@ export const getTextWidth = (text: string, font: string) => {
   } else {
     return 0;
   }
+};
+
+export const getBasicEChartOptions = (props: ChartComponentProps) => {
+  const datasetBuilder = new EChartsDatasetBuilder(
+    props.chartType,
+    props.chartData,
+  );
+  const dataset = datasetBuilder.datasetFromData();
+  const echartsConfigurationBuilder = new EChartsConfigurationBuilder();
+
+  const options = {
+    ...echartsConfigurationBuilder.prepareEChartConfig(
+      props,
+      datasetBuilder.filteredChartData,
+      datasetBuilder.longestDataLabels(),
+    ),
+    dataset: {
+      ...dataset,
+    },
+  };
+  return options;
+};
+
+export const chartOptions = (
+  chartType: ChartType,
+  props: ChartComponentProps,
+) => {
+  if (isCustomEChart(chartType)) {
+    return props.customEChartConfig;
+  } else if (isBasicEChart(chartType)) {
+    return getBasicEChartOptions(props);
+  } else {
+    return {};
+  }
+};
+
+export const dataClickCallbackHelper = (
+  params: echarts.ECElementEvent,
+  props: ChartComponentProps,
+  chartType: ChartType,
+) => {
+  const dataPointClickParams = parseOnDataPointClickParams(params, chartType);
+
+  props.onDataPointClick(dataPointClickParams);
+};
+
+export const isBasicEChart = (type: ChartType) => {
+  const types: ChartType[] = [
+    "AREA_CHART",
+    "PIE_CHART",
+    "LINE_CHART",
+    "BAR_CHART",
+    "COLUMN_CHART",
+  ];
+  return types.includes(type);
+};
+
+export const isCustomFusionChart = (type: ChartType) => {
+  return type == "CUSTOM_FUSION_CHART";
+};
+
+export const isCustomEChart = (type: ChartType) => {
+  return type == "CUSTOM_ECHART";
 };

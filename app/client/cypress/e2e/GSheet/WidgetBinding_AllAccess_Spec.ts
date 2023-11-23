@@ -51,6 +51,7 @@ describe("GSheet-widget binding", function () {
 
     // Adding suggested widgets and verify
     dataSources.AddSuggestedWidget(Widgets.Table);
+    agHelper.RefreshPage();
     table.ReadTableRowColumnData(0, 0, "v2").then((cellData) => {
       expect(cellData).to.eq("eac7efa5dbd3d667f26eb3d3ab504464");
     });

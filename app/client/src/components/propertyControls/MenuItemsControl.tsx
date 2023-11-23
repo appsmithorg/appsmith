@@ -10,9 +10,9 @@ import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListCon
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Button } from "design-system";
 
-type State = {
+interface State {
   focusedIndex: number | null;
-};
+}
 
 class MenuItemsControl extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {

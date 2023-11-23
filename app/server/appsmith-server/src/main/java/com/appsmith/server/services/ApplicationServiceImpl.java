@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
+import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -16,7 +16,7 @@ import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
-public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements ApplicationService {
+public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl implements ApplicationService {
 
     public ApplicationServiceImpl(
             Scheduler scheduler,
@@ -32,7 +32,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
             NewActionRepository newActionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            SessionUserService sessionUserService) {
 
         super(
                 scheduler,
@@ -48,6 +49,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                 newActionRepository,
                 assetService,
                 datasourcePermission,
-                applicationPermission);
+                applicationPermission,
+                sessionUserService);
     }
 }

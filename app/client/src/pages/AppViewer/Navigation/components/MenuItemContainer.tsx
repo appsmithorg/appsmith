@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import scrollIntoView from "scroll-into-view-if-needed";
 
-type MenuItemContainerProps = {
+interface MenuItemContainerProps {
   children: React.ReactNode;
   isTabActive: boolean;
   tabsScrollable?: boolean;
   setShowScrollArrows?: () => void;
   forSidebar?: boolean;
-};
+}
 
 const MenuItemContainer = ({
   children,

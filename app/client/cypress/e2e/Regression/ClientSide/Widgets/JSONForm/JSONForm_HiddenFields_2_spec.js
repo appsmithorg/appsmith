@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -6,6 +10,7 @@ import {
   entityExplorer,
   deployMode,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
@@ -67,6 +72,9 @@ function changeFieldType(fieldName, fieldType) {
 
 function addCustomField(fieldType) {
   cy.openPropertyPane("jsonformwidget");
+  cy.get(".t--property-control-sourcedata")
+    .find(".t--js-toggle")
+    .click({ force: true });
   cy.backFromPropertyPanel();
 
   // Add new field
@@ -85,7 +93,9 @@ function removeCustomField() {
 describe("JSON Form Hidden fields", () => {
   before(() => {
     agHelper.AddDsl("jsonFormDslWithSchema");
-    entityExplorer.SelectEntityByName("Text1");
+    cy.openPropertyPane("jsonformwidget");
+    cy.get(locators._jsToggle("sourcedata")).click({ force: true });
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Text",
       "{{JSON.stringify(JSONForm1.formData)}}",

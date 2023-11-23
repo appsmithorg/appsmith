@@ -19,7 +19,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-postgres#create-crud-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -32,7 +32,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-mongodb#create-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -45,7 +45,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-mysql#create-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -58,7 +58,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-arango-db#using-queries-in-applications",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -71,7 +71,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-amazon-s3#list-files",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -84,12 +84,12 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "connect-data/reference/using-smtp",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
 
-  it("7. Verify Airtable documentation opens", function () {
+  it("excludeForAirgap", "7. Verify Airtable documentation opens", function () {
     CreateDummyDSNSave(DataSourceKVP["Airtable"]);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -97,7 +97,7 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "airtable#create-queries",
-        "getWorkspace",
+        "getPluginForm",
       );
     });
   });
@@ -115,7 +115,25 @@ describe("Check datasource doc links", function () {
       deployMode.StubWindowNAssert(
         dataSources._queryDoc,
         "querying-oracle#create-queries",
-        "getWorkspace",
+        "getPluginForm",
+      );
+    });
+  });
+
+  it("9. Verify Firestore documentation opens", function () {
+    dataSources.CreateDataSource(
+      "Firestore",
+      true,
+      false,
+      dataManager.environments[1],
+    ); //using mock dataset for oracle
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateQueryAfterDSSaved();
+      deployMode.StubWindowNAssert(
+        dataSources._queryDoc,
+        "querying-firestore#understanding-commands",
+        "getPluginForm",
       );
     });
   });
@@ -126,8 +144,7 @@ describe("Check datasource doc links", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
     // entityExplorer.ActionContextMenuByEntityName({
     //   entityNameinLeftSidebar: dsName,
     //   action: "Delete",

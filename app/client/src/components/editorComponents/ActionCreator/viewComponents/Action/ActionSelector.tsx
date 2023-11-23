@@ -63,12 +63,12 @@ export default function ActionSelector(props: {
   );
 }
 
-type TActionSelectorFormProps = {
+interface TActionSelectorFormProps {
   action: TActionBlock;
   onChange: (actionBlock: TActionBlock, del?: boolean) => void;
   additionalAutoComplete?: AdditionalDynamicDataTree;
   dataTreePath: string | undefined;
-};
+}
 
 const pathClassList = [
   "CodeMirror-hints",

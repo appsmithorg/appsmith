@@ -49,16 +49,13 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("2. Checks undo/redo for Api pane", function () {
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
     cy.get(`${apiwidget.resourceUrl} .CodeMirror-placeholder`).should(
       "have.text",
       "https://mock-api.appsmith.com/users", //testing placeholder!
     );
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
-    agHelper.RemoveTooltip("Add a new query/JS Object");
-
+    agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     cy.get(`${apiwidget.headerKey}`).type("Authorization");
     cy.get("body").click(0, 0);
     cy.get(apiwidget.settings).click({ force: true });
@@ -154,6 +151,7 @@ describe("Undo/Redo functionality", function () {
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get("input[name='url']").should("have.value", "");
+    cy.get("body").type(`{${modifierKey}}z`);
     cy.get("input[name='headers[0].key']").should("have.value", "");
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}{shift}z`);

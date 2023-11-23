@@ -5,21 +5,22 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import React from "react";
 import { MockPageDSL } from "test/testCommon";
-import Sidebar from "components/editorComponents/Sidebar";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import store, { runSagaMiddleware } from "store";
 import Datasources from "./Datasources";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
-import urlBuilder from "entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import * as helpers from "@appsmith/pages/Editor/Explorer/helpers";
-import * as permissionUtils from "@appsmith/utils/permissionHelpers";
+import * as explorerSelector from "selectors/explorerSelector";
+import * as permissionPageHelpers from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import userEvent from "@testing-library/user-event";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { NavigationMethod } from "utils/history";
+import WidgetsEditorEntityExplorer from "../WidgetsEditorEntityExplorer";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
@@ -39,6 +40,28 @@ jest.mock("@appsmith/pages/Editor/Explorer/helpers", () => ({
   __esModule: true,
   ...jest.requireActual("@appsmith/pages/Editor/Explorer/helpers"),
 }));
+
+jest.mock("@appsmith/utils/BusinessFeatures/permissionPageHelpers", () => ({
+  __esModule: true,
+  ...jest.requireActual(
+    "@appsmith/utils/BusinessFeatures/permissionPageHelpers",
+  ),
+}));
+
+jest.mock("selectors/explorerSelector", () => ({
+  __esModule: true,
+  ...jest.requireActual("selectors/explorerSelector"),
+}));
+
+jest
+  .spyOn(explorerSelector, "getExplorerWidth")
+  .mockImplementation(() => DEFAULT_ENTITY_EXPLORER_WIDTH);
+
+const addDatasource = jest.fn();
+const listDatasource = jest.fn();
+const onDatasourcesToggle = jest.fn();
+const isDatasourcesOpen = true;
+const entityId = "pageId";
 
 describe("Entity Explorer tests", () => {
   beforeAll(() => {
@@ -69,10 +92,18 @@ describe("Entity Explorer tests", () => {
       payload: mockDatasources,
     });
     jest
-      .spyOn(permissionUtils, "hasCreateDatasourcePermission")
+      .spyOn(permissionPageHelpers, "getHasCreateDatasourcePermission")
       .mockReturnValue(true);
     store.dispatch(updateCurrentPage("pageId"));
-    const component = render(<Datasources />);
+    const component = render(
+      <Datasources
+        addDatasource={addDatasource}
+        entityId={entityId}
+        isDatasourcesOpen={isDatasourcesOpen}
+        listDatasource={listDatasource}
+        onDatasourcesToggle={onDatasourcesToggle}
+      />,
+    );
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
       5,
     );
@@ -83,12 +114,20 @@ describe("Entity Explorer tests", () => {
       payload: mockDatasources,
     });
     jest
-      .spyOn(permissionUtils, "hasCreateDatasourcePermission")
+      .spyOn(permissionPageHelpers, "getHasCreateDatasourcePermission")
       .mockReturnValue(false);
     const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
     mockExplorerState.mockImplementationOnce(() => true);
     store.dispatch(updateCurrentPage("pageId"));
-    const component = render(<Datasources />);
+    const component = render(
+      <Datasources
+        addDatasource={addDatasource}
+        entityId={entityId}
+        isDatasourcesOpen={isDatasourcesOpen}
+        listDatasource={listDatasource}
+        onDatasourcesToggle={onDatasourcesToggle}
+      />,
+    );
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
       4,
     );
@@ -97,37 +136,6 @@ describe("Entity Explorer tests", () => {
     );
     expect(addDatasourceEntity).toBeNull();
   });
-  it("should hide delete & edit of datasource if the user don't have valid permissions", async () => {
-    store.dispatch({
-      type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
-      payload: mockDatasources,
-    });
-    jest
-      .spyOn(permissionUtils, "hasCreateDatasourcePermission")
-      .mockReturnValue(true);
-    jest
-      .spyOn(permissionUtils, "hasManageDatasourcePermission")
-      .mockReturnValue(false);
-    jest
-      .spyOn(permissionUtils, "hasDeleteDatasourcePermission")
-      .mockReturnValue(false);
-    const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
-    mockExplorerState.mockImplementationOnce(() => true);
-    store.dispatch(updateCurrentPage("pageId"));
-    const { container } = render(<Datasources />);
-    const target = container.getElementsByClassName("t--context-menu");
-    await userEvent.click(target[2]);
-    const deleteOption = document.getElementsByClassName(
-      "t--datasource-delete",
-    );
-    const editOption = document.getElementsByClassName("t--datasource-rename");
-    const refreshOption = document.getElementsByClassName(
-      "t--datasource-refresh",
-    );
-    expect(deleteOption.length).toBe(0);
-    expect(editOption.length).toBe(0);
-    expect(refreshOption.length).toBe(1);
-  });
   it("Should render Widgets tree in entity explorer", () => {
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
     const dsl: any = widgetCanvasFactory.build({
@@ -135,7 +143,7 @@ describe("Entity Explorer tests", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+        <WidgetsEditorEntityExplorer />
       </MockPageDSL>,
     );
     const widgetsTree: any = component.queryByText("Widgets", {
@@ -167,7 +175,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+          <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
       const tabsWidget: any = component.queryByText(children[0].widgetName);
@@ -198,7 +206,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+          <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
       const checkBox: any = component.queryByText(children[0].widgetName);
@@ -243,7 +251,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+          <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
 
@@ -323,7 +331,7 @@ describe("Entity Explorer tests", () => {
       });
       const component = render(
         <MockPageDSL dsl={dsl}>
-          <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
+          <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
       const containerWidget: any = component.queryByText(
@@ -392,5 +400,45 @@ describe("Entity Explorer tests", () => {
         undefined,
       );
     });
+  });
+
+  it("should hide delete & edit of datasource if the user don't have valid permissions", async () => {
+    store.dispatch({
+      type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+      payload: mockDatasources,
+    });
+    jest
+      .spyOn(permissionPageHelpers, "getHasCreateDatasourcePermission")
+      .mockReturnValue(true);
+    jest
+      .spyOn(permissionPageHelpers, "getHasManageDatasourcePermission")
+      .mockReturnValue(false);
+    jest
+      .spyOn(permissionPageHelpers, "getHasDeleteDatasourcePermission")
+      .mockReturnValue(false);
+    const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
+    mockExplorerState.mockImplementationOnce(() => true);
+    store.dispatch(updateCurrentPage("pageId"));
+    const { container } = render(
+      <Datasources
+        addDatasource={addDatasource}
+        entityId={entityId}
+        isDatasourcesOpen={isDatasourcesOpen}
+        listDatasource={listDatasource}
+        onDatasourcesToggle={onDatasourcesToggle}
+      />,
+    );
+    const target = container.getElementsByClassName("t--context-menu");
+    await userEvent.click(target[2]);
+    const deleteOption = document.getElementsByClassName(
+      "t--datasource-delete",
+    );
+    const editOption = document.getElementsByClassName("t--datasource-rename");
+    const refreshOption = document.getElementsByClassName(
+      "t--datasource-refresh",
+    );
+    expect(deleteOption.length).toBe(0);
+    expect(editOption.length).toBe(0);
+    expect(refreshOption.length).toBe(1);
   });
 });

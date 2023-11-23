@@ -4,16 +4,20 @@ import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import type {
-  ConfigTree,
-  DataTreeEntity,
   WidgetEntity,
   WidgetEntityConfig,
-} from "entities/DataTree/dataTreeFactory";
+  PrivateWidgets,
+  JSActionEntity,
+} from "@appsmith/entities/DataTree/types";
 import {
-  ENTITY_TYPE,
+  ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import type { PrivateWidgets, JSActionEntity } from "entities/DataTree/types";
+import type {
+  ConfigTree,
+  DataTreeEntity,
+  DataTree,
+} from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   addErrorToEntityProperty,
@@ -33,7 +37,6 @@ import {
   overrideWidgetProperties,
   findDatatype,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget from "widgets/TableWidget";
@@ -61,7 +64,7 @@ const BASE_WIDGET: WidgetEntity = {
   type: "SKELETON_WIDGET",
   parentId: "0",
   version: 1,
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   meta: {},
 };
 
@@ -73,7 +76,7 @@ const BASE_WIDGET_CONFIG: WidgetEntityConfig = {
   reactivePaths: {},
   triggerPaths: {},
   validationPaths: {},
-  ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+  ENTITY_TYPE: ENTITY_TYPE_VALUE.WIDGET,
   privateWidgets: {},
   propertyOverrideDependency: {},
   overridingPropertyPaths: {},
@@ -252,10 +255,8 @@ describe("2. privateWidgets", () => {
       Text3: true,
     };
 
-    const actualPrivateWidgetsList = getAllPrivateWidgetsInDataTree(
-      testDataTree,
-      testConfigTree,
-    );
+    const actualPrivateWidgetsList =
+      getAllPrivateWidgetsInDataTree(testConfigTree);
 
     expect(expectedPrivateWidgetsList).toStrictEqual(actualPrivateWidgetsList);
   });
@@ -479,7 +480,7 @@ describe("4. translateDiffEvent", () => {
       diffs.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, {
           JsObject: {
-            ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+            ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
           } as unknown as DataTreeEntity,
         }),
       ),
@@ -618,15 +619,17 @@ describe("5. overrideWidgetProperties", () => {
           topRow: 0,
         },
         {},
+        new Set(),
       );
       currentTree["Input1"] = inputWidgetDataTree.unEvalEntity;
       configTree["Input1"] = inputWidgetDataTree.configEntity;
     });
     // When default text is re-evaluated it will override values of meta.text and text in InputWidget
     it("1. defaultText updating meta.text and text", () => {
+      const widgetEntity = currentTree.Input1 as WidgetEntity;
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        entity: currentTree.Input1 as WidgetEntity,
+        entity: widgetEntity,
         propertyPath: "defaultText",
         value: "abcde",
 
@@ -641,30 +644,28 @@ describe("5. overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([
         {
-          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
-          widgetId: currentTree.Input1.widgetId,
+          widgetId: widgetEntity.widgetId,
           metaPropertyPath: ["inputText"],
           value: "abcde",
         },
         {
-          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
-          widgetId: currentTree.Input1.widgetId,
+          widgetId: widgetEntity.widgetId,
           metaPropertyPath: ["text"],
           value: "abcde",
         },
       ]);
 
-      //@ts-expect-error: meta does not exits on type DataTreeEntity
-      expect(currentTree.Input1.meta).toStrictEqual({
+      expect(widgetEntity.meta).toStrictEqual({
         text: "abcde",
         inputText: "abcde",
       });
     });
     // When meta.text is re-evaluated it will override values text in InputWidget
     it("2. meta.text updating text", () => {
+      const widgetEntity = currentTree.Input1 as WidgetEntity;
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        entity: currentTree.Input1 as WidgetEntity,
+        entity: widgetEntity,
         propertyPath: "meta.text",
         value: "abcdefg",
         currentTree,
@@ -678,8 +679,7 @@ describe("5. overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([]);
 
-      //@ts-expect-error: text does not exits on type DataTreeEntity
-      expect(currentTree.Input1.text).toStrictEqual("abcdefg");
+      expect(widgetEntity.text).toStrictEqual("abcdefg");
     });
   });
 
@@ -704,15 +704,17 @@ describe("5. overrideWidgetProperties", () => {
           topRow: 0,
         },
         {},
+        new Set(),
       );
       currentTree["Table1"] = tableWidgetDataTree.unEvalEntity;
       configTree["Table1"] = tableWidgetDataTree.configEntity;
     });
     // When default defaultSelectedRow is re-evaluated it will override values of meta.selectedRowIndices, selectedRowIndices, meta.selectedRowIndex & selectedRowIndex.
     it("1. On change of defaultSelectedRow ", () => {
+      const widgetEntity = currentTree.Table1 as WidgetEntity;
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        entity: currentTree.Table1 as WidgetEntity,
+        entity: widgetEntity,
         propertyPath: "defaultSelectedRow",
         value: [0, 1],
         currentTree,
@@ -726,29 +728,27 @@ describe("5. overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([
         {
-          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
-          widgetId: currentTree.Table1.widgetId,
+          widgetId: widgetEntity.widgetId,
           metaPropertyPath: ["selectedRowIndex"],
           value: [0, 1],
         },
         {
-          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
-          widgetId: currentTree.Table1.widgetId,
+          widgetId: widgetEntity.widgetId,
           metaPropertyPath: ["selectedRowIndices"],
           value: [0, 1],
         },
       ]);
 
-      //@ts-expect-error: meta does not exits on type DataTreeEntity
-      expect(currentTree.Table1.meta.selectedRowIndex).toStrictEqual([0, 1]);
-      //@ts-expect-error: meta does not exits on type DataTreeEntity
-      expect(currentTree.Table1.meta.selectedRowIndices).toStrictEqual([0, 1]);
+      expect(widgetEntity.meta.selectedRowIndex).toStrictEqual([0, 1]);
+
+      expect(widgetEntity.meta.selectedRowIndices).toStrictEqual([0, 1]);
     });
     // When meta.selectedRowIndex is re-evaluated it will override values selectedRowIndex
     it("2. meta.selectedRowIndex updating selectedRowIndex", () => {
+      const widgetEntity = currentTree.Table1 as WidgetEntity;
       const evalMetaUpdates: EvalMetaUpdates = [];
       const overwriteObj = overrideWidgetProperties({
-        entity: currentTree.Table1 as WidgetEntity,
+        entity: widgetEntity,
         propertyPath: "meta.selectedRowIndex",
         value: 0,
         currentTree,
@@ -762,8 +762,7 @@ describe("5. overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([]);
 
-      //@ts-expect-error: selectedRowIndex does not exits on type DataTreeEntity
-      expect(currentTree.Table1.selectedRowIndex).toStrictEqual(0);
+      expect(widgetEntity.selectedRowIndex).toStrictEqual(0);
     });
   });
 });
@@ -831,7 +830,6 @@ describe("7. Test addErrorToEntityProperty method", () => {
     } as EvaluationError;
     addErrorToEntityProperty({
       errors: [error],
-      dataTree: dataTreeEvaluator.evalTree,
       evalProps: dataTreeEvaluator.evalProps,
       fullPropertyPath: "Api1.data",
       configTree: dataTreeEvaluator.oldConfigTree,
@@ -863,7 +861,7 @@ describe("convertJSFunctionsToString", () => {
       },
       name: "JSObject1",
       actionId: "63ef4cb1a01b764626f2a6e5",
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
       pluginType: PluginType.JS,
       bindingPaths: {
         body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -886,7 +884,7 @@ describe("convertJSFunctionsToString", () => {
       },
     },
     JSObject2: {
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
       meta: {
         myFun1: {
           arguments: [],
@@ -944,7 +942,7 @@ describe("convertJSFunctionsToString", () => {
     JSObject1: {
       myFun1: JSObject1MyFun1,
       body: 'export default {\nmyFun1:  ()=>{ \n\treturn "name"\n} \n}',
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
 
       actionId: "63ef4cb1a01b764626f2a6e5",
     },
@@ -954,7 +952,7 @@ describe("convertJSFunctionsToString", () => {
       myFun1: JSObject2MyFun1,
       myFun2: JSObject2MyFun2,
       body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
-      ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+      ENTITY_TYPE: ENTITY_TYPE_VALUE.JSACTION,
 
       actionId: "63f78437d1a4ef55755952f1",
     },

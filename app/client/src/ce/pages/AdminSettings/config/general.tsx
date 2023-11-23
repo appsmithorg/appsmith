@@ -31,11 +31,10 @@ export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
 export const APPSMITH__ADMIN_EMAILS_SETTING: Setting = {
   id: "APPSMITH_ADMIN_EMAILS",
   category: SettingCategories.GENERAL,
-  controlType: SettingTypes.TEXTINPUT,
+  controlType: SettingTypes.TAGINPUT,
   controlSubType: SettingSubtype.EMAIL,
   label: "Admin email",
-  subText:
-    "* Emails of the users who can modify instance settings (comma separated)",
+  subText: "* Emails of the users who can modify instance settings",
   placeholder: "Jane@example.com",
   validate: (value: string) => {
     if (
@@ -74,12 +73,12 @@ export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
 };
 
 export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
-  id: "APPSMITH_HIDE_WATERMARK",
-  name: "APPSMITH_HIDE_WATERMARK",
+  id: "hideWatermark",
+  name: "hideWatermark",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
   label: "Appsmith watermark",
-  text: "Show Appsmith watermark",
+  text: "Hide Appsmith watermark",
   isFeatureEnabled: false,
   isDisabled: () => true,
   textSuffix: <BrandingBadge />,

@@ -52,7 +52,7 @@ const TooltipLink = styled(Link)`
   display: inline;
 `;
 
-type DSDataFilterProps = {
+interface DSDataFilterProps {
   updateFilter: (
     id: string,
     name: string,
@@ -63,14 +63,14 @@ type DSDataFilterProps = {
   isInsideReconnectModal: boolean;
   viewMode: boolean;
   filterId: string; // id of the selected environment, used to keep the parent and child in sync
-};
+}
 
-type EnvironmentType = {
+interface EnvironmentType {
   id: string;
   name: string;
   selected: boolean;
   userPermissions: string[];
-};
+}
 
 const environments: Array<EnvironmentType> = [
   {

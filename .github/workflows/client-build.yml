@@ -21,6 +21,11 @@ on:
         description: "This is the branch to be used for the build."
         required: false
         type: string
+      ads-compliant-check:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "true"
 
 
 # Change the working directory for all the jobs in this workflow
@@ -93,7 +98,7 @@ jobs:
           done
           echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
           echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
-          
+      
       # Comment in PR if test files are not written in ts and fail the workflow    
       - name: Comment in PR if test files are not written in ts
         if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
@@ -105,6 +110,46 @@ jobs:
             <b>Expected format ts. Please fix and retrigger ok-to-test:</b>
             <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
       - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
+        run: exit 1
+           
+      - name: Get all the added or changed files in client/src folder
+        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        id: client_files
+        uses: umani/changed-files@v4.0.0
+        with:
+          repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+          pattern: 'app/client/src/.*'
+          pr-number: ${{ inputs.pr }}
+
+      # Check all the newly added files are in ts  
+      - name: ADS compliant check
+        if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        id: ads_check
+        run: |
+          comment_files=""
+          files=(${{steps.client_files.outputs.files_created}}${{steps.client_files.outputs.files_updated}})
+          for file in "${files[@]}"; do
+              while IFS= read -r line; do
+                if echo "$line" | grep -q -E '(color|Color).*#|border.*#|(color|Color).*"'; then
+                  comment_files+=("$file")
+                  break
+                fi
+              done < ${file#app/client/}
+          done
+          unique_files=$(echo "${comment_files[@]}" | sort -u | sed '/^[[:space:]]*$/d' | sed 's/ / <li>/g')
+          echo "ads_non_compliant_files=$unique_files" >> $GITHUB_OUTPUT
+          echo "ads_non_compliant_count=${#unique_files[@]}" >> $GITHUB_OUTPUT
+
+      # Comment in PR if test files are not written in ts and fail the workflow    
+      - name: Comment in PR if test files are not written in ts
+        if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ inputs.pr }}
+          body: |
+            <b> 🔴 Below files are not compliant with ADS. Please fix and re-trigger ok-to-test </b>
+            <ol>${{steps.ads_check.outputs.ads_non_compliant_files}}</ol>
+      - if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
         run: exit 1
 
       # Create a run record exactly at the time of merge to release to

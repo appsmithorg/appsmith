@@ -1,8 +1,8 @@
 import type { AppState } from "@appsmith/reducers";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { StickyCanvasArena } from "layoutSystems/common/CanvasArenas/StickyCanvasArena";
-import React from "react";
+import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
@@ -71,20 +71,25 @@ export function FixedCanvasDraggingArena({
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-
+  const canvasReRenderDependencies = useMemo(
+    () => ({
+      canExtend,
+      snapColumnSpace,
+      snapRowSpace,
+      snapRows,
+    }),
+    [canExtend, snapColumnSpace, snapRowSpace, snapRows],
+  );
   return showCanvas ? (
     <StickyCanvasArena
-      canExtend={canExtend}
       canvasId={`canvas-dragging-${widgetId}`}
       canvasPadding={needsPadding ? theme.canvasBottomPadding : 0}
+      dependencies={canvasReRenderDependencies}
       getRelativeScrollingParent={getNearestParentCanvas}
-      id={`div-dragarena-${widgetId}`}
       ref={canvasRef}
       shouldObserveIntersection={isDragging}
       showCanvas={showCanvas}
-      snapColSpace={snapColumnSpace}
-      snapRowSpace={snapRowSpace}
-      snapRows={snapRows}
+      sliderId={`div-dragarena-${widgetId}`}
     />
   ) : null;
 }

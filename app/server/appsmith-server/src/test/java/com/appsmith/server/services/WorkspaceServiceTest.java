@@ -25,6 +25,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -399,8 +400,7 @@ public class WorkspaceServiceTest {
                             .filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst()
                             .ifPresent(policy -> assertThat(policy.getPermissionGroups())
-                                    .containsAll(
-                                            Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId())));
+                                    .containsAll(Set.of(adminPermissionGroup.getId())));
 
                     // Assert viewer permission group policies
                     viewerPermissionGroup.getPolicies().stream()
@@ -423,7 +423,7 @@ public class WorkspaceServiceTest {
                             .filter(policy -> policy.getPermission().equals(UNASSIGN_PERMISSION_GROUPS.getValue()))
                             .findFirst()
                             .ifPresent(policy -> assertThat(policy.getPermissionGroups())
-                                    .containsAll(Set.of(adminPermissionGroup.getId(), viewerPermissionGroup.getId())));
+                                    .containsAll(Set.of(adminPermissionGroup.getId())));
                 })
                 .verifyComplete();
     }
@@ -1839,5 +1839,33 @@ public class WorkspaceServiceTest {
         long countWorkspaceWithAdditionalFieldAfterUpdate =
                 mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
         assertThat(countWorkspaceWithAdditionalFieldAfterUpdate).isEqualTo(1);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    void testInviteDuplicateUsers_shouldReturnUniqueUsers() {
+        String testName = "test";
+        List<String> duplicateUsernames = List.of(testName + "user@test.com", testName + "user@test.com");
+        Workspace createdWorkspace = workspaceService.create(workspace).block();
+        assertThat(createdWorkspace).isNotNull();
+        assertThat(createdWorkspace.getDefaultPermissionGroups()).isNotEmpty();
+        List<PermissionGroup> defaultWorkspaceRoles = permissionGroupRepository
+                .findAllById(createdWorkspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+        assertThat(defaultWorkspaceRoles)
+                .hasSize(createdWorkspace.getDefaultPermissionGroups().size());
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(duplicateUsernames);
+        inviteUsersDTO.setPermissionGroupId(defaultWorkspaceRoles.get(0).getId());
+
+        // Invited users list contains duplicate users.
+        List<User> userList = userAndAccessManagementService
+                .inviteUsers(inviteUsersDTO, "test")
+                .block();
+        assertThat(userList).hasSize(1);
+        User invitedUser = userList.get(0);
+        assertThat(invitedUser.getUsername()).isEqualTo(testName + "user@test.com");
     }
 }

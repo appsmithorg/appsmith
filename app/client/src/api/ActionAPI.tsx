@@ -151,33 +151,33 @@ class ActionAPI extends API {
   static queryUpdateCancelTokenSource: CancelTokenSource;
   static abortActionExecutionTokenSource: CancelTokenSource;
 
-  static createAction(
+  static async createAction(
     apiConfig: Partial<Action>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
     return API.post(ActionAPI.url, apiConfig);
   }
 
-  static fetchActions(
+  static async fetchActions(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<Action[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
     return API.get(ActionAPI.url, { applicationId });
   }
 
-  static fetchActionsForViewMode(
+  static async fetchActionsForViewMode(
     applicationId: string,
-  ): AxiosPromise<ApiResponse<ActionViewMode[]>> {
+  ): Promise<AxiosPromise<ApiResponse<ActionViewMode[]>>> {
     return API.get(`${ActionAPI.url}/view`, { applicationId });
   }
 
-  static fetchActionsByPageId(
+  static async fetchActionsByPageId(
     pageId: string,
-  ): AxiosPromise<ApiResponse<Action[]>> {
+  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
     return API.get(ActionAPI.url, { pageId });
   }
 
-  static updateAction(
+  static async updateAction(
     apiConfig: Partial<Action>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
+  ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
     if (ActionAPI.apiUpdateCancelTokenSource) {
       ActionAPI.apiUpdateCancelTokenSource.cancel();
     }
@@ -192,18 +192,20 @@ class ActionAPI extends API {
     });
   }
 
-  static updateActionName(updateActionNameRequest: UpdateActionNameRequest) {
+  static async updateActionName(
+    updateActionNameRequest: UpdateActionNameRequest,
+  ) {
     return API.put(ActionAPI.url + "/refactor", updateActionNameRequest);
   }
 
-  static deleteAction(id: string) {
+  static async deleteAction(id: string) {
     return API.delete(`${ActionAPI.url}/${id}`);
   }
 
-  static executeAction(
+  static async executeAction(
     executeAction: FormData,
     timeout?: number,
-  ): AxiosPromise<ActionExecutionResponse> {
+  ): Promise<AxiosPromise<ActionExecutionResponse>> {
     ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
@@ -216,13 +218,16 @@ class ActionAPI extends API {
     });
   }
 
-  static moveAction(moveRequest: MoveActionRequest) {
+  static async moveAction(moveRequest: MoveActionRequest) {
     return API.put(ActionAPI.url + "/move", moveRequest, undefined, {
       timeout: DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });
   }
 
-  static toggleActionExecuteOnLoad(actionId: string, shouldExecute: boolean) {
+  static async toggleActionExecuteOnLoad(
+    actionId: string,
+    shouldExecute: boolean,
+  ) {
     return API.put(ActionAPI.url + `/executeOnLoad/${actionId}`, undefined, {
       flag: shouldExecute.toString(),
     });

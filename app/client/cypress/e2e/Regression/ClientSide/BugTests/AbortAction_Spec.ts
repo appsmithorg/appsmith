@@ -10,7 +10,8 @@ import {
   createMessage,
 } from "../../../../support/Objects/CommonErrorMessages";
 
-const largeResponseApiUrl = "https://api.publicapis.org/entries";
+const largeResponseApiUrl = "https://api.github.com/emojis";
+//"https://api.publicapis.org/entries";
 //"https://jsonplaceholder.typicode.com/photos";//Commenting since this is faster sometimes & case is failing
 
 describe("Abort Action Execution", function () {
@@ -49,7 +50,7 @@ describe("Abort Action Execution", function () {
         action: "Delete",
         entityType: entityItems.Query,
       });
-      dataSources.DeleteDatasouceFromWinthinDS($dsName as unknown as string);
+      dataSources.DeleteDatasourceFromWithinDS($dsName as unknown as string);
     });
   });
 });

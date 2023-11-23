@@ -1,6 +1,15 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+import { applyChange } from "deep-diff";
 import produce from "immer";
 import { range } from "lodash";
-import { generateOptimisedUpdates } from "../helpers";
+import moment from "moment";
+import { parseUpdatesAndDeleteUndefinedUpdates } from "sagas/EvaluationSaga.utils";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+
+import {
+  generateOptimisedUpdates,
+  generateSerialisedUpdates,
+} from "../helpers";
 
 export const smallDataSet = [
   {
@@ -74,7 +83,7 @@ const oldState = {
   },
 };
 
-describe("optimised diff updates", () => {
+describe("generateOptimisedUpdates", () => {
   describe("regular diff", () => {
     test("should generate regular diff updates when a simple property changes in the widget property segment", () => {
       const newState = produce(oldState, (draft) => {
@@ -100,6 +109,46 @@ describe("optimised diff updates", () => {
           rhs: validationError,
         },
       ]);
+    });
+    describe("ignore invalid moment updates", () => {
+      test("should generate a null update when it sees an invalid moment object", () => {
+        const newState = produce(oldState, (draft) => {
+          draft.Table1.pageSize = moment("invalid value") as any;
+        });
+        const updates = generateOptimisedUpdates(oldState, newState);
+        expect(updates).toEqual([
+          { kind: "E", path: ["Table1", "pageSize"], lhs: 0, rhs: null },
+        ]);
+      });
+      test("should generate a regular update when it sees a valid moment object", () => {
+        const validMoment = moment();
+        const newState = produce(oldState, (draft) => {
+          draft.Table1.pageSize = validMoment as any;
+        });
+        const updates = generateOptimisedUpdates(oldState, newState);
+        expect(updates).toEqual([
+          { kind: "E", path: ["Table1", "pageSize"], lhs: 0, rhs: validMoment },
+        ]);
+      });
+      test("should generate no diff update when prev state is already null", () => {
+        const prevState = produce(oldState, (draft) => {
+          draft.Table1.pageSize = null as any;
+          draft.Table1.triggerRowSelection = undefined as any;
+        });
+        const newState = produce(oldState, (draft) => {
+          draft.Table1.pageSize = moment("invalid value") as any;
+          draft.Table1.triggerRowSelection = moment("invalid value") as any;
+        });
+        const updates = generateOptimisedUpdates(prevState, newState);
+        expect(updates).toEqual([
+          {
+            kind: "E",
+            path: ["Table1", "triggerRowSelection"],
+            lhs: undefined,
+            rhs: null,
+          },
+        ]);
+      });
     });
   });
 
@@ -244,5 +293,219 @@ describe("optimised diff updates", () => {
       );
       expect(updates).toEqual([]);
     });
+  });
+});
+
+//we are testing the flow of serialised updates generated from the worker thread and subsequently applied to the main thread state
+describe("generateSerialisedUpdates and parseUpdatesAndDeleteUndefinedUpdates", () => {
+  it("should ignore undefined updates", () => {
+    const oldStateWithUndefinedValues = produce(oldState, (draft: any) => {
+      draft.Table1.pageSize = undefined;
+    });
+
+    const { serialisedUpdates } = generateSerialisedUpdates(
+      oldStateWithUndefinedValues,
+      //new state has the same undefined value
+      oldStateWithUndefinedValues,
+      {},
+    );
+    //no change hence empty array
+    expect(serialisedUpdates).toEqual("[]");
+  });
+  it("should generate a delete patch when a property is transformed to undefined", () => {
+    const oldStateWithUndefinedValues = produce(oldState, (draft: any) => {
+      draft.Table1.pageSize = undefined;
+    });
+
+    const { serialisedUpdates } = generateSerialisedUpdates(
+      oldState,
+      oldStateWithUndefinedValues,
+      {},
+    );
+    const parsedUpdates =
+      parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
+    expect(parsedUpdates).toEqual([
+      {
+        kind: "D",
+        path: ["Table1", "pageSize"],
+      },
+    ]);
+  });
+  it("should generate an error when there is a serialisation error", () => {
+    const oldStateWithUndefinedValues = produce(oldState, (draft: any) => {
+      //generate a cyclical object
+      draft.Table1.filteredTableData = draft.Table1;
+    });
+    const { error, serialisedUpdates } = generateSerialisedUpdates(
+      oldState,
+      oldStateWithUndefinedValues,
+      {},
+    );
+
+    expect(error?.type).toEqual(EvalErrorTypes.SERIALIZATION_ERROR);
+    //when a serialisation error occurs we should not return an error
+    expect(serialisedUpdates).toEqual("[]");
+  });
+  //when functions are serialised they become undefined and these updates should be deleted from the state
+  describe("clean out all functions in the generated state", () => {
+    it("should clean out new function properties added to the generated state", () => {
+      const newStateWithSomeFnProperty = produce(oldState, (draft: any) => {
+        draft.Table1.someFn = () => {};
+        draft.Table1.__evaluation__.evaluatedValues.someEvalFn = () => {};
+      });
+
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        oldState,
+        newStateWithSomeFnProperty,
+        {},
+      );
+
+      const parsedUpdates =
+        parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
+      //should ignore all function updates
+      expect(parsedUpdates).toEqual([]);
+
+      const parseAndApplyUpdatesToOldState = produce(oldState, (draft) => {
+        parsedUpdates.forEach((v: any) => {
+          applyChange(draft, undefined, v);
+        });
+      });
+      //no change in state
+      expect(parseAndApplyUpdatesToOldState).toEqual(oldState);
+    });
+
+    it("should delete properties which get updated to a function", () => {
+      const newStateWithSomeFnProperty = produce(oldState, (draft: any) => {
+        draft.Table1.pageSize = () => {};
+        draft.Table1.__evaluation__.evaluatedValues.transientTableData =
+          () => {};
+      });
+
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        oldState,
+        newStateWithSomeFnProperty,
+        {},
+      );
+
+      const parsedUpdates =
+        parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
+
+      expect(parsedUpdates).toEqual([
+        {
+          kind: "D",
+          path: ["Table1", "pageSize"],
+        },
+        {
+          kind: "D",
+          path: [
+            "Table1",
+            "__evaluation__",
+            "evaluatedValues",
+            "transientTableData",
+          ],
+        },
+      ]);
+
+      const parseAndApplyUpdatesToOldState = produce(oldState, (draft) => {
+        parsedUpdates.forEach((v: any) => {
+          applyChange(draft, undefined, v);
+        });
+      });
+      const expectedState = produce(oldState, (draft: any) => {
+        delete draft.Table1.pageSize;
+        delete draft.Table1.__evaluation__.evaluatedValues.transientTableData;
+      });
+
+      expect(parseAndApplyUpdatesToOldState).toEqual(expectedState);
+    });
+    it("should delete function properties which get updated to undefined", () => {
+      const oldStateWithSomeFnProperty = produce(oldState, (draft: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        draft.Table1.pageSize = () => {};
+        draft.Table1.__evaluation__.evaluatedValues.transientTableData =
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          () => {};
+      });
+      const newStateWithFnsTransformedToUndefined = produce(
+        oldState,
+        (draft: any) => {
+          draft.Table1.pageSize = undefined;
+          draft.Table1.__evaluation__.evaluatedValues.transientTableData =
+            undefined;
+        },
+      );
+
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        oldStateWithSomeFnProperty,
+        newStateWithFnsTransformedToUndefined,
+        {},
+      );
+
+      const parsedUpdates =
+        parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
+
+      expect(parsedUpdates).toEqual([
+        {
+          kind: "D",
+          path: ["Table1", "pageSize"],
+        },
+        {
+          kind: "D",
+          path: [
+            "Table1",
+            "__evaluation__",
+            "evaluatedValues",
+            "transientTableData",
+          ],
+        },
+      ]);
+
+      const parseAndApplyUpdatesToOldState = produce(oldState, (draft) => {
+        parsedUpdates.forEach((v: any) => {
+          applyChange(draft, undefined, v);
+        });
+      });
+      const expectedState = produce(oldState, (draft: any) => {
+        delete draft.Table1.pageSize;
+        delete draft.Table1.__evaluation__.evaluatedValues.transientTableData;
+      });
+
+      expect(parseAndApplyUpdatesToOldState).toEqual(expectedState);
+    });
+  });
+
+  it("should serialise bigInteger values", () => {
+    const someBigInt = BigInt(121221);
+    const newStateWithBigInt = produce(oldState, (draft: any) => {
+      draft.Table1.pageSize = someBigInt;
+    });
+    const { serialisedUpdates } = generateSerialisedUpdates(
+      oldState,
+      newStateWithBigInt,
+      {},
+    );
+
+    const parsedUpdates =
+      parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
+
+    //should generate serialised bigInt update
+    expect(parsedUpdates).toEqual([
+      {
+        kind: "E",
+        path: ["Table1", "pageSize"],
+        rhs: "121221",
+      },
+    ]);
+
+    const parseAndApplyUpdatesToOldState = produce(oldState, (draft) => {
+      parsedUpdates.forEach((v: any) => {
+        applyChange(draft, undefined, v);
+      });
+    });
+    const expectedState = produce(oldState, (draft: any) => {
+      draft.Table1.pageSize = "121221";
+    });
+
+    expect(parseAndApplyUpdatesToOldState).toEqual(expectedState);
   });
 });

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
@@ -21,28 +21,29 @@ import {
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
-import { viewerURL } from "RouteBuilder";
-import { useHistory } from "react-router";
+import { viewerURL } from "@appsmith/RouteBuilder";
+import { useHistory, useLocation } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
 import { Icon, Tooltip } from "design-system";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
 import { setPreviewModeInitAction } from "actions/editorActions";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 /**
  * ---------------------------------------------------------------------------------------------------
  * TYPES
  * ---------------------------------------------------------------------------------------------------
  */
-type Props = {
+interface Props {
   url?: string;
   className?: string;
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
   insideSidebar?: boolean;
   isMinimal?: boolean;
-};
+}
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -69,12 +70,56 @@ function PrimaryCTA(props: Props) {
   const canEdit = isPermitted(userPermissions, permissionRequired);
   const [isForkModalOpen, setIsForkModalOpen] = useState(false);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   const dispatch = useDispatch();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
+  useEffect(() => {
+    if (queryParams.get("fork") === "true") {
+      handleForkModalOpen();
+    } else {
+      handleForkModalClose();
+    }
+  }, []);
+
+  const appendOrDeleteForkParam = (appendOrDelete: "append" | "delete") => {
+    const url = new URL(window.location.href);
+
+    if (appendOrDelete === "append" && !url.searchParams.has("fork")) {
+      url.searchParams.append("fork", "true");
+      history.push(url.toString().slice(url.origin.length));
+    } else if (appendOrDelete === "delete" && url.searchParams.has("fork")) {
+      url.searchParams.delete("fork");
+      history.push(url.toString().slice(url.origin.length));
+    }
+  };
+
+  const handleForkModalOpen = () => {
+    setIsForkModalOpen(true);
+    appendOrDeleteForkParam("append");
+  };
+
+  const handleForkModalClose = () => {
+    setIsForkModalOpen(false);
+    appendOrDeleteForkParam("delete");
+  };
+
+  useEffect(() => {
+    // delete "fork" param from url if user is not logged in
+    if (
+      currentApplication?.forkingEnabled &&
+      currentUser?.username === ANONYMOUS_USERNAME
+    ) {
+      appendOrDeleteForkParam("delete");
+    }
+  }, [currentApplication?.forkingEnabled, currentUser?.username]);
 
   const appViewerURL = useHref(viewerURL, {
     pageId: currentPageID,
     params: {
       fork: "true",
+      branch: null,
     },
   });
 
@@ -98,7 +143,7 @@ function PrimaryCTA(props: Props) {
    * 2. if forking app is enabled and app is public but the user is not logged  -> fork button
    */
   const PrimaryCTA = useMemo(() => {
-    if (url && canEdit) {
+    if (url && canEdit && !isProtectedMode) {
       return (
         <Tooltip
           content={createMessage(EDIT_APP)}
@@ -171,15 +216,17 @@ function PrimaryCTA(props: Props) {
             insideSidebar={insideSidebar}
             navColorStyle={navColorStyle}
             onClick={() => {
-              setIsForkModalOpen(true);
+              handleForkModalOpen();
             }}
             primaryColor={primaryColor}
             text={createMessage(FORK_APP)}
+            varient={ButtonVariantTypes.SECONDARY}
           />
           <ForkApplicationModal
             applicationId={currentApplication?.id || ""}
+            handleClose={handleForkModalClose}
+            handleOpen={handleForkModalOpen}
             isModalOpen={isForkModalOpen}
-            setModalClose={setIsForkModalOpen}
           />
         </div>
       );

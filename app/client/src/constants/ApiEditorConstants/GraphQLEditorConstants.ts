@@ -17,13 +17,13 @@ export const GRAPHQL_HTTP_METHOD_OPTIONS = [
 ];
 
 // Graphql Pagination type
-type GRAPHQL_PAGINATION_INDIVIDUAL_TYPE = {
+interface GRAPHQL_PAGINATION_INDIVIDUAL_TYPE {
   name?: any;
   type?: any;
   value?: any;
-};
+}
 
-export type GRAPHQL_PAGINATION_TYPE = {
+export interface GRAPHQL_PAGINATION_TYPE {
   cursorBased?: {
     next?: {
       limit?: GRAPHQL_PAGINATION_INDIVIDUAL_TYPE & { isSeparate: boolean };
@@ -38,7 +38,7 @@ export type GRAPHQL_PAGINATION_TYPE = {
     limit?: GRAPHQL_PAGINATION_INDIVIDUAL_TYPE;
     offset?: GRAPHQL_PAGINATION_INDIVIDUAL_TYPE;
   };
-};
+}
 
 // Graphql Default Config
 export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {

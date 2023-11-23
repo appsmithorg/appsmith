@@ -17,7 +17,7 @@ import {
   getTableStyles,
 } from "widgets/TableWidget/component/TableUtilities";
 import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
-import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath, getEvalValuePath } from "utils/DynamicBindingUtils";
@@ -56,10 +56,10 @@ const getOriginalColumn = (
   return column;
 };
 
-type State = {
+interface State {
   focusedIndex: number | null;
   duplicateColumnIds: string[];
-};
+}
 
 class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {

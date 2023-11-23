@@ -37,10 +37,10 @@ const ListWrapper = styled.div`
   width: 100%;
 `;
 
-type TemplateListProps = {
+interface TemplateListProps {
   onTemplateClick: (id: string) => void;
   onClose: () => void;
-};
+}
 
 function TemplateList(props: TemplateListProps) {
   const onForkTemplateClick = (template: Template) => {

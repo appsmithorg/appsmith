@@ -25,7 +25,7 @@ const renderComponent = (
   );
 };
 
-type TagListFieldProps = {
+interface TagListFieldProps {
   name: string;
   placeholder: string;
   type: string;
@@ -33,7 +33,7 @@ type TagListFieldProps = {
   intent: Intent;
   setting: Setting;
   customError?: (err: string) => void;
-};
+}
 
 function TagInputField(props: TagListFieldProps) {
   return <Field component={renderComponent} {...props} />;

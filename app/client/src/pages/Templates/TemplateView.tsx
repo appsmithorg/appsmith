@@ -22,7 +22,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
-import { templateIdUrl } from "RouteBuilder";
+import { templateIdUrl } from "@appsmith/RouteBuilder";
 import TemplateViewHeader from "./TemplateViewHeader";
 
 const breakpointColumnsObject = {
@@ -52,7 +52,8 @@ export const IframeWrapper = styled.div`
 
   iframe {
     border-radius: 0px 0px 16px 16px;
-    box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
+    box-shadow:
+      0px 20px 24px -4px rgba(16, 24, 40, 0.1),
       0px 8px 8px -4px rgba(16, 24, 40, 0.04);
     width: 100%;
     height: 734px;
@@ -121,14 +122,25 @@ function TemplateNotFound() {
   return <EntityNotFoundPane />;
 }
 
-function TemplateView() {
+interface TemplateViewProps {
+  onClickUseTemplate?: (id: string) => void;
+  showBack?: boolean;
+  showSimilarTemplate?: boolean;
+  templateId: string;
+}
+
+export function TemplateView({
+  onClickUseTemplate,
+  showBack = true,
+  showSimilarTemplate = true,
+  templateId,
+}: TemplateViewProps) {
   const dispatch = useDispatch();
   const similarTemplates = useSelector(
     (state: AppState) => state.ui.templates.similarTemplates,
   );
   const isFetchingTemplate = useSelector(isFetchingTemplateSelector);
   const workspaceList = useSelector(getForkableWorkspaces);
-  const params = useParams<{ templateId: string }>();
   const currentTemplate = useSelector(getActiveTemplateSelector);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -137,12 +149,12 @@ function TemplateView() {
   };
 
   useEffect(() => {
-    dispatch(getTemplateInformation(params.templateId));
-    dispatch(getSimilarTemplatesInit(params.templateId));
+    dispatch(getTemplateInformation(templateId));
+    dispatch(getSimilarTemplatesInit(templateId));
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0 });
     }
-  }, [params.templateId]);
+  }, [templateId]);
 
   const onSimilarTemplateClick = (template: TemplateInterface) => {
     AnalyticsUtil.logEvent("SIMILAR_TEMPLATE_CLICK", {
@@ -158,38 +170,49 @@ function TemplateView() {
     history.push(templateIdUrl({ id: template.id }));
   };
 
+  return isFetchingTemplate ? (
+    <TemplateViewLoader />
+  ) : !currentTemplate ? (
+    <TemplateNotFound />
+  ) : (
+    <Wrapper ref={containerRef}>
+      <ReconnectDatasourceModal />
+      <TemplateViewWrapper>
+        <TemplateViewHeader
+          onClickUseTemplate={onClickUseTemplate}
+          showBack={showBack}
+          templateId={templateId}
+        />
+        <IframeWrapper>
+          <IframeTopBar>
+            <div className="round red" />
+            <div className="round yellow" />
+            <div className="round green" />
+          </IframeTopBar>
+          <iframe src={currentTemplate.appUrl} width={"100%"} />
+        </IframeWrapper>
+        <TemplateDescription template={currentTemplate} />
+      </TemplateViewWrapper>
+      {showSimilarTemplate && (
+        <SimilarTemplates
+          breakpointCols={breakpointColumnsObject}
+          isForkingEnabled={!!workspaceList.length}
+          onBackPress={goToTemplateListView}
+          onClick={onSimilarTemplateClick}
+          similarTemplates={similarTemplates}
+        />
+      )}
+    </Wrapper>
+  );
+}
+
+function TemplateViewContainer() {
+  const params = useParams<{ templateId: string }>();
   return (
     <PageWrapper>
-      {isFetchingTemplate ? (
-        <TemplateViewLoader />
-      ) : !currentTemplate ? (
-        <TemplateNotFound />
-      ) : (
-        <Wrapper ref={containerRef}>
-          <ReconnectDatasourceModal />
-          <TemplateViewWrapper>
-            <TemplateViewHeader templateId={params.templateId} />
-            <IframeWrapper>
-              <IframeTopBar>
-                <div className="round red" />
-                <div className="round yellow" />
-                <div className="round green" />
-              </IframeTopBar>
-              <iframe src={currentTemplate.appUrl} width={"100%"} />
-            </IframeWrapper>
-            <TemplateDescription template={currentTemplate} />
-          </TemplateViewWrapper>
-          <SimilarTemplates
-            breakpointCols={breakpointColumnsObject}
-            isForkingEnabled={!!workspaceList.length}
-            onBackPress={goToTemplateListView}
-            onClick={onSimilarTemplateClick}
-            similarTemplates={similarTemplates}
-          />
-        </Wrapper>
-      )}
+      <TemplateView templateId={params.templateId} />
     </PageWrapper>
   );
 }
 
-export default TemplateView;
+export default TemplateViewContainer;

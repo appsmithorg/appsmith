@@ -21,13 +21,13 @@ import Radio from "./Radio";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import classNames from "classnames";
 
-type GroupProps = {
+interface GroupProps {
   name?: string;
   settings?: Setting[];
   isHidden?: boolean;
   category?: string;
   subCategory?: string;
-};
+}
 
 const GroupWrapper = styled.div`
   position: relative;

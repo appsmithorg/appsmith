@@ -1,4 +1,4 @@
-import { Icon, Text } from "design-system";
+import { Icon, Text, Button, Divider } from "design-system";
 import { showIndicator } from "pages/Editor/GuidedTour/utils";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -8,11 +8,18 @@ import type {
   FeatureParams,
   OffsetType,
 } from "./walkthroughContext";
-import WalkthroughContext from "./walkthroughContext";
+import WalkthroughContext, {
+  isFeatureFooterDetails,
+} from "./walkthroughContext";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const CLIPID = "clip__feature";
 const Z_INDEX = 1000;
+
+const WalkthroughDescription = styled(Text)`
+  // CSS to add new line for each \n in the description
+  white-space: pre-line;
+`;
 
 const WalkthroughWrapper = styled.div<{ overlayColor?: string }>`
   left: 0px;
@@ -70,7 +77,20 @@ const InstructionsHeaderWrapper = styled.div`
   }
 `;
 
-type RefRectParams = {
+const FeatureFooterDivider = styled(Divider)`
+  margin-top: 8px;
+`;
+
+const FeatureFooterWrapper = styled.div`
+  height: 36px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+interface RefRectParams {
   // body params
   bh: number;
   bw: number;
@@ -79,7 +99,7 @@ type RefRectParams = {
   tw: number;
   tx: number;
   ty: number;
-};
+}
 
 /*
  * Clip Path Polygon for single target with bounding rect :
@@ -122,12 +142,12 @@ type BoundingRectTargets = Record<string, RefRectParams>;
 
 const WalkthroughRenderer = ({
   details,
-  offset,
-  targetId,
+  dismissOnOverlayClick,
   eventParams = {},
   multipleHighlights,
+  offset,
   overlayColor,
-  dismissOnOverlayClick,
+  targetId,
 }: FeatureParams) => {
   const [boundingRects, setBoundingRects] =
     useState<BoundingRectTargets | null>(null);
@@ -281,14 +301,32 @@ const InstructionsComponent = ({
         <Text kind="heading-s" renderAs="p">
           {details.title}
         </Text>
-        <Icon color="black" name="close" onClick={onClose} size="md" />
+        <Icon
+          className="t--walkthrough-close"
+          color="black"
+          name="close"
+          onClick={onClose}
+          size="md"
+        />
       </InstructionsHeaderWrapper>
-      <Text>{details.description}</Text>
+      <WalkthroughDescription>{details.description}</WalkthroughDescription>
       {details.imageURL && (
         <ImageWrapper>
           <img src={details.imageURL} />
         </ImageWrapper>
       )}
+      {!!details.footerDetails &&
+        isFeatureFooterDetails(details.footerDetails) && (
+          <>
+            <FeatureFooterDivider />
+            <FeatureFooterWrapper>
+              <Text kind="body-s">{details.footerDetails.footerText}</Text>
+              <Button onClick={details.footerDetails.onClickHandler} size="sm">
+                {details.footerDetails.footerButtonText}
+              </Button>
+            </FeatureFooterWrapper>
+          </>
+        )}
     </InstructionsWrapper>
   );
 };

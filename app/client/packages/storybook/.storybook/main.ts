@@ -1,16 +1,14 @@
 import { mergeConfig } from "vite";
 import svgr from "vite-plugin-svgr";
+import postcssNesting from "postcss-nesting";
+import postcssImport from "postcss-import";
+import postcssAtRulesVariables from "postcss-at-rules-variables";
+import postcssEach from "postcss-each";
+import postcssModulesValues from "postcss-modules-values";
 import * as glob from "glob";
 import * as path from "path";
 
 const dsDir = path.resolve(__dirname, "../../design-system");
-import postcssNesting from "postcss-nesting";
-import postcssImport from "postcss-import";
-import postcssAtRulesVariables from "postcss-at-rules-variables";
-import postcssConditionals from "postcss-conditionals";
-import postcssFor from "postcss-for";
-import postcssEach from "postcss-each";
-import postcssModulesValues from "postcss-modules-values";
 
 function getStories() {
   if (process.env.CHROMATIC) {
@@ -33,8 +31,6 @@ module.exports = {
             postcssNesting,
             postcssImport,
             postcssAtRulesVariables,
-            postcssConditionals,
-            postcssFor,
             postcssEach,
             postcssModulesValues,
           ],
@@ -61,6 +57,8 @@ module.exports = {
   typescript: {
     reactDocgen: "react-docgen-typescript",
     reactDocgenTypescriptOptions: {
+      propFilter: (prop) =>
+        prop.parent ? !/node_modules\*/.test(prop.parent.fileName) : true,
       compilerOptions: {
         allowSyntheticDefaultImports: false,
         esModuleInterop: false,

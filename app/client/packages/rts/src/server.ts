@@ -1,5 +1,4 @@
 import http from "http";
-import path from "path";
 import express from "express";
 import { Server } from "socket.io";
 import type { LogLevelDesc } from "loglevel";
@@ -35,16 +34,10 @@ const io = new Server(server, {
   path: RTS_BASE_PATH,
 });
 
-// Initializing Sockets
 initializeSockets(io);
 
 // parse incoming json requests
 app.use(express.json({ limit: "5mb" }));
-// Initializing Routes
-app.use(express.static(path.join(__dirname, "static")));
-app.get("/", (_, res) => {
-  res.redirect("/index.html");
-});
 
 app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
 app.use(`${RTS_BASE_API_PATH}`, health_check_routes);

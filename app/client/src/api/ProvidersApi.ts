@@ -68,44 +68,48 @@ export class ProvidersApi extends Api {
 
   static addApiToPageURL = `v1/items/addToPage`;
 
-  static fetchProviders(): AxiosPromise<FetchProvidersResponse> {
+  static async fetchProviders(): Promise<AxiosPromise<FetchProvidersResponse>> {
     return Api.get(ProvidersApi.providersURL);
   }
 
-  static fetchProviderTemplates(
+  static async fetchProviderTemplates(
     request: FetchProviderTemplatesRequest,
-  ): AxiosPromise<FetchProviderTemplateResponse> {
+  ): Promise<AxiosPromise<FetchProviderTemplateResponse>> {
     const { providerId } = request;
     return Api.get(ProvidersApi.providerTemplateURL(providerId));
   }
 
-  static seachApiOrProvider(
+  static async seachApiOrProvider(
     request: SearchApiOrProviderRequest,
-  ): AxiosPromise<SearchApiOrProviderResponse> {
+  ): Promise<AxiosPromise<SearchApiOrProviderResponse>> {
     const { searchKey } = request;
     return Api.get(ProvidersApi.searchApiOrProviderUrl(searchKey));
   }
 
-  static addApiToPage(request: AddApiToPageRequest): AxiosPromise<ApiResponse> {
+  static async addApiToPage(
+    request: AddApiToPageRequest,
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(ProvidersApi.addApiToPageURL, request);
   }
 
-  static fetchProvidersCategories(): AxiosPromise<FetchProviderCategoriesResponse> {
+  static async fetchProvidersCategories(): Promise<
+    AxiosPromise<FetchProviderCategoriesResponse>
+  > {
     return Api.get(ProvidersApi.providerCategoriesURL);
   }
 
-  static fetchProvidersWithCategory(
+  static async fetchProvidersWithCategory(
     request: FetchProviderWithCategoryRequest,
-  ): AxiosPromise<FetchProvidersResponse> {
+  ): Promise<AxiosPromise<FetchProvidersResponse>> {
     const { page } = request;
     return Api.get(
       ProvidersApi.providersWithCategoryURL(request.category, page),
     );
   }
 
-  static fetchProviderDetailsByProviderId(
+  static async fetchProviderDetailsByProviderId(
     request: FetchProviderDetailsByProviderIdRequest,
-  ): AxiosPromise<FetchProviderDetailsResponse> {
+  ): Promise<AxiosPromise<FetchProviderDetailsResponse>> {
     const { providerId } = request;
     return Api.get(ProvidersApi.providerDetailsByIdURL(providerId));
   }

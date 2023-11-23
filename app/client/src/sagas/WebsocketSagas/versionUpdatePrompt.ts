@@ -19,12 +19,12 @@ enum UpdateStateEvent {
   UPDATE_REQUESTED = "UPDATE_REQUESTED",
 }
 
-export type VersionUpdateState = {
+export interface VersionUpdateState {
   currentVersion: string;
   upgradeVersion: string;
   timesShown: number;
   event: UpdateStateEvent;
-};
+}
 
 let timesShown = 0;
 

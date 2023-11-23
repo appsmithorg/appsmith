@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 
 export function fetchJSLibraries(applicationId: string) {
   return {
@@ -8,7 +8,7 @@ export function fetchJSLibraries(applicationId: string) {
   };
 }
 
-export function installLibraryInit(payload: Partial<TJSLibrary>) {
+export function installLibraryInit(payload: Partial<JSLibrary>) {
   return {
     type: ReduxActionTypes.INSTALL_LIBRARY_INIT,
     payload,
@@ -22,7 +22,7 @@ export function toggleInstaller(payload: boolean) {
   };
 }
 
-export function uninstallLibraryInit(payload: TJSLibrary) {
+export function uninstallLibraryInit(payload: JSLibrary) {
   return {
     type: ReduxActionTypes.UNINSTALL_LIBRARY_INIT,
     payload,
