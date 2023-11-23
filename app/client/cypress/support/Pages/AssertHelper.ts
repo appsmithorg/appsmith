@@ -32,7 +32,7 @@ export class AssertHelper extends ReusableHelper {
     //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
   }
 
-  public async AssertReduxLoad() {
+  public AssertReduxLoad() {
     this.Sleep(500);
     const timeout = Cypress.config("pageLoadTimeout"); // Set your desired timeout value
     const checkLoadingState = () => {
@@ -40,7 +40,7 @@ export class AssertHelper extends ReusableHelper {
         .window()
         .its("store")
         .invoke("getState")
-        .then((state) => {
+        .then(async (state) => {
           const loadingStates = state.ui.editor.loadingStates;
 
           cy.wrap(loadingStates).should("deep.include", { loading: false });
