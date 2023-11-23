@@ -5,7 +5,7 @@ import styled from "styled-components";
 
 import { getPagePermissions } from "selectors/editorSelectors";
 import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
-import { useActiveAction } from "pages/Editor/Explorer/hooks";
+import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
 import { EmptyComponent } from "pages/Editor/Explorer/common";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
