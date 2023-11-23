@@ -19,7 +19,7 @@ export const LightMode: Story = {
     <StoryGrid>
       {states.map((state) => (
         <>
-          <RadioGroup>
+          <RadioGroup isDisabled={state === "data-disabled"}>
             <DataAttrWrapper attr={state} key={state}>
               <Radio value={`${state}-unchecked`}>unchecked {state}</Radio>
             </DataAttrWrapper>
