@@ -111,6 +111,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import ApplicationsSubHeader from "pages/common/SubHeader";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import { getPackagesOfWorkspace } from "@appsmith/selectors/packageSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -441,7 +442,7 @@ export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
 `;
 
 export function ApplicationsSection(props: any) {
-  const { activeWorkspaceId, applications, workspaces } = props;
+  const { activeWorkspaceId, applications, packages, workspaces } = props;
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
@@ -692,7 +693,7 @@ export function ApplicationsSection(props: any) {
                     <WorkspaceMenu
                       canDeleteWorkspace={
                         applications.length === 0 &&
-                        // packages.length === 0 &&
+                        packages.length === 0 &&
                         canDeleteWorkspace
                       }
                       canInviteToWorkspace={canInviteToWorkspace}
@@ -743,7 +744,7 @@ export function ApplicationsSection(props: any) {
           {!isLoadingResources && (
             <PackageCardList
               isMobile={isMobile}
-              packages={[]}
+              packages={packages}
               workspaceId={activeWorkspace.id}
             />
           )}
@@ -775,6 +776,7 @@ export const ApplictionsMainPage = (props: any) => {
   const isFetchingWorkspaces = useSelector(getIsFetchingWorkspaces);
   const fetchedWorkspaces = useSelector(getFetchedWorkspaces);
   const fetchedApplications = useSelector(getApplicationsOfWorkspace);
+  const fetchedPackages = useSelector(getPackagesOfWorkspace);
 
   let workspaces: any;
   if (!isFetchingWorkspaces) {
@@ -817,6 +819,7 @@ export const ApplictionsMainPage = (props: any) => {
             <ApplicationsSection
               activeWorkspaceId={activeWorkspaceId}
               applications={fetchedApplications}
+              packages={fetchedPackages}
               searchKeyword={searchKeyword}
               workspaces={workspaces}
             />

@@ -29,6 +29,7 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { defaultNavigationSetting } from "constants/AppConstants";
 import produce from "immer";
 import { isEmpty } from "lodash";
+import type { Package } from "@appsmith/constants/PackageConstants";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -37,6 +38,7 @@ export const initialState: ApplicationsReduxState = {
   isFetchingApplication: false,
   workspaces: [],
   applications: [],
+  packages: [],
   isFetchingWorkspaces: false,
   isChangingViewAccess: false,
   applicationList: [],
@@ -917,6 +919,7 @@ export interface ApplicationsReduxState {
   workspaceIdForImport: any;
   pageIdForImport: string;
   workspaces: Workspace[];
+  packages: Package[];
   applications: ApplicationPayload[];
   isDatasourceConfigForImportFetched?: boolean;
   isAppSidebarPinned: boolean;
