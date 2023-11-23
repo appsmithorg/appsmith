@@ -1,3 +1,6 @@
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+
 export const defaultsConfig = {
   rows: 10,
   columns: 20,
@@ -16,4 +19,6 @@ export const defaultsConfig = {
   orientation: "vertical",
   version: 1,
   widgetName: "CheckboxGroup",
+  responsiveBehavior: ResponsiveBehavior.Fill,
+  minWidth: FILL_WIDGET_MIN_WIDTH,
 };
