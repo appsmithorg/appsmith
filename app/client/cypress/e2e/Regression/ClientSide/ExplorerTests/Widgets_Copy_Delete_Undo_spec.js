@@ -42,16 +42,6 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       action: "Delete",
     });
 
-    //cy.DeleteWidgetFromSideBar();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
-    cy.get(apiwidget.propertyList).should("not.exist");
-    /*
-    To be enabled once widget delete click works
-    cy.get('.t--delete-widget')
-      .trigger("mouseover")
-      .click({ force: true });
-      */
     cy.get("body").type(`{${modifierKey}}z`);
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -62,7 +52,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     cy.wait(500);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "FormTest",
-      action: "Show bindings",
+      action: "Show",
     });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);

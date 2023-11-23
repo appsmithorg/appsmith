@@ -132,7 +132,7 @@ describe("Git sync: Merge changes via remote", function () {
 
   it("3. Supports merging head to base branch", function () {
     //cy.switchGitBranch(mainBranch);
-    cy.createGitBranch(tempBranch2);
+    _.gitSync.CreateGitBranch(tempBranch2);
     _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("NewPage");
