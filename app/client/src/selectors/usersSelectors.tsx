@@ -26,3 +26,9 @@ export const getFeatureFlagsFetching = (state: AppState) =>
 
 export const getIsUserLoggedIn = (state: AppState): boolean =>
   state.ui.users.currentUser?.email !== ANONYMOUS_USERNAME;
+
+export const isFetchingUsersOfWorkspace = (state: AppState): boolean =>
+  state.ui.applications.loadingStates.isFetchingAllUsers;
+
+export const fetchedUsersOfWorkspace = (state: AppState): User[] =>
+  state.ui.applications.users;

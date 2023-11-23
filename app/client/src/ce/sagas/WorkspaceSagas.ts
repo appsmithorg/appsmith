@@ -158,6 +158,10 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
         type: ReduxActionTypes.FETCH_ALL_USERS_SUCCESS,
         payload: users,
       });
+      yield put({
+        type: ReduxActionTypes.GET_ALL_USERS_OF_WORKSPACE_SUCCESS,
+        payload: users,
+      });
     }
   } catch (error) {
     yield put({

@@ -30,6 +30,7 @@ import { defaultNavigationSetting } from "constants/AppConstants";
 import produce from "immer";
 import { isEmpty } from "lodash";
 import type { Package } from "@appsmith/constants/PackageConstants";
+import type { User } from "constants/userConstants";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -38,6 +39,7 @@ export const initialState: ApplicationsReduxState = {
   isFetchingApplication: false,
   workspaces: [],
   applications: [],
+  users: [],
   packages: [],
   isFetchingWorkspaces: false,
   isChangingViewAccess: false,
@@ -209,6 +211,17 @@ export const handlers = {
       workspaces: action.payload,
     };
   },
+  [ReduxActionTypes.GET_ALL_USERS_OF_WORKSPACE_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<User[]>,
+  ) => ({
+    ...state,
+    users: action.payload,
+    loadingStates: {
+      ...state.loadingStates,
+      isFetchingAllUsers: false,
+    },
+  }),
   [ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ applicationList: any }>,
@@ -919,8 +932,9 @@ export interface ApplicationsReduxState {
   workspaceIdForImport: any;
   pageIdForImport: string;
   workspaces: Workspace[];
-  packages: Package[];
   applications: ApplicationPayload[];
+  packages: Package[];
+  users: User[];
   isDatasourceConfigForImportFetched?: boolean;
   isAppSidebarPinned: boolean;
   isSavingNavigationSetting: boolean;

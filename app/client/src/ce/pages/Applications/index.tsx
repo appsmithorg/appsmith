@@ -55,6 +55,7 @@ import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   deleteWorkspace,
+  fetchUsersForWorkspace,
   resetCurrentWorkspace,
   saveWorkspace,
 } from "@appsmith/actions/workspaceActions";
@@ -73,7 +74,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import { setHeaderMeta } from "actions/themeActions";
-// import SharedUserList from "pages/common/SharedUserList";
+import SharedUserList from "pages/common/SharedUserList";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { Indices } from "constants/Layers";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
@@ -666,7 +667,7 @@ export function ApplicationsSection(props: any) {
             )}
             {!isLoadingResources && (
               <WorkspaceShareUsers isHidden={isEnabledMultipleSelection}>
-                {/* <SharedUserList workspaceId={activeWorkspace.id} /> */}
+                <SharedUserList />
                 {canInviteToWorkspace && !isMobile && (
                   <FormDialogComponent
                     Form={WorkspaceInviteUsersForm}
@@ -797,6 +798,7 @@ export const ApplictionsMainPage = (props: any) => {
   useEffect(() => {
     if (activeWorkspaceId) {
       dispatch(getAllApplicationsOfWorkspace(activeWorkspaceId));
+      dispatch(fetchUsersForWorkspace(activeWorkspaceId));
     }
   }, [activeWorkspaceId]);
 

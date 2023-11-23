@@ -1,8 +1,10 @@
-import React, { useMemo } from "react";
-import { getCurrentUser } from "selectors/usersSelectors";
+import React from "react";
+import {
+  fetchedUsersOfWorkspace,
+  getCurrentUser,
+} from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicationSelectors";
 import { AvatarGroup } from "design-system";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
@@ -17,10 +19,10 @@ const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   }
 `;
 
-export default function SharedUserList(props: any) {
+export default function SharedUserList() {
   const currentUser = useSelector(getCurrentUser);
-  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
   const isMobile = useIsMobileDevice();
+  const users = useSelector(fetchedUsersOfWorkspace);
 
   const convertUsersToAvatar = (users: any) => {
     return users.map((user: any) => {
@@ -38,19 +40,9 @@ export default function SharedUserList(props: any) {
     });
   };
 
-  const allUsers = useMemo(() => {
-    const workspace: any = userWorkspaces.find((workspaceObject: any) => {
-      const { workspace } = workspaceObject;
-      return workspace.id === props.workspaceId;
-    });
-
-    const { users } = workspace;
-    return convertUsersToAvatar(users || []);
-  }, [userWorkspaces]);
-
   return (
     <UserImageContainer isMobile={isMobile}>
-      <AvatarGroup avatars={allUsers} size="sm" />
+      <AvatarGroup avatars={convertUsersToAvatar(users || [])} size="sm" />
     </UserImageContainer>
   );
 }
