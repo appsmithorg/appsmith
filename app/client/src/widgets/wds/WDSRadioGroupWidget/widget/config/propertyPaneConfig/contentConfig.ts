@@ -1,4 +1,10 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+
+import {
+  defaultOptionValidation,
+  optionsCustomValidation,
+} from "./validations";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export const propertyPaneContentConfig = [
@@ -6,8 +12,7 @@ export const propertyPaneContentConfig = [
     sectionName: "Data",
     children: [
       {
-        helpText:
-          "Displays a list of options for a user to select. Values must be unique",
+        helpText: "Displays a list of unique options",
         propertyName: "options",
         label: "Options",
         controlType: "OPTION_INPUT",
@@ -15,55 +20,40 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
-          type: ValidationTypes.ARRAY,
+          type: ValidationTypes.FUNCTION,
           params: {
-            default: [],
-            unique: ["value"],
-            children: {
-              type: ValidationTypes.OBJECT,
-              params: {
-                required: true,
-                allowedKeys: [
-                  {
-                    name: "label",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      required: true,
-                      unique: true,
-                    },
-                  },
-                  {
-                    name: "value",
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "",
-                      unique: true,
-                    },
-                  },
-                ],
-              },
+            fn: optionsCustomValidation,
+            expected: {
+              type: 'Array<{ "label": "string", "value": "string" | number}>',
+              example: `[{"label": "One", "value": "one"}]`,
+              autocompleteDataType: AutocompleteDataType.STRING,
             },
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
-        helpText: "Sets the values of the options turned on by default",
-        propertyName: "defaultSelectedValues",
-        label: "Default selected values",
-        placeholderText: '["apple", "orange"]',
+        helpText: "Sets a default selected option",
+        propertyName: "defaultOptionValue",
+        label: "Default selected value",
+        placeholderText: "Y",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
+        /**
+         * Changing the validation to FUNCTION.
+         * If the user enters Integer inside {{}} e.g. {{1}} then value should evalute to integer.
+         * If user enters 1 e.g. then it should evaluate as string.
+         */
         validation: {
-          type: ValidationTypes.ARRAY,
+          type: ValidationTypes.FUNCTION,
           params: {
-            default: [],
-            children: {
-              type: ValidationTypes.TEXT,
+            fn: defaultOptionValidation,
+            expected: {
+              type: `string |\nnumber (only works in mustache syntax)`,
+              example: `abc | {{1}}`,
+              autocompleteDataType: AutocompleteDataType.STRING,
             },
-            strict: true,
           },
         },
       },
@@ -73,7 +63,7 @@ export const propertyPaneContentConfig = [
     sectionName: "Label",
     children: [
       {
-        helpText: "Sets the label text of the widget",
+        helpText: "Sets the label text of the options widget",
         propertyName: "label",
         label: "Text",
         controlType: "INPUT_TEXT",
@@ -105,9 +95,7 @@ export const propertyPaneContentConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
+        validation: { type: ValidationTypes.BOOLEAN },
       },
     ],
   },
@@ -115,28 +103,24 @@ export const propertyPaneContentConfig = [
     sectionName: "General",
     children: [
       {
+        helpText: "Controls the visibility of the widget",
         propertyName: "isVisible",
         label: "Visible",
-        helpText: "Controls the visibility of the widget",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         propertyName: "isDisabled",
         label: "Disabled",
-        controlType: "SWITCH",
         helpText: "Disables input to this widget",
+        controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         propertyName: "animateLoading",
@@ -155,7 +139,7 @@ export const propertyPaneContentConfig = [
     sectionName: "Events",
     children: [
       {
-        helpText: "When the switch state in the group is changed",
+        helpText: "when a user changes the selected option",
         propertyName: "onSelectionChange",
         label: "onSelectionChange",
         controlType: "ACTION_SELECTOR",
