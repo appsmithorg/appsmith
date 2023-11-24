@@ -15,6 +15,7 @@ import { HIGHLIGHT_SIZE, defaultHighlightPayload } from "../../constants";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
 import { areWidgetsWhitelisted } from "../whitelistUtils";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 
 /**
  * Check if highlights need to be calculated.
@@ -46,7 +47,20 @@ export function performInitialChecks(
   /**
    * Step 2: Check if draggedWidgets will exceed the maxChildLimit of the layout.
    */
-  if (maxChildLimit && layout?.length + draggedWidgets.length > maxChildLimit) {
+  const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
+    layoutProps.layoutType,
+  );
+  // Extract child widget ids of the layout.
+  const childWidgetIds: string[] = Comp.extractChildWidgetIds(layoutProps);
+  // Extract child widgets that are being dragged currently.
+  const commonWidgets: DraggedWidget[] = draggedWidgets.filter(
+    (each: DraggedWidget) => childWidgetIds.includes(each.widgetId),
+  );
+  if (
+    maxChildLimit &&
+    layout?.length + draggedWidgets.length - commonWidgets.length * 2 >
+      maxChildLimit
+  ) {
     return defaultHighlightPayload;
   }
 

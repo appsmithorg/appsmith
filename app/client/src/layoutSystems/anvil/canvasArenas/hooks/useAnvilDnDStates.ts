@@ -67,18 +67,20 @@ const getDraggedBlocks = (
     const { newWidget } = dragDetails;
     return [
       {
-        widgetId: newWidget.widgetId,
-        type: newWidget.type,
+        parentId: newWidget.parentId,
         responsiveBehavior:
           newWidget.responsiveBehavior ??
           WidgetFactory.getConfig(newWidget.type)?.responsiveBehavior,
+        type: newWidget.type,
+        widgetId: newWidget.widgetId,
       },
     ];
   } else {
     return selectedWidgets.map((eachWidgetId) => ({
+      parentId: allWidgets[eachWidgetId].parentId,
+      responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
       type: allWidgets[eachWidgetId].type,
       widgetId: eachWidgetId,
-      responsiveBehavior: allWidgets[eachWidgetId].responsiveBehavior,
     }));
   }
 };

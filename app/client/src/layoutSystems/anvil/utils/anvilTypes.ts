@@ -131,9 +131,10 @@ export interface AnvilHighlightInfo {
 }
 
 export interface DraggedWidget {
-  widgetId: string;
-  type: WidgetType;
+  parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
+  type: WidgetType;
+  widgetId: string;
 }
 
 export type GenerateHighlights = (
