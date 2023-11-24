@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
@@ -25,8 +26,8 @@ describe(
       EditorNavigation.ViaSidebar(SidebarButton.Data);
       EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
-      //Again navigate back to the widget
-      _.entityExplorer.SelectEntityByName("Select3");
+    //Again navigate back to the widget
+    EditorNavigation.SelectEntityByName("Select3", EntityType.Widget);
 
       //Check for the select value again
       cy.get(

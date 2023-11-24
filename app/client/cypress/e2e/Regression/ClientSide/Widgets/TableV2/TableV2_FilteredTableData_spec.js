@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -31,13 +35,13 @@ describe(
       cy.get(".t--close-filter-btn").click({ force: true });
     });
 
-    it("2. Table Widget V2 Functionality to validate filtered table data", function () {
-      _.entityExplorer.SelectEntityByName("Text1");
-      cy.testJsontext("text", "{{Table1.filteredTableData[0].task}}");
-      cy.readTableV2data("0", "1").then((tabData) => {
-        const tableData = tabData;
-        cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
-      });
+  it("2. Table Widget V2 Functionality to validate filtered table data", function () {
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+    cy.testJsontext("text", "{{Table1.filteredTableData[0].task}}");
+    cy.readTableV2data("0", "1").then((tabData) => {
+      const tableData = tabData;
+      cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
+    });
 
       //Table Widget V2 Functionality to validate filtered table data with actual table data
       cy.readTableV2data("0", "1").then((tabData) => {

@@ -3,7 +3,7 @@ let testHeight;
 
 describe(
   "Auto conversion algorithm usecases for fixed Layout",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   function () {
     it("1. Validate basic conversion algorithm usecases fixed layout usecase Mobile", function () {
       agHelper.AddDsl("conversionFrAutoLayoutDsl");

@@ -6,7 +6,7 @@ import {
 
 describe(
   "Validating use cases for Auto Dimension",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   () => {
     before(() => {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

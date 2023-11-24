@@ -5,6 +5,9 @@ import {
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Select Widget Functionality",
@@ -93,7 +96,7 @@ describe(
         agHelper.AssertText(locators._textInside, "text", d.text);
       });
 
-      entityExplorer.SelectEntityByName("Select1");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
       propPane.SelectPropertiesDropDown("label", "test2");
 

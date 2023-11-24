@@ -7,6 +7,9 @@ import {
   draggableWidgets,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
@@ -20,23 +23,20 @@ describe(
       agHelper.AddDsl("tableV2NewDslWithPagination");
     });
 
-    // To be done:
-    // Column Data type: Video
-    it("1. Verify default array data", function () {
-      // Open property pane
-      cy.openPropertyPane("tablewidgetv2");
-      // Drag and drop table widget
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
-      // close Widget side bar
-      entityExplorer.NavigateToSwitcher("Explorer");
-      cy.wait(2000);
-      entityExplorer.SelectEntityByName("Table2");
-      // Verify default array data
-      cy.get(widgetsPage.tabedataField).should("not.be.empty");
-      cy.deleteWidget(widgetsPage.tableWidgetV2);
-      cy.wait(2000);
-      cy.ClearSearch();
-    });
+  // To be done:
+  // Column Data type: Video
+  it("1. Verify default array data", function () {
+    // Open property pane
+    cy.openPropertyPane("tablewidgetv2");
+    // Drag and drop table widget
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
+    EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
+    // Verify default array data
+    cy.get(widgetsPage.tabedataField).should("not.be.empty");
+    cy.deleteWidget(widgetsPage.tableWidgetV2);
+    cy.wait(2000);
+    cy.ClearSearch();
+  });
 
     it("2. Verify empty columnName in data", () => {
       // Drag and drop table widget

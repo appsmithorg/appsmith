@@ -107,7 +107,7 @@ describe(
 
     /* This part to be uncommented once the existing bug is fixed
     it("Check binding property value in Text widget", () => {
-        _.entityExplorer.SelectEntityByName("Text1");
+        EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
         cy.wait(3000);
 
     })

@@ -1,16 +1,18 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  jsEditor,
-  propPane,
   apiPage,
+  jsEditor,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   it("1. should not show any fields with a blank JS field", () => {
     agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", `{{}}`, true, false);
     propPane.ToggleJSMode("onClick", false);
     agHelper.AssertElementAbsence(".action");
@@ -18,8 +20,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
 
   it("2. should show Api fields when Api1.run is entered", () => {
     apiPage.CreateApi("Api1");
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", `{{Api1.run()}}`, true, false);
     propPane.ToggleJSMode("onClick", false);
     agHelper.GetNAssertElementText(
@@ -32,7 +34,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("3. should show Api fields when an Api with then/catch is entered", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{Api1.run().then(() => {}).catch(() => {});}}`,
@@ -47,7 +49,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("4. should show Api fields when an Api with then/catch is entered", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{Api1.run().then(() => { showAlert(); }).catch(() => { showModal(); });}}`,
@@ -88,7 +90,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("5. should show Api fields when an Api with then/catch is entered", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{Api1.run().then(() => { showAlert('Hello world!', 'info'); storeValue('a', 18); }).catch(() => { showModal('Modal1'); });}}`,
@@ -148,7 +150,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("6. should show Api related fields appropriately with platform functions with callbacks", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{Api1.run().then(() => {
@@ -193,7 +195,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("7. should show Api related fields appropriately with platform functions with catch callback", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       "{{Api1.run().catch(() => copyToClipboard('hi'))}}",
@@ -229,7 +231,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("8. should show Api related fields appropriately with platform functions with catch callback", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       "{{Api1.run().then(() => clearStore())}}",
@@ -283,8 +285,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext(
       "onClick",
@@ -406,8 +408,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext(
       "onClick",

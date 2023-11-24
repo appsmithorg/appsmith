@@ -1,7 +1,7 @@
-import {
-  dataSources,
-  entityExplorer,
-} from "../../../../support/Objects/ObjectsCore";
+import { dataSources } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Fix UQI query switching", function () {
   it(
@@ -20,10 +20,10 @@ describe("Fix UQI query switching", function () {
       dataSources.CreateDataSource("Twilio", false, false);
       dataSources.CreateQueryAfterDSSaved("", "TwilioQuery");
       dataSources.ValidateNSelectDropdown("Commands", "", "Schedule message");
-      entityExplorer.SelectEntityByName("MongoQuery", "Queries/JS");
+      EditorNavigation.SelectEntityByName("MongoQuery", EntityType.Query);
       dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
 
-      entityExplorer.SelectEntityByName("TwilioQuery", "Queries/JS");
+      EditorNavigation.SelectEntityByName("TwilioQuery", EntityType.Query);
       dataSources.ValidateNSelectDropdown("Commands", "Schedule message");
     },
   );

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
@@ -22,16 +26,16 @@ describe(
       cy.get(".t--modal-widget").should("exist");
     });
 
-    it("2. Open Existing Modal from created Widgets list", () => {
-      _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
-      cy.get(".t--modal-widget").should("exist");
-      cy.CreateAPI("FirstAPI");
-      _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
-      cy.get(".t--modal-widget").should("exist");
-    });
+  it("2. Open Existing Modal from created Widgets list", () => {
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+    cy.get(".t--modal-widget").should("exist");
+    cy.CreateAPI("FirstAPI");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+    cy.get(".t--modal-widget").should("exist");
+  });
 
-    it("3. Display toast on close action", () => {
-      _.entityExplorer.SelectEntityByName("Modal1");
+  it("3. Display toast on close action", () => {
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
 
       cy.get(".t--property-control-onclose")
         .find(".t--js-toggle")
@@ -42,9 +46,9 @@ describe(
       cy.get(commonlocators.toastmsg).contains("test");
     });
 
-    it("4. Should paste modal widgets with main container as parentId", () => {
-      const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-      _.entityExplorer.SelectEntityByName("Modal1");
+  it("4. Should paste modal widgets with main container as parentId", () => {
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
 
       cy.wait(200);
       //cy.get("body").type(`{${modifierKey}}c`);
@@ -65,9 +69,9 @@ describe(
       cy.get(".t--modal-widget").should("have.length", 1);
     });
 
-    it("5. should select modal when clicked on modal label", () => {
-      //open modal
-      _.entityExplorer.SelectEntityByName("Modal1");
+  it("5. should select modal when clicked on modal label", () => {
+    //open modal
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
 
       cy.get(".t--modal-widget").should("exist");
 
@@ -90,21 +94,17 @@ describe(
     it("6. It should paste modal widget on main Container even when copied in group and paste when a container is selected", () => {
       const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
-      cy.get(explorer.addWidget).click();
-      //add an additional modal widget and a container widget
-      _.entityExplorer.DragDropWidgetNVerify(
-        _.draggableWidgets.MODAL,
-        300,
-        300,
-      );
-      cy.get(widgets.modalCloseButton).click({ force: true }).wait(200);
-      _.entityExplorer.DragDropWidgetNVerify(
-        _.draggableWidgets.CONTAINER,
-        300,
-        300,
-      );
-      _.entityExplorer.NavigateToSwitcher("Explorer");
-      cy.get(".t--entity-name").contains("Widgets").click();
+    cy.get(explorer.addWidget).click();
+    //add an additional modal widget and a container widget
+    _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MODAL, 300, 300);
+    cy.get(widgets.modalCloseButton).click({ force: true }).wait(200);
+    _.entityExplorer.DragDropWidgetNVerify(
+      _.draggableWidgets.CONTAINER,
+      300,
+      300,
+    );
+    _.entityExplorer.NavigateToSwitcher("Explorer");
+    _.entityExplorer.ExpandCollapseEntity("Widgets", true);
 
       //select all widgets and copy
       cy.get(`#div-selection-0`).click({

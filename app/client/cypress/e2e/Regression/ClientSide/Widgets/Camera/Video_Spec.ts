@@ -8,6 +8,9 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Camera widget - Video test", { tags: ["@tag.Widget"] }, () => {
   before(() => {
@@ -28,7 +31,7 @@ describe("Camera widget - Video test", { tags: ["@tag.Widget"] }, () => {
       locators._widgetInDeployed(draggableWidgets.CAMERA),
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
@@ -45,7 +48,7 @@ describe("Camera widget - Video test", { tags: ["@tag.Widget"] }, () => {
       .GetElement(widgetLocators.cameraWidgetScreen)
       .should("have.attr", "disabled");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     propPane.EnterJSContext("Disabled", "", false);
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
@@ -62,7 +65,7 @@ describe("Camera widget - Video test", { tags: ["@tag.Widget"] }, () => {
       .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
       .matchImageSnapshot("cameraVideoMirroredScreen");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     propPane.EnterJSContext("Mirrored", "", false);
     propPane.ToggleJSMode("Mirrored", false);
     propPane.TogglePropertyState("Mirrored", "On");
@@ -134,7 +137,7 @@ describe("Camera widget - Video test", { tags: ["@tag.Widget"] }, () => {
 
   it("6. Capture multiple videos & check it does not overwrite previous captures", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     propPane.SelectPlatformFunction("onVideoSave", "Download");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Data to download"),

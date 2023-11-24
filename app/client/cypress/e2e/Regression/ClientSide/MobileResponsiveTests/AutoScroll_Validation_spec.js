@@ -5,7 +5,7 @@ let twidth;
 
 describe(
   "Validating Mobile View related usecases for Autoscroll",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   function () {
     it("1. Capture the height/width of autofill widgets in webview", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

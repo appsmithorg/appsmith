@@ -2,13 +2,16 @@ import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
   assertHelper,
+  debuggerHelper,
+  deployMode,
   draggableWidgets,
   entityExplorer,
   locators,
   propPane,
-  debuggerHelper,
-  deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Category Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   const options = `[
@@ -36,13 +39,13 @@ describe("Category Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () =>
   before(() => {
     entityExplorer.DragDropWidgetNVerify("categorysliderwidget", 550, 100);
     entityExplorer.DragDropWidgetNVerify("textwidget", 300, 300);
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{CategorySlider1.value}}");
   });
 
   it("1. Validates Default Value", () => {
     // open the Property Pane
-    entityExplorer.SelectEntityByName("CategorySlider1", "Widgets");
+    EditorNavigation.SelectEntityByName("CategorySlider1", EntityType.Widget);
 
     propPane.UpdatePropertyFieldValue("Default value", "mdx");
 
@@ -68,7 +71,7 @@ describe("Category Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () =>
 
   it("2. Change Step Size and check if value changes", () => {
     // open the Property Pane
-    entityExplorer.SelectEntityByName("CategorySlider1", "Widgets");
+    EditorNavigation.SelectEntityByName("CategorySlider1", EntityType.Widget);
 
     // Change the slider value
     agHelper.GetElement(locators._sliderThumb).focus().type("{rightArrow}");
@@ -122,7 +125,7 @@ describe("Category Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () =>
   });
 
   it("5. Verify property visibility", () => {
-    entityExplorer.SelectEntityByName("CategorySlider1", "Widgets");
+    EditorNavigation.SelectEntityByName("CategorySlider1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Options", options);
     const dataSectionProperties = ["options", "defaultvalue"];
     const generalProperties = [
@@ -237,7 +240,7 @@ describe("Category Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () =>
   });
 
   it("9. Verify size change and color change", () => {
-    entityExplorer.SelectEntityByName("CategorySlider1");
+    EditorNavigation.SelectEntityByName("CategorySlider1", EntityType.Widget);
     propPane.MoveToTab("Style");
     // Verify Size
     agHelper.GetWidgetCSSHeight(locators._sliderThumb).then((initialHeight) => {

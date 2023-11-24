@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
@@ -152,7 +156,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     );
 
     // Case 6: When updating Datasource query
-    entityExplorer.SelectEntityByName(queryName, "Queries/JS");
+    EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
     // update query and check no cyclic dependency issue should occur
     cy.xpath(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea").first().focus().type(" ", {

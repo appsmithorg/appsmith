@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -21,9 +25,9 @@ describe(
       return false;
     });
 
-    it("1. Cyclic depedancy error message validation", function () {
-      entityExplorer.SelectEntityByName("Input1");
-      cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
+  it("1. Cyclic depedancy error message validation", function () {
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+    cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
       cy.wait("@updateLayout").should(
         "have.nested.property",
@@ -33,9 +37,9 @@ describe(
       cy.get(commonlocators.toastmsg).contains("Cyclic dependency");
     });
 
-    it("2. Binding input widget1 and validating", function () {
-      entityExplorer.SelectEntityByName("Input1");
-      cy.testJsontext("defaultvalue", testdata.defaultdata);
+  it("2. Binding input widget1 and validating", function () {
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+    cy.testJsontext("defaultvalue", testdata.defaultdata);
 
       cy.wait("@updateLayout").should(
         "have.nested.property",

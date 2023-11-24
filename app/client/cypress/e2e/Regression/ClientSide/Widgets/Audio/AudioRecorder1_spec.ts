@@ -7,6 +7,9 @@ import {
   locators,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Audio Recorder functionality tests",
@@ -54,100 +57,99 @@ describe(
       propPane.ToggleJSMode("onRecordingComplete", false);
     });
 
-    it("2. Verify visible and disabled property", () => {
-      propPane.MoveToTab("Content");
-      propPane.TogglePropertyState("Visible", "Off");
-      deployMode.DeployApp();
-      // verify in view mode
-      agHelper.AssertElementAbsence(
-        locators._widgetInCanvas(draggableWidgets.AUDIORECORDER),
-      );
-      deployMode.NavigateBacktoEditor();
-      // verify in preview mode
-      agHelper.GetNClick(locators._enterPreviewMode);
-      //verify widget is not present
-      agHelper.AssertElementAbsence(
-        locators._widgetInCanvas(draggableWidgets.AUDIORECORDER),
-      );
-      //Exit preview mode
-      agHelper.GetNClick(locators._exitPreviewMode);
-      entityExplorer.SelectEntityByName("AudioRecorder1", "Widgets");
-      propPane.TogglePropertyState("Visible", "On");
-      // verify recorder is disabled
-      propPane.TogglePropertyState("Disabled", "On");
-      agHelper.AssertElementEnabledDisabled(widgetLocators.recorderPrompt);
-      deployMode.DeployApp();
-      agHelper.Sleep(2000);
-      agHelper.AssertElementEnabledDisabled(widgetLocators.recorderPrompt);
-      deployMode.NavigateBacktoEditor();
-      // verify in preview mode
-      agHelper.GetNClick(locators._enterPreviewMode);
-      //verify widget is disabled
-      agHelper.AssertElementEnabledDisabled(widgetLocators.recorderPrompt);
-      //Exit preview mode
-      agHelper.GetNClick(locators._exitPreviewMode);
-    });
+  it("2. Verify visible and disabled property", () => {
+    propPane.MoveToTab("Content");
+    propPane.TogglePropertyState("Visible", "Off");
+    deployMode.DeployApp();
+    // verify in view mode
+    agHelper.AssertElementAbsence(
+      locators._widgetInCanvas(draggableWidgets.AUDIORECORDER),
+    );
+    deployMode.NavigateBacktoEditor();
+    // verify in preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    //verify widget is not present
+    agHelper.AssertElementAbsence(
+      locators._widgetInCanvas(draggableWidgets.AUDIORECORDER),
+    );
+    //Exit preview mode
+    agHelper.GetNClick(locators._exitPreviewMode);
+    EditorNavigation.SelectEntityByName("AudioRecorder1", EntityType.Widget);
+    propPane.TogglePropertyState("Visible", "On");
+    // verify recorder is disabled
+    propPane.TogglePropertyState("Disabled", "On");
+    agHelper.AssertElementEnabledDisabled(widgetLocators.recorderPrompt);
+    deployMode.DeployApp();
+    agHelper.Sleep(2000);
+    agHelper.AssertElementEnabledDisabled(widgetLocators.recorderPrompt);
+    deployMode.NavigateBacktoEditor();
+    // verify in preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    //verify widget is disabled
+    agHelper.AssertElementEnabledDisabled(widgetLocators.recorderPrompt);
+    //Exit preview mode
+    agHelper.GetNClick(locators._exitPreviewMode);
+  });
 
-    it("3. Verify onRecordingStart and onRecordingStart Events", () => {
-      entityExplorer.SelectEntityByName("AudioRecorder1", "Widgets");
-      propPane.TogglePropertyState("Disabled", "Off");
-      propPane.SelectPlatformFunction("onRecordingStart", "Show alert");
-      agHelper.EnterActionValue("Message", "Recording Started");
-      propPane.SelectPlatformFunction("onRecordingComplete", "Show alert");
-      agHelper.EnterActionValue("Message", "Recording Completed");
-      agHelper.GetNClick(widgetLocators.recorderPrompt);
-      agHelper.GetNClick(widgetLocators.recorderStart);
-      agHelper.ValidateToastMessage("Recording Started");
-      agHelper.WaitUntilAllToastsDisappear();
-      agHelper.Sleep(2000); //for recorder to record
-      agHelper.GetNClick(widgetLocators.recorderStop);
-      agHelper.ValidateToastMessage("Recording Completed");
-      // verify in deploy mode
-      deployMode.DeployApp();
-      agHelper.Sleep(2000);
-      agHelper.GetNClick(widgetLocators.recorderPrompt);
-      agHelper.GetNClick(widgetLocators.recorderStart);
-      agHelper.ValidateToastMessage("Recording Started");
-      agHelper.WaitUntilAllToastsDisappear();
-      agHelper.GetNClick(widgetLocators.recorderStop);
-      agHelper.ValidateToastMessage("Recording Completed");
-      agHelper.WaitUntilAllToastsDisappear();
-      deployMode.NavigateBacktoEditor();
-      // verify in preview mode
-      agHelper.GetNClick(locators._enterPreviewMode);
-      agHelper.GetNClick(widgetLocators.recorderPrompt);
-      agHelper.GetNClick(widgetLocators.recorderStart);
-      agHelper.ValidateToastMessage("Recording Started");
-      agHelper.WaitUntilAllToastsDisappear();
-      agHelper.GetNClick(widgetLocators.recorderStop);
-      agHelper.ValidateToastMessage("Recording Completed");
-      //Exit preview mode
-      agHelper.GetNClick(locators._exitPreviewMode);
-    });
+  it("3. Verify onRecordingStart and onRecordingStart Events", () => {
+    EditorNavigation.SelectEntityByName("AudioRecorder1", EntityType.Widget);
+    propPane.TogglePropertyState("Disabled", "Off");
+    propPane.SelectPlatformFunction("onRecordingStart", "Show alert");
+    agHelper.EnterActionValue("Message", "Recording Started");
+    propPane.SelectPlatformFunction("onRecordingComplete", "Show alert");
+    agHelper.EnterActionValue("Message", "Recording Completed");
+    agHelper.GetNClick(widgetLocators.recorderPrompt);
+    agHelper.GetNClick(widgetLocators.recorderStart);
+    agHelper.ValidateToastMessage("Recording Started");
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.Sleep(2000); //for recorder to record
+    agHelper.GetNClick(widgetLocators.recorderStop);
+    agHelper.ValidateToastMessage("Recording Completed");
+    // verify in deploy mode
+    deployMode.DeployApp();
+    agHelper.Sleep(2000);
+    agHelper.GetNClick(widgetLocators.recorderPrompt);
+    agHelper.GetNClick(widgetLocators.recorderStart);
+    agHelper.ValidateToastMessage("Recording Started");
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.GetNClick(widgetLocators.recorderStop);
+    agHelper.ValidateToastMessage("Recording Completed");
+    agHelper.WaitUntilAllToastsDisappear();
+    deployMode.NavigateBacktoEditor();
+    // verify in preview mode
+    agHelper.GetNClick(locators._enterPreviewMode);
+    agHelper.GetNClick(widgetLocators.recorderPrompt);
+    agHelper.GetNClick(widgetLocators.recorderStart);
+    agHelper.ValidateToastMessage("Recording Started");
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.GetNClick(widgetLocators.recorderStop);
+    agHelper.ValidateToastMessage("Recording Completed");
+    //Exit preview mode
+    agHelper.GetNClick(locators._exitPreviewMode);
+  });
 
-    it("4.Verify Style tab's properties: Button color, icon color, border radius and Box shadow", () => {
-      entityExplorer.SelectEntityByName("AudioRecorder1", "Widgets");
-      propPane.MoveToTab("Style");
-      propPane.EnterJSContext("Button color", "#FFC13D");
-      agHelper.Sleep(1000);
-      propPane.SelectColorFromColorPicker("iconcolor", -15);
-      agHelper.AssertCSS(
-        widgetLocators.recorderComplete,
-        "background-color",
-        "rgb(255, 193, 61)",
-      );
-      propPane.EnterJSContext("Box shadow", "Small");
-      agHelper
-        .GetElement(widgetLocators.recorderComplete)
-        .should("have.css", "box-shadow")
-        .and("not.eq", "none");
-      propPane.EnterJSContext("Border radius", "none");
-      agHelper.AssertCSS(
-        widgetLocators.recorderComplete,
-        "border-radius",
-        "3px",
-        0,
-      );
-    });
-  },
-);
+  it("4.Verify Style tab's properties: Button color, icon color, border radius and Box shadow", () => {
+    EditorNavigation.SelectEntityByName("AudioRecorder1", EntityType.Widget);
+    propPane.MoveToTab("Style");
+    propPane.EnterJSContext("Button color", "#FFC13D");
+    agHelper.Sleep(1000);
+    propPane.SelectColorFromColorPicker("iconcolor", -15);
+    agHelper.AssertCSS(
+      widgetLocators.recorderComplete,
+      "background-color",
+      "rgb(255, 193, 61)",
+    );
+    propPane.EnterJSContext("Box shadow", "Small");
+    agHelper
+      .GetElement(widgetLocators.recorderComplete)
+      .should("have.css", "box-shadow")
+      .and("not.eq", "none");
+    propPane.EnterJSContext("Border radius", "none");
+    agHelper.AssertCSS(
+      widgetLocators.recorderComplete,
+      "border-radius",
+      "3px",
+      0,
+    );
+  });
+});

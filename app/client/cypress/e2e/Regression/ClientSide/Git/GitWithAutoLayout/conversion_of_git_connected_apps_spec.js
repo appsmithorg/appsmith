@@ -6,6 +6,9 @@ import {
   entityExplorer,
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch";
@@ -48,7 +51,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
 
     entityExplorer.VerifyIsCurrentPage("Page2");
 
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     agHelper.Sleep();
 

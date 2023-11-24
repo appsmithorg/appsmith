@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
@@ -55,10 +59,10 @@ describe(
         ],
       };
 
-      entityExplorer.SelectEntityByName("JSONForm1");
-      propPane.NavigateBackToPropertyPane();
-      propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
-      deployMode.DeployApp();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    propPane.NavigateBackToPropertyPane();
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+    deployMode.DeployApp();
 
       cy.wait(500);
 

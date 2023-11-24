@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgets = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -5,7 +9,7 @@ let testHeight;
 
 describe(
   "Auto conversion algorithm usecases for auto-layout",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   function () {
     it("1. Validate basic conversion algorithm usecases", function () {
       _.agHelper.AddDsl("conversionFrAutoLayoutDsl");
@@ -251,23 +255,22 @@ describe(
 
       _.autoLayout.ConvertToAutoLayoutAndVerify();
 
-      canvasTypeWidgets.forEach((canvasWidget) => {
-        _.autoLayout.VerifyCurrentWidgetIsAutolayout(canvasWidget);
-      });
-      _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
-      _.autoLayout.VerifyCurrentWidgetIsAutolayout(_.draggableWidgets.MODAL);
-      cy.wait(1000);
-      _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
+    canvasTypeWidgets.forEach((canvasWidget) => {
+      _.autoLayout.VerifyCurrentWidgetIsAutolayout(canvasWidget);
+    });
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+    _.autoLayout.VerifyCurrentWidgetIsAutolayout(_.draggableWidgets.MODAL);
+    cy.wait(1000);
+    _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
 
       _.autoLayout.ConvertToFixedLayoutAndVerify("DESKTOP");
 
-      canvasTypeWidgets.forEach((canvasWidget) => {
-        _.autoLayout.VerifyCurrentWidgetIsFixedlayout(canvasWidget);
-      });
-      _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
-      _.autoLayout.VerifyCurrentWidgetIsFixedlayout(_.draggableWidgets.MODAL);
-      cy.wait(1000);
-      _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
+    canvasTypeWidgets.forEach((canvasWidget) => {
+      _.autoLayout.VerifyCurrentWidgetIsFixedlayout(canvasWidget);
     });
-  },
-);
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+    _.autoLayout.VerifyCurrentWidgetIsFixedlayout(_.draggableWidgets.MODAL);
+    cy.wait(1000);
+    _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
+  });
+});

@@ -11,6 +11,9 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 let dsName: any;
 
 describe(
@@ -840,20 +843,20 @@ describe(
         inputFieldName: "Documents",
       });
 
-      agHelper.AssertAutoSave();
-      agHelper.Sleep(2000); //for documents value to settle!
-      dataSources.RunQuery();
-      agHelper.Sleep(4000); //for capturing right response!
-      cy.get("@postExecute").then((resObj: any) => {
-        expect(
-          parseInt(JSON.stringify(resObj.response.body.data.body.n)),
-        ).to.eq(4);
-      });
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
-      dataSources.navigateToDatasource(dsName);
+    agHelper.AssertAutoSave();
+    agHelper.Sleep(2000); //for documents value to settle!
+    dataSources.RunQuery();
+    agHelper.Sleep(4000); //for capturing right response!
+    cy.get("@postExecute").then((resObj: any) => {
+      expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
+        4,
+      );
+    });
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
 
       //Execute a find query on this collection to see if dates are fetched properly
       dataSources.createQueryWithDatasourceSchemaTemplate(

@@ -12,6 +12,7 @@ import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
@@ -32,7 +33,11 @@ describe(
         EditorNavigation.ViaSidebar(SidebarButton.Pages);
         entityExplorer.NavigateToSwitcher("Widgets");
 
+<<<<<<< HEAD
         entityExplorer.SelectEntityByName("Select1", "Widgets");
+=======
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+>>>>>>> release
 
         oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
           label: "name",

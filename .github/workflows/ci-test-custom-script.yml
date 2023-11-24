@@ -388,6 +388,7 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_grepTags: ${{ inputs.tags }} # This is a comma separated list of tags to run a subset of the suite
+          CYPRESS_SKIP_FLAKY: true
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false

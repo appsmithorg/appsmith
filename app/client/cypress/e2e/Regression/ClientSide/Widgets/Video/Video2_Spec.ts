@@ -10,6 +10,9 @@ import {
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 import testdata from "../../../../../fixtures/testdata.json";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
   before(() => {
@@ -45,7 +48,7 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("2. Verify Basic Functionality of Video Widget - muted", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
+    EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     //Validate video for youtube url
     propPane.TypeTextIntoField("URL", testdata.videoUrl);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
@@ -70,7 +73,7 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("3. Verify widget for invalid URL's", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
+    EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     propPane.RemoveText("URL");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
     agHelper.AssertContains("Please provide a valid url");
@@ -81,7 +84,7 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
     );
 
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
+    EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     //Check for Non-video url
     propPane.TypeTextIntoField(
       "URL",
@@ -101,7 +104,7 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("4. Verify auto play property", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
+    EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Autoplay", "false");
     propPane.TypeTextIntoField("URL", testdata.videoUrl2);
     propPane.EnterJSContext("Autoplay", "{{(45>55)?false:true}}", true, true);
@@ -112,7 +115,7 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
       expect(attrValue).be.greaterThan(30000);
     });
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
+    EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     propPane.EnterJSContext("Autoplay", "", false);
     propPane.ToggleJSMode("Autoplay", false);
     propPane.TogglePropertyState("Autoplay", "Off");
@@ -122,7 +125,7 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("5. Verify visible property", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
+    EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Visible", "true");
     propPane.EnterJSContext("Visible", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp();
@@ -134,7 +137,7 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
       ),
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
+    EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
@@ -148,7 +151,7 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("6. Verify OnPlay, OnPause, OnEnd events are JS convertible", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
+    EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     propPane.EnterJSContext(
       "onPlay",
       "{{showAlert('Video is playing!')}}",
@@ -187,7 +190,7 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("7. Verify video styles", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Video1", "Widgets");
+    EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
     propPane.MoveToTab("Style");
     propPane.SelectColorFromColorPicker("backgroundcolor", 9);
     agHelper.ContainsNClick("Medium");
@@ -215,12 +218,12 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
   //Skipping below test due to issue - https://github.com/appsmithorg/appsmith/issues/26166
   // it("8. Verify Camera Binding", function () {
   //   deployMode.NavigateBacktoEditor();
-  //   entityExplorer.SelectEntityByName("Camera1", "Widgets");
+  // EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
   //   propPane.AssertPropertiesDropDownCurrentValue(
   //     "Default mobile camera",
   //     "Back (Rear)",
   //   );
-  //   entityExplorer.SelectEntityByName("Video1", "Widgets");
+  // EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
   //   propPane.TypeTextIntoField("URL", "{{Camera1.videoBlobURL}}");
   //   propPane.TogglePropertyState("Autoplay", "On");
   //   agHelper.AssertExistingToggleState("Visible", "true");
@@ -238,12 +241,12 @@ describe("Video widget tests", { tags: ["@tag.Widget"] }, function () {
   //   });
 
   //   deployMode.NavigateBacktoEditor();
-  //   entityExplorer.SelectEntityByName("Camera1", "Widgets");
+  // EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
   //   propPane.SelectPropertiesDropDown(
   //     "Default mobile camera",
   //     "Front (Selfie)",
   //   );
-  //   entityExplorer.SelectEntityByName("Video1", "Widgets");
+  // EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
   //   propPane.TogglePropertyState("Autoplay", "On");
   //   agHelper.AssertExistingToggleState("Visible", "true");
   //   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));

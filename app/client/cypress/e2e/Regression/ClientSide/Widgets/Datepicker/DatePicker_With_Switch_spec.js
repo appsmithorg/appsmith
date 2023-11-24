@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dayjs = require("dayjs");
@@ -25,7 +29,7 @@ describe(
     });
     // Skipping tests due to issue - https://www.notion.so/appsmith/f353d8c6bd664f79ad858a42010cdfc8?v=f04cde23f6424aeb9d5a6e389cd172bd&p=0717892d43684c40bae4e2c87b8308cb&pm=s
     it.skip("Date Widget with Reset widget being switch widget", function () {
-      _.entityExplorer.SelectEntityByName("DatePicker1");
+      EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
 
       cy.get(formWidgetsPage.defaultDate).click();
       cy.SetDateToToday();

@@ -11,6 +11,7 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
@@ -223,24 +224,24 @@ describe(
       dataSources.AssertJSONFormHeader(0, 0, "productLine");
     });
 
-    //Open Bug 14063 - hence skipping
-    // it.skip("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
-    //   entityExplorer.SelectEntityByName("update_form", "Widgets");
-    //   propPane.ChangeJsonFormFieldType(
-    //     "Text Description",
-    //     "Multiline Text Input",
-    //   );
-    //   propPane.NavigateBackToPropertyPane();
-    //   propPane.ChangeJsonFormFieldType(
-    //     "Html Description",
-    //     "Multiline Text Input",
-    //   );
-    //   propPane.NavigateBackToPropertyPane();
-    //   deployMode.DeployApp();
-    //   table.SelectTableRow(0, 0, false); //to make JSON form hidden
-    //   agHelper.AssertElementAbsence(locators._jsonFormWidget);
-    //   table.SelectTableRow(3);
-    //   agHelper.AssertElementVisibility(locators._jsonFormWidget);
+  //Open Bug 14063 - hence skipping
+  // it.skip("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
+  //   EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
+  //   propPane.ChangeJsonFormFieldType(
+  //     "Text Description",
+  //     "Multiline Text Input",
+  //   );
+  //   propPane.NavigateBackToPropertyPane();
+  //   propPane.ChangeJsonFormFieldType(
+  //     "Html Description",
+  //     "Multiline Text Input",
+  //   );
+  //   propPane.NavigateBackToPropertyPane();
+  //   deployMode.DeployApp();
+  //   table.SelectTableRow(0, 0, false); //to make JSON form hidden
+  //   agHelper.AssertElementAbsence(locators._jsonFormWidget);
+  //   table.SelectTableRow(3);
+  //   agHelper.AssertElementVisibility(locators._jsonFormWidget);
 
     //   dataSources.AssertJSONFormHeader(3, 0, "productLine");
 
@@ -288,21 +289,20 @@ describe(
       dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
     });
 
-    it("10. Verify application does not break when user runs the query with wrong table name", function () {
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
-      entityExplorer.SelectEntityByName("DropProductlines", "Queries/JS");
-      dataSources.RunQuery({ toValidateResponse: false });
-      cy.wait("@postExecute").then(({ response }) => {
-        expect(response?.body.data.isExecutionSuccess).to.eq(false);
-        expect(
-          response?.body.data.pluginErrorDetails.downstreamErrorMessage,
-        ).to.contains("Unknown table 'fakeapi.productlines'");
-      });
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
+  it("10. Verify application does not break when user runs the query with wrong table name", function () {
+    EditorNavigation.SelectEntityByName("DropProductlines", EntityType.Query);
+    dataSources.RunQuery({ toValidateResponse: false });
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response?.body.data.isExecutionSuccess).to.eq(false);
+      expect(
+        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+      ).to.contains("Unknown table 'fakeapi.productlines'");
     });
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+  });
 
     after(
       "Verify Deletion of the datasource when Pages/Actions associated are not removed yet",

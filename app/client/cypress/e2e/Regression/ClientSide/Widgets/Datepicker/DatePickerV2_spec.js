@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -46,11 +50,11 @@ describe(
       */
     });
 
-    it("2. Text widgets binding with datepicker", function () {
-      cy.openPropertyPane("textwidget");
-      cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
-      cy.closePropertyPane();
-      _.entityExplorer.SelectEntityByName("Text2");
+  it("2. Text widgets binding with datepicker", function () {
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
+    cy.closePropertyPane();
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
 
       cy.EnableAllCodeEditors();
       cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
@@ -116,25 +120,25 @@ describe(
     it("6. Datepicker input value changes to work with selected date formats", function () {
       _.agHelper.AddDsl("datePickerdsl");
 
-      _.entityExplorer.SelectEntityByName("DatePicker1");
-      _.propPane.EnterJSContext("Min Date", "2021-01-01");
-      _.propPane.EnterJSContext("Max Date", "2021-10-10");
-      _.propPane.EnterJSContext("Default Date", "");
-      cy.selectDateFormat("DD/MM/YYYY HH:mm");
-      _.propPane.EnterJSContext(
-        "Default Date",
-        `{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}`,
-      );
-      cy.get(".t--draggable-datepickerwidget2 .bp3-input")
-        .clear({
-          force: true,
-        })
-        .type("04/05/2021 06:25")
-        .wait(2000);
-      cy.selectDateFormat("LLL");
-      cy.get(".t--draggable-textwidget .bp3-ui-text")
-        .first()
-        .should("contain.text", "May 4, 2021 6:25 AM");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
+    _.propPane.EnterJSContext("Min Date", "2021-01-01");
+    _.propPane.EnterJSContext("Max Date", "2021-10-10");
+    _.propPane.EnterJSContext("Default Date", "");
+    cy.selectDateFormat("DD/MM/YYYY HH:mm");
+    _.propPane.EnterJSContext(
+      "Default Date",
+      `{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}`,
+    );
+    cy.get(".t--draggable-datepickerwidget2 .bp3-input")
+      .clear({
+        force: true,
+      })
+      .type("04/05/2021 06:25")
+      .wait(2000);
+    cy.selectDateFormat("LLL");
+    cy.get(".t--draggable-textwidget .bp3-ui-text")
+      .first()
+      .should("contain.text", "May 4, 2021 6:25 AM");
 
       _.propPane.UpdatePropertyFieldValue("Default Date", "2020-02-01");
       _.propPane.UpdatePropertyFieldValue("Max Date", "2020-02-10");

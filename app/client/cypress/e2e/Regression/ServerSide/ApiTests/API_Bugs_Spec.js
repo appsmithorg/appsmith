@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import {
@@ -45,7 +49,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     );
     agHelper.PressEscape();
 
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.ClickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
@@ -155,8 +159,8 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     );
     apiPage.RunAPI(false);
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
-    entityExplorer.SelectEntityByName("Currencies", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("Currencies", EntityType.Api);
     apiPage.EnterURL("https://api.coinbase.com/v2/");
     agHelper.Sleep();
     // cy.get(".t--dataSourceField").then(($el) => {

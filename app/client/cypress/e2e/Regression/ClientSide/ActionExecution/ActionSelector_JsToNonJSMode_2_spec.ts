@@ -4,6 +4,9 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   before(() => {
@@ -125,8 +128,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("2. shows fields for show alert from js to non-js mode", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{showAlert()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -186,10 +189,10 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("3. shows fields for show modal from js to non-js mode", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     entityExplorer.DragDropWidgetNVerify("modalwidget", 50, 50);
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{showModal()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -229,8 +232,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("4. shows fields for remove modal from js to non-js mode", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{closeModal()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -270,8 +273,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("5. should shows appropriate fields for store value", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{storeValue()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -334,8 +337,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("6. shows fields for remove value appropriately", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{removeValue()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -370,8 +373,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("7. shows fields appropriately for the download function", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{download()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -464,8 +467,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("8. shows fields for copyToClipboard appropriately", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{copyToClipboard()}}", true, false);
     propPane.ToggleJSMode("onClick", false);
@@ -510,8 +513,8 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
   });
 
   it("9. shows fields for reset widget appropriately", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext("onClick", "{{resetWidget()}}", true, false);
     propPane.ToggleJSMode("onClick", false);

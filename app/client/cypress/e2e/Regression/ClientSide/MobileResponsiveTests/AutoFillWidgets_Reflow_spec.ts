@@ -8,7 +8,7 @@ import HomePage from "../../../../locators/HomePage";
 
 describe(
   "Copy paste widget related tests for Auto layout",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   () => {
     before(() => {
       autoLayout.ConvertToAutoLayoutAndVerify(false);

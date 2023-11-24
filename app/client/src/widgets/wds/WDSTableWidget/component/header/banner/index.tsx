@@ -1,20 +1,12 @@
-import React from "react";
+import React, { memo } from "react";
 import type { AddNewRowBannerType } from "./AddNewRowBanner";
 import { AddNewRowBanner } from "./AddNewRowBanner";
 
-export interface BannerPropType extends AddNewRowBannerType {
-  isAddRowInProgress: boolean;
-}
+export interface BannerPropType extends AddNewRowBannerType {}
 
-function BannerComponent(props: BannerPropType) {
-  return props.isAddRowInProgress ? (
-    <AddNewRowBanner
-      accentColor={props.accentColor}
-      borderRadius={props.borderRadius}
-      boxShadow={props.boxShadow}
-      disabledAddNewRowSave={props.disabledAddNewRowSave}
-      onAddNewRowAction={props.onAddNewRowAction}
-    />
-  ) : null;
-}
-export const Banner = React.memo(BannerComponent);
+export const Banner = memo((props: BannerPropType) => (
+  <AddNewRowBanner
+    disabledAddNewRowSave={props.disabledAddNewRowSave}
+    onAddNewRowAction={props.onAddNewRowAction}
+  />
+));

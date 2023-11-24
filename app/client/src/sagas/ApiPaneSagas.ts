@@ -93,6 +93,7 @@ import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -635,6 +636,10 @@ function* handleDatasourceCreatedSaga(
 
   const { redirect } = actionPayload;
 
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+
   // redirect back to api page
   if (actionRouteInfo && redirect) {
     history.push(
@@ -643,7 +648,7 @@ function* handleDatasourceCreatedSaga(
         apiId: actionRouteInfo.apiId ?? "",
       }),
     );
-  } else {
+  } else if (!currentApplicationIdForCreateNewApp) {
     history.push(
       datasourcesEditorIdURL({
         pageId,

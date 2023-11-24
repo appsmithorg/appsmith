@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -19,31 +20,31 @@ describe(
       agHelper.AddDsl("uiBindDsl");
     });
 
-    it("1. Test Search API fetaure", function () {
-      cy.log("Login Successful");
-      cy.CreateAPI("FirstAPI");
-      cy.get(".CodeMirror-placeholder")
-        .first()
-        .should("have.text", "https://mock-api.appsmith.com/users");
-      cy.log("Creation of FirstAPI Action successful");
-      cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
-      cy.SaveAndRunAPI();
-      cy.validateRequest(
-        "FirstAPI",
-        testdata.baseUrl,
-        testdata.methods,
-        testdata.Get,
-      );
-      cy.ResponseStatusCheck(testdata.successStatusCode);
-      entityExplorer.SelectEntityByName("FirstAPI", "Queries/JS");
-      entityExplorer.RenameEntityFromExplorer("FirstAPI", "SecondAPI", true);
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Api,
-      });
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
-      entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
+  it("1. Test Search API fetaure", function () {
+    cy.log("Login Successful");
+    cy.CreateAPI("FirstAPI");
+    cy.get(".CodeMirror-placeholder")
+      .first()
+      .should("have.text", "https://mock-api.appsmith.com/users");
+    cy.log("Creation of FirstAPI Action successful");
+    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
+    cy.SaveAndRunAPI();
+    cy.validateRequest(
+      "FirstAPI",
+      testdata.baseUrl,
+      testdata.methods,
+      testdata.Get,
+    );
+    cy.ResponseStatusCheck(testdata.successStatusCode);
+    EditorNavigation.SelectEntityByName("FirstAPI", EntityType.Api);
+    entityExplorer.RenameEntityFromExplorer("FirstAPI", "SecondAPI", true);
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Api,
     });
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
+  });
 
     it("2. Should update loading state after cancellation of confirmation for run query", function () {
       cy.CreateAPI("FirstAPI");

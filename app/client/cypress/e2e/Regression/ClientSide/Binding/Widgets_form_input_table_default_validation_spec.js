@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -10,9 +14,10 @@ describe(
       _.agHelper.AddDsl("formInputTableDsl");
     });
 
-    it("1. Input widget test with default value from table widget", function () {
-      _.entityExplorer.ExpandCollapseEntity("Form1");
-      _.entityExplorer.SelectEntityByName("Input1");
+  it("1. Input widget test with default value from table widget", function () {
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
 
       cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 

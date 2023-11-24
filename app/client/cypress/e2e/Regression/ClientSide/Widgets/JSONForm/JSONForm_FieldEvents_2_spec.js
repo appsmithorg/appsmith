@@ -1,6 +1,9 @@
 /**
  * Spec to test the events made available by each field type
  */
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
@@ -28,7 +31,7 @@ describe("Radio Group Field", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => 
       agree: true,
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("agree");
@@ -54,7 +57,7 @@ describe("Radio Group Field", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => 
     };
 
     agHelper.AddDsl("jsonFormDslWithoutSchema");
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("agree");
@@ -80,7 +83,7 @@ describe("Radio Group Field", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => 
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("dob");

@@ -2,6 +2,10 @@ import {
   dataSources,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 let dsName: any, userMock: string, movieMock: string;
 
 describe(
@@ -22,13 +26,19 @@ describe(
           cy.get("@dsName").then(($dsName) => {
             dsName = $dsName;
             // Select Users
-            dataSources.navigateToDatasource(userMock);
+            EditorNavigation.SelectEntityByName(
+              userMock,
+              EntityType.Datasource,
+            );
 
             // Switch to Movies
-            dataSources.navigateToDatasource(movieMock);
+            EditorNavigation.SelectEntityByName(
+              movieMock,
+              EntityType.Datasource,
+            );
 
             // Switch to custom DS
-            dataSources.navigateToDatasource(dsName);
+            EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
 
             // Delete all datasources
             entityExplorer.ActionContextMenuByEntityName({

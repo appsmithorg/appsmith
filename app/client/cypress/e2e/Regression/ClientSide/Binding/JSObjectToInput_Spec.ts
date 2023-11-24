@@ -1,4 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -29,39 +32,39 @@ describe(
         //use async-await or promises
       }
     }`,
-        {
-          paste: true,
-          completeReplace: true,
-          toRun: true,
-          shouldCreateNewJSObj: true,
-        },
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: true,
+        shouldCreateNewJSObj: true,
+      },
+    );
+    EditorNavigation.SelectEntityByName("Input2", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    cy.get(locator._inputWidget)
+      .last()
+      .invoke("attr", "value")
+      .should("equal", "Hello"); //Before mapping JSObject value of input
+    cy.get("@jsObjName").then((jsObjName) => {
+      jsOjbNameReceived = jsObjName;
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        "{{" + jsObjName + ".myFun1()}}",
       );
-      ee.ExpandCollapseEntity("Widgets"); //to expand widgets
-      ee.ExpandCollapseEntity("Form1");
-      ee.SelectEntityByName("Input2");
-      cy.get(locator._inputWidget)
-        .last()
-        .invoke("attr", "value")
-        .should("equal", "Hello"); //Before mapping JSObject value of input
-      cy.get("@jsObjName").then((jsObjName) => {
-        jsOjbNameReceived = jsObjName;
-        propPane.UpdatePropertyFieldValue(
-          "Default value",
-          "{{" + jsObjName + ".myFun1()}}",
-        );
-      });
-      cy.get(locator._inputWidget)
-        .last()
-        .invoke("attr", "value")
-        .should("equal", "Success"); //After mapping JSObject value of input
-      deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
-      cy.get(locator._widgetInputSelector("inputwidgetv2"))
-        .first()
-        .should("have.value", "Hello");
-      cy.get(locator._widgetInputSelector("inputwidgetv2"))
-        .last()
-        .should("have.value", "Success");
-      deployMode.NavigateBacktoEditor();
+    });
+    cy.get(locator._inputWidget)
+      .last()
+      .invoke("attr", "value")
+      .should("equal", "Success"); //After mapping JSObject value of input
+    deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
+    cy.get(locator._widgetInputSelector("inputwidgetv2"))
+      .first()
+      .should("have.value", "Hello");
+    cy.get(locator._widgetInputSelector("inputwidgetv2"))
+      .last()
+      .should("have.value", "Success");
+    deployMode.NavigateBacktoEditor();
 
       // cy.get(locator._inputWidget)
       //   .last()
@@ -83,22 +86,24 @@ describe(
         //use async-await or promises
       }
     }`;
-      ee.SelectEntityByName(jsOjbNameReceived as string, "Queries/JS");
-      jsEditor.EditJSObj(jsBody);
-      ee.ExpandCollapseEntity("Widgets");
-      ee.ExpandCollapseEntity("Form1");
-      ee.SelectEntityByName("Input2");
-      cy.get(locator._inputWidget)
-        .last()
-        .invoke("attr", "value")
-        .should("equal", "Success"); //Function is renamed & reference is checked if updated properly!
-      deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
-      cy.get(locator._widgetInputSelector("inputwidgetv2"))
-        .first()
-        .should("have.value", "Hello");
-      cy.get(locator._widgetInputSelector("inputwidgetv2"))
-        .last()
-        .should("have.value", "Success");
-    });
-  },
-);
+    EditorNavigation.SelectEntityByName(
+      jsOjbNameReceived as string,
+      EntityType.JSObject,
+    );
+    jsEditor.EditJSObj(jsBody);
+    EditorNavigation.SelectEntityByName("Input2", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    cy.get(locator._inputWidget)
+      .last()
+      .invoke("attr", "value")
+      .should("equal", "Success"); //Function is renamed & reference is checked if updated properly!
+    deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
+    cy.get(locator._widgetInputSelector("inputwidgetv2"))
+      .first()
+      .should("have.value", "Hello");
+    cy.get(locator._widgetInputSelector("inputwidgetv2"))
+      .last()
+      .should("have.value", "Success");
+  });
+});

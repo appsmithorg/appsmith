@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 import homePage from "../../../../locators/HomePage";
@@ -22,65 +26,64 @@ describe(
       cy.get("@saveDatasource").then((httpResponse) => {
         datasourceName = httpResponse.response.body.data.name;
 
-        cy.NavigateToActiveDSQueryPane(datasourceName);
-        // Resetting the default query and rewriting a new one
-        _.dataSources.EnterQuery("SELECT * FROM configs LIMIT 10;");
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(1000);
-        // Mock the response for this test
-        cy.intercept("/api/v1/actions/execute", {
-          fixture: "addWidgetTable-mock",
-        });
-        cy.onlyQueryRun();
-        _.dataSources.AddSuggestedWidget(Widgets.Table);
-        _.jsEditor.CreateJSObject("return Query1.data;");
-        cy.CheckAndUnfoldEntityItem("Widgets");
-        cy.get(".t--entity-name").contains("Table1").click({ force: true });
-        _.propPane.EnterJSContext("Table data", "{{JSObject1.myFun1()}}");
-        cy.isSelectRow(1);
-        cy.readTableV2dataPublish("1", "0").then((tabData) => {
-          let tabValue = tabData;
-          cy.log("the value is" + tabValue);
-          expect(tabValue).to.be.equal("5");
-        });
-        cy.get(homePage.shareApp).click();
-        cy.enablePublicAccess(true);
+      cy.NavigateToActiveDSQueryPane(datasourceName);
+      // Resetting the default query and rewriting a new one
+      _.dataSources.EnterQuery("SELECT * FROM configs LIMIT 10;");
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(1000);
+      // Mock the response for this test
+      cy.intercept("/api/v1/actions/execute", {
+        fixture: "addWidgetTable-mock",
+      });
+      cy.onlyQueryRun();
+      _.dataSources.AddSuggestedWidget(Widgets.Table);
+      _.jsEditor.CreateJSObject("return Query1.data;");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      _.propPane.EnterJSContext("Table data", "{{JSObject1.myFun1()}}");
+      cy.isSelectRow(1);
+      cy.readTableV2dataPublish("1", "0").then((tabData) => {
+        let tabValue = tabData;
+        cy.log("the value is" + tabValue);
+        expect(tabValue).to.be.equal("5");
+      });
+      cy.get(homePage.shareApp).click();
+      cy.enablePublicAccess(true);
+      cy.wait(3000);
+      _.deployMode.DeployApp();
+      cy.wait(3000);
+      cy.url().then((url) => {
+        currentUrl = url;
+        cy.log("Published url is: " + currentUrl);
+        _.deployMode.NavigateBacktoEditor();
+        cy.wait(2000);
+        cy.visit(currentUrl, { timeout: 60000 });
+        cy.wait("@getPagesForViewApp").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
         cy.wait(3000);
-        _.deployMode.DeployApp();
-        cy.wait(3000);
-        cy.url().then((url) => {
-          currentUrl = url;
-          cy.log("Published url is: " + currentUrl);
-          _.deployMode.NavigateBacktoEditor();
-          cy.wait(2000);
-          cy.visit(currentUrl, { timeout: 60000 });
-          cy.wait("@getPagesForViewApp").should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            200,
-          );
-          cy.wait(3000);
-          cy.waitUntil(
-            () =>
-              cy
-                .get(
-                  '.tbody .td[data-rowindex="' +
-                    1 +
-                    '"][data-colindex="' +
-                    0 +
-                    '"]',
-                  {
-                    timeout: 40000,
-                  },
-                )
-                .eq(0)
-                .should("be.visible"),
-            {
-              errorMsg: "Table not visible in Public view page",
-              timeout: 20000,
-              interval: 1000,
-            },
-          ).then(() => cy.wait(500));
+        cy.waitUntil(
+          () =>
+            cy
+              .get(
+                '.tbody .td[data-rowindex="' +
+                  1 +
+                  '"][data-colindex="' +
+                  0 +
+                  '"]',
+                {
+                  timeout: 40000,
+                },
+              )
+              .eq(0)
+              .should("be.visible"),
+          {
+            errorMsg: "Table not visible in Public view page",
+            timeout: 20000,
+            interval: 1000,
+          },
+        ).then(() => cy.wait(500));
 
           cy.isSelectRow(1);
           cy.readTableV2dataPublish("1", "0").then((tabData) => {

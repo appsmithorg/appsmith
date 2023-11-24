@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
@@ -41,9 +45,9 @@ describe(
         ],
       };
 
-      entityExplorer.SelectEntityByName("JSONForm1");
-      propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
-      deployMode.DeployApp();
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+    deployMode.DeployApp();
 
       cy.get(`${fieldPrefix}-name label`).contains("Name");
       cy.get(`${fieldPrefix}-name input`).then((input) => {

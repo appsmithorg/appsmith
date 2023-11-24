@@ -5,6 +5,9 @@ import {
   agHelper,
   templates,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 beforeEach(() => {
   // Closes template dialog if it is already open - useful for retry
@@ -13,7 +16,7 @@ beforeEach(() => {
       cy.xpath(template.closeButton).click({ force: true });
     }
   });
-  entityExplorer.SelectEntityByName("Page1", "Pages");
+  EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 });
 
 describe(

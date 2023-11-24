@@ -5,6 +5,9 @@ import {
   agHelper,
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const data = [
   {
@@ -28,9 +31,9 @@ describe(
       assertHelper.AssertNetworkStatus("@updateLayout");
     });
 
-    beforeEach(() => {
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
-    });
+  beforeEach(() => {
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+  });
 
     it("1. should search against display text when on client search", () => {
       propPane.TogglePropertyState("Client side search", "On");

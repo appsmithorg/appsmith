@@ -1,8 +1,11 @@
 import {
   entityExplorer,
-  jsEditor,
   entityItems,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Validate basic operations on Entity explorer JSEditor structure",
@@ -42,31 +45,30 @@ describe(
       jsEditor.ValidateDefaultJSObjProperties("ExplorerRenamed");
     });
 
-    it("2. Validate Move JSObject", function () {
-      const newPageId = "Page2";
-      entityExplorer.AddNewPage();
-      entityExplorer.AssertEntityPresenceInExplorer(newPageId);
-      entityExplorer.SelectEntityByName(pageId);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "RenamedJSObjectCopy",
-        action: "Move to page",
-        subAction: newPageId,
-        toastToValidate: "moved to page",
-      });
-      entityExplorer.SelectEntityByName(newPageId);
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
-      entityExplorer.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
-      jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
+  it("2. Validate Move JSObject", function () {
+    const newPageId = "Page2";
+    entityExplorer.AddNewPage();
+    entityExplorer.AssertEntityPresenceInExplorer(newPageId);
+    EditorNavigation.SelectEntityByName(pageId, EntityType.Page);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "RenamedJSObjectCopy",
+      action: "Move to page",
+      subAction: newPageId,
+      toastToValidate: "moved to page",
     });
+    EditorNavigation.SelectEntityByName(newPageId, EntityType.Page);
+    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    entityExplorer.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
+    jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
+  });
 
-    it("3. Validate Deletion of JSObject", function () {
-      entityExplorer.SelectEntityByName(pageId);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "ExplorerRenamed",
-        action: "Delete",
-        entityType: entityItems.JSObject,
-      });
-      entityExplorer.AssertEntityAbsenceInExplorer("ExplorerRenamed");
+  it("3. Validate Deletion of JSObject", function () {
+    EditorNavigation.SelectEntityByName(pageId, EntityType.Page);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "ExplorerRenamed",
+      action: "Delete",
+      entityType: entityItems.JSObject,
     });
-  },
-);
+    entityExplorer.AssertEntityAbsenceInExplorer("ExplorerRenamed");
+  });
+});

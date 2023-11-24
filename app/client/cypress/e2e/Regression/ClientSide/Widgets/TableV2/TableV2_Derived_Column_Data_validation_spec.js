@@ -1,4 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -15,39 +19,39 @@ describe(
       agHelper.AddDsl("tableV2TextPaginationDsl");
     });
 
-    it("1. Create an API and Execute the API and bind with Table V2", function () {
-      // Create and execute an API and bind with table
-      apiPage.CreateAndFillApi(
-        this.dataSet.paginationUrl + this.dataSet.paginationParam,
-      );
-      agHelper.VerifyEvaluatedValue(
-        this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
-      );
-      apiPage.RunAPI();
-      //Validate Table V2 with API data and then add a column
-      // Open property pane
-      entityExplorer.SelectEntityByName("Table1");
-      propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
-      // Check Widget properties
-      cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
-      // Open Text1 in propert pane
-      entityExplorer.SelectEntityByName("Text1");
-      propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
-      // Open Table1 propert pane
-      entityExplorer.SelectEntityByName("Table1");
-      // Compare table 1st index data with itself
-      cy.readTableV2data("0", "0").then((tabData) => {
-        const tableData = tabData;
-        localStorage.setItem("tableDataPage1", tableData);
-      });
-      // Verify 1st index data
-      cy.readTableV2data("0", "4").then((tabData) => {
-        const tableData = tabData;
-        expect(tableData).to.equal("1");
-      });
-      // add new column
-      cy.addColumnV2("CustomColumn");
+  it("1. Create an API and Execute the API and bind with Table V2", function () {
+    // Create and execute an API and bind with table
+    apiPage.CreateAndFillApi(
+      this.dataSet.paginationUrl + this.dataSet.paginationParam,
+    );
+    agHelper.VerifyEvaluatedValue(
+      this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
+    );
+    apiPage.RunAPI();
+    //Validate Table V2 with API data and then add a column
+    // Open property pane
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
+    // Check Widget properties
+    cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
+    // Open Text1 in propert pane
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+    propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
+    // Open Table1 propert pane
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    // Compare table 1st index data with itself
+    cy.readTableV2data("0", "0").then((tabData) => {
+      const tableData = tabData;
+      localStorage.setItem("tableDataPage1", tableData);
     });
+    // Verify 1st index data
+    cy.readTableV2data("0", "4").then((tabData) => {
+      const tableData = tabData;
+      expect(tableData).to.equal("1");
+    });
+    // add new column
+    cy.addColumnV2("CustomColumn");
+  });
 
     it("2. Table widget toggle test for background color", function () {
       // Open id property pane
@@ -87,31 +91,27 @@ describe(
       cy.closePropertyPane();
     });
 
-    it("4. Update table json data and check the column names updated", function () {
-      // Open table propert pane
-      entityExplorer.SelectEntityByName("Table1");
-      cy.backFromPropertyPanel();
-      // Change the table data
-      cy.testJsontext(
-        "tabledata",
-        JSON.stringify(this.dataSet.TableInputUpdate),
-      );
-      cy.wait("@updateLayout");
-      // verify columns are visible or not in the propert pane
-      cy.tableV2ColumnDataValidation("id");
-      cy.tableV2ColumnDataValidation("email");
-      cy.tableV2ColumnDataValidation("userName");
-      cy.tableV2ColumnDataValidation("productName");
-      cy.tableV2ColumnDataValidation("orderAmount");
-      cy.tableV2ColumnDataValidation("customColumn1");
-      // Hide the columns in property pane
-      cy.hideColumn("email");
-      cy.hideColumn("userName");
-      cy.hideColumn("productName");
-      cy.hideColumn("orderAmount");
-      // verify customColumn is visible in the table
-      cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
-      cy.closePropertyPane();
-    });
-  },
-);
+  it("4. Update table json data and check the column names updated", function () {
+    // Open table propert pane
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    cy.backFromPropertyPanel();
+    // Change the table data
+    cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInputUpdate));
+    cy.wait("@updateLayout");
+    // verify columns are visible or not in the propert pane
+    cy.tableV2ColumnDataValidation("id");
+    cy.tableV2ColumnDataValidation("email");
+    cy.tableV2ColumnDataValidation("userName");
+    cy.tableV2ColumnDataValidation("productName");
+    cy.tableV2ColumnDataValidation("orderAmount");
+    cy.tableV2ColumnDataValidation("customColumn1");
+    // Hide the columns in property pane
+    cy.hideColumn("email");
+    cy.hideColumn("userName");
+    cy.hideColumn("productName");
+    cy.hideColumn("orderAmount");
+    // verify customColumn is visible in the table
+    cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
+    cy.closePropertyPane();
+  });
+});

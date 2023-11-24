@@ -8,6 +8,9 @@ import {
   theme,
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -161,7 +164,7 @@ describe("Theme validation usecases", { tags: [] }, function () {
   });
 
   it("3. Validate Theme change across application", function () {
-    entityExplorer.SelectEntityByName("FormTest");
+    EditorNavigation.SelectEntityByName("FormTest", EntityType.Widget);
     propPane.MoveToTab("Style");
     cy.get(widgetsPage.backgroundcolorPickerNew).first().click({ force: true });
     cy.get("[style='background-color: rgb(21, 128, 61);']").last().click();
@@ -222,7 +225,7 @@ describe("Theme validation usecases", { tags: [] }, function () {
             appSettings.ClosePane();
           });
       });
-    entityExplorer.SelectEntityByName("FormTest");
+    EditorNavigation.SelectEntityByName("FormTest", EntityType.Widget);
     propPane.MoveToTab("Style");
     cy.get(widgetsPage.backgroundcolorPickerNew).first().click({ force: true });
     cy.get("[style='background-color: rgb(126, 34, 206);']").first().click();

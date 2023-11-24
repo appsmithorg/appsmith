@@ -6,6 +6,9 @@ import {
   propPane,
   dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Multi Select widget Tests",
@@ -85,16 +88,13 @@ describe(
       const labelStylesProperties = ["fontcolor", "fontsize", "emphasis"];
       const borderShadows = ["borderradius", "boxshadow"];
 
-      entityExplorer.SelectEntityByName("MultiTreeSelect1", "Widgets");
-      // Data section
-      dataProperties.forEach((dataSectionProperty) => {
-        agHelper.AssertElementVisibility(
-          propPane._propertyPanePropertyControl(
-            "data",
-            `${dataSectionProperty}`,
-          ),
-        );
-      });
+    EditorNavigation.SelectEntityByName("MultiTreeSelect1", EntityType.Widget);
+    // Data section
+    dataProperties.forEach((dataSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl("data", `${dataSectionProperty}`),
+      );
+    });
 
       // Label section
       labelProperties.forEach((labelSectionProperty) => {
@@ -169,12 +169,15 @@ describe(
       entityExplorer.AssertEntityPresenceInExplorer("NewMultiTreeSelectCopy");
       entityExplorer.DeleteWidgetFromEntityExplorer("NewMultiTreeSelectCopy");
 
-      // Copy paste from property pane and delete from property pane
-      propPane.CopyPasteWidgetFromPropertyPane("NewMultiTreeSelect");
-      propPane.DeleteWidgetFromPropertyPane("NewMultiTreeSelectCopy");
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.MoveToTab("Content");
-    });
+    // Copy paste from property pane and delete from property pane
+    propPane.CopyPasteWidgetFromPropertyPane("NewMultiTreeSelect");
+    propPane.DeleteWidgetFromPropertyPane("NewMultiTreeSelectCopy");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.MoveToTab("Content");
+  });
 
     it("4. Validate only selected options are reflected in widget area", () => {
       agHelper.GetNClick(locators._dropDownMultiTreeSelect);
@@ -220,18 +223,24 @@ describe(
       agHelper.AssertAttribute(locators._label, "position", "Left");
       deployMode.NavigateBacktoEditor();
 
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`);
-      agHelper.AssertAttribute(locators._label, "position", "Top");
-    });
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`);
+    agHelper.AssertAttribute(locators._label, "position", "Top");
+  });
 
-    it("6. Verify tooltip", () => {
-      entityExplorer.SelectEntityByName("CurrencyInput1", "Widgets");
-      propPane.UpdatePropertyFieldValue("Default value", "1000");
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
-      agHelper.HoverElement(locators._tooltipIcon);
-      agHelper.AssertPopoverTooltip("1,000");
+  it("6. Verify tooltip", () => {
+    EditorNavigation.SelectEntityByName("CurrencyInput1", EntityType.Widget);
+    propPane.UpdatePropertyFieldValue("Default value", "1000");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.UpdatePropertyFieldValue("Tooltip", "{{CurrencyInput1.text}}");
+    agHelper.HoverElement(locators._tooltipIcon);
+    agHelper.AssertPopoverTooltip("1,000");
 
       // Preview mode
       agHelper.GetNClick(locators._enterPreviewMode);
@@ -246,19 +255,22 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("7. Verify Mode options", () => {
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.SelectPropertiesDropDown("Mode", "Display only parent items");
-      agHelper.GetNClick(locators._dropDownMultiTreeSelect);
-      agHelper.GetNClick(locators._switcherIcon);
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Dark Blue"));
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Light Blue"));
-      agHelper.GetNAssertElementText(
-        locators._treeSelectedContent,
-        "Blue",
-        "have.text",
-        1,
-      );
+  it("7. Verify Mode options", () => {
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.SelectPropertiesDropDown("Mode", "Display only parent items");
+    agHelper.GetNClick(locators._dropDownMultiTreeSelect);
+    agHelper.GetNClick(locators._switcherIcon);
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Dark Blue"));
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Light Blue"));
+    agHelper.GetNAssertElementText(
+      locators._treeSelectedContent,
+      "Blue",
+      "have.text",
+      1,
+    );
 
       propPane.SelectPropertiesDropDown("Mode", "Display only child items");
       agHelper.GetNAssertElementText(
@@ -295,31 +307,37 @@ describe(
       );
     });
 
-    it("8. Verify placeholder", function () {
-      agHelper.GetNClick(locators._dropDownMultiTreeSelect);
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Blue"));
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
-      propPane.UpdatePropertyFieldValue("Placeholder", "Select new option");
-      agHelper.AssertText(
-        locators._treeSelectPlaceholder,
-        "text",
-        "Select new option",
-      );
-      // Binding with Text widget
-      entityExplorer.SelectEntityByName("Text1", "Widgets");
-      propPane.UpdatePropertyFieldValue("Text", "Select value");
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.UpdatePropertyFieldValue("Placeholder", "{{Text1.text}}");
-      agHelper.AssertText(
-        locators._treeSelectPlaceholder,
-        "text",
-        "Select value",
-      );
-    });
+  it("8. Verify placeholder", function () {
+    agHelper.GetNClick(locators._dropDownMultiTreeSelect);
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Blue"));
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
+    propPane.UpdatePropertyFieldValue("Placeholder", "Select new option");
+    agHelper.AssertText(
+      locators._treeSelectPlaceholder,
+      "text",
+      "Select new option",
+    );
+    // Binding with Text widget
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+    propPane.UpdatePropertyFieldValue("Text", "Select value");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.UpdatePropertyFieldValue("Placeholder", "{{Text1.text}}");
+    agHelper.AssertText(
+      locators._treeSelectPlaceholder,
+      "text",
+      "Select value",
+    );
+  });
 
-    it("9. Validate visible and disabled toggle", () => {
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.TogglePropertyState("visible", "Off");
+  it("9. Validate visible and disabled toggle", () => {
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.TogglePropertyState("visible", "Off");
 
       // Preview mode
       agHelper.GetNClick(locators._enterPreviewMode);
@@ -335,8 +353,11 @@ describe(
       );
       deployMode.NavigateBacktoEditor();
 
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.TogglePropertyState("visible", "On");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.TogglePropertyState("visible", "On");
 
       // Preview mode
       agHelper.GetNClick(locators._enterPreviewMode);
@@ -352,10 +373,13 @@ describe(
       );
       deployMode.NavigateBacktoEditor();
 
-      // Visible JS mode
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.ToggleJSMode("Visible", true);
-      propPane.UpdatePropertyFieldValue("Visible", "false");
+    // Visible JS mode
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.ToggleJSMode("Visible", true);
+    propPane.UpdatePropertyFieldValue("Visible", "false");
 
       deployMode.DeployApp();
       agHelper.AssertElementAbsence(
@@ -363,19 +387,25 @@ describe(
       );
       deployMode.NavigateBacktoEditor();
 
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.ToggleJSMode("Visible", true);
-      propPane.UpdatePropertyFieldValue("Visible", "true");
-      propPane.ToggleJSMode("Visible", false);
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.ToggleJSMode("Visible", true);
+    propPane.UpdatePropertyFieldValue("Visible", "true");
+    propPane.ToggleJSMode("Visible", false);
 
-      // Disabled
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.TogglePropertyState("disabled", "On");
-      agHelper.AssertAttribute(
-        locators._widgetInDeployed("multiselecttreewidget"),
-        "disabled",
-        "disabled",
-      );
+    // Disabled
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.TogglePropertyState("disabled", "On");
+    agHelper.AssertAttribute(
+      locators._widgetInDeployed("multiselecttreewidget"),
+      "disabled",
+      "disabled",
+    );
 
       // Preview mode
       agHelper.GetNClick(locators._enterPreviewMode);
@@ -395,9 +425,12 @@ describe(
       );
       deployMode.NavigateBacktoEditor();
 
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.TogglePropertyState("disabled", "Off");
-    });
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.TogglePropertyState("disabled", "Off");
+  });
 
     it("10. Validate auto height with limits", function () {
       propPane.SelectPropertiesDropDown("height", "Auto Height with limits");
@@ -476,8 +509,11 @@ describe(
       agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
       deployMode.NavigateBacktoEditor();
 
-      entityExplorer.SelectEntityByName("NewMultiTreeSelect", "Widgets");
-      propPane.MoveToTab("Style");
+    EditorNavigation.SelectEntityByName(
+      "NewMultiTreeSelect",
+      EntityType.Widget,
+    );
+    propPane.MoveToTab("Style");
 
       // Verify border
       agHelper.GetNClick(propPane._segmentedControl("0px"));

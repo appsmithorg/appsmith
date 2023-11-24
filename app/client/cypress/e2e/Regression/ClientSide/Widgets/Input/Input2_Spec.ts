@@ -7,6 +7,9 @@ import {
   propPane,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("InputV2 widget tests", { tags: ["@tag.Widget"] }, function () {
   let testcases,
@@ -108,7 +111,7 @@ describe("InputV2 widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("2. Data Type - Multi Line Text", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Data type", "Multi-line text");
 
     //Assert that it should display textarea for multi line text
@@ -177,7 +180,7 @@ describe("InputV2 widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("3. Data Type - Number", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Data type", "Number");
 
     //Default value
@@ -248,7 +251,7 @@ describe("InputV2 widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("4. Data Type - Password", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Data type", "Password");
 
     //Default value
@@ -286,7 +289,7 @@ describe("InputV2 widget tests", { tags: ["@tag.Widget"] }, function () {
 
   it("5. Data Type - Email", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Data type", "Email");
 
     //Default value

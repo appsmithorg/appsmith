@@ -21,7 +21,7 @@ let width = {
 
 describe(
   "Validating Mobile Views for Auto Fill Widgets",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   function () {
     it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

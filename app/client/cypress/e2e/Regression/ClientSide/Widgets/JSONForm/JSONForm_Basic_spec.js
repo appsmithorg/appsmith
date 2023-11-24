@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -70,24 +74,23 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("Validate copy/paste/delete widget ", function () {
-      entityExplorer.SelectEntityByName("JSONForm1");
-      const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-      //copy and paste
-      cy.openPropertyPane("jsonformwidget");
-      cy.get("body").type(`{${modifierKey}}c`);
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
-      cy.get("body").click();
-      cy.get("body").type(`{${modifierKey}}v`, { force: true });
-      cy.wait("@updateLayout").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.get(widgetsPage.jsonFormWidget).should("have.length", 2);
-      cy.deleteWidget(widgetsPage.jsonFormWidget);
-      cy.get(widgetsPage.jsonFormWidget).should("have.length", 1);
-    });
-  },
-);
+  it("Validate copy/paste/delete widget ", function () {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+    //copy and paste
+    cy.openPropertyPane("jsonformwidget");
+    cy.get("body").type(`{${modifierKey}}c`);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+    cy.get("body").click();
+    cy.get("body").type(`{${modifierKey}}v`, { force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(widgetsPage.jsonFormWidget).should("have.length", 2);
+    cy.deleteWidget(widgetsPage.jsonFormWidget);
+    cy.get(widgetsPage.jsonFormWidget).should("have.length", 1);
+  });
+});

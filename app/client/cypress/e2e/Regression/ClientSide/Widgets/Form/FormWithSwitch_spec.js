@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -29,9 +33,9 @@ describe(
       cy.closePropertyPane();
     });
 
-    it("Form reset button validation with switch widget", function () {
-      // Open form button
-      _.entityExplorer.SelectEntityByName("FormButton2");
+  it("Form reset button validation with switch widget", function () {
+    // Open form button
+    EditorNavigation.SelectEntityByName("FormButton2", EntityType.Widget);
 
       // Click on reset widget action
       cy.selectResetWidget("onClick");

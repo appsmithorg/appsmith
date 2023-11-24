@@ -1,10 +1,13 @@
 import {
   agHelper,
-  entityExplorer,
-  propPane,
   apiPage,
   draggableWidgets,
+  entityExplorer,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Disable JS toggle when Action selector code is not parsable",
@@ -14,7 +17,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
       entityExplorer.NavigateToSwitcher("Explorer");
       apiPage.CreateApi("Api1", "GET");
-      entityExplorer.SelectEntityByName("Button1", "Widgets");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     });
 
     it("1. Bug 22180", () => {

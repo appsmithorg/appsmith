@@ -5,7 +5,7 @@ let twidth;
 
 describe(
   "Validating Mobile Views for Fill Widget",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   function () {
     it("Validate change with height width for fill widget - Input widget", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

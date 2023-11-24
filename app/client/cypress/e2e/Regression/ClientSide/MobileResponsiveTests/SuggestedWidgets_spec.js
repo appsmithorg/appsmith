@@ -8,7 +8,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe(
   "Check Suggested Widgets Feature in auto-layout",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   function () {
     before(() => {
       autoLayout.ConvertToAutoLayoutAndVerify(false);

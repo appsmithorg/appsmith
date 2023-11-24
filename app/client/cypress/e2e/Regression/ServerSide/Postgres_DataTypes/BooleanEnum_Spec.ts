@@ -1,15 +1,18 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
-  entityItems,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Boolean & Enum Datatype tests",
@@ -78,29 +81,27 @@ describe(
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     });
 
-    it("2. Inserting record - boolenumtypes", () => {
-      entityExplorer.SelectEntityByName("Page1");
-      deployMode.DeployApp();
-      table.WaitForTableEmpty(); //asserting table is empty before inserting!
-      agHelper.ClickButton("Run InsertQuery");
-      agHelper.AssertElementVisibility(locators._modal);
-      agHelper.SelectDropDown("Monday");
-      agHelper.ToggleSwitch("Areweworking");
-      agHelper.ClickButton("Insert");
-      agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-      agHelper.AssertElementVisibility(
-        locators._buttonByText("Run InsertQuery"),
-      );
-      table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
-        expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
-      });
-      table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("Monday");
-      });
-      table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("true");
-      });
+  it("2. Inserting record - boolenumtypes", () => {
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    deployMode.DeployApp();
+    table.WaitForTableEmpty(); //asserting table is empty before inserting!
+    agHelper.ClickButton("Run InsertQuery");
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.SelectDropDown("Monday");
+    agHelper.ToggleSwitch("Areweworking");
+    agHelper.ClickButton("Insert");
+    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
+    table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
+      expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+      expect($cellData).to.eq("Monday");
+    });
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($cellData) => {
+      expect($cellData).to.eq("true");
+    });
+  });
 
     it("3. Inserting another record - boolenumtypes", () => {
       agHelper.ClickButton("Run InsertQuery");
@@ -179,34 +180,33 @@ describe(
         expect($cellData).to.eq("Friday");
       });
 
-      query = `SELECT * FROM boolenumtypes WHERE workingday = (SELECT MIN(workingday) FROM boolenumtypes);`;
-      dataSources.EnterQuery(query);
-      dataSources.RunQuery();
-      dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-        expect($cellData).to.eq("Monday");
-      });
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
-      entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    query = `SELECT * FROM boolenumtypes WHERE workingday = (SELECT MIN(workingday) FROM boolenumtypes);`;
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+      expect($cellData).to.eq("Monday");
     });
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+  });
 
-    it("7. Deleting records - boolenumtypes", () => {
-      entityExplorer.SelectEntityByName("Page1");
-      deployMode.DeployApp();
-      table.WaitUntilTableLoad();
-      table.SelectTableRow(1);
-      agHelper.ClickButton("DeleteQuery", 1);
-      assertHelper.AssertNetworkStatus("@postExecute", 200);
-      assertHelper.AssertNetworkStatus("@postExecute", 200);
-      agHelper.Sleep(2500); //Allwowing time for delete to be success
-      table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
-        expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
-      });
-      table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
-        expect($cellData).to.eq("3");
-      });
+  it("7. Deleting records - boolenumtypes", () => {
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    deployMode.DeployApp();
+    table.WaitUntilTableLoad();
+    table.SelectTableRow(1);
+    agHelper.ClickButton("DeleteQuery", 1);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    assertHelper.AssertNetworkStatus("@postExecute", 200);
+    agHelper.Sleep(2500); //Allwowing time for delete to be success
+    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+      expect($cellData).not.to.eq("2"); //asserting 2nd record is deleted
+    });
+    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
+      expect($cellData).to.eq("3");
+    });
 
       //Deleting all records from table
       agHelper.GetNClick(locators._deleteIcon);
@@ -242,14 +242,13 @@ describe(
       () => {
         //Drop table:
 
-        deployMode.NavigateBacktoEditor();
-        entityExplorer.ExpandCollapseEntity("Queries/JS");
-        entityExplorer.SelectEntityByName("dropTable");
-        dataSources.RunQuery();
-        dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-          expect($cellData).to.eq("0"); //Success response for dropped table!
-        });
-        entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
+      dataSources.RunQuery();
+      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+        expect($cellData).to.eq("0"); //Success response for dropped table!
+      });
+      entityExplorer.ExpandCollapseEntity("Queries/JS", false);
 
         //Delete queries
         dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists

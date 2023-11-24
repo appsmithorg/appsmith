@@ -1,4 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -26,16 +30,16 @@ describe(
       apiPage.RunAPI();
       //Test: Validate Table with API data and then add a column
       // Open property pane
-      entityExplorer.SelectEntityByName("Table1");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       // Clear Table data and enter Apil data into table data
       cy.testJsontext("tabledata", "{{Api1.data}}");
       // Check Widget properties
       cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
       // Open Text1 in propert pane
-      entityExplorer.SelectEntityByName("Text1");
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow.url}}");
       // Open Table1 propert pane
-      entityExplorer.SelectEntityByName("Table1");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       // Compare table 1st index data with itself
       cy.readTabledata("0", "0").then((tabData) => {
         const tableData = tabData;
@@ -68,44 +72,40 @@ describe(
       );
     });
 
-    it("2. Edit column name and validate test for computed value based on column type selected", function () {
-      // opoen customColumn1 property pane
-      cy.editColumn("customColumn1");
-      // Enter Apil 1st user email data into customColumn1
+  it("2. Edit column name and validate test for computed value based on column type selected", function () {
+    // opoen customColumn1 property pane
+    cy.editColumn("customColumn1");
+    // Enter Apil 1st user email data into customColumn1
+    cy.readTabledataPublish("1", "7").then((tabData) => {
+      const tabValue = tabData;
+      cy.updateComputedValue("{{Api1.data[0].email}}");
       cy.readTabledataPublish("1", "7").then((tabData) => {
-        const tabValue = tabData;
-        cy.updateComputedValue("{{Api1.data[0].email}}");
-        cy.readTabledataPublish("1", "7").then((tabData) => {
-          expect(tabData).not.to.be.equal(tabValue);
-          cy.log("computed value of plain text " + tabData);
-        });
+        expect(tabData).not.to.be.equal(tabValue);
+        cy.log("computed value of plain text " + tabData);
       });
-      cy.closePropertyPane();
-      //Test: Update table json data and check the column names updated
-      // Open table propert pane
-      entityExplorer.SelectEntityByName("Table1");
-      cy.backFromPropertyPanel();
-      // Change the table data
-      cy.testJsontext(
-        "tabledata",
-        JSON.stringify(this.dataSet.TableInputUpdate),
-      );
-      cy.wait("@updateLayout");
-      // verify columns are visible or not in the propert pane
-      cy.tableColumnDataValidation("id");
-      cy.tableColumnDataValidation("email");
-      cy.tableColumnDataValidation("userName");
-      cy.tableColumnDataValidation("productName");
-      cy.tableColumnDataValidation("orderAmount");
-      cy.tableColumnDataValidation("customColumn1");
-      // Hide the columns in property pane
-      cy.hideColumn("email");
-      cy.hideColumn("userName");
-      cy.hideColumn("productName");
-      cy.hideColumn("orderAmount");
-      // verify customColumn is visible in the table
-      cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
-      cy.closePropertyPane();
     });
-  },
-);
+    cy.closePropertyPane();
+    //Test: Update table json data and check the column names updated
+    // Open table propert pane
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    cy.backFromPropertyPanel();
+    // Change the table data
+    cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInputUpdate));
+    cy.wait("@updateLayout");
+    // verify columns are visible or not in the propert pane
+    cy.tableColumnDataValidation("id");
+    cy.tableColumnDataValidation("email");
+    cy.tableColumnDataValidation("userName");
+    cy.tableColumnDataValidation("productName");
+    cy.tableColumnDataValidation("orderAmount");
+    cy.tableColumnDataValidation("customColumn1");
+    // Hide the columns in property pane
+    cy.hideColumn("email");
+    cy.hideColumn("userName");
+    cy.hideColumn("productName");
+    cy.hideColumn("orderAmount");
+    // verify customColumn is visible in the table
+    cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
+    cy.closePropertyPane();
+  });
+});

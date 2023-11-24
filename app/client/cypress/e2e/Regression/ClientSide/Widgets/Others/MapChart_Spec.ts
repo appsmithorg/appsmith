@@ -8,6 +8,9 @@ import {
   deployMode,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const _mapChartCaption = "g[class*='-caption'] text";
 const _mapChartPlot = (text: string) =>
@@ -19,7 +22,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapchartsimple");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
   });
 
   it("2.1 Update the Map type to different types and verify - part1", function () {
@@ -29,7 +32,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithantarctica");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Change the map type to World and verify the number of entities
     propPane.SelectPropertiesDropDown("Map type", "World");
@@ -37,7 +40,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithworld");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Change the map type to Europe and verify the number of entities
     propPane.SelectPropertiesDropDown("Map type", "Europe");
@@ -45,7 +48,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwitheurope");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Change the map type to North America and verify the number of entities
     propPane.SelectPropertiesDropDown("Map type", "North America");
@@ -53,7 +56,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithnorthamerica");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Change the map type to South America and verify the number of entities
     propPane.SelectPropertiesDropDown("Map type", "South America");
@@ -61,7 +64,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithsouthamerica");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
   });
 
   it("2.2 Update the Map type to different types and verify - part2", function () {
@@ -71,7 +74,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithoceania");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Change the map type to Africa and verify the number of entities
     propPane.SelectPropertiesDropDown("Map type", "Africa");
@@ -79,7 +82,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithafrica");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Change the map type to USA and verify the number of entities
     propPane.SelectPropertiesDropDown("Map type", "USA");
@@ -87,7 +90,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithusa");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Change the map type to Asia and verify the number of entities
     propPane.SelectPropertiesDropDown("Map type", "Asia");
@@ -95,7 +98,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithasia");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
   });
 
   it("3. Update the Chart data and verify", function () {
@@ -110,7 +113,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithcustomdata");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
   });
 
   it("4. Verify General settings", function () {
@@ -120,7 +123,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     agHelper.AssertText(_mapChartCaption, "text", "App Sign Up");
     agHelper.VerifySnapshot(locators._root, "mapwithcustomtitle");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // update the visibility using toggle and verify
     propPane.TogglePropertyState("Visible", "Off");
@@ -130,7 +133,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     );
     agHelper.VerifySnapshot(locators._root, "mapwithvisibilityoff");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // update the visibility using JS and verify
     propPane.EnterJSContext("Visible", "true");
@@ -140,21 +143,21 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     );
     agHelper.VerifySnapshot(locators._root, "mapwithvisibilityon");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // update the show labels using toggle and verify
     propPane.TogglePropertyState("Show Labels", "Off");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithshowlabelsoff");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // update the visibility using JS and verify
     propPane.EnterJSContext("Show Labels", "true");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapwithshowlableson");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
   });
 
   it("5. Update onDataPointClick and Verify", function () {
@@ -170,7 +173,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     agHelper.GetNClick(_mapChartPlot("RU"), 0, true);
     agHelper.ValidateToastMessage("Data Point Russian Federation Clicked");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Convert the onDataPointClick to JS, update and verify
     propPane.EnterJSContext(
@@ -181,7 +184,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     agHelper.GetNClick(_mapChartPlot("CN"), 0, true);
     agHelper.ValidateToastMessage("Converted to Js and clicked China");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
   });
 
   it("6. Verify the style changes", function () {
@@ -198,7 +201,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapChartWithColorRange");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Change border radius and verify
     propPane.MoveToTab("Style");
@@ -206,7 +209,7 @@ describe("Map Chart Widget Functionality", { tags: ["@tag.Widget"] }, function (
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.MAPCHART));
     agHelper.VerifySnapshot(locators._root, "mapChartWithBorderRadius");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("MapChart1", "Widgets");
+    EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
     // Change box shadow and verify
     const boxShadow =

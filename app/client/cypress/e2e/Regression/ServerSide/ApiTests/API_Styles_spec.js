@@ -9,6 +9,7 @@ import {
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -63,41 +64,38 @@ describe(
         .should("have.css", "visibility", "visible");
     });
 
-    it("4. Select Datasource dropdown binding prompt background color", function () {
-      cy.generateUUID().then((appName1) => {
-        cy.generateUUID().then((appName2) => {
-          //Create two datasource for testing binding prompt background-color
-          cy.createNewAuthApiDatasource(appName1);
-          cy.createNewAuthApiDatasource(appName2);
-          EditorNavigation.ViaSidebar(SidebarButton.Pages);
-          entityExplorer.ExpandCollapseEntity("Queries/JS");
-          cy.get(commonLocators.entityName).contains("test_styles").click();
-          //Click on API search editor
-          cy.get(ApiEditor.codeEditorWrapper).first().click();
-          //First hint for search background-color test
-          cy.get(ApiEditor.apiSearchHint)
-            .first()
-            .should("have.css", "background-color", backgroundColorGray200);
-          //Last element (can be any child other than the default) background-color check
-          //On hover background-color should change.
-          cy.get(ApiEditor.apiSearchHint)
-            .last()
-            .should("have.css", "background-color", backgroundColorwhite)
-            .realHover()
-            .should("have.css", "background-color", hover);
-          //Delete created test API
-          cy.DeleteAPI();
-          EditorNavigation.ViaSidebar(SidebarButton.Pages);
-          cy.wait(2000);
-          cy.get(commonLocators.entityName)
-            .contains("test_styles")
-            .should("not.exist");
-          //Delete two datasources
-          cy.deleteDatasource(appName1);
-          cy.deleteDatasource(appName2);
-        });
+  it("4. Select Datasource dropdown binding prompt background color", function () {
+    cy.generateUUID().then((appName1) => {
+      cy.generateUUID().then((appName2) => {
+        //Create two datasource for testing binding prompt background-color
+        cy.createNewAuthApiDatasource(appName1);
+        cy.createNewAuthApiDatasource(appName2);
+        EditorNavigation.ViaSidebar(SidebarButton.Pages);
+        EditorNavigation.SelectEntityByName("test_styles", EntityType.Api);
+        //Click on API search editor
+        cy.get(ApiEditor.codeEditorWrapper).first().click();
+        //First hint for search background-color test
+        cy.get(ApiEditor.apiSearchHint)
+          .first()
+          .should("have.css", "background-color", backgroundColorGray200);
+        //Last element (can be any child other than the default) background-color check
+        //On hover background-color should change.
+        cy.get(ApiEditor.apiSearchHint)
+          .last()
+          .should("have.css", "background-color", backgroundColorwhite)
+          .realHover()
+          .should("have.css", "background-color", hover);
+        //Delete created test API
+        cy.DeleteAPI();
+        EditorNavigation.ViaSidebar(SidebarButton.Pages);
+        cy.wait(2000);
+        entityExplorer.AssertEntityAbsenceInExplorer("test_styles");
+        //Delete two datasources
+        cy.deleteDatasource(appName1);
+        cy.deleteDatasource(appName2);
       });
     });
+  });
 
     after(() => {
       //Delete Application

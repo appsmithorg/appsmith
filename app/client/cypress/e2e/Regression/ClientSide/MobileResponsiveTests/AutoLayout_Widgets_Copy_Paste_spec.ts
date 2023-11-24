@@ -7,7 +7,7 @@ import {
 
 describe(
   "Copy paste widget related tests for Auto layout",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   () => {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 

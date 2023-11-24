@@ -30,7 +30,6 @@ describe("axios api interceptors", () => {
       const response: AxiosResponse = {
         data: "Test data",
         headers: {
-          // @ts-expect-error: content-length should be string
           "content-length": 123,
           "content-type": "application/json",
         },

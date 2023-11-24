@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
@@ -10,39 +11,36 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
-describe(
-  "List widget v2 - Basic server side data tests",
-  { tags: ["@tag.Widget", "@tag.List"] },
-  () => {
-    before(() => {
-      _.agHelper.AddDsl("Listv2/listWithServerSideData");
-      // Open Datasource editor
-      if (!Cypress.env("AIRGAPPED")) {
-        cy.wait(2000);
-        // Create sample(mock) user database.
-        _.dataSources.CreateMockDB("Users").then(() => {
-          _.dataSources.CreateQueryAfterDSSaved();
-          _.dataSources.ToggleUsePreparedStatement(false);
-          _.dataSources.EnterQuery(
-            "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
-          );
-          _.dataSources.RunQuery();
-        });
-        _.entityExplorer.SelectEntityByName("Page1");
-      } else {
-        cy.wait(2000);
-        _.dataSources.CreateDataSource("Postgres");
-        cy.get("@dsName").then(($dsName) => {
-          _.dataSources.CreateQueryFromActiveTab($dsName, true);
-          _.dataSources.ToggleUsePreparedStatement(false);
-          _.dataSources.EnterQuery(
-            "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
-          );
-          _.dataSources.RunQuery();
-        });
-        _.entityExplorer.SelectEntityByName("Page1");
-      }
-    });
+describe("List widget v2 - Basic server side data tests",{ tags: ["@tag.Widget", "@tag.List"] }, () => {
+  before(() => {
+    _.agHelper.AddDsl("Listv2/listWithServerSideData");
+    // Open Datasource editor
+    if (!Cypress.env("AIRGAPPED")) {
+      cy.wait(2000);
+      // Create sample(mock) user database.
+      _.dataSources.CreateMockDB("Users").then(() => {
+        _.dataSources.CreateQueryAfterDSSaved();
+        _.dataSources.ToggleUsePreparedStatement(false);
+        _.dataSources.EnterQuery(
+          "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
+        );
+        _.dataSources.RunQuery();
+      });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    } else {
+      cy.wait(2000);
+      _.dataSources.CreateDataSource("Postgres");
+      cy.get("@dsName").then(($dsName) => {
+        _.dataSources.CreateQueryFromActiveTab($dsName, true);
+        _.dataSources.ToggleUsePreparedStatement(false);
+        _.dataSources.EnterQuery(
+          "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
+        );
+        _.dataSources.RunQuery();
+      });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    }
+  });
 
     it(
       "1. shows correct number of items and binding texts",
@@ -363,9 +361,7 @@ describe(
 
         cy.runQuery();
 
-        cy.get('.t--entity-name:contains("Page1")').click({
-          force: true,
-        });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
         cy.wait(1000);
 
@@ -406,9 +402,7 @@ describe(
 
         cy.runQuery();
 
-        cy.get('.t--entity-name:contains("Page1")').click({
-          force: true,
-        });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
         cy.wait(1000);
 

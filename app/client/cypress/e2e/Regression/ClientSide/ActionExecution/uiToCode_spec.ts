@@ -1,12 +1,15 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  jsEditor,
-  propPane,
   apiPage,
   draggableWidgets,
+  entityExplorer,
+  jsEditor,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("UI to Code", { tags: ["@tag.JS"] }, () => {
   before(() => {
@@ -17,7 +20,7 @@ describe("UI to Code", { tags: ["@tag.JS"] }, () => {
   });
 
   beforeEach(() => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "");
     propPane.ToggleJSMode("onClick", false);
   });

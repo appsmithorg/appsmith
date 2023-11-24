@@ -8,6 +8,9 @@ import {
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Code scanner widget tests", { tags: ["@tag.Widget"] }, () => {
   before(() => {
@@ -31,7 +34,7 @@ describe("Code scanner widget tests", { tags: ["@tag.Widget"] }, () => {
       locators._widgetInDeployed(draggableWidgets.CODESCANNER),
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("CodeScanner1");
+    EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
@@ -45,7 +48,7 @@ describe("Code scanner widget tests", { tags: ["@tag.Widget"] }, () => {
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(widgetLocators.codeScannerVideo);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("CodeScanner1");
+    EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
     propPane.EnterJSContext("Disabled", "", false);
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
@@ -75,7 +78,7 @@ describe("Code scanner widget tests", { tags: ["@tag.Widget"] }, () => {
       //Add an action in onCodeDetected event
       entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
       propPane.TypeTextIntoField("Text", "{{CodeScanner1.value}}");
-      entityExplorer.SelectEntityByName("CodeScanner1");
+      EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
       propPane.EnterJSContext(
         "onCodeDetected",
         "{{showAlert('Code scanned successfully!','success')}}",
@@ -102,7 +105,7 @@ describe("Code scanner widget tests", { tags: ["@tag.Widget"] }, () => {
 
   it("3. Verify properties in Click to Scan mode", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("CodeScanner1");
+    EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
     agHelper.GetNClick(propPane._mode("Click to scan"));
 
     //Visible property - JS convertible
@@ -113,7 +116,7 @@ describe("Code scanner widget tests", { tags: ["@tag.Widget"] }, () => {
       locators._widgetInDeployed(draggableWidgets.CODESCANNER),
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("CodeScanner1");
+    EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
@@ -129,7 +132,7 @@ describe("Code scanner widget tests", { tags: ["@tag.Widget"] }, () => {
     );
     agHelper.AssertElementAbsence(widgetLocators.codeScannerVideo);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("CodeScanner1");
+    EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
     propPane.EnterJSContext("Disabled", "", false);
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
@@ -170,7 +173,7 @@ describe("Code scanner widget tests", { tags: ["@tag.Widget"] }, () => {
       "c) Verify that the scanned data is correctly displayed on the app's screen",
     () => {
       deployMode.NavigateBacktoEditor();
-      entityExplorer.SelectEntityByName("CodeScanner1");
+      EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
 
       //Modify action in onCodeDetected event
       propPane.EnterJSContext("onCodeDetected", "");

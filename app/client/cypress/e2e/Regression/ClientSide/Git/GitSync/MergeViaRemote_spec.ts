@@ -133,20 +133,20 @@ describe(
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
 
-    it("3. Supports merging head to base branch", function () {
-      //cy.switchGitBranch(mainBranch);
-      cy.createGitBranch(tempBranch2);
-      _.entityExplorer.NavigateToSwitcher("Explorer");
-      cy.CheckAndUnfoldEntityItem("Pages");
-      cy.Createpage("NewPage");
-      cy.commitAndPush();
-      cy.merge(mainBranch);
-      cy.get(gitSyncLocators.closeGitSyncModal).click();
-      cy.wait(4000);
-      cy.switchGitBranch(mainBranch);
-      cy.wait(4000); // wait for switch branch
-      cy.contains("NewPage");
-    });
+  it("3. Supports merging head to base branch", function () {
+    //cy.switchGitBranch(mainBranch);
+    _.gitSync.CreateGitBranch(tempBranch2, true);
+    _.entityExplorer.NavigateToSwitcher("Explorer");
+    cy.CheckAndUnfoldEntityItem("Pages");
+    cy.Createpage("NewPage");
+    cy.commitAndPush();
+    cy.merge(mainBranch);
+    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    cy.wait(4000);
+    cy.switchGitBranch(mainBranch);
+    cy.wait(4000); // wait for switch branch
+    cy.contains("NewPage");
+  });
 
     it.skip("4. Enables pulling remote changes from bottom bar", function () {
       _.gitSync.CreateGitBranch(tempBranch3, false);

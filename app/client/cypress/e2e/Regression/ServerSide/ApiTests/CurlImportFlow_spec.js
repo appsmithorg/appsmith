@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -43,10 +44,7 @@ describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
 
   it("2. Bug:15175 Creating new cURL import query from entity explorer crashes the app", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
-      cy.CheckAndUnfoldEntityItem("Pages");
-      cy.get(`.t--entity-name:contains("Page1")`)
-        .should("be.visible")
-        .click({ force: true });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       cy.get(globalSearchLocators.createNew).click();
       cy.xpath("//span[text()='New cURL import']").click();
       cy.get("textarea").type(

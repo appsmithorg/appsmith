@@ -22,7 +22,7 @@ let iconHeight = 0;
 let dropTargetClass = "";
 describe(
   "validate auto height for modal widget on auto layout canvas",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   () => {
     it("1. modal widget height should update on adding or deleting child widgets", () => {
       /**

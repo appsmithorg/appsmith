@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Validating use cases for Table Widget in AutoLayout mode",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   () => {
     before(() => {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);

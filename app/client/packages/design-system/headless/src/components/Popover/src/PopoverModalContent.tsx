@@ -91,7 +91,6 @@ const _PopoverModalContent = (
           closeOnFocusOut={closeOnFocusOut}
           context={context}
           initialFocus={initialFocus}
-          modal
         >
           <div
             aria-describedby={descriptionId}

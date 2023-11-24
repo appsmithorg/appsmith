@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Auto conversion algorithm usecases for fixed Layout",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   function () {
     it("1. Validate basic conversion algorithm usecases fixed layout Desktop", function () {
       _.agHelper.AddDsl("conversionFrAutoLayoutDsl");

@@ -1,14 +1,17 @@
 import {
   agHelper,
-  entityExplorer,
-  entityItems,
+  dataManager,
   dataSources,
   draggableWidgets,
-  propPane,
-  dataManager,
+  entityExplorer,
+  entityItems,
   homePage,
+  propPane,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
 
 describe(
   "Validate Arango & CURL Import Datasources",
@@ -302,28 +305,24 @@ describe(
       entityExplorer.DeleteWidgetFromEntityExplorer("Input1");
     });
 
-    it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
-      agHelper.RefreshPage();
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
-      propPane.AssertPropertiesDropDownCurrentValue(
-        "Table data",
-        "Connect data",
-      );
-      entityExplorer.NavigateToSwitcher("Explorer");
-      entityExplorer.SelectEntityByName("Query6");
-      //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
-      dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
-      dataSources.RunQuery();
-      dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
-      propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
+  it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
+    agHelper.RefreshPage();
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
+    EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
+    //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
+    dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
+    dataSources.RunQuery();
+    dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
 
-      entityExplorer.SelectEntityByName("Query6");
-      dataSources.AddSuggestedWidget(
-        Widgets.Table,
-        dataSources._addSuggestedExisting,
-      );
-      propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
-    });
+    EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
+    dataSources.AddSuggestedWidget(
+      Widgets.Table,
+      dataSources._addSuggestedExisting,
+    );
+    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
+  });
 
     //To add test for duplicate collection name
 

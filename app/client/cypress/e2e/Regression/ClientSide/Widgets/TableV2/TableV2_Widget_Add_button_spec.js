@@ -1,10 +1,13 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
 import {
   agHelper,
-  entityExplorer,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -17,20 +20,20 @@ describe(
       agHelper.AddDsl("tableV2NewDsl");
     });
 
-    it("1. Table widget V2 with Add button test and validation", function () {
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
-      // Open column details of "id".
-      cy.get(widgetsPage.tableV2Btn).should("not.exist");
-      // Changing column data type to "Button"
-      table.ChangeColumnType("id", "Button");
-      // Changing the computed value (data) to "orderAmount"
-      propPane.UpdatePropertyFieldValue("Text", "{{currentRow.orderAmount}}");
-      // Selecting button action to show message
-      propPane.SelectPlatformFunction("onClick", "Show alert");
-      agHelper.EnterActionValue(
-        "Message",
-        "Successful ".concat(testdata.currentRowEmail),
-      );
+  it("1. Table widget V2 with Add button test and validation", function () {
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    // Open column details of "id".
+    cy.get(widgetsPage.tableV2Btn).should("not.exist");
+    // Changing column data type to "Button"
+    table.ChangeColumnType("id", "Button");
+    // Changing the computed value (data) to "orderAmount"
+    propPane.UpdatePropertyFieldValue("Text", "{{currentRow.orderAmount}}");
+    // Selecting button action to show message
+    propPane.SelectPlatformFunction("onClick", "Show alert");
+    agHelper.EnterActionValue(
+      "Message",
+      "Successful ".concat(testdata.currentRowEmail),
+    );
 
       agHelper.AssertAutoSave();
       // Validating the button action by clicking

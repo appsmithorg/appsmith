@@ -1,15 +1,15 @@
 import {
-  entityExplorer,
-  draggableWidgets,
   agHelper,
-  dataSources,
-  propPane,
   apiPage,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import { expandLoadMoreOptions, OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
-import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -166,9 +166,7 @@ describe(
         apiPage.CreateAndFillApi("http://www.example.com");
       });
 
-      entityExplorer.NavigateToSwitcher("Widgets");
-
-      entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 

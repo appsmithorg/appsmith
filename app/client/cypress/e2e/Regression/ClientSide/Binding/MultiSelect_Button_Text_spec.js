@@ -1,5 +1,9 @@
 /// <reference types="Cypress" />
 
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const explorer = require("../../../../locators/explorerlocators.json");
 import {
   agHelper,
@@ -50,17 +54,17 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
         cy.get(getWidgetSelector(widgetSelector)).should("exist");
       });
 
-      it("2. Bind Button on click  and Text widget content", function () {
-        entityExplorer.SelectEntityByName("Button4");
-        cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
-        cy.updateCodeInput(
-          PROPERTY_SELECTOR.onClick,
-          `{{resetWidget("${testConfig.widgetPrefixName}",true).then(() => showAlert("success"))}}`,
-        );
-        // Bind to stored value above
-        entityExplorer.SelectEntityByName("Text3");
-        cy.updateCodeInput(PROPERTY_SELECTOR.text, testConfig.textBindingValue);
-        cy.closePropertyPane();
+    it("2. Bind Button on click  and Text widget content", function () {
+      EditorNavigation.SelectEntityByName("Button4", EntityType.Widget);
+      cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
+      cy.updateCodeInput(
+        PROPERTY_SELECTOR.onClick,
+        `{{resetWidget("${testConfig.widgetPrefixName}",true).then(() => showAlert("success"))}}`,
+      );
+      // Bind to stored value above
+      EditorNavigation.SelectEntityByName("Text3", EntityType.Widget);
+      cy.updateCodeInput(PROPERTY_SELECTOR.text, testConfig.textBindingValue);
+      cy.closePropertyPane();
 
         agHelper.GetNClick(".rc-select-selector", 0, true);
         cy.wait(1000);

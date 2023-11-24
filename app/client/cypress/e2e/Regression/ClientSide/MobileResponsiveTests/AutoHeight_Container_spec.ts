@@ -15,7 +15,7 @@ const containerPadding = 16;
 let inputHeight = 0;
 describe(
   "Validate auto height for container widget on auto layout canvas",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   () => {
     it("1. parent height should update on adding or deleting child widgets", () => {
       /**

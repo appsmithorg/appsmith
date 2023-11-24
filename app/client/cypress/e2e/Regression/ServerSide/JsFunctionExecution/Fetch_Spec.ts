@@ -4,6 +4,9 @@ import {
   jsEditor,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
   it("1. Ensures that cookies are not passed with fetch calls", function () {
@@ -75,7 +78,7 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
   it("3. Tests if fetch works with store value", function () {
     entityExplorer.NavigateToSwitcher("Widgets");
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 200);
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "getUserID");
     propPane.EnterJSContext(
       "onClick",

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -94,7 +98,7 @@ describe(
       agHelper.AddDsl("jsonFormDslWithSchema");
       cy.openPropertyPane("jsonformwidget");
       cy.get(locators._jsToggle("sourcedata")).click({ force: true });
-      entityExplorer.SelectEntityByName("Text1");
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Text",
         "{{JSON.stringify(JSONForm1.formData)}}",

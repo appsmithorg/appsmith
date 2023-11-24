@@ -123,13 +123,13 @@ describe(
         }
       ]}}
     `,
-      );
-      cy.get(".t--property-control-filterable input").click();
-      cy.editTableSelectCell(0, 0);
-      cy.get(".select-popover-wrapper .bp3-input-group input").should("exist");
-      cy.get(".select-popover-wrapper .bp3-input-group input").type("1", {
-        force: true,
-      });
+    );
+    cy.get(".t--property-control-filterable input").click({ force: true });
+    cy.editTableSelectCell(0, 0);
+    cy.get(".select-popover-wrapper .bp3-input-group input").should("exist");
+    cy.get(".select-popover-wrapper .bp3-input-group input").type("1", {
+      force: true,
+    });
 
       cy.get(".menu-item-link").should("have.length", 1);
       cy.get(".menu-item-link").should("contain", "#1");

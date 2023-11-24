@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../.././../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -29,7 +33,7 @@ describe(
     });
 
     it("Table Widget Functionality to validate filtered table data", function () {
-      _.entityExplorer.SelectEntityByName("Text1");
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       cy.testJsontext("text", "{{Table1.filteredTableData[0].task}}");
       cy.readTabledata("0", "1").then((tabData) => {
         const tableData = tabData;

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -21,9 +25,9 @@ describe(
       _.apiPage.ResponseStatusCheck("200 OK"); //Verify if api is run on pageload!
     });
 
-    it("2. Input widget updated with deafult data", function () {
-      _.entityExplorer.SelectEntityByName("Input1", "Widgets");
-      cy.get(widgetsPage.defaultInput).type("3");
+  it("2. Input widget updated with deafult data", function () {
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+    cy.get(widgetsPage.defaultInput).type("3");
 
       cy.wait("@updateLayout")
         .its("response.body.responseMeta.status")

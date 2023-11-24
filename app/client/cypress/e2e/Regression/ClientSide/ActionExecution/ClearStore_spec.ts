@@ -1,10 +1,13 @@
 import {
   agHelper,
+  deployMode,
   entityExplorer,
   jsEditor,
   propPane,
-  deployMode,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("clearStore Action test", { tags: ["@tag.JS"] }, () => {
   before(() => {
@@ -39,7 +42,7 @@ describe("clearStore Action test", { tags: ["@tag.JS"] }, () => {
       shouldCreateNewJSObj: true,
     });
 
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "StoreValue");
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -51,7 +54,7 @@ describe("clearStore Action test", { tags: ["@tag.JS"] }, () => {
     });
 
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    entityExplorer.SelectEntityByName("Button2", "Widgets");
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "ClearStore");
     cy.get("@jsObjName").then((jsObj: any) => {

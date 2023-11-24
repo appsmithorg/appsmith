@@ -1,10 +1,13 @@
 import {
   agHelper,
-  locators,
   deployMode,
   entityExplorer,
+  locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "CUrrency Input widget Tests",
@@ -54,16 +57,13 @@ describe(
 
       const borderShadows = ["borderradius", "boxshadow"];
 
-      entityExplorer.SelectEntityByName("CurrencyInput1", "Widgets");
-      // Data section
-      dataProperties.forEach((dataSectionProperty) => {
-        agHelper.AssertElementVisibility(
-          propPane._propertyPanePropertyControl(
-            "data",
-            `${dataSectionProperty}`,
-          ),
-        );
-      });
+    EditorNavigation.SelectEntityByName("CurrencyInput1", EntityType.Widget);
+    // Data section
+    dataProperties.forEach((dataSectionProperty) => {
+      agHelper.AssertElementVisibility(
+        propPane._propertyPanePropertyControl("data", `${dataSectionProperty}`),
+      );
+    });
 
       // Label section
       labelProperties.forEach((labelSectionProperty) => {
@@ -141,20 +141,20 @@ describe(
       entityExplorer.AssertEntityPresenceInExplorer("NewCurrencyInputCopy");
       entityExplorer.DeleteWidgetFromEntityExplorer("NewCurrencyInputCopy");
 
-      // Copy paste from property pane and delete from property pane
-      propPane.CopyPasteWidgetFromPropertyPane("NewCurrencyInput");
-      propPane.DeleteWidgetFromPropertyPane("NewCurrencyInputCopy");
-      entityExplorer.SelectEntityByName("NewCurrencyInput", "Widgets");
-      propPane.MoveToTab("Content");
-    });
+    // Copy paste from property pane and delete from property pane
+    propPane.CopyPasteWidgetFromPropertyPane("NewCurrencyInput");
+    propPane.DeleteWidgetFromPropertyPane("NewCurrencyInputCopy");
+    EditorNavigation.SelectEntityByName("NewCurrencyInput", EntityType.Widget);
+    propPane.MoveToTab("Content");
+  });
 
-    it("3. Verify Default value", () => {
-      entityExplorer.DragDropWidgetNVerify("textwidget", 550, 300);
-      propPane.UpdatePropertyFieldValue("Text", "1000");
-      entityExplorer.SelectEntityByName("NewCurrencyInput", "Widgets");
-      propPane.UpdatePropertyFieldValue("Default value", "{{Text1.text}}");
-      agHelper.AssertText(locators._input, "val", "1,000");
-    });
+  it("3. Verify Default value", () => {
+    entityExplorer.DragDropWidgetNVerify("textwidget", 550, 300);
+    propPane.UpdatePropertyFieldValue("Text", "1000");
+    EditorNavigation.SelectEntityByName("NewCurrencyInput", EntityType.Widget);
+    propPane.UpdatePropertyFieldValue("Default value", "{{Text1.text}}");
+    agHelper.AssertText(locators._input, "val", "1,000");
+  });
 
     it("4. Verify allow currency change toggle", () => {
       propPane.TogglePropertyState("allowcurrencychange", "On");
@@ -179,10 +179,10 @@ describe(
       agHelper.AssertAttribute(locators._label, "position", "Left");
       deployMode.NavigateBacktoEditor();
 
-      entityExplorer.SelectEntityByName("NewCurrencyInput", "Widgets");
-      agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`);
-      agHelper.AssertAttribute(locators._label, "position", "Top");
-    });
+    EditorNavigation.SelectEntityByName("NewCurrencyInput", EntityType.Widget);
+    agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`);
+    agHelper.AssertAttribute(locators._label, "position", "Top");
+  });
 
     it("6. Verify validation Regex, valid criteria and error message", () => {
       // Regex validation
@@ -193,23 +193,23 @@ describe(
       agHelper.ClearNType(locators._input, "100");
       agHelper.AssertElementAbsence(locators._popoverToolTip);
 
-      // Valid option
-      propPane.UpdatePropertyFieldValue("Valid", "{{Text1.isVisible}}");
-      entityExplorer.SelectEntityByName("Text1", "Widgets");
-      propPane.TogglePropertyState("visible", "Off");
-      agHelper.GetNClick(locators._input);
-      agHelper.AssertPopoverTooltip("Not valid value");
-      entityExplorer.SelectEntityByName("Text1", "Widgets");
-      propPane.TogglePropertyState("visible", "On");
-      agHelper.GetNClick(locators._input);
-      agHelper.AssertElementAbsence(locators._popoverToolTip);
-    });
+    // Valid option
+    propPane.UpdatePropertyFieldValue("Valid", "{{Text1.isVisible}}");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+    propPane.TogglePropertyState("visible", "Off");
+    agHelper.GetNClick(locators._input);
+    agHelper.AssertPopoverTooltip("Not valid value");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+    propPane.TogglePropertyState("visible", "On");
+    agHelper.GetNClick(locators._input);
+    agHelper.AssertElementAbsence(locators._popoverToolTip);
+  });
 
-    it("7. Verify tooltip", () => {
-      entityExplorer.SelectEntityByName("NewCurrencyInput", "Widgets");
-      propPane.UpdatePropertyFieldValue("Tooltip", "{{Text1.text}}");
-      agHelper.HoverElement(locators._tooltipIcon);
-      agHelper.AssertPopoverTooltip("1000");
+  it("7. Verify tooltip", () => {
+    EditorNavigation.SelectEntityByName("NewCurrencyInput", EntityType.Widget);
+    propPane.UpdatePropertyFieldValue("Tooltip", "{{Text1.text}}");
+    agHelper.HoverElement(locators._tooltipIcon);
+    agHelper.AssertPopoverTooltip("1000");
 
       // Preview mode
       agHelper.GetNClick(locators._enterPreviewMode);
@@ -224,8 +224,8 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("8. Validate 'visible', 'disable' and 'auto Focus' toggle", () => {
-      entityExplorer.SelectEntityByName("NewCurrencyInput");
+  it("8. Validate 'visible', 'disable' and 'auto Focus' toggle", () => {
+    EditorNavigation.SelectEntityByName("NewCurrencyInput", EntityType.Query);
 
       // Verify Disabled toggle
       propPane.TogglePropertyState("disabled", "On");
@@ -343,8 +343,8 @@ describe(
       agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
       deployMode.NavigateBacktoEditor();
 
-      entityExplorer.SelectEntityByName("NewCurrencyInput", "Widgets");
-      propPane.MoveToTab("Style");
+    EditorNavigation.SelectEntityByName("NewCurrencyInput", EntityType.Widget);
+    propPane.MoveToTab("Style");
 
       // Verify border
       agHelper.GetNClick(propPane._segmentedControl("0px"));

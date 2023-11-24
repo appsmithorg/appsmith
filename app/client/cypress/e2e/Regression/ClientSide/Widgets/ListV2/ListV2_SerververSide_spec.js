@@ -6,6 +6,9 @@ import {
   locators,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -35,16 +38,16 @@ describe(
         },
       );
 
-      entityExplorer.SelectEntityByName("List1", "Widgets");
-      table.AssertPageNumber_List(1, false, "v2");
-      //agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
-      table.NavigateToNextPage_List("v2");
-      //agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
-      table.NavigateToNextPage_List("v2");
-      table.AssertPageNumber_List(3, true, "v2");
-      table.NavigateToPreviousPage_List("v2");
-      deployMode.DeployApp();
-    });
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+    table.AssertPageNumber_List(1, false, "v2");
+    //agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
+    table.NavigateToNextPage_List("v2");
+    //agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "2");
+    table.NavigateToNextPage_List("v2");
+    table.AssertPageNumber_List(3, true, "v2");
+    table.NavigateToPreviousPage_List("v2");
+    deployMode.DeployApp();
+  });
 
     it("2. Next button disabled but visible in view mode when there's no data", () => {
       agHelper.AssertText(commonlocators.listPaginateActivePage, "text", "1");

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -9,8 +13,8 @@ describe(
       _.agHelper.AddDsl("filepickerDsl");
     });
 
-    it("1. Check file upload of type jpeg", function () {
-      _.entityExplorer.SelectEntityByName("FilePicker1");
+  it("1. Check file upload of type jpeg", function () {
+    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
 
       const fixturePath = "cypress/fixtures/AAAFlowerVase.jpeg";
       cy.get(commonlocators.filepickerv2).click();

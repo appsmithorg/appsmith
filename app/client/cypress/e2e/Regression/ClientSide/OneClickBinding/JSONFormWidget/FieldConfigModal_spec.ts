@@ -7,6 +7,9 @@ import {
   draggableWidgets,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -24,7 +27,7 @@ describe(
       cy.get("@dsName").then((dsName) => {
         entityExplorer.NavigateToSwitcher("Widgets");
 
-        entityExplorer.SelectEntityByName("JSONForm1", "Widgets");
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
         oneClickBinding.ChooseAndAssertForm(
           `${dsName}`,

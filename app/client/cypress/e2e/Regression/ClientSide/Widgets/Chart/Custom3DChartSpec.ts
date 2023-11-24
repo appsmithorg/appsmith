@@ -1,5 +1,8 @@
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 const publicWidgetsPage = require("../../../../../locators/publishWidgetspage.json");
 
 describe("3D Custom EChart feature", { tags: ["@tag.Widget"] }, function () {
@@ -23,7 +26,7 @@ describe("3D Custom EChart feature", { tags: ["@tag.Widget"] }, function () {
     cy.wait(1000);
     cy.get(publicWidgetsPage.chartWidget).matchImageSnapshot("3DCustomECharts");
 
-    _.entityExplorer.SelectEntityByName("Chart1", "Widgets");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     _.propPane.UpdatePropertyFieldValue(
       "Custom ECharts Configuration",
       `{{${JSON.stringify(this.dataSet.InvalidCustom3DEChartConfig)}}}`,

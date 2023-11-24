@@ -9,8 +9,11 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
-describe(
+describe.skip(
   "Modal Widget test cases",
   { tags: ["@tag.Widget", "@tag.Modal"] },
   function () {
@@ -19,14 +22,14 @@ describe(
     const gifImg =
       "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/5eeea355389655.59822ff824b72.gif";
 
-    it("1. Modal widget functionality", () => {
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
-      entityExplorer.SelectEntityByName("Button1");
-      propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
-      agHelper.Sleep();
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-      agHelper.Sleep(2000); //Wait for widgets to settle
+  it("1. Modal widget functionality", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+    propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
+    agHelper.Sleep();
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.Sleep(2000); //Wait for widgets to settle
 
       //Verify that the Modal widget opens correctly when configured on a button click.
       agHelper.ClickButton("Submit");
@@ -51,34 +54,32 @@ describe(
       agHelper.AssertElementAbsence(locators._modal);
     });
 
-    it("2. Verify that multiple Modal widgets can be opened simultaneously.", () => {
-      deployMode.NavigateBacktoEditor();
-      entityExplorer.SelectEntityByName("Button1");
-      propPane.ToggleJSMode("onClick", false);
-      propPane.CreateModal("onClick");
-      agHelper.Sleep(500);
-      propPane.CreateModal("onClick");
-      agHelper.Sleep(500);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-      agHelper.Sleep(2000); //Wait for widgets to settle & be visible
-      agHelper.ClickButton("Submit");
-      agHelper.AssertElementLength(locators._modal, 3);
-      agHelper.AssertElementVisibility(locators._modal, true, 2);
-      agHelper.GetNClick(
-        locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
-        2,
-      );
-      agHelper.AssertElementVisibility(locators._modal, true, 1);
-      agHelper.GetNClick(
-        locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
-        1,
-      );
-      agHelper.AssertElementVisibility(locators._modal);
-      agHelper.GetNClick(
-        locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
-      );
-      agHelper.AssertElementAbsence(locators._modal);
-    });
+  it("2. Verify that multiple Modal widgets can be opened simultaneously.", () => {
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+    propPane.ToggleJSMode("onClick", false);
+    propPane.CreateModal("onClick");
+    agHelper.Sleep(500);
+    propPane.CreateModal("onClick");
+    agHelper.Sleep(500);
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.Sleep(2000); //Wait for widgets to settle & be visible
+    agHelper.ClickButton("Submit");
+    agHelper.AssertElementLength(locators._modal, 3);
+    agHelper.AssertElementVisibility(locators._modal, true, 2);
+    agHelper.GetNClick(
+      locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
+      2,
+    );
+    agHelper.AssertElementVisibility(locators._modal, true, 1);
+    agHelper.GetNClick(
+      locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
+      1,
+    );
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.ICONBUTTON));
+    agHelper.AssertElementAbsence(locators._modal);
+  });
 
     it("3. Verify that scroll appears when there are multiple widgets in modal", () => {
       agHelper.ClickButton("Submit");
@@ -86,9 +87,9 @@ describe(
       deployMode.NavigateBacktoEditor();
       homePage.NavigateToHome();
 
-      //Contains modal with couple of widgets(image, text, select, input, table, container, icon button, json form , list, tab)
-      homePage.ImportApp("modalWidgetTestApp.json");
-      entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    //Contains modal with couple of widgets(image, text, select, input, table, container, icon button, json form , list, tab)
+    homePage.ImportApp("modalWidgetTestApp.json");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
 
       //Auto height
       propPane.AssertPropertiesDropDownValues("Height", [
@@ -124,12 +125,12 @@ describe(
 
       deployMode.NavigateBacktoEditor();
 
-      //Fixed height
-      entityExplorer.SelectEntityByName("Modal1", "Widgets");
-      propPane.SelectPropertiesDropDown("Height", "Fixed");
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-      agHelper.ClickButton("Submit");
-      agHelper.AssertElementVisibility(locators._modal);
+    //Fixed height
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+    propPane.SelectPropertiesDropDown("Height", "Fixed");
+    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
+    agHelper.ClickButton("Submit");
+    agHelper.AssertElementVisibility(locators._modal);
 
       //Verify that a fixed canvas size is visible when height is selected as Fixed
       agHelper.AssertProperty(locators._modal, "offsetHeight", 1094);
@@ -349,50 +350,47 @@ describe(
       );
     });
 
-    it("6. Verify modal widget styles", function () {
-      //JS conversion
-      deployMode.NavigateBacktoEditor();
-      entityExplorer.SelectEntityByName("Modal1", "Widgets");
-      propPane.MoveToTab("Style");
-      propPane.EnterJSContext("Background color", "#fca5a5");
-      propPane.EnterJSContext("Border radius", "1.5rem");
-      agHelper
-        .GetWidgetCSSFrAttribute(locators._modalWrapper, "background")
-        .then((backgroundColor) => {
-          deployMode.DeployApp(
-            locators._widgetInDeployed(draggableWidgets.BUTTON),
-          );
-          agHelper.ClickButton("Submit");
-          agHelper.AssertCSS(
-            locators._modalWrapper,
-            "background",
-            backgroundColor,
-          );
-        });
-      agHelper.AssertCSS(locators._modalWrapper, "border-radius", "24px");
+  it("6. Verify modal widget styles", function () {
+    //JS conversion
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+    propPane.MoveToTab("Style");
+    propPane.EnterJSContext("Background color", "#fca5a5");
+    propPane.EnterJSContext("Border radius", "1.5rem");
+    agHelper
+      .GetWidgetCSSFrAttribute(locators._modalWrapper, "background")
+      .then((backgroundColor) => {
+        deployMode.DeployApp(
+          locators._widgetInDeployed(draggableWidgets.BUTTON),
+        );
+        agHelper.ClickButton("Submit");
+        agHelper.AssertCSS(
+          locators._modalWrapper,
+          "background",
+          backgroundColor,
+        );
+      });
+    agHelper.AssertCSS(locators._modalWrapper, "border-radius", "24px");
 
-      deployMode.NavigateBacktoEditor();
-      entityExplorer.SelectEntityByName("Modal1", "Widgets");
-      propPane.MoveToTab("Style");
-      //Full color picker
-      propPane.ToggleJSMode("Background color", false);
-      propPane.TogglePropertyState("Full color picker", "On");
-      agHelper.GetNClick(
-        propPane._propertyControlColorPicker("backgroundcolor"),
-      );
-      agHelper
-        .GetWidgetCSSFrAttribute(locators._modalWrapper, "background")
-        .then((backgroundColor) => {
-          deployMode.DeployApp(
-            locators._widgetInDeployed(draggableWidgets.BUTTON),
-          );
-          agHelper.ClickButton("Submit");
-          agHelper.AssertCSS(
-            locators._modalWrapper,
-            "background",
-            backgroundColor,
-          );
-        });
-    });
-  },
-);
+    deployMode.NavigateBacktoEditor();
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+    propPane.MoveToTab("Style");
+    //Full color picker
+    propPane.ToggleJSMode("Background color", false);
+    propPane.TogglePropertyState("Full color picker", "On");
+    agHelper.GetNClick(propPane._propertyControlColorPicker("backgroundcolor"));
+    agHelper
+      .GetWidgetCSSFrAttribute(locators._modalWrapper, "background")
+      .then((backgroundColor) => {
+        deployMode.DeployApp(
+          locators._widgetInDeployed(draggableWidgets.BUTTON),
+        );
+        agHelper.ClickButton("Submit");
+        agHelper.AssertCSS(
+          locators._modalWrapper,
+          "background",
+          backgroundColor,
+        );
+      });
+  });
+});

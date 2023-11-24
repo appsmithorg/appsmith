@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 import {
@@ -24,67 +28,73 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("1. Text-Table Binding Functionality For Id", function () {
-      entityExplorer.SelectEntityByName("Table1", "Container3");
-      /**
-       * @param(Index)  Provide index value to select the row.
-       */
+  it("1. Text-Table Binding Functionality For Id", function () {
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
+    /**
+     * @param(Index)  Provide index value to select the row.
+     */
+    cy.isSelectRow(1);
+    EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
+      "Container1",
+    ]);
+    cy.testJsontext("text", "{{Table1.selectedRow.id}}");
+    /**
+     * @param{Row Index} Provide the row index
+     * @param(Column Index) Provide column index
+     */
+    cy.readTableV2data("1", "0").then((tabData) => {
+      const tabValue = tabData;
+      cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.findAndExpandEvaluatedTypeTitle();
+      cy.EvaluateDataType("string");
+      cy.validateEvaluatedValue(tabValue);
+      deployMode.DeployApp();
       cy.isSelectRow(1);
-      entityExplorer.SelectEntityByName("Text4", "Container1");
-      cy.testJsontext("text", "{{Table1.selectedRow.id}}");
-      /**
-       * @param{Row Index} Provide the row index
-       * @param(Column Index) Provide column index
-       */
-      cy.readTableV2data("1", "0").then((tabData) => {
-        const tabValue = tabData;
-        cy.get(commonlocators.TextInside).should("have.text", tabValue);
-        cy.findAndExpandEvaluatedTypeTitle();
-        cy.EvaluateDataType("string");
-        cy.validateEvaluatedValue(tabValue);
-        deployMode.DeployApp();
-        cy.isSelectRow(1);
-        cy.readTableV2dataPublish("1", "0").then((tabDataP) => {
-          const tabValueP = tabDataP;
-          cy.get(commonlocators.TextInside).should("have.text", tabValueP);
-        });
+      cy.readTableV2dataPublish("1", "0").then((tabDataP) => {
+        const tabValueP = tabDataP;
+        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
       });
     });
+  });
 
-    it("2. Text-Table Binding Functionality For Email", function () {
+  it("2. Text-Table Binding Functionality For Email", function () {
+    cy.isSelectRow(2);
+    EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
+      "Container1",
+    ]);
+    cy.testJsontext("text", "{{Table1.selectedRow.email}}");
+    /**
+     * @param{Row Index} Provide the row index
+     * @param(Column Index) Provide column index
+     */
+    cy.readTableV2data("2", "1").then((tabData) => {
+      const tabValue = tabData;
+      cy.get(commonlocators.TextInside).should("have.text", tabValue);
+      cy.findAndExpandEvaluatedTypeTitle();
+      cy.EvaluateDataType("string");
+      cy.validateEvaluatedValue(tabValue);
+      deployMode.DeployApp();
       cy.isSelectRow(2);
-      entityExplorer.ExpandCollapseEntity("Widgets");
-      entityExplorer.SelectEntityByName("Text4", "Container1");
-      cy.testJsontext("text", "{{Table1.selectedRow.email}}");
-      /**
-       * @param{Row Index} Provide the row index
-       * @param(Column Index) Provide column index
-       */
-      cy.readTableV2data("2", "1").then((tabData) => {
-        const tabValue = tabData;
-        cy.get(commonlocators.TextInside).should("have.text", tabValue);
-        cy.findAndExpandEvaluatedTypeTitle();
-        cy.EvaluateDataType("string");
-        cy.validateEvaluatedValue(tabValue);
-        deployMode.DeployApp();
-        cy.isSelectRow(2);
-        cy.readTableV2dataPublish("2", "1").then((tabDataP) => {
-          const tabValueP = tabDataP;
-          cy.get(commonlocators.TextInside).should("have.text", tabValueP);
-        });
+      cy.readTableV2dataPublish("2", "1").then((tabDataP) => {
+        const tabValueP = tabDataP;
+        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
       });
     });
+  });
 
-    it("3. Text-Table Binding Functionality For Total Length", function () {
-      entityExplorer.ExpandCollapseEntity("Widgets");
-      entityExplorer.SelectEntityByName("Text4", "Container1");
-      cy.testJsontext("text", "{{Table1.pageSize}}");
-      cy.get(commonlocators.TableV2Row)
-        .find(".tr")
-        .then((listing) => {
-          const listingCount = listing.length.toString();
-          cy.get(commonlocators.TextInside).contains(listingCount);
-          cy.findAndExpandEvaluatedTypeTitle();
+  it("3. Text-Table Binding Functionality For Total Length", function () {
+    EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
+      "Container1",
+    ]);
+    cy.testJsontext("text", "{{Table1.pageSize}}");
+    cy.get(commonlocators.TableV2Row)
+      .find(".tr")
+      .then((listing) => {
+        const listingCount = listing.length.toString();
+        cy.get(commonlocators.TextInside).contains(listingCount);
+        cy.findAndExpandEvaluatedTypeTitle();
 
           cy.EvaluateDataType("string");
           cy.validateEvaluatedValue(listingCount);
@@ -98,54 +108,57 @@ describe(
         });
     });
 
-    it("4. Table Widget Functionality To Verify Default Row Selection is working", function () {
-      entityExplorer.ExpandCollapseEntity("Widgets");
-      entityExplorer.SelectEntityByName("Table1", "Container3");
-      cy.testJsontext("defaultselectedrow", "2");
-      cy.wait("@updateLayout");
-      cy.get(commonlocators.TableV2Row)
-        .find(".tr.selected-row")
-        .then((listing) => {
-          const listingCount = listing.length;
-          expect(listingCount).to.be.equal(1);
-        });
-      entityExplorer.SelectEntityByName("Text4", "Container1");
-      cy.testJsontext("text", "{{Table1.selectedRow.email}}");
-      deployMode.DeployApp();
-      cy.readTableV2dataPublish("2", "1").then((tabDataP) => {
-        const tabValueP = tabDataP;
-        cy.get(commonlocators.TextInside).should("have.text", tabValueP);
+  it("4. Table Widget Functionality To Verify Default Row Selection is working", function () {
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
+    cy.testJsontext("defaultselectedrow", "2");
+    cy.wait("@updateLayout");
+    cy.get(commonlocators.TableV2Row)
+      .find(".tr.selected-row")
+      .then((listing) => {
+        const listingCount = listing.length;
+        expect(listingCount).to.be.equal(1);
       });
+    EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
+      "Container1",
+    ]);
+    cy.testJsontext("text", "{{Table1.selectedRow.email}}");
+    deployMode.DeployApp();
+    cy.readTableV2dataPublish("2", "1").then((tabDataP) => {
+      const tabValueP = tabDataP;
+      cy.get(commonlocators.TextInside).should("have.text", tabValueP);
     });
+  });
 
-    it("5. Text-Table Binding Functionality For Username", function () {
-      entityExplorer.ExpandCollapseEntity("Widgets");
-      /**
-       * @param(Index)  Provide index value to select the row.
-       */
+  it("5. Text-Table Binding Functionality For Username", function () {
+    /**
+     * @param(Index)  Provide index value to select the row.
+     */
+    cy.isSelectRow(1);
+    EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
+      "Container1",
+    ]);
+    propPane.UpdatePropertyFieldValue(
+      "Text",
+      JSON.stringify(this.dataSet.textfun),
+    );
+    /**
+     * @param{Row Index} Provide the row index
+     * @param(Column Index) Provide column index
+     */
+    cy.readTableV2data("1", "2").then((tabData) => {
+      const tabValue = `\"${tabData}\"`;
+      cy.get(commonlocators.TextInside).contains(tabValue);
+      cy.findAndExpandEvaluatedTypeTitle();
+      cy.EvaluateDataType("string");
+      cy.validateEvaluatedValue(tabValue);
+      deployMode.DeployApp();
       cy.isSelectRow(1);
-      entityExplorer.SelectEntityByName("Text4", "Container1");
-      propPane.UpdatePropertyFieldValue(
-        "Text",
-        JSON.stringify(this.dataSet.textfun),
-      );
-      /**
-       * @param{Row Index} Provide the row index
-       * @param(Column Index) Provide column index
-       */
-      cy.readTableV2data("1", "2").then((tabData) => {
-        const tabValue = `\"${tabData}\"`;
-        cy.get(commonlocators.TextInside).contains(tabValue);
-        cy.findAndExpandEvaluatedTypeTitle();
-        cy.EvaluateDataType("string");
-        cy.validateEvaluatedValue(tabValue);
-        deployMode.DeployApp();
-        cy.isSelectRow(1);
-        cy.readTableV2dataPublish("1", "2").then((tabDataP) => {
-          const tabValueP = `\"${tabDataP}\"`;
-          cy.get(commonlocators.TextInside).contains(tabValueP);
-        });
+      cy.readTableV2dataPublish("1", "2").then((tabDataP) => {
+        const tabValueP = `\"${tabDataP}\"`;
+        cy.get(commonlocators.TextInside).contains(tabValueP);
       });
     });
-  },
-);
+  });
+});

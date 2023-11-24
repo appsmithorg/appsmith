@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
@@ -11,15 +15,15 @@ describe(
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.ICONBUTTON);
     });
 
-    it("1. check default buttonVariant with isJSConvertible", function () {
-      _.entityExplorer.SelectEntityByName("IconButton1");
-      _.propPane.MoveToTab("Style");
-      cy.get(widgetsPage.iconWidgetBtn).should(
-        "have.css",
-        "background-color",
-        "rgb(85, 61, 233)",
-      );
-    });
+  it("1. check default buttonVariant with isJSConvertible", function () {
+    EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
+    _.propPane.MoveToTab("Style");
+    cy.get(widgetsPage.iconWidgetBtn).should(
+      "have.css",
+      "background-color",
+      "rgb(85, 61, 233)",
+    );
+  });
 
     it("2. add space into buttonVariant and validate", function () {
       _.propPane.EnterJSContext("Button variant", "PRIMARY   ");

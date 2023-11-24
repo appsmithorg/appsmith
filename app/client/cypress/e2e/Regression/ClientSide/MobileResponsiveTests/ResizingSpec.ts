@@ -8,7 +8,7 @@ import {
 
 describe(
   "Resizing Behaviour in auto-layout",
-  { tags: [] },
+  { tags: ["@tag.MobileResponsive"] },
   function () {
     before(() => {
       cy.get(commonlocators.autoConvert).click({

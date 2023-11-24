@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const omnibar = require("../../../../locators/Omnibar.json");
 import {
   agHelper,
@@ -73,7 +77,7 @@ describe("Omnibar functionality test cases", () => {
     agHelper.AssertElementVisibility(omnibar.blankAPI);
     agHelper.GetNClickByContains(omnibar.createNew, "New blank API");
     assertHelper.AssertNetworkStatus("@createNewApi", 201);
-    entityExplorer.SelectEntityByName("Api1");
+    EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
     agHelper.AssertURL("/api");
     agHelper.RenameWithInPane(apiName);
 
@@ -121,7 +125,7 @@ describe("Omnibar functionality test cases", () => {
   );
 
   it("5. Verify Navigate section shows recently opened widgets and datasources", function () {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).contains("Navigate").click();
     // verify recently opened items with their subtext i.e page name

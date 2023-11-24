@@ -3,13 +3,13 @@ import {
   apiPage,
   assertHelper,
   deployMode,
-  entityExplorer,
   entityItems,
   jsEditor,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -153,19 +153,19 @@ describe("Validate API request body panel", { tags: ["@tag.Datasource"] }, () =>
       },
     );
 
-    entityExplorer.SelectEntityByName("FilePicker1", "Widgets");
+    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
     propPane.EnterJSContext("onFilesSelected", `{{JSObject1.upload()}}`);
 
-    entityExplorer.SelectEntityByName("Image1");
+    EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Image",
       "{{CloudinaryUploadApi.data.url}}",
     );
 
-    entityExplorer.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
+    EditorNavigation.SelectEntityByName("CloudinaryUploadApi", EntityType.Api);
 
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp(locators._buttonByText("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
@@ -184,7 +184,7 @@ describe("Validate API request body panel", { tags: ["@tag.Datasource"] }, () =>
 
   it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
     const imageNameToUpload = "AAAFlowerVase.jpeg";
-    entityExplorer.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
+    EditorNavigation.SelectEntityByName("CloudinaryUploadApi", EntityType.Api);
     apiPage.EnterBodyFormData(
       "MULTIPART_FORM_DATA",
       "file",
@@ -192,7 +192,7 @@ describe("Validate API request body panel", { tags: ["@tag.Datasource"] }, () =>
       "Array",
       true,
     );
-    entityExplorer.SelectEntityByName("FilePicker1", "Widgets");
+    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);

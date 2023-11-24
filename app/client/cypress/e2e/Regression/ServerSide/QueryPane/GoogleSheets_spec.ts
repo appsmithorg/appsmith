@@ -47,7 +47,7 @@ describe(
       );
       agHelper.GetNClick(locators._visibleTextSpan("Don't save"));
       agHelper.Sleep();
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
       agHelper.Sleep();
     });
   },

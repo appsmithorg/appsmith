@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
+
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
 import { agHelper } from "../../../support/Objects/ObjectsCore";
@@ -27,37 +31,35 @@ describe(
           .should("have.value", SMTPDatasourceName)
           .blur();
 
-        cy.fillSMTPDatasourceForm();
-        cy.testSaveDatasource();
-        cy.NavigateToActiveDSQueryPane(SMTPDatasourceName);
-      });
-      // create new query and bind fields with widgets
-      cy.get(queryLocators.queryNameField).type("smtpquery");
-      cy.get(queryLocators.queryFromEmail)
-        .first()
-        .type("{{From.text}}", { parseSpecialCharSequences: false });
-      agHelper.ClickOutside(); //to close the evaluated pop-up
-      cy.get(queryLocators.queryFromEmail)
-        .eq(1)
-        .type("{{To.text}}", { parseSpecialCharSequences: false });
-      agHelper.ClickOutside(); //to close the evaluated pop-up
-      cy.get(queryLocators.queryFromEmail)
-        .eq(4)
-        .type("{{Subject.text}}", { parseSpecialCharSequences: false });
-      agHelper.ClickOutside(); //to close the evaluated pop-up
-      cy.get(queryLocators.queryFromEmail)
-        .eq(5)
-        .type("{{Body.text}}", { parseSpecialCharSequences: false });
-      agHelper.ClickOutside(); //to close the evaluated pop-up
-      cy.get(queryLocators.queryFromEmail)
-        .eq(6)
-        .type("{{FilePicker.files}}", { parseSpecialCharSequences: false });
-      agHelper.ClickOutside(); //to close the evaluated pop-up
-      cy.get(`.t--entity-name:contains("Page1")`)
-        .should("be.visible")
-        .click({ force: true });
-      cy.wait(2000);
+      cy.fillSMTPDatasourceForm();
+      cy.testSaveDatasource();
+      cy.NavigateToActiveDSQueryPane(SMTPDatasourceName);
     });
+    // create new query and bind fields with widgets
+    cy.get(queryLocators.queryNameField).type("smtpquery");
+    cy.get(queryLocators.queryFromEmail)
+      .first()
+      .type("{{From.text}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
+    cy.get(queryLocators.queryFromEmail)
+      .eq(1)
+      .type("{{To.text}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
+    cy.get(queryLocators.queryFromEmail)
+      .eq(4)
+      .type("{{Subject.text}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
+    cy.get(queryLocators.queryFromEmail)
+      .eq(5)
+      .type("{{Body.text}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
+    cy.get(queryLocators.queryFromEmail)
+      .eq(6)
+      .type("{{FilePicker.files}}", { parseSpecialCharSequences: false });
+    agHelper.ClickOutside(); //to close the evaluated pop-up
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    cy.wait(2000);
+  });
 
     it("2. On canvas, passing wrong email address in widgets should give error", function () {
       // verify an error is thrown when recipient address is not added
@@ -89,25 +91,21 @@ describe(
       agHelper.ValidateToastMessage("unsuccessful execution");
     });
 
-    it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function () {
-      cy.get(`.t--entity-name:contains("smtpquery")`)
-        .should("be.visible")
-        .click({ force: true });
-      cy.get(`.t--entity-name:contains("Page1")`)
-        .should("be.visible")
-        .click({ force: true });
-      cy.wait(2000);
-      cy.xpath("//input[@class='bp3-input']").eq(0).type("test@appsmith.com");
-      cy.xpath("//input[@class='bp3-input']").eq(2).type("this is a smtp test");
-      // adding an attachment in file picker
-      const fixturePath = "testFile.mov";
-      agHelper.ClickButton("Select Files"); //1 files selected
-      agHelper.UploadFile(fixturePath);
-      //eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(500);
-      cy.get("button").contains("1 files selected");
-      agHelper.ClickButton("Run query");
-      agHelper.ValidateToastMessage("Sent the email successfully");
+  it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function () {
+    EditorNavigation.SelectEntityByName("smtpquery", EntityType.Query);
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    cy.wait(2000);
+    cy.xpath("//input[@class='bp3-input']").eq(0).type("test@appsmith.com");
+    cy.xpath("//input[@class='bp3-input']").eq(2).type("this is a smtp test");
+    // adding an attachment in file picker
+    const fixturePath = "testFile.mov";
+    agHelper.ClickButton("Select Files"); //1 files selected
+    agHelper.UploadFile(fixturePath);
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+    cy.get("button").contains("1 files selected");
+    agHelper.ClickButton("Run query");
+    agHelper.ValidateToastMessage("Sent the email successfully");
 
       //Verifying if mail is sent/received using ted
       const tedUrl = "http://localhost:5001/v1/cmd";

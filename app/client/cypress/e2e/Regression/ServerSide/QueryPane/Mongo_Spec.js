@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -282,24 +283,24 @@ describe(
       //   });
     });
 
-    it("7. Validate Deletion of the Newly Created Page", () => {
-      dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "ListingAndReviews",
-        action: "Delete",
-        entityType: entityItems.Datasource,
-      });
-      entityExplorer.SelectEntityByName("Page1");
+  it("7. Validate Deletion of the Newly Created Page", () => {
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "ListingAndReviews",
+      action: "Delete",
+      entityType: entityItems.Datasource,
     });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+  });
 
-    it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
-      let id;
-      dataSources.createQueryWithDatasourceSchemaTemplate(
-        datasourceName,
-        "listingAndReviews",
-        "Find",
-      );
-      entityExplorer.SelectEntityByName("Query1");
+  it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
+    let id;
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      datasourceName,
+      "listingAndReviews",
+      "Find",
+    );
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
 
       cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
         .then(($field) => {

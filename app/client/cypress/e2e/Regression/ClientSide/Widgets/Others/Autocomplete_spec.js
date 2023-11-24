@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -138,29 +142,29 @@ describe(
       },
     );
 
-    it("Bug 9003: Autocomplete not working for Appsmith specific JS APIs", function () {
-      _.entityExplorer.SelectEntityByName("Button1", "Widgets");
-      _.propPane.ToggleJSMode("onClick", true);
-      _.propPane.TypeTextIntoField("onClick", "{{storeValue", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "storeValue");
-      _.propPane.TypeTextIntoField("onClick", "{{removeValue", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "removeValue");
-      _.propPane.TypeTextIntoField("onClick", "{{showAlert", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "showAlert");
-      _.propPane.TypeTextIntoField("onClick", "{{setInterval", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "setInterval");
-      _.propPane.TypeTextIntoField("onClick", "{{setTimeout", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "setTimeout");
-      _.propPane.TypeTextIntoField("onClick", "{{resetWidget", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "resetWidget");
-      _.propPane.TypeTextIntoField("onClick", "{{showModal", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "showModal");
-      _.propPane.TypeTextIntoField("onClick", "{{copyToClipboard", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "copyToClipboard");
-      _.propPane.TypeTextIntoField("onClick", "{{closeModal", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "closeModal");
-      _.propPane.TypeTextIntoField("onClick", "{{Text1.setDisabled", true);
-      _.agHelper.GetNAssertElementText(_.locators._hints, "setDisabled");
+  it("Bug 9003: Autocomplete not working for Appsmith specific JS APIs", function () {
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+    _.propPane.ToggleJSMode("onClick", true);
+    _.propPane.TypeTextIntoField("onClick", "{{storeValue", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "storeValue");
+    _.propPane.TypeTextIntoField("onClick", "{{removeValue", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "removeValue");
+    _.propPane.TypeTextIntoField("onClick", "{{showAlert", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "showAlert");
+    _.propPane.TypeTextIntoField("onClick", "{{setInterval", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "setInterval");
+    _.propPane.TypeTextIntoField("onClick", "{{setTimeout", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "setTimeout");
+    _.propPane.TypeTextIntoField("onClick", "{{resetWidget", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "resetWidget");
+    _.propPane.TypeTextIntoField("onClick", "{{showModal", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "showModal");
+    _.propPane.TypeTextIntoField("onClick", "{{copyToClipboard", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "copyToClipboard");
+    _.propPane.TypeTextIntoField("onClick", "{{closeModal", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "closeModal");
+    _.propPane.TypeTextIntoField("onClick", "{{Text1.setDisabled", true);
+    _.agHelper.GetNAssertElementText(_.locators._hints, "setDisabled");
 
       _.propPane.TypeTextIntoField("Label", "{{storeValue", true);
       _.agHelper.AssertElementAbsence(_.locators._hints);

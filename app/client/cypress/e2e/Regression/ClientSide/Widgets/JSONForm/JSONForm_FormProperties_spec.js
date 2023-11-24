@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
@@ -61,8 +65,8 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("2. Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
-      entityExplorer.SelectEntityByName("JSONForm1");
+  it("2. Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
       cy.get("button")
         .contains("Submit")
@@ -89,16 +93,16 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("3. Should set isValid to false when form is invalid", () => {
-      entityExplorer.SelectEntityByName("JSONForm1");
-      cy.openPropertyPane("textwidget");
-      cy.testJsontext("text", "{{JSONForm1.isValid}}");
-      cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
-      cy.get(`${fieldPrefix}-name input`).clear().wait(300);
-      cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("false");
-      cy.get(`${fieldPrefix}-name input`).type("JOHN").wait(300);
-      cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
-    });
+  it("3. Should set isValid to false when form is invalid", () => {
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    cy.openPropertyPane("textwidget");
+    cy.testJsontext("text", "{{JSONForm1.isValid}}");
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
+    cy.get(`${fieldPrefix}-name input`).clear().wait(300);
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("false");
+    cy.get(`${fieldPrefix}-name input`).type("JOHN").wait(300);
+    cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
+  });
 
     it("4. show show icon select when a collapsed section is opened", () => {
       cy.openPropertyPane("jsonformwidget");

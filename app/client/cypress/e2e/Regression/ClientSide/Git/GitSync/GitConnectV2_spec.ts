@@ -1,5 +1,8 @@
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 let ws1Name: string;
 let ws2Name: string;
@@ -49,7 +52,7 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
       _.gitSync.SwitchGitBranch(branchName);
       _.entityExplorer.ExpandCollapseEntity("Widgets");
       _.entityExplorer.AssertEntityPresenceInExplorer("MyText");
-      _.entityExplorer.SelectEntityByName("MyText");
+      EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
       _.propPane.ValidatePropertyFieldValue("Text", "Hello World");
     });
   });

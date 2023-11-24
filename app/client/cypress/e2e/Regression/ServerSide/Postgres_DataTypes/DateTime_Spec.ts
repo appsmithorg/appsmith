@@ -1,15 +1,18 @@
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
-  locators,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
   entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("DateTime Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   let dsName: any, query: string;
@@ -147,7 +150,7 @@ describe("DateTime Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   });
 
   it("5. Inserting record - datetimetypes", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
@@ -319,8 +322,7 @@ describe("DateTime Datatype tests", { tags: ["@tag.Datasource"] }, function () {
 
   it("11. Validate Drop of the Newly Created - datetimetypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("dropTable");
+    EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!

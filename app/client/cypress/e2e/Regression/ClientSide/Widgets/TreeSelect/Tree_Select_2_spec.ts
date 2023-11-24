@@ -8,6 +8,9 @@ import {
   dataSources,
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Tree Select widget Tests",
@@ -44,52 +47,58 @@ describe(
         }
       ]`;
 
-    it("1. Verify required field", function () {
-      entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
-      propPane.TogglePropertyState("required", "On");
-      propPane.UpdatePropertyFieldValue("Default selected value", "");
-      agHelper.AssertElementEnabledDisabled(locators._buttonInDeployedMode, 1);
-      // Binding with Button
-      propPane.ToggleJSMode("required", true);
-      propPane.UpdatePropertyFieldValue(
-        "Required",
-        "{{Button3.isDisabled?false:true}}",
-      );
-      entityExplorer.SelectEntityByName("Button3", "Widgets");
-      propPane.TogglePropertyState("disabled", "On");
-      agHelper.AssertElementEnabledDisabled(
-        locators._buttonInDeployedMode,
-        1,
-        false,
-      );
-      propPane.TogglePropertyState("disabled", "Off");
-      agHelper.AssertElementEnabledDisabled(
-        locators._buttonInDeployedMode,
-        1,
-        true,
-      );
-    });
+  it("1. Verify required field", function () {
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.TogglePropertyState("required", "On");
+    propPane.UpdatePropertyFieldValue("Default selected value", "");
+    agHelper.AssertElementEnabledDisabled(locators._buttonInDeployedMode, 1);
+    // Binding with Button
+    propPane.ToggleJSMode("required", true);
+    propPane.UpdatePropertyFieldValue(
+      "Required",
+      "{{Button3.isDisabled?false:true}}",
+    );
+    EditorNavigation.SelectEntityByName("Button3", EntityType.Widget);
+    propPane.TogglePropertyState("disabled", "On");
+    agHelper.AssertElementEnabledDisabled(
+      locators._buttonInDeployedMode,
+      1,
+      false,
+    );
+    propPane.TogglePropertyState("disabled", "Off");
+    agHelper.AssertElementEnabledDisabled(
+      locators._buttonInDeployedMode,
+      1,
+      true,
+    );
+  });
 
-    it("2. Verify placeholder", function () {
-      entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
-      propPane.UpdatePropertyFieldValue("Options", "");
-      propPane.UpdatePropertyFieldValue("Placeholder", "Select new option");
-      agHelper.AssertText(
-        locators._treeSelectPlaceholder,
-        "text",
-        "Select new option",
-      );
-      // Binding with Text widget
-      entityExplorer.DragDropWidgetNVerify("textwidget", 550, 500);
-      propPane.UpdatePropertyFieldValue("Text", "Select value");
-      entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
-      propPane.UpdatePropertyFieldValue("Placeholder", "{{Text2.text}}");
-      agHelper.AssertText(
-        locators._treeSelectPlaceholder,
-        "text",
-        "Select value",
-      );
-    });
+  it("2. Verify placeholder", function () {
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.UpdatePropertyFieldValue("Options", "");
+    propPane.UpdatePropertyFieldValue("Placeholder", "Select new option");
+    agHelper.AssertText(
+      locators._treeSelectPlaceholder,
+      "text",
+      "Select new option",
+    );
+    // Binding with Text widget
+    entityExplorer.DragDropWidgetNVerify("textwidget", 550, 500);
+    propPane.UpdatePropertyFieldValue("Text", "Select value");
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.UpdatePropertyFieldValue("Placeholder", "{{Text2.text}}");
+    agHelper.AssertText(
+      locators._treeSelectPlaceholder,
+      "text",
+      "Select value",
+    );
+  });
 
     it("3. Verify expand all by default", function () {
       propPane.UpdatePropertyFieldValue("Options", options);
@@ -136,29 +145,33 @@ describe(
       agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
       deployMode.NavigateBacktoEditor();
 
-      // entityExplorer.SelectEntityByName("Form1");
-      entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-      propPane.MoveToTab("Style");
+    // entityExplorer.SelectEntityByName("Form1");
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.MoveToTab("Style");
 
       // Verify border
       agHelper.GetNClick(propPane._segmentedControl("0px"));
       agHelper.AssertCSS(".rc-tree-select", "border-radius", "0px");
     });
 
-    it("5. Verify Api binding", () => {
-      apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
-      apiPage.RunAPI();
-      entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-      propPane.MoveToTab("Content");
-      propPane.UpdatePropertyFieldValue(
-        "Options",
-        `{{Api1.data.users.map((s)=>{return{"label":s.name,"value":s.name}})}}`,
-      );
-      agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")}`,
-      );
-      agHelper.AssertElementExist(locators._treeSelectTitle);
-    });
+  it("5. Verify Api binding", () => {
+    apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    apiPage.RunAPI();
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.MoveToTab("Content");
+    propPane.UpdatePropertyFieldValue(
+      "Options",
+      `{{Api1.data.users.map((s)=>{return{"label":s.name,"value":s.name}})}}`,
+    );
+    agHelper.GetNClick(
+      `${locators._widgetInDeployed("singleselecttreewidget")}`,
+    );
+    agHelper.AssertElementExist(locators._treeSelectTitle);
+  });
 
     it("6. Verify onOptionChange with query", () => {
       entityExplorer.DragDropWidgetNVerify("checkboxwidget", 300, 600);
@@ -180,69 +193,77 @@ describe(
       });
       dataSources.RunQuery();
 
-      entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
-      propPane.UpdatePropertyFieldValue("Options", options);
-      propPane.SelectPlatformFunction("onOptionChange", "Execute a query");
-      agHelper.GetNClick(`${locators._dropDownValue("Query1")}`, 0, true);
-      agHelper.GetNClick(locators._callbackAddBtn, 0, true);
-      agHelper.GetNClick(locators._dropDownValue("Show alert"));
-      agHelper.TypeText(
-        propPane._actionSelectorFieldByLabel("Message"),
-        "Success",
-      );
-      agHelper.GetNClick(propPane._actionSelectorPopupClose);
-      deployMode.DeployApp();
-      agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")}`,
-      );
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
-      agHelper.ValidateToastMessage("Success");
-    });
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.UpdatePropertyFieldValue("Options", options);
+    propPane.SelectPlatformFunction("onOptionChange", "Execute a query");
+    agHelper.GetNClick(`${locators._dropDownValue("Query1")}`, 0, true);
+    agHelper.GetNClick(locators._callbackAddBtn, 0, true);
+    agHelper.GetNClick(locators._dropDownValue("Show alert"));
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
+      "Success",
+    );
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+    deployMode.DeployApp();
+    agHelper.GetNClick(
+      `${locators._widgetInDeployed("singleselecttreewidget")}`,
+    );
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
+    agHelper.ValidateToastMessage("Success");
+  });
 
-    it("7. Verify onOptionChange with Navigate To", () => {
-      deployMode.NavigateBacktoEditor();
-      // Navigate To
-      entityExplorer.SelectEntityByName("Form1", "Widgets");
-      entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-      propPane.ToggleJSMode("onOptionChange", true);
-      propPane.UpdatePropertyFieldValue(
-        "onOptionChange",
-        "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
-      );
-      deployMode.DeployApp();
-      agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")}`,
-      );
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-      agHelper.AssertURL("yahoo.com");
-      agHelper.BrowserNavigation(-1);
-    });
+  it("7. Verify onOptionChange with Navigate To", () => {
+    deployMode.NavigateBacktoEditor();
+    // Navigate To
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.ToggleJSMode("onOptionChange", true);
+    propPane.UpdatePropertyFieldValue(
+      "onOptionChange",
+      "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
+    );
+    deployMode.DeployApp();
+    agHelper.GetNClick(
+      `${locators._widgetInDeployed("singleselecttreewidget")}`,
+    );
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
+    agHelper.AssertURL("yahoo.com");
+    agHelper.BrowserNavigation(-1);
+  });
 
-    it("8. Verify onOptionChange with Alert", () => {
-      deployMode.NavigateBacktoEditor();
-      // Alert
-      entityExplorer.SelectEntityByName("Form1", "Widgets");
-      entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-      propPane.UpdatePropertyFieldValue(
-        "onOptionChange",
-        "{{showAlert('Option Changed', '');}}",
-      );
-      deployMode.DeployApp();
-      agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")}`,
-      );
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
-      agHelper.ValidateToastMessage("Option Changed");
-    });
+  it("8. Verify onOptionChange with Alert", () => {
+    deployMode.NavigateBacktoEditor();
+    // Alert
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.UpdatePropertyFieldValue(
+      "onOptionChange",
+      "{{showAlert('Option Changed', '');}}",
+    );
+    deployMode.DeployApp();
+    agHelper.GetNClick(
+      `${locators._widgetInDeployed("singleselecttreewidget")}`,
+    );
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
+    agHelper.ValidateToastMessage("Option Changed");
+  });
 
-    it("9. Verify onOptionChange with download", () => {
-      deployMode.NavigateBacktoEditor();
-      // Download
-      entityExplorer.SelectEntityByName("Form1", "Widgets");
-      entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-      propPane.UpdatePropertyFieldValue(
-        "onOptionChange",
-        `{{download('https://assets.codepen.io/3/kiwi.svg', 'kiwi.svg', 'image/svg+xml').then(() => {
+  it("9. Verify onOptionChange with download", () => {
+    deployMode.NavigateBacktoEditor();
+    // Download
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.UpdatePropertyFieldValue(
+      "onOptionChange",
+      `{{download('https://assets.codepen.io/3/kiwi.svg', 'kiwi.svg', 'image/svg+xml').then(() => {
             showAlert('Download Success', '');
           });}}`,
       );
@@ -253,56 +274,60 @@ describe(
       agHelper.ValidateToastMessage("Download Success");
     });
 
-    it("10. Verify onOptionChange with Reset", () => {
-      // Reset Widget
-      entityExplorer.SelectEntityByName("Form1", "Widgets");
-      entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-      propPane.UpdatePropertyFieldValue(
-        "onOptionChange",
-        '{{resetWidget("Checkbox1", true);}}',
-      );
-      deployMode.DeployApp();
-      agHelper.GetNClick(`${locators._widgetInDeployed("checkbox1")}`);
-      agHelper.AssertExistingCheckedState(
-        locators._checkboxInDeployedMode,
-        "false",
-      );
-      agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")}`,
-      );
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
-      agHelper.AssertExistingCheckedState(locators._checkboxInDeployedMode);
-    });
+  it("10. Verify onOptionChange with Reset", () => {
+    // Reset Widget
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.UpdatePropertyFieldValue(
+      "onOptionChange",
+      '{{resetWidget("Checkbox1", true);}}',
+    );
+    deployMode.DeployApp();
+    agHelper.GetNClick(`${locators._widgetInDeployed("checkbox1")}`);
+    agHelper.AssertExistingCheckedState(
+      locators._checkboxInDeployedMode,
+      "false",
+    );
+    agHelper.GetNClick(
+      `${locators._widgetInDeployed("singleselecttreewidget")}`,
+    );
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
+    agHelper.AssertExistingCheckedState(locators._checkboxInDeployedMode);
+  });
 
-    it("11. Verify onOptionChange with Modal", () => {
-      deployMode.NavigateBacktoEditor();
-      // Modal
-      entityExplorer.SelectEntityByName("Form1", "Widgets");
-      entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-      propPane.ToggleJSMode("onOptionChange", false);
-      propPane.SelectPlatformFunction("onOptionChange", "Show modal");
-      agHelper.GetNClick(propPane._actionOpenDropdownSelectModal);
-      agHelper.GetNClick(propPane._createModalButton);
-      agHelper.AssertElementVisibility(locators._modal);
-      agHelper.GetNClick(locators._closeModal, 0, true);
-      deployMode.DeployApp();
-      agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")}`,
-      );
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-      agHelper.AssertElementVisibility(locators._modal);
-      agHelper.GetNClick(locators._closeModal, 0, true);
-      agHelper.Sleep(3000);
-      agHelper.AssertElementAbsence(locators._modal);
-    });
+  it("11. Verify onOptionChange with Modal", () => {
+    deployMode.NavigateBacktoEditor();
+    // Modal
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.ToggleJSMode("onOptionChange", false);
+    propPane.SelectPlatformFunction("onOptionChange", "Show modal");
+    agHelper.GetNClick(propPane._actionOpenDropdownSelectModal);
+    agHelper.GetNClick(propPane._createModalButton);
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.GetNClick(locators._closeModal, 0, true);
+    deployMode.DeployApp();
+    agHelper.GetNClick(
+      `${locators._widgetInDeployed("singleselecttreewidget")}`,
+    );
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
+    agHelper.AssertElementVisibility(locators._modal);
+    agHelper.GetNClick(locators._closeModal, 0, true);
+    agHelper.Sleep(3000);
+    agHelper.AssertElementAbsence(locators._modal);
+  });
 
-    it("12. Verify onOptionChange with iframe", () => {
-      deployMode.NavigateBacktoEditor();
-      // Postmessage on iframe
-      entityExplorer.SelectEntityByName("Iframe1", "Widgets");
-      propPane.UpdatePropertyFieldValue(
-        "srcDoc",
-        `<div id="target"></div>
+  it("12. Verify onOptionChange with iframe", () => {
+    deployMode.NavigateBacktoEditor();
+    // Postmessage on iframe
+    EditorNavigation.SelectEntityByName("Iframe1", EntityType.Widget);
+    propPane.UpdatePropertyFieldValue(
+      "srcDoc",
+      `<div id="target"></div>
 
             <script>
             window.addEventListener('message', (event) => {
@@ -310,19 +335,21 @@ describe(
                     tgt.textContent = event.data
                 });
             </script>`,
-      );
-      entityExplorer.SelectEntityByName("Form1", "Widgets");
-      entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
-      propPane.ToggleJSMode("onOptionChange", true);
-      propPane.UpdatePropertyFieldValue(
-        "onOptionChange",
-        `{{postWindowMessage('Test', 'Iframe1', "*");}}`,
-      );
-      deployMode.DeployApp();
-      agHelper.GetNClick(
-        `${locators._widgetInDeployed("singleselecttreewidget")}`,
-      );
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
+    );
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
+    propPane.ToggleJSMode("onOptionChange", true);
+    propPane.UpdatePropertyFieldValue(
+      "onOptionChange",
+      `{{postWindowMessage('Test', 'Iframe1', "*");}}`,
+    );
+    deployMode.DeployApp();
+    agHelper.GetNClick(
+      `${locators._widgetInDeployed("singleselecttreewidget")}`,
+    );
+    agHelper.GetNClick(locators._dropDownMultiTreeValue("Green"));
 
       agHelper.GetElement('iframe[id="iframe-Iframe1"]').then(($iframe) => {
         const iframe = $iframe.contents();

@@ -102,6 +102,7 @@ import { fetchFeatureFlagsInit } from "actions/userActions";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -189,7 +190,7 @@ export function* updateDataTreeHandler(
     configTree,
     removedPaths,
   );
-
+  AnalyticsUtil.setBlockErrorLogs(isCreateFirstTree);
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
     postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
