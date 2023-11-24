@@ -59,7 +59,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { call, delay, put, select } from "redux-saga/effects";
+import { all, call, delay, put, select } from "redux-saga/effects";
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -1186,6 +1186,34 @@ export function* fetchPageDSLSaga(pageId: string) {
       pageId: pageId,
       dsl: DEFAULT_TEMPLATE,
     };
+  }
+}
+
+export function* populatePageDSLsSaga() {
+  try {
+    const pageIds: string[] = yield select((state: AppState) =>
+      state.entities.pageList.pages.map((page: Page) => page.pageId),
+    );
+    const pageDSLs: unknown = yield all(
+      pageIds.map((pageId: string) => {
+        return call(fetchPageDSLSaga, pageId);
+      }),
+    );
+    yield put({
+      type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
+      payload: pageDSLs,
+    });
+    yield put({
+      type: ReduxActionTypes.UPDATE_PAGE_LIST,
+      payload: pageDSLs,
+    });
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
+      payload: {
+        error,
+      },
+    });
   }
 }
 
