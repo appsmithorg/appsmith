@@ -88,7 +88,7 @@ function Sidebar() {
   }
 
   return (
-    <Container className="t--sidebar">
+    <Container className="t--sidebar" id="t--new-sidebar">
       {isAppSidebarAnnouncementEnabled &&
         !isAppSidebarAnnouncementDismissed && (
           <AnnouncementPopover open={isPopoverOpen}>
