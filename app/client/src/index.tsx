@@ -40,7 +40,7 @@ enableNewRelic &&
   (async () => {
     try {
       await import(
-        /* webpackChunkName: "otlpTelemetry" */ "./auto-otel-web.js"
+        /* webpackChunkName: "otlpTelemetry" */ "./UITelemetry/auto-otel-web.js"
       );
     } catch (e) {
       log.error("Error loading telemetry script", e);
