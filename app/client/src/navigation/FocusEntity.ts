@@ -103,8 +103,6 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       appState: AppState.PAGES,
     };
   }
-  // eslint-disable-next-line no-console
-  console.log("Albin-match", match);
   if (match.params.apiId) {
     if (match.params.pluginPackageName) {
       return {
@@ -115,7 +113,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       };
     }
     return {
-      entity: FocusEntity.API,
+      entity: FocusEntity.QUERY,
       id: match.params.apiId,
       pageId: match.params.pageId,
       appState: AppState.PAGES,

@@ -1,5 +1,6 @@
 import { matchPath } from "react-router";
 import {
+  API_EDITOR_ID_PATH,
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
@@ -10,6 +11,7 @@ import {
 } from "../constants/routes";
 import { shouldStorePageURLForFocus } from "./FocusUtils";
 import { FocusEntity, identifyEntityFromPath } from "./FocusEntity";
+import { SAAS_EDITOR_API_ID_PATH } from "../pages/Editor/SaaSEditor/constants";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {
   const match = matchPath<{ datasourceId?: string }>(path, [
@@ -38,13 +40,22 @@ export const getCurrentAppUrl = (path: string): string | undefined => {
 };
 
 export const getSelectedQueryId = (path: string): string | undefined => {
-  const match = matchPath<{ queryId?: string }>(path, [
+  const match = matchPath<{ queryId?: string; apiId?: string }>(path, [
+    // Queries
     BUILDER_PATH_DEPRECATED + QUERIES_EDITOR_ID_PATH,
     BUILDER_PATH + QUERIES_EDITOR_ID_PATH,
     BUILDER_CUSTOM_PATH + QUERIES_EDITOR_ID_PATH,
+    // SASS
+    BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
+    BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+    BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+    // API
+    BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
+    BUILDER_PATH + API_EDITOR_ID_PATH,
+    BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
   ]);
   if (!match) return undefined;
-  return match.params.queryId;
+  return match.params.queryId || match.params.apiId;
 };
 
 export const getSelectedJSObjectId = (path: string): string | undefined => {

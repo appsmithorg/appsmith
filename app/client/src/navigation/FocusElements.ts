@@ -292,24 +292,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setQueryPaneConfigSelectedTabIndex,
       defaultValue: 0,
     },
-  ],
-  [FocusEntity.PROPERTY_PANE]: [
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertyTabs,
-      selector: getWidgetSelectedPropertyTabIndex,
-      setter: setWidgetSelectedPropertyTabIndex,
-      defaultValue: 0,
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertyField,
-      selector: getFocusablePropertyPaneField,
-      setter: setFocusablePropertyPaneField,
-      defaultValue: "",
-    },
-  ],
-  [FocusEntity.API]: [
     {
       type: ConfigType.Redux,
       name: FocusElement.ApiPaneConfigTabs,
@@ -335,6 +317,23 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setApiRightPaneSelectedTab,
     },
   ],
+  [FocusEntity.PROPERTY_PANE]: [
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertyTabs,
+      selector: getWidgetSelectedPropertyTabIndex,
+      setter: setWidgetSelectedPropertyTabIndex,
+      defaultValue: 0,
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertyField,
+      selector: getFocusablePropertyPaneField,
+      setter: setFocusablePropertyPaneField,
+      defaultValue: "",
+    },
+  ],
+  [FocusEntity.API]: [],
   [FocusEntity.DEBUGGER]: [
     {
       type: ConfigType.Redux,
