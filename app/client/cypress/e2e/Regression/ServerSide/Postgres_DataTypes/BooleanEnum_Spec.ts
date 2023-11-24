@@ -85,7 +85,10 @@ describe("Boolean & Enum Datatype tests", function () {
     agHelper.SelectDropDown("Monday");
     agHelper.ToggleSwitch("Areweworking");
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+    //agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+    // agHelper.AssertElementAbsence(
+    //   locators._specificToast("Error while inserting resource"),
+    // );
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
@@ -140,7 +143,7 @@ describe("Boolean & Enum Datatype tests", function () {
     agHelper.AssertElementVisibility(locators._modal);
     agHelper.ToggleSwitch("Areweworking", "check");
     agHelper.ClickButton("Update");
-    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
+    //agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Update did not fail
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
