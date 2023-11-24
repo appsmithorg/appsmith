@@ -5,6 +5,7 @@ import {
   jsCollectionIdURL,
   queryEditorIdURL,
 } from "@appsmith/RouteBuilder";
+import { QueryTypes } from "./FocusEntity";
 
 export function setSelectedDatasource(id: string | undefined) {
   if (id) {
@@ -31,10 +32,10 @@ export function setAppUrl(path: string | undefined) {
 }
 
 export function setSelectedQuery(
-  state: { type: "QUERY" | "API"; id: string } | undefined,
+  state: { type: QueryTypes; id: string } | undefined,
 ) {
   if (state) {
-    if (state.type === "QUERY") {
+    if (state.type === QueryTypes.QUERY) {
       history.replace(
         queryEditorIdURL({
           queryId: state.id,
