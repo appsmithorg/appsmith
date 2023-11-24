@@ -548,10 +548,6 @@ export const resetApplicationWidgets = () => ({
   type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
 });
 
-export const fetchPageDSLs = () => ({
-  type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
-});
-
 export const setupPage = (
   pageId: string,
   isFirstLoad = false,

@@ -13,7 +13,6 @@ import {
   updateWidgetNameSaga,
   generateTemplatePageSaga,
   setPageOrderSaga,
-  populatePageDSLsSaga,
   setCanvasCardsStateSaga,
   deleteCanvasCardsStateSaga,
   setPreviewModeInitSaga,
@@ -53,7 +52,6 @@ export default function* pageSagas() {
       generateTemplatePageSaga,
     ),
     takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
-    takeLatest(ReduxActionTypes.POPULATE_PAGEDSLS_INIT, populatePageDSLsSaga),
     takeEvery(ReduxActionTypes.SET_CANVAS_CARDS_STATE, setCanvasCardsStateSaga),
     takeEvery(
       ReduxActionTypes.DELETE_CANVAS_CARDS_STATE,
