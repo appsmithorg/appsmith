@@ -11,7 +11,7 @@ export const getPageDependencyActions = (
   currentWorkspaceId: string = "",
   featureFlags: DependentFeatureFlags = {},
 ) => {
-  const initActions = [fetchPlugins(), fetchDatasources()];
+  const initActions: any = [fetchPlugins(), fetchDatasources()];
 
   const successActions = [
     ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
