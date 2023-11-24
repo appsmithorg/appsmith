@@ -94,12 +94,14 @@ export function* createZoneAndAddWidgets(
     zoneLayout.layoutType,
   );
 
-  zoneLayout = addWidgetsToChildTemplate(
-    zoneLayout,
-    zoneComp,
-    smallWidgets,
-    highlight,
-  );
+  if (smallWidgets.length) {
+    zoneLayout = addWidgetsToChildTemplate(
+      zoneLayout,
+      zoneComp,
+      smallWidgets,
+      highlight,
+    );
+  }
 
   /**
    * Step 5: Add large widgets to the zone layout.
