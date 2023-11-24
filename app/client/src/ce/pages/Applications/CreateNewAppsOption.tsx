@@ -278,7 +278,9 @@ const CreateNewAppsOption = ({
       );
     }
 
-    // TODO:Handle analytics for this
+    AnalyticsUtil.logEvent("START_FROM_TEMPLATES_CLICK_SKIP_BUTTON", {
+      startWithType: useType,
+    });
   };
 
   const onClickBackButton = () => {
