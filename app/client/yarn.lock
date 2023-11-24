@@ -12608,7 +12608,7 @@ __metadata:
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.3
     astravel: ^0.6.1
-    axios: ^1.6.0
+    axios: ^1.2.0
     esbuild: ^0.19.4
     escodegen: ^2.0.0
     express: ^4.18.2
@@ -12739,7 +12739,7 @@ __metadata:
     algoliasearch: ^4.2.0
     assert-never: ^1.2.1
     astring: ^1.7.5
-    axios: ^1.6.0
+    axios: ^0.27.2
     babel-plugin-lodash: ^3.3.4
     babel-plugin-module-resolver: ^4.1.0
     chalk: ^4.1.1
@@ -13424,7 +13424,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.6.0, axios@npm:^1.6.1":
+"axios@npm:^0.27.2":
+  version: 0.27.2
+  resolution: "axios@npm:0.27.2"
+  dependencies:
+    follow-redirects: ^1.14.9
+    form-data: ^4.0.0
+  checksum: 38cb7540465fe8c4102850c4368053c21683af85c5fdf0ea619f9628abbcb59415d1e22ebc8a6390d2bbc9b58a9806c874f139767389c862ec9b772235f06854
+  languageName: node
+  linkType: hard
+
+"axios@npm:^1.2.0, axios@npm:^1.6.1":
   version: 1.6.1
   resolution: "axios@npm:1.6.1"
   dependencies:
@@ -19573,7 +19583,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.15.0":
+"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.14.9, follow-redirects@npm:^1.15.0":
   version: 1.15.2
   resolution: "follow-redirects@npm:1.15.2"
   peerDependenciesMeta:

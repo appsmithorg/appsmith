@@ -288,7 +288,7 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   PermissionStatus: "PermissionStatus",
   Permissions: "Permissions",
   postMessage: "postMessage",
-  AxiosProgressEvent: "AxiosProgressEvent",
+  ProgressEvent: "ProgressEvent",
   Promise: "Promise",
   PromiseRejectionEvent: "PromiseRejectionEvent",
   Proxy: "Proxy",
