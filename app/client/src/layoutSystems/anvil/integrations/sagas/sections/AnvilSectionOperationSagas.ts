@@ -11,6 +11,7 @@ import { AnvilReduxActionTypes } from "../../actions/actionTypes";
 import { addNewZonesToSection, mergeLastZonesOfSection } from "./utils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
+import { batchUpdateWidgetProperty } from "actions/controlActions";
 
 function* updateZonesCountOfSectionSaga(
   actionPayload: ReduxAction<{
@@ -109,6 +110,39 @@ export function* checkAutoSectionDelete(
   }
 }
 
+export function* checkSectionZoneCount(
+  actionPayload: ReduxAction<{
+    widgetId: string;
+  }>,
+) {
+  try {
+    const { widgetId } = actionPayload.payload;
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+    const canvasWidget: FlattenedWidgetProps = allWidgets[widgetId];
+
+    if (!canvasWidget || !canvasWidget.parentId) return;
+
+    const section: FlattenedWidgetProps = allWidgets[canvasWidget.parentId];
+
+    if (section.zoneCount !== canvasWidget.children?.length) {
+      yield put(
+        batchUpdateWidgetProperty(section.widgetId, {
+          modify: { zoneCount: canvasWidget.children?.length || 1 },
+        }),
+      );
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: AnvilReduxActionTypes.ANVIL_CHECK_ZONE_COUNT,
+        error,
+      },
+    });
+  }
+}
+
 export default function* anvilSectionOperationsSagas() {
   yield all([
     takeLatest(
@@ -118,6 +152,10 @@ export default function* anvilSectionOperationsSagas() {
     takeLatest(
       AnvilReduxActionTypes.ANVIL_CHECK_SECTION_DELETE,
       checkAutoSectionDelete,
+    ),
+    takeLatest(
+      AnvilReduxActionTypes.ANVIL_CHECK_ZONE_COUNT,
+      checkSectionZoneCount,
     ),
   ]);
 }

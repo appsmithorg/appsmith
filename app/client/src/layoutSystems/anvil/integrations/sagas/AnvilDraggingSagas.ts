@@ -36,6 +36,7 @@ import { addWidgetToSection } from "./sections/utils";
 import { generateReactKey } from "utils/generators";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
+import { moveWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 
 export function* getMainCanvasLastRowHighlight() {
   const mainCanvas: WidgetProps = yield select(
@@ -286,74 +287,27 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
     const isSection = draggedOn === "SECTION";
     const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    let updatedWidgets: CanvasWidgetsReduxState = {};
-    const areZonesBeingDragged = draggedWidgetTypes === "ZONE";
-    const areSectionsBeingDragged = draggedWidgetTypes === "SECTION";
+    let updatedWidgets: CanvasWidgetsReduxState = allWidgets;
+    const areZonesBeingDragged = draggedWidgetTypes.includes("ZONE");
+    const areSectionsBeingDragged = draggedWidgetTypes.includes("SECTION");
     const movingWidgetToMainCanvas =
       isMainCanvas && !(areZonesBeingDragged || areSectionsBeingDragged);
-    if (movingWidgetToMainCanvas || isSection) {
+    if (isMainCanvas) {
       /**
-       * this same code block creates just a zone when the target is a section
-       * however it creates a section and a zone when the target is main canvas
-       * */
-      const createdZoneWidgetId = generateReactKey();
-      updatedWidgets = yield call(
-        addNewChildToDSL,
-        highlight,
-        {
-          width: 0,
-          height: 0,
-          newWidgetId: createdZoneWidgetId,
-          type: ZoneWidget.type,
-        },
-        !!isMainCanvas,
-        !!isSection,
-      );
-      const createdZoneWidget = updatedWidgets[createdZoneWidgetId];
-      const createdZoneCanvasId = createdZoneWidget.children
-        ? createdZoneWidget.children[0]
-        : MAIN_CONTAINER_WIDGET_ID;
-      const layoutOrder = [
-        updatedWidgets[createdZoneCanvasId].layout[0].layoutId,
-      ];
-      updatedWidgets = moveWidgets(updatedWidgets, movedWidgetIds, {
-        ...highlight,
-        layoutOrder,
-        alignment: FlexLayerAlignment.Start,
-        canvasId: createdZoneCanvasId,
-      });
-    } else if (isMainCanvas && areZonesBeingDragged) {
-      /**
-       * when a zone is dragged we create a new section using generic method of creation on the main canvas
-       * and then we move zones into the newly created sections canvas
+       * * Widgets are dropped on to Main Canvas.
        */
-      const createdSectionWidgetId = generateReactKey();
-      const newSectionWidget = {
-        width: 0,
-        height: 0,
-        newWidgetId: createdSectionWidgetId,
-        type: SectionWidget.type,
-      };
+      console.log("#### move to main");
+    } else if (isSection) {
+      /**
+       * Widget are dropped into a Section.
+       */
+      console.log("#### move to section");
       updatedWidgets = yield call(
-        addNewChildToDSL,
+        moveWidgetsToSection,
+        allWidgets,
+        movedWidgetIds,
         highlight,
-        newSectionWidget,
-        false,
-        false,
       );
-      const createdSectionWidget = updatedWidgets[createdSectionWidgetId];
-      const createdSectionCanvasId = createdSectionWidget.children
-        ? createdSectionWidget.children[0]
-        : MAIN_CONTAINER_WIDGET_ID;
-      const layoutOrder = [
-        updatedWidgets[createdSectionCanvasId].layout[0].layoutId,
-      ];
-      updatedWidgets = moveWidgets(updatedWidgets, movedWidgetIds, {
-        ...highlight,
-        layoutOrder,
-        alignment: FlexLayerAlignment.Start,
-        canvasId: createdSectionCanvasId,
-      });
     } else {
       updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
     }

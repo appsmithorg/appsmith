@@ -427,7 +427,6 @@ export interface WidgetBaseProps {
   hasAutoHeight?: boolean;
   hasAutoWidth?: boolean;
   widgetSize?: { [key: string]: Record<string, string> };
-  deleteIfEmpty?: boolean;
 }
 
 export interface WidgetRowCols {

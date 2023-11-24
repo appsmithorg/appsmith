@@ -1,8 +1,5 @@
 import { generateAlignedRowMock } from "mocks/layoutComponents/layoutComponentMock";
-import type {
-  LayoutComponentProps,
-  WidgetLayoutProps,
-} from "../../anvilTypes";
+import type { LayoutComponentProps, WidgetLayoutProps } from "../../anvilTypes";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,

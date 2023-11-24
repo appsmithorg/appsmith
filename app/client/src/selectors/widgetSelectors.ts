@@ -21,6 +21,7 @@ import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { getIsPropertyPaneVisible } from "./propertyPaneSelectors";
 import { combinedPreviewModeSelector } from "./editorSelectors";
+import { SectionWidget } from "widgets/anvil/SectionWidget";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -228,3 +229,13 @@ export const isResizingOrDragging = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   (isResizing, isDragging) => !!isResizing || !!isDragging,
 );
+
+export const isCanvasOfSection = (widgetId: string) => {
+  return createSelector(getCanvasWidgets, (widgets): boolean => {
+    const canvas: FlattenedWidgetProps = widgets[widgetId];
+    if (canvas && canvas.parentId) {
+      return widgets[canvas.parentId]?.type === SectionWidget.type;
+    }
+    return false;
+  });
+};

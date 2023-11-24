@@ -6,7 +6,7 @@ import type {
   LayoutProps,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
-import { deriveHighlights, performInitialChecks } from "./highlightUtils";
+import { deriveHighlights } from "./highlightUtils";
 import {
   getHighlightsForLayouts,
   getHighlightsForWidgets,

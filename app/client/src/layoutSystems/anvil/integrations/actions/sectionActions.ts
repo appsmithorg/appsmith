@@ -21,3 +21,13 @@ export const checkSectionAutoDeleteAction = (widgetId: string) => {
     },
   };
 };
+
+export const checkSectionZoneCountAction = (widgetId: string) => {
+  return {
+    type: AnvilReduxActionTypes.ANVIL_CHECK_ZONE_COUNT,
+    payload: {
+      widgetId,
+    },
+  };
+};
+
