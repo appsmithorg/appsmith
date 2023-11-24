@@ -33,8 +33,8 @@ export class AssertHelper extends ReusableHelper {
   }
 
   public AssertReduxLoad() {
-    this.Sleep(500);
-    const timeout = Cypress.config("pageLoadTimeout"); // Set your desired timeout value
+    //this.Sleep(500);
+    const timeout = Cypress.config("pageLoadTimeout");
     const checkLoadingState = () => {
       return cy
         .window()
@@ -63,7 +63,7 @@ export class AssertHelper extends ReusableHelper {
       errorMsg:
         "Loading state did not become false within the specified timeout.",
     });
-    this.Sleep(500);
+    //this.Sleep(500);
   }
 
   public AssertDelete(entityType: EntityItemsType) {
