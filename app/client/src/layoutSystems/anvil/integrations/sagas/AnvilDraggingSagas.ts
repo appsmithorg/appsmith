@@ -24,7 +24,10 @@ import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { addWidgetsToMainCanvasLayout } from "layoutSystems/anvil/utils/layouts/update/mainCanvasLayoutUtils";
+import {
+  addWidgetsToMainCanvasLayout,
+  moveWidgetsToMainCanvas,
+} from "layoutSystems/anvil/utils/layouts/update/mainCanvasLayoutUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
   GridDefaults,
@@ -33,9 +36,6 @@ import {
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
 import { addWidgetToSection } from "./sections/utils";
-import { generateReactKey } from "utils/generators";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
 import { moveWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 
 export function* getMainCanvasLastRowHighlight() {
@@ -279,7 +279,7 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
   try {
     const start = performance.now();
     const {
-      dragMeta: { draggedOn, draggedWidgetTypes },
+      dragMeta: { draggedOn },
       highlight,
       movedWidgets,
     } = actionPayload.payload;
@@ -288,20 +288,21 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
     const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     let updatedWidgets: CanvasWidgetsReduxState = allWidgets;
-    const areZonesBeingDragged = draggedWidgetTypes.includes("ZONE");
-    const areSectionsBeingDragged = draggedWidgetTypes.includes("SECTION");
-    const movingWidgetToMainCanvas =
-      isMainCanvas && !(areZonesBeingDragged || areSectionsBeingDragged);
+
     if (isMainCanvas) {
       /**
        * * Widgets are dropped on to Main Canvas.
        */
-      console.log("#### move to main");
+      updatedWidgets = yield call(
+        moveWidgetsToMainCanvas,
+        allWidgets,
+        movedWidgetIds,
+        highlight,
+      );
     } else if (isSection) {
       /**
        * Widget are dropped into a Section.
        */
-      console.log("#### move to section");
       updatedWidgets = yield call(
         moveWidgetsToSection,
         allWidgets,

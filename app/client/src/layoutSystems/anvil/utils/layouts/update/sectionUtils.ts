@@ -22,6 +22,7 @@ import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getRenderMode } from "selectors/editorSelectors";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
@@ -107,7 +108,7 @@ function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
   const zones: WidgetLayoutProps[] = [];
   const nonZones: WidgetLayoutProps[] = [];
   widgets.forEach((widget: WidgetLayoutProps) => {
-    if (widget.widgetType === "ZONE_WIDGET") {
+    if (widget.widgetType === ZoneWidget.type) {
       zones.push(widget);
     } else {
       nonZones.push(widget);
@@ -151,7 +152,6 @@ export function* addWidgetsToSection(
   let canvasWidgets = { ...allWidgets };
   const sectionProps = { ...section };
   let canvasProps = { ...canvas };
-  console.log("#### addWidgetsToSection", { sectionLayout, canvas });
   /**
    * Step 1: Split widgets into zones and non zones.
    *
@@ -191,7 +191,7 @@ export function* addWidgetsToSection(
       },
     };
   });
-  console.log("####", { zones, nonZones, section, canvas, sectionLayout });
+
   /**
    * Step 3: Create new zone and add to section.
    */
@@ -210,7 +210,7 @@ export function* addWidgetsToSection(
         canvasProps.widgetId,
         additionalWidgets,
       );
-    console.log("#### data", { data });
+
     canvasProps.children = [...canvasProps.children, data.zone.widgetId];
     sectionLayout = sectionComp.addChild(
       sectionLayout,
@@ -236,7 +236,7 @@ export function* addWidgetsToSection(
    */
   sectionProps.children = [canvasProps.widgetId];
   canvasProps.parentId = sectionProps.widgetId;
-  console.log("#### updated section", { sectionProps, canvasProps });
+
   return {
     canvasWidgets: {
       ...canvasWidgets,
@@ -258,7 +258,7 @@ export function* moveWidgetsToSection(
    * Step 1: Remove moved widgets from previous parents.
    */
   widgets = severTiesFromParents(widgets, movedWidgets);
-  console.log("#### update relationships", { widgets });
+
   /**
    * Step 2: Get the new Section and its Canvas.
    */
