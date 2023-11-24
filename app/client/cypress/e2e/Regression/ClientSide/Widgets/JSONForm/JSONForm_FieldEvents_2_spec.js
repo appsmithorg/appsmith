@@ -17,90 +17,94 @@ import {
 const fieldPrefix = ".t--jsonformfield";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
-describe("Radio Group Field", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => {
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
+describe(
+  "Radio Group Field",
+  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  () => {
+    beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
+    });
 
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
+    });
 
-  it("1. Shows updated formData values in onChange binding", () => {
-    const schema = {
-      agree: true,
-    };
-    agHelper.AddDsl("jsonFormDslWithoutSchema");
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+    it("1. Shows updated formData values in onChange binding", () => {
+      const schema = {
+        agree: true,
+      };
+      agHelper.AddDsl("jsonFormDslWithoutSchema");
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-    cy.openFieldConfiguration("agree");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Checkbox/);
+      cy.openFieldConfiguration("agree");
+      cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Checkbox/);
 
-    propPane.EnterJSContext(
-      "onCheckChange",
-      "{{showAlert(formData.agree.toString())}}",
-    );
-    deployMode.DeployApp();
-    // Click on select field
-    cy.get(`${fieldPrefix}-agree input`).click({ force: true });
+      propPane.EnterJSContext(
+        "onCheckChange",
+        "{{showAlert(formData.agree.toString())}}",
+      );
+      deployMode.DeployApp();
+      // Click on select field
+      cy.get(`${fieldPrefix}-agree input`).click({ force: true });
 
-    // Check for alert
-    cy.get(commonlocators.toastmsg).contains("false");
+      // Check for alert
+      cy.get(commonlocators.toastmsg).contains("false");
 
-    deployMode.NavigateBacktoEditor();
-  });
+      deployMode.NavigateBacktoEditor();
+    });
 
-  it("2. Shows updated formData values in onChange binding", () => {
-    const schema = {
-      agree: true,
-    };
+    it("2. Shows updated formData values in onChange binding", () => {
+      const schema = {
+        agree: true,
+      };
 
-    agHelper.AddDsl("jsonFormDslWithoutSchema");
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+      agHelper.AddDsl("jsonFormDslWithoutSchema");
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-    cy.openFieldConfiguration("agree");
+      cy.openFieldConfiguration("agree");
 
-    propPane.EnterJSContext(
-      "onChange",
-      "{{showAlert(formData.agree.toString())}}",
-    );
+      propPane.EnterJSContext(
+        "onChange",
+        "{{showAlert(formData.agree.toString())}}",
+      );
 
-    deployMode.DeployApp();
-    // Click on select field
-    cy.get(`${fieldPrefix}-agree input`).click({ force: true });
+      deployMode.DeployApp();
+      // Click on select field
+      cy.get(`${fieldPrefix}-agree input`).click({ force: true });
 
-    // Check for alert
-    cy.get(commonlocators.toastmsg).contains("false");
+      // Check for alert
+      cy.get(commonlocators.toastmsg).contains("false");
 
-    deployMode.NavigateBacktoEditor();
-  });
+      deployMode.NavigateBacktoEditor();
+    });
 
-  it("3. shows updated formData values in onDateSelected binding", () => {
-    const schema = {
-      dob: "20/12/1992",
-    };
-    agHelper.AddDsl("jsonFormDslWithoutSchema");
+    it("3. shows updated formData values in onDateSelected binding", () => {
+      const schema = {
+        dob: "20/12/1992",
+      };
+      agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-    cy.openFieldConfiguration("dob");
+      cy.openFieldConfiguration("dob");
 
-    // Enable JS mode for onDateSelected
-    cy.get(toggleJSButton("ondateselected")).click({ force: true });
+      // Enable JS mode for onDateSelected
+      cy.get(toggleJSButton("ondateselected")).click({ force: true });
 
-    propPane.EnterJSContext("onDateSelected", "{{showAlert(formData.dob)}}");
-    deployMode.DeployApp();
+      propPane.EnterJSContext("onDateSelected", "{{showAlert(formData.dob)}}");
+      deployMode.DeployApp();
 
-    // Click on select field
-    cy.get(`${fieldPrefix}-dob .bp3-input`).click();
-    cy.get(`${fieldPrefix}-dob .bp3-input`)
-      .clear({ force: true })
-      .type("10/08/2010");
+      // Click on select field
+      cy.get(`${fieldPrefix}-dob .bp3-input`).click();
+      cy.get(`${fieldPrefix}-dob .bp3-input`)
+        .clear({ force: true })
+        .type("10/08/2010");
 
-    // Check for alert
-    cy.contains("10/08/2010").should("be.visible");
-  });
-});
+      // Check for alert
+      cy.contains("10/08/2010").should("be.visible");
+    });
+  },
+);

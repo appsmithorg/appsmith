@@ -25,9 +25,9 @@ describe(
       _.apiPage.ResponseStatusCheck("200 OK"); //Verify if api is run on pageload!
     });
 
-  it("2. Input widget updated with deafult data", function () {
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
-    cy.get(widgetsPage.defaultInput).type("3");
+    it("2. Input widget updated with deafult data", function () {
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+      cy.get(widgetsPage.defaultInput).type("3");
 
       cy.wait("@updateLayout")
         .its("response.body.responseMeta.status")

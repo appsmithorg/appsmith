@@ -50,8 +50,8 @@ describe(
         //Step7:
         cy.runQuery();
 
-      //Step8:
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+        //Step8:
+        EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
         cy.wait(1000);
 
@@ -124,7 +124,7 @@ describe(
 
         cy.runQuery();
 
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+        EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
         cy.wait(1000);
 

@@ -11,15 +11,15 @@ describe(
       _.agHelper.AddDsl("tablev1NewDsl");
     });
 
-  it("1. Verify Full table data - download csv and download Excel", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    _.propPane.UpdatePropertyFieldValue(
-      "Table data",
-      JSON.stringify(this.dataSet.TableInput),
-    );
-    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    _.agHelper.PressEscape();
-    _.deployMode.DeployApp();
+    it("1. Verify Full table data - download csv and download Excel", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      _.propPane.UpdatePropertyFieldValue(
+        "Table data",
+        JSON.stringify(this.dataSet.TableInput),
+      );
+      _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
+      _.agHelper.PressEscape();
+      _.deployMode.DeployApp();
 
       _.table.DownloadFromTable("Download as CSV");
       //This plugin works only from cypress ^9.2

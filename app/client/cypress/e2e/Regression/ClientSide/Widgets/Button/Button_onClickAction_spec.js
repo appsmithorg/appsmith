@@ -22,11 +22,11 @@ describe(
       agHelper.AddDsl("newFormDsl");
     });
 
-  beforeEach(() => {
-    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-  });
+    beforeEach(() => {
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
+    });
 
     it("1. Button-Modal Validation", function () {
       //creating the Modal and verify Modal name
@@ -53,9 +53,9 @@ describe(
       );
       cy.SaveAndRunAPI();
 
-    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
 
       // Adding the api in the onClickAction of the button widget.
       cy.executeDbQuery("buttonApi", "onClick");
@@ -72,14 +72,14 @@ describe(
       agHelper.ValidateToastMessage("Success buttonApi run");
     });
 
-  it("3. Button-Call-Query Validation", function () {
-    //creating a query and calling it from the onClickAction of the button widget.
-    // Creating a mock query
-    dataSources.CreateDataSource("Postgres");
-    dataSources.CreateQueryAfterDSSaved();
-    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
+    it("3. Button-Call-Query Validation", function () {
+      //creating a query and calling it from the onClickAction of the button widget.
+      // Creating a mock query
+      dataSources.CreateDataSource("Postgres");
+      dataSources.CreateQueryAfterDSSaved();
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
 
       // Delete the buttonApi action
       agHelper.GetNClick(propPane._actionCardByTitle("Execute a query"));

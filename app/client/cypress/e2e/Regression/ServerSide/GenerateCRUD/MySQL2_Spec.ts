@@ -106,8 +106,8 @@ describe(
       table.WaitUntilTableLoad();
     });
 
-  it("4. Verify Update data from Deploy page - on Stores - existing record", () => {
-    EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
+    it("4. Verify Update data from Deploy page - on Stores - existing record", () => {
+      EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
 
       updatingStoreJSONPropertyFileds();
       deployMode.DeployApp();
@@ -226,13 +226,16 @@ describe(
       table.WaitUntilTableLoad();
     });
 
-  it("8. Verify Add/Insert from Deploy page - on Stores - new record", () => {
-    deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad();
-    EditorNavigation.SelectEntityByName("insert_form", EntityType.Widget, {}, [
-      "Insert_Modal",
-    ]);
-    agHelper.Sleep(2000);
+    it("8. Verify Add/Insert from Deploy page - on Stores - new record", () => {
+      deployMode.NavigateBacktoEditor();
+      table.WaitUntilTableLoad();
+      EditorNavigation.SelectEntityByName(
+        "insert_form",
+        EntityType.Widget,
+        {},
+        ["Insert_Modal"],
+      );
+      agHelper.Sleep(2000);
 
       //Removing Default values & setting placeholder!
       propPane.UpdateJSONFormWithPlaceholders();

@@ -14,11 +14,11 @@ describe(
       _.agHelper.AddDsl("formInputTableV2Dsl");
     });
 
-  it("1. Input widget test with default value from table widget v2", function () {
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
-      "Form1",
-    ]);
-    cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
+    it("1. Input widget test with default value from table widget v2", function () {
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
+        "Form1",
+      ]);
+      cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
       cy.wait(2000);
       cy.wait("@updateLayout").should(

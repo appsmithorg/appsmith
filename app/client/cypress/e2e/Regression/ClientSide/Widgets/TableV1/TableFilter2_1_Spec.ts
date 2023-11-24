@@ -11,16 +11,16 @@ describe(
       _.agHelper.AddDsl("tablev1NewDsl");
     });
 
-  it("1. Adding Data to Table Widget", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    _.propPane.UpdatePropertyFieldValue(
-      "Table data",
-      JSON.stringify(this.dataSet.TableInput),
-    );
-    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    _.agHelper.PressEscape();
-    _.deployMode.DeployApp();
-  });
+    it("1. Adding Data to Table Widget", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      _.propPane.UpdatePropertyFieldValue(
+        "Table data",
+        JSON.stringify(this.dataSet.TableInput),
+      );
+      _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
+      _.agHelper.PressEscape();
+      _.deployMode.DeployApp();
+    });
 
     it("2. Verify Table Filter for AND operator - same row match - Where Edit - input value", function () {
       _.table.ReadTableRowColumnData(0, 3).then(($cellData) => {

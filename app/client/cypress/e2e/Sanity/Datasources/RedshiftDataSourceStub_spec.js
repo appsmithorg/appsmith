@@ -43,15 +43,19 @@ describe(
       cy.deleteDatasource(datasourceName);
     });
 
-  it("3. Create a new query from the datasource editor", function () {
-    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
-    cy.get(datasource.createQuery).last().click();
-    cy.wait("@createNewApi").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-    cy.deleteQueryUsingContext();
-    cy.deleteDatasource(datasourceName);
-  });
-});
+    it("3. Create a new query from the datasource editor", function () {
+      EditorNavigation.SelectEntityByName(
+        datasourceName,
+        EntityType.Datasource,
+      );
+      cy.get(datasource.createQuery).last().click();
+      cy.wait("@createNewApi").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
+      cy.deleteQueryUsingContext();
+      cy.deleteDatasource(datasourceName);
+    });
+  },
+);

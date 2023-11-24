@@ -8,14 +8,17 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Tests functionality of platform function", { tags: ["@tag.JS"] }, () => {
-  it("1. Tests access to outer variable", () => {
-    apiPage.CreateAndFillApi(
-      dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
-      "getAllUsers",
-    );
-    jsEditor.CreateJSObject(
-      `export default {
+describe(
+  "Tests functionality of platform function",
+  { tags: ["@tag.JS"] },
+  () => {
+    it("1. Tests access to outer variable", () => {
+      apiPage.CreateAndFillApi(
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+        "getAllUsers",
+      );
+      jsEditor.CreateJSObject(
+        `export default {
         myFun1: () => {
 
         },
@@ -72,104 +75,107 @@ describe("Tests functionality of platform function", { tags: ["@tag.JS"] }, () =
           showAlert("Hello").then(() => getAllUsers.run(() => showAlert("World")));
         }
     }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-        prettify: false,
-      },
-    );
-    agHelper.Sleep(4000);
-    cy.url().then((url) => {
-      cy.visit(url, {
-        onBeforeLoad: (win) => {
-          const latitude = 48.71597183246423;
-          const longitude = 21.255670821215418;
-          cy.stub(win.navigator.geolocation, "getCurrentPosition").callsArgWith(
-            0,
-            {
-              coords: { latitude, longitude },
-            },
-          );
+        {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          shouldCreateNewJSObj: true,
+          prettify: false,
         },
-      });
-
-      jsEditor.SelectFunctionDropdown("accessOuterVariableInsideGeoCb");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains("Hello World from current position", "exist");
-
-      jsEditor.SelectFunctionDropdown("accessOuterVariableInsideSuccessCb");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains("Hello World from success callback", "exist");
-      jsEditor.SelectFunctionDropdown("accessOuterVariableInsideSetIntervalCb");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains("Hello World from setInterval", "exist");
-      jsEditor.SelectFunctionDropdown("accessSetIntervalFromSetTimeout");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains(
-        "Hello World from setInterval inside setTimeout",
-        "exist",
       );
-      jsEditor.SelectFunctionDropdown("executeTriggersOutsideReqResCycle");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains("Hello", "exist");
-      agHelper.AssertContains("World", "exist");
-
-      // Test for meta data
-      jsEditor.SelectFunctionDropdown("metaDataForSetTimeout");
-      jsEditor.RunJSObj();
-      agHelper.GetNClick(jsEditor._logsTab);
-      jsEditor.SelectFunctionDropdown("switchMetaData");
-      jsEditor.RunJSObj();
       agHelper.Sleep(4000);
-      agHelper.GetNClick(jsEditor._logsTab);
-      debuggerHelper.DebuggerLogsFilter("JSObject1.metaDataForSetTimeout");
-      debuggerHelper.DoesConsoleLogExist("Hello from setTimeout");
+      cy.url().then((url) => {
+        cy.visit(url, {
+          onBeforeLoad: (win) => {
+            const latitude = 48.71597183246423;
+            const longitude = 21.255670821215418;
+            cy.stub(
+              win.navigator.geolocation,
+              "getCurrentPosition",
+            ).callsArgWith(0, {
+              coords: { latitude, longitude },
+            });
+          },
+        });
 
-      jsEditor.SelectFunctionDropdown("metaDataForSetInterval");
-      jsEditor.RunJSObj();
-      agHelper.GetNClick(jsEditor._logsTab);
-      jsEditor.SelectFunctionDropdown("switchMetaData");
-      jsEditor.RunJSObj();
-      agHelper.Sleep(3000);
-      agHelper.GetNClick(jsEditor._logsTab);
-      debuggerHelper.DebuggerLogsFilter("JSObject1.metaDataForSetInterval");
-      debuggerHelper.DoesConsoleLogExist("Hello from setInterval");
+        jsEditor.SelectFunctionDropdown("accessOuterVariableInsideGeoCb");
+        jsEditor.RunJSObj();
+        agHelper.AssertContains("Hello World from current position", "exist");
 
-      jsEditor.SelectFunctionDropdown("metaDataApiTest");
-      jsEditor.RunJSObj();
-      agHelper.GetNClick(jsEditor._logsTab);
-      jsEditor.SelectFunctionDropdown("switchMetaData");
-      jsEditor.RunJSObj();
-      agHelper.Sleep(2000);
-      agHelper.GetNClick(jsEditor._logsTab);
-      debuggerHelper.DebuggerLogsFilter("JSObject1.metaDataApiTest");
-      debuggerHelper.DoesConsoleLogExist("Hello from setTimeout inside API");
+        jsEditor.SelectFunctionDropdown("accessOuterVariableInsideSuccessCb");
+        jsEditor.RunJSObj();
+        agHelper.AssertContains("Hello World from success callback", "exist");
+        jsEditor.SelectFunctionDropdown(
+          "accessOuterVariableInsideSetIntervalCb",
+        );
+        jsEditor.RunJSObj();
+        agHelper.AssertContains("Hello World from setInterval", "exist");
+        jsEditor.SelectFunctionDropdown("accessSetIntervalFromSetTimeout");
+        jsEditor.RunJSObj();
+        agHelper.AssertContains(
+          "Hello World from setInterval inside setTimeout",
+          "exist",
+        );
+        jsEditor.SelectFunctionDropdown("executeTriggersOutsideReqResCycle");
+        jsEditor.RunJSObj();
+        agHelper.AssertContains("Hello", "exist");
+        agHelper.AssertContains("World", "exist");
+
+        // Test for meta data
+        jsEditor.SelectFunctionDropdown("metaDataForSetTimeout");
+        jsEditor.RunJSObj();
+        agHelper.GetNClick(jsEditor._logsTab);
+        jsEditor.SelectFunctionDropdown("switchMetaData");
+        jsEditor.RunJSObj();
+        agHelper.Sleep(4000);
+        agHelper.GetNClick(jsEditor._logsTab);
+        debuggerHelper.DebuggerLogsFilter("JSObject1.metaDataForSetTimeout");
+        debuggerHelper.DoesConsoleLogExist("Hello from setTimeout");
+
+        jsEditor.SelectFunctionDropdown("metaDataForSetInterval");
+        jsEditor.RunJSObj();
+        agHelper.GetNClick(jsEditor._logsTab);
+        jsEditor.SelectFunctionDropdown("switchMetaData");
+        jsEditor.RunJSObj();
+        agHelper.Sleep(3000);
+        agHelper.GetNClick(jsEditor._logsTab);
+        debuggerHelper.DebuggerLogsFilter("JSObject1.metaDataForSetInterval");
+        debuggerHelper.DoesConsoleLogExist("Hello from setInterval");
+
+        jsEditor.SelectFunctionDropdown("metaDataApiTest");
+        jsEditor.RunJSObj();
+        agHelper.GetNClick(jsEditor._logsTab);
+        jsEditor.SelectFunctionDropdown("switchMetaData");
+        jsEditor.RunJSObj();
+        agHelper.Sleep(2000);
+        agHelper.GetNClick(jsEditor._logsTab);
+        debuggerHelper.DebuggerLogsFilter("JSObject1.metaDataApiTest");
+        debuggerHelper.DoesConsoleLogExist("Hello from setTimeout inside API");
+      });
     });
-  });
 
-  it("2.Bug 16135 ShowAlert with same texts, when invoked from different triggers are combined", () => {
-    jsEditor.CreateJSObject(
-      `export default {
+    it("2.Bug 16135 ShowAlert with same texts, when invoked from different triggers are combined", () => {
+      jsEditor.CreateJSObject(
+        `export default {
         showTwoSameToastMessageAlerts: () => {
             showAlert( "Hello World" );
             showAlert( "Hello World" );
         },
 
         }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-        prettify: false,
-      },
-    );
-    agHelper.Sleep();
-    jsEditor.RunJSObj();
-    agHelper.AssertElementLength(locators._toastMsg, 2);
-    agHelper.ValidateToastMessage("Hello World", 0);
-    agHelper.ValidateToastMessage("Hello World", 1);
-  });
-});
+        {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          shouldCreateNewJSObj: true,
+          prettify: false,
+        },
+      );
+      agHelper.Sleep();
+      jsEditor.RunJSObj();
+      agHelper.AssertElementLength(locators._toastMsg, 2);
+      agHelper.ValidateToastMessage("Hello World", 0);
+      agHelper.ValidateToastMessage("Hello World", 1);
+    });
+  },
+);

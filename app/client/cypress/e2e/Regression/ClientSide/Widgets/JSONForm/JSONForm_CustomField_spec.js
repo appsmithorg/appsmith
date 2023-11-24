@@ -59,10 +59,10 @@ describe(
         ],
       };
 
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    propPane.NavigateBackToPropertyPane();
-    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
-    deployMode.DeployApp();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.NavigateBackToPropertyPane();
+      propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+      deployMode.DeployApp();
 
       cy.wait(500);
 

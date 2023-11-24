@@ -31,9 +31,9 @@ describe(
       };
       agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
-  });
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
+    });
 
     it("1. updated field with change in default text", () => {
       // check name  has valid default text
@@ -48,31 +48,31 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-  it("2. throws max character error when exceeds maxChar limit for default text and input text", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("name");
-    cy.testJsontext("maxchars", 5).wait(200);
-    cy.get(`${fieldPrefix}-name input`).click();
-    cy.get(".bp3-popover-content").should(($x) => {
-      expect($x).contain(
-        "Default text length must be less than or equal to 5 characters",
-      );
+    it("2. throws max character error when exceeds maxChar limit for default text and input text", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("name");
+      cy.testJsontext("maxchars", 5).wait(200);
+      cy.get(`${fieldPrefix}-name input`).click();
+      cy.get(".bp3-popover-content").should(($x) => {
+        expect($x).contain(
+          "Default text length must be less than or equal to 5 characters",
+        );
+      });
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("name");
+      cy.testJsontext("maxchars", "").wait(200);
+      cy.testJsontext("defaultvalue", 5).wait(200);
+      cy.get(`${fieldPrefix}-name input`).clear().type("abcdefghi");
+      cy.testJsontext("maxchars", 5).wait(200);
+      cy.get(`${fieldPrefix}-name input`).click();
+      cy.get(".bp3-popover-content").should(($x) => {
+        expect($x).contain("Input text length must be less than 5 characters");
+      });
+      cy.testJsontext("maxchars", "");
     });
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("name");
-    cy.testJsontext("maxchars", "").wait(200);
-    cy.testJsontext("defaultvalue", 5).wait(200);
-    cy.get(`${fieldPrefix}-name input`).clear().type("abcdefghi");
-    cy.testJsontext("maxchars", 5).wait(200);
-    cy.get(`${fieldPrefix}-name input`).click();
-    cy.get(".bp3-popover-content").should(($x) => {
-      expect($x).contain("Input text length must be less than 5 characters");
-    });
-    cy.testJsontext("maxchars", "");
-  });
 
-  it("3. sets placeholder", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+    it("3. sets placeholder", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
       const placeholderText = "First name";
       cy.testJsontext("placeholder", placeholderText);
@@ -83,25 +83,25 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-  it("4. sets valid property with custom error message", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("name");
-    cy.testJsontext("valid", "false");
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
-    cy.get(".bp3-popover-content").contains("Invalid input");
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("name");
-    cy.testJsontext("errormessage", "Custom error message");
+    it("4. sets valid property with custom error message", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("name");
+      cy.testJsontext("valid", "false");
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
+      cy.get(".bp3-popover-content").contains("Invalid input");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("name");
+      cy.testJsontext("errormessage", "Custom error message");
 
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-name input`).clear().type("yuru camp");
-    cy.get(`${fieldPrefix}-name input`).click({ force: true });
-    cy.get(".bp3-popover-content").contains("Custom error message");
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("name");
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-name input`).clear().type("yuru camp");
+      cy.get(`${fieldPrefix}-name input`).click({ force: true });
+      cy.get(".bp3-popover-content").contains("Custom error message");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("name");
 
       // Reset the error message
       cy.testJsontext("errormessage", "");
@@ -109,42 +109,42 @@ describe(
       cy.testJsontext("valid", "");
     });
 
-  it("5. hides field when visible switched off", () => {
-    propPane.TogglePropertyState("Visible", "Off");
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-name`).should("not.exist");
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("name");
-    propPane.TogglePropertyState("Visible", "On");
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-name`).should("exist");
-    deployMode.NavigateBacktoEditor();
-  });
-
-  it("6. disables field when disabled switched on and when autofill is disabled we should see the autofill attribute in the input field", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("name");
-    cy.togglebar(`.t--property-control-disabled input`);
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-name input`).each(($el) => {
-      cy.wrap($el).should("have.attr", "disabled");
+    it("5. hides field when visible switched off", () => {
+      propPane.TogglePropertyState("Visible", "Off");
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-name`).should("not.exist");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("name");
+      propPane.TogglePropertyState("Visible", "On");
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-name`).should("exist");
+      deployMode.NavigateBacktoEditor();
     });
 
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("name");
-    cy.togglebarDisable(`.t--property-control-disabled input`);
-    validateAutocompleteAttributeInJSONForm();
-  });
+    it("6. disables field when disabled switched on and when autofill is disabled we should see the autofill attribute in the input field", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("name");
+      cy.togglebar(`.t--property-control-disabled input`);
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-name input`).each(($el) => {
+        cy.wrap($el).should("have.attr", "disabled");
+      });
 
-  it("7. throws error when REGEX does not match the input value", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("name");
-    cy.testJsontext("regex", "^\\d+$");
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
-    cy.get(".bp3-popover-content").contains("Invalid input");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("name");
+      cy.togglebarDisable(`.t--property-control-disabled input`);
+      validateAutocompleteAttributeInJSONForm();
+    });
+
+    it("7. throws error when REGEX does not match the input value", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("name");
+      cy.testJsontext("regex", "^\\d+$");
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
+      cy.get(".bp3-popover-content").contains("Invalid input");
 
       cy.get(`${fieldPrefix}-name input`).clear().type("1234");
       cy.get(".bp3-popover-content").should("not.exist");
@@ -172,28 +172,29 @@ describe(
       cy.testJsontext("defaultstate", "{{true}}");
       cy.get(`${fieldPrefix}-check input`).should("be.checked");
 
-    // hides field when visible switched off
-    cy.togglebarDisable(`.t--property-control-visible input`);
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-check`).should("not.exist");
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("check");
-    cy.togglebar(`.t--property-control-visible input`);
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-check`).should("exist");
-    deployMode.NavigateBacktoEditor();
+      // hides field when visible switched off
+      cy.togglebarDisable(`.t--property-control-visible input`);
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-check`).should("not.exist");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("check");
+      cy.togglebar(`.t--property-control-visible input`);
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-check`).should("exist");
+      deployMode.NavigateBacktoEditor();
 
-    // disables field when disabled switched on
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("check");
-    cy.togglebar(`.t--property-control-disabled input`);
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-check input`).each(($el) => {
-      cy.wrap($el).should("have.attr", "disabled");
+      // disables field when disabled switched on
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("check");
+      cy.togglebar(`.t--property-control-disabled input`);
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-check input`).each(($el) => {
+        cy.wrap($el).should("have.attr", "disabled");
+      });
     });
-  });
-});
+  },
+);
 
 function validateAutocompleteAttributeInJSONForm() {
   //select password input fiel

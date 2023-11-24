@@ -31,9 +31,9 @@ describe(
       assertHelper.AssertNetworkStatus("@updateLayout");
     });
 
-  beforeEach(() => {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-  });
+    beforeEach(() => {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    });
 
     it("1. should search against display text when on client search", () => {
       propPane.TogglePropertyState("Client side search", "On");

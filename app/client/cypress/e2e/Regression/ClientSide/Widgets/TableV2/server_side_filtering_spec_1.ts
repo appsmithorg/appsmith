@@ -135,13 +135,14 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 700, 300);
     });
 
-  it("1. should test that server side filtering option and dtable.filters autocomplete should not be visible", () => {
-    agHelper.AssertElementAbsence(
-      propPane._propertyControl("serversidefiltering"),
-    );
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 700);
-    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
-    propPane.TypeTextIntoField("Text", "{{Table1.filters");
-    agHelper.AssertElementAbsence(locators._hints);
-  });
-});
+    it("1. should test that server side filtering option and dtable.filters autocomplete should not be visible", () => {
+      agHelper.AssertElementAbsence(
+        propPane._propertyControl("serversidefiltering"),
+      );
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 700);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+      propPane.TypeTextIntoField("Text", "{{Table1.filters");
+      agHelper.AssertElementAbsence(locators._hints);
+    });
+  },
+);

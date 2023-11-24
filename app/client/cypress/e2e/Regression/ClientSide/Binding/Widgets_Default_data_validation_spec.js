@@ -19,20 +19,20 @@ describe(
       agHelper.AddDsl("MultipleWidgetDsl");
     });
 
-  it("1. Input widget test with default value from table widget", function () {
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
-    propPane.UpdatePropertyFieldValue(
-      "Default value",
-      testdata.defaultInputWidget + "}}",
-    );
-    //Dropdown widget test with default value from table widget
-    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget);
-    propPane.ToggleJSMode("sourcedata");
-    cy.testJsontext(
-      "sourcedata",
-      JSON.stringify(testdata.deafultDropDownWidget),
-    );
-  });
+    it("1. Input widget test with default value from table widget", function () {
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        testdata.defaultInputWidget + "}}",
+      );
+      //Dropdown widget test with default value from table widget
+      EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget);
+      propPane.ToggleJSMode("sourcedata");
+      cy.testJsontext(
+        "sourcedata",
+        JSON.stringify(testdata.deafultDropDownWidget),
+      );
+    });
 
     it("2. validation of default data displayed in all widgets based on row selected", function () {
       cy.isSelectRow(1);

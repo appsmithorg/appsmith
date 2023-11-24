@@ -33,9 +33,9 @@ describe(
       cy.closePropertyPane();
     });
 
-  it("Form reset button validation with switch widget", function () {
-    // Open form button
-    EditorNavigation.SelectEntityByName("FormButton2", EntityType.Widget);
+    it("Form reset button validation with switch widget", function () {
+      // Open form button
+      EditorNavigation.SelectEntityByName("FormButton2", EntityType.Widget);
 
       // Click on reset widget action
       cy.selectResetWidget("onClick");

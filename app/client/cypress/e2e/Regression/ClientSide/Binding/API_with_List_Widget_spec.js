@@ -39,8 +39,8 @@ describe(
         });
     });
 
-  it("2. Test_Validate the Api data is updated on List widget", function () {
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+    it("2. Test_Validate the Api data is updated on List widget", function () {
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
       cy.testJsontext("items", "{{Api1.data}}");
       cy.get(".t--draggable-textwidget span").should("have.length", 8);
@@ -74,45 +74,45 @@ describe(
         });
     });
 
-  it("3. Test_Validate the list widget ", function () {
-    deployMode.NavigateBacktoEditor();
-    cy.wait("@postExecute").then((interception) => {
-      valueToTest = JSON.stringify(
-        interception.response.body.data.body[0].name,
-      ).replace(/['"]+/g, "");
-    });
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
-    cy.moveToStyleTab();
-    cy.testJsontext("itemspacing\\(px\\)", "50");
-    cy.get(".t--draggable-textwidget span").should("have.length", 6);
-    cy.get(".t--draggable-textwidget span")
-      .first()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal(valueToTest);
+    it("3. Test_Validate the list widget ", function () {
+      deployMode.NavigateBacktoEditor();
+      cy.wait("@postExecute").then((interception) => {
+        valueToTest = JSON.stringify(
+          interception.response.body.data.body[0].name,
+        ).replace(/['"]+/g, "");
       });
-    deployMode.DeployApp();
-    cy.wait("@postExecute").then((interception) => {
-      valueToTest = JSON.stringify(
-        interception.response.body.data.body[0].name,
-      ).replace(/['"]+/g, "");
-    });
-    cy.waitUntil(
-      () => cy.get(".t--widget-textwidget span").should("be.visible"),
-      {
-        errorMsg: "Pubish app page is not loaded evn after 20 secs",
-        timeout: 20000,
-        interval: 1000,
-      },
-    ).then(() => cy.wait(500));
-    cy.get(".t--widget-textwidget span").should("have.length", 6);
-    cy.get(".t--widget-textwidget span")
-      .first()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal(valueToTest);
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      cy.moveToStyleTab();
+      cy.testJsontext("itemspacing\\(px\\)", "50");
+      cy.get(".t--draggable-textwidget span").should("have.length", 6);
+      cy.get(".t--draggable-textwidget span")
+        .first()
+        .invoke("text")
+        .then((text) => {
+          expect(text).to.equal(valueToTest);
+        });
+      deployMode.DeployApp();
+      cy.wait("@postExecute").then((interception) => {
+        valueToTest = JSON.stringify(
+          interception.response.body.data.body[0].name,
+        ).replace(/['"]+/g, "");
       });
-  });
+      cy.waitUntil(
+        () => cy.get(".t--widget-textwidget span").should("be.visible"),
+        {
+          errorMsg: "Pubish app page is not loaded evn after 20 secs",
+          timeout: 20000,
+          interval: 1000,
+        },
+      ).then(() => cy.wait(500));
+      cy.get(".t--widget-textwidget span").should("have.length", 6);
+      cy.get(".t--widget-textwidget span")
+        .first()
+        .invoke("text")
+        .then((text) => {
+          expect(text).to.equal(valueToTest);
+        });
+    });
 
     afterEach(() => {
       // put your clean up code if any

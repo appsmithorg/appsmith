@@ -35,7 +35,7 @@ describe(
 
       const styleBorderProperties = ["borderradius", "boxshadow"];
 
-    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
 
       propPane.AssertPropertyVisibility(basicProperties, "basic");
       propPane.AssertPropertyVisibility(labelProperties, "label");
@@ -64,12 +64,12 @@ describe(
       entityExplorer.AssertEntityPresenceInExplorer("NewFilePickerCopy");
       entityExplorer.DeleteWidgetFromEntityExplorer("NewFilePickerCopy");
 
-    // Copy paste from property pane and delete from property pane
-    propPane.CopyPasteWidgetFromPropertyPane("NewFilePicker");
-    propPane.DeleteWidgetFromPropertyPane("NewFilePickerCopy");
-    EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
-    propPane.MoveToTab("Content");
-  });
+      // Copy paste from property pane and delete from property pane
+      propPane.CopyPasteWidgetFromPropertyPane("NewFilePicker");
+      propPane.DeleteWidgetFromPropertyPane("NewFilePickerCopy");
+      EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
+      propPane.MoveToTab("Content");
+    });
 
     it("3. Verify max number of files", () => {
       agHelper.AssertText(locators._buttonText, "text", "Select Files");
@@ -125,8 +125,8 @@ describe(
       );
       deployMode.NavigateBacktoEditor();
 
-    EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
-    propPane.TogglePropertyState("visible", "On");
+      EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
+      propPane.TogglePropertyState("visible", "On");
 
       // Preview mode
       agHelper.GetNClick(locators._enterPreviewMode);
@@ -142,10 +142,10 @@ describe(
       );
       deployMode.NavigateBacktoEditor();
 
-    // Visible JS mode
-    EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
-    propPane.ToggleJSMode("Visible", true);
-    propPane.UpdatePropertyFieldValue("Visible", "false");
+      // Visible JS mode
+      EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
+      propPane.ToggleJSMode("Visible", true);
+      propPane.UpdatePropertyFieldValue("Visible", "false");
 
       deployMode.DeployApp();
       agHelper.AssertElementAbsence(
@@ -153,10 +153,10 @@ describe(
       );
       deployMode.NavigateBacktoEditor();
 
-    EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
-    propPane.ToggleJSMode("Visible", true);
-    propPane.UpdatePropertyFieldValue("Visible", "true");
-    propPane.ToggleJSMode("Visible", false);
+      EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
+      propPane.ToggleJSMode("Visible", true);
+      propPane.UpdatePropertyFieldValue("Visible", "true");
+      propPane.ToggleJSMode("Visible", false);
 
       // Disabled
       propPane.TogglePropertyState("disable", "On");
@@ -184,9 +184,9 @@ describe(
       );
       deployMode.NavigateBacktoEditor();
 
-    EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
-    propPane.TogglePropertyState("disable", "Off");
-  });
+      EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
+      propPane.TogglePropertyState("disable", "Off");
+    });
 
     it("6. Verify onFilesSelected", () => {
       propPane.ToggleJSMode("onFilesSelected", true);
@@ -201,16 +201,16 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-  it("7. Verify button color and border and shadows", () => {
-    EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
-    // Verify button color picker opens up
-    propPane.MoveToTab("Style");
-    agHelper.GetNClick(propPane._propertyControlColorPicker("buttoncolor"));
-    agHelper.AssertElementVisibility(propPane._colorPickerV2Color);
-    // Verify full color picker
-    agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 0);
-    propPane.TogglePropertyState("buttoncolor", "On", "");
-    agHelper.AssertAttribute(propPane._colorPickerInput, "type", "color", 0);
+    it("7. Verify button color and border and shadows", () => {
+      EditorNavigation.SelectEntityByName("NewFilePicker", EntityType.Widget);
+      // Verify button color picker opens up
+      propPane.MoveToTab("Style");
+      agHelper.GetNClick(propPane._propertyControlColorPicker("buttoncolor"));
+      agHelper.AssertElementVisibility(propPane._colorPickerV2Color);
+      // Verify full color picker
+      agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 0);
+      propPane.TogglePropertyState("buttoncolor", "On", "");
+      agHelper.AssertAttribute(propPane._colorPickerInput, "type", "color", 0);
 
       // Verify border
       agHelper.GetNClick(propPane._segmentedControl("0px"));

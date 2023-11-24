@@ -28,8 +28,8 @@ describe(
 
       dataSources.CreateDataSource("Mongo");
 
-    cy.get("@dsName").then((dsName) => {
-      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      cy.get("@dsName").then((dsName) => {
+        EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
         oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
           searchableColumn: "creator",

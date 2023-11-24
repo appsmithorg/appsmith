@@ -26,9 +26,9 @@ describe(
       agHelper.SaveLocalStorageCache();
     });
 
-  it("generates fields with valid source data json", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    propPane.TogglePropertyState("Auto generate form", "Off");
+    it("generates fields with valid source data json", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.TogglePropertyState("Auto generate form", "Off");
 
       const sourceData = {
         name: "John",
@@ -50,9 +50,9 @@ describe(
         ],
       };
 
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
-    deployMode.DeployApp();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+      deployMode.DeployApp();
 
       // Fields that should exist
       cy.get(`${fieldPrefix}-name label`).contains("Name");
@@ -148,10 +148,10 @@ describe(
         ],
       };
 
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
-    propPane.TogglePropertyState("Auto generate form", "On");
-    deployMode.DeployApp();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
+      propPane.TogglePropertyState("Auto generate form", "On");
+      deployMode.DeployApp();
 
       cy.get(`${fieldPrefix}-name label`).contains("Name");
       cy.get(`${fieldPrefix}-name input`).should("have.value", "John");

@@ -76,17 +76,17 @@ describe(
       cy.get(`${widgetSelector("List2Copy1")}`).should("not.exist");
     });
 
-  it("2. No cyclic dependency when using levelData in a child widget", () => {
-    cy.dragAndDropToWidgetBySelector(
-      "textwidget",
-      '[data-widgetname-cy="List1"] [type="CONTAINER_WIDGET"]',
-      {
-        x: 150,
-        y: 50,
-      },
-    );
-    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
-    propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
+    it("2. No cyclic dependency when using levelData in a child widget", () => {
+      cy.dragAndDropToWidgetBySelector(
+        "textwidget",
+        '[data-widgetname-cy="List1"] [type="CONTAINER_WIDGET"]',
+        {
+          x: 150,
+          y: 50,
+        },
+      );
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+      propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
 
       cy.dragAndDropToWidgetBySelector(
         "textwidget",

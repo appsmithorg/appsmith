@@ -27,32 +27,38 @@ describe(
       _.apiPage.RunAPI();
     });
 
-  it("2. FilePicker Widget Functionality", function () {
-    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-    //eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    //Checking the edit props for FilePicker and also the properties of FilePicker widget
-    cy.testCodeMirror("Upload Files");
-  });
-
-  it("3. It checks the loading state of filepicker on call the action", function () {
-    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-    const fixturePath = "cypress/fixtures/testFile.mov";
-    cy.executeDbQuery("FirstAPI", "onFilesSelected");
-    cy.get(commonlocators.filePickerButton).click();
-    cy.get(commonlocators.filePickerInput).first().selectFile(fixturePath, {
-      force: true,
+    it("2. FilePicker Widget Functionality", function () {
+      EditorNavigation.SelectEntityByName(
+        "FilePicker1",
+        EntityType.Widget,
+        {},
+        ["Container3"],
+      );
+      //eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(1000);
+      //Checking the edit props for FilePicker and also the properties of FilePicker widget
+      cy.testCodeMirror("Upload Files");
     });
-    cy.get(commonlocators.filePickerUploadButton).click();
-    //cy.get(".ads-v2-spinner").should("have.length", 1);
-    //eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
-    cy.get("button").contains("1 files selected");
-  });
+
+    it("3. It checks the loading state of filepicker on call the action", function () {
+      EditorNavigation.SelectEntityByName(
+        "FilePicker1",
+        EntityType.Widget,
+        {},
+        ["Container3"],
+      );
+      const fixturePath = "cypress/fixtures/testFile.mov";
+      cy.executeDbQuery("FirstAPI", "onFilesSelected");
+      cy.get(commonlocators.filePickerButton).click();
+      cy.get(commonlocators.filePickerInput).first().selectFile(fixturePath, {
+        force: true,
+      });
+      cy.get(commonlocators.filePickerUploadButton).click();
+      //cy.get(".ads-v2-spinner").should("have.length", 1);
+      //eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(500);
+      cy.get("button").contains("1 files selected");
+    });
 
     it("4. It checks the deletion of filepicker works as expected", function () {
       cy.get(commonlocators.filePickerButton).click();

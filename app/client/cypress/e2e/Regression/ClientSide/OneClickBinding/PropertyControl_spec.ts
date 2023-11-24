@@ -166,7 +166,7 @@ describe(
         apiPage.CreateAndFillApi("http://www.example.com");
       });
 
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 

@@ -30,7 +30,7 @@ describe(
 
       entityExplorer.VerifyIsCurrentPage("Page2");
 
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 

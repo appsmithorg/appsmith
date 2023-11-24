@@ -305,24 +305,27 @@ describe(
       entityExplorer.DeleteWidgetFromEntityExplorer("Input1");
     });
 
-  it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
-    agHelper.RefreshPage();
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
-    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Connect data");
-    EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
-    //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
-    dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
-    dataSources.RunQuery();
-    dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
-    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
+    it("3. Arango Widget Binding - from Suggested widget, Schema filter for Arango DS", () => {
+      agHelper.RefreshPage();
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+      propPane.AssertPropertiesDropDownCurrentValue(
+        "Table data",
+        "Connect data",
+      );
+      EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
+      //dataSources.FilterAndVerifyDatasourceSchemaBySearch("countries");
+      dataSources.VerifyTableSchemaOnQueryEditor(collectionName);
+      dataSources.RunQuery();
+      dataSources.AddSuggestedWidget(Widgets.Table); //Binding to new table from schema explorer
+      propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
 
-    EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
-    dataSources.AddSuggestedWidget(
-      Widgets.Table,
-      dataSources._addSuggestedExisting,
-    );
-    propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
-  });
+      EditorNavigation.SelectEntityByName("Query6", EntityType.Query);
+      dataSources.AddSuggestedWidget(
+        Widgets.Table,
+        dataSources._addSuggestedExisting,
+      );
+      propPane.AssertPropertiesDropDownCurrentValue("Table data", "Query6");
+    });
 
     //To add test for duplicate collection name
 

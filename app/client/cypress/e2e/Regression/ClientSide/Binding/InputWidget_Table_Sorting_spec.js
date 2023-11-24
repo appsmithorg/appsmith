@@ -14,18 +14,18 @@ describe(
       agHelper.AddDsl("formInputTableDsl");
     });
 
-  it("1. Input widget test with default value from table widget", function () {
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
-      "Form1",
-    ]);
-    cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
-    cy.wait("@updateLayout")
-      .its("response.body.responseMeta.status")
-      .should("eq", 200);
-  });
+    it("1. Input widget test with default value from table widget", function () {
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
+        "Form1",
+      ]);
+      cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
+      cy.wait("@updateLayout")
+        .its("response.body.responseMeta.status")
+        .should("eq", 200);
+    });
 
-  it("2. Validation of data displayed in input widgets based on sorting", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    it("2. Validation of data displayed in input widgets based on sorting", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       cy.testJsontext("defaultselectedrow", "0");
       cy.get(".draggable-header").contains("id").click({ force: true });
@@ -52,17 +52,18 @@ describe(
       });
     });
 
-  it("3. Validation of column id displayed in input widgets based on sorted column", function () {
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
-    cy.testJsontext("defaultvalue", testdata.sortedColumn + "}}");
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.get(publish.inputWidget + " " + "input")
-      .first()
-      .invoke("attr", "value")
-      .should("contain", "id");
-  });
-});
+    it("3. Validation of column id displayed in input widgets based on sorted column", function () {
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+      cy.testJsontext("defaultvalue", testdata.sortedColumn + "}}");
+      cy.wait("@updateLayout").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      cy.get(publish.inputWidget + " " + "input")
+        .first()
+        .invoke("attr", "value")
+        .should("contain", "id");
+    });
+  },
+);

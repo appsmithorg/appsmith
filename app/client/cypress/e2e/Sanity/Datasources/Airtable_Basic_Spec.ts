@@ -273,14 +273,14 @@ describe(
       });
     });
 
-  it("2. Drag Drop table & verify api data to widget binding", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
-    propPane.EnterJSContext("Table data", "{{Api1.data.records}}");
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
-    table.WaitUntilTableLoad(0, 0, "v2");
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
-  });
+    it("2. Drag Drop table & verify api data to widget binding", () => {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+      propPane.EnterJSContext("Table data", "{{Api1.data.records}}");
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      table.WaitUntilTableLoad(0, 0, "v2");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
+    });
 
     it("3. Create/Retrieve/Update/Delete records", () => {
       let createReq = `[{"fields": {

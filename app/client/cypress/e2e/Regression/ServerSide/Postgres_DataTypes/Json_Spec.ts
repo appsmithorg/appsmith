@@ -101,12 +101,12 @@ describe(
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     });
 
-  it("4. Inserting record - jsonbooks", () => {
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    deployMode.DeployApp();
-    table.WaitForTableEmpty(); //asserting table is empty before inserting!
-    agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisibility(locators._modal);
+    it("4. Inserting record - jsonbooks", () => {
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      deployMode.DeployApp();
+      table.WaitForTableEmpty(); //asserting table is empty before inserting!
+      agHelper.ClickButton("Run InsertQuery");
+      agHelper.AssertElementVisibility(locators._modal);
 
       deployMode.EnterJSONInputValue("Customer", "Lily Bush");
       deployMode.EnterJSONInputValue("Title", "PostgreSQL for Beginners");
@@ -281,22 +281,22 @@ describe(
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     });
 
-  it("9. Deleting records - jsonbooks", () => {
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    deployMode.DeployApp();
-    table.WaitUntilTableLoad();
-    table.SelectTableRow(1);
-    agHelper.ClickButton("DeleteQuery", 1);
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(2500); //Allwowing time for delete to be success
-    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
-      expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
+    it("9. Deleting records - jsonbooks", () => {
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      deployMode.DeployApp();
+      table.WaitUntilTableLoad();
+      table.SelectTableRow(1);
+      agHelper.ClickButton("DeleteQuery", 1);
+      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      agHelper.Sleep(2500); //Allwowing time for delete to be success
+      table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+        expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
+      });
+      table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq("2");
+      });
     });
-    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq("2");
-    });
-  });
 
     it("10. Deleting all records from table - jsonbooks", () => {
       agHelper.GetNClick(locators._deleteIcon);
@@ -335,15 +335,15 @@ describe(
       });
     });
 
-  it("12. Validate Drop of the Newly Created - jsonbooks - Table from Postgres datasource", () => {
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
-    dataSources.RunQuery();
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("0"); //Success response for dropped table!
+    it("12. Validate Drop of the Newly Created - jsonbooks - Table from Postgres datasource", () => {
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
+      dataSources.RunQuery();
+      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+        expect($cellData).to.eq("0"); //Success response for dropped table!
+      });
+      dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks", false);
     });
-    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonbooks", false);
-  });
 
     it("13. Verify Deletion of all created queries", () => {
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
@@ -432,12 +432,12 @@ describe(
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     });
 
-  it("18. Inserting record - jsonbooks", () => {
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    deployMode.DeployApp();
-    table.WaitForTableEmpty(); //asserting table is empty before inserting!
-    agHelper.ClickButton("Run InsertQuery");
-    agHelper.AssertElementVisibility(locators._modal);
+    it("18. Inserting record - jsonbooks", () => {
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      deployMode.DeployApp();
+      table.WaitForTableEmpty(); //asserting table is empty before inserting!
+      agHelper.ClickButton("Run InsertQuery");
+      agHelper.AssertElementVisibility(locators._modal);
 
       deployMode.EnterJSONInputValue("Title", "Sleeping Beauties");
       agHelper.ToggleSwitch("Published", "check", true);
@@ -636,22 +636,22 @@ describe(
       entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     });
 
-  it("23. Deleting records - jsonbooks", () => {
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    deployMode.DeployApp();
-    table.WaitUntilTableLoad();
-    table.SelectTableRow(1);
-    agHelper.ClickButton("DeleteQuery", 1);
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
-    assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(2500); //Allwowing time for delete to be success
-    table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
-      expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
+    it("23. Deleting records - jsonbooks", () => {
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      deployMode.DeployApp();
+      table.WaitUntilTableLoad();
+      table.SelectTableRow(1);
+      agHelper.ClickButton("DeleteQuery", 1);
+      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      agHelper.Sleep(2500); //Allwowing time for delete to be success
+      table.ReadTableRowColumnData(1, 0, "v1", 2000).then(($cellData) => {
+        expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
+      });
+      table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq("1");
+      });
     });
-    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq("1");
-    });
-  });
 
     it("24. Deleting all records from table - jsonbooks", () => {
       agHelper.GetNClick(locators._deleteIcon);
@@ -692,16 +692,16 @@ describe(
       });
     });
 
-  it("26. Validate Drop of the Newly Created - jsonbooks - Table from Postgres datasource", () => {
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
-    dataSources.RunQuery();
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("0"); //Success response for dropped table!
+    it("26. Validate Drop of the Newly Created - jsonbooks - Table from Postgres datasource", () => {
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
+      dataSources.RunQuery();
+      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+        expect($cellData).to.eq("0"); //Success response for dropped table!
+      });
+      entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+      dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks", false);
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks", false);
-  });
 
     it("27. Verify Deletion of all created queries", () => {
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists

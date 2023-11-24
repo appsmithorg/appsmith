@@ -142,12 +142,12 @@ describe(
       dataSources.AddSuggestedWidget(Widgets.Table);
       agHelper.GetNClick(propPane._deleteWidget);
 
-    EditorNavigation.SelectEntityByName("selectSimpsons", EntityType.Query);
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
+      EditorNavigation.SelectEntityByName("selectSimpsons", EntityType.Query);
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: entityItems.Query,
+      });
     });
-  });
 
     // TODO: This fails with `Invalid Object <tablename>` error. Looks like there needs to be a delay in query exectuion. Will debug and fix this in a different PR - Sangeeth
     it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {

@@ -263,11 +263,11 @@ describe(
       agHelper.Sleep(2000);
     });
 
-  it.skip("4. Edit JSObject & Check Updated Data ", () => {
-    deployMode.NavigateBacktoEditor();
-    //Edit existing JS object
-    EditorNavigation.SelectEntityByName("users", EntityType.JSObject);
-    jsEditor.EditJSObj(`export default {
+    it.skip("4. Edit JSObject & Check Updated Data ", () => {
+      deployMode.NavigateBacktoEditor();
+      //Edit existing JS object
+      EditorNavigation.SelectEntityByName("users", EntityType.JSObject);
+      jsEditor.EditJSObj(`export default {
       fun: async () => {
         return await invalidApi.run().catch((e) => showAlert("404 hit : " + e.message));
       },
@@ -283,9 +283,9 @@ describe(
       }
     }`);
 
-    //Update property field for button
-    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-    propPane.EnterJSContext("onClick", `{{users.myFun2()}}`, true, false);
+      //Update property field for button
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.EnterJSContext("onClick", `{{users.myFun2()}}`, true, false);
 
       //Drag n drop text widget & bind it to myFun1
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);

@@ -31,7 +31,7 @@ describe(
       cy.get("@dsName").then((dsName) => {
         entityExplorer.NavigateToSwitcher("Widgets");
 
-      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+        EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
         oneClickBinding.ChooseAndAssertForm(
           `${dsName}`,

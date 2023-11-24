@@ -29,9 +29,9 @@ describe(
       // reset the hover
       cy.get("body").realHover({ position: "topLeft" });
 
-    // rename it and ensure the tooltip does not show again
-    ee.RenameEntityFromExplorer(longName, alternateName);
-    cy.wait("@saveAction");
+      // rename it and ensure the tooltip does not show again
+      ee.RenameEntityFromExplorer(longName, alternateName);
+      cy.wait("@saveAction");
 
       cy.get(`.t--entity-item:contains(${alternateName})`).realHover();
       cy.get(tooltTipQuery).should("not.exist");

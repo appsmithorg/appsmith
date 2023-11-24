@@ -81,8 +81,8 @@ describe(
           cy.wrap(data).should("deep.equal", items[4]);
         });
 
-    //Change Default Selected Item
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      //Change Default Selected Item
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
       propPane.UpdatePropertyFieldValue("Default selected item", "001");
 
@@ -119,8 +119,8 @@ describe(
         ),
       );
 
-    //Change Default Selected Item
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      //Change Default Selected Item
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
       propPane.UpdatePropertyFieldValue("Items", "{{Api1.data}}");
       propPane.UpdatePropertyFieldValue("Default selected item", "4");

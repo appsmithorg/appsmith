@@ -16,18 +16,18 @@ describe(
       _.agHelper.AddDsl("formInputTableDsl");
     });
 
-  it("1. Input widget test with default value from table widget", function () {
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
-      "Form1",
-    ]);
-    cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    //validation of data displayed in input widgets based on selected row
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    it("1. Input widget test with default value from table widget", function () {
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
+        "Form1",
+      ]);
+      cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
+      cy.wait("@updateLayout").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      //validation of data displayed in input widgets based on selected row
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       cy.testJsontext("defaultselectedrow", "2");
       cy.readTabledataPublish("2", "0").then((tabData) => {

@@ -14,10 +14,11 @@ describe(
       agHelper.AddDsl("tableV2AndTextDsl");
     });
 
-  it("1. Table widget v2 new menu button column should not deselect row", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    cy.get(".t--widget-textwidget").should("have.text", "0");
-    agHelper.ClickButton("Open Menu");
-    cy.get(".t--widget-textwidget").should("have.text", "0");
-  });
-});
+    it("1. Table widget v2 new menu button column should not deselect row", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      cy.get(".t--widget-textwidget").should("have.text", "0");
+      agHelper.ClickButton("Open Menu");
+      cy.get(".t--widget-textwidget").should("have.text", "0");
+    });
+  },
+);

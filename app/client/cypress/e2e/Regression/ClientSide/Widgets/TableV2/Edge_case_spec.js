@@ -24,9 +24,9 @@ describe(
       agHelper.AddDsl("tableV2WithTextWidgetDsl");
     });
 
-  it("1. Check if the selectedRowIndices does not contain 2d array", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    propPane.TogglePropertyState("Enable multi-row selection", "On"); //Enable Multi row select
+    it("1. Check if the selectedRowIndices does not contain 2d array", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.TogglePropertyState("Enable multi-row selection", "On"); //Enable Multi row select
 
       propPane.UpdatePropertyFieldValue("Default selected rows", "[1]"); //Change the value of default selected row
 

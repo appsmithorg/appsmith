@@ -35,19 +35,19 @@ describe(
       );
     });
 
-  it("2. Validate text widget data based on changes in list widget Data2", function () {
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+    it("2. Validate text widget data based on changes in list widget Data2", function () {
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
-    _.propPane.UpdatePropertyFieldValue(
-      "Items",
-      '[[{ "name": "pawan"}, { "name": "Vivek" }], [{ "name": "Ashok"}, {"name": "rahul"}]]',
-    );
-    _.entityExplorer.ExpandCollapseEntity("List1");
-    _.entityExplorer.ExpandCollapseEntity("Container1");
-    EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, [
-      "List1",
-      "Container1",
-    ]);
+      _.propPane.UpdatePropertyFieldValue(
+        "Items",
+        '[[{ "name": "pawan"}, { "name": "Vivek" }], [{ "name": "Ashok"}, {"name": "rahul"}]]',
+      );
+      _.entityExplorer.ExpandCollapseEntity("List1");
+      _.entityExplorer.ExpandCollapseEntity("Container1");
+      EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, [
+        "List1",
+        "Container1",
+      ]);
 
       cy.wait(1000);
       _.propPane.UpdatePropertyFieldValue(
@@ -67,19 +67,19 @@ describe(
       _.deployMode.NavigateBacktoEditor();
     });
 
-  it("3. Validate text widget data based on changes in list widget Data3", function () {
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+    it("3. Validate text widget data based on changes in list widget Data3", function () {
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
-    _.propPane.UpdatePropertyFieldValue(
-      "Items",
-      '[{ "name": "pawan"}, { "name": "Vivek" }]',
-    );
-    _.entityExplorer.ExpandCollapseEntity("List1");
-    _.entityExplorer.ExpandCollapseEntity("Container1");
-    EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, [
-      "List1",
-      "Container1",
-    ]);
+      _.propPane.UpdatePropertyFieldValue(
+        "Items",
+        '[{ "name": "pawan"}, { "name": "Vivek" }]',
+      );
+      _.entityExplorer.ExpandCollapseEntity("List1");
+      _.entityExplorer.ExpandCollapseEntity("Container1");
+      EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, [
+        "List1",
+        "Container1",
+      ]);
 
       cy.wait(1000);
       _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");

@@ -88,13 +88,13 @@ describe(
       _.agHelper.SaveLocalStorageCache();
     });
 
-  it("1. setup serverside data", () => {
-    cy.createAndFillApi(
-      "http://host.docker.internal:5001/v1/mock-api?records=20&page={{List1.pageNo}}&size={{List1.pageSize}}",
-      "",
-    );
-    cy.RunAPI();
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+    it("1. setup serverside data", () => {
+      cy.createAndFillApi(
+        "http://host.docker.internal:5001/v1/mock-api?records=20&page={{List1.pageNo}}&size={{List1.pageSize}}",
+        "",
+      );
+      cy.RunAPI();
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
       cy.wait(1000);
 

@@ -15,39 +15,41 @@ describe(
       agHelper.AddDsl("ChartTextDsl");
     });
 
-  it("1. Text-Chart Binding Functionality View", function () {
-    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-    cy.testJsontext("text", JSON.stringify(this.dataSet.chartInputValidate));
-    cy.get(commonlocators.TextInside).should(
-      "have.text",
-      JSON.stringify(this.dataSet.chartInputValidate),
-    );
-    cy.closePropertyPane();
-    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget, {}, [
-      "Container1",
-    ]);
-    cy.get(viewWidgetsPage.chartType).last().click({ force: true });
-    cy.get(".t--dropdown-option").children().contains("Column chart").click();
-    cy.get(".t--property-control-charttype span.rc-select-selection-item span")
-      .last()
-      .should("have.text", "Column chart");
-    cy.testJsontext("chart-series-data-control", "{{Text1.text}}");
-    cy.closePropertyPane();
-    const labels = [
-      this.dataSet.Chartval[0],
-      this.dataSet.Chartval[1],
-      this.dataSet.Chartval[2],
-    ];
-    [0, 2].forEach((k) => {
-      cy.get(viewWidgetsPage.rectangleChart)
-        .first()
-        .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel).contains(labels[k]);
+    it("1. Text-Chart Binding Functionality View", function () {
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
+      cy.testJsontext("text", JSON.stringify(this.dataSet.chartInputValidate));
+      cy.get(commonlocators.TextInside).should(
+        "have.text",
+        JSON.stringify(this.dataSet.chartInputValidate),
+      );
+      cy.closePropertyPane();
+      EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget, {}, [
+        "Container1",
+      ]);
+      cy.get(viewWidgetsPage.chartType).last().click({ force: true });
+      cy.get(".t--dropdown-option").children().contains("Column chart").click();
+      cy.get(
+        ".t--property-control-charttype span.rc-select-selection-item span",
+      )
+        .last()
+        .should("have.text", "Column chart");
+      cy.testJsontext("chart-series-data-control", "{{Text1.text}}");
+      cy.closePropertyPane();
+      const labels = [
+        this.dataSet.Chartval[0],
+        this.dataSet.Chartval[1],
+        this.dataSet.Chartval[2],
+      ];
+      [0, 2].forEach((k) => {
+        cy.get(viewWidgetsPage.rectangleChart)
+          .first()
+          .trigger("mousemove", { force: true });
+        cy.get(viewWidgetsPage.Chartlabel).contains(labels[k]);
+      });
+      deployMode.DeployApp();
     });
-    deployMode.DeployApp();
-  });
 
     it("2. Text-Chart Binding Functionality Publish", function () {
       cy.get(publish.chartCanvasVal).should("be.visible");

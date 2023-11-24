@@ -66,25 +66,25 @@ describe(
       dataSources.RunQueryNVerifyResponseViews();
     });
 
-  it("2. Validate Select record from Postgress datasource & verify query response", () => {
-    dataSources.createQueryWithDatasourceSchemaTemplate(
-      dsName,
-      "public.vessels",
-      "Select",
-    );
-    dataSources.RunQueryNVerifyResponseViews(10);
-    dataSources.AssertQueryTableResponse(0, "371681");
-    dataSources.AssertQueryTableResponse(6, "Passenger");
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
+    it("2. Validate Select record from Postgress datasource & verify query response", () => {
+      dataSources.createQueryWithDatasourceSchemaTemplate(
+        dsName,
+        "public.vessels",
+        "Select",
+      );
+      dataSources.RunQueryNVerifyResponseViews(10);
+      dataSources.AssertQueryTableResponse(0, "371681");
+      dataSources.AssertQueryTableResponse(6, "Passenger");
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: entityItems.Query,
+      });
+      EditorNavigation.SelectEntityByName("CreateVessels", EntityType.Query);
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: entityItems.Query,
+      });
     });
-    EditorNavigation.SelectEntityByName("CreateVessels", EntityType.Query);
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-  });
 
     it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
       dataSources.NavigateFromActiveDS(dsName, false);
@@ -169,14 +169,14 @@ describe(
 		"current_port" = '{{update_form.fieldState.current_port.isVisible ? update_form.formData.current_port : update_form.sourceData.current_port}}'
 	WHERE "ship_id" = {{data_table.selectedRow.ship_id}};`;
 
-    EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
-    dataSources.EnterQuery(updateQuery);
-    agHelper.PressEscape();
-    agHelper.AssertAutoSave();
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
-    UpdatingVesselsJSONPropertyFileds();
-  });
+      EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
+      dataSources.EnterQuery(updateQuery);
+      agHelper.PressEscape();
+      agHelper.AssertAutoSave();
+      entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+      EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
+      UpdatingVesselsJSONPropertyFileds();
+    });
 
     it("5. Verify Update data from Deploy page - on Vessels - existing record", () => {
       deployMode.DeployApp();
@@ -426,18 +426,21 @@ describe(
       '{{insert_form.formData.current_port}}'
     );`;
 
-    EditorNavigation.SelectEntityByName("InsertQuery", EntityType.Query);
-    dataSources.EnterQuery(insertQuery);
-    agHelper.PressEscape();
-    agHelper.AssertAutoSave();
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-  });
+      EditorNavigation.SelectEntityByName("InsertQuery", EntityType.Query);
+      dataSources.EnterQuery(insertQuery);
+      agHelper.PressEscape();
+      agHelper.AssertAutoSave();
+      entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    });
 
-  it("11. Update JSON fields with placeholds for Addition - on Vessels", () => {
-    EditorNavigation.SelectEntityByName("insert_form", EntityType.Widget, {}, [
-      "Insert_Modal",
-    ]);
-    agHelper.Sleep(2000);
+    it("11. Update JSON fields with placeholds for Addition - on Vessels", () => {
+      EditorNavigation.SelectEntityByName(
+        "insert_form",
+        EntityType.Widget,
+        {},
+        ["Insert_Modal"],
+      );
+      agHelper.Sleep(2000);
 
       //Removing Default values & setting placeholder!
       //propPane.UpdateJSONFormWithPlaceholders();//Since cypress is hanging here sometimes in local run also commenting
@@ -625,20 +628,20 @@ describe(
       dataSources.AssertTableInVirtuosoList(dsName, "public.vessels", false);
     });
 
-  it("17. Verify application does not break when user runs the query with wrong table name", function () {
-    EditorNavigation.SelectEntityByName("DropVessels", EntityType.Query);
-    dataSources.RunQuery({ toValidateResponse: false });
-    cy.wait("@postExecute").then(({ response }) => {
-      expect(response?.body.data.isExecutionSuccess).to.eq(false);
-      expect(
-        response?.body.data.pluginErrorDetails.downstreamErrorMessage,
-      ).to.contains(`table "vessels" does not exist`);
+    it("17. Verify application does not break when user runs the query with wrong table name", function () {
+      EditorNavigation.SelectEntityByName("DropVessels", EntityType.Query);
+      dataSources.RunQuery({ toValidateResponse: false });
+      cy.wait("@postExecute").then(({ response }) => {
+        expect(response?.body.data.isExecutionSuccess).to.eq(false);
+        expect(
+          response?.body.data.pluginErrorDetails.downstreamErrorMessage,
+        ).to.contains(`table "vessels" does not exist`);
+      });
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: entityItems.Query,
+      });
     });
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-  });
 
     it("18. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
       deployMode.DeployApp();

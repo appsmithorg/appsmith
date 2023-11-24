@@ -18,7 +18,6 @@ describe(
           "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
         );
     });
-    
 
     it("2. Add new image and check image is showing instead of default image", function () {
       cy.testCodeMirror(this.dataSet.NewImage);

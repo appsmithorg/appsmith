@@ -34,22 +34,22 @@ describe(
       agHelper.AddDsl("tableAndChart");
     });
 
-  it("1. Update table data and assert", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    cy.get(widgetLocators.tabedataField).then(($el) => {
-      cy.updateCodeInput($el, updateData);
-      cy.readTabledata("1", "0").then((cellData) => {
-        cy.wrap(cellData).should("equal", "Product2");
+    it("1. Update table data and assert", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      cy.get(widgetLocators.tabedataField).then(($el) => {
+        cy.updateCodeInput($el, updateData);
+        cy.readTabledata("1", "0").then((cellData) => {
+          cy.wrap(cellData).should("equal", "Product2");
+        });
       });
-    });
-    //Update chart data and assert
-    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
-    cy.get(".t--property-control-chart-series-data-control").then(($el) => {
-      cy.updateCodeInput($el, updateData);
-      cy.get(viewWidgetsPage.chartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "Product1");
+      //Update chart data and assert
+      EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
+      cy.get(".t--property-control-chart-series-data-control").then(($el) => {
+        cy.updateCodeInput($el, updateData);
+        cy.get(viewWidgetsPage.chartWidget)
+          .find("svg")
+          .find("text")
+          .should("contain.text", "Product1");
 
         cy.get(viewWidgetsPage.chartWidget)
           .find("svg")

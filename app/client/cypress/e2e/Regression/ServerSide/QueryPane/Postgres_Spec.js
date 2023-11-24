@@ -278,15 +278,15 @@ describe(
       // cy.get(generatePage.searchinTable).clear();
     });
 
-  it("9. Validate Deletion of the Newly Created Page", () => {
-    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Public.users_crud",
-      action: "Delete",
-      entityType: entityItems.Page,
+    it("9. Validate Deletion of the Newly Created Page", () => {
+      dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Public.users_crud",
+        action: "Delete",
+        entityType: entityItems.Page,
+      });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     });
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-  });
 
     it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
       let deleteTblQuery = "DROP TABLE public.users_crud;";

@@ -255,22 +255,23 @@ describe(
 
       _.autoLayout.ConvertToAutoLayoutAndVerify();
 
-    canvasTypeWidgets.forEach((canvasWidget) => {
-      _.autoLayout.VerifyCurrentWidgetIsAutolayout(canvasWidget);
-    });
-    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
-    _.autoLayout.VerifyCurrentWidgetIsAutolayout(_.draggableWidgets.MODAL);
-    cy.wait(1000);
-    _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
+      canvasTypeWidgets.forEach((canvasWidget) => {
+        _.autoLayout.VerifyCurrentWidgetIsAutolayout(canvasWidget);
+      });
+      EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+      _.autoLayout.VerifyCurrentWidgetIsAutolayout(_.draggableWidgets.MODAL);
+      cy.wait(1000);
+      _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
 
       _.autoLayout.ConvertToFixedLayoutAndVerify("DESKTOP");
 
-    canvasTypeWidgets.forEach((canvasWidget) => {
-      _.autoLayout.VerifyCurrentWidgetIsFixedlayout(canvasWidget);
+      canvasTypeWidgets.forEach((canvasWidget) => {
+        _.autoLayout.VerifyCurrentWidgetIsFixedlayout(canvasWidget);
+      });
+      EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+      _.autoLayout.VerifyCurrentWidgetIsFixedlayout(_.draggableWidgets.MODAL);
+      cy.wait(1000);
+      _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
     });
-    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
-    _.autoLayout.VerifyCurrentWidgetIsFixedlayout(_.draggableWidgets.MODAL);
-    cy.wait(1000);
-    _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
-  });
-});
+  },
+);

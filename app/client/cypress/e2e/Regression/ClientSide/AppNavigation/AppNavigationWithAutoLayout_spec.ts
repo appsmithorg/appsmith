@@ -24,17 +24,18 @@ describe(
       propPane.NavigateToPage("Page1", "onClick");
     });
 
-  it("2. Change App navigation settings and valdiate the layout settings", () => {
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    EditorNavigation.ViaSidebar(SidebarButton.Settings);
-    agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
-    agHelper.GetNClick(
-      appSettings.locators._navigationSettings._orientationOptions._side,
-    );
-    agHelper.AssertElementExist(appSettings.locators._sideNavbar);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"));
-    agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"), 1);
-    agHelper.AssertElementExist(locators._fixedLayout);
-  });
-});
+    it("2. Change App navigation settings and valdiate the layout settings", () => {
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.ViaSidebar(SidebarButton.Settings);
+      agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
+      agHelper.GetNClick(
+        appSettings.locators._navigationSettings._orientationOptions._side,
+      );
+      agHelper.AssertElementExist(appSettings.locators._sideNavbar);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"));
+      agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"), 1);
+      agHelper.AssertElementExist(locators._fixedLayout);
+    });
+  },
+);

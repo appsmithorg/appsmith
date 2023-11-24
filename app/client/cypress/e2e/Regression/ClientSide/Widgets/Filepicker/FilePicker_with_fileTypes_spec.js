@@ -13,8 +13,8 @@ describe(
       _.agHelper.AddDsl("filepickerDsl");
     });
 
-  it("1. Check file upload of type jpeg", function () {
-    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
+    it("1. Check file upload of type jpeg", function () {
+      EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
 
       const fixturePath = "cypress/fixtures/AAAFlowerVase.jpeg";
       cy.get(commonlocators.filepickerv2).click();

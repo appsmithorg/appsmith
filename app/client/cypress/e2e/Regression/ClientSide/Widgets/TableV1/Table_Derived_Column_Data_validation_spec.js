@@ -72,40 +72,44 @@ describe(
       );
     });
 
-  it("2. Edit column name and validate test for computed value based on column type selected", function () {
-    // opoen customColumn1 property pane
-    cy.editColumn("customColumn1");
-    // Enter Apil 1st user email data into customColumn1
-    cy.readTabledataPublish("1", "7").then((tabData) => {
-      const tabValue = tabData;
-      cy.updateComputedValue("{{Api1.data[0].email}}");
+    it("2. Edit column name and validate test for computed value based on column type selected", function () {
+      // opoen customColumn1 property pane
+      cy.editColumn("customColumn1");
+      // Enter Apil 1st user email data into customColumn1
       cy.readTabledataPublish("1", "7").then((tabData) => {
-        expect(tabData).not.to.be.equal(tabValue);
-        cy.log("computed value of plain text " + tabData);
+        const tabValue = tabData;
+        cy.updateComputedValue("{{Api1.data[0].email}}");
+        cy.readTabledataPublish("1", "7").then((tabData) => {
+          expect(tabData).not.to.be.equal(tabValue);
+          cy.log("computed value of plain text " + tabData);
+        });
       });
+      cy.closePropertyPane();
+      //Test: Update table json data and check the column names updated
+      // Open table propert pane
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      cy.backFromPropertyPanel();
+      // Change the table data
+      cy.testJsontext(
+        "tabledata",
+        JSON.stringify(this.dataSet.TableInputUpdate),
+      );
+      cy.wait("@updateLayout");
+      // verify columns are visible or not in the propert pane
+      cy.tableColumnDataValidation("id");
+      cy.tableColumnDataValidation("email");
+      cy.tableColumnDataValidation("userName");
+      cy.tableColumnDataValidation("productName");
+      cy.tableColumnDataValidation("orderAmount");
+      cy.tableColumnDataValidation("customColumn1");
+      // Hide the columns in property pane
+      cy.hideColumn("email");
+      cy.hideColumn("userName");
+      cy.hideColumn("productName");
+      cy.hideColumn("orderAmount");
+      // verify customColumn is visible in the table
+      cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
+      cy.closePropertyPane();
     });
-    cy.closePropertyPane();
-    //Test: Update table json data and check the column names updated
-    // Open table propert pane
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    cy.backFromPropertyPanel();
-    // Change the table data
-    cy.testJsontext("tabledata", JSON.stringify(this.dataSet.TableInputUpdate));
-    cy.wait("@updateLayout");
-    // verify columns are visible or not in the propert pane
-    cy.tableColumnDataValidation("id");
-    cy.tableColumnDataValidation("email");
-    cy.tableColumnDataValidation("userName");
-    cy.tableColumnDataValidation("productName");
-    cy.tableColumnDataValidation("orderAmount");
-    cy.tableColumnDataValidation("customColumn1");
-    // Hide the columns in property pane
-    cy.hideColumn("email");
-    cy.hideColumn("userName");
-    cy.hideColumn("productName");
-    cy.hideColumn("orderAmount");
-    // verify customColumn is visible in the table
-    cy.get(".draggable-header:contains('CustomColumn')").should("be.visible");
-    cy.closePropertyPane();
-  });
-});
+  },
+);

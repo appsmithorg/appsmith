@@ -14,8 +14,8 @@ describe(
       _.agHelper.AddDsl("tabInputDsl");
     });
 
-  it("1. Input widget test with default value from tab widget", function () {
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+    it("1. Input widget test with default value from tab widget", function () {
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
 
       cy.testJsontext("defaultvalue", testdata.tabBinding + "}}");
 

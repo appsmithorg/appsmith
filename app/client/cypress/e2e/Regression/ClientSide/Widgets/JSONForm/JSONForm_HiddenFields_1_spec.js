@@ -102,16 +102,16 @@ describe(
       );
     });
 
-  it("1. can hide Array Field", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    propPane.OpenJsonFormFieldSettings("Education");
-    hideAndVerifyProperties("education", [
-      {
-        college: "MIT",
-        year: "20/10/2014",
-      },
-    ]);
-  });
+    it("1. can hide Array Field", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.OpenJsonFormFieldSettings("Education");
+      hideAndVerifyProperties("education", [
+        {
+          college: "MIT",
+          year: "20/10/2014",
+        },
+      ]);
+    });
 
     it("2. can hide Array Field's inner fields", () => {
       cy.openPropertyPane("jsonformwidget");

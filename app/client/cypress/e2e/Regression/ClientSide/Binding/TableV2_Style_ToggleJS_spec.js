@@ -16,15 +16,15 @@ describe(
       _.agHelper.AddDsl("tableV2NewDsl");
     });
 
-  it("1. Table widget V2 toggle test for text alignment", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    cy.editColumn("id");
-    cy.moveToStyleTab();
-    _.agHelper.Sleep();
-    _.propPane.EnterJSContext("Text align", testdata.bindingAlign);
-    cy.readTableV2dataValidateCSS("0", "0", "justify-content", "flex-start");
-    cy.readTableV2dataValidateCSS("1", "0", "justify-content", "flex-end");
-  });
+    it("1. Table widget V2 toggle test for text alignment", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      cy.editColumn("id");
+      cy.moveToStyleTab();
+      _.agHelper.Sleep();
+      _.propPane.EnterJSContext("Text align", testdata.bindingAlign);
+      cy.readTableV2dataValidateCSS("0", "0", "justify-content", "flex-start");
+      cy.readTableV2dataValidateCSS("1", "0", "justify-content", "flex-end");
+    });
 
     it("2. Table widget V2 change text size and validate", function () {
       cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");

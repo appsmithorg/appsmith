@@ -33,7 +33,7 @@ describe(
         EditorNavigation.ViaSidebar(SidebarButton.Pages);
         entityExplorer.NavigateToSwitcher("Widgets");
 
-      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+        EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
         oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
           label: "name",

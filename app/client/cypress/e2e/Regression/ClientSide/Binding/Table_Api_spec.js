@@ -37,11 +37,11 @@ describe(
         });
     });
 
-  it("2. Test_Validate the Api data is updated on Table widget", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-    cy.testJsontext("tabledata", "{{ Api1.data}}");
+    it("2. Test_Validate the Api data is updated on Table widget", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
+      cy.testJsontext("tabledata", "{{ Api1.data}}");
 
       /**
        * readTabledata--> is to read the table contents
@@ -67,14 +67,14 @@ describe(
       });
     });
 
-  it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-    cy.togglebarDisable(
-      ".t--property-control-enableclientsidesearch input[type='checkbox']",
-    );
+    it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
+      entityExplorer.ExpandCollapseEntity("Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
+      cy.togglebarDisable(
+        ".t--property-control-enableclientsidesearch input[type='checkbox']",
+      );
 
       cy.get(".t--widget-tablewidget .t--search-input").first().type("Currey");
       cy.wait(3000);

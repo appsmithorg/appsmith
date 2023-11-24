@@ -86,12 +86,12 @@ describe(
       cy.closePropertyPane();
     });
 
-  it("5. Text widgets binding with datepicker", function () {
-    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
-    cy.EnableAllCodeEditors();
-    cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
-    cy.closePropertyPane();
-    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
+    it("5. Text widgets binding with datepicker", function () {
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+      cy.EnableAllCodeEditors();
+      cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
+      cy.closePropertyPane();
+      EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
 
       cy.EnableAllCodeEditors();
       cy.testJsontext("text", "{{DatePicker1.selectedDate}}");

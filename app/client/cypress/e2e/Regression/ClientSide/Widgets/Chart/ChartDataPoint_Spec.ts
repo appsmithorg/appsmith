@@ -29,47 +29,47 @@ describe(
       });
     });
 
-  it("1. Chart widget - Input widget test with default value from another Input widget", () => {
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
-    propPane.UpdatePropertyFieldValue(
-      "Default value",
-      dataSet.bindChartData + "}}",
-    );
-    assertHelper.AssertNetworkStatus("@updateLayout");
-    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
-    propPane.TogglePropertyState("Show Labels", "On");
-    propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
-    agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);
-    EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
-    propPane.UpdatePropertyFieldValue(
-      "Default value",
-      dataSet.bindingSeriesTitle + "}}",
-    );
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CHART));
-    agHelper.Sleep(1500); //waiting for chart to load!
-    agHelper.GetNClickByContains(widgetLocators.chartDataPoint, "36000");
-    cy.get(locators._widgetInputSelector("inputwidgetv2"))
-      .first()
-      .invoke("val")
-      .then(($value) => {
-        let inputVal = ($value as string).replace(/\s/g, ""); //removing space here
-        //cy.get(locator._toastMsg).invoke('text').then(toastTxt => expect(toastTxt.trim()).to.eq(inputVal))
-        cy.get(locators._toastMsg).should("have.text", inputVal);
-      });
-    cy.get(locators._widgetInputSelector("inputwidgetv2"))
-      .last()
-      .should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
+    it("1. Chart widget - Input widget test with default value from another Input widget", () => {
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        dataSet.bindChartData + "}}",
+      );
+      assertHelper.AssertNetworkStatus("@updateLayout");
+      EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
+      propPane.TogglePropertyState("Show Labels", "On");
+      propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
+      agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);
+      EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        dataSet.bindingSeriesTitle + "}}",
+      );
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CHART));
+      agHelper.Sleep(1500); //waiting for chart to load!
+      agHelper.GetNClickByContains(widgetLocators.chartDataPoint, "36000");
+      cy.get(locators._widgetInputSelector("inputwidgetv2"))
+        .first()
+        .invoke("val")
+        .then(($value) => {
+          let inputVal = ($value as string).replace(/\s/g, ""); //removing space here
+          //cy.get(locator._toastMsg).invoke('text').then(toastTxt => expect(toastTxt.trim()).to.eq(inputVal))
+          cy.get(locators._toastMsg).should("have.text", inputVal);
+        });
+      cy.get(locators._widgetInputSelector("inputwidgetv2"))
+        .last()
+        .should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
 
       deployMode.NavigateBacktoEditor();
     });
 
-  it("2. onDataPointClick should work and respond with x, y, seriesTitle, and rawEventData (in case of custom fusion chart).", () => {
-    agHelper.AddDsl("chartCustomSankeyDataDsl");
-    assertHelper.AssertNetworkStatus("@updateLayout");
-    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
-    agHelper.Sleep(1500); //waiting for chart to load!
-    propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
-    agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);
+    it("2. onDataPointClick should work and respond with x, y, seriesTitle, and rawEventData (in case of custom fusion chart).", () => {
+      agHelper.AddDsl("chartCustomSankeyDataDsl");
+      assertHelper.AssertNetworkStatus("@updateLayout");
+      EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
+      agHelper.Sleep(1500); //waiting for chart to load!
+      propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
+      agHelper.EnterActionValue("Message", dataSet.bindingDataPoint);
 
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CHART));
       agHelper.Sleep(1500); //waiting for chart to load!

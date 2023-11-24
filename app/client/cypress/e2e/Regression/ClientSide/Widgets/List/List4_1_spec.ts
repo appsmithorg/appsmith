@@ -23,118 +23,118 @@ describe(
       agHelper.AddDsl("listdsl");
     });
 
-  it("1. Validate Visibility via Toggle", function () {
-    // Open Property pane
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
-    //Uncheck the disabled checkbox and validate
-    propPane.TogglePropertyState("Visible", "Off");
-    deployMode.DeployApp();
-    agHelper.AssertElementAbsence(
-      locators._widgetInCanvas(draggableWidgets.LIST),
-    );
-    deployMode.NavigateBacktoEditor();
-    // List-Check Visible field Validation
-    // Open Property pane
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
-    //Check the disableed checkbox and Validate
-    propPane.TogglePropertyState("Visible", "On");
-    deployMode.DeployApp();
-    agHelper.AssertElementVisibility(
-      locators._widgetInDeployed(draggableWidgets.LIST),
-    );
-    deployMode.NavigateBacktoEditor();
-  });
+    it("1. Validate Visibility via Toggle", function () {
+      // Open Property pane
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      //Uncheck the disabled checkbox and validate
+      propPane.TogglePropertyState("Visible", "Off");
+      deployMode.DeployApp();
+      agHelper.AssertElementAbsence(
+        locators._widgetInCanvas(draggableWidgets.LIST),
+      );
+      deployMode.NavigateBacktoEditor();
+      // List-Check Visible field Validation
+      // Open Property pane
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      //Check the disableed checkbox and Validate
+      propPane.TogglePropertyState("Visible", "On");
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(
+        locators._widgetInDeployed(draggableWidgets.LIST),
+      );
+      deployMode.NavigateBacktoEditor();
+    });
 
-  it("2. Validate Visibility via JS Mode", function () {
-    // Open Property pane
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
-    //Uncheck the disabled checkbox using JS and validate
-    propPane.EnterJSContext("Visible", "false");
-    deployMode.DeployApp();
-    agHelper.AssertElementAbsence(
-      locators._widgetInCanvas(draggableWidgets.LIST),
-    );
-    deployMode.NavigateBacktoEditor();
-    //Toggle JS - List-Check Visible field Validation
-    // Open Property pane
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
-    //Check the disabled checkbox using JS and Validate
-    propPane.EnterJSContext("Visible", "true");
-    deployMode.DeployApp();
-    agHelper.AssertElementVisibility(
-      locators._widgetInDeployed(draggableWidgets.LIST),
-    );
-    deployMode.NavigateBacktoEditor();
-  });
+    it("2. Validate Visibility via JS Mode", function () {
+      // Open Property pane
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      //Uncheck the disabled checkbox using JS and validate
+      propPane.EnterJSContext("Visible", "false");
+      deployMode.DeployApp();
+      agHelper.AssertElementAbsence(
+        locators._widgetInCanvas(draggableWidgets.LIST),
+      );
+      deployMode.NavigateBacktoEditor();
+      //Toggle JS - List-Check Visible field Validation
+      // Open Property pane
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      //Check the disabled checkbox using JS and Validate
+      propPane.EnterJSContext("Visible", "true");
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(
+        locators._widgetInDeployed(draggableWidgets.LIST),
+      );
+      deployMode.NavigateBacktoEditor();
+    });
 
-  it("3. checks if list shows correct no. of items", function () {
-    // Verify the length of list
-    agHelper.AssertElementLength(
-      locators._widgetInDeployed(draggableWidgets.CONTAINER),
-      2,
-    );
-    //checks currentItem binding
-    // Open property pane
-    entityExplorer.ExpandCollapseEntity("List1");
-    entityExplorer.ExpandCollapseEntity("Container1");
-    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
-      "List1",
-      "Container1",
-    ]);
-    propPane.UpdatePropertyFieldValue("Text", `{{currentItem.first_name}}`);
-    // Verify Current Item Bindings
-    agHelper.GetNAssertElementText(
-      propPane._propertyText,
-      items[0].first_name,
-      "contain.text",
-      0,
-    );
-    agHelper.GetNAssertElementText(
-      propPane._propertyText,
-      items[1].first_name,
-      "contain.text",
-      1,
-    );
-  });
+    it("3. checks if list shows correct no. of items", function () {
+      // Verify the length of list
+      agHelper.AssertElementLength(
+        locators._widgetInDeployed(draggableWidgets.CONTAINER),
+        2,
+      );
+      //checks currentItem binding
+      // Open property pane
+      entityExplorer.ExpandCollapseEntity("List1");
+      entityExplorer.ExpandCollapseEntity("Container1");
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+        "List1",
+        "Container1",
+      ]);
+      propPane.UpdatePropertyFieldValue("Text", `{{currentItem.first_name}}`);
+      // Verify Current Item Bindings
+      agHelper.GetNAssertElementText(
+        propPane._propertyText,
+        items[0].first_name,
+        "contain.text",
+        0,
+      );
+      agHelper.GetNAssertElementText(
+        propPane._propertyText,
+        items[1].first_name,
+        "contain.text",
+        1,
+      );
+    });
 
-  it("4. doesn't alter the no of items present when invalid item spacing is entered", () => {
-    // Open Property pane
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
-    propPane.MoveToTab("Style");
-    // Update an invalid value to item spacing
-    propPane.UpdatePropertyFieldValue("Item Spacing (px)", "-");
-    // Verify the length of list
-    agHelper.AssertElementLength(
-      locators._widgetInDeployed(draggableWidgets.CONTAINER),
-      2,
-    );
-    // Clear item spacing
-    propPane.UpdatePropertyFieldValue("Item Spacing (px)", "");
-    agHelper.Sleep(2000);
-  });
+    it("4. doesn't alter the no of items present when invalid item spacing is entered", () => {
+      // Open Property pane
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      propPane.MoveToTab("Style");
+      // Update an invalid value to item spacing
+      propPane.UpdatePropertyFieldValue("Item Spacing (px)", "-");
+      // Verify the length of list
+      agHelper.AssertElementLength(
+        locators._widgetInDeployed(draggableWidgets.CONTAINER),
+        2,
+      );
+      // Clear item spacing
+      propPane.UpdatePropertyFieldValue("Item Spacing (px)", "");
+      agHelper.Sleep(2000);
+    });
 
-  it("5. checks button action", function () {
-    // Open property pane
-    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-    propPane.UpdatePropertyFieldValue("Label", `{{currentItem.last_name}}`);
-    propPane.SelectPlatformFunction("onClick", "Show alert");
-    agHelper.EnterActionValue("Message", "{{currentItem.last_name}}");
-    agHelper.Sleep(3000);
-    deployMode.DeployApp();
-    // Verify Widget Button by clicking on it
-    agHelper.AssertElementLength(
-      locators._widgetInDeployed(draggableWidgets.BUTTON),
-      2,
-    );
-    agHelper.ClickButton("Lawson");
-    // Verify the click on first button
-    agHelper.ValidateToastMessage(items[0].last_name);
-  });
+    it("5. checks button action", function () {
+      // Open property pane
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.UpdatePropertyFieldValue("Label", `{{currentItem.last_name}}`);
+      propPane.SelectPlatformFunction("onClick", "Show alert");
+      agHelper.EnterActionValue("Message", "{{currentItem.last_name}}");
+      agHelper.Sleep(3000);
+      deployMode.DeployApp();
+      // Verify Widget Button by clicking on it
+      agHelper.AssertElementLength(
+        locators._widgetInDeployed(draggableWidgets.BUTTON),
+        2,
+      );
+      agHelper.ClickButton("Lawson");
+      // Verify the click on first button
+      agHelper.ValidateToastMessage(items[0].last_name);
+    });
 
-  it("6. it checks onListItem click action", function () {
-    // Verify Clicking on list item shows message of first name
-    deployMode.NavigateBacktoEditor(); // Open property pane
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+    it("6. it checks onListItem click action", function () {
+      // Verify Clicking on list item shows message of first name
+      deployMode.NavigateBacktoEditor(); // Open property pane
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
       // Verify Action type and Message of List Item
       // Click on the onListItemClick action dropdown.
@@ -186,55 +186,56 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-  it("9. List widget background colour and deploy ", function () {
-    // Open Property pane
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
-    propPane.MoveToTab("Style");
-    // Scroll down to Styles and Add background colour
-    propPane.SelectColorFromColorPicker("backgroundcolor", -15);
-    agHelper.Sleep(1000);
-    propPane.SelectColorFromColorPicker("itembackgroundcolor", -15);
-    // Click on Deploy and ensure it is deployed appropriately
-    deployMode.DeployApp();
-    // Ensure List Background Color
-    agHelper.AssertCSS(
-      locators._listWidget,
-      "background-color",
-      "rgb(219, 234, 254)",
-    );
-    // Verify List Item Background Color
-    agHelper.AssertCSS(
-      locators._itemContainerWidget,
-      "background-color",
-      "rgb(219, 234, 254)",
-    );
-    deployMode.NavigateBacktoEditor();
-  });
+    it("9. List widget background colour and deploy ", function () {
+      // Open Property pane
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      propPane.MoveToTab("Style");
+      // Scroll down to Styles and Add background colour
+      propPane.SelectColorFromColorPicker("backgroundcolor", -15);
+      agHelper.Sleep(1000);
+      propPane.SelectColorFromColorPicker("itembackgroundcolor", -15);
+      // Click on Deploy and ensure it is deployed appropriately
+      deployMode.DeployApp();
+      // Ensure List Background Color
+      agHelper.AssertCSS(
+        locators._listWidget,
+        "background-color",
+        "rgb(219, 234, 254)",
+      );
+      // Verify List Item Background Color
+      agHelper.AssertCSS(
+        locators._itemContainerWidget,
+        "background-color",
+        "rgb(219, 234, 254)",
+      );
+      deployMode.NavigateBacktoEditor();
+    });
 
-  it("10. Toggle JS - List widget background colour and deploy ", function () {
-    // Open Property pane
-    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
-    propPane.MoveToTab("Style");
-    // Scroll down to Styles and Add background colour
-    propPane.EnterJSContext("Background color", "#FFC13D");
-    agHelper.Sleep(1000);
-    propPane.EnterJSContext("Item Background color", "#38AFF4");
-    // Click on Deploy and ensure it is deployed appropriately
-    deployMode.DeployApp();
-    // Ensure List Background Color
-    agHelper.AssertCSS(
-      locators._listWidget,
-      "background-color",
-      "rgb(255, 193, 61)",
-      0,
-    );
-    // Verify List Item Background Color
-    agHelper.AssertCSS(
-      locators._itemContainerWidget,
-      "background-color",
-      "rgb(56, 175, 244)",
-      0,
-    );
-    deployMode.NavigateBacktoEditor();
-  });
-});
+    it("10. Toggle JS - List widget background colour and deploy ", function () {
+      // Open Property pane
+      EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
+      propPane.MoveToTab("Style");
+      // Scroll down to Styles and Add background colour
+      propPane.EnterJSContext("Background color", "#FFC13D");
+      agHelper.Sleep(1000);
+      propPane.EnterJSContext("Item Background color", "#38AFF4");
+      // Click on Deploy and ensure it is deployed appropriately
+      deployMode.DeployApp();
+      // Ensure List Background Color
+      agHelper.AssertCSS(
+        locators._listWidget,
+        "background-color",
+        "rgb(255, 193, 61)",
+        0,
+      );
+      // Verify List Item Background Color
+      agHelper.AssertCSS(
+        locators._itemContainerWidget,
+        "background-color",
+        "rgb(56, 175, 244)",
+        0,
+      );
+      deployMode.NavigateBacktoEditor();
+    });
+  },
+);

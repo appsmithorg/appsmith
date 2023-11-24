@@ -28,17 +28,17 @@ describe(
       });
     });
 
-  it("2. Button widget test with on action query run", function () {
-    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+    it("2. Button widget test with on action query run", function () {
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
-    cy.executeDbQuery("Query1", "onClick");
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    //Input widget test with default value update with query data
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+      cy.executeDbQuery("Query1", "onClick");
+      cy.wait("@updateLayout").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      //Input widget test with default value update with query data
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
 
       cy.get(widgetsPage.defaultInput).type(testdata.defaultInputQuery);
       cy.wait("@updateLayout").should(

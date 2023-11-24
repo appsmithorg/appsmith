@@ -11,21 +11,21 @@ describe(
       _.agHelper.AddDsl("tablev1NewDsl");
     });
 
-  it("1. Adding Data to Table Widget", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    _.propPane.UpdatePropertyFieldValue(
-      "Table data",
-      JSON.stringify(this.dataSet.TableURLColumnType),
-    );
-    _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
-    _.agHelper.PressEscape();
-    //Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    _.table.ChangeColumnType("image", "URL");
-    _.propPane.UpdatePropertyFieldValue(
-      "Display text",
-      `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : "" }}`,
-    );
+    it("1. Adding Data to Table Widget", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      _.propPane.UpdatePropertyFieldValue(
+        "Table data",
+        JSON.stringify(this.dataSet.TableURLColumnType),
+      );
+      _.assertHelper.AssertNetworkStatus("@updateLayout", 200);
+      _.agHelper.PressEscape();
+      //Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      _.table.ChangeColumnType("image", "URL");
+      _.propPane.UpdatePropertyFieldValue(
+        "Display text",
+        `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : "" }}`,
+      );
 
       _.deployMode.DeployApp();
 
@@ -61,9 +61,9 @@ describe(
       _.deployMode.NavigateBacktoEditor();
     });
 
-  it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when null", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    _.agHelper.GetNClick(_.table._columnSettings("image", "Edit"));
+    it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when null", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      _.agHelper.GetNClick(_.table._columnSettings("image", "Edit"));
 
       _.propPane.UpdatePropertyFieldValue(
         "Display text",
@@ -102,9 +102,9 @@ describe(
       _.deployMode.NavigateBacktoEditor();
     });
 
-  it("3. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when undefined", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    _.agHelper.GetNClick(_.table._columnSettings("image", "Edit"));
+    it("3. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when undefined", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      _.agHelper.GetNClick(_.table._columnSettings("image", "Edit"));
 
       _.propPane.UpdatePropertyFieldValue(
         "Display text",
@@ -143,13 +143,13 @@ describe(
       _.deployMode.NavigateBacktoEditor();
     });
 
-  it("4. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    _.propPane.UpdatePropertyFieldValue(
-      "Table data",
-      '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',
-    );
-    cy.wait(500);
+    it("4. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      _.propPane.UpdatePropertyFieldValue(
+        "Table data",
+        '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',
+      );
+      cy.wait(500);
 
       _.propPane.OpenTableColumnSettings("dateValue");
       // select date option from column type setting field

@@ -35,7 +35,7 @@ describe(
       cy.get("@dsName").then((dsName) => {
         entityExplorer.NavigateToSwitcher("Widgets");
 
-      EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
+        EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
 
         oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
           label: "name",

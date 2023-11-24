@@ -18,7 +18,7 @@ describe(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
         // For escaping "{" in cypress refer to https://docs.cypress.io/api/commands/type#Arguments
         // eslint-disable-next-line prettier/prettier
-    ).type("{{}{{}appsmith.mode{}}{}}");
+      ).type("{{}{{}appsmith.mode{}}{}}");
       cy.contains(
         ".tableWrap .thead .tr div[role='columnheader']:first-child",
         "EDIT",
@@ -33,7 +33,7 @@ describe(
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
         // eslint-disable-next-line prettier/prettier
-    ).type("{{}{{}false{}}{}}");
+      ).type("{{}{{}false{}}{}}");
       cy.contains(
         ".tableWrap .thead .tr div[role='columnheader']:first-child",
         DEFAULT_COLUMN_NAME,
@@ -48,7 +48,7 @@ describe(
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
         // eslint-disable-next-line prettier/prettier
-    ).type("{{}{{}0{}}{}}");
+      ).type("{{}{{}0{}}{}}");
       cy.contains(
         ".tableWrap .thead .tr div[role='columnheader']:first-child",
         DEFAULT_COLUMN_NAME,
@@ -60,7 +60,7 @@ describe(
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
         // eslint-disable-next-line prettier/prettier
-    ).type("{{}{{}982{}}{}}");
+      ).type("{{}{{}982{}}{}}");
       cy.contains(
         ".tableWrap .thead .tr div[role='columnheader']:first-child",
         DEFAULT_COLUMN_NAME,
@@ -75,7 +75,7 @@ describe(
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
         // eslint-disable-next-line prettier/prettier
-    ).type("{{}{{}appsmith{}}{}}");
+      ).type("{{}{{}appsmith{}}{}}");
       cy.contains(
         ".tableWrap .thead .tr div[role='columnheader']:first-child",
         DEFAULT_COLUMN_NAME,
@@ -90,7 +90,7 @@ describe(
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
         // eslint-disable-next-line prettier/prettier
-    ).type("{{}{{}ap{}}{}}");
+      ).type("{{}{{}ap{}}{}}");
       cy.contains(
         ".tableWrap .thead .tr div[role='columnheader']:first-child",
         DEFAULT_COLUMN_NAME,

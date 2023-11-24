@@ -96,7 +96,7 @@ describe(
         agHelper.AssertText(locators._textInside, "text", d.text);
       });
 
-    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
       propPane.SelectPropertiesDropDown("label", "test2");
 

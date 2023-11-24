@@ -53,31 +53,33 @@ describe(
       });
     });
 
-  it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
-    //Update documents query to handle the int _id data
-    EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
-    agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
-      propFieldName: "",
-      directInput: false,
-      inputFieldName: "Query",
-    });
-    deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE_V1));
-    agHelper.GetNAssertElementText(
-      locators._textWidgetInDeployed,
-      "mongomart Data",
-    );
-    //Validating loaded table
-    table.SelectTableRow(2);
-    agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(2, 0, "v1", 200).then(($cellData) => {
-      expect($cellData).to.be.empty;
-    });
-    table.ReadTableRowColumnData(2, 6, "v1", 2000).then(($cellData) => {
-      expect($cellData).to.eq("WiredTiger T-shirt");
-    });
-    table.ReadTableRowColumnData(2, 7, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq("Apparel");
-    });
+    it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
+      //Update documents query to handle the int _id data
+      EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
+      agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Query",
+      });
+      deployMode.DeployApp(
+        locators._widgetInDeployed(draggableWidgets.TABLE_V1),
+      );
+      agHelper.GetNAssertElementText(
+        locators._textWidgetInDeployed,
+        "mongomart Data",
+      );
+      //Validating loaded table
+      table.SelectTableRow(2);
+      agHelper.AssertElementExist(dataSources._selectedRow);
+      table.ReadTableRowColumnData(2, 0, "v1", 200).then(($cellData) => {
+        expect($cellData).to.be.empty;
+      });
+      table.ReadTableRowColumnData(2, 6, "v1", 2000).then(($cellData) => {
+        expect($cellData).to.eq("WiredTiger T-shirt");
+      });
+      table.ReadTableRowColumnData(2, 7, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq("Apparel");
+      });
 
       table.SelectTableRow(8);
       deployMode.ClearJSONFieldValue("Slogan");

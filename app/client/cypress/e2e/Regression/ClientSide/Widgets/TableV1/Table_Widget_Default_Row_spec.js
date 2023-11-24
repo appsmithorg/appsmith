@@ -11,11 +11,11 @@ describe(
       _.agHelper.AddDsl("defaultTableDsl");
     });
 
-  it("Verify default table row Data", function () {
-    // Open property pane
-    cy.openPropertyPane("tablewidget");
-    cy.wait(2000);
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    it("Verify default table row Data", function () {
+      // Open property pane
+      cy.openPropertyPane("tablewidget");
+      cy.wait(2000);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       cy.wait(2000);
       cy.readTabledataFromSpecificIndex("2", "0", 1).then((tabData) => {

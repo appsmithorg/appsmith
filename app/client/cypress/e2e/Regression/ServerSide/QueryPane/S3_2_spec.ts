@@ -366,10 +366,10 @@ describe(
     it("4. Verifying Max file size - 'Base64' file - CRUD page - Bug #18245 - 10 Mb & 40 Mb", function () {
       let video = "Videos/defaultVideo.y4m";
 
-    EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget, {}, [
-      "Container6",
-    ]);
-    propPane.UpdatePropertyFieldValue("Max no. of files", "2");
+      EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget, {}, [
+        "Container6",
+      ]);
+      propPane.UpdatePropertyFieldValue("Max no. of files", "2");
 
       propPane.UpdatePropertyFieldValue("Max file size(Mb)", "10");
 
@@ -385,12 +385,12 @@ describe(
       agHelper.ClickButton("Close");
       deployMode.NavigateBacktoEditor();
 
-    EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget, {}, [
-      "Container6",
-    ]);
-    propPane.UpdatePropertyFieldValue("Max file size(Mb)", "40");
-    deployMode.DeployApp();
-    video = "Videos/rotatedQRCode.y4m";
+      EditorNavigation.SelectEntityByName("FilePicker", EntityType.Widget, {}, [
+        "Container6",
+      ]);
+      propPane.UpdatePropertyFieldValue("Max file size(Mb)", "40");
+      deployMode.DeployApp();
+      video = "Videos/rotatedQRCode.y4m";
 
       agHelper.ClickButton("Select Files");
       agHelper.UploadFile(video, false);
@@ -420,9 +420,9 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-  it("5. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    dataSources.NavigateFromActiveDS(datasourceName, true);
+    it("5. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      dataSources.NavigateFromActiveDS(datasourceName, true);
 
       agHelper.GetObjectName().then(($queryName) => {
         dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
@@ -432,44 +432,44 @@ describe(
         dataSources.AddSuggestedWidget(Widgets.Dropdown);
         propPane.DeleteWidgetDirectlyFromPropertyPane();
 
-      EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
-      dataSources.AddSuggestedWidget(Widgets.Table);
-      table.WaitUntilTableLoad(0, 0, "v2");
-      propPane.DeleteWidgetDirectlyFromPropertyPane();
+        EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
+        dataSources.AddSuggestedWidget(Widgets.Table);
+        table.WaitUntilTableLoad(0, 0, "v2");
+        propPane.DeleteWidgetDirectlyFromPropertyPane();
 
-      EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Query,
+        EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
+        agHelper.ActionContextMenuWithInPane({
+          action: "Delete",
+          entityType: entityItems.Query,
+        });
       });
     });
-  });
 
-  it("6. Verify Adding Suggested widget with already present widget - S3 ", () => {
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
-    agHelper.Sleep(2500); //allowing sometime for widget to settle down
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    agHelper.GetObjectName().then(($queryName) => {
-      EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
-      dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
-      agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
-      dataSources.RunQuery();
-      agHelper.Sleep(); //for CI runs
-      agHelper.ScrollIntoView("." + dataSources._addSuggestedExisting);
-      dataSources.AddSuggestedWidget(
-        Widgets.Table,
-        dataSources._addSuggestedExisting,
-      );
-      propPane.DeleteWidgetDirectlyFromPropertyPane();
-      EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Query,
+    it("6. Verify Adding Suggested widget with already present widget - S3 ", () => {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+      agHelper.Sleep(2500); //allowing sometime for widget to settle down
+      dataSources.NavigateFromActiveDS(datasourceName, true);
+      agHelper.GetObjectName().then(($queryName) => {
+        EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
+        dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
+        agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
+        dataSources.RunQuery();
+        agHelper.Sleep(); //for CI runs
+        agHelper.ScrollIntoView("." + dataSources._addSuggestedExisting);
+        dataSources.AddSuggestedWidget(
+          Widgets.Table,
+          dataSources._addSuggestedExisting,
+        );
+        propPane.DeleteWidgetDirectlyFromPropertyPane();
+        EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
+        agHelper.ActionContextMenuWithInPane({
+          action: "Delete",
+          entityType: entityItems.Query,
+        });
+        //exeute actions & 200 response is verified in this method
+        cy.wait(3000); //waiting for deletion to complete! - else after hook fails
       });
-      //exeute actions & 200 response is verified in this method
-      cy.wait(3000); //waiting for deletion to complete! - else after hook fails
     });
-  });
 
     after("Deletes the datasource", () => {
       dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409); //since crud page is still active

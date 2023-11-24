@@ -35,11 +35,11 @@ describe(
         });
     });
 
-  it("2. Test_Validate the Api data is updated on Table widget", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-    cy.testJsontext("tabledata", "{{Api1.data}}");
+    it("2. Test_Validate the Api data is updated on Table widget", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
+      cy.testJsontext("tabledata", "{{Api1.data}}");
 
       /**
        * readTabledata--> is to read the table contents
@@ -65,15 +65,17 @@ describe(
       });
     });
 
-  it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
-      "Container3",
-    ]);
-    cy.togglebarDisable(
-      ".t--property-control-clientsidesearch input[type='checkbox']",
-    );
-    cy.get(".t--widget-tablewidgetv2 .t--search-input").first().type("Currey");
-    cy.wait(3000);
+    it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+        "Container3",
+      ]);
+      cy.togglebarDisable(
+        ".t--property-control-clientsidesearch input[type='checkbox']",
+      );
+      cy.get(".t--widget-tablewidgetv2 .t--search-input")
+        .first()
+        .type("Currey");
+      cy.wait(3000);
 
       // Captures the API call made on search
       cy.wait("@postExecute").then((interception) => {

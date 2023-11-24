@@ -71,42 +71,42 @@ describe(
       ).should("not.be.disabled");
     });
 
-  it("4. should check that doesn't grow taller when text wrapping is disabled", () => {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    table.EnableEditableOfColumn("step");
-    table.EditTableCell(0, 0, "", false);
-    agHelper.GetHeight(table._editCellEditor);
-    cy.get("@eleHeight").then(($initiaHeight) => {
-      expect(Number($initiaHeight)).to.eq(28);
+    it("4. should check that doesn't grow taller when text wrapping is disabled", () => {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      table.EnableEditableOfColumn("step");
+      table.EditTableCell(0, 0, "", false);
+      agHelper.GetHeight(table._editCellEditor);
+      cy.get("@eleHeight").then(($initiaHeight) => {
+        expect(Number($initiaHeight)).to.eq(28);
+        table.EditTableCell(
+          1,
+          0,
+          "this is a very long cell value to check the height of the cell is growing accordingly",
+          false,
+        );
+        agHelper.GetHeight(table._editCellEditor);
+        cy.get("@eleHeight").then(($newHeight) => {
+          expect(Number($newHeight)).to.eq(Number($initiaHeight));
+        });
+      });
+    });
+
+    it("5. should check that grows taller when text wrapping is enabled", () => {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      table.EnableEditableOfColumn("step");
+      table.EditColumn("step");
+      propPane.TogglePropertyState("Cell Wrapping", "On");
       table.EditTableCell(
-        1,
+        0,
         0,
         "this is a very long cell value to check the height of the cell is growing accordingly",
         false,
       );
       agHelper.GetHeight(table._editCellEditor);
       cy.get("@eleHeight").then(($newHeight) => {
-        expect(Number($newHeight)).to.eq(Number($initiaHeight));
+        expect(Number($newHeight)).to.be.greaterThan(34);
       });
     });
-  });
-
-  it("5. should check that grows taller when text wrapping is enabled", () => {
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    table.EnableEditableOfColumn("step");
-    table.EditColumn("step");
-    propPane.TogglePropertyState("Cell Wrapping", "On");
-    table.EditTableCell(
-      0,
-      0,
-      "this is a very long cell value to check the height of the cell is growing accordingly",
-      false,
-    );
-    agHelper.GetHeight(table._editCellEditor);
-    cy.get("@eleHeight").then(($newHeight) => {
-      expect(Number($newHeight)).to.be.greaterThan(34);
-    });
-  });
 
     it("6. should check if updatedRowIndex is getting updated for single row update mode", () => {
       cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
@@ -174,9 +174,9 @@ describe(
         `{{resetWidget("Table1",true)}}`,
       );
 
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-    table.EnableEditableOfColumn("step");
-    agHelper.GetNClick(table._updateMode("Multi"), 0, false, 1000);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      table.EnableEditableOfColumn("step");
+      agHelper.GetNClick(table._updateMode("Multi"), 0, false, 1000);
 
       // case 1: check if updatedRowIndex is 0, when cell at row 0 is updated.
       table.EditTableCell(0, 0, "#12");

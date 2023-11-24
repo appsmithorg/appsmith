@@ -60,35 +60,35 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-  it("3. hides field when visible switched off", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("switch");
-    propPane.TogglePropertyState("Visible", "Off");
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-switch`).should("not.exist");
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("switch");
-    propPane.TogglePropertyState("Visible", "On");
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-switch`).should("exist");
-    deployMode.NavigateBacktoEditor();
-  });
-
-  it("4. disables field when disabled switched on", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("switch");
-    propPane.TogglePropertyState("Disabled", "On");
-    deployMode.DeployApp();
-    cy.get(`${fieldPrefix}-switch input`).each(($el) => {
-      cy.wrap($el).should("have.attr", "disabled");
+    it("3. hides field when visible switched off", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("switch");
+      propPane.TogglePropertyState("Visible", "Off");
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-switch`).should("not.exist");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("switch");
+      propPane.TogglePropertyState("Visible", "On");
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-switch`).should("exist");
+      deployMode.NavigateBacktoEditor();
     });
 
-    deployMode.NavigateBacktoEditor();
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("switch");
-    propPane.TogglePropertyState("Disabled", "Off");
-  });
+    it("4. disables field when disabled switched on", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("switch");
+      propPane.TogglePropertyState("Disabled", "On");
+      deployMode.DeployApp();
+      cy.get(`${fieldPrefix}-switch input`).each(($el) => {
+        cy.wrap($el).should("have.attr", "disabled");
+      });
+
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("switch");
+      propPane.TogglePropertyState("Disabled", "Off");
+    });
 
     it("5. Select Field Property Control - pre condition", () => {
       const schema = {
@@ -149,13 +149,13 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-  it("9. Invalid options should not crash the widget", () => {
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-    cy.openFieldConfiguration("hobbies");
-    // clear Options
-    cy.testJsonTextClearMultiline("options");
-    // enter invalid options
-    cy.testJsontext("options", '{{[{ label: "asd", value: "zxc"}, null ]}}');
+    it("9. Invalid options should not crash the widget", () => {
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      cy.openFieldConfiguration("hobbies");
+      // clear Options
+      cy.testJsonTextClearMultiline("options");
+      // enter invalid options
+      cy.testJsontext("options", '{{[{ label: "asd", value: "zxc"}, null ]}}');
 
       // wait for eval to update
       cy.wait(2000);

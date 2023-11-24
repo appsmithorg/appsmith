@@ -32,7 +32,7 @@ describe(
 
         entityExplorer.NavigateToSwitcher("Widgets");
 
-      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+        EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
         oneClickBinding.ChooseAndAssertForm(
           `${datasourceName}`,
@@ -75,7 +75,7 @@ describe(
 
       entityExplorer.NavigateToSwitcher("Widgets");
 
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(
         `${datasourceName}`,
@@ -94,7 +94,7 @@ describe(
 
       entityExplorer.NavigateToSwitcher("Widgets");
 
-    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(
         `${datasourceName}`,
@@ -138,7 +138,7 @@ describe(
 
       entityExplorer.NavigateToSwitcher("Widgets");
 
-    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
         expect(cellData).to.eq("Doe");

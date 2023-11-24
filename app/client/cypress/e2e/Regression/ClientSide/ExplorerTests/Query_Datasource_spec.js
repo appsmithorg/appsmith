@@ -31,21 +31,21 @@ describe(
       cy.startRoutesForDatasource();
     });
 
-  it("1. Create a page/moveQuery/rename/delete in explorer", function () {
-    cy.Createpage(pageid);
-    cy.wait(2000);
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.wait(2000);
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("PostgreSQL");
-    dataSources.FillPostgresDSForm();
-    // checking that conflicting names are not allowed
-    cy.get(".t--edit-datasource-name").click();
-    cy.get(".t--edit-datasource-name input")
-      .clear()
-      .type("download", { force: true })
-      .blur();
-    cy.get(".Toastify").should("contain", "Invalid name");
+    it("1. Create a page/moveQuery/rename/delete in explorer", function () {
+      cy.Createpage(pageid);
+      cy.wait(2000);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      cy.wait(2000);
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("PostgreSQL");
+      dataSources.FillPostgresDSForm();
+      // checking that conflicting names are not allowed
+      cy.get(".t--edit-datasource-name").click();
+      cy.get(".t--edit-datasource-name input")
+        .clear()
+        .type("download", { force: true })
+        .blur();
+      cy.get(".Toastify").should("contain", "Invalid name");
 
       // checking a valid name
       cy.get(".t--edit-datasource-name").click();
@@ -58,15 +58,18 @@ describe(
       cy.testSaveDatasource();
       cy.NavigateToActiveDSQueryPane(datasourceName);
 
-    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
-    agHelper.RenameWithInPane(`${datasourceName}new`, false);
-    cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
+      EditorNavigation.SelectEntityByName(
+        datasourceName,
+        EntityType.Datasource,
+      );
+      agHelper.RenameWithInPane(`${datasourceName}new`, false);
+      cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
 
-    // reverting the name
-    agHelper.RenameWithInPane(datasourceName, false);
+      // reverting the name
+      agHelper.RenameWithInPane(datasourceName, false);
 
-    // going  to the query create page
-    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
+      // going  to the query create page
+      EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
 
       cy.wait("@getPluginForm").should(
         "have.nested.property",
@@ -76,36 +79,36 @@ describe(
 
       dataSources.EnterQuery("select * from users");
 
-    cy.EvaluateCurrentValue("select * from users");
-    cy.get(".t--action-name-edit-field").click({ force: true });
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Query1",
-      action: "Show bindings",
-    });
-    cy.get(apiwidget.propertyList).then(function ($lis) {
-      expect($lis).to.have.length(5);
-      expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
-      expect($lis.eq(1)).to.contain("{{Query1.data}}");
-      expect($lis.eq(2)).to.contain("{{Query1.responseMeta}}");
-      expect($lis.eq(3)).to.contain("{{Query1.run()}}");
-      expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
-    });
-    cy.get(".t--entity-property-close").click(); //closing Bindings overlay
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Query1",
-      action: "Edit name",
-    });
-    cy.EditApiNameFromExplorer("MyQuery");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "MyQuery",
-      action: "Move to page",
-      subAction: pageid,
-      toastToValidate: "action moved to page",
-    });
-    cy.wait(2000);
-    EditorNavigation.SelectEntityByName("MyQuery", EntityType.Query);
-    cy.wait(2000);
-    cy.runQuery();
+      cy.EvaluateCurrentValue("select * from users");
+      cy.get(".t--action-name-edit-field").click({ force: true });
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Query1",
+        action: "Show bindings",
+      });
+      cy.get(apiwidget.propertyList).then(function ($lis) {
+        expect($lis).to.have.length(5);
+        expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
+        expect($lis.eq(1)).to.contain("{{Query1.data}}");
+        expect($lis.eq(2)).to.contain("{{Query1.responseMeta}}");
+        expect($lis.eq(3)).to.contain("{{Query1.run()}}");
+        expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
+      });
+      cy.get(".t--entity-property-close").click(); //closing Bindings overlay
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Query1",
+        action: "Edit name",
+      });
+      cy.EditApiNameFromExplorer("MyQuery");
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "MyQuery",
+        action: "Move to page",
+        subAction: pageid,
+        toastToValidate: "action moved to page",
+      });
+      cy.wait(2000);
+      EditorNavigation.SelectEntityByName("MyQuery", EntityType.Query);
+      cy.wait(2000);
+      cy.runQuery();
 
       //deleteQuery & DS
       agHelper.ActionContextMenuWithInPane({

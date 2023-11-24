@@ -31,26 +31,26 @@ describe(
       agHelper.AddDsl("tableInputDsl");
     });
 
-  it("1. Create MyPage and valdiate if its successfully created", function () {
-    cy.Createpage(pageid);
-    agHelper.AddDsl("displayWidgetDsl");
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    entityExplorer.AssertEntityPresenceInExplorer(pageid);
-  });
+    it("1. Create MyPage and valdiate if its successfully created", function () {
+      cy.Createpage(pageid);
+      agHelper.AddDsl("displayWidgetDsl");
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(3000);
+      cy.CheckAndUnfoldEntityItem("Pages");
+      entityExplorer.AssertEntityPresenceInExplorer(pageid);
+    });
 
-  it("2. Input widget test with default value from table widget", function () {
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
-    propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
-    cy.get(".t--open-dropdown-Select-page").click();
-    cy.get(commonlocators.singleSelectMenuItem)
-      .contains(pageid)
-      .click({ force: true });
-    cy.assertPageSave();
-  });
+    it("2. Input widget test with default value from table widget", function () {
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
+      cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
+      propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
+      cy.get(".t--open-dropdown-Select-page").click();
+      cy.get(commonlocators.singleSelectMenuItem)
+        .contains(pageid)
+        .click({ force: true });
+      cy.assertPageSave();
+    });
 
     it("3. Validate NavigateTo Page functionality ", function () {
       cy.wait(4000);
