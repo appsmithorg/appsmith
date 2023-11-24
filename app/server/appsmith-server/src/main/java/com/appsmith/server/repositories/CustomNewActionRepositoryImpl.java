@@ -169,6 +169,21 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
+    public Flux<NewAction> findByWorkflowId(String workflowId, Optional<AclPermission> aclPermission) {
+        String unpublishedAction = fieldName(QNewAction.newAction.unpublishedAction) + "."
+                + fieldName(QNewAction.newAction.unpublishedAction.workflowId);
+        String publishedAction = fieldName(QNewAction.newAction.publishedAction) + "."
+                + fieldName(QNewAction.newAction.publishedAction.workflowId);
+
+        Criteria workflowCriteria = new Criteria()
+                .orOperator(
+                        where(unpublishedAction).is(workflowId),
+                        where(publishedAction).is(workflowId));
+
+        return queryAll(List.of(workflowCriteria), aclPermission);
+    }
+
+    @Override
     public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         if (contextType == CreatorContextType.PAGE) {

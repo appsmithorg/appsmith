@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NewActionService extends NewActionServiceCE {
     Mono<NewAction> sendNewActionAnalyticsEvent(AnalyticEventDTO analyticEventDTO, String origin);
@@ -24,4 +25,6 @@ public interface NewActionService extends NewActionServiceCE {
             String moduleInstanceId,
             AclPermission permission,
             boolean includeJs);
+
+    Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission);
 }

@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workflow;
@@ -95,6 +96,17 @@ public class WorkflowController {
         return crudWorkflowService
                 .deleteWorkflow(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/{id}/action")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<ActionDTO>> createWorkflowAction(
+            @PathVariable String id, @Valid @RequestBody ActionDTO resource) {
+        log.debug("Going to create action for workflow id: {}", id);
+        return crudWorkflowService
+                .createWorkflowAction(id, resource)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)

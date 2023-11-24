@@ -29,4 +29,7 @@ public class ActionDTO extends ActionCE_DTO {
 
     @JsonView(Views.Public.class)
     String owningModuleInstanceId;
+
+    @JsonView(Views.Public.class)
+    String workflowId;
 }

@@ -86,6 +86,7 @@ import static com.appsmith.server.acl.AclPermission.TENANT_READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_ENVIRONMENT;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_PACKAGE;
@@ -135,6 +136,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
     }
 
     private void createWorkflowPolicyGraph() {
+        hierarchyGraph.addEdge(WORKSPACE_CREATE_WORKFLOW, WORKFLOW_CREATE_ACTIONS);
         hierarchyGraph.addEdge(WORKSPACE_MANAGE_WORKFLOWS, MANAGE_WORKFLOWS);
         hierarchyGraph.addEdge(WORKSPACE_READ_WORKFLOWS, READ_WORKFLOWS);
         hierarchyGraph.addEdge(WORKSPACE_DELETE_WORKFLOWS, DELETE_WORKFLOWS);
@@ -144,6 +146,9 @@ public class PolicyGenerator extends PolicyGeneratorCE {
 
         lateralGraph.addEdge(MANAGE_WORKFLOWS, READ_WORKFLOWS);
         lateralGraph.addEdge(MANAGE_WORKFLOWS, EXECUTE_WORKFLOWS);
+        lateralGraph.addEdge(WORKFLOW_CREATE_ACTIONS, MANAGE_WORKFLOWS);
+        lateralGraph.addEdge(WORKFLOW_CREATE_ACTIONS, DELETE_WORKFLOWS);
+        lateralGraph.addEdge(WORKFLOW_CREATE_ACTIONS, READ_WORKFLOWS);
 
         lateralGraph.addEdge(READ_WORKFLOWS, EXECUTE_WORKFLOWS);
         lateralGraph.addEdge(READ_WORKFLOWS, READ_HISTORY_WORKFLOWS);
@@ -330,6 +335,10 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(MANAGE_MODULES, MANAGE_ACTIONS);
         hierarchyGraph.addEdge(READ_MODULES, EXECUTE_ACTIONS);
         hierarchyGraph.addEdge(DELETE_MODULES, DELETE_ACTIONS);
+
+        hierarchyGraph.addEdge(MANAGE_WORKFLOWS, MANAGE_ACTIONS);
+        hierarchyGraph.addEdge(EXECUTE_WORKFLOWS, EXECUTE_ACTIONS);
+        hierarchyGraph.addEdge(DELETE_WORKFLOWS, DELETE_ACTIONS);
 
         lateralGraph.addEdge(DELETE_ACTIONS, READ_ACTIONS);
     }

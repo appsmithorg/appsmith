@@ -33,6 +33,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.workflows.helpers.WorkflowUtils;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -173,7 +175,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             // Or the Datasource doesn't exist.
             if (actionDTO.getPluginType() == PluginType.JS
                     || StringUtils.isEmpty(actionDTO.getDatasource().getId())
-                    || ModuleUtils.isModuleContext(actionDTO)) {
+                    || ModuleUtils.isModuleContext(actionDTO)
+                    || WorkflowUtils.isWorkflowContext(actionDTO)) {
                 return Mono.just(actionDTO);
             }
             return newPageService
@@ -270,6 +273,10 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             if (action.getModuleId() == null || action.getModuleId().isBlank()) {
                 throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.MODULE_ID);
             }
+        } else if (WorkflowUtils.isWorkflowContext(action)) {
+            if (action.getWorkflowId() == null || action.getWorkflowId().isBlank()) {
+                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKFLOW_ID);
+            }
         } else {
             super.validateCreatorId(action);
         }
@@ -320,6 +327,23 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             boolean includeJs) {
         return repository.findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
                 contextId, contextType, moduleInstanceId, permission, includeJs);
+    }
+
+    @Override
+    public Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission) {
+        return repository
+                .findByWorkflowId(workflowId, permission)
+                .filter(newAction -> {
+                    boolean unpublishedActionNotFromCollection = Objects.isNull(newAction.getUnpublishedAction())
+                            || StringUtils.isEmpty(
+                                    newAction.getUnpublishedAction().getCollectionId());
+                    boolean publishedActionNotFromCollection = Objects.isNull(newAction.getPublishedAction())
+                            || StringUtils.isEmpty(
+                                    newAction.getPublishedAction().getCollectionId());
+                    return unpublishedActionNotFromCollection && publishedActionNotFromCollection;
+                })
+                .flatMap(repository::archive)
+                .collectList();
     }
 
     @Override

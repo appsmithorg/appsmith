@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
 
@@ -29,4 +30,6 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
             String moduleInstanceId,
             AclPermission permission,
             boolean includeJs);
+
+    Flux<NewAction> findByWorkflowId(String workflowId, Optional<AclPermission> aclPermission);
 }
