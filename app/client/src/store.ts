@@ -25,11 +25,25 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   },
 });
 
+const cypressSpy = (action: any) => {};
+
+const cypressSpyMiddleWare = (store: any) => (next: any) => (action: any) => {
+  cypressSpy(action);
+  return next(action);
+};
+
+const middlewares = [sagaMiddleware, routeParamsMiddleware];
+
+if ((window as any).Cypress) {
+  middlewares.push(cypressSpyMiddleWare);
+  (window as any).cypressSpy = cypressSpy;
+}
+
 export default createStore(
   appReducer,
   composeWithDevTools(
     reduxBatch,
-    applyMiddleware(sagaMiddleware, routeParamsMiddleware),
+    applyMiddleware(...middlewares),
     reduxBatch,
     sentryReduxEnhancer,
   ),
@@ -39,11 +53,7 @@ export const testStore = (initialState: Partial<AppState>) =>
   createStore(
     appReducer,
     initialState,
-    compose(
-      reduxBatch,
-      applyMiddleware(sagaMiddleware, routeParamsMiddleware),
-      reduxBatch,
-    ),
+    compose(reduxBatch, applyMiddleware(...middlewares), reduxBatch),
   );
 
 // We don't want to run the saga middleware in tests, so exporting it from here
