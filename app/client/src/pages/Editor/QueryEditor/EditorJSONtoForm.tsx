@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import React, { useCallback } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
@@ -90,6 +90,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryResponseTabView from "./QueryResponseView";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -343,6 +344,8 @@ export function EditorJSONtoForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
+    useState<boolean>(false);
 
   const isChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
@@ -385,6 +388,31 @@ export function EditorJSONtoForm(props: Props) {
     !isExecutePermitted;
 
   const dispatch = useDispatch();
+
+  // These useEffects are used to open the response tab by default for page load queries
+  // as for page load queries, query response is available and can be shown in response tab
+  useEffect(() => {
+    // actionResponse and responseDisplayFormat is present only when query has response available
+    if (
+      responseDisplayFormat &&
+      !!responseDisplayFormat?.title &&
+      actionResponse &&
+      actionResponse.isExecutionSuccess &&
+      !showResponseOnFirstLoad
+    ) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+      setShowResponseOnFirstLoad(true);
+    }
+  }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
+
+  // When multiple page load queries exist, we want to response tab by default for all of them
+  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
+  useEffect(() => {
+    if (!!currentActionConfig?.id) {
+      setShowResponseOnFirstLoad(false);
+    }
+  }, [currentActionConfig?.id]);
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();

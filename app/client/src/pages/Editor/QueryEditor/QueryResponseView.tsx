@@ -5,7 +5,7 @@ import {
 } from "actions/debuggerActions";
 import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -142,8 +142,6 @@ function QueryResponseView({
 
   const panelRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
-  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
-    useState<boolean>(false);
   const [selectedControl, setSelectedControl] = useState(
     segmentedControlOptions[0]?.value,
   );
@@ -177,30 +175,6 @@ function QueryResponseView({
     responseDataTypes.findIndex(
       (dataType) => dataType.title === responseDisplayFormat?.title,
     );
-
-  // These useEffects are used to open the response tab by default for page load queries
-  // as for page load queries, query response is available and can be shown in response tab
-  useEffect(() => {
-    // output and responseDisplayFormat is present only when query has response available
-    if (
-      responseDisplayFormat &&
-      !!responseDisplayFormat?.title &&
-      output &&
-      !showResponseOnFirstLoad
-    ) {
-      dispatch(showDebugger(true));
-      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
-      setShowResponseOnFirstLoad(true);
-    }
-  }, [responseDisplayFormat, output, showResponseOnFirstLoad]);
-
-  // When multiple page load queries exist, we want to response tab by default for all of them
-  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
-  useEffect(() => {
-    if (!!currentActionConfig?.id) {
-      setShowResponseOnFirstLoad(false);
-    }
-  }, [currentActionConfig?.id]);
 
   // Query is executed even once during the session, show the response data.
   if (actionResponse) {
