@@ -19,6 +19,16 @@ export default [
     icon: "https://img.jsdelivr.com/github.com/NaturalIntelligence.png",
   },
   {
+    name: "svgTags",
+    description: "Library to generate SVG based tags for content and object",
+    url: "https://cdn.jsdelivr.net/gh/appsmithorg/forge@main/dist/svgTags.umd.js",
+    author: "Appsmith",
+    version: "1.0.0",
+    icon: "https://avatars.githubusercontent.com/u/67620218?s=200&v=4",
+    docsURL:
+      "https://github.com/appsmithorg/forge/tree/main/libraries/svgTags#svgtags",
+  },
+  {
     name: "jspdf",
     description: "PDF Document creation from JavaScript",
     author: "MrRio",
