@@ -9,7 +9,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any;
@@ -21,7 +21,7 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
   });
 
   it("1. Create dummy pages for navigating", () => {

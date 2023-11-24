@@ -5,13 +5,13 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Test Sidebar Collapse", function () {
   it("1. Sidebar collapse button should be there", () => {
     // First make sure that nav orientation is set to side
-    EditorNavigation.ViaSidebar(SidebarButton.Settings);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,

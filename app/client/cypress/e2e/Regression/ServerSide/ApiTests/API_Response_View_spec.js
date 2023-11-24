@@ -1,5 +1,5 @@
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -19,7 +19,7 @@ describe("Bug 14666: Api Response Test Functionality ", function () {
   });
 
   it("2. Test table loading when data is not in array format", function () {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
     apiPage.CreateAndFillApi(
       testdata.baseUrl + testdata.echoMethod,
       "TableTestAPI",

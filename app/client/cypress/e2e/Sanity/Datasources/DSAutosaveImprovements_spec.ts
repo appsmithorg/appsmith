@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../support/Pages/EditorNavigation";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
@@ -18,7 +18,7 @@ describe("Datasource Autosave Improvements Tests", function () {
       dataSources.SaveDSFromDialog(false);
 
       // assert that datasource is not saved and cant be seen in active ds list
-      EditorNavigation.ViaSidebar(SidebarButton.Data);
+      EditorNavigation.ViaSidebar(AppSidebarButton.Data);
       agHelper.AssertContains(dsName, "not.exist", dataSources._datasourceCard);
     });
   });
@@ -36,7 +36,7 @@ describe("Datasource Autosave Improvements Tests", function () {
       dataSources.SaveDSFromDialog(true);
 
       // assert that datasource is saved and can be seen in active ds list
-      EditorNavigation.ViaSidebar(SidebarButton.Data);
+      EditorNavigation.ViaSidebar(AppSidebarButton.Data);
       agHelper.AssertContains(dsName, "exist", dataSources._datasourceCard);
 
       // delete datasource

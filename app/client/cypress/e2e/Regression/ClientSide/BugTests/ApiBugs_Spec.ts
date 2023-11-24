@@ -18,7 +18,7 @@ import {
   createMessage,
 } from "../../../../support/Objects/CommonErrorMessages";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("API Bugs", function () {
@@ -63,7 +63,7 @@ describe("API Bugs", function () {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
   });
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {

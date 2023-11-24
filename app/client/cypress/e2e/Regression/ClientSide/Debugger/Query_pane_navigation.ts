@@ -9,7 +9,7 @@ import {
   debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "Query pane navigation", () => {
@@ -30,7 +30,7 @@ describe("excludeForAirgap", "Query pane navigation", () => {
     cy.get("@dsName").then(($dsName) => {
       ds2Name = $dsName as unknown as string;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
   });
 
   it("1. Switching between S3 query and firestore query from the debugger", () => {
@@ -50,7 +50,7 @@ describe("excludeForAirgap", "Query pane navigation", () => {
     cy.get("@dsName").then(($dsName) => {
       ds2Name = $dsName as unknown as string;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
     entityExplorer.CreateNewDsQuery(ds2Name);
     agHelper.UpdateCodeInput(
       ".t--actionConfiguration\\.formData\\.limitDocuments\\.data",

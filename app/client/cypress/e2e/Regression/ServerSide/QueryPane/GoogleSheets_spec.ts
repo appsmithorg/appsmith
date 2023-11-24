@@ -5,7 +5,7 @@ import {
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -47,7 +47,7 @@ describe(
       );
       agHelper.GetNClick(locators._visibleTextSpan("Don't save"));
       agHelper.Sleep();
-      EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
+      EditorNavigation.ViaSidebar(AppSidebarButton.Pages, true);
       agHelper.Sleep();
     });
   },

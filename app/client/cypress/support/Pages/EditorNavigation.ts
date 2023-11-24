@@ -2,7 +2,8 @@ import datasource from "../../locators/DatasourcesEditor.json";
 import { ObjectsRegistry as _ } from "../Objects/Registry";
 import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
-export enum SidebarButton {
+import { LeftPane } from "./IDE/LeftPane";
+export enum AppSidebarButton {
   Data = "Data",
   Pages = "Pages",
   Libraries = "Libraries",
@@ -18,18 +19,18 @@ export enum EntityType {
   Page = "Page",
 }
 
+export const AppSidebar = new Sidebar(Object.values(AppSidebarButton));
+const pagePaneListItemSelector = (name: string) =>
+  "//div[contains(@class, 't--entity-name')][text()='" + name + "']";
+
+export const PageLeftPane = new LeftPane(pagePaneListItemSelector, [
+  "Explorer",
+  "Widgets",
+]);
+
 class EditorNavigation {
-  sidebar: Sidebar;
-  ViaSidebar(button: SidebarButton, willFail?: boolean) {
-    this.sidebar.navigate(button, willFail);
-  }
-
-  constructor() {
-    this.sidebar = new Sidebar(Object.values(SidebarButton));
-  }
-
   NavigateToDatasource(name: string) {
-    this.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     cy.get(datasource.datasourceCard)
       .contains(name)
       .first()
@@ -45,49 +46,37 @@ class EditorNavigation {
     clickOptions?: Partial<ClickOptions>,
     hierarchy: string[] = [],
   ) {
-    this.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     _.EntityExplorer.NavigateToSwitcher("Explorer");
     _.EntityExplorer.ExpandCollapseEntity("Widgets");
     hierarchy.forEach((level) => {
       _.EntityExplorer.ExpandCollapseEntity(level);
     });
-    cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
-      .first()
-      .click(
-        clickOptions?.ctrlKey
-          ? { ctrlKey: true, force: true }
-          : { multiple: true, force: true },
-      );
+    PageLeftPane.selectItem(name, clickOptions);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   NavigateToQuery(name: string) {
-    this.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     _.EntityExplorer.NavigateToSwitcher("Explorer");
     _.EntityExplorer.ExpandCollapseEntity("Queries/JS");
-    cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
-      .first()
-      .click({ multiple: true, force: true });
+    PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   NavigateToJSObject(name: string) {
-    this.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     _.EntityExplorer.NavigateToSwitcher("Explorer");
     _.EntityExplorer.ExpandCollapseEntity("Queries/JS");
-    cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
-      .first()
-      .click({ multiple: true, force: true });
+    PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   NavigateToPage(name: string) {
-    this.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     _.EntityExplorer.NavigateToSwitcher("Explorer");
     _.EntityExplorer.ExpandCollapseEntity("Pages");
-    cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
-      .first()
-      .click({ multiple: true, force: true });
+    PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 

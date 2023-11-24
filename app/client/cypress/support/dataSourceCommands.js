@@ -1,7 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
-import EditorNavigation, { SidebarButton } from "./Pages/EditorNavigation";
+import EditorNavigation, { AppSidebarButton } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
@@ -58,7 +58,7 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
 });
 
 Cypress.Commands.add("NavigateToActiveDatasources", () => {
-  EditorNavigation.ViaSidebar(SidebarButton.Data);
+  EditorNavigation.ViaSidebar(AppSidebarButton.Data);
 });
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {

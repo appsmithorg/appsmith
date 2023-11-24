@@ -10,7 +10,7 @@ import { expandLoadMoreOptions, OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
@@ -72,7 +72,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.AssertElementExist(dataSources._newDatasourceContainer);
 
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -124,7 +124,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     dataSources.SaveDatasource();
 
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -152,7 +152,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
       dataSources.SaveDatasource();
 
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
     });
 
     propPane.MoveToTab("Style");

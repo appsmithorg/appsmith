@@ -10,7 +10,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate API Panel CSS Styles", function () {
@@ -67,7 +67,7 @@ describe("Validate API Panel CSS Styles", function () {
         //Create two datasource for testing binding prompt background-color
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
-        EditorNavigation.ViaSidebar(SidebarButton.Pages);
+        EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
         EditorNavigation.SelectEntityByName("test_styles", EntityType.Api);
         //Click on API search editor
         cy.get(ApiEditor.codeEditorWrapper).first().click();
@@ -84,7 +84,7 @@ describe("Validate API Panel CSS Styles", function () {
           .should("have.css", "background-color", hover);
         //Delete created test API
         cy.DeleteAPI();
-        EditorNavigation.ViaSidebar(SidebarButton.Pages);
+        EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
         cy.wait(2000);
         entityExplorer.AssertEntityAbsenceInExplorer("test_styles");
         //Delete two datasources

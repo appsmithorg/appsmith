@@ -1,6 +1,6 @@
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../support/Pages/EditorNavigation";
 
 let dsName;

@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { getWidgetSelector, WIDGET } from "../../locators/WidgetLocators";
-import EditorNavigation, { SidebarButton } from "./EditorNavigation";
+import EditorNavigation, { AppSidebarButton } from "./EditorNavigation";
 
 type FixedConversionOptions = "DESKTOP" | "MOBILE";
 
@@ -112,14 +112,14 @@ export class AutoLayout {
   }
 
   public VerifyIsAutoLayout() {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
     this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
     this.agHelper.GetNAssertContains(this.autoConvertButton, "fixed layout");
     this.agHelper.AssertElementExist(this.flexMainContainer);
   }
 
   public VerifyIsFixedLayout() {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
     this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
     cy.get(this.autoConvertButton).should("contain", "auto-layout");
     cy.get(this.flexMainContainer).should("not.exist");

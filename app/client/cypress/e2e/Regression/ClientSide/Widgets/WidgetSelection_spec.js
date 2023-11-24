@@ -1,5 +1,5 @@
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const dsl = require("../../../../fixtures/widgetSelection.json");
@@ -60,7 +60,7 @@ describe("Widget Selection", function () {
     // Hit CTRL +A
     cy.get("body").type("{ctrl}{a}");
     // Switch to the Canvas
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
     _.entityExplorer.NavigateToSwitcher("Widgets");
     // Widgets should not be selected
     cy.get(".t--multi-selection-box").should("not.exist");

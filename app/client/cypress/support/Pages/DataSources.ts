@@ -3,7 +3,7 @@ import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 
@@ -445,7 +445,7 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Data);
     Cypress._.times(2, () => {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
@@ -916,7 +916,7 @@ export class DataSources {
   }
 
   public AssertDSInActiveList(dsName: string | RegExp) {
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Data);
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
@@ -954,7 +954,7 @@ export class DataSources {
     queryName = "",
     cancelEditDs = true,
   ) {
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Data);
     cy.get(this._datasourceCard)
       .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
@@ -1464,7 +1464,7 @@ export class DataSources {
 
   // this initiates saving via the back button.
   public SaveDSFromDialog(save = true) {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages, true);
     this.AssertDatasourceSaveModalVisibilityAndSave(save);
   }
 

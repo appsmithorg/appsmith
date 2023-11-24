@@ -1,6 +1,6 @@
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");

@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const dataSources = ObjectsRegistry.DataSources,
@@ -13,7 +13,7 @@ describe(
     it("1. Create gsheet datasource, click on back button, discard popup should contain save and authorize", function () {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Google Sheets");
-      EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
+      EditorNavigation.ViaSidebar(AppSidebarButton.Pages, true);
       agHelper.AssertContains(
         "Save & Authorize",
         "exist",
@@ -25,7 +25,7 @@ describe(
       dataSources.CreatePlugIn("PostgreSQL");
       // Need to add values since without that, going back won't show any popup
       dataSources.FillPostgresDSForm();
-      EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
+      EditorNavigation.ViaSidebar(AppSidebarButton.Pages, true);
       agHelper.AssertContains(
         "Save",
         "exist",

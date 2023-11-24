@@ -1,6 +1,6 @@
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -20,8 +20,8 @@ describe("Dropdown Widget Check value does not reset on navigation", function ()
     cy.wait(200);
 
     //Navigate
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
 
     //Again navigate back to the widget
     EditorNavigation.SelectEntityByName("Select3", EntityType.Widget);

@@ -1,6 +1,6 @@
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
@@ -333,7 +333,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       // Click on sample(mock) user database.
       cy.get(datasource.mockUserDatabase).click();
 
-      EditorNavigation.ViaSidebar(SidebarButton.Data);
+      EditorNavigation.ViaSidebar(AppSidebarButton.Data);
 
       // Choose the first data source which consists of users keyword & Click on the "New query +"" button
       _.dataSources.CreateQueryFromActiveTab("Users");
