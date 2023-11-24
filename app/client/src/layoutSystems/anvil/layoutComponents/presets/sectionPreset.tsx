@@ -8,7 +8,7 @@ export const sectionPreset = (): LayoutProps[] => {
   return [
     {
       isDropTarget: true,
-      isPermanent: false,
+      isPermanent: true,
       layout: [],
       layoutId: generateReactKey(),
       layoutStyle: {},
