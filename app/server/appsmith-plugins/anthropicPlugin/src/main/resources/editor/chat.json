@@ -48,15 +48,26 @@
       "subtitle": "A list of messages comprising the conversation so far.",
       "propertyName": "messages",
       "isRequired": true,
-      "configProperty": "actionConfiguration.formData.messages",
+      "configProperty": "actionConfiguration.formData.messages.data",
       "controlType": "ARRAY_FIELD",
       "addMoreButtonLabel": "Add message",
+      "alternateViewTypes": ["json"],
       "schema": [
         {
           "label": "Role",
           "key": "role",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "Human OR Assistant"
+          "controlType": "DROP_DOWN", 
+          "initialValue": "Human",        
+          "options": [
+            {
+              "label": "Human",
+              "value": "Human"
+            },
+            {
+              "label": "Assistant",
+              "value": "Assistant"
+            }
+          ]
         },
         {
           "label": "Content",
