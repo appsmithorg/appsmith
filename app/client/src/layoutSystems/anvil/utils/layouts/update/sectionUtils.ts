@@ -20,6 +20,8 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getRenderMode } from "selectors/editorSelectors";
+import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
@@ -150,6 +152,7 @@ export function* addWidgetsToSection(
   let canvasWidgets = { ...allWidgets };
   const sectionProps = { ...section };
   let canvasProps = { ...canvas };
+  console.log("#### addWidgetsToSection", { sectionLayout, canvas });
   /**
    * Step 1: Split widgets into zones and non zones.
    *
@@ -189,7 +192,7 @@ export function* addWidgetsToSection(
       },
     };
   });
-
+  console.log("####", { zones, nonZones, section, canvas, sectionLayout });
   /**
    * Step 3: Create new zone and add to section.
    */
@@ -208,6 +211,7 @@ export function* addWidgetsToSection(
         canvasProps.widgetId,
         additionalWidgets,
       );
+    console.log("#### data", { data });
     canvasProps.children = [...canvasProps.children, data.zone.widgetId];
     sectionLayout = sectionComp.addChild(
       sectionLayout,
@@ -224,21 +228,16 @@ export function* addWidgetsToSection(
   }
 
   /**
-   * Step 4: Update section preset with the updated section layout.
-   */
-  // preset = sectionLayout;
-
-  /**
-   * Step 5: Update canvas widget with the updated preset.
+   * Step 4: Update canvas widget with the updated preset.
    */
   canvasProps.layout = [sectionLayout];
 
   /**
-   * Step 6: Establish relationship between section and canvas widget.
+   * Step 5: Establish relationship between section and canvas widget.
    */
   sectionProps.children = [canvasProps.widgetId];
   canvasProps.parentId = sectionProps.widgetId;
-
+  console.log("#### updated section", { sectionProps, canvasProps });
   return {
     canvasWidgets: {
       ...canvasWidgets,
@@ -247,4 +246,44 @@ export function* addWidgetsToSection(
     },
     section: sectionProps,
   };
+}
+
+export function* moveWidgetsToSection(
+  allWidgets: CanvasWidgetsReduxState,
+  movedWidgets: string[],
+  highlight: AnvilHighlightInfo,
+) {
+  let widgets: CanvasWidgetsReduxState = { ...allWidgets };
+
+  /**
+   * Step 1: Remove moved widgets from previous parents.
+   */
+  widgets = severTiesFromParents(widgets, movedWidgets);
+  console.log("#### update relationships", { widgets });
+  /**
+   * Step 2: Get the new Section and its Canvas.
+   */
+  const { canvasId } = highlight;
+  const canvas: FlattenedWidgetProps = widgets[canvasId];
+  if (!canvas.parentId) {
+    throw new Error(
+      "moveWidgetsToSection - Canvas is not a child of any widget",
+    );
+  }
+  const section: FlattenedWidgetProps = widgets[canvas.parentId];
+
+  /**
+   * Step 3: Add moved widgets to the section.
+   */
+  const { canvasWidgets } = yield call(
+    addWidgetsToSection,
+    widgets,
+    transformMovedWidgets(widgets, movedWidgets, highlight),
+    highlight,
+    section,
+    canvas,
+    canvas.layout[0],
+  );
+
+  return canvasWidgets;
 }

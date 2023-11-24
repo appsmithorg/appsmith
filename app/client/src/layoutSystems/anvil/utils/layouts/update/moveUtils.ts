@@ -155,11 +155,11 @@ export function addWidgetsToNewParent(
   /**
    * Step 1: Create WidgetLayoutProps structure for addition to new parent's layout.
    */
-  const newChildren: WidgetLayoutProps[] = movedWidgets.map((each: string) => ({
-    alignment: highlight.alignment,
-    widgetId: each,
-    widgetType: widgets[each].type,
-  }));
+  const newChildren: WidgetLayoutProps[] = transformMovedWidgets(
+    allWidgets,
+    movedWidgets,
+    highlight,
+  );
 
   /**
    * Step 2: Add widgets to preset of new parent at the drop position specified by the highlight.
@@ -181,4 +181,19 @@ export function addWidgetsToNewParent(
       layout: newLayout,
     },
   };
+}
+
+/**
+ * Transform movedWidgets (string[]) into WidgetLayoutProps[] structure.
+ */
+export function transformMovedWidgets(
+  allWidgets: CanvasWidgetsReduxState,
+  movedWidgets: string[],
+  highlight: AnvilHighlightInfo,
+): WidgetLayoutProps[] {
+  return movedWidgets.map((each: string) => ({
+    alignment: highlight.alignment,
+    widgetId: each,
+    widgetType: allWidgets[each].type,
+  }));
 }

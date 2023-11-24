@@ -121,13 +121,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     .join("")
     .toLowerCase()}`;
 
-  /**
-   * TODO: Remove widget type check when the Dnd for sections and zones is built.
-   */
-  const allowDrag =
-    !props.dragDisabled &&
-    shouldAllowDrag &&
-    !["SECTION_WIDGET", "ZONE_WIDGET"].includes(props.type);
+  const allowDrag = !props.dragDisabled && shouldAllowDrag;
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);
   const onDragStart: DragEventHandler = (e) => {
