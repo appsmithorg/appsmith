@@ -3,12 +3,8 @@ import { useSelector } from "react-redux";
 import { Flex } from "design-system";
 import styled from "styled-components";
 
-// import { getPagePermissions } from "selectors/editorSelectors";
 import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
-// import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-// import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-// import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import ExplorerJSCollectionEntity from "pages/Editor/Explorer/JSActions/JSActionEntity";
 
 const JSContainer = styled(Flex)`
@@ -24,13 +20,6 @@ const JSContainer = styled(Flex)`
 const JSSection = () => {
   const files = useSelector(selectFilesForExplorer);
   const activeActionId = useActiveAction();
-  // const pagePermissions = useSelector(getPagePermissions);
-  // const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  // const canCreateActions = getHasCreateActionPermission(
-  //   isFeatureEnabled,
-  //   pagePermissions,
-  // );
 
   return (
     <JSContainer

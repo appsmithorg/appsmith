@@ -102,12 +102,6 @@ function useRoutes(path: string): RouteReturnType[] {
       exact: true,
       path: `${path}${QUERIES_EDITOR_ID_PATH}`,
     },
-    // {
-    //   key: "JSEditor Collection",
-    //   component: JSEditor,
-    //   exact: true,
-    //   path: `${path}${JS_COLLECTION_EDITOR_PATH}`,
-    // },
     {
       key: "JSEditorList",
       component: JSBlankState,

@@ -3,13 +3,9 @@ import { useSelector } from "react-redux";
 import { Flex, Text } from "design-system";
 import styled from "styled-components";
 
-// import { getPagePermissions } from "selectors/editorSelectors";
 import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
-// import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-// import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-// import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {
@@ -24,13 +20,6 @@ const QueriesContainer = styled(Flex)`
 const QueriesSection = () => {
   const files = useSelector(selectFilesForExplorer);
   const activeActionId = useActiveAction();
-  // const pagePermissions = useSelector(getPagePermissions);
-  // const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  // const canCreateActions = getHasCreateActionPermission(
-  //   isFeatureEnabled,
-  //   pagePermissions,
-  // );
 
   return (
     <QueriesContainer
