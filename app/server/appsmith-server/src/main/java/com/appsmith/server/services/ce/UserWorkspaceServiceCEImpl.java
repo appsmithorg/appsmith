@@ -7,6 +7,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -409,13 +410,17 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Override
     public Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder() {
 
-        Mono<UserData> userDataMono = userDataService.getForCurrentUser().defaultIfEmpty(new UserData());
+        Mono<List<String>> workspaceIdsMono = userDataService
+                .getForCurrentUser()
+                .defaultIfEmpty(new UserData())
+                .map(userData -> userData.getRecentlyUsedEntityIds().stream()
+                        .map(RecentlyUsedEntityDTO::getWorkspaceId)
+                        .collect(Collectors.toList()));
 
-        return userDataMono.flatMap(userData -> workspaceService
+        return workspaceIdsMono.flatMap(workspaceIds -> workspaceService
                 .getAll(workspacePermission.getReadPermission())
                 // sort transformation
-                .transform(domainFlux ->
-                        sortDomainsBasedOnOrderedDomainIds(domainFlux, userData.getRecentlyUsedWorkspaceIds()))
+                .transform(domainFlux -> sortDomainsBasedOnOrderedDomainIds(domainFlux, workspaceIds))
                 // collect to list to keep the order of the workspaces
                 .collectList());
     }

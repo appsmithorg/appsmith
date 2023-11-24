@@ -1,16 +1,11 @@
 package com.appsmith.server.dtos;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.data.annotation.Transient;
+import com.appsmith.server.dtos.ce.RecentlyUsedEntityCE_DTO;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.List;
-
-@Data
-@AllArgsConstructor
-public class RecentlyUsedEntityDTO {
-    List<String> applicationIds;
-
-    @Transient
-    String workspaceId;
-}
+@Getter
+@Setter
+@NoArgsConstructor
+public class RecentlyUsedEntityDTO extends RecentlyUsedEntityCE_DTO {}

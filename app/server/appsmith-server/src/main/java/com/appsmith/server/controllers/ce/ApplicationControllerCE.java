@@ -175,7 +175,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
             @RequestParam(required = false) String workspaceId) {
         log.debug("Going to get all applications by workspace id {}", workspaceId);
-        return service.findByWorkspaceIdAndRecentlyUsedOrder(workspaceId)
+        return service.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(workspaceId)
                 .collectList()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }

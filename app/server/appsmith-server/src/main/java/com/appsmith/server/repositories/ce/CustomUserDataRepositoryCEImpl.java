@@ -2,9 +2,11 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.QRecentlyUsedEntityDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.google.common.collect.Lists;
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -47,6 +49,9 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         if (!CollectionUtils.isEmpty(applicationIds)) {
             update = update.pullAll(fieldName(QUserData.userData.recentlyUsedAppIds), applicationIds.toArray());
         }
+        update.pull(
+                fieldName(QUserData.userData.recentlyUsedEntityIds),
+                new BasicDBObject(fieldName(QRecentlyUsedEntityDTO.recentlyUsedEntityDTO.workspaceId), workspaceId));
         return mongoOperations.updateFirst(
                 query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class);
     }

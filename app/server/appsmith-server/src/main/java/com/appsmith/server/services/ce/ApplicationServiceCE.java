@@ -29,7 +29,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
-    Flux<Application> findByWorkspaceIdAndRecentlyUsedOrder(String workspaceId);
+    Flux<Application> findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(String workspaceId);
 
     Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 

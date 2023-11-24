@@ -1,10 +1,12 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -267,6 +269,15 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                     // set recently used application ids
                     userData.setRecentlyUsedAppIds(
                             addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 40));
+                    List<RecentlyUsedEntityDTO> recentlyUsedEntities = reorderWorkspacesInRecentlyUsedOrderForUser(
+                            userData.getRecentlyUsedEntityIds(), application.getWorkspaceId(), 20);
+
+                    if (!CollectionUtils.isNullOrEmpty(recentlyUsedEntities)) {
+                        RecentlyUsedEntityDTO latest = recentlyUsedEntities.get(0);
+                        // Add the current applicationId to the list
+                        addIdToRecentList(latest.getApplicationIds(), application.getId(), 10);
+                    }
+                    userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
                     return Mono.zip(
                             analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
                             repository.save(userData));
@@ -274,7 +285,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .map(Tuple2::getT2);
     }
 
-    private List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
+    protected List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
         if (srcIdList == null) {
             srcIdList = new ArrayList<>();
         }
@@ -284,6 +295,37 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         if (srcIdList.size() > 1) {
             CollectionUtils.removeDuplicates(srcIdList);
         }
+        // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
+        if (srcIdList.size() > maxSize) {
+            srcIdList = srcIdList.subList(0, maxSize);
+        }
+        return srcIdList;
+    }
+
+    protected List<RecentlyUsedEntityDTO> reorderWorkspacesInRecentlyUsedOrderForUser(
+            List<RecentlyUsedEntityDTO> srcIdList, String workspaceId, int maxSize) {
+        if (srcIdList == null) {
+            srcIdList = new ArrayList<>();
+        }
+        if (!StringUtils.hasLength(workspaceId)) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID);
+        }
+        RecentlyUsedEntityDTO existingEntity = null;
+        for (RecentlyUsedEntityDTO entityDTO : srcIdList) {
+            if (entityDTO.getWorkspaceId().equals(workspaceId)) {
+                existingEntity = entityDTO;
+                break;
+            }
+        }
+        if (existingEntity == null) {
+            existingEntity = new RecentlyUsedEntityDTO();
+            existingEntity.setWorkspaceId(workspaceId);
+        } else {
+            // Remove duplicates
+            srcIdList.remove(existingEntity);
+        }
+        CollectionUtils.putAtFirst(srcIdList, existingEntity);
+
         // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
         if (srcIdList.size() > maxSize) {
             srcIdList = srcIdList.subList(0, maxSize);
@@ -304,6 +346,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      */
     @Override
     public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
+
         return applicationRepository
                 .getAllApplicationId(workspaceId)
                 .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
