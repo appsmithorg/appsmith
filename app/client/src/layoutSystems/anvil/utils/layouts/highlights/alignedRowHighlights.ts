@@ -228,7 +228,7 @@ export function getHighlightsForWidgets(
       if (
         alignment === FlexLayerAlignment.Center &&
         alignmentInfo[FlexLayerAlignment.Start].dimension.width +
-          alignmentInfo[FlexLayerAlignment.Start].dimension.width >
+          alignmentInfo[FlexLayerAlignment.End].dimension.width >
           (layoutDimension.width * 2) / 3
       )
         return;
