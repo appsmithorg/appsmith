@@ -397,7 +397,7 @@ Cypress.Commands.add("DeletepageFromSideBar", () => {
 });
 
 Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
-  agHelper.WaitUntilAllToastsDisappear();
+  // agHelper.WaitUntilAllToastsDisappear();
   //Since these are coming in every self-hosted 1st time login, commenting for CI runs
   // agHelper.AssertElementAbsence(
   //   locators._specificToast("There was an unexpected error"),

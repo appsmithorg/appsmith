@@ -39,18 +39,6 @@ describe("Boolean & Enum Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable");
     dataSources.RunQuery();
 
-    //Select query:
-    dataSources.createQueryWithDatasourceSchemaTemplate(
-      dsName,
-      "public.boolenumtypes",
-      "Select",
-    );
-    agHelper.RenameWithInPane("selectRecords");
-    dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-
     //Other queries
     query = `INSERT INTO public."boolenumtypes" ("workingday", "areweworking") VALUES ({{Insertworkingday.selectedOptionValue}}, {{Insertareweworking.isSwitchedOn}})`;
     dataSources.CreateQueryFromOverlay(dsName, query, "insertRecord");
@@ -72,6 +60,18 @@ describe("Boolean & Enum Datatype tests", function () {
 
     query = `drop type weekdays`;
     dataSources.CreateQueryFromOverlay(dsName, query, "dropEnum");
+
+    //Select query:
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.boolenumtypes",
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
