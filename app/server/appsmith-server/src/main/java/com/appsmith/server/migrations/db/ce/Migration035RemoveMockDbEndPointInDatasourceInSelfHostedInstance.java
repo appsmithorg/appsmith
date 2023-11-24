@@ -42,8 +42,8 @@ public class Migration035RemoveMockDbEndPointInDatasourceInSelfHostedInstance {
         // localhost, so that the existing queries do not break. And the data stored in the db by users is not lost
 
         // APPSMITH_ENABLE_EMBEDDED_DB && isCloudHosting
-        String envValue = System.getenv("APPSMITH_ENABLE_EMBEDDED_DB");
-        if (Boolean.FALSE.equals(commonConfig.isCloudHosting()) && StringUtils.isNotEmpty(envValue)) {
+        boolean isEmbeddedDbEnabled = !"0".equals(System.getenv("APPSMITH_ENABLE_EMBEDDED_DB"));
+        if (isEmbeddedDbEnabled && Boolean.FALSE.equals(commonConfig.isCloudHosting())) {
 
             mongoTemplate.updateMulti(
                     query(where("datasourceConfiguration.endpoints.host").is("mockdb.internal.appsmith.com")),
