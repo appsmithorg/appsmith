@@ -294,7 +294,10 @@ Cypress.Commands.add("CreateNewAppInNewWorkspace", () => {
     });
   });
   //cy.get("#sidebar").should("be.visible");
-  assertHelper.AssertReduxLoad();
+
+  // Get the Redux store & validating
+  assertHelper.AssertReduxLoad("SAVE_PAGE_SUCCESS");
+
   // assertHelper.AssertNetworkResponseData("@getPluginForm"); //for auth rest api
   // assertHelper.AssertNetworkResponseData("@getPluginForm"); //for graphql
 

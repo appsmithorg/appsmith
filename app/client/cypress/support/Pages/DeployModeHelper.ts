@@ -45,12 +45,15 @@ export class DeployMode {
     //this.agHelper.Sleep(); //wait for elements settle!
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
-    this.assertHelper.AssertReduxLoad();
+    //this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertReduxLoad("EXECUTE_PAGE_LOAD_ACTIONS");
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page
     //cy.get("@windowDeployStub").should("be.calledOnce");
-    this.assertHelper.AssertReduxLoad();
+    //this.assertHelper.AssertDocumentReady();
+    this.assertHelper.AssertReduxLoad("EXECUTE_PAGE_LOAD_ACTIONS");
+
     cy.log("Pagename: " + localStorage.getItem("PageName"));
 
     //Below url check throwing error - hence commenting!
@@ -68,8 +71,8 @@ export class DeployMode {
         this.locator._specificToast("has failed"),
       ); //Validating bug - 14141 + 14252
     this.assertHelper.AssertNetworkStatus("@viewPage");
-    this.assertHelper.AssertReduxLoad();
-    // this.agHelper.Sleep(2000); //for Depoy page to settle!
+    this.assertHelper.AssertReduxLoad("EXECUTE_PAGE_LOAD_ACTIONS");
+    //this.agHelper.Sleep(2000); //for Depoy page to settle loading!
     // });
   }
 
@@ -148,7 +151,7 @@ export class DeployMode {
   }
 
   public NavigateBacktoEditor(toastToCheck = "") {
-    this.assertHelper.AssertReduxLoad();
+    this.assertHelper.AssertReduxLoad("");
     this.agHelper.GetNClick(this.locator._backToEditor, 0, true);
     this.agHelper.Sleep();
     localStorage.setItem("inDeployedMode", "false");

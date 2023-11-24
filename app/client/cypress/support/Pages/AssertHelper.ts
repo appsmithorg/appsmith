@@ -32,37 +32,41 @@ export class AssertHelper extends ReusableHelper {
     //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
   }
 
-  public AssertReduxLoad() {
+  public AssertReduxLoad(type: string) {
     this.Sleep(500);
-    const timeout = Cypress.config("pageLoadTimeout");
-    const checkLoadingState = () => {
-      return cy
-        .window()
-        .its("store")
-        .invoke("getState")
-        .then(async (state) => {
-          const loadingStates = state.ui.editor.loadingStates;
+    const timeout = Cypress.config("pageLoadTimeout"); // Set your desired timeout value
+    // const checkLoadingState = () => {
+    //   return cy
+    //     .window()
+    //     .its("store")
+    //     .invoke("getState")
+    //     .then((state) => {
+    //       const loadingStates = state.ui.editor.loadingStates;
 
-          cy.wrap(loadingStates).should("deep.include", { loading: false });
+    //       cy.wrap(loadingStates).should("deep.include", { loading: false });
 
-          const actions = state.actions || [];
-          const actionPromises = actions.map((action: any) => {
-            return cy.wrap(action.isLoading).then((isLoading) => {
-              expect(isLoading).to.eq(false);
-            });
-          });
+    //       const actions = state.actions || [];
+    //       const actionPromises = actions.map((action: any) => {
+    //         return cy.wrap(action.isLoading).then((isLoading) => {
+    //           expect(isLoading).to.eq(false);
+    //         });
+    //       });
 
-          return Promise.all(actionPromises).then(() => {
-            return loadingStates; // Return loadingStates after all promises are resolved
-          });
-        });
-    };
-    cy.waitUntil(() => checkLoadingState().then(() => true), {
-      timeout,
-      interval: 1000,
-      errorMsg:
-        "Loading state did not become false within the specified timeout.",
+    //       return Promise.all(actionPromises).then(() => {
+    //         return loadingStates; // Return loadingStates after all promises are resolved
+    //       });
+    //     });
+    // };
+    // cy.waitUntil(() => checkLoadingState().then(() => true), {
+    //   timeout,
+    //   interval: 1000,
+    //   errorMsg:
+    //     "Loading state did not become false within the specified timeout.",
+    // });
+    cy.get("@reduxCypressSpy").should("have.been.calledWith", {
+      type: type,
     });
+
     this.Sleep(500);
   }
 

@@ -55,6 +55,7 @@ export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
     window.localStorage.setItem("updateDismissed", "true");
+    cy.spy(window, "cypressSpy").as("reduxCypressSpy");
   });
 };
 
