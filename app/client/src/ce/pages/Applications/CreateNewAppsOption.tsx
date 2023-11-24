@@ -52,6 +52,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { fetchPlugins } from "actions/pluginActions";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import localStorage from "utils/localStorage";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -232,10 +233,26 @@ const CreateNewAppsOption = ({
   };
 
   const onClickStartWithData = () => {
-    // fetch plugins information to show list of all plugins
-    if (isEnabledForStartWithData) {
-      dispatch(fetchPlugins());
-      setUseType(START_WITH_TYPE.DATA);
+    const devEnabled = localStorage.getItem(
+      "ab_onboarding_flow_start_with_data_dev_only_enabled",
+    );
+    if (devEnabled) {
+      // fetch plugins information to show list of all plugins
+      if (isEnabledForStartWithData) {
+        dispatch(fetchPlugins());
+        setUseType(START_WITH_TYPE.DATA);
+      }
+    } else {
+      if (application) {
+        AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
+        dispatch(
+          firstTimeUserOnboardingInit(
+            application.id,
+            application.defaultPageId as string,
+            "datasources/NEW",
+          ),
+        );
+      }
     }
   };
 
