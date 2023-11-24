@@ -792,6 +792,7 @@ Cypress.Commands.add("changeButtonColor", (buttonColor) => {
     .click({ force: true })
     .clear()
     .type(buttonColor, { delay: 0 });
+  assertHelper.AssertReduxLoad();
   deployMode.DeployApp();
   cy.get(widgetsPage.widgetBtn).should(
     "have.css",
