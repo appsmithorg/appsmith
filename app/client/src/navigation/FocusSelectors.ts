@@ -39,7 +39,9 @@ export const getCurrentAppUrl = (path: string): string | undefined => {
   }
 };
 
-export const getSelectedQueryId = (path: string): string | undefined => {
+export const getSelectedQueryId = (
+  path: string,
+): { id: string; type: string } | undefined => {
   const match = matchPath<{ queryId?: string; apiId?: string }>(path, [
     // Queries
     BUILDER_PATH_DEPRECATED + QUERIES_EDITOR_ID_PATH,
@@ -55,7 +57,15 @@ export const getSelectedQueryId = (path: string): string | undefined => {
     BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
   ]);
   if (!match) return undefined;
-  return match.params.queryId || match.params.apiId;
+  const { apiId, queryId } = match.params;
+  if (!queryId || !apiId) {
+    return undefined;
+  }
+  const type = apiId ? "API" : "QUERY";
+  return {
+    type,
+    id: apiId || queryId,
+  };
 };
 
 export const getSelectedJSObjectId = (path: string): string | undefined => {
