@@ -37,7 +37,6 @@ export const deriveAlignedRowHighlights =
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
-    isReorderingWidgets: boolean,
   ): HighlightPayload => {
     const { layout } = layoutProps;
 

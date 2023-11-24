@@ -53,7 +53,6 @@ export const deriveRowHighlights =
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
-    isReorderingWidgets: boolean,
   ): HighlightPayload => {
     /**
      * Step 0: Perform initial checks before calculating highlights.
@@ -117,7 +116,6 @@ export const deriveRowHighlights =
         draggedWidgets,
         layoutOrder,
         parentDropTargetId,
-        isReorderingWidgets,
         getDimensions,
       );
     }
@@ -350,7 +348,6 @@ export function getHighlightsForLayoutRow(
   draggedWidgets: DraggedWidget[],
   layoutOrder: string[],
   parentDropTargetId: string,
-  isReorderingWidgets: boolean,
   getDimensions: GetDimensions,
 ): HighlightPayload {
   let highlights: AnvilHighlightInfo[] = [];
@@ -385,7 +382,7 @@ export function getHighlightsForLayoutRow(
         canvasId,
         [...layoutOrder, layout[index].layoutId],
         parentDropTargetId,
-      )(positions, draggedWidgets, isReorderingWidgets);
+      )(positions, draggedWidgets);
 
     if (skipEntity) {
       /**

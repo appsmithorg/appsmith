@@ -33,7 +33,6 @@ export const deriveColumnHighlights =
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
-    isReorderingWidgets: boolean,
   ): HighlightPayload => {
     const { layoutStyle } = layoutProps;
 
@@ -61,7 +60,6 @@ export const deriveColumnHighlights =
       layoutOrder,
       baseHighlight,
       parentDropTarget,
-      isReorderingWidgets,
       getInitialHighlights,
       getHighlightsForLayouts,
       getHighlightsForWidgets,

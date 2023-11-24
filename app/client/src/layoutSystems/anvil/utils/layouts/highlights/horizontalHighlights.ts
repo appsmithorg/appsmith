@@ -124,7 +124,6 @@ export function getHighlightsForLayouts(
   canvasId: string,
   layoutOrder: string[],
   parentDropTargetId: string,
-  isReorderingWidgets: boolean,
   getDimensions: GetDimensions,
   hasAlignments: boolean,
   hasFillWidget = false,
@@ -164,7 +163,7 @@ export function getHighlightsForLayouts(
         canvasId,
         [...layoutOrder, layouts[index].layoutId],
         parentDropTargetId,
-      )(widgetPositions, draggedWidgets, isReorderingWidgets);
+      )(widgetPositions, draggedWidgets);
 
     if (skipEntity) {
       /**
