@@ -52,6 +52,11 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { fetchPlugins } from "actions/pluginActions";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
+import type { Plugin } from "api/PluginApi";
+import { PluginType } from "entities/Action";
+import DataSourceEditor from "pages/Editor/DataSourceEditor";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -195,6 +200,10 @@ const CreateNewAppsOption = ({
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
+  const selectedPlugin: Plugin | undefined = useSelector((state) =>
+    getPlugin(state, createNewAppPluginId || ""),
+  );
+
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(
       state,
@@ -436,27 +445,27 @@ const CreateNewAppsOption = ({
           </Flex>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
-        createNewAppPluginId ? (
-          <div>{createNewAppPluginId}</div>
-        ) : (
-          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-            <Header
-              subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
-              title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
-            />
-            <WithDataWrapper>
-              <CreateNewDatasourceTab />
-            </WithDataWrapper>
-          </Flex>
-        )
-      ) : useType === START_WITH_TYPE.DATA ? (
-        createNewAppPluginId ? (
-          <div>{createNewAppPluginId}</div>
-        ) : (
+        <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+          <Header
+            subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+            title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+          />
           <WithDataWrapper>
-            <CreateNewDatasourceTab />
+            {createNewAppPluginId ? (
+              selectedPlugin?.type === PluginType.SAAS ? (
+                <div>Load Gsheets</div>
+              ) : (
+                <DataSourceEditor
+                  applicationId={currentApplicationIdForCreateNewApp}
+                  datasourceId={TEMP_DATASOURCE_ID}
+                  pageId={application?.defaultPageId}
+                />
+              )
+            ) : (
+              <CreateNewDatasourceTab />
+            )}
           </WithDataWrapper>
-        )
+        </Flex>
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">
