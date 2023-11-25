@@ -9,20 +9,22 @@ import {
   getIsFetchingPackages,
 } from "@appsmith/selectors/packageSelectors";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
-import { getWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { hasManageWorkspacePackagePermission } from "@appsmith/utils/permissionHelpers";
 import { createPackageFromWorkspace } from "@appsmith/actions/packageActions";
 import type { Package } from "@appsmith/constants/PackageConstants";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
 
 export interface PackageCardListProps {
   isMobile: boolean;
   workspaceId: string;
   packages?: Package[];
+  workspace: Workspace;
 }
 
 function PackageCardList({
   isMobile,
   packages = [],
+  workspace,
   workspaceId,
 }: PackageCardListProps) {
   const dispatch = useDispatch();
@@ -31,28 +33,25 @@ function PackageCardList({
     getIsCreatingPackage(state, workspaceId),
   );
   const isFetchingPackages = useSelector(getIsFetchingPackages);
-  const userWorkspaces = useSelector(getWorkspaces);
   const onCreateNewPackage = useCallback(() => {
     dispatch(createPackageFromWorkspace({ workspaceId }));
   }, [createPackageFromWorkspace, dispatch, workspaceId]);
-
-  const currentUserWorkspace = userWorkspaces.find(
-    (w) => w.workspace.id === workspaceId,
-  );
-  const workspace = currentUserWorkspace?.workspace;
   const canManagePackages = hasManageWorkspacePackagePermission(
     workspace?.userPermissions,
   );
 
   if (!showQueryModule || isFetchingPackages || !canManagePackages) return null;
 
+  const packagesOfWorkspace = packages.filter(
+    (p) => p.workspaceId === workspaceId,
+  );
   return (
     <PackageCardListRenderer
       createPackage={onCreateNewPackage}
       isCreatingPackage={isCreatingPackage}
       isFetchingPackages={isFetchingPackages}
       isMobile={isMobile}
-      packages={packages}
+      packages={packagesOfWorkspace}
       workspaceId={workspaceId}
     />
   );

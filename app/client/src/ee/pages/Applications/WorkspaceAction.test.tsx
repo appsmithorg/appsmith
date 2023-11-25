@@ -44,6 +44,7 @@ const DEFAULT_USER_WORKSPACES = [
         applicationVersion: 1,
         pages: [],
         slug: "app1",
+        new: false,
       },
     ],
     users: [],
@@ -111,8 +112,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -132,8 +137,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -153,8 +162,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -176,8 +189,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -199,8 +216,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -235,8 +256,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={onCreateNewAppMock}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -269,8 +294,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -309,8 +338,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -346,8 +379,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -381,8 +418,12 @@ describe("WorkspaceAction", () => {
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <WorkspaceAction
+            applications={DEFAULT_USER_WORKSPACES[0].applications}
+            enableImportExport
             isMobile={false}
             onCreateNewApplication={jest.fn()}
+            setSelectedWorkspaceIdForImportApplication={jest.fn()}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>

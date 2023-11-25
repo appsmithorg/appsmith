@@ -106,6 +106,7 @@ describe("PackageCardList", () => {
           <PackageCardList
             isMobile={false}
             packages={DEFAULT_PACKAGE_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -127,6 +128,7 @@ describe("PackageCardList", () => {
           <PackageCardList
             isMobile={false}
             packages={DEFAULT_PACKAGE_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -151,6 +153,7 @@ describe("PackageCardList", () => {
           <PackageCardList
             isMobile={false}
             packages={DEFAULT_PACKAGE_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -172,6 +175,7 @@ describe("PackageCardList", () => {
           <PackageCardList
             isMobile={false}
             packages={DEFAULT_PACKAGE_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>

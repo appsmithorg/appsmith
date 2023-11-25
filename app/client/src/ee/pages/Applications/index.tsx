@@ -3,18 +3,8 @@ import * as CE_Applications from "ce/pages/Applications";
 import { Applications as CE_AppClass } from "ce/pages/Applications";
 import React from "react";
 import { connect } from "react-redux";
-import MediaQuery from "react-responsive";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
-import {
-  createMessage,
-  SEARCH_APPS,
-  SEARCH_APPS_AND_PACKAGES,
-} from "@appsmith/constants/messages";
 import type { AppState } from "@appsmith/reducers";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
-import SubHeader from "pages/common/SubHeader";
-import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
-import PageWrapper from "pages/common/PageWrapper";
 import { fetchAllPackages } from "@appsmith/actions/packageActions";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
@@ -47,10 +37,6 @@ export class Applications extends CE_AppClass<
   }
 
   public render() {
-    const searchPlaceholder = this.props.showQueryModule
-      ? SEARCH_APPS_AND_PACKAGES
-      : SEARCH_APPS;
-
     return this.props.currentApplicationIdForCreateNewApp ? (
       <CreateNewAppsOption
         currentApplicationIdForCreateNewApp={
@@ -59,29 +45,10 @@ export class Applications extends CE_AppClass<
         onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
       />
     ) : (
-      <PageWrapper displayName="Applications">
-        <CE_Applications.LeftPane
-          isBannerVisible={this.props.showWarningBanner}
-        />
-        <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
-          {(matches: boolean) => (
-            <CE_Applications.ApplicationsWrapper isMobile={matches}>
-              <SubHeader
-                isBannerVisible={this.props.showWarningBanner}
-                search={{
-                  placeholder: createMessage(searchPlaceholder),
-                  queryFn: this.props.searchApplications,
-                  defaultValue: this.props.searchKeyword,
-                }}
-              />
-              <CE_Applications.ApplicationsSection
-                searchKeyword={this.props.searchKeyword}
-              />
-              <RepoLimitExceededErrorModal />
-            </CE_Applications.ApplicationsWrapper>
-          )}
-        </MediaQuery>
-      </PageWrapper>
+      <CE_Applications.ApplictionsMainPage
+        searchApplications={this.props.searchApplications}
+        searchKeyword={this.props.searchKeyword}
+      />
     );
   }
 }

@@ -13,10 +13,7 @@ import {
   MenuTrigger,
 } from "design-system";
 
-import {
-  getIsCreatingApplicationByWorkspaceId,
-  getUserApplicationsWorkspacesList,
-} from "@appsmith/selectors/applicationSelectors";
+import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import { createPackageFromWorkspace } from "@appsmith/actions/packageActions";
 import { getIsCreatingPackage } from "@appsmith/selectors/packageSelectors";
@@ -36,7 +33,7 @@ const StyledCreateNewButton = styled(Button)`
 `;
 
 function WorkspaceAction(props: CE_WorkspaceActionProps) {
-  const { isMobile, onCreateNewApplication, workspaceId } = props;
+  const { isMobile, onCreateNewApplication, workspace, workspaceId } = props;
 
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const dispatch = useDispatch();
@@ -46,10 +43,6 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
   );
   const isCreatingPackage = useSelector((state) =>
     getIsCreatingPackage(state, workspaceId),
-  );
-  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
-  const currentUserWorkspace = userWorkspaces.find(
-    (w) => w.workspace.id === workspaceId,
   );
 
   const openActionMenu = useCallback(() => {
@@ -64,9 +57,7 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
     dispatch(createPackageFromWorkspace({ workspaceId }));
   }, [dispatch, createPackageFromWorkspace, workspaceId]);
 
-  if (!currentUserWorkspace) return null;
-
-  const { workspace } = currentUserWorkspace;
+  if (!workspace) return null;
 
   const hasCreateNewApplicationPermission =
     hasCreateNewAppPermission(workspace?.userPermissions) && !isMobile;
