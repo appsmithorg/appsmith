@@ -112,7 +112,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import ApplicationsSubHeader from "pages/common/SubHeader";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import { getPackagesOfWorkspace } from "@appsmith/selectors/packageSelectors";
+import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -747,6 +747,7 @@ export function ApplicationsSection(props: any) {
             <PackageCardList
               isMobile={isMobile}
               packages={packages}
+              workspace={activeWorkspace}
               workspaceId={activeWorkspace.id}
             />
           )}
@@ -778,7 +779,7 @@ export const ApplictionsMainPage = (props: any) => {
   const isFetchingWorkspaces = useSelector(getIsFetchingWorkspaces);
   const fetchedWorkspaces = useSelector(getFetchedWorkspaces);
   const fetchedApplications = useSelector(getApplicationsOfWorkspace);
-  const fetchedPackages = useSelector(getPackagesOfWorkspace);
+  const fetchedPackages = useSelector(getPackagesList);
 
   let workspaces: any;
   if (!isFetchingWorkspaces) {
