@@ -31,6 +31,7 @@ export function* createZoneAndAddWidgets(
    * Step 1: Create Zone widget.
    */
   const zoneProps: WidgetProps = {
+    borderRadius: "0.375rem",
     bottomRow: 10,
     children: [],
     isLoading: false,
