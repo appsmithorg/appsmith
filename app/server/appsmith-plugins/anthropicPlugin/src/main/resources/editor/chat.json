@@ -17,6 +17,7 @@
       "options": [],
       "placeholderText": "All models will be fetched.",
       "fetchOptionsConditionally": true,
+      "setFirstOptionAsDefault": true,
       "alternateViewTypes": ["json"],
       "conditionals": {
         "enable": "{{true}}",
