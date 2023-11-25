@@ -22,6 +22,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
+  Icon,
   Menu,
   MenuContent,
   MenuItem,
@@ -245,6 +246,7 @@ export function PageHeader(props: PageHeaderProps) {
   const queryParams = new URLSearchParams(location.search);
   const isMobile = useIsMobileDevice();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [showMobileSearchBar, setShowMobileSearchBar] = useState(false);
   const [isProductUpdatesModalOpen, setIsProductUpdatesModalOpen] =
     useState(false);
   const tenantConfig = useSelector(getTenantConfig);
@@ -273,9 +275,17 @@ export function PageHeader(props: PageHeaderProps) {
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
 
-  return (
-    <>
-      <Banner />
+  function MobileSearchBar() {
+    const MobileSearchInput = styled(SearchInput)`
+      span {
+        display: none;
+      }
+      input {
+        border: none !important;
+        padding: 0 0 0 4px !important;
+      }
+    `;
+    return (
       <StyledPageHeader
         data-testid="t--appsmith-page-header"
         hideShadow={props.hideShadow || false}
@@ -283,28 +293,91 @@ export function PageHeader(props: PageHeaderProps) {
         isMobile={isMobile}
         showSeparator={props.showSeparator || false}
       >
-        <HeaderSection>
-          {tenantConfig.brandLogoUrl && (
-            <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
-              <img
-                alt="Logo"
-                className="h-6"
-                src={getAssetUrl(tenantConfig.brandLogoUrl)}
+        <div className="flex items-center pl-4 w-full">
+          <Icon className="!text-black !mr-2" name="search" size={"md"} />
+          <MobileSearchInput
+            data-testid="t--application-search-input"
+            defaultValue=""
+            isDisabled={isFetchingApplications}
+            onChange={noop}
+            placeholder={""}
+          />
+          <Button
+            className="!mr-2"
+            isIconButton
+            kind="tertiary"
+            onClick={() => setShowMobileSearchBar(false)}
+            size="md"
+            startIcon="close-x"
+          />
+        </div>
+      </StyledPageHeader>
+    );
+  }
+
+  function MainSearchBar() {
+    return (
+      <StyledPageHeader
+        data-testid="t--appsmith-page-header"
+        hideShadow={props.hideShadow || false}
+        isBannerVisible={showBanner && (isHomePage || isLicensePage)}
+        isMobile={isMobile}
+        showSeparator={props.showSeparator || false}
+      >
+        <div className="flex items-center">
+          {isMobile &&
+            (!isMobileSidebarOpen ? (
+              <Button
+                className="!mr-2"
+                isIconButton
+                kind="tertiary"
+                onClick={() => setIsMobileSidebarOpen(true)}
+                size={"md"}
+                startIcon="hamburger"
               />
-            </Link>
-          )}
-        </HeaderSection>
-        {!isCreateNewAppFlow && (
-          <SearchContainer isMobile={isMobile}>
-            <SearchInput
-              data-testid="t--application-search-input"
-              defaultValue=""
-              isDisabled={isFetchingApplications}
-              onChange={noop}
-              placeholder={""}
+            ) : (
+              <Button
+                className="!mr-2"
+                isIconButton
+                kind="tertiary"
+                onClick={() => setIsMobileSidebarOpen(false)}
+                size="md"
+                startIcon="close-x"
+              />
+            ))}
+
+          <HeaderSection>
+            {tenantConfig.brandLogoUrl && (
+              <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
+                <img
+                  alt="Logo"
+                  className="h-6"
+                  src={getAssetUrl(tenantConfig.brandLogoUrl)}
+                />
+              </Link>
+            )}
+          </HeaderSection>
+        </div>
+        {!isCreateNewAppFlow &&
+          (isMobile ? (
+            <Button
+              isIconButton
+              kind="tertiary"
+              onClick={() => setShowMobileSearchBar(true)}
+              size="md"
+              startIcon="search"
             />
-          </SearchContainer>
-        )}
+          ) : (
+            <SearchContainer isMobile={isMobile}>
+              <SearchInput
+                data-testid="t--application-search-input"
+                defaultValue=""
+                isDisabled={isFetchingApplications}
+                onChange={noop}
+                placeholder={""}
+              />
+            </SearchContainer>
+          ))}
 
         {user && !isMobile && (
           <div>
@@ -338,24 +411,6 @@ export function PageHeader(props: PageHeaderProps) {
             )}
           </div>
         )}
-        {isMobile && !isMobileSidebarOpen && (
-          <Button
-            isIconButton
-            kind="tertiary"
-            onClick={() => setIsMobileSidebarOpen(true)}
-            size={"md"}
-            startIcon="hamburger"
-          />
-        )}
-        {isMobile && isMobileSidebarOpen && (
-          <Button
-            isIconButton
-            kind="tertiary"
-            onClick={() => setIsMobileSidebarOpen(false)}
-            size="sm"
-            startIcon="close-x"
-          />
-        )}
         {isMobile && user && (
           <MobileSideBar
             isOpen={isMobileSidebarOpen}
@@ -364,6 +419,13 @@ export function PageHeader(props: PageHeaderProps) {
           />
         )}
       </StyledPageHeader>
+    );
+  }
+
+  return (
+    <>
+      <Banner />
+      {showMobileSearchBar ? <MobileSearchBar /> : <MainSearchBar />}
     </>
   );
 }
