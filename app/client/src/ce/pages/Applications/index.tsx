@@ -69,6 +69,8 @@ import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
+  NO_WORKSPACE_DESCRIPTION,
+  NO_WORKSPACE_HEADING,
   SEARCH_APPS,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
@@ -568,6 +570,23 @@ export function ApplicationsSection(props: any) {
     });
   };
 
+  function NoWorkspaceFound() {
+    return (
+      <div className="flex flex-col items-center justify-center mt-[180px]">
+        <img
+          className="mb-6"
+          src="https://assets.appsmith.com/no-workspace-found.svg"
+        />
+        <NewText className="!mb-3 !font-semibold" kind="heading-s">
+          {createMessage(NO_WORKSPACE_HEADING)}
+        </NewText>
+        <NewText className="w-[328px]" kind="heading-xs">
+          {createMessage(NO_WORKSPACE_DESCRIPTION)}
+        </NewText>
+      </div>
+    );
+  }
+
   // let updatedWorkspaces;
   // if (!isLoadingResources) {
   //   updatedWorkspaces = userWorkspaces;
@@ -577,7 +596,7 @@ export function ApplicationsSection(props: any) {
   const activeWorkspace = workspaces.find(
     (workspace: Workspace) => workspace.id === activeWorkspaceId,
   );
-  if (!activeWorkspace) return null;
+  if (!activeWorkspace) return <NoWorkspaceFound />;
 
   let workspacesListComponent;
   if (
