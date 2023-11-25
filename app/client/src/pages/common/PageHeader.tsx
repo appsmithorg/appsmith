@@ -35,7 +35,10 @@ import { get, noop } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Banner, ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
-import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
+import {
+  getCurrentApplicationIdForCreateNewApp,
+  getIsFetchingApplications,
+} from "@appsmith/selectors/applicationSelectors";
 import {
   getAdminSettingsPath,
   getShowAdminSettings,
@@ -130,13 +133,16 @@ const HomepageHeaderAction = ({
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const tenantPermissions = useSelector(getTenantPermissions);
-  const isHomePage = useRouteMatch("/applications")?.isExact;
   const onboardingWorkspaces = useSelector(getOnboardingWorkspaces);
+  const isCreateNewAppFlow = useSelector(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const isHomePage = useRouteMatch("/applications")?.isExact;
   const isAirgappedInstance = isAirgapped();
   const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
 
-  if (!isHomePage) return null;
+  if (!isHomePage || !!isCreateNewAppFlow) return null;
   return (
     <div className="flex items-center">
       {<ShowUpgradeMenuItem />}
@@ -233,6 +239,9 @@ export function PageHeader(props: PageHeaderProps) {
   const { user } = props;
   const location = useLocation();
   const dispatch = useDispatch();
+  const isCreateNewAppFlow = useSelector(
+    getCurrentApplicationIdForCreateNewApp,
+  );
   const queryParams = new URLSearchParams(location.search);
   const isMobile = useIsMobileDevice();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -285,15 +294,17 @@ export function PageHeader(props: PageHeaderProps) {
             </Link>
           )}
         </HeaderSection>
-        <SearchContainer isMobile={isMobile}>
-          <SearchInput
-            data-testid="t--application-search-input"
-            defaultValue=""
-            isDisabled={isFetchingApplications}
-            onChange={noop}
-            placeholder={""}
-          />
-        </SearchContainer>
+        {!isCreateNewAppFlow && (
+          <SearchContainer isMobile={isMobile}>
+            <SearchInput
+              data-testid="t--application-search-input"
+              defaultValue=""
+              isDisabled={isFetchingApplications}
+              onChange={noop}
+              placeholder={""}
+            />
+          </SearchContainer>
+        )}
 
         {user && !isMobile && (
           <div>
