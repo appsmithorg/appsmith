@@ -450,17 +450,13 @@ describe("rowHighlights tests", () => {
         "0",
         [],
         "layoutID",
-      )(
-        dimensions,
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       expect(highlights.length).toEqual(data.length + 1);
       // Height of all highlights in the row should be equal to the tallest widget.
@@ -545,17 +541,13 @@ describe("rowHighlights tests", () => {
         "0",
         [],
         "layoutID",
-      )(
-        dimensions,
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       /**
        * As the layout is wrapped into two rows.
@@ -643,17 +635,13 @@ describe("rowHighlights tests", () => {
         "0",
         [],
         "layoutID",
-      )(
-        dimensions,
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       /**
        * As the layout is wrapped into two rows.
@@ -703,17 +691,13 @@ describe("rowHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(
-        positions,
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
       expect(res[0].posY).toEqual(0);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[0].posX).toEqual(HIGHLIGHT_SIZE / 2);
@@ -746,17 +730,13 @@ describe("rowHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(
-        positions,
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       const posX: number =
         (positions[layout.layoutId].width - HIGHLIGHT_SIZE) / 2;
@@ -793,17 +773,13 @@ describe("rowHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(
-        positions,
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
       const posX: number = positions[layout.layoutId].width - HIGHLIGHT_SIZE;
       expect(res).toBeDefined();
       expect(res[0].posY).toEqual(0);
@@ -925,17 +901,13 @@ describe("rowHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(
-        positions,
-        [
-          {
-            widgetId: "1",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      )(positions, [
+        {
+          widgetId: "1",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       /**
        * Algorithm with calculate highlights for each child Row layout and combine them together.
@@ -997,17 +969,13 @@ describe("rowHighlights tests", () => {
         "0",
         [],
         layout.layoutId,
-      )(
-        positions,
-        [
-          {
-            widgetId: button1,
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      )(positions, [
+        {
+          widgetId: button1,
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       // highlights for the dragged widget should be discounted.
       expect(res.length).toEqual(2);

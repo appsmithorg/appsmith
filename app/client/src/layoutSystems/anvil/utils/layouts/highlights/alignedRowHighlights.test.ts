@@ -69,17 +69,17 @@ describe("AlignedRow highlights", () => {
         [`${layoutId}-2`]: endPosition,
       };
 
-      const { highlights: res } = deriveAlignedRowHighlights(layout, "0", [])(
-        dimensions,
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      const { highlights: res } = deriveAlignedRowHighlights(
+        layout,
+        "0",
+        [],
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       expect(res.length).toEqual(3);
 
@@ -152,17 +152,17 @@ describe("AlignedRow highlights", () => {
         },
       };
 
-      const { highlights: res } = deriveAlignedRowHighlights(layout, "0", [])(
-        dimensions,
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      const { highlights: res } = deriveAlignedRowHighlights(
+        layout,
+        "0",
+        [],
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       expect(res.length).toEqual(3);
 
@@ -267,17 +267,17 @@ describe("AlignedRow highlights", () => {
         },
       };
 
-      const { highlights: res } = deriveAlignedRowHighlights(layout, "0", [])(
-        dimensions,
-        [
-          {
-            widgetId: "10",
-            type: "BUTTON_WIDGET",
-            responsiveBehavior: ResponsiveBehavior.Hug,
-          },
-        ],
-        false,
-      );
+      const { highlights: res } = deriveAlignedRowHighlights(
+        layout,
+        "0",
+        [],
+      )(dimensions, [
+        {
+          widgetId: "10",
+          type: "BUTTON_WIDGET",
+          responsiveBehavior: ResponsiveBehavior.Hug,
+        },
+      ]);
 
       expect(res.length).toEqual(5);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);

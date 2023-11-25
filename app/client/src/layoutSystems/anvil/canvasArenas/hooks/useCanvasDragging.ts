@@ -100,7 +100,6 @@ export const useCanvasDragging = (
   const {
     activateOverlayWidgetDrop,
     draggedBlocks,
-    isChildOfLayout,
     isCurrentDraggedCanvas,
     isDragging,
     isResizing,
@@ -130,7 +129,6 @@ export const useCanvasDragging = (
       allHighlightsRef.current = deriveAllHighlightsFn(
         layoutElementPositions,
         draggedBlocks,
-        isChildOfLayout,
       )?.highlights;
     }
   };
