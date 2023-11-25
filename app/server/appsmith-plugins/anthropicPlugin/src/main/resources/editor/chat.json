@@ -22,7 +22,7 @@
       "conditionals": {
         "enable": "{{true}}",
         "fetchDynamicValues": {
-          "condition": "{{true}}",
+          "condition": "{{actionConfiguration.formData.command.data === 'CHAT'}}",
           "config": {
             "params": {
               "requestType": "CHAT_MODELS",
