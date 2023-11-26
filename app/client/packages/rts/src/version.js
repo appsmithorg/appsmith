@@ -1,8 +1,8 @@
 import * as fs from "fs";
 
-export const VERSION = (() => {
+export const VERSION =
+  (() => {
     try {
-        return JSON.parse(fs.readFileSync("/opt/appsmith/info.json")).version;
-    } catch {
-    }
-})() || "SNAPSHOT"
+      return JSON.parse(fs.readFileSync("/opt/appsmith/info.json")).version;
+    } catch {}
+  })() || "SNAPSHOT";
