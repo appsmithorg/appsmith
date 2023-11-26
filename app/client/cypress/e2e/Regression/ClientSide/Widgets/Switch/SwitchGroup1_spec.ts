@@ -1,20 +1,23 @@
 import {
   agHelper,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  deployMode,
-  propPane,
   locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
 import {
-  switchlocators,
   checkboxlocators,
+  switchlocators,
 } from "../../../../../locators/WidgetLocators";
 
 import widgetsLoc from "../../../../../locators/Widgets.json";
 import widgets from "../../../../../locators/publishWidgetspage.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Switchgroup Widget Functionality", function () {
   /**
@@ -31,7 +34,7 @@ describe("Switchgroup Widget Functionality", function () {
   });
 
   it("1. Check for empty, duplicate values and other error texts in options", () => {
-    entityExplorer.SelectEntityByName("SwitchGroup1");
+    EditorNavigation.SelectEntityByName("SwitchGroup1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Options",
       `[
@@ -121,7 +124,7 @@ describe("Switchgroup Widget Functionality", function () {
   });
 
   it("2. test default selected value func and error texts", () => {
-    entityExplorer.SelectEntityByName("SwitchGroup1");
+    EditorNavigation.SelectEntityByName("SwitchGroup1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Options",
       `[
@@ -162,7 +165,7 @@ describe("Switchgroup Widget Functionality", function () {
       "{{CheckboxGroup1.selectedValues}}",
     );
 
-    entityExplorer.SelectEntityByName("CheckboxGroup1");
+    EditorNavigation.SelectEntityByName("CheckboxGroup1", EntityType.Widget);
     agHelper.GetNClick(checkboxlocators.checkBoxLabel("Blue"));
     agHelper.GetNClick(checkboxlocators.checkBoxLabel("Red"));
     agHelper.GetNClick(checkboxlocators.checkBoxLabel("Green"));
@@ -180,7 +183,7 @@ describe("Switchgroup Widget Functionality", function () {
   //Note:  Old case, rewrittwen to using ts methods
   it("3. Setting selectedValues to undefined does not crash the app", () => {
     // Reset options for switch group
-    entityExplorer.SelectEntityByName("SwitchGroup1");
+    EditorNavigation.SelectEntityByName("SwitchGroup1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Options",
       `[
@@ -199,7 +202,7 @@ describe("Switchgroup Widget Functionality", function () {
     ]`,
     );
     // throw a cyclic dependency error from checkbox group
-    entityExplorer.SelectEntityByName("CheckboxGroup1");
+    EditorNavigation.SelectEntityByName("CheckboxGroup1", EntityType.Widget);
     agHelper.TypeText(widgetsLoc.RadioInput, "{{BLUE}}", 1);
     propPane.ToggleJSMode("Options", true);
     agHelper.AssertElementAbsence(locators._toastMsg);
@@ -207,7 +210,7 @@ describe("Switchgroup Widget Functionality", function () {
   });
 
   it("4. Set Label, Tooltip, Inline and check switch group", () => {
-    entityExplorer.SelectEntityByName("SwitchGroup1");
+    EditorNavigation.SelectEntityByName("SwitchGroup1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "SG Widget");
     propPane.UpdatePropertyFieldValue("Tooltip", "Select any color");
     // assert label and tooltip
@@ -217,14 +220,14 @@ describe("Switchgroup Widget Functionality", function () {
     agHelper.AssertPopoverTooltip("Select any color");
     deployMode.NavigateBacktoEditor();
     // assert height of the container based on inline property value
-    entityExplorer.SelectEntityByName("SwitchGroup1");
+    EditorNavigation.SelectEntityByName("SwitchGroup1", EntityType.Widget);
     agHelper.AssertElementExist(switchlocators.switchWidgetHeight("60"));
     propPane.TogglePropertyState("Inline", "Off");
     agHelper.AssertElementExist(switchlocators.switchWidgetHeight("110"));
   });
 
   it("5. Check visible, disabled, Height", () => {
-    entityExplorer.SelectEntityByName("SwitchGroup1");
+    EditorNavigation.SelectEntityByName("SwitchGroup1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
     agHelper.HoverElement(propPane._autoHeightLimitMin);
     agHelper.AssertElementExist(propPane._autoHeightLimitMin);
@@ -234,7 +237,7 @@ describe("Switchgroup Widget Functionality", function () {
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(switchlocators.switchGroupLabel);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("SwitchGroup1");
+    EditorNavigation.SelectEntityByName("SwitchGroup1", EntityType.Widget);
     propPane.TogglePropertyState("Visible", "On");
 
     propPane.TogglePropertyState("Disabled", "On");
@@ -244,7 +247,7 @@ describe("Switchgroup Widget Functionality", function () {
   });
 
   it("6. Check events - on selection change", () => {
-    entityExplorer.SelectEntityByName("SwitchGroup1");
+    EditorNavigation.SelectEntityByName("SwitchGroup1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Height", "Auto Height");
     propPane.TogglePropertyState("Inline", "On");
     propPane.TogglePropertyState("Disabled", "Off");

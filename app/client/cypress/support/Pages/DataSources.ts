@@ -1,7 +1,10 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
-import EditorNavigation, { SidebarButton } from "./EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 
 export const DataSourceKVP = {
@@ -846,7 +849,7 @@ export class DataSources {
     datasourceName: string,
     expectedRes: number | number[] = 200 || 409 || [200, 409],
   ) {
-    this.navigateToDatasource(datasourceName);
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     this.agHelper.Sleep(); //for the Datasource page to open
     this.DeleteDSDirectly(expectedRes, false);
   }
@@ -917,13 +920,8 @@ export class DataSources {
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
-  public CreateQueryFromActiveTab(
-    datasourceName: string,
-    toNavigateToActive = true,
-  ) {
-    if (toNavigateToActive) EditorNavigation.ViaSidebar(SidebarButton.Data);
-
-    this.navigateToDatasource(datasourceName);
+  public CreateQueryFromActiveTab(datasourceName: string) {
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     this.agHelper.GetNClick(this._createQuery, 0, true);
     this.agHelper.Sleep(2000); //for the CreateQuery
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
@@ -1461,11 +1459,12 @@ export class DataSources {
         true,
         0,
       );
+    this.AssertDSDialogVisibility(false);
   }
 
   // this initiates saving via the back button.
   public SaveDSFromDialog(save = true) {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
     this.AssertDatasourceSaveModalVisibilityAndSave(save);
   }
 
@@ -1912,18 +1911,6 @@ export class DataSources {
 
   public selectTabOnDatasourcePage(tab: "View data" | "Configurations") {
     this.agHelper.GetNClick(this._dsPageTabListItem(tab));
-  }
-
-  public navigateToDatasource(name: string) {
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
-    cy.get(datasource.datasourceCard)
-      .contains(name)
-      .first()
-      .scrollIntoView()
-      .should("be.visible")
-      .click()
-      .parents(datasource.datasourceCard)
-      .should("have.attr", "data-selected", "true");
   }
 
   public getDatasourceListItemDescription(name: string) {

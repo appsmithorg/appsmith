@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import EditorNavigation, { EntityType } from "./EditorNavigation";
 
 type filedTypeValues =
   | "Array"
@@ -202,7 +203,7 @@ export class PropertyPane {
   }
 
   public CopyPasteWidgetFromPropertyPane(widgetName: string) {
-    this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+    EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     this.agHelper.GetNClick(this._copyWidget);
     this.agHelper.Sleep(200);
     cy.get("body").type(`{${this.agHelper._modifierKey}}v`);
@@ -215,7 +216,7 @@ export class PropertyPane {
   }
 
   public DeleteWidgetFromPropertyPane(widgetName: string) {
-    this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+    EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     this.DeleteWidgetDirectlyFromPropertyPane();
     this.agHelper.Sleep(500);
     this.entityExplorer.AssertEntityAbsenceInExplorer(widgetName);
@@ -603,7 +604,7 @@ export class PropertyPane {
   }
 
   public RenameWidget(oldName: string, newName: string) {
-    this.entityExplorer.SelectEntityByName(oldName, "Widgets");
+    EditorNavigation.SelectEntityByName(oldName, EntityType.Widget);
     this.agHelper.GetNClick(this.locator._widgetName(oldName), 0, true);
     cy.get(this.locator._widgetNameTxt)
       .clear({ force: true })

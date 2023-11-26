@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const dsl = require("../../../../../fixtures/Listv2/MetaHydrationDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -87,7 +91,7 @@ describe("List widget v2 - meta hydration tests", () => {
       "",
     );
     cy.RunAPI();
-    _.entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     cy.wait(1000);
 
