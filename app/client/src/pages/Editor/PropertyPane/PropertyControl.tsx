@@ -809,10 +809,10 @@ const PropertyControl = memo((props: Props) => {
                     className={classNames("t--js-toggle !h-[20px]", {
                       "is-active": isDynamic,
                     })}
-                    icon="js-toggle-exp"
+                    icon="js-toggle-v2"
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
-                    kind="primary"
+                    kind="tertiary"
                     onClick={() =>
                       toggleDynamicProperty(
                         propertyName,
