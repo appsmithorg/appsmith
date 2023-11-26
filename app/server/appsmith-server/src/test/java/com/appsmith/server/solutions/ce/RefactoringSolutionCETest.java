@@ -790,8 +790,9 @@ class RefactoringSolutionCETest {
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
 
-        final ActionCollectionDTO createdActionCollectionDTO1 =
-                layoutCollectionService.createCollection(actionCollectionDTO1).block();
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService
+                .createCollection(actionCollectionDTO1, null)
+                .block();
 
         RefactorEntityNameDTO refactorNameDTO = new RefactorEntityNameDTO();
         refactorNameDTO.setEntityType(EntityType.WIDGET);
@@ -853,7 +854,7 @@ class RefactoringSolutionCETest {
         originalActionCollectionDTO.setActions(List.of(action1));
 
         final ActionCollectionDTO dto = layoutCollectionService
-                .createCollection(originalActionCollectionDTO)
+                .createCollection(originalActionCollectionDTO, null)
                 .block();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();

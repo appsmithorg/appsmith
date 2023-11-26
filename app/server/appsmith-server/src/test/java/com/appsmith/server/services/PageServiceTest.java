@@ -641,7 +641,7 @@ public class PageServiceTest {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        layoutCollectionService.createCollection(actionCollectionDTO).block();
+        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
 
         applicationPageService.publish(applicationId, true).block();
 
@@ -849,7 +849,7 @@ public class PageServiceTest {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        layoutCollectionService.createCollection(actionCollectionDTO).block();
+        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
 
         final Mono<NewPage> pageMono = applicationPageService
                 .clonePageByDefaultPageIdAndBranch(page.getId(), branchName)
