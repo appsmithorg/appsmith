@@ -244,3 +244,8 @@ export const setIsAppSidebarPinned = (payload: boolean) => ({
   type: ReduxActionTypes.SET_APP_SIDEBAR_PINNED,
   payload,
 });
+
+export const searchEntities = (payload: string) => ({
+  type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
+  payload,
+});

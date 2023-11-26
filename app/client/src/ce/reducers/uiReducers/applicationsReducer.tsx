@@ -48,6 +48,8 @@ export const initialState: ApplicationsReduxState = {
   deletingApplication: false,
   forkingApplication: false,
   userWorkspaces: [],
+  searchEntities: [],
+  isFetchingEntities: false,
   isSavingWorkspaceInfo: false,
   importingApplication: false,
   importedApplication: null,
@@ -899,6 +901,24 @@ export const handlers = {
       currentPluginIdForCreateNewApp: undefined,
     };
   },
+  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isFetchingEntities: true,
+    };
+  },
+  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<any>,
+  ) => {
+    return {
+      ...state,
+      isFetchingEntities: false,
+      searchEntities: action.payload,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -913,6 +933,8 @@ export interface DeletingMultipleApps {
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
   searchKeyword?: string;
+  searchEntities: any;
+  isFetchingEntities: boolean;
   isFetchingApplications: boolean;
   isSavingAppName: boolean;
   isErrorSavingAppName: boolean;

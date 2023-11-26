@@ -29,6 +29,7 @@ import {
   MenuSeparator,
   MenuTrigger,
   SearchInput,
+  Text,
 } from "design-system";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
@@ -64,6 +65,7 @@ import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
+import { searchEntities } from "@appsmith/actions/applicationActions";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -102,6 +104,32 @@ const HeaderSection = styled.div`
 
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
+  position: relative;
+`;
+const SearchListContainer = styled.div`
+  width: 350px;
+  height: 420px;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  border-radius: 4px;
+  box-shadow: 0 1px 20px 0 rgba(76, 86, 100, 0.11);
+  border: solid 1px var(--ads-v2-color-bg-muted);
+  background-color: var(--ads-v2-color-bg);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+`;
+
+const SearhListItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--ads-v2-color-bg-muted);
+    border-radius: 4px;
+  }
 `;
 
 export const VersionData = styled.div`
@@ -316,6 +344,11 @@ export function PageHeader(props: PageHeaderProps) {
   }
 
   function MainSearchBar() {
+    const [searchInput, setSearchInput] = useState("");
+    function handleSearchInput(text: string) {
+      setSearchInput(text);
+      dispatch(searchEntities(text));
+    }
     return (
       <StyledPageHeader
         data-testid="t--appsmith-page-header"
@@ -371,11 +404,113 @@ export function PageHeader(props: PageHeaderProps) {
             <SearchContainer isMobile={isMobile}>
               <SearchInput
                 data-testid="t--application-search-input"
-                defaultValue=""
                 isDisabled={isFetchingApplications}
-                onChange={noop}
+                onChange={handleSearchInput}
                 placeholder={""}
+                value={searchInput}
               />
+              <SearchListContainer>
+                <Text className="!mb-2" kind="body-s">
+                  Workspaces
+                </Text>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text className="truncate" kind="body-m">
+                    Unitiled Workspace 1 dbshjds sadusa dsdusa dhsaud hsuadhusa
+                    dus dsui
+                  </Text>
+                </SearhListItem>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text kind="body-m">Unitiled Workspace 2</Text>
+                </SearhListItem>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text kind="body-m">Unitiled Workspace 3</Text>
+                </SearhListItem>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text kind="body-m">Unitiled Workspace 4</Text>
+                </SearhListItem>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text kind="body-m">Unitiled Workspace 4</Text>
+                </SearhListItem>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text kind="body-m">Unitiled Workspace 4</Text>
+                </SearhListItem>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text kind="body-m">Unitiled Workspace 4</Text>
+                </SearhListItem>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text kind="body-m">Unitiled Workspace 4</Text>
+                </SearhListItem>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text kind="body-m">Unitiled Workspace 4</Text>
+                </SearhListItem>
+                <SearhListItem>
+                  <Icon
+                    className="!mr-2"
+                    color="var(--ads-v2-color-fg)"
+                    name="group-2-line"
+                    size="md"
+                  />
+                  <Text kind="body-m">Unitiled Workspace 4</Text>
+                </SearhListItem>
+
+                <Text className="!mb-2 !mt-2" kind="body-s">
+                  Applications
+                </Text>
+              </SearchListContainer>
             </SearchContainer>
           ))}
 
@@ -425,7 +560,11 @@ export function PageHeader(props: PageHeaderProps) {
   return (
     <>
       <Banner />
-      {showMobileSearchBar ? <MobileSearchBar /> : <MainSearchBar />}
+      {showMobileSearchBar && isMobile ? (
+        <MobileSearchBar />
+      ) : (
+        <MainSearchBar />
+      )}
     </>
   );
 }
