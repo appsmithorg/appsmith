@@ -141,7 +141,9 @@ jobs:
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
+          if ! grep -qF "info.json" src/version.js; then
+            echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
+          fi
           yarn build
 
       # Set status = failure
