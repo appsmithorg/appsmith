@@ -206,6 +206,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
       <FormTitleContainer>
         <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
         <FormTitle
+          datasourceId={datasourceId}
           disabled={!isNewDatasource && !canManageDatasource}
           focusOnMount={isNewDatasource}
         />
