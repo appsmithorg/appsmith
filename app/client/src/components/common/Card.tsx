@@ -313,6 +313,9 @@ const CardFooter = styled.div`
 const ModifiedDataComponent = styled.div`
   font-size: 13px;
   color: var(--ads-v2-color-fg-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
   &::first-letter {
     text-transform: uppercase;
   }
