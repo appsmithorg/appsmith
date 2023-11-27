@@ -8,6 +8,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -268,7 +269,13 @@ public class UserWorkspaceServiceUnitTest {
         UserData userData = new UserData();
         cleanup();
         createDummyWorkspaces().blockLast();
-        userData.setRecentlyUsedWorkspaceIds(workspaceIds);
+        List<RecentlyUsedEntityDTO> recentlyUsedEntityDTOs = new ArrayList<>();
+        workspaceIds.forEach(workspaceId -> {
+            RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
+            recentlyUsedEntityDTO.setWorkspaceId(workspaceId);
+            recentlyUsedEntityDTOs.add(recentlyUsedEntityDTO);
+        });
+        userData.setRecentlyUsedEntityIds(recentlyUsedEntityDTOs);
         doReturn(Mono.just(userData)).when(userDataService).getForCurrentUser();
 
         StepVerifier.create(userWorkspaceService.getUserWorkspacesByRecentlyUsedOrder())

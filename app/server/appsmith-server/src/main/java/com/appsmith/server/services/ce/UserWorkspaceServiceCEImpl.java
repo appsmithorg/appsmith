@@ -413,9 +413,14 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         Mono<List<String>> workspaceIdsMono = userDataService
                 .getForCurrentUser()
                 .defaultIfEmpty(new UserData())
-                .map(userData -> userData.getRecentlyUsedEntityIds().stream()
-                        .map(RecentlyUsedEntityDTO::getWorkspaceId)
-                        .collect(Collectors.toList()));
+                .map(userData -> {
+                    if (userData.getRecentlyUsedEntityIds() == null) {
+                        return Collections.emptyList();
+                    }
+                    return userData.getRecentlyUsedEntityIds().stream()
+                            .map(RecentlyUsedEntityDTO::getWorkspaceId)
+                            .collect(Collectors.toList());
+                });
 
         return workspaceIdsMono.flatMap(workspaceIds -> workspaceService
                 .getAll(workspacePermission.getReadPermission())
