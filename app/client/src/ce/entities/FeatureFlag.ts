@@ -37,8 +37,6 @@ export const FEATURE_FLAG = {
   ab_create_new_apps_enabled: "ab_create_new_apps_enabled",
   release_show_new_sidebar_announcement_enabled:
     "release_show_new_sidebar_announcement_enabled",
-  ab_one_click_learning_popover_enabled:
-    "ab_one_click_learning_popover_enabled",
   rollout_app_sidebar_enabled: "rollout_app_sidebar_enabled",
   release_show_partial_import_export_enabled:
     "release_show_partial_import_export_enabled",
@@ -78,7 +76,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_onboarding_flow_start_with_data_dev_only_enabled: false,
   ab_create_new_apps_enabled: false,
   release_show_new_sidebar_announcement_enabled: false,
-  ab_one_click_learning_popover_enabled: false,
   rollout_app_sidebar_enabled: false,
   release_show_partial_import_export_enabled: false,
   release_show_new_sidebar_pages_pane_enabled: false,
