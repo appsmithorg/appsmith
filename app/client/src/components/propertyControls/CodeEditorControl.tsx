@@ -16,7 +16,6 @@ import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/c
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
     const {
-      additionalControlData,
       dataTreePath,
       evaluatedValue,
       expected,
@@ -30,9 +29,6 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     if (evaluatedValue) props.evaluatedValue = evaluatedValue;
     if (expected) props.expected = expected;
 
-    const positionCursorInsideBinding =
-      !!additionalControlData?.shouldFocusOnJSControl;
-
     return (
       <LazyCodeEditor
         additionalDynamicData={this.props.additionalAutoComplete}
@@ -43,7 +39,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         ]}
         input={{ value: propertyValue, onChange: this.onChange }}
         mode={EditorModes.TEXT_WITH_BINDING}
-        positionCursorInsideBinding={positionCursorInsideBinding}
+        positionCursorInsideBinding
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={this.props.theme}

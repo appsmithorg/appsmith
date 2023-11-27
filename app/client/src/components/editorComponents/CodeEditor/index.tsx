@@ -156,6 +156,7 @@ import { getDeleteLineShortcut } from "./utils/deleteLine";
 import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
+import { EMPTY_BINDING } from "../ActionCreator/constants";
 import {
   resetActiveEditorField,
   setActiveEditorField,
@@ -475,19 +476,9 @@ class CodeEditor extends Component<Props, State> {
         this.lintCode(editor);
 
         setTimeout(() => {
-          this.editor.operation(() => {
-            if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
-              if (!this.editor.hasFocus()) this.editor.focus();
-            }
-            if (this.props.positionCursorInsideBinding) {
-              const value = this.editor.getValue();
-              const lastIndexOfBinding = value.lastIndexOf("}}");
-              if (lastIndexOfBinding === -1) return;
-              const pos = this.editor.getDoc().posFromIndex(lastIndexOfBinding);
-              if (!this.editor.hasFocus()) this.editor.focus();
-              this.editor.setCursor(pos);
-            }
-          });
+          if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
+            editor.focus();
+          }
         }, 200);
       }.bind(this);
       sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
@@ -505,6 +496,16 @@ class CodeEditor extends Component<Props, State> {
       resizeObserver.observe(this.codeEditorTarget.current, [
         this.debounceEditorRefresh,
       ]);
+    }
+    if (
+      this.props.positionCursorInsideBinding &&
+      this.props.input.value === EMPTY_BINDING
+    ) {
+      this.editor.focus();
+      this.editor.setCursor({
+        ch: 2,
+        line: 0,
+      });
     }
   }
 

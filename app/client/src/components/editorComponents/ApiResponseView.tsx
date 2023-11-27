@@ -1,14 +1,19 @@
 import type { PropsWithChildren, RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
+import type { AppState } from "@appsmith/reducers";
 import type { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
+import type { APIEditorRouteParams } from "constants/routes";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
+import { getActionResponses } from "@appsmith/selectors/entitiesSelector";
 import { isArray, isEmpty, isString } from "lodash";
 import {
   CHECK_REQUEST_BODY,
@@ -20,7 +25,7 @@ import {
   DEBUGGER_ERRORS,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import { EditorTheme } from "./CodeEditor/EditorConfig";
+import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
@@ -33,11 +38,11 @@ import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
+import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
 import {
   getDebuggerSelectedTab,
-  getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -174,17 +179,29 @@ const ResponseBodyContainer = styled.div`
   display: grid;
 `;
 
-interface Props {
-  currentActionConfig?: Action;
-  theme?: EditorTheme;
-  apiName: string;
-  disabled?: boolean;
-  onRunClick: () => void;
-  responseDataTypes: { key: string; title: string }[];
-  responseDisplayFormat: { title: string; value: string };
-  actionResponse?: ActionResponse;
-  isRunning: boolean;
+interface ReduxStateProps {
+  responses: Record<string, ActionResponse | undefined>;
+  isRunning: Record<string, boolean>;
+  errorCount: number;
 }
+interface ReduxDispatchProps {
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => void;
+}
+
+type Props = ReduxStateProps &
+  ReduxDispatchProps &
+  RouteComponentProps<APIEditorRouteParams> & {
+    theme?: EditorTheme;
+    apiName: string;
+    disabled?: boolean;
+    onRunClick: () => void;
+    responseDataTypes: { key: string; title: string }[];
+    responseDisplayFormat: { title: string; value: string };
+  };
 
 const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
@@ -296,21 +313,31 @@ export const NoResponse = (props: NoResponseProps) => (
 
 function ApiResponseView(props: Props) {
   const {
-    actionResponse = EMPTY_RESPONSE,
-    currentActionConfig,
     disabled,
-    isRunning,
+    match: {
+      params: { apiId },
+    },
     responseDataTypes,
     responseDisplayFormat,
-    theme = EditorTheme.LIGHT,
+    responses,
+    updateActionResponseDisplayFormat,
   } = props;
-  const hasFailed = actionResponse.statusCode
-    ? actionResponse.statusCode[0] !== "2"
-    : false;
-
+  let response: ActionResponse = EMPTY_RESPONSE;
+  let isRunning = false;
+  let hasFailed = false;
+  if (apiId && apiId in responses) {
+    response = responses[apiId] || EMPTY_RESPONSE;
+    isRunning = props.isRunning[apiId];
+    hasFailed = response.statusCode ? response.statusCode[0] !== "2" : false;
+  }
+  const actions: Action[] = useSelector((state: AppState) =>
+    state.entities.actions.map((action) => action.config),
+  );
+  const currentActionConfig: Action | undefined = actions.find(
+    (action) => action.id === apiId,
+  );
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
-  const errorCount = useSelector(getErrorCount);
 
   const onDebugClick = useCallback(() => {
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -326,12 +353,12 @@ function ApiResponseView(props: Props) {
     });
   };
 
-  const messages = actionResponse?.messages;
+  const messages = response?.messages;
   let responseHeaders = {};
 
   // if no headers are present in the response, use the default body text.
-  if (actionResponse.headers) {
-    Object.entries(actionResponse.headers).forEach(([key, value]) => {
+  if (response.headers) {
+    Object.entries(response.headers).forEach(([key, value]) => {
       if (isArray(value) && value.length < 2)
         return (responseHeaders = {
           ...responseHeaders,
@@ -348,19 +375,17 @@ function ApiResponseView(props: Props) {
   }
 
   const onResponseTabSelect = (tab: string) => {
-    dispatch(
-      setActionResponseDisplayFormat({
-        id: currentActionConfig?.id || "",
-        field: "responseDisplayFormat",
-        value: tab,
-      }),
-    );
+    updateActionResponseDisplayFormat({
+      id: apiId ? apiId : "",
+      field: "responseDisplayFormat",
+      value: tab,
+    });
   };
 
   let filteredResponseDataTypes: { key: string; title: string }[] = [
     ...responseDataTypes,
   ];
-  if (!!actionResponse.body && !isArray(actionResponse.body)) {
+  if (!!response.body && !isArray(response.body)) {
     filteredResponseDataTypes = responseDataTypes.filter(
       (item) => item.key !== API_RESPONSE_TYPE_OPTIONS.TABLE,
     );
@@ -378,7 +403,7 @@ function ApiResponseView(props: Props) {
         title: dataType.title,
         panelComponent: responseTabComponent(
           dataType.key,
-          actionResponse?.body,
+          response?.body,
           responsePaneHeight,
         ),
       };
@@ -419,12 +444,12 @@ function ApiResponseView(props: Props) {
   }, []);
 
   // get request timestamp formatted to human readable format.
-  const responseState = getUpdateTimestamp(actionResponse.request);
+  const responseState = getUpdateTimestamp(response.request);
   // action source for analytics.
   const actionSource: SourceEntity = {
     type: ENTITY_TYPE.ACTION,
     name: currentActionConfig ? currentActionConfig.name : "API",
-    id: currentActionConfig?.id || "",
+    id: apiId ? apiId : "",
   };
   const tabs = [
     {
@@ -446,18 +471,16 @@ function ApiResponseView(props: Props) {
               <ResponseTabErrorContent>
                 <ResponseTabErrorDefaultMessage>
                   Your API failed to execute
-                  {actionResponse.pluginErrorDetails && ":"}
+                  {response.pluginErrorDetails && ":"}
                 </ResponseTabErrorDefaultMessage>
-                {actionResponse.pluginErrorDetails && (
+                {response.pluginErrorDetails && (
                   <>
                     <div className="t--debugger-log-downstream-message">
-                      {actionResponse.pluginErrorDetails.downstreamErrorMessage}
+                      {response.pluginErrorDetails.downstreamErrorMessage}
                     </div>
-                    {actionResponse.pluginErrorDetails.downstreamErrorCode && (
+                    {response.pluginErrorDetails.downstreamErrorCode && (
                       <LogAdditionalInfo
-                        text={
-                          actionResponse.pluginErrorDetails.downstreamErrorCode
-                        }
+                        text={response.pluginErrorDetails.downstreamErrorCode}
                       />
                     )}
                   </>
@@ -465,11 +488,11 @@ function ApiResponseView(props: Props) {
                 <LogHelper
                   logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
                   name="PluginExecutionError"
-                  pluginErrorDetails={actionResponse.pluginErrorDetails}
+                  pluginErrorDetails={response.pluginErrorDetails}
                   source={actionSource}
                 />
               </ResponseTabErrorContent>
-              {actionResponse.request && (
+              {response.request && (
                 <JsonWrapper
                   className="t--debugger-log-state"
                   onClick={(e) => e.stopPropagation()}
@@ -480,7 +503,7 @@ function ApiResponseView(props: Props) {
             </ResponseTabErrorContainer>
           ) : (
             <ResponseDataContainer>
-              {isEmpty(actionResponse.statusCode) ? (
+              {isEmpty(response.statusCode) ? (
                 <NoResponse
                   isButtonDisabled={disabled}
                   isQueryRunning={isRunning}
@@ -488,13 +511,12 @@ function ApiResponseView(props: Props) {
                 />
               ) : (
                 <ResponseBodyContainer>
-                  {isString(actionResponse?.body) &&
-                  isHtml(actionResponse?.body) ? (
+                  {isString(response?.body) && isHtml(response?.body) ? (
                     <ReadOnlyEditor
                       folding
                       height={"100%"}
                       input={{
-                        value: actionResponse?.body,
+                        value: response?.body,
                       }}
                     />
                   ) : responseTabs &&
@@ -514,7 +536,7 @@ function ApiResponseView(props: Props) {
                       />
                       {responseTabComponent(
                         selectedControl || segmentedControlOptions[0]?.value,
-                        actionResponse?.body,
+                        response?.body,
                         responsePaneHeight,
                       )}
                     </SegmentedControlContainer>
@@ -547,7 +569,7 @@ function ApiResponseView(props: Props) {
             </Callout>
           )}
           <ResponseDataContainer>
-            {isEmpty(actionResponse.statusCode) ? (
+            {isEmpty(response.statusCode) ? (
               <NoResponse
                 isButtonDisabled={disabled}
                 isQueryRunning={isRunning}
@@ -571,7 +593,7 @@ function ApiResponseView(props: Props) {
     {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
+      count: props.errorCount,
       panelComponent: <ErrorLogs />,
     },
     {
@@ -602,49 +624,48 @@ function ApiResponseView(props: Props) {
         snapToHeight={ActionExecutionResizerHeight}
       />
       {isRunning && (
-        <ActionExecutionInProgressView actionType="API" theme={theme} />
+        <ActionExecutionInProgressView actionType="API" theme={props.theme} />
       )}
       <TabbedViewWrapper>
-        {actionResponse.statusCode && (
+        {response.statusCode && (
           <ResponseMetaWrapper>
-            {actionResponse.statusCode && (
+            {response.statusCode && (
               <Flex>
                 <Text type={TextType.P3}>Status: </Text>
                 <StatusCodeText
                   accent="secondary"
                   className="t--response-status-code"
-                  code={actionResponse.statusCode.toString()}
+                  code={response.statusCode.toString()}
                 >
-                  {actionResponse.statusCode}
+                  {response.statusCode}
                 </StatusCodeText>
               </Flex>
             )}
             <ResponseMetaInfo>
-              {actionResponse.duration && (
+              {response.duration && (
                 <Flex>
                   <Text type={TextType.P3}>Time: </Text>
-                  <Text type={TextType.H5}>{actionResponse.duration} ms</Text>
+                  <Text type={TextType.H5}>{response.duration} ms</Text>
                 </Flex>
               )}
-              {actionResponse.size && (
+              {response.size && (
                 <Flex>
                   <Text type={TextType.P3}>Size: </Text>
                   <Text type={TextType.H5}>
-                    {formatBytes(parseInt(actionResponse.size))}
+                    {formatBytes(parseInt(response.size))}
                   </Text>
                 </Flex>
               )}
-              {!isEmpty(actionResponse?.body) &&
-                Array.isArray(actionResponse?.body) && (
-                  <Flex>
-                    <Text type={TextType.P3}>Result: </Text>
-                    <Text type={TextType.H5}>
-                      {`${actionResponse?.body.length} Record${
-                        actionResponse?.body.length > 1 ? "s" : ""
-                      }`}
-                    </Text>
-                  </Flex>
-                )}
+              {!isEmpty(response?.body) && Array.isArray(response?.body) && (
+                <Flex>
+                  <Text type={TextType.P3}>Result: </Text>
+                  <Text type={TextType.H5}>
+                    {`${response?.body.length} Record${
+                      response?.body.length > 1 ? "s" : ""
+                    }`}
+                  </Text>
+                </Flex>
+              )}
             </ResponseMetaInfo>
           </ResponseMetaWrapper>
         )}
@@ -667,4 +688,25 @@ function ApiResponseView(props: Props) {
   );
 }
 
-export default ApiResponseView;
+const mapStateToProps = (state: AppState): ReduxStateProps => {
+  return {
+    responses: getActionResponses(state),
+    isRunning: state.ui.apiPane.isRunning,
+    errorCount: state.ui.debugger.context.errorCount,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => {
+    dispatch(setActionResponseDisplayFormat({ id, field, value }));
+  },
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withRouter(ApiResponseView));

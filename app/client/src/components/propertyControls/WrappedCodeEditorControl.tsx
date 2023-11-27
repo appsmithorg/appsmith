@@ -29,12 +29,10 @@ interface InputTextProp {
   dataTreePath?: string;
   additionalDynamicData?: AdditionalDynamicDataTree;
   theme: EditorTheme;
-  additionalControlData?: Record<string, unknown>;
 }
 
 function InputText(props: InputTextProp) {
   const {
-    additionalControlData,
     additionalDynamicData,
     dataTreePath,
     evaluatedValue,
@@ -44,10 +42,6 @@ function InputText(props: InputTextProp) {
     theme,
     value,
   } = props;
-
-  const positionCursorInsideBinding =
-    !!additionalControlData?.shouldFocusOnJSControl;
-
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -67,7 +61,7 @@ function InputText(props: InputTextProp) {
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
-        positionCursorInsideBinding={positionCursorInsideBinding}
+        positionCursorInsideBinding
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={theme}
@@ -100,7 +94,6 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
   render() {
     const {
       additionalAutoComplete,
-      additionalControlData,
       dataTreePath,
       defaultValue,
       expected,
@@ -123,7 +116,6 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
 
     return (
       <InputText
-        additionalControlData={additionalControlData}
         additionalDynamicData={additionalAutoComplete}
         dataTreePath={dataTreePath}
         expected={expected}

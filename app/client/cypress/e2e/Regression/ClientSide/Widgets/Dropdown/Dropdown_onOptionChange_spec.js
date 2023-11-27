@@ -143,12 +143,9 @@ describe("Dropdown Widget", function () {
 
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
     cy.EnableAllCodeEditors();
-
-    propPane.EnterJSContext(
-      "onOptionChange",
+    cy.testJsontext(
+      "onoptionchange",
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
-      true,
-      false,
     );
 
     deployMode.DeployApp();
@@ -170,11 +167,9 @@ describe("Dropdown Widget", function () {
       "Container3",
     ]);
 
-    propPane.EnterJSContext(
-      "onOptionChange",
+    cy.testJsontext(
+      "onoptionchange",
       "{{dropdownApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
-      true,
-      false,
     );
 
     deployMode.DeployApp();
