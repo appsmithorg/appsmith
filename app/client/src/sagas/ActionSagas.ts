@@ -282,7 +282,9 @@ export function* createActionSaga(
   }
 }
 
-function* fetchActionDatasourceStructure(action: ActionCreateUpdateResponse) {
+export function* fetchActionDatasourceStructure(
+  action: ActionCreateUpdateResponse,
+) {
   if (action.datasource?.id) {
     const doesDatasourceStructureAlreadyExist: DatasourceStructure =
       yield select(getDatasourceStructureById, action.datasource.id);
