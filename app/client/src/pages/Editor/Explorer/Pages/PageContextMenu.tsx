@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
@@ -56,6 +56,7 @@ export function PageContextMenu(props: {
   isCurrentPage: boolean;
   isDefaultPage: boolean;
   isHidden: boolean;
+  hasExportPermission: boolean;
 }) {
   const dispatch = useDispatch();
   const isPartialImportExportEnabled = useFeatureFlag(
@@ -138,6 +139,18 @@ export function PageContextMenu(props: {
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 
+  const showPartialImportExportInMenu = useMemo(
+    () =>
+      isPartialImportExportEnabled &&
+      props.hasExportPermission &&
+      props.isCurrentPage,
+    [
+      isPartialImportExportEnabled,
+      props.hasExportPermission,
+      props.isCurrentPage,
+    ],
+  );
+
   const openAppSettingsPane = () =>
     dispatch(
       openAppSettingsPaneAction({
@@ -209,18 +222,16 @@ export function PageContextMenu(props: {
         value: "setdefault",
         label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
       },
-    isPartialImportExportEnabled &&
-      props.isCurrentPage && {
-        value: "partial-export",
-        onSelect: openPartialExportModal,
-        label: createMessage(CONTEXT_PARTIAL_EXPORT),
-      },
-    isPartialImportExportEnabled &&
-      props.isCurrentPage && {
-        value: "partial-import",
-        onSelect: openPartialImportModal,
-        label: createMessage(CONTEXT_PARTIAL_IMPORT),
-      },
+    showPartialImportExportInMenu && {
+      value: "partial-export",
+      onSelect: openPartialExportModal,
+      label: createMessage(CONTEXT_PARTIAL_EXPORT),
+    },
+    showPartialImportExportInMenu && {
+      value: "partial-import",
+      onSelect: openPartialImportModal,
+      label: createMessage(CONTEXT_PARTIAL_IMPORT),
+    },
     !isAppSidebarEnabled && {
       value: "settings",
       onSelect: openAppSettingsPane,

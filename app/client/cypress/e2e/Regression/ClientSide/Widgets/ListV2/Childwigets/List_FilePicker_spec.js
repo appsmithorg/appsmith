@@ -3,6 +3,9 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
@@ -130,7 +133,9 @@ describe(" File Picker Widget", function () {
   });
 
   it("3. File Widget Max No of Files", function () {
-    entityExplorer.SelectEntityByName("FilePicker1", "Container1");
+    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget, {}, [
+      "Container1",
+    ]);
     cy.get(widgetsPage.filepickerwidgetv2).click();
     cy.get(commonlocators.AddMoreFiles).should("not.exist");
     cy.get(".uppy-Dashboard-close").click({ force: true });

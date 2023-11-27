@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const fieldPrefix = ".t--jsonformfield";
 import {
   agHelper,
@@ -20,7 +24,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
   });
 
   it("generates fields with valid source data json", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.TogglePropertyState("Auto generate form", "Off");
 
     const sourceData = {
@@ -43,7 +47,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
       ],
     };
 
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
     deployMode.DeployApp();
 
@@ -139,7 +143,7 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
       ],
     };
 
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
     propPane.TogglePropertyState("Auto generate form", "On");
     deployMode.DeployApp();

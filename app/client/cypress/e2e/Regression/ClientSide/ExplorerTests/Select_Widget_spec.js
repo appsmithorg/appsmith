@@ -2,6 +2,9 @@ import commonLocators from "../../../../locators/commonlocators.json";
 import widgets from "../../../../locators/Widgets.json";
 const widgetLocators = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Explorer hidden widget Selection", () => {
   before(() => {
@@ -11,7 +14,7 @@ describe("Explorer hidden widget Selection", () => {
     cy.get(commonLocators.canvas).click({ force: true });
   });
   it("1. Opens modal when selecting a modal", () => {
-    _.entityExplorer.SelectEntityByName("SimpleModal", "Widgets");
+    EditorNavigation.SelectEntityByName("SimpleModal", EntityType.Widget);
 
     cy.get(widgetLocators.modalWidget).should("have.length", 1);
     cy.get(commonLocators.propertyPaneTitle).should("contain", "SimpleModal");
@@ -19,7 +22,7 @@ describe("Explorer hidden widget Selection", () => {
   });
 
   it("2. Opens modal when selecting a widget inside a modal", () => {
-    _.entityExplorer.SelectEntityByName("Simple_Modal_Text", "Widgets");
+    EditorNavigation.SelectEntityByName("Simple_Modal_Text", EntityType.Widget);
 
     cy.get(widgetLocators.modalWidget).should("have.length", 1);
     cy.get(commonLocators.propertyPaneTitle).should(
@@ -30,8 +33,12 @@ describe("Explorer hidden widget Selection", () => {
   });
 
   it("3. Switches tabs when selecting a tab", () => {
-    _.entityExplorer.ExpandCollapseEntity("Tabs1");
-    _.entityExplorer.SelectEntityByName("UnselectedTab", "Widgets");
+    EditorNavigation.SelectEntityByName(
+      "UnselectedTab",
+      EntityType.Widget,
+      {},
+      ["Tabs1"],
+    );
 
     // Assert correct tab is open
     cy.wait(1000);
@@ -39,8 +46,9 @@ describe("Explorer hidden widget Selection", () => {
   });
 
   it("4. Switches tabs when selecting a widget inside other tab", () => {
-    _.entityExplorer.ExpandCollapseEntity("UnselectedTab");
-    _.entityExplorer.SelectEntityByName("Button6", "Widgets");
+    EditorNavigation.SelectEntityByName("Button6", EntityType.Widget, {}, [
+      "UnselectedTab",
+    ]);
 
     // Assert correct tab is open and button selected
     cy.wait(1000);
@@ -58,8 +66,9 @@ describe("Explorer hidden widget Selection", () => {
     cy.get(commonLocators.propertyPaneTitle).should("contain", "Button6");
   });
   it("6. Switches tabs when selecting a widget inside hidden tab", () => {
-    _.entityExplorer.ExpandCollapseEntity("Tab 3");
-    _.entityExplorer.SelectEntityByName("Button7", "Widgets");
+    EditorNavigation.SelectEntityByName("Button7", EntityType.Widget, {}, [
+      "Tab 3",
+    ]);
 
     // Assert button is selected
     cy.wait(1000);
@@ -68,16 +77,17 @@ describe("Explorer hidden widget Selection", () => {
   });
 
   it("7. Assert the overkill", () => {
-    _.entityExplorer.ExpandCollapseEntity("Overkill_Modal");
-    _.entityExplorer.ExpandCollapseEntity("Tabs2");
-    _.entityExplorer.ExpandCollapseEntity("Tab 2");
-    _.entityExplorer.ExpandCollapseEntity("Tabs3");
-    _.entityExplorer.ExpandCollapseEntity("Canvas9");
-    _.entityExplorer.ExpandCollapseEntity("Tabs4");
-    _.entityExplorer.ExpandCollapseEntity("Canvas11");
-    _.entityExplorer.ExpandCollapseEntity("Tabs5");
-    _.entityExplorer.ExpandCollapseEntity("Canvas13");
-    _.entityExplorer.SelectEntityByName("OverKillText", "Widgets");
+    EditorNavigation.SelectEntityByName("OverKillText", EntityType.Widget, {}, [
+      "Overkill_Modal",
+      "Tabs2",
+      "Tab 2",
+      "Tabs3",
+      "Canvas9",
+      "Tabs4",
+      "Canvas11",
+      "Tabs5",
+      "Canvas13",
+    ]);
 
     // Assert that widget is seen
     cy.get(commonLocators.propertyPaneTitle).should("contain", "OverKillText");

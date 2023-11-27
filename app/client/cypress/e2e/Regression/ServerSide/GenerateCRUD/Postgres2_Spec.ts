@@ -1,14 +1,18 @@
 import {
   agHelper,
-  entityExplorer,
-  propPane,
-  deployMode,
-  dataSources,
-  table,
-  locators,
-  entityItems,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  locators,
+  propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 let dsName: any, newCallsign: any;
 
 describe("Validate Postgres Generate CRUD with JSON Form", () => {
@@ -72,7 +76,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.SelectEntityByName("CreateVessels");
+    EditorNavigation.SelectEntityByName("CreateVessels", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -162,12 +166,12 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 		"current_port" = '{{update_form.fieldState.current_port.isVisible ? update_form.formData.current_port : update_form.sourceData.current_port}}'
 	WHERE "ship_id" = {{data_table.selectedRow.ship_id}};`;
 
-    entityExplorer.SelectEntityByName("UpdateQuery", "Queries/JS");
+    EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
     dataSources.EnterQuery(updateQuery);
     agHelper.PressEscape();
     agHelper.AssertAutoSave();
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.SelectEntityByName("update_form", "Widgets");
+    EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
     UpdatingVesselsJSONPropertyFileds();
   });
 
@@ -419,7 +423,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       '{{insert_form.formData.current_port}}'
     );`;
 
-    entityExplorer.SelectEntityByName("InsertQuery", "Queries/JS");
+    EditorNavigation.SelectEntityByName("InsertQuery", EntityType.Query);
     dataSources.EnterQuery(insertQuery);
     agHelper.PressEscape();
     agHelper.AssertAutoSave();
@@ -427,9 +431,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("11. Update JSON fields with placeholds for Addition - on Vessels", () => {
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Insert_Modal");
-    entityExplorer.SelectEntityByName("insert_form");
+    EditorNavigation.SelectEntityByName("insert_form", EntityType.Widget, {}, [
+      "Insert_Modal",
+    ]);
     agHelper.Sleep(2000);
 
     //Removing Default values & setting placeholder!
@@ -619,7 +623,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("17. Verify application does not break when user runs the query with wrong table name", function () {
-    entityExplorer.SelectEntityByName("DropVessels", "Queries/JS");
+    EditorNavigation.SelectEntityByName("DropVessels", EntityType.Query);
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(false);

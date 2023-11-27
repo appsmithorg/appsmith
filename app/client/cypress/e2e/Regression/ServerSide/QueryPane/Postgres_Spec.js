@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -281,7 +282,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       action: "Delete",
       entityType: entityItems.Page,
     });
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {

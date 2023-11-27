@@ -71,12 +71,21 @@ export const getFilteredTemplateList = createSelector(
   (templates, templatesFilters, numberOfFiltersApplied) => {
     const result: Template[] = [];
     const activeTemplateIds: string[] = [];
+    const ALL_TEMPLATES_FILTER_VALUE = "All";
 
     if (!numberOfFiltersApplied) {
       return templates;
     }
 
     if (!Object.keys(templatesFilters).length) {
+      return templates;
+    }
+
+    // If only "All Templates" is selected, return all templates
+    if (
+      numberOfFiltersApplied === 1 &&
+      templatesFilters.functions?.includes(ALL_TEMPLATES_FILTER_VALUE)
+    ) {
       return templates;
     }
 

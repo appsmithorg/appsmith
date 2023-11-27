@@ -1,11 +1,13 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
-  deployMode,
   assertHelper,
+  deployMode,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate basic binding of Input widget to Input widget", () => {
   before(() => {
@@ -15,14 +17,14 @@ describe("Validate basic binding of Input widget to Input widget", () => {
   it("1. Input widget test with default value from another Input widget", () => {
     cy.fixture("testdata").then(function (dataSet: any) {
       //dataSet = data;
-      entityExplorer.SelectEntityByName("Input1", "Widgets");
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Default value",
         dataSet.defaultInputBinding + "}}",
       );
       assertHelper.AssertNetworkStatus("@updateLayout");
       //Binding second input widget with first input widget and validating
-      entityExplorer.SelectEntityByName("Input2");
+      EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Default value",
         dataSet.momentInput + "}}",

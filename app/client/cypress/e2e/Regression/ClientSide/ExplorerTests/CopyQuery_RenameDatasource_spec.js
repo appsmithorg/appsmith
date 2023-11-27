@@ -1,9 +1,11 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import {
   entityExplorer,
   dataSources,
-  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 const pageid = "MyPage";
@@ -23,7 +25,7 @@ describe("Entity explorer tests related to copy query", function () {
 
   it("1. Create a query with dataSource in explorer, Create new Page", function () {
     cy.Createpage(pageid);
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@saveDatasource").then((httpResponse) => {
@@ -60,15 +62,14 @@ describe("Entity explorer tests related to copy query", function () {
   });
 
   it("2. Copy query in explorer to new page & verify Bindings are copied too", function () {
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
       action: "Copy to page",
       subAction: pageid,
       toastToValidate: "copied to page",
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("Query1");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     cy.runQuery();
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
