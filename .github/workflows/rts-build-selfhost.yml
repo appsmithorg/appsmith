@@ -22,7 +22,7 @@ on:
         type: string
 
   pull_request:
-    branches: [release, master]
+    branches: []
     paths:
       - "app/client/packages/rts/**"
 
