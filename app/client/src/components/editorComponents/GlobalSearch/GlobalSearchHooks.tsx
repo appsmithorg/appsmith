@@ -26,7 +26,6 @@ import {
 } from "./utils";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { createNewQueryAction } from "actions/apiPaneActions";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -38,7 +37,10 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
-import type { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import {
+  createNewQueryBasedOnParentEntity,
+  type ACTION_PARENT_ENTITY_TYPE,
+} from "@appsmith/entities/Engine/actionHelpers";
 
 export const useFilteredFileOperations = (
   query = "",
@@ -140,7 +142,7 @@ export const useFilteredAndSortedFileOperations = ({
       entityType: ACTION_PARENT_ENTITY_TYPE,
       from: EventLocation,
     ) =>
-      createNewQueryAction(entityId, from, dsId);
+      createNewQueryBasedOnParentEntity(entityId, from, dsId, entityType);
 
   // map into operations
   const dsOperations = datasources.map((ds) =>
