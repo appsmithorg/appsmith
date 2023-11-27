@@ -3,17 +3,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import type { SlashCommandPayload } from "entities/Action";
 
-export enum ACTION_PARENT_ENTITY_TYPE {
-  PAGE = "PAGE",
-  WORKFLOW = "WORKFLOW",
-}
-export interface CREATE_QUERY_PAYLOAD_TYPE {
-  entityId: string;
-  entityType: ACTION_PARENT_ENTITY_TYPE;
-  from: EventLocation;
-  datasourceId: string;
-}
-
 export const changeApi = (
   id: string,
   isSaas: boolean,
@@ -69,13 +58,16 @@ export const createNewApiAction = (
 });
 
 export const createNewQueryAction = (
-  entityId: string,
+  pageId: string,
   from: EventLocation,
   datasourceId: string,
-  entityType: ACTION_PARENT_ENTITY_TYPE = ACTION_PARENT_ENTITY_TYPE.PAGE,
-): ReduxAction<CREATE_QUERY_PAYLOAD_TYPE> => ({
+): ReduxAction<{
+  pageId: string;
+  from: EventLocation;
+  datasourceId: string;
+}> => ({
   type: ReduxActionTypes.CREATE_NEW_QUERY_ACTION,
-  payload: { entityId, from, datasourceId, entityType },
+  payload: { pageId, from, datasourceId },
 });
 
 export const updateBodyContentType = (

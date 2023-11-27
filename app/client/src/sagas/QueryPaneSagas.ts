@@ -59,6 +59,7 @@ import {
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   datasourcesEditorIdURL,
@@ -87,10 +88,6 @@ import type { ChangeQueryPayload } from "actions/queryPaneActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
-import {
-  ACTION_PARENT_ENTITY_TYPE,
-  type CREATE_QUERY_PAYLOAD_TYPE,
-} from "actions/apiPaneActions";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -483,9 +480,13 @@ function* handleNameChangeSuccessSaga(
  * @param action
  */
 function* createNewQueryForDatasourceSaga(
-  action: ReduxAction<CREATE_QUERY_PAYLOAD_TYPE>,
+  action: ReduxAction<{
+    pageId: string;
+    datasourceId: string;
+    from: EventLocation;
+  }>,
 ) {
-  const { datasourceId, entityId, entityType, from } = action.payload;
+  const { datasourceId, from, pageId } = action.payload;
   if (!datasourceId) return;
 
   const actions: ActionDataState = yield select(getActions);
@@ -493,8 +494,8 @@ function* createNewQueryForDatasourceSaga(
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
   const newActionName =
     plugin?.type === PluginType.DB
-      ? createNewQueryName(actions, entityId || "")
-      : createNewApiName(actions, entityId || "");
+      ? createNewQueryName(actions, pageId || "")
+      : createNewApiName(actions, pageId || "");
 
   const createActionPayload: Partial<Action> = yield call(
     createDefaultActionPayloadWithPluginDefaults,
@@ -505,16 +506,12 @@ function* createNewQueryForDatasourceSaga(
     },
   );
 
-  const apiPayload = { ...createActionPayload };
-
-  // create payload based on ACTION_PARENT_ENTITY_TYPE
-  if (entityType === ACTION_PARENT_ENTITY_TYPE.PAGE) {
-    apiPayload.pageId = entityId;
-  } else if (entityType === ACTION_PARENT_ENTITY_TYPE.WORKFLOW) {
-    apiPayload.workflowId = entityId;
-  }
-
-  yield put(createActionRequest(apiPayload));
+  yield put(
+    createActionRequest({
+      ...createActionPayload,
+      pageId: action.payload.pageId,
+    }),
+  );
 }
 
 function* handleNameChangeFailureSaga(
