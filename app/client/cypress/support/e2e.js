@@ -22,7 +22,7 @@ import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";
-import { initLocalstorage, addIndexedDBKey } from "./commands";
+import { initLocalstorage, addIndexedDBKey, addCypressSpy } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
@@ -141,6 +141,8 @@ before(function () {
     });
   }
   //console.warn = () => {};
+
+  addCypressSpy();
 
   cy.CreateNewAppInNewWorkspace(); //Creating new workspace and app
   cy.fixture("TestDataSet1").then(function (data) {

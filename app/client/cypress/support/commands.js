@@ -55,7 +55,6 @@ export const initLocalstorage = () => {
   cy.window().then((window) => {
     window.localStorage.setItem("ShowCommentsButtonToolTip", "");
     window.localStorage.setItem("updateDismissed", "true");
-    cy.spy(window, "cypressSpy").as("reduxCypressSpy");
   });
 };
 
@@ -94,6 +93,19 @@ export const addIndexedDBKey = (key, value) => {
     request.onerror = (event) => {
       console.log("Error opening database:", event.target.error);
     };
+  });
+};
+
+export const addCypressSpy = () => {
+  cy.window().then((window) => {
+    console.log("Window Object:", window);
+    console.log("cypressSpy Object:", window.cypressSpy);
+    // Check if reduxFunction is defined
+    if (window.cypressSpy) {
+      cy.spy(window, "cypressSpy").as("reduxCypressSpy");
+    } else {
+      console.error("reduxCypressSpy is not defined on the window object");
+    }
   });
 };
 
