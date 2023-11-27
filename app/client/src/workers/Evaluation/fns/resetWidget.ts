@@ -71,8 +71,7 @@ async function resetWidgetMetaProperty(
     (widget) => widget.widgetName === widgetName,
   );
 
-  if (!dataTreeEvaluator) return;
-  if (!widget) return;
+  if (!dataTreeEvaluator || !widget) return;
 
   const evalTree = dataTreeEvaluator.getEvalTree();
   const oldUnEvalTree = dataTreeEvaluator.getOldUnevalTree();
@@ -86,7 +85,7 @@ async function resetWidgetMetaProperty(
     widget.widgetName
   ] as WidgetEntityConfig;
 
-  if (isWidget(evaluatedEntity) && evaluatedEntity) {
+  if (evaluatedEntity && isWidget(evaluatedEntity)) {
     const metaObj = evaluatedEntity.meta;
     const currentMetaProperties = Object.keys(metaObj);
     const { propertyOverrideDependency } = evaluatedEntityConfig;
@@ -136,13 +135,13 @@ async function resetWidgetMetaProperty(
         });
 
         continue;
+      } else {
+        evalMetaUpdates.push({
+          widgetId: evaluatedEntity.widgetId,
+          metaPropertyPath: propertyPath.split("."),
+          value: undefined,
+        });
       }
-
-      evalMetaUpdates.push({
-        widgetId: evaluatedEntity.widgetId,
-        metaPropertyPath: propertyPath.split("."),
-        value: undefined,
-      });
     }
 
     if (resetChildren) {

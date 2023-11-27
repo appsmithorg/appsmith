@@ -260,9 +260,8 @@ export function* evaluateTreeSaga(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
-  const widgetsMeta: ReturnType<typeof getWidgetsMeta> = yield select(
-    getWidgetsMeta,
-  );
+  const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
+    yield select(getWidgetsMeta);
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
