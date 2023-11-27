@@ -16,6 +16,7 @@ import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import EntityLink from "../../EntityLink";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
+import type { Plugin } from "api/PluginApi";
 
 const EntityLinkWrapper = styled.div`
   display: flex;
@@ -36,48 +37,49 @@ const IconWrapper = styled.span`
   margin-right: 4px;
 `;
 
+// This function is used to fetch the icon component for the entity link.
+const getIcon = (props: LogItemProps, pluginGroups: Record<string, Plugin>) => {
+  if (props.source) {
+    // If the source is a widget.
+    if (props.source.type === ENTITY_TYPE.WIDGET && props.source.pluginType) {
+      return (
+        <WidgetIcon height={16} type={props.source.pluginType} width={16} />
+      );
+    }
+    // If the source is a JS action.
+    else if (props.source.type === ENTITY_TYPE.JSACTION) {
+      return JsFileIconV2(16, 16, true, true);
+    } else if (props.source.type === ENTITY_TYPE.ACTION) {
+      // If the source is an API action.
+      if (
+        props.source.pluginType === PluginType.API &&
+        props.source.httpMethod
+      ) {
+        return ApiMethodIcon(props.source.httpMethod, "16px", "32px", 50);
+      }
+      // If the source is a Datasource action.
+      else if (props.iconId && pluginGroups[props.iconId]) {
+        return (
+          <EntityIcon height={"16px"} noBackground noBorder width={"16px"}>
+            <img
+              alt="entityIcon"
+              src={getAssetUrl(pluginGroups[props.iconId].iconLocation)}
+            />
+          </EntityIcon>
+        );
+      }
+    }
+  }
+  // If the source is not defined then return an empty icon.
+  // this case is highly unlikely to happen.
+  return <img alt="icon" src={undefined} />;
+};
+
 // This component is used to render the entity link in the error logs.
 export default function LogEntityLink(props: LogItemProps) {
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
 
-  // This function is used to fetch the icon component for the entity link.
-  const getIcon = () => {
-    if (props.source) {
-      // If the source is a widget.
-      if (props.source.type === ENTITY_TYPE.WIDGET && props.source.pluginType) {
-        return (
-          <WidgetIcon height={16} type={props.source.pluginType} width={16} />
-        );
-      }
-      // If the source is a JS action.
-      else if (props.source.type === ENTITY_TYPE.JSACTION) {
-        return JsFileIconV2(16, 16, true, true);
-      } else if (props.source.type === ENTITY_TYPE.ACTION) {
-        // If the source is an API action.
-        if (
-          props.source.pluginType === PluginType.API &&
-          props.source.httpMethod
-        ) {
-          return ApiMethodIcon(props.source.httpMethod, "16px", "32px", 50);
-        }
-        // If the source is a Datasource action.
-        else if (props.iconId && pluginGroups[props.iconId]) {
-          return (
-            <EntityIcon height={"16px"} noBackground noBorder width={"16px"}>
-              <img
-                alt="entityIcon"
-                src={getAssetUrl(pluginGroups[props.iconId].iconLocation)}
-              />
-            </EntityIcon>
-          );
-        }
-      }
-    }
-    // If the source is not defined then return an empty icon.
-    // this case is highly unlikely to happen.
-    return <img alt="icon" src={undefined} />;
-  };
   const plugin = props.iconId ? pluginGroups[props.iconId] : undefined;
   return (
     <div>
@@ -89,7 +91,7 @@ export default function LogEntityLink(props: LogItemProps) {
             lineHeight: "14px",
           }}
         >
-          <IconWrapper>{getIcon()}</IconWrapper>
+          <IconWrapper>{getIcon(props, pluginGroups)}</IconWrapper>
           <EntityLink
             appsmithErrorCode={props.pluginErrorDetails?.appsmithErrorCode}
             errorSubType={props.messages && props.messages[0].message.name}
