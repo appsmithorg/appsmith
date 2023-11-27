@@ -1,12 +1,15 @@
 import {
   agHelper,
-  entityExplorer,
-  propPane,
-  deployMode,
   apiPage,
-  locators,
+  deployMode,
+  entityExplorer,
   entityItems,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Layout OnLoad Actions tests", function () {
   beforeEach(() => {
@@ -19,8 +22,7 @@ describe("Layout OnLoad Actions tests", function () {
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function () {
     agHelper.AddDsl("onPageLoadActionsDsl");
-    entityExplorer.SelectEntityByName("Widgets");
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.url().then((url) => {
       const pageid = url.split("/")[5]?.split("-").pop();
       cy.log(pageid + "page id");
@@ -66,23 +68,22 @@ describe("Layout OnLoad Actions tests", function () {
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.SelectEntityByName("Image1");
+    EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Image", `{{RandomFlora.data}}`);
 
-    entityExplorer.SelectEntityByName("Image2");
+    EditorNavigation.SelectEntityByName("Image2", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Image",
       `{{RandomUser.data.results[0].picture.large}}`,
     );
 
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Text",
       `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`,
     );
 
-    entityExplorer.SelectEntityByName("Text2");
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Text",
       `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`,
@@ -170,7 +171,7 @@ describe("Layout OnLoad Actions tests", function () {
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function () {
-    entityExplorer.SelectEntityByName("Genderize", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Genderize", EntityType.Api);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Genderize",
       action: "Delete",

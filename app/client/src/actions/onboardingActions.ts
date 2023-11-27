@@ -238,3 +238,16 @@ export const resetCurrentApplicationIdForCreateNewApp = () => {
     type: ReduxActionTypes.RESET_CURRENT_APPLICATION_ID_FOR_CREATE_NEW_APP,
   };
 };
+
+export const setCurrentPluginIdForCreateNewApp = (pluginId: string) => {
+  return {
+    type: ReduxActionTypes.SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP,
+    payload: pluginId,
+  };
+};
+
+export const resetCurrentPluginIdForCreateNewApp = () => {
+  return {
+    type: ReduxActionTypes.RESET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP,
+  };
+};

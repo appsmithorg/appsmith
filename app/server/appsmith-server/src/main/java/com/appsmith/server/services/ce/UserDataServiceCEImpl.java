@@ -1,14 +1,16 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.UserDataRepositoryCake;
-import com.appsmith.server.repositories.UserRepositoryCake;
+import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -20,6 +22,7 @@ import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -31,15 +34,18 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, UserData, String>
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+
+public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String>
         implements UserDataServiceCE {
 
-    private final UserRepositoryCake userRepository;
+    private final UserRepository userRepository;
 
     private final SessionUserService sessionUserService;
 
@@ -51,7 +57,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     private final UserChangedHandler userChangedHandler;
 
-    private final ApplicationRepositoryCake applicationRepository;
+    private final ApplicationRepository applicationRepository;
 
     private final TenantService tenantService;
 
@@ -63,15 +69,15 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            UserDataRepositoryCake repository,
+            UserDataRepository repository,
             AnalyticsService analyticsService,
-            UserRepositoryCake userRepository,
+            UserRepository userRepository,
             SessionUserService sessionUserService,
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
             UserChangedHandler userChangedHandler,
-            ApplicationRepositoryCake applicationRepository,
+            ApplicationRepository applicationRepository,
             TenantService tenantService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userRepository = userRepository;
@@ -86,8 +92,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     @Override
     public Mono<UserData> getForUser(User user) {
-        return Mono.empty(); /*
-        return user == null ? Mono.empty() : getForUser(user.getId());*/
+        return user == null ? Mono.empty() : getForUser(user.getId());
     }
 
     @Override
@@ -124,21 +129,22 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     @Override
     public Mono<UserData> updateForUser(User user, UserData updates) {
-        return Mono.empty(); /*
         // If a UserData document exists for this user, update it. If not, create one.
         updates.setUserId(user.getId());
         final Mono<UserData> updaterMono = update(user.getId(), updates);
         final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
-        return updaterMono.switchIfEmpty(creatorMono);*/
+        return updaterMono.switchIfEmpty(creatorMono);
     }
 
     @Override
     public Mono<UserData> update(String userId, UserData resource) {
         if (userId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "userId"));
+            return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, fieldName(QUserData.userData.userId)));
         }
 
-        Query query = new Query(Criteria.where("userId").is(userId));
+        Query query =
+                new Query(Criteria.where(fieldName(QUserData.userData.userId)).is(userId));
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
@@ -171,7 +177,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     @Override
     public Mono<User> setViewedCurrentVersionReleaseNotes(User user, String version) {
-        return Mono.empty(); /*
         if (user == null) {
             return Mono.empty();
         }
@@ -182,7 +187,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
                         .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId())))
                 .flatMap(userId -> repository.saveReleaseNotesViewedVersion(userId, version))
-                .thenReturn(user);*/
+                .thenReturn(user);
     }
 
     @Override
@@ -197,7 +202,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     @Override
     public Mono<UserData> saveProfilePhoto(Part filePart) {
-        return Mono.empty(); /*
         final Mono<String> prevAssetIdMono =
                 getForCurrentUser().map(userData -> ObjectUtils.defaultIfNull(userData.getProfilePhotoAssetId(), ""));
 
@@ -214,19 +218,18 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
             } else {
                 return assetService.remove(oldAssetId).then(updateMono);
             }
-        });*/
+        });
     }
 
     @Override
     public Mono<Void> deleteProfilePhoto() {
-        return Mono.empty(); /*
         return getForCurrentUser()
                 .flatMap(userData -> {
                     String profilePhotoAssetId = userData.getProfilePhotoAssetId();
                     userData.setProfilePhotoAssetId(null);
                     return repository.save(userData).thenReturn(profilePhotoAssetId);
                 })
-                .flatMap(assetService::remove);*/
+                .flatMap(assetService::remove);
     }
 
     @Override
@@ -252,7 +255,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
      */
     @Override
     public Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application) {
-        return Mono.empty(); /*
         return sessionUserService
                 .getCurrentUser()
                 .zipWhen(this::getForUser)
@@ -269,18 +271,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
                             analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
                             repository.save(userData));
                 })
-                .map(Tuple2::getT2);*/
-    }
-
-    @Override
-    public Mono<UserData> addTemplateIdToLastUsedList(String templateId) {
-        return Mono.empty(); /*
-        return this.getForCurrentUser().flatMap(userData -> {
-            // set recently used template ids
-            userData.setRecentlyUsedTemplateIds(
-                    addIdToRecentList(userData.getRecentlyUsedTemplateIds(), templateId, 5));
-            return repository.save(userData);
-        });*/
+                .map(Tuple2::getT2);
     }
 
     private List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
@@ -315,7 +306,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
     public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
         return applicationRepository
                 .getAllApplicationId(workspaceId)
-                .collectList()
                 .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
     }
 }

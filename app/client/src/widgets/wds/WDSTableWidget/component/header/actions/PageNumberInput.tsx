@@ -2,16 +2,12 @@ import React, { useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { NumericInput, Keys } from "@blueprintjs/core";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { lightenColor } from "widgets/WidgetUtils";
 
-const PageNumberInputWrapper = styled(NumericInput)<{
-  borderRadius: string;
-  accentColor?: string;
-}>`
+const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
     box-shadow: none;
-    border: 1px solid var(--wds-color-border);
-    background: var(--wds-color-bg);
+    border: 1px solid var(--color-bd-neutral);
+    background: var(--color-bg);
     box-sizing: border-box;
     width: 24px;
     height: 24px;
@@ -19,12 +15,10 @@ const PageNumberInputWrapper = styled(NumericInput)<{
     padding: 0 !important;
     text-align: center;
     font-size: 12px;
-    border-radius: ${({ borderRadius }) => borderRadius};
+    border-radius: var(--border-radius-1);
 
     &:disabled {
-      border-color: var(--wds-color-border-disabled);
-      background: var(--wds-color-bg-disabled);
-      color: var(--wds-color-text-disabled);
+      opacity: var(--opacity-disabled);
     }
   }
 
@@ -33,14 +27,13 @@ const PageNumberInputWrapper = styled(NumericInput)<{
   }
 
   & input:hover:not(:disabled) {
-    border-color: var(--wds-color-border-hover) !important;
+    border-color: var(--color-bd-neutral-hover) !important;
   }
 
   & input:focus {
-    box-shadow: 0 0 0 2px ${({ accentColor }) => lightenColor(accentColor)} !important;
-    border-color: ${({ accentColor }) => accentColor} !important;
+    border-color: unset !important;
+    box-shadow: 0 0 0 1px var(--color-bd-focus) !important;
   }
-  margin: 0 8px;
 `;
 
 const MIN_PAGE_COUNT = 1;
@@ -50,8 +43,6 @@ function PageNumberInputComponent(props: {
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   disabled: boolean;
-  borderRadius: string;
-  accentColor?: string;
 }) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
 
@@ -88,8 +79,6 @@ function PageNumberInputComponent(props: {
 
   return (
     <PageNumberInputWrapper
-      accentColor={props.accentColor}
-      borderRadius={props.borderRadius}
       buttonPosition="none"
       clampValueOnBlur
       className="t--table-widget-page-input"

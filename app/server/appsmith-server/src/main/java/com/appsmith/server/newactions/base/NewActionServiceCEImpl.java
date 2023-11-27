@@ -122,7 +122,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
-    private final ActionPermission actionPermission;
+    protected final ActionPermission actionPermission;
 
     private final ObservationRegistry observationRegistry;
     private final Map<String, Plugin> defaultPluginMap = new HashMap<>();

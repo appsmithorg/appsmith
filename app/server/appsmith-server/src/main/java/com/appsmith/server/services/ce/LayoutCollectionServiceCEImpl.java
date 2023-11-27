@@ -1,21 +1,49 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
+import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,11 +51,13 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
+    private final UpdateLayoutService updateLayoutService;
+    private final RefactoringSolution refactoringSolution;
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
-    private final ActionCollectionRepositoryCake actionCollectionRepository;
+    private final ActionCollectionRepository actionCollectionRepository;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
 
@@ -36,7 +66,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
      */
     @Override
     public Mono<ActionCollectionDTO> createCollection(ActionCollectionDTO collection) {
-        return Mono.empty(); /*
         if (collection.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -64,8 +93,11 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         // If the collection name is unique, the action name will be guaranteed to be unique within that collection
         return pageMono.flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
+                    CreatorContextType contextType =
+                            collection.getContextType() == null ? CreatorContextType.PAGE : collection.getContextType();
                     // Check against widget names and action names
-                    return layoutActionService.isNameAllowed(page.getId(), layout.getId(), collection.getName());
+                    return refactoringSolution.isNameAllowed(
+                            page.getId(), contextType, layout.getId(), collection.getName());
                 })
                 .flatMap(isNameAllowed -> {
                     // If the name is allowed, return list of actionDTOs for further processing
@@ -202,12 +234,11 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             .flatMap(updatedCollection -> layoutActionService
                                     .updatePageLayoutsByPageId(updatedCollection.getPageId())
                                     .thenReturn(updatedCollection));
-                });*/
+                });
     }
 
     @Override
     public Mono<ActionCollectionDTO> createCollection(ActionCollectionDTO collection, String branchName) {
-        return Mono.empty(); /*
         if (collection.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -228,12 +259,11 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     collection.setPageId(branchedPage.getId());
                     return createCollection(collection);
                 })
-                .map(responseUtils::updateCollectionDTOWithDefaultResources);*/
+                .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
 
     @Override
     public Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO) {
-        return Mono.empty(); /*
         final String collectionId = actionCollectionMoveDTO.getCollectionId();
         final String destinationPageId = actionCollectionMoveDTO.getDestinationPageId();
 
@@ -308,8 +338,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 // 2. Run updateLayout on the old page
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
-                                            layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(
+                                            layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                                            return updateLayoutService.updateLayout(
                                                     page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());
@@ -327,15 +357,15 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 // 3. Run updateLayout on the new page.
                                 return Flux.fromIterable(page.getLayouts())
                                         .flatMap(layout -> {
-                                            layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                                            return layoutActionService.updateLayout(
+                                            layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                                            return updateLayoutService.updateLayout(
                                                     page.getId(), page.getApplicationId(), layout.getId(), layout);
                                         })
                                         .collect(toSet());
                             })
                             // 4. Return the saved action.
                             .thenReturn(savedCollection);
-                });*/
+                });
     }
 
     @Override
@@ -368,7 +398,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     @Override
     public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(
             String id, ActionCollectionDTO actionCollectionDTO, String branchName) {
-        return Mono.empty(); /*
         // new actions without ids are to be created
         // new actions with ids are to be updated and added to collection
         // old actions that are now missing are to be archived
@@ -573,6 +602,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             }
 
                             return branchedActionCollection;
-                        });*/
+                        });
     }
 }

@@ -6,6 +6,9 @@ import {
   deployMode,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("List widget V2 functionality with button, button group and icon button widgets", () => {
   before(() => {
@@ -36,43 +39,44 @@ describe("List widget V2 functionality with button, button group and icon button
     const iconButtonbasicProperties = ["icon", "onclick"];
 
     // Button widget outside List
-    entityExplorer.SelectEntityByName("Button2", "Widgets");
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
     propPane.AssertPropertyVisibility(basicProperties, "basic");
     propPane.AssertPropertyVisibility(generalProperties1, "general");
     propPane.AssertPropertyVisibility(formSettingsProperties, "formsettings");
 
     // Button widget inside List
-    entityExplorer.SelectEntityByName("List1", "Widgets");
-    entityExplorer.SelectEntityByName("Container1", "List1");
-    entityExplorer.SelectEntityByName("Button1", "Container1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+      "List1",
+      "Container1",
+    ]);
     propPane.AssertPropertyVisibility(basicProperties, "basic");
     propPane.AssertPropertyVisibility(generalProperties1, "general");
     propPane.AssertPropertyVisibility(formSettingsProperties, "formsettings");
 
-    entityExplorer.SelectEntityByName("ButtonGroup2", "Widgets");
+    EditorNavigation.SelectEntityByName("ButtonGroup2", EntityType.Widget);
     // Button group widget outside List
     propPane.AssertPropertyVisibility(buttonGroupDataProperties, "data");
     propPane.AssertPropertyVisibility(buttonGroupGeneralProperties, "general");
 
     // Button group widget inside List
-    entityExplorer.SelectEntityByName("ButtonGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     propPane.AssertPropertyVisibility(buttonGroupDataProperties, "data");
     propPane.AssertPropertyVisibility(buttonGroupGeneralProperties, "general");
 
     // Icon Button widget outside List
-    entityExplorer.SelectEntityByName("IconButton2", "Widgets");
+    EditorNavigation.SelectEntityByName("IconButton2", EntityType.Widget);
     propPane.AssertPropertyVisibility(iconButtonbasicProperties, "basic");
     propPane.AssertPropertyVisibility(buttonGroupGeneralProperties, "general");
 
     // Icon Button widget inside List
-    entityExplorer.SelectEntityByName("IconButton1", "Widgets");
+    EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
     propPane.AssertPropertyVisibility(iconButtonbasicProperties, "basic");
     propPane.AssertPropertyVisibility(buttonGroupGeneralProperties, "general");
   });
 
   it("2. Verify onClick functionality", () => {
     // Button
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
@@ -83,7 +87,7 @@ describe("List widget V2 functionality with button, button group and icon button
     agHelper.ValidateToastMessage("Button Clicked");
 
     // Icon Button
-    entityExplorer.SelectEntityByName("IconButton1", "Widgets");
+    EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
@@ -111,9 +115,10 @@ describe("List widget V2 functionality with button, button group and icon button
   });
 
   it("3. Verify Styles should be configured individually", () => {
-    entityExplorer.SelectEntityByName("List1", "Widgets");
-    entityExplorer.SelectEntityByName("Container1", "List1");
-    entityExplorer.SelectEntityByName("Button1", "Container1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+      "List1",
+      "Container1",
+    ]);
     propPane.MoveToTab("Style");
     agHelper.AssertAttribute("[data-value='PRIMARY']", "data-selected", "true");
     agHelper.GetNClick("[data-value='SECONDARY']");
@@ -123,11 +128,11 @@ describe("List widget V2 functionality with button, button group and icon button
       "false",
     );
 
-    entityExplorer.SelectEntityByName("IconButton1", "Widgets");
+    EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
     propPane.MoveToTab("Style");
     agHelper.AssertAttribute("[data-value='PRIMARY']", "data-selected", "true");
 
-    entityExplorer.SelectEntityByName("ButtonGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     propPane.MoveToTab("Style");
     agHelper.AssertAttribute("[data-value='PRIMARY']", "data-selected", "true");
   });

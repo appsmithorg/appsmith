@@ -17,6 +17,7 @@ public enum AppsmithPluginErrorCode {
     PLUGIN_DATASOURCE_TIMEOUT_ERROR("PE-DSE-5004", "Timed out when connecting to datasource"),
     PLUGIN_QUERY_TIMEOUT_ERROR("PE-QRY-5000", "Timed out on query execution"),
     PLUGIN_AUTHENTICATION_ERROR("PE-ATH-5000", "Datasource authentication error"),
+    PLUGIN_DATASOURCE_AUTHENTICATION_ERROR("PE-ATH-4000", "Datasource authentication error"),
     PLUGIN_DATASOURCE_ERROR("PE-DSE-4000", "Datasource error"),
     PLUGIN_UQI_WHERE_CONDITION_UNKNOWN("PE-UQI-5000", "Where condition could not be parsed"),
     GENERIC_STALE_CONNECTION("PE-STC-5000", "Secondary stale connection error"),

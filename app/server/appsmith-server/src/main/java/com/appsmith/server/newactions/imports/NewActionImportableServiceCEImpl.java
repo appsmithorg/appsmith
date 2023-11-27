@@ -64,7 +64,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
-        Mono<List<NewAction>> importedNewActionMono = Mono.just(importedNewActionList);
+        Mono<List<NewAction>> importedNewActionMono = Mono.justOrEmpty(importedNewActionList);
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
             importedNewActionMono = importedNewActionMono.map(importedNewActionList1 -> {
                 List<NewPage> importedNewPages = mappedImportableResourcesDTO.getPageNameMap().values().stream()

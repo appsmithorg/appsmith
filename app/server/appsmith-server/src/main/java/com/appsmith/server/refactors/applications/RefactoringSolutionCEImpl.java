@@ -1,46 +1,59 @@
 package com.appsmith.server.refactors.applications;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
 @Slf4j
 @RequiredArgsConstructor
 public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final NewPageService newPageService;
     private final ResponseUtils responseUtils;
-    private final LayoutActionService layoutActionService;
+    private final UpdateLayoutService updateLayoutService;
     private final ApplicationService applicationService;
     private final PagePermission pagePermission;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
     private final TransactionalOperator transactionalOperator;
 
-    private final EntityRefactoringService<Void> jsActionEntityRefactoringService;
-    private final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
-    private final EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
-    private final EntityRefactoringService<Layout> widgetEntityRefactoringService;
+    protected final EntityRefactoringService<Void> jsActionEntityRefactoringService;
+    protected final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
+    protected final EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService;
+    protected final EntityRefactoringService<Layout> widgetEntityRefactoringService;
 
     /*
      * To replace fetchUsers in `{{JSON.stringify(fetchUsers)}}` with getUsers, the following regex is required :
@@ -60,13 +73,11 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
      * @return : The DSL after refactor updates
      */
     Mono<Tuple2<LayoutDTO, Set<String>>> refactorName(RefactorEntityNameDTO refactorEntityNameDTO) {
-        return Mono.empty(); /*
         String pageId = refactorEntityNameDTO.getPageId();
         String layoutId = refactorEntityNameDTO.getLayoutId();
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
 
-        String regexPattern = preWord + oldName + postWord;
-        Pattern oldNamePattern = Pattern.compile(regexPattern);
+        Pattern oldNamePattern = getReplacementPattern(oldName);
 
         RefactoringMetaDTO refactoringMetaDTO = new RefactoringMetaDTO();
 
@@ -100,15 +111,20 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 List<Layout> layouts = page.getLayouts();
                 for (Layout layout : layouts) {
                     if (layoutId.equals(layout.getId())) {
-                        layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
-                        return layoutActionService
+                        layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
+                        return updateLayoutService
                                 .updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
                                 .zipWith(Mono.just(updatedBindingPaths));
                     }
                 }
             }
             return Mono.empty();
-        }));*/
+        }));
+    }
+
+    protected static Pattern getReplacementPattern(String oldName) {
+        String regexPattern = preWord + oldName + postWord;
+        return Pattern.compile(regexPattern);
     }
 
     protected Mono<Void> refactorAllReferences(
@@ -128,7 +144,6 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
     @Override
     public Mono<LayoutDTO> refactorEntityName(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
-        return Mono.empty(); /*
 
         EntityRefactoringService<?> service = getEntityRefactoringService(refactorEntityNameDTO);
 
@@ -157,9 +172,9 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                 .then(pageIdMono)
                 .flatMap(branchedPageId -> {
                     refactorEntityNameDTO.setPageId(branchedPageId);
-                    return layoutActionService
-                            .isNameAllowed(
+                    return this.isNameAllowed(
                                     branchedPageId,
+                                    CreatorContextType.PAGE,
                                     refactorEntityNameDTO.getLayoutId(),
                                     refactorEntityNameDTO.getNewFullyQualifiedName())
                             .zipWith(newPageService.getById(branchedPageId));
@@ -185,7 +200,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                                         .thenReturn(tuple2.getT1());
                             });
                 })
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);*/
+                .map(responseUtils::updateLayoutDTOWithDefaultResources);
     }
 
     protected EntityRefactoringService<?> getEntityRefactoringService(RefactorEntityNameDTO refactorEntityNameDTO) {
@@ -199,11 +214,10 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     }
 
     private Mono<String> getBranchedPageIdMono(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
-        return Mono.empty(); /*
         return newPageService
                 .findByBranchNameAndDefaultPageId(
                         branchName, refactorEntityNameDTO.getPageId(), pagePermission.getEditPermission())
-                .map(newPage -> newPage.getId());*/
+                .map(newPage -> newPage.getId());
     }
 
     private Mono<Void> sendRefactorAnalytics(
@@ -219,5 +233,55 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
                     return true;
                 })
                 .then();
+    }
+
+    @Override
+    public Mono<Boolean> isNameAllowed(
+            String contextId, CreatorContextType contextType, String layoutId, String newName) {
+
+        boolean isFQN = newName.contains(".");
+
+        return getAllExistingEntitiesMono(contextId, contextType, layoutId, isFQN)
+                .map(existingNames -> !existingNames.contains(newName));
+    }
+
+    @Override
+    public Mono<Set<String>> getAllExistingEntitiesMono(
+            String contextId, CreatorContextType contextType, String layoutId, boolean isFQN) {
+        Iterable<Flux<String>> existingEntityNamesFlux =
+                getExistingEntityNamesFlux(contextId, layoutId, isFQN, contextType);
+
+        return Flux.merge(existingEntityNamesFlux).collect(Collectors.toSet());
+    }
+
+    protected Iterable<Flux<String>> getExistingEntityNamesFlux(
+            String contextId, String layoutId, boolean isFQN, CreatorContextType contextType) {
+        Flux<String> existingActionNamesFlux =
+                newActionEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
+
+        /*
+         * TODO : Execute this check directly on the DB server. We can query array of arrays by:
+         * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
+         */
+        Flux<String> existingWidgetNamesFlux = Flux.empty();
+        Flux<String> existingActionCollectionNamesFlux = Flux.empty();
+
+        // Widget and collection names cannot collide with FQNs because of the dot operator
+        // Hence we can avoid unnecessary DB calls
+        if (!isFQN) {
+            existingWidgetNamesFlux =
+                    widgetEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
+
+            existingActionCollectionNamesFlux =
+                    actionCollectionEntityRefactoringService.getExistingEntityNames(contextId, contextType, layoutId);
+        }
+
+        ArrayList<Flux<String>> list = new ArrayList<>();
+
+        list.add(existingActionNamesFlux);
+        list.add(existingWidgetNamesFlux);
+        list.add(existingActionCollectionNamesFlux);
+
+        return list;
     }
 }
