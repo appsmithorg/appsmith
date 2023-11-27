@@ -1,6 +1,5 @@
 import EditorNavigation, {
   EntityType,
-  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const queryLocators = require("../../../../locators/QueryEditor.json");

@@ -1,4 +1,4 @@
-import { agHelper } from "../../Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class LeftPane {
   segments?: string[];
@@ -14,27 +14,38 @@ export class LeftPane {
   }
 
   public assertAbsence(name: string) {
-    agHelper.AssertElementLength(this.listItemSelector(name), 0);
+    ObjectsRegistry.AggregateHelper.AssertElementLength(
+      this.listItemSelector(name),
+      0,
+    );
   }
 
   public assertPresence(name: string) {
-    agHelper.AssertElementLength(this.listItemSelector(name), 1);
+    ObjectsRegistry.AggregateHelper.AssertElementLength(
+      this.listItemSelector(name),
+      1,
+    );
   }
 
   public assertCount(name: string, count: number) {
-    agHelper.AssertElementLength(this.listItemSelector(name), count);
+    ObjectsRegistry.AggregateHelper.AssertElementLength(
+      this.listItemSelector(name),
+      count,
+    );
   }
 
   public switchSegment(name: string) {
     if (!this.segments) {
       throw Error("No Segments configured");
     }
-    agHelper
-      .GetAttribute(this.locators.segment(name), "data-selected")
-      .then(($value) => {
-        if ($value === "true") return;
-        else agHelper.GetNClick(this.locators.segment(name));
-      });
+    ObjectsRegistry.AggregateHelper.GetAttribute(
+      this.locators.segment(name),
+      "data-selected",
+    ).then(($value) => {
+      if ($value === "true") return;
+      else
+        ObjectsRegistry.AggregateHelper.GetNClick(this.locators.segment(name));
+    });
   }
 
   public selectItem(
