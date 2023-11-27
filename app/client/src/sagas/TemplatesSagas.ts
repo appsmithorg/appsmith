@@ -501,6 +501,33 @@ function* forkTemplateToApplicationViaOnboardingFlowSaga(
         }),
       );
 
+      // This is to remove the existing default Page 1 in the new application after template has been imported.
+      // 1. Set new page as default
+      const importedTemplatePages = application.pages.filter(
+        (page) => !page.isDefault,
+      );
+      yield put({
+        type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
+        payload: {
+          id: importedTemplatePages[0].id,
+          applicationId: application.id,
+        },
+      });
+
+      yield take(ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_SUCCESS);
+
+      const defaultPageId = application.pages.filter(
+        (page) => page.isDefault,
+      )[0].id;
+
+      //2. Delete old default page (Page 1)
+      yield put({
+        type: ReduxActionTypes.DELETE_PAGE_INIT,
+        payload: {
+          id: defaultPageId,
+        },
+      });
+
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW_SUCCESS,
         payload: response.data.application,
