@@ -10,6 +10,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("Checkbox Tests", function () {
   before(() => {
@@ -198,20 +199,20 @@ describe("Checkbox Tests", function () {
   });
 
   it("6. Verify onSelectionChange Navigat to", () => {
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     EditorNavigation.SelectEntityByName("NewCheckBox", EntityType.Widget);
     propPane.SelectPlatformFunction("onSelectionChange", "Navigate to");
     dataSources.ValidateNSelectDropdown("Choose page", "Select page", "Page2");
     agHelper.Sleep(2000);
     agHelper.GetNClick(propPane._checkbox, 1, true);
-    entityExplorer.VerifyIsCurrentPage("Page2");
+    PageList.VerifyIsCurrentPage("Page2");
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     // Preview mode
     agHelper.GetNClick(locators._enterPreviewMode);
     agHelper.GetNClick(propPane._checkbox, 1, true);
-    entityExplorer.VerifyIsCurrentPage("Page2");
+    PageList.VerifyIsCurrentPage("Page2");
     agHelper.GetNClick(locators._exitPreviewMode);
 
     // Deploy mode

@@ -6,6 +6,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Entity explorer tests related to widgets and validation", function () {
   beforeEach(() => {
@@ -33,7 +34,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
   });
 
   it("2. Create another page and add another widget and verify properties", function () {
-    entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
     agHelper.AddDsl("tableWidgetDsl");
 
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [

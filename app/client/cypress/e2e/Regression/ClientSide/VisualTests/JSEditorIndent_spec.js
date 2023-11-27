@@ -10,6 +10,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("JSEditor Indendation - Visual tests", () => {
   it("6. TC 1933 - jSEditor prettify verification on cloned application", () => {
@@ -124,7 +125,7 @@ myFun2: async () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
-    entityExplorer.ClonePage("Page1");
+    PageList.ClonePage("Page1");
     entityExplorer.ExpandCollapseEntity("Queries/JS");
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.Sleep(3000);

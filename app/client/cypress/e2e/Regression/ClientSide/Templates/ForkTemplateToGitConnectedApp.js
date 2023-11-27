@@ -7,6 +7,7 @@ let branchName = "test/template";
 const jsObject = "Utils";
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("excludeForAirgap", "Fork a template to the current app", () => {
   before(() => {
@@ -60,8 +61,8 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     _.gitSync.CreateGitBranch(branchName, true);
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
-      _.entityExplorer.AddNewPage();
-      _.entityExplorer.AddNewPage("Add page from template");
+      PageList.AddNewPage();
+      PageList.AddNewPage("Add page from template");
       cy.get(template.templateDialogBox).should("be.visible");
       cy.xpath("//h1[text()='Marketing Dashboard']").click();
       cy.wait(10000); // for templates page to load fully

@@ -23,6 +23,7 @@ import {
   gitSync,
   dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../../support/Pages/PageList";
 
 const newPage = "ApiCalls_1";
 const pageName = "crudpage_1";
@@ -46,7 +47,7 @@ describe.skip("Git sync apps", function () {
     homePage.CreateNewApplication();
 
     // create New App and  generate Postgres CRUD page
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     //cy.get(generatePage.generateCRUDPageActionCard).click();
 
     cy.get(generatePage.selectDatasourceDropdown).click();
@@ -458,7 +459,7 @@ describe.skip("Git sync apps", function () {
 
     //  clone the Child_Page
     EditorNavigation.SelectEntityByName("Child_Page", EntityType.Page);
-    entityExplorer.ClonePage("Child_Page");
+    PageList.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
     EditorNavigation.SelectEntityByName("Child_Page Copy", EntityType.Page);
     entityExplorer.ActionContextMenuByEntityName({

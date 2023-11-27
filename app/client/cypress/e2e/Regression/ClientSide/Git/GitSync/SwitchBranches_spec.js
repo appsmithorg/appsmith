@@ -17,6 +17,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch",
@@ -75,7 +76,7 @@ describe("Git sync:", function () {
       parentBranchKey = branName;
     });
 
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1", true);
     dataSources.NavigateToDSCreateNew();
     apiPage.CreateApi("ParentApi1");
@@ -88,7 +89,7 @@ describe("Git sync:", function () {
     cy.get("@gitbranchName").then((branName) => {
       childBranchKey = branName;
     });
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1", true);
     dataSources.NavigateToDSCreateNew();
     apiPage.CreateApi("ChildApi1");
@@ -222,7 +223,7 @@ describe("Git sync:", function () {
       gitSync.CreateGitBranch(childBranchKey, true);
       //cy.createGitBranch(childBranchKey);
       cy.CheckAndUnfoldEntityItem("Pages");
-      entityExplorer.AddNewPage();
+      PageList.AddNewPage();
       cy.get(gitSyncLocators.branchButton).click({ force: true });
       cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");
       cy.wait(400);

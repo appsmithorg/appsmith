@@ -11,6 +11,7 @@ import {
   locators,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Validate Mongo CRUD with JSON Form", () => {
   let dsName: any;
@@ -28,8 +29,8 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     dataSources.CreateDataSource("Mongo", true, false);
     cy.get("@dsName").then(($dsName: any) => {
       dsName = $dsName;
-      entityExplorer.AddNewPage();
-      entityExplorer.AddNewPage("Generate page with data");
+      PageList.AddNewPage();
+      PageList.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });

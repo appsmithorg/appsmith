@@ -17,6 +17,7 @@ import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spe
 import EditorNavigation, {
   EntityType,
 } from "../../../support/Pages/EditorNavigation";
+import PageList from "../../../support/Pages/PageList";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -280,8 +281,8 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   });
 
   it("5. Add new Page and generate CRUD template using created datasource", () => {
-    entityExplorer.AddNewPage();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage();
+    PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 

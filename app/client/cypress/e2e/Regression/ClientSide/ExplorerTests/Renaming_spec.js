@@ -1,3 +1,5 @@
+import PageList from "../../../../support/Pages/PageList";
+
 const explorer = require("../../../../locators/explorerlocators.json");
 import {
   apiPage,
@@ -45,7 +47,7 @@ describe("Api Naming conflict on different pages test", function () {
     entityExplorer.ExpandCollapseEntity("Queries/JS", true);
 
     // create a new page and an API on that page
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     cy.CreateAPI(firstApiName);
     entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     entityExplorer.AssertEntityPresenceInExplorer(firstApiName);

@@ -13,6 +13,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 interface IFunctionSettingData {
   name: string;
@@ -456,7 +457,7 @@ describe("JS Function Execution", function () {
     ];
 
     // clone page and assert order of functions
-    entityExplorer.ClonePage();
+    PageList.ClonePage();
     agHelper.Sleep();
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.Sleep();

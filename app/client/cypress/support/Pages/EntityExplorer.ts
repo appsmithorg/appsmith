@@ -59,28 +59,12 @@ export class EntityExplorer {
     "//div[text()='" +
     entityNameinLeftSidebar +
     "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]";
-  private _expandCollapseSection = (entityNameinLeftSidebar: string) =>
-    this._expandCollapseArrow(entityNameinLeftSidebar) +
-    "/ancestor::div[contains(@class, 't--entity')]//div[@class='bp3-collapse']";
 
-  private _moreOptionsPopover =
-    "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
-  private _pageClone = ".single-select >div:contains('Clone')";
-  private _pageNameDiv = (pageName: string) =>
-    `.t--entity.page:contains('${pageName}')`;
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + "']";
-  _createNewPopup = ".bp3-overlay-content";
   _adsPopup = "div[role='menu']";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
-  _pinEntityExplorer = ".t--pin-entity-explorer";
   _entityExplorer = ".t--entity-explorer";
-  private _modalTextWidget = (modalName: string) =>
-    "//div[contains(@class, 't--entity-name')][text()='" +
-    modalName +
-    "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
-  private _newPageOptions = (option: string) =>
-    `//span[text()='${option}']/parent::div`;
   private _overlaySearch = "[data-testId='t--search-file-operation']";
   _allQueriesforDB = (dbName: string) =>
     "//span[text()='" +
@@ -92,37 +76,6 @@ export class EntityExplorer {
   _widgetSearchInput = "#entity-explorer-search";
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
   _widgetTagSuggestedWidgets = ".widget-tag-collapisble-suggested";
-
-  public SelectEntityInModal(
-    modalNameinEE: string,
-    section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
-    ctrlKey = false,
-  ) {
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    if (section) this.ExpandCollapseEntity(section); //to expand respective section
-    this.ExpandCollapseEntity(modalNameinEE);
-    cy.xpath(this._modalTextWidget(modalNameinEE))
-      .last()
-      .click(ctrlKey ? { ctrlKey } : { multiple: true });
-    this.agHelper.Sleep(500);
-  }
-
-  public AddNewPage(
-    option:
-      | "New blank page"
-      | "Generate page with data"
-      | "Add page from template" = "New blank page",
-  ) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
-    this.agHelper.GetNClick(this.locator._newPage);
-    this.agHelper.GetNClick(this._newPageOptions(option));
-    if (option === "New blank page") {
-      this.assertHelper.AssertNetworkStatus("@createPage", 201);
-      return cy
-        .get("@createPage")
-        .then(($pageName: any) => $pageName.response?.body.data.name);
-    }
-  }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
     AppSidebar.navigate(AppSidebarButton.Pages);
@@ -338,16 +291,6 @@ export class EntityExplorer {
     this.agHelper.Sleep(200); //waiting a bit for widget properties to open
   }
 
-  public ClonePage(pageName = "Page1") {
-    AppSidebar.navigate(AppSidebarButton.Pages);
-    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
-    this.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: pageName,
-      action: "Clone",
-    });
-    this.assertHelper.AssertNetworkStatus("@clonePage", 201);
-  }
-
   public CreateNewDsQuery(dsName: string, isQuery = true) {
     AppSidebar.navigate(AppSidebarButton.Pages);
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
@@ -369,23 +312,6 @@ export class EntityExplorer {
     cy.get("body").type(`{${this.modifierKey}}{v}`);
   }
 
-  public PinUnpinEntityExplorer(pin = true) {
-    cy.get("body").then(($ele) => {
-      if ($ele.find(this._pinEntityExplorer).length) {
-        this.agHelper
-          .GetElement(this._entityExplorer)
-          .invoke("attr", "class")
-          .then(($classes) => {
-            if (pin && !$classes?.includes("fixed"))
-              this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
-            else if (!pin && $classes?.includes("fixed"))
-              this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
-            else this.agHelper.Sleep(200); //do nothing
-          });
-      }
-    });
-  }
-
   public RenameEntityFromExplorer(
     entityName: string,
     renameVal: string,
@@ -405,11 +331,5 @@ export class EntityExplorer {
       .wait(300);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
     this.AssertEntityPresenceInExplorer(renameVal);
-  }
-
-  public VerifyIsCurrentPage(pageName: string) {
-    this.agHelper
-      .GetElement(this._pageNameDiv(pageName))
-      .should("have.class", "activePage");
   }
 }

@@ -12,6 +12,7 @@ import {
   AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let currentUrl: string;
 
@@ -35,7 +36,7 @@ describe("Page orientation and navigation related usecases ", function () {
       currentUrl = url;
     });
     for (let i = 0; i < 25; i++) {
-      entityExplorer.AddNewPage();
+      PageList.AddNewPage();
     }
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     propPane.NavigateToPage("Page1", "onClick");

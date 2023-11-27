@@ -18,6 +18,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Validate Oracle DS", () => {
   let dataSourceName: string, guid: any, query: string, selectQuery: string;
@@ -422,7 +423,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
     });
     agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
     dataSources.RunQueryNVerifyResponseViews(2);
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.ActionContextMenuWithInPane({
       action: "Move to page",

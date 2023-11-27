@@ -6,6 +6,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Validate basic operations on Entity explorer JSEditor structure", () => {
   const pageId = "Page1";
@@ -44,7 +45,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
   it("2. Validate Move JSObject", function () {
     const newPageId = "Page2";
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     entityExplorer.AssertEntityPresenceInExplorer(newPageId);
     EditorNavigation.SelectEntityByName(pageId, EntityType.Page);
     entityExplorer.ActionContextMenuByEntityName({

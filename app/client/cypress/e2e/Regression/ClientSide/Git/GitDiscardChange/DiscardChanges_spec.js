@@ -15,6 +15,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("Git discard changes:", function () {
   let datasourceName;
@@ -45,7 +46,7 @@ describe("Git discard changes:", function () {
       "Default value",
       `{{${query1}.data[0].first_name}}`,
     );
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     EditorNavigation.SelectEntityByName(page2, EntityType.Page);
     cy.wait("@getPage");
     jsEditor.CreateJSObject('return "Success";');
