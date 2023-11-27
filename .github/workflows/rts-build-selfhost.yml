@@ -130,7 +130,7 @@ jobs:
       - name: Install tmux
         run: |
            sudo apt-get update
-           sudo apt-get install tmux
+           sudo apt-get install -y tmux
 
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
