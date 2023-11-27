@@ -39,7 +39,10 @@ import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
+import {
+  JS_TOGGLE_DISABLED_MESSAGE,
+  JS_TOGGLE_SWITCH_JS_MESSAGE,
+} from "@appsmith/constants/messages";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
@@ -777,6 +780,12 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
+    const JSToggleTooltip = isToggleDisabled
+      ? JS_TOGGLE_DISABLED_MESSAGE
+      : !isDynamic
+      ? JS_TOGGLE_SWITCH_JS_MESSAGE
+      : "";
+
     try {
       return (
         <ControlWrapper
@@ -799,10 +808,7 @@ const PropertyControl = memo((props: Props) => {
               tooltip={helpText}
             />
             {isConvertible && (
-              <Tooltip
-                content={JS_TOGGLE_DISABLED_MESSAGE}
-                isDisabled={!isToggleDisabled}
-              >
+              <Tooltip content={JSToggleTooltip}>
                 <span>
                   <ToggleButton
                     className={classNames(
