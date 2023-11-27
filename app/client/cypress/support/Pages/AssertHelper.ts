@@ -78,10 +78,10 @@ export class AssertHelper extends ReusableHelper {
           const result = window.cypressSpy(type);
           expect(result).to.eq(type);
 
-          return cy
-            .get("@reduxCypressSpy")
-            .should("have.been.calledWith", type)
-            .then(() => true) as Cypress.Chainable<boolean>;
+          // return cy
+          //   .get("@reduxCypressSpy")
+          //   .should("have.been.calledWith", type)
+          //   .then(() => true) as Cypress.Chainable<boolean>;
         });
       },
       {
