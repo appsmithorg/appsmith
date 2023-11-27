@@ -125,10 +125,10 @@ export default memo(function NonSuperUserWelcome(props: LandingPageProps) {
           <LayerImage id="layer3" />
           <LayerImage id="layer2" />
           <ElementImage1
-            src={getAssetUrl(`${ASSETS_CDN_URL}/send-message-1.png`)}
+            src={getAssetUrl(`${ASSETS_CDN_URL}/send-message-1.svg`)}
           />
           <ElementImage2
-            src={getAssetUrl(`${ASSETS_CDN_URL}/send-message-2.png`)}
+            src={getAssetUrl(`${ASSETS_CDN_URL}/send-message-2.svg`)}
           />
           <LayerImage id="layer1" />
         </StyledImageBanner>
