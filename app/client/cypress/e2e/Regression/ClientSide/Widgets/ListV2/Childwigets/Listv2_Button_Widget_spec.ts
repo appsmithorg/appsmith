@@ -1,4 +1,7 @@
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../../support/Pages/EditorNavigation";
 
 describe("List v2- Tabs Widget", () => {
   before(() => {
@@ -6,9 +9,10 @@ describe("List v2- Tabs Widget", () => {
   });
 
   it("1. should not throw error when on click event is changed No Action", () => {
-    _.entityExplorer.ExpandCollapseEntity("List1");
-    _.entityExplorer.ExpandCollapseEntity("Container1");
-    _.entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+      "List1",
+      "Container1",
+    ]);
     _.propPane.EnterJSContext("onClick", "{{showAlert('Hello')}}");
     _.agHelper.Sleep();
     _.agHelper.ClickButton("Submit");

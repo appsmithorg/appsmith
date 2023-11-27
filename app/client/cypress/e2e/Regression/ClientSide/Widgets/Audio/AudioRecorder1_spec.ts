@@ -7,6 +7,9 @@ import {
   locators,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Audio Recorder functionality tests", () => {
   before(() => {
@@ -66,7 +69,7 @@ describe("Audio Recorder functionality tests", () => {
     );
     //Exit preview mode
     agHelper.GetNClick(locators._exitPreviewMode);
-    entityExplorer.SelectEntityByName("AudioRecorder1", "Widgets");
+    EditorNavigation.SelectEntityByName("AudioRecorder1", EntityType.Widget);
     propPane.TogglePropertyState("Visible", "On");
     // verify recorder is disabled
     propPane.TogglePropertyState("Disabled", "On");
@@ -84,7 +87,7 @@ describe("Audio Recorder functionality tests", () => {
   });
 
   it("3. Verify onRecordingStart and onRecordingStart Events", () => {
-    entityExplorer.SelectEntityByName("AudioRecorder1", "Widgets");
+    EditorNavigation.SelectEntityByName("AudioRecorder1", EntityType.Widget);
     propPane.TogglePropertyState("Disabled", "Off");
     propPane.SelectPlatformFunction("onRecordingStart", "Show alert");
     agHelper.EnterActionValue("Message", "Recording Started");
@@ -121,7 +124,7 @@ describe("Audio Recorder functionality tests", () => {
   });
 
   it("4.Verify Style tab's properties: Button color, icon color, border radius and Box shadow", () => {
-    entityExplorer.SelectEntityByName("AudioRecorder1", "Widgets");
+    EditorNavigation.SelectEntityByName("AudioRecorder1", EntityType.Widget);
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Button color", "#FFC13D");
     agHelper.Sleep(1000);

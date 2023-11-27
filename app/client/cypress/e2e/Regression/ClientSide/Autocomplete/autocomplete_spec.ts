@@ -1,8 +1,9 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
+
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
-import {
-  entityExplorer,
-  agHelper,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe("Dynamic input autocomplete", () => {
   before(() => {
@@ -10,8 +11,10 @@ describe("Dynamic input autocomplete", () => {
   });
 
   it("1. Opens autocomplete for bindings", () => {
-    entityExplorer.SelectEntityByName("Aditya");
-    entityExplorer.SelectEntityByName("Button2", "TestModal");
+    EditorNavigation.SelectEntityByName("Aditya", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget, {}, [
+      "TestModal",
+    ]);
     cy.testJsontext("label", "", {
       parseSpecialCharSequences: true,
     });

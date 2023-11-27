@@ -23,6 +23,8 @@ export interface INJECTED_CONFIGS {
     applicationId: string;
     browserAgentlicenseKey: string;
     otlpLicenseKey: string;
+    otlpServiceName: string;
+    otlpEndpoint: string;
   };
   fusioncharts: {
     licenseKey: string;
@@ -93,6 +95,9 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       browserAgentlicenseKey:
         process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY || "",
       otlpLicenseKey: process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY || "",
+      otlpEndpoint: process.env.APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME || "",
+      otlpServiceName:
+        process.env.APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT || "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
@@ -177,6 +182,14 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS?.newRelic.otlpLicenseKey,
   );
 
+  const newRelicOtlpServiceName = getConfig(
+    ENV_CONFIG.newRelic.otlpServiceName,
+    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpServiceName,
+  );
+  const newRelicOtlpEndpoint = getConfig(
+    ENV_CONFIG.newRelic.otlpEndpoint,
+    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpEndpoint,
+  );
   const fusioncharts = getConfig(
     ENV_CONFIG.fusioncharts.licenseKey,
     APPSMITH_FEATURE_CONFIGS?.fusioncharts.licenseKey,
@@ -257,6 +270,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       applicationId: newRelicApplicationId.value,
       browserAgentlicenseKey: newRelicBrowserLicenseKey.value,
       otlpLicenseKey: newRelicOtlpLicenseKey.value,
+      otlpEndpoint: newRelicOtlpEndpoint.value,
+      otlpServiceName: newRelicOtlpServiceName.value,
     },
     fusioncharts: {
       enabled: fusioncharts.enabled,

@@ -1,5 +1,8 @@
 import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("JSObject testing", () => {
   before(() => {
@@ -128,14 +131,14 @@ describe("JSObject testing", () => {
     });
     _.jsEditor.SelectFunctionDropdown("myFun1");
     _.jsEditor.RunJSObj();
-    _.entityExplorer.SelectEntityByName("Text2", "Widgets");
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
     _.agHelper.AssertContains("id-1");
     _.agHelper.RefreshPage();
     _.agHelper.AssertContains("Not Set");
-    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     _.jsEditor.SelectFunctionDropdown("myFun2");
     _.jsEditor.RunJSObj();
-    _.entityExplorer.SelectEntityByName("Text2", "Widgets");
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
     _.agHelper.AssertContains("id-1");
   });
 });

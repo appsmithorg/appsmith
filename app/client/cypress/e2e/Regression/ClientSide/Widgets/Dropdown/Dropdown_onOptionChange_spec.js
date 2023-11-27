@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
@@ -16,8 +20,9 @@ describe("Dropdown Widget", function () {
   });
 
   it("1. Dropdown-Modal Validation", function () {
-    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     propPane.UpdatePropertyFieldValue(
       "Source Data",
       JSON.stringify(this.dataSet.input),
@@ -55,7 +60,7 @@ describe("Dropdown Widget", function () {
       force: true,
     });
     entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget);
     cy.reload();
 
     cy.executeDbQuery("dropdownApi", "onOptionChange");
@@ -132,9 +137,9 @@ describe("Dropdown Widget", function () {
   it("4. Toggle JS - Dropdown-Call-Query Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    entityExplorer.SelectEntityByName("Dropdown1");
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
 
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
     cy.EnableAllCodeEditors();
@@ -158,9 +163,9 @@ describe("Dropdown Widget", function () {
   it("5. Toggle JS - Dropdown-CallAnApi Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
 
     cy.testJsontext(
       "onoptionchange",
@@ -182,9 +187,9 @@ describe("Dropdown Widget", function () {
 
   it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
     // Open property pane
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
-    entityExplorer.SelectEntityByName("Dropdown1");
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
 
     // Clear the JS code
     propPane.UpdatePropertyFieldValue("onOptionChange", "");

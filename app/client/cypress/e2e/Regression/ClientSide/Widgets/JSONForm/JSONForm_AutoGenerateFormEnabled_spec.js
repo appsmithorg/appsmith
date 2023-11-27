@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
@@ -38,7 +42,7 @@ describe("JSON Form Widget AutoGenerate Enabled", () => {
       ],
     };
 
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
     deployMode.DeployApp();
 

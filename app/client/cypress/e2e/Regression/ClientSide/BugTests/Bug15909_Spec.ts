@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("JS Function Execution", function () {
   before(() => {
@@ -23,7 +26,7 @@ describe("JS Function Execution", function () {
         prettify: false,
       },
     );
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", `{{JSObject1.`, true, false);
     _.agHelper.AssertContains("myFun1.data");
     _.agHelper.AssertContains("myFun2.data");

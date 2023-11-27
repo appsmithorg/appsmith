@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -8,8 +12,9 @@ describe("Binding the multiple input Widget", function () {
   });
 
   it("1. Input widget test with default value from table widget v2", function () {
-    _.entityExplorer.ExpandCollapseEntity("Form1");
-    _.entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait(2000);

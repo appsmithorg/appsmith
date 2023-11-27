@@ -1,13 +1,14 @@
 import {
-  assertHelper,
   agHelper,
+  appSettings,
+  assertHelper,
   dataSources,
+  entityExplorer,
   locators,
   table,
-  appSettings,
-  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -63,17 +64,17 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
 
   it("2. Navigate & Assert toast", () => {
     //Navigating between CRUD (Page3) & EmptyPage (Page2):
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.Sleep(2000);
-    entityExplorer.SelectEntityByName("Page2");
+    EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
     agHelper.AssertElementAbsence(
       locators._specificToast('The action "SelectQuery" has failed.'),
     );
 
     //Navigating between CRUD (Page3) & CRUD (Page4):
-    entityExplorer.SelectEntityByName("Page3");
+    EditorNavigation.SelectEntityByName("Page3", EntityType.Page);
     agHelper.Sleep(2000);
-    entityExplorer.SelectEntityByName("Page2");
+    EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
     agHelper.AssertElementAbsence(
       locators._specificToast('The action "SelectQuery" has failed.'),
     );

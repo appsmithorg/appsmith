@@ -276,6 +276,10 @@
           applicationId: parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__"),
           browserAgentlicenseKey: parseConfig("__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__"),
           otlpLicenseKey: parseConfig("__APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__"),
+          //OTLP following the naming convention of Sdk initialisation
+          otlpServiceName: parseConfig("__APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME__"),
+          otlpEndpoint:parseConfig("__APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__"), 
+
         },
         fusioncharts: {
           licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),
