@@ -160,6 +160,7 @@ export interface BaseAction {
   isPublic?: boolean;
   moduleId?: string;
   moduleInstanceId?: string;
+  workflowId?: string;
 }
 
 interface BaseApiAction extends BaseAction {
