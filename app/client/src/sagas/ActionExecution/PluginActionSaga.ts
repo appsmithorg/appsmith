@@ -8,6 +8,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
+import type { updateActionDataPayloadType } from "actions/pluginActionActions";
 import {
   clearActionResponse,
   executePluginActionError,
@@ -161,6 +162,12 @@ import {
   getCurrentEnvironmentName,
 } from "@appsmith/selectors/environmentSelectors";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import type { OtlpSpan } from "UITelemetry/generateTraces";
+import {
+  endSpan,
+  setAttributesToSpan,
+  startRootSpan,
+} from "UITelemetry/generateTraces";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -497,6 +504,7 @@ export default function* executePluginActionTriggerSaga(
   pluginAction: TRunDescription,
   eventType: EventType,
 ) {
+  const span = startRootSpan("executePluginActionTriggerSaga");
   const { payload: pluginPayload } = pluginAction;
   const { actionId, onError, params } = pluginPayload;
   if (getType(params) !== Types.OBJECT) {
@@ -514,6 +522,10 @@ export default function* executePluginActionTriggerSaga(
     },
     actionId,
   );
+  span &&
+    setAttributesToSpan(span, {
+      actionId: actionId,
+    });
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   const action = shouldBeDefined<Action>(
     yield select(getAction, actionId),
@@ -563,6 +575,8 @@ export default function* executePluginActionTriggerSaga(
     action.id,
     pagination,
     params,
+    undefined,
+    span,
   );
   const { isError, payload } = executePluginActionResponse;
 
@@ -740,6 +754,7 @@ function* runActionSaga(
     skipOpeningDebugger: boolean;
   }>,
 ) {
+  const span = startRootSpan("runActionSaga");
   const actionId = reduxAction.payload.id;
   const isSaving: boolean = yield select(isActionSaving(actionId));
   const isDirty: boolean = yield select(isActionDirty(actionId));
@@ -806,6 +821,7 @@ function* runActionSaga(
       paginationField,
       {},
       true,
+      span,
     );
     payload = executePluginActionResponse.payload;
     isError = executePluginActionResponse.isError;
@@ -1071,7 +1087,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   }
 }
 
-function* executePageLoadAction(pageAction: PageAction) {
+function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
   const currentEnvDetails: { id: string; name: string } = yield select(
     getCurrentEnvironmentDetails,
   );
@@ -1119,7 +1135,14 @@ function* executePageLoadAction(pageAction: PageAction) {
 
     try {
       const executePluginActionResponse: ExecutePluginActionResponse =
-        yield call(executePluginActionSaga, pageAction);
+        yield call(
+          executePluginActionSaga,
+          pageAction,
+          undefined,
+          undefined,
+          undefined,
+          span,
+        );
       payload = executePluginActionResponse.payload;
       isError = executePluginActionResponse.isError;
     } catch (e) {
@@ -1175,11 +1198,13 @@ function* executePageLoadAction(pageAction: PageAction) {
         }),
       );
       yield put(
-        updateActionData({
-          entityName: action.name,
-          dataPath: "data",
-          data: payload.body,
-        }),
+        updateActionData([
+          {
+            entityName: action.name,
+            dataPath: "data",
+            data: payload.body,
+          },
+        ]),
       );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -1230,11 +1255,13 @@ function* executePageLoadAction(pageAction: PageAction) {
         pageAction.id,
       );
       yield put(
-        updateActionData({
-          entityName: action.name,
-          dataPath: "data",
-          data: payload.body,
-        }),
+        updateActionData([
+          {
+            entityName: action.name,
+            dataPath: "data",
+            data: payload.body,
+          },
+        ]),
       );
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
@@ -1242,13 +1269,14 @@ function* executePageLoadAction(pageAction: PageAction) {
 }
 
 function* executePageLoadActionsSaga() {
+  const span = startRootSpan("executePageLoadActionsSaga");
   try {
     const pageActions: PageAction[][] = yield select(getLayoutOnLoadActions);
     const layoutOnLoadActionErrors: LayoutOnLoadActionErrors[] = yield select(
       getLayoutOnLoadIssues,
     );
     const actionCount = flatten(pageActions).length;
-
+    span && setAttributesToSpan(span, { numActions: actionCount });
     // when cyclical depedency issue is there,
     // none of the page load actions would be executed
     PerformanceTracker.startAsyncTracking(
@@ -1259,7 +1287,9 @@ function* executePageLoadActionsSaga() {
       // Load all sets in parallel
       // @ts-expect-error: no idea how to type this
       yield* yield all(
-        actionSet.map((apiAction) => call(executePageLoadAction, apiAction)),
+        actionSet.map((apiAction) =>
+          call(executePageLoadAction, apiAction, span),
+        ),
       );
     }
     PerformanceTracker.stopAsyncTracking(
@@ -1276,6 +1306,7 @@ function* executePageLoadActionsSaga() {
       kind: "error",
     });
   }
+  endSpan(span);
 }
 
 interface ExecutePluginActionResponse {
@@ -1293,6 +1324,7 @@ function* executePluginActionSaga(
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
   isUserInitiated?: boolean,
+  parentSpan?: OtlpSpan,
 ) {
   let pluginAction;
   let actionId;
@@ -1308,6 +1340,11 @@ function* executePluginActionSaga(
     actionId = actionOrActionId.id;
   }
 
+  parentSpan &&
+    setAttributesToSpan(parentSpan, {
+      actionId,
+      pluginName: pluginAction?.name,
+    });
   if (pluginAction.confirmBeforeExecute) {
     const modalPayload = {
       name: pluginAction.name,
@@ -1376,7 +1413,8 @@ function* executePluginActionSaga(
   let payload = EMPTY_RESPONSE;
   let response: ActionExecutionResponse;
   try {
-    response = yield ActionAPI.executeAction(formData, timeout);
+    response = yield ActionAPI.executeAction(formData, timeout, parentSpan);
+
     const isError = isErrorResponse(response);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.EXECUTE_ACTION,
@@ -1392,11 +1430,16 @@ function* executePluginActionSaga(
     );
 
     yield put(
-      updateActionData({
-        entityName: pluginAction.name,
-        dataPath: "data",
-        data: isError ? undefined : payload.body,
-      }),
+      updateActionData(
+        [
+          {
+            entityName: pluginAction.name,
+            dataPath: "data",
+            data: isError ? undefined : payload.body,
+          },
+        ],
+        parentSpan,
+      ),
     );
     // TODO: Plugins are not always fetched before on page load actions are executed.
     try {
@@ -1451,11 +1494,16 @@ function* executePluginActionSaga(
       }),
     );
     yield put(
-      updateActionData({
-        entityName: pluginAction.name,
-        dataPath: "data",
-        data: EMPTY_RESPONSE.body,
-      }),
+      updateActionData(
+        [
+          {
+            entityName: pluginAction.name,
+            dataPath: "data",
+            data: EMPTY_RESPONSE.body,
+          },
+        ],
+        parentSpan,
+      ),
     );
     if (e instanceof UserCancelledActionExecutionError) {
       // Case: user cancelled the request of file upload
@@ -1526,11 +1574,13 @@ function* clearTriggerActionResponse() {
     if (action.data && !action.config.executeOnLoad) {
       yield put(clearActionResponse(action.config.id));
       yield put(
-        updateActionData({
-          entityName: action.config.name,
-          dataPath: "data",
-          data: undefined,
-        }),
+        updateActionData([
+          {
+            entityName: action.config.name,
+            dataPath: "data",
+            data: undefined,
+          },
+        ]),
       );
     }
   }
@@ -1583,20 +1633,15 @@ function* softRefreshActionsSaga() {
 }
 
 function* handleUpdateActionData(
-  action: ReduxAction<{
-    entityName: string;
-    dataPath: string;
-    data: unknown;
-  }>,
+  action: ReduxAction<updateActionDataPayloadType>,
 ) {
-  const { data, dataPath, entityName } = action.payload;
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA, [
-    {
-      entityName,
-      dataPath,
-      data,
-    },
-  ]);
+  const { actionDataPayload, parentSpan } = action.payload;
+  yield call(
+    evalWorker.request,
+    EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
+    actionDataPayload,
+  );
+  endSpan(parentSpan);
 }
 
 export function* watchPluginActionExecutionSagas() {
