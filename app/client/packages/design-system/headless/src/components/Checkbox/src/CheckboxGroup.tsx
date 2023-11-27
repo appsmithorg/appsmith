@@ -1,28 +1,19 @@
 import React, { forwardRef } from "react";
+import { Field } from "@design-system/headless";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef } from "@react-types/shared";
-import type { StyleProps } from "@react-types/shared";
 import { useCheckboxGroup } from "@react-aria/checkbox";
 import { useCheckboxGroupState } from "@react-stately/checkbox";
-import type { SpectrumCheckboxGroupProps } from "@react-types/checkbox";
 
-import { Field } from "@design-system/headless";
 import { CheckboxGroupContext } from "./context";
+import type { CheckboxGroupProps } from "./types";
 
 export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
-
-export interface CheckboxGroupProps
-  extends Omit<
-    SpectrumCheckboxGroupProps,
-    keyof StyleProps | "labelPosition" | "labelAlign" | "isEmphasized"
-  > {
-  className?: string;
-}
 
 const _CheckboxGroup = (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
   const {
     children,
-    className,
+    fieldClassName,
     isDisabled = false,
     orientation = "vertical",
   } = props;
@@ -39,7 +30,7 @@ const _CheckboxGroup = (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
       fieldType="field-group"
       labelProps={labelProps}
       ref={domRef}
-      wrapperClassName={className}
+      wrapperClassName={fieldClassName}
     >
       <div
         {...groupProps}

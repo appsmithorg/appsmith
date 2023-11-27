@@ -4,27 +4,29 @@ import type {
   RadioGroupRef as HeadlessRadioGroupRef,
   RadioGroupProps as HeadlessRadioGroupProps,
 } from "@design-system/headless";
+import { getTypographyClassName } from "@design-system/theming";
 import { RadioGroup as HeadlessRadioGroup } from "@design-system/headless";
 
-import { Text } from "../../Text";
 import { fieldStyles } from "../../../styles";
+import { ContextualHelp } from "../../TextInput/src/ContextualHelp";
 
 export interface RadioGroupProps extends HeadlessRadioGroupProps {
   className?: string;
 }
 
 const _RadioGroup = (props: RadioGroupProps, ref: HeadlessRadioGroupRef) => {
-  const { errorMessage, label, ...rest } = props;
-  const wrappedErrorMessage = Boolean(errorMessage) && (
-    <Text>{errorMessage}</Text>
+  const { contextualHelp: contextualHelpProp, ...rest } = props;
+
+  const contextualHelp = Boolean(contextualHelpProp) && (
+    <ContextualHelp contextualHelp={contextualHelpProp} />
   );
-  const wrappedLabel = Boolean(label) && <Text>{label}</Text>;
 
   return (
     <HeadlessRadioGroup
-      className={fieldStyles.field}
-      errorMessage={wrappedErrorMessage}
-      label={wrappedLabel}
+      contextualHelp={contextualHelp}
+      fieldClassName={fieldStyles.field}
+      helpTextClassName={getTypographyClassName("footnote")}
+      labelClassName={getTypographyClassName("body")}
       ref={ref}
       {...rest}
     />

@@ -9,6 +9,7 @@ import {
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -67,8 +68,7 @@ describe("Validate API Panel CSS Styles", function () {
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
         EditorNavigation.ViaSidebar(SidebarButton.Pages);
-        entityExplorer.ExpandCollapseEntity("Queries/JS");
-        cy.get(commonLocators.entityName).contains("test_styles").click();
+        EditorNavigation.SelectEntityByName("test_styles", EntityType.Api);
         //Click on API search editor
         cy.get(ApiEditor.codeEditorWrapper).first().click();
         //First hint for search background-color test
@@ -86,9 +86,7 @@ describe("Validate API Panel CSS Styles", function () {
         cy.DeleteAPI();
         EditorNavigation.ViaSidebar(SidebarButton.Pages);
         cy.wait(2000);
-        cy.get(commonLocators.entityName)
-          .contains("test_styles")
-          .should("not.exist");
+        entityExplorer.AssertEntityAbsenceInExplorer("test_styles");
         //Delete two datasources
         cy.deleteDatasource(appName1);
         cy.deleteDatasource(appName2);

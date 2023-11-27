@@ -1,12 +1,15 @@
 import {
-  entityExplorer,
   agHelper,
-  locators,
-  deployMode,
-  propPane,
   assertHelper,
+  deployMode,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Dynamic Height Width validation for Tab widget", function () {
   before(() => {
@@ -29,7 +32,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
   }
   it("1. Tab widget validation of height with dynamic height feature with publish mode", function () {
     //changing the Text Name and verifying
-    entityExplorer.SelectEntityByName("Tabs1");
+    EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     agHelper.GetNClick(propPane._tabId1);
     validateHeight();
@@ -53,7 +56,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
     // it("Tab widget validation of height with preview mode", function() {
     agHelper.AssertElementVisibility(locators._previewModeToggle("preview"));
     agHelper.GetNClick(locators._previewModeToggle("preview"));
-    entityExplorer.SelectEntityByName("Tabs1");
+    EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("height", "Fixed");
     agHelper.GetNClick(propPane._tabId1);
     agHelper
@@ -78,7 +81,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
           });
       });
     //it("Tab widget validation of height with reload", function() {
-    entityExplorer.SelectEntityByName("Tabs1");
+    EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
     agHelper.AssertElementVisibility(propPane._propertyPaneHeightLabel);
     agHelper.GetNClick(propPane._showTabsProperty);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
@@ -89,7 +92,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
         agHelper.GetNClick(propPane._tabId2);
         propPane.SelectPropertiesDropDown("height", "Fixed");
         agHelper.RefreshPage();
-        entityExplorer.SelectEntityByName("Tabs1");
+        EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TAB))
           .then((updatedHeight: number) => {

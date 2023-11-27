@@ -39,7 +39,10 @@ import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
+import {
+  JS_TOGGLE_DISABLED_MESSAGE,
+  JS_TOGGLE_SWITCH_JS_MESSAGE,
+} from "@appsmith/constants/messages";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
@@ -57,6 +60,8 @@ import { importSvg } from "design-system-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -156,6 +161,10 @@ const PropertyControl = memo((props: Props) => {
   })();
 
   const propertyValue = _.get(widgetProperties, props.propertyName);
+
+  const experimentalJSToggle = useFeatureFlag(
+    FEATURE_FLAG.ab_one_click_learning_popover_enabled,
+  );
 
   /**
    * checks if property value is deviated or not.
@@ -772,6 +781,12 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
+    const JSToggleTooltip = isToggleDisabled
+      ? JS_TOGGLE_DISABLED_MESSAGE
+      : !isDynamic
+      ? JS_TOGGLE_SWITCH_JS_MESSAGE
+      : "";
+
     try {
       return (
         <ControlWrapper
@@ -794,14 +809,13 @@ const PropertyControl = memo((props: Props) => {
               tooltip={helpText}
             />
             {isConvertible && (
-              <Tooltip
-                content={JS_TOGGLE_DISABLED_MESSAGE}
-                isDisabled={!isToggleDisabled}
-              >
+              <Tooltip content={JSToggleTooltip} isDisabled={!JSToggleTooltip}>
                 <span>
                   <ToggleButton
-                    className={classNames("t--js-toggle", {
+                    className={classNames({
+                      "t--js-toggle": true,
                       "is-active": isDynamic,
+                      "!h-[20px]": experimentalJSToggle,
                     })}
                     icon="js-toggle-v2"
                     isDisabled={isToggleDisabled}
@@ -816,7 +830,7 @@ const PropertyControl = memo((props: Props) => {
                         ),
                       )
                     }
-                    size="sm"
+                    size={experimentalJSToggle ? "md" : "sm"}
                   />
                 </span>
               </Tooltip>

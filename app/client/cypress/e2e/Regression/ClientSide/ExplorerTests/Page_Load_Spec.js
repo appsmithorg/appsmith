@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -90,7 +94,7 @@ describe("Page Load tests", () => {
     );
     cy.contains("Page2").should("not.exist");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Page2");
+    EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
     deployMode.DeployApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
