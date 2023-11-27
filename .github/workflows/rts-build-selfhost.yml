@@ -127,6 +127,11 @@ jobs:
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
           echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
+      - name: Install tmux
+        run: |
+           sudo apt-get update
+           sudo apt-get install tmux
+
       - name: Setup upterm session
         uses: lhotari/action-upterm@v1
 
