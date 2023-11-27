@@ -32,7 +32,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: appsmith-self-hosted-deployment-runner
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -122,7 +122,7 @@ jobs:
           # `-SNAPSHOT` suffix.
           latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
           echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $3++; print }')"
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
           echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
