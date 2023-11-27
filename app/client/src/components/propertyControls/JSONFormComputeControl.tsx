@@ -152,7 +152,6 @@ export function InputText(props: {
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
-        positionCursorInsideBinding
         promptMessage={
           <PromptMessage>
             Access the current form using{" "}

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import _, { get, isFunction, merge } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
@@ -604,6 +604,14 @@ const PropertyControl = memo((props: Props) => {
 
   const { propertyName } = props;
 
+  const isDynamic: boolean = widgetProperties.isPropertyDynamicPath;
+  /**
+   * Position cursor inside binding when switched to JS mode
+   * Check to see if a toggle operation was made.
+   */
+  const [switchedToDynamic, setSwitchedToDynamic] = useState(false);
+  const shouldFocusOnJSControl = switchedToDynamic;
+
   if (widgetProperties) {
     // Do not render the control if it needs to be hidden
     if (
@@ -663,7 +671,11 @@ const PropertyControl = memo((props: Props) => {
       delete config.evaluatedValue;
     }
 
-    const isDynamic: boolean = widgetProperties.isPropertyDynamicPath;
+    config.additionalControlData = {
+      ...config.additionalControlData,
+      shouldFocusOnJSControl,
+    };
+
     const isConvertible = !!props.isJSConvertible;
     const className = label.split(" ").join("").toLowerCase();
 
@@ -806,7 +818,7 @@ const PropertyControl = memo((props: Props) => {
                     icon="js-toggle-v2"
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
-                    onClick={() =>
+                    onClick={() => {
                       toggleDynamicProperty(
                         propertyName,
                         isDynamic,
@@ -814,8 +826,9 @@ const PropertyControl = memo((props: Props) => {
                           config,
                           propertyValue,
                         ),
-                      )
-                    }
+                      );
+                      setSwitchedToDynamic(!isDynamic);
+                    }}
                     size="sm"
                   />
                 </span>
