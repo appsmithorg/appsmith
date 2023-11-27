@@ -68,11 +68,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
-      - name: Install necessary packages
-        run: |
-           sudo apt-get update
-           sudo apt-get install -y gawk
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
@@ -127,7 +122,7 @@ jobs:
           # `-SNAPSHOT` suffix.
           latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
           echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | gawk -F. -v OFS=. '{ $NF++; print }')"
+          next_version="$(echo "$latest_released_version" | gawk -F. -v OFS=. '{ $3++; print }')"
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
           echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
