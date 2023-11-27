@@ -18,6 +18,7 @@ import {
   GraphQLIconV2,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
+import type { ACTION_PARENT_ENTITY_TYPE } from "actions/apiPaneActions";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
@@ -255,8 +256,16 @@ export interface ActionOperation {
   desc: string;
   icon?: any;
   kind: SEARCH_ITEM_TYPES;
-  action?: (pageId: string, location: EventLocation) => any;
-  redirect?: (pageId: string, from: EventLocation) => any;
+  action?: (
+    entityId: string,
+    entityType: ACTION_PARENT_ENTITY_TYPE,
+    location: EventLocation,
+  ) => any;
+  redirect?: (
+    entityId: string,
+    entityType: ACTION_PARENT_ENTITY_TYPE,
+    location: EventLocation,
+  ) => any;
   pluginId?: string;
 }
 
@@ -265,34 +274,47 @@ export const actionOperations: ActionOperation[] = [
     title: "New blank API",
     desc: "Create a new API",
     kind: SEARCH_ITEM_TYPES.actionOperation,
-    action: (pageId: string, location: EventLocation) =>
-      createNewApiAction(pageId, location),
+    action: (
+      entityId: string,
+      entityType: ACTION_PARENT_ENTITY_TYPE,
+      location: EventLocation,
+    ) => createNewApiAction(entityId, location),
   },
   {
     title: "New blank GraphQL API",
     desc: "Create a new API",
     icon: <GraphQLIconV2 />,
     kind: SEARCH_ITEM_TYPES.actionOperation,
-    action: (pageId: string, location: EventLocation) =>
-      createNewApiAction(pageId, location, PluginPackageName.GRAPHQL),
+    action: (
+      entityId: string,
+      entityType: ACTION_PARENT_ENTITY_TYPE,
+      location: EventLocation,
+    ) => createNewApiAction(entityId, location, PluginPackageName.GRAPHQL),
   },
   {
     title: "New JS Object",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2(),
-    action: (pageId: string, from: EventLocation) =>
-      createNewJSCollection(pageId, from),
+    action: (
+      entityId: string,
+      entityType: ACTION_PARENT_ENTITY_TYPE,
+      from: EventLocation,
+    ) => createNewJSCollection(entityId, from),
   },
   {
     title: "New cURL import",
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
-    redirect: (pageId: string, from: EventLocation) => {
+    redirect: (
+      entityId: string,
+      entityType: ACTION_PARENT_ENTITY_TYPE,
+      from: EventLocation,
+    ) => {
       const queryParams = getQueryParams();
       const curlImportURL = curlImportPageURL({
-        pageId,
+        pageId: entityId,
         params: {
           from,
           ...queryParams,
@@ -311,7 +333,11 @@ export const createQueryOption = {
 
 export const generateCreateQueryForDSOption = (
   ds: Datasource,
-  onClick: (id: string, from: EventLocation) => void,
+  onClick: (
+    entityId: string,
+    entityType: ACTION_PARENT_ENTITY_TYPE,
+    from: EventLocation,
+  ) => void,
 ) => {
   return {
     title: `New ${ds.name} query`,

@@ -26,6 +26,7 @@ import {
 } from "./utils";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import type { ACTION_PARENT_ENTITY_TYPE } from "actions/apiPaneActions";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
@@ -133,8 +134,13 @@ export const useFilteredAndSortedFileOperations = ({
   const datasources = getSortedDatasources(allDatasources, recentlyUsedDSMap);
 
   const createQueryAction =
-    (dsId: string) => (pageId: string, from: EventLocation) =>
-      createNewQueryAction(pageId, from, dsId);
+    (dsId: string) =>
+    (
+      entityId: string,
+      entityType: ACTION_PARENT_ENTITY_TYPE,
+      from: EventLocation,
+    ) =>
+      createNewQueryAction(entityId, from, dsId, entityType);
 
   // map into operations
   const dsOperations = datasources.map((ds) =>

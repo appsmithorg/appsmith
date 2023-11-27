@@ -41,6 +41,7 @@ import { FilesContextProvider } from "./Files/FilesContextProvider";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { ACTION_PARENT_ENTITY_TYPE } from "actions/apiPaneActions";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -163,6 +164,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       <FilesContextProvider
         canCreateActions={canCreateActions}
         parentEntityId={pageId}
+        parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
       >
         <Files />
       </FilesContextProvider>

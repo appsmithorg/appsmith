@@ -41,7 +41,7 @@ const StyledText = styled(Text)`
 function Files() {
   // Import the context
   const context = useContext(FilesContext);
-  const { canCreateActions, parentEntityId } = context;
+  const { canCreateActions, parentEntityId, parentEntityType } = context;
 
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
@@ -130,10 +130,18 @@ function Files() {
       if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
       if (item.action) {
         dispatch(
-          item.action(parentEntityId, DatasourceCreateEntryPoints.SUBMENU),
+          item.action(
+            parentEntityId,
+            parentEntityType,
+            DatasourceCreateEntryPoints.SUBMENU,
+          ),
         );
       } else if (item.redirect) {
-        item.redirect(parentEntityId, DatasourceCreateEntryPoints.SUBMENU);
+        item.redirect(
+          parentEntityId,
+          parentEntityType,
+          DatasourceCreateEntryPoints.SUBMENU,
+        );
       }
     },
     [parentEntityId, dispatch],
