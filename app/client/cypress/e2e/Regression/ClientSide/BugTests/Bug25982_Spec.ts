@@ -1,7 +1,7 @@
-import {
-  dataSources,
-  entityExplorer,
-} from "../../../../support/Objects/ObjectsCore";
+import { dataSources } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Fix UQI query switching", function () {
   it("1. The command of the query must be preserved and should not default to initial value after changed.", function () {
@@ -21,10 +21,10 @@ describe("Fix UQI query switching", function () {
       "List files in bucket",
       "Create a new file",
     );
-    entityExplorer.SelectEntityByName("MongoQuery", "Queries/JS");
+    EditorNavigation.SelectEntityByName("MongoQuery", EntityType.Query);
     dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
 
-    entityExplorer.SelectEntityByName("S3Query", "Queries/JS");
+    EditorNavigation.SelectEntityByName("S3Query", EntityType.Query);
     dataSources.ValidateNSelectDropdown("Commands", "Create a new file");
   });
 });

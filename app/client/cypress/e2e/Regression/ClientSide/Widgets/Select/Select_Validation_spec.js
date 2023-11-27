@@ -1,4 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -17,7 +21,7 @@ describe("Select Widget Functionality", function () {
     _.deployMode.NavigateBacktoEditor();
     //Enable the widget and check in publish mode", function () {
     cy.openPropertyPane("selectwidget");
-    _.entityExplorer.SelectEntityByName("SelectRenamed", "Widgets");
+    EditorNavigation.SelectEntityByName("SelectRenamed", EntityType.Widget);
     cy.get(".bp3-disabled").should("be.visible");
     _.propPane.TogglePropertyState("Disabled", "Off");
     cy.get(".t--widget-selectwidget .bp3-button").should("be.visible");
@@ -35,7 +39,7 @@ describe("Select Widget Functionality", function () {
   it("2. Shows validation error for invalid defaultSelectedValue", () => {
     const { agHelper, entityExplorer, locators, propPane } = _;
 
-    entityExplorer.SelectEntityByName("SelectRenamed", "Widgets");
+    EditorNavigation.SelectEntityByName("SelectRenamed", EntityType.Widget);
 
     propPane.UpdatePropertyFieldValue("Default selected value", "GREEN1", true);
 
@@ -76,7 +80,7 @@ describe("Select Widget Functionality", function () {
     // Reload to check if the error persists
     agHelper.RefreshPage();
 
-    entityExplorer.SelectEntityByName("SelectRenamed", "Widgets");
+    EditorNavigation.SelectEntityByName("SelectRenamed", EntityType.Widget);
 
     agHelper.FocusElement(
       locators._propertyInputField("Default selected value"),

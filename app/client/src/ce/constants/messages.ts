@@ -1510,6 +1510,8 @@ export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
+export const JS_TOGGLE_SWITCH_JS_MESSAGE =
+  "Switch to JS mode to customize your data using javascript";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No properties found based on your search";
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
@@ -1703,6 +1705,7 @@ export const SELECT_WORKSPACE = () => "Select workspace";
 export const FORK_TEMPLATE = () => "Fork template";
 export const TEMPLATES = () => "Templates";
 export const FORK_THIS_TEMPLATE = () => "Use template";
+export const FORK_THIS_TEMPLATE_BUILDING_BLOCK = () => "Use building block";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
 export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
@@ -1733,6 +1736,8 @@ export const FETCHING_TEMPLATES = () => "Loading template details";
 export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
 
 export const TEMPLATES_BACK_BUTTON = () => "Back";
+export const SKIP_START_WITH_USE_CASE_TEMPLATES = () =>
+  "Skip this step, I’ll do it later";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
@@ -2249,7 +2254,7 @@ export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
 export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";
 export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
   "Choose an option that fits your approach, and let's shape your app together.";
-export const START_FROM_TEMPLATE_TITLE = () => "Start with use-case";
+export const START_FROM_TEMPLATE_TITLE = () => "Start with template";
 export const START_FROM_TEMPLATE_SUBTITLE = () =>
   "Begin with a specific scenario in mind. We'll guide you through tailoring your app.";
 export const START_FROM_SCRATCH_TITLE = () => "Start from scratch";
@@ -2264,6 +2269,12 @@ export const START_WITH_DATA_CONNECT_SUBHEADING = () =>
 export const START_WITH_TEMPLATE_CONNECT_HEADING = () => "Select a template";
 export const START_WITH_TEMPLATE_CONNECT_SUBHEADING = () =>
   "Choose an option below to embark on your app-building adventure!";
+
+export const PAGES_PANE_TEXTS = {
+  queries_tab: () => "Queries",
+  js_tab: () => "JS",
+  ui_tab: () => "UI",
+};
 
 export const PARTIAL_IMPORT_EXPORT = {
   export: {

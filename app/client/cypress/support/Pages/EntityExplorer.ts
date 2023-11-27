@@ -1,6 +1,9 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
-import EditorNavigation, { SidebarButton } from "./EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "./EditorNavigation";
 
 type templateActions =
   | "Find"
@@ -57,10 +60,6 @@ export class EntityExplorer {
     this._expandCollapseArrow(entityNameinLeftSidebar) +
     "/ancestor::div[contains(@class, 't--entity')]//div[@class='bp3-collapse']";
 
-  private _templateMenuTrigger = (entityNameinLeftSidebar: string) =>
-    "//div[contains(@class, 't--entity-name')][text()='" +
-    entityNameinLeftSidebar +
-    "']/ancestor::div[contains(@class, 't--entity-item')]//button[contains(@class, 't--template-menu-trigger')]";
   private _moreOptionsPopover =
     "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
   private _pageClone = ".single-select >div:contains('Clone')";
@@ -92,22 +91,6 @@ export class EntityExplorer {
   _widgetSearchInput = "#entity-explorer-search";
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
   _widgetTagSuggestedWidgets = ".widget-tag-collapisble-suggested";
-
-  public SelectEntityByName(
-    entityNameinLeftSidebar: string,
-    section: "Widgets" | "Queries/JS" | "Pages" | "" | string = "",
-    ctrlKey = false,
-  ) {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    this.NavigateToSwitcher("Explorer");
-    if (section) this.ExpandCollapseEntity(section); //to expand respective section
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
-      .last()
-      .click(
-        ctrlKey ? { ctrlKey, force: true } : { multiple: true, force: true },
-      );
-    this.agHelper.Sleep(); //for selection to settle
-  }
 
   public SelectEntityInModal(
     modalNameinEE: string,
@@ -226,19 +209,6 @@ export class EntityExplorer {
       });
   }
 
-  public GetEntityNamesInSection(
-    sectionName: string,
-    entityFilterSelector: string,
-  ) {
-    return cy
-      .xpath(this._expandCollapseSection(sectionName))
-      .find(entityFilterSelector)
-      .then((entities) => {
-        const entityNames = entities.map((_, el) => Cypress.$(el).text()).get();
-        return entityNames;
-      });
-  }
-
   public ActionContextMenuByEntityName({
     action = "Delete",
     entityNameinLeftSidebar,
@@ -295,13 +265,6 @@ export class EntityExplorer {
           });
         });
     });
-  }
-
-  public HoverOnEntityItem(entityNameinLeftSidebar: string) {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    this.agHelper.ClickOutside();
-    //cy.get("body").trigger("mousedown");
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).realHover();
   }
 
   public SearchWidgetPane(widgetType: string) {
@@ -392,7 +355,7 @@ export class EntityExplorer {
 
   public ClonePage(pageName = "Page1") {
     EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    this.SelectEntityByName(pageName, "Pages");
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     this.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: pageName,
       action: "Clone",
@@ -416,7 +379,7 @@ export class EntityExplorer {
 
   public CopyPasteWidget(widgetName: string) {
     this.NavigateToSwitcher("Widgets");
-    this.SelectEntityByName(widgetName);
+    EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);
   }

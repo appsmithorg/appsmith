@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -19,17 +23,17 @@ describe("Test Create Api and Bind to Table widget", function () {
 
   it("2. Validate Table with API data and then add a column", function () {
     // Open property pane
-    _.entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     // Change the table data to Apil data users
     cy.testJsontext("tabledata", "{{Api1.data}}");
     // Check server sided pagination
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open property pane of Text1
-    _.entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     // Change the text value to selected url
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     // Open property pane
-    _.entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     // Copmre the table 1st index with itself
     cy.readTabledata("0", "0").then((tabData) => {
       const tableData = tabData;
@@ -45,7 +49,7 @@ describe("Test Create Api and Bind to Table widget", function () {
 
   it("3. Update table json data and check the column names updated and validate empty value", function () {
     // Open property pane
-    _.entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     // Change the table data
     cy.testJsontext(
       "tabledata",

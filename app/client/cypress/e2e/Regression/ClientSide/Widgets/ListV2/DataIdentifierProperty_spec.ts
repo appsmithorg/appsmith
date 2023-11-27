@@ -1,12 +1,14 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
-  draggableWidgets,
   debuggerHelper,
+  draggableWidgets,
+  locators,
+  propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("List v2 - Data Identifier property", () => {
   beforeEach(() => {
@@ -20,7 +22,7 @@ describe("List v2 - Data Identifier property", () => {
   it("1. is present in the property pane", () => {
     agHelper.AddDsl("Listv2/simpleList");
 
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.AssertPropertiesDropDownCurrentValue(
       "Data Identifier",
       "Please select an option",
@@ -29,12 +31,12 @@ describe("List v2 - Data Identifier property", () => {
     //shows list of keys present in list data"
 
     const keys = ["id", "name", "img"];
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.AssertPropertiesDropDownValues("Data Identifier", keys);
   });
 
   it("2. on selection of key from dropdown, it should show same number of rows", () => {
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     // clicking on the data identifier dropdown and select key id
     propPane.SelectPropertiesDropDown("Data Identifier", "id");
     agHelper.AssertElementLength(
@@ -66,7 +68,7 @@ describe("List v2 - Data Identifier property", () => {
 
   it("5. with large data set and data identifier set, the rows should render", () => {
     agHelper.AddDsl("Listv2/simpleListWithLargeData");
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     // clicking on the data identifier dropdown
     propPane.SelectPropertiesDropDown("Data Identifier", "id", "Action", 0);
     agHelper.AssertElementLength(
@@ -82,7 +84,7 @@ describe("List v2 - Data Identifier property", () => {
   });
 
   it("6. non unique data identifier should throw error", () => {
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     // clicking on the data identifier dropdown
     propPane.SelectPropertiesDropDown("Data Identifier", "name", "Action", 0);
     agHelper.AssertElementLength(

@@ -5,6 +5,9 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Phone Input widget Tests", function () {
   before(() => {
@@ -50,7 +53,7 @@ describe("Phone Input widget Tests", function () {
 
     const borderShadows = ["borderradius", "boxshadow"];
 
-    entityExplorer.SelectEntityByName("PhoneInput1", "Widgets");
+    EditorNavigation.SelectEntityByName("PhoneInput1", EntityType.Widget);
     // Data section
     dataProperties.forEach((dataSectionProperty) => {
       agHelper.AssertElementVisibility(
@@ -135,14 +138,14 @@ describe("Phone Input widget Tests", function () {
     // Copy paste from property pane and delete from property pane
     propPane.CopyPasteWidgetFromPropertyPane("NewPhoneInput");
     propPane.DeleteWidgetFromPropertyPane("NewPhoneInputCopy");
-    entityExplorer.SelectEntityByName("NewPhoneInput", "Widgets");
+    EditorNavigation.SelectEntityByName("NewPhoneInput", EntityType.Widget);
     propPane.MoveToTab("Content");
   });
 
   it("3. Verify tooltip", () => {
     entityExplorer.DragDropWidgetNVerify("textwidget", 550, 300);
     propPane.UpdatePropertyFieldValue("Text", "1000");
-    entityExplorer.SelectEntityByName("NewPhoneInput", "Widgets");
+    EditorNavigation.SelectEntityByName("NewPhoneInput", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Tooltip", "{{Text1.text}}");
     agHelper.HoverElement(locators._tooltipIcon);
     agHelper.AssertPopoverTooltip("1000");
@@ -161,7 +164,7 @@ describe("Phone Input widget Tests", function () {
   });
 
   it("4. Verify change country code toggle", () => {
-    entityExplorer.SelectEntityByName("NewPhoneInput", "Widgets");
+    EditorNavigation.SelectEntityByName("NewPhoneInput", EntityType.Widget);
     propPane.TogglePropertyState("changecountrycode", "On");
     agHelper.AssertElementVisibility(propPane._countryCodeChangeDropDown);
     agHelper.GetNClick(propPane._countryCodeChangeDropDown);
@@ -187,7 +190,7 @@ describe("Phone Input widget Tests", function () {
     agHelper.AssertAttribute(locators._label, "position", "Left");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewPhoneInput", "Widgets");
+    EditorNavigation.SelectEntityByName("NewPhoneInput", EntityType.Widget);
     agHelper.GetNClick(`${locators._adsV2Text}:contains('Top')`);
     agHelper.AssertAttribute(locators._label, "position", "Top");
   });
@@ -204,11 +207,11 @@ describe("Phone Input widget Tests", function () {
 
     // Valid option
     propPane.UpdatePropertyFieldValue("Valid", "{{Text1.isVisible}}");
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.TogglePropertyState("visible", "Off");
     agHelper.GetNClick(locators._input);
     agHelper.AssertPopoverTooltip("Not valid value");
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.TogglePropertyState("visible", "On");
     agHelper.GetNClick(locators._input);
     agHelper.AssertElementAbsence(locators._popoverToolTip);
@@ -342,7 +345,7 @@ describe("Phone Input widget Tests", function () {
     agHelper.AssertAttribute(locators._label, "font-style", "ITALIC");
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewPhoneInput", "Widgets");
+    EditorNavigation.SelectEntityByName("NewPhoneInput", EntityType.Widget);
     propPane.MoveToTab("Style");
 
     // Verify border

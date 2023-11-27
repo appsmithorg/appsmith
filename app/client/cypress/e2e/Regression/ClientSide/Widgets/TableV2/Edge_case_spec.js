@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
@@ -18,7 +22,7 @@ describe("Table widget v2 edge case scenario testing", function () {
   });
 
   it("1. Check if the selectedRowIndices does not contain 2d array", function () {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.TogglePropertyState("Enable multi-row selection", "On"); //Enable Multi row select
 
     propPane.UpdatePropertyFieldValue("Default selected rows", "[1]"); //Change the value of default selected row

@@ -6,6 +6,9 @@ import {
   locators,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -32,7 +35,7 @@ describe("List widget V2 Serverside Pagination", () => {
       },
     );
 
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     table.AssertPageNumber_List(1, false, "v2");
     //agHelper.GetNClick(commonlocators.listPaginateNextButton, 0, true);
     table.NavigateToNextPage_List("v2");

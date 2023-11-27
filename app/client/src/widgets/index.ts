@@ -71,6 +71,7 @@ import { WDSPhoneInputWidget } from "./wds/WDSPhoneInputWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
 import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
 import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
+import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
 import { SectionWidget } from "./anvil/SectionWidget";
 import { ZoneWidget } from "./anvil/ZoneWidget";
 
@@ -137,6 +138,7 @@ const Widgets = [
   WDSCheckboxGroupWidget,
   WDSSwitchWidget,
   WDSSwitchGroupWidget,
+  WDSRadioGroupWidget,
   SectionWidget,
   ZoneWidget,
 
