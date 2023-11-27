@@ -216,14 +216,8 @@ public class AmazonS3Plugin extends BasePlugin {
 
         /**
          * This function returns the unsigned file urls for the files present in the body
-         * @param connection
-         * @param bucketName
-         * @param path
-         * @param body
-         * @return
-         * @throws AppsmithPluginException
          */
-        ArrayList<String> getFileUrls(AmazonS3 connection, String bucketName, String path, String body)
+        ArrayList<String> createFileUrlsFromBody(AmazonS3 connection, String bucketName, String path, String body)
                 throws AppsmithPluginException {
             List<MultipartFormDataDTO> multipartFormDataDTOs;
             ArrayList<String> urlList = new ArrayList<>();
@@ -241,6 +235,13 @@ public class AmazonS3Plugin extends BasePlugin {
                 urlList.add(connection.getUrl(bucketName, filePath).toString());
             });
             return urlList;
+        }
+
+        /**
+         * This function returns the unsigned file url for the file path
+         */
+        String createFileUrl(AmazonS3 connection, String bucketName, String path) {
+            return connection.getUrl(bucketName, path).toString();
         }
 
         /*
@@ -672,16 +673,12 @@ public class AmazonS3Plugin extends BasePlugin {
                                     signedUrl = uploadFileFromBody(
                                             connection, bucketName, path, body, false, expiryDateTime);
                                 }
+                                // gets the unsigned url for the file
+                                String url = createFileUrl(connection, bucketName, path);
                                 actionResult = new HashMap<String, Object>();
                                 ((HashMap<String, Object>) actionResult).put("signedUrl", signedUrl);
                                 ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
-                                // Adds the unsigned url in the response
-                                ((HashMap<String, Object>) actionResult)
-                                        .put(
-                                                "url",
-                                                connection
-                                                        .getUrl(bucketName, path)
-                                                        .toString());
+                                ((HashMap<String, Object>) actionResult).put("url", url);
                                 requestParams.add(
                                         new RequestParamDTO(CREATE_EXPIRY, expiryDateTimeString, null, null, null));
                                 requestParams.add(
@@ -732,7 +729,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 ((HashMap<String, Object>) actionResult).put("urlExpiryDate", expiryDateTimeString);
                                 // Adds the unsigned urls in the response
                                 ((HashMap<String, Object>) actionResult)
-                                        .put("urls", getFileUrls(connection, bucketName, path, body));
+                                        .put("urls", createFileUrlsFromBody(connection, bucketName, path, body));
 
                                 requestParams.add(
                                         new RequestParamDTO(CREATE_EXPIRY, expiryDateTimeString, null, null, null));
