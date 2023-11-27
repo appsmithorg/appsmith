@@ -2,6 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.ActionControllerCE;
+import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.services.LayoutActionService;
@@ -19,8 +20,9 @@ public class ActionController extends ActionControllerCE {
             LayoutActionService layoutActionService,
             NewActionService newActionService,
             RefactoringSolution refactoringSolution,
-            ActionExecutionSolution actionExecutionSolution) {
+            ActionExecutionSolution actionExecutionSolution,
+            OtlpTelemetry otlpTelemetry) {
 
-        super(layoutActionService, newActionService, refactoringSolution, actionExecutionSolution);
+        super(layoutActionService, newActionService, refactoringSolution, actionExecutionSolution, otlpTelemetry);
     }
 }

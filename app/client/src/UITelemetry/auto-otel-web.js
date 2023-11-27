@@ -7,23 +7,22 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
 import { Resource } from "@opentelemetry/resources";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { W3CTraceContextPropagator } from "@opentelemetry/core";
 
 const { newRelic } = getAppsmithConfigs();
-const { applicationId, otlpLicenseKey } = newRelic;
-
-const NEW_RELIC_OTLP_ENTITY_NAME = "Appsmith Frontend OTLP";
-const NEW_RELIC_OTLP_ENDPOINT = "https://otlp.nr-data.net:4318";
+const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
+  newRelic;
 
 const provider = new WebTracerProvider({
   resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: NEW_RELIC_OTLP_ENTITY_NAME,
+    [SemanticResourceAttributes.SERVICE_NAME]: otlpServiceName,
     [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: applicationId,
     [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
   }),
 });
 
 const newRelicExporter = new OTLPTraceExporter({
-  url: `${NEW_RELIC_OTLP_ENDPOINT}/v1/traces`,
+  url: `${otlpEndpoint}/v1/traces`,
   headers: {
     "api-key": otlpLicenseKey,
   },
@@ -43,9 +42,28 @@ const processor = new BatchSpanProcessor(
     exportTimeoutMillis: 30000,
   },
 );
+
+const W3C_OTLP_TRACE_HEADER = "traceparent";
+const CUSTOM_OTLP_TRACE_HEADER = "traceparent-otlp";
+//We are overriding the default header "traceparent" used for trace context because the browser
+// agent shares the same header's distributed tracing
+class CustomW3CTraceContextPropagator extends W3CTraceContextPropagator {
+  inject(context, carrier, setter) {
+    // Call the original inject method to get the default traceparent header
+    super.inject(context, carrier, setter);
+
+    // Modify the carrier to use a different header
+    if (carrier[W3C_OTLP_TRACE_HEADER]) {
+      carrier[CUSTOM_OTLP_TRACE_HEADER] = carrier[W3C_OTLP_TRACE_HEADER];
+      delete carrier[W3C_OTLP_TRACE_HEADER]; // Remove the original traceparent header
+    }
+  }
+}
+
 provider.addSpanProcessor(processor);
 provider.register({
   contextManager: new ZoneContextManager(),
+  propagator: new CustomW3CTraceContextPropagator(),
 });
 
 registerInstrumentations({

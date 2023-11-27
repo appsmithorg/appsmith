@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgets = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -239,7 +243,7 @@ describe("Auto conversion algorithm usecases for auto-layout", function () {
     canvasTypeWidgets.forEach((canvasWidget) => {
       _.autoLayout.VerifyCurrentWidgetIsAutolayout(canvasWidget);
     });
-    _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     _.autoLayout.VerifyCurrentWidgetIsAutolayout(_.draggableWidgets.MODAL);
     cy.wait(1000);
     _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);
@@ -249,7 +253,7 @@ describe("Auto conversion algorithm usecases for auto-layout", function () {
     canvasTypeWidgets.forEach((canvasWidget) => {
       _.autoLayout.VerifyCurrentWidgetIsFixedlayout(canvasWidget);
     });
-    _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     _.autoLayout.VerifyCurrentWidgetIsFixedlayout(_.draggableWidgets.MODAL);
     cy.wait(1000);
     _.agHelper.GetNClick(widgets.modalCloseButton, 0, true);

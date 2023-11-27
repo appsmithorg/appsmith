@@ -27,14 +27,7 @@ describe("Entity Explorer showing tooltips on long names", function () {
     cy.get("body").realHover({ position: "topLeft" });
 
     // rename it and ensure the tooltip does not show again
-    cy.get(`.t--entity-item:contains(${longName})`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.selectAction("Edit name");
-    cy.get(explorer.editEntity)
-      .last()
-      .type(alternateName, { force: true })
-      .blur();
+    ee.RenameEntityFromExplorer(longName, alternateName);
     cy.wait("@saveAction");
 
     cy.get(`.t--entity-item:contains(${alternateName})`).realHover();

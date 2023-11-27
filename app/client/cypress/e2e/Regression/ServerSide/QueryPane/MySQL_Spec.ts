@@ -3,12 +3,14 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   entityItems,
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate MySQL query UI flows - Bug 14054", () => {
   let dsName: any;
@@ -76,7 +78,10 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("SuggestedWidgetBinding");
+    EditorNavigation.SelectEntityByName(
+      "SuggestedWidgetBinding",
+      EntityType.Query,
+    );
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,

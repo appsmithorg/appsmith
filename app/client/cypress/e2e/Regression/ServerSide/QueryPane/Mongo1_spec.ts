@@ -11,6 +11,9 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 let dsName: any;
 
 describe("Validate Mongo Query Pane Validations", () => {
@@ -828,7 +831,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.navigateToDatasource(dsName);
+    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
 
     //Execute a find query on this collection to see if dates are fetched properly
     dataSources.createQueryWithDatasourceSchemaTemplate(

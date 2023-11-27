@@ -1,4 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -29,7 +32,7 @@ describe("Validate basic Promises", () => {
       key: "name",
       value: "{{this.params.country}}",
     }); // verifies Bug 10055
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{(async function(){
@@ -61,7 +64,7 @@ describe("Validate basic Promises", () => {
       "RandomImy",
       30000,
     );
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{
@@ -72,7 +75,7 @@ describe("Validate basic Promises", () => {
         })()
           }}`,
     );
-    ee.SelectEntityByName("Image1");
+    EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Image", `{{RandomImy.data}}`);
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
@@ -95,7 +98,7 @@ describe("Validate basic Promises", () => {
     );
     jsEditor.CreateJSObject(`const user = 'You';
 return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
@@ -124,7 +127,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       key: "name",
       value: "{{this.params.person}}",
     }); // verifies Bug 10055
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{ Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `,
@@ -146,7 +149,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       "GetAnime",
       30000,
     );
-    ee.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Items",
       `[{
@@ -168,7 +171,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     agHelper.ValidateToastMessage(
       "will be executed automatically on page load",
     ); //Validating 'Run API on Page Load' is set once api response is mapped
-    ee.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{
@@ -189,7 +192,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
   it("6: Verify Promise.all via direct Promises", () => {
     deployMode.NavigateBacktoEditor();
     agHelper.AddDsl("promisesBtnDsl", locator._buttonByText("Submit"));
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{
@@ -224,7 +227,7 @@ showAlert("Running all api's", "warning");
 return Promise.all(allFuncs).then(() =>
 showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Please check your api's again", "error")); `);
 
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext(
         "onClick",
@@ -250,7 +253,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     agHelper.AddDsl("promisesBtnDsl");
     jsEditor.CreateJSObject(`const user = 'You';
 InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
-    ee.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get("@jsObjName").then((jsObjName) => {
       propPane.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });

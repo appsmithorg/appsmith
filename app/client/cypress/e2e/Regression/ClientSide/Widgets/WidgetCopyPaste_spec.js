@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
@@ -151,7 +155,9 @@ describe("Widget Copy paste", function () {
 
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB, 400, 200);
 
-    _.entityExplorer.SelectEntityByName("Tab 1", "Tabs1");
+    EditorNavigation.SelectEntityByName("Tab 1", EntityType.Widget, {}, [
+      "Tabs1",
+    ]);
 
     cy.get("body").type(`{${modifierKey}}{c}`);
 

@@ -36,3 +36,6 @@ export const useCases = [
   { label: "Remote work" },
   { label: "Software Development" },
 ];
+
+export const TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE = "Building Block";
+export const TEMPLATE_ALL_FILTER_FUNCTION_VALUE = "All";
