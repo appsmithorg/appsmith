@@ -1,15 +1,19 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  jsEditor,
-  propPane,
-  deployMode,
-  entityItems,
-  homePage,
   apiPage,
   dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  homePage,
+  jsEditor,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, jsName: any;
 
@@ -23,14 +27,14 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   it("1. Tc 60, 1912 - Verify JSObj calling API - OnPageLoad calls & Confirmation No then Yes!", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.AddDsl("JSApiOnLoadDsl", locators._widgetInCanvas("imagewidget"));
-    entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
     cy.fixture("datasources").then((datasourceFormData: any) => {
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       apiPage.CreateAndFillApi(
         "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
@@ -63,7 +67,10 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      EditorNavigation.SelectEntityByName(
+        jsName as string,
+        EntityType.JSObject,
+      );
       jsEditor.EnableDisableAsyncFuncSettings("callQuotes", false, false); //OnPageLoad made true once mapped with widget
       jsEditor.EnableDisableAsyncFuncSettings("callTrump", false, true); //OnPageLoad made true once mapped with widget
 
@@ -77,7 +84,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       // let regex = new RegExp(`${onLoadToastMsg.join("|")}`, "g");
       // cy.get(locators._toastMsg).contains(regex)
 
-      entityExplorer.SelectEntityByName("Input1", "Widgets");
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Default value",
         "{{" + jsObjName + ".callQuotes.data}}",
@@ -90,7 +97,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       //agHelper.WaitUntilToastDisappear("Quotes");
 
-      entityExplorer.SelectEntityByName("Input2");
+      EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Default value",
         "{{" + jsObjName + ".callTrump.data}}",
@@ -200,18 +207,18 @@ describe("JSObjects OnLoad Actions tests", function () {
     apiPage.ToggleOnPageLoadRun(true);
     apiPage.ToggleConfirmBeforeRunning(true);
 
-    entityExplorer.SelectEntityByName("Image1", "Widgets");
+    EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data,'success'), () => showAlert('Oh No!','error'))}}`,
     );
 
-    entityExplorer.SelectEntityByName("Quotes", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Quotes", EntityType.JSObject);
     apiPage.ToggleOnPageLoadRun(false);
-    entityExplorer.SelectEntityByName("WhatTrumpThinks");
+    EditorNavigation.SelectEntityByName("WhatTrumpThinks", EntityType.JSObject);
     apiPage.ToggleOnPageLoadRun(false);
 
-    entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+    EditorNavigation.SelectEntityByName(jsName as string, EntityType.JSObject);
     jsEditor.EnableDisableAsyncFuncSettings("callQuotes", false, false); //OnPageLoad made true once mapped with widget
     jsEditor.EnableDisableAsyncFuncSettings("callTrump", false, false); //OnPageLoad made true once mapped with widget
 
@@ -301,10 +308,13 @@ describe("JSObjects OnLoad Actions tests", function () {
       // );
       // apiPage.ConfirmBeforeRunningApi(true);
 
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      EditorNavigation.SelectEntityByName(
+        jsName as string,
+        EntityType.JSObject,
+      );
       //jsEditor.EnableDisableAsyncFuncSettings("callCountry", false, true); Bug # 13826
 
-      entityExplorer.SelectEntityByName("Select1", "Widgets");
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
       propPane.EnterJSContext(
         "Source Data",
         `{{ getCitiesList.data.map((row) => {
@@ -327,7 +337,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       //   true,
       // );
 
-      entityExplorer.SelectEntityByName("Image1");
+      EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
 
       // propPane.EnterJSContext(
       //   "onClick",
@@ -341,7 +351,7 @@ describe("JSObjects OnLoad Actions tests", function () {
         "callBooks",
       ); //callBooks confirmation also does not appear due to 13646
 
-      entityExplorer.SelectEntityByName("JSONForm1");
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       propPane.EnterJSContext("sourcedata", "{{getBooks.data}}", true, false);
       //this toast is not coming due to existing JSON date errors but its made true at API
       //agHelper.ValidateToastMessage("[getBooks] will be executed automatically on page load");
@@ -384,7 +394,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     jsEditor.ConfirmationClick("No");
     agHelper.ValidateToastMessage("getBooks was cancelled");
 
-    entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+    EditorNavigation.SelectEntityByName(jsName as string, EntityType.JSObject);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "getCitiesList",
       action: "Delete",

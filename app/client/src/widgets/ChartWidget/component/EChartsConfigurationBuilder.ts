@@ -11,7 +11,7 @@ import { Colors } from "constants/Colors";
 import { EChartsLayoutBuilder } from "./LayoutBuilders/EChartsLayoutBuilder";
 
 export class EChartsConfigurationBuilder {
-  fontFamily: string | undefined;
+  fontFamily: string = "Nunito Sans";
   fontSize = 14;
 
   #seriesConfigurationForPieChart(
@@ -155,7 +155,7 @@ export class EChartsConfigurationBuilder {
     const defaultTitleConfig = {
       text: props.chartName,
       show: layoutConfig.title.show,
-      padding: [5, 50],
+      padding: [15, 50],
       left: "center",
       textStyle: {
         fontFamily: this.fontFamily,

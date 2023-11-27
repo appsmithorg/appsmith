@@ -201,6 +201,7 @@ export class CommonLocators {
     `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`;
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
+  _tern_doc = ".t--tern-doc";
   _argHintFnName = ".CodeMirror-Tern-tooltip .CodeMirror-Tern-fname";
   _cancelActionExecution = ".t--cancel-action-button";
   _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
@@ -256,7 +257,6 @@ export class CommonLocators {
   _appLeveltooltip = (toolTip: string) => `span:contains('${toolTip}')`;
   _appEditMenu = "[data-testid='t--editor-menu']";
   _appEditMenuBtn = "[data-testid='t--editor-menu-cta']";
-  _appEditMenuSettings = "[data-testid='t--editor-menu-settings']";
   _appEditExportSettings = "[data-testid='t--editor-menu-export-application']";
   _appThemeSettings = "#t--theme-settings-header";
   _appChangeThemeBtn = ".t--change-theme-btn";
@@ -300,7 +300,6 @@ export class CommonLocators {
   _buttonInDeployedMode = ".bp3-button";
   _treeSelectPlaceholder = ".rc-tree-select-selection-placeholder";
   _treeSelectTitle = ".rc-tree-select-tree-title";
-  _newDataSourceBtn = ".datasources .t--entity-add-btn";
   _callbackAddBtn = ".action-callback-add .ads-v2-button";
   _checkboxInDeployedMode = "//label[contains(@class, 'bp3-checkbox')]//input";
   _listText = "//span[text()='Blue']/../..";

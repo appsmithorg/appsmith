@@ -1,3 +1,8 @@
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
@@ -21,7 +26,7 @@ describe("List widget v2 - Basic server side data tests", () => {
         );
         _.dataSources.RunQuery();
       });
-      _.entityExplorer.SelectEntityByName("Page1");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     } else {
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");
@@ -33,7 +38,7 @@ describe("List widget v2 - Basic server side data tests", () => {
         );
         _.dataSources.RunQuery();
       });
-      _.entityExplorer.SelectEntityByName("Page1");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     }
   });
 
@@ -328,17 +333,10 @@ describe("List widget v2 - Basic server side data tests", () => {
       // Click on sample(mock) user database.
       cy.get(datasource.mockUserDatabase).click();
 
-      _.dataSources.NavigateToActiveTab();
+      EditorNavigation.ViaSidebar(SidebarButton.Data);
 
       // Choose the first data source which consists of users keyword & Click on the "New query +"" button
-      cy.get(`${datasource.datasourceCard}`)
-        .filter(":contains('Users')")
-        .first()
-        .within(() => {
-          cy.get(`${datasource.createQuery}`).click({
-            force: true,
-          });
-        });
+      _.dataSources.CreateQueryFromActiveTab("Users");
 
       // Click the editing field
       cy.get(".t--action-name-edit-field").click({
@@ -361,9 +359,7 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({
-        force: true,
-      });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 
@@ -379,7 +375,7 @@ describe("List widget v2 - Basic server side data tests", () => {
   );
   it(
     "airgap",
-    "6. no of items rendered should be equal to page size - airgap",
+    "7. no of items rendered should be equal to page size - airgap",
     () => {
       _.dataSources.CreateDataSource("Postgres");
       cy.wait(1000);
@@ -404,9 +400,7 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({
-        force: true,
-      });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 

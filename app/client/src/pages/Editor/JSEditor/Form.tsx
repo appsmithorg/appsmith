@@ -1,8 +1,6 @@
 import type { ChangeEvent } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import CloseEditor from "components/editorComponents/CloseEditor";
-import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import type { DropdownOnSelect } from "design-system-old";
 import {
   CodeEditorBorder,
@@ -11,6 +9,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { JSObjectNameEditorProps } from "./JSObjectNameEditor";
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   setActiveJSAction,
@@ -19,8 +18,7 @@ import {
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useParams } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import { useLocation } from "react-router";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
@@ -42,6 +40,7 @@ import {
   getJSPropertyLineFromName,
 } from "./utils";
 import JSFunctionSettingsView from "./JSFunctionSettings";
+import type { JSFunctionSettingsProps } from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import {
   ActionButtons,
@@ -67,13 +66,17 @@ import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
-  getHasDeleteActionPermission,
   getHasExecuteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 interface JSFormProps {
   jsCollection: JSCollection;
+  contextMenu: React.ReactNode;
+  showSettings?: boolean;
+  onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
+  saveJSObjectName: JSObjectNameEditorProps["saveJSObjectName"];
+  backLink?: React.ReactNode;
 }
 
 type Props = JSFormProps;
@@ -98,10 +101,16 @@ const SecondaryWrapper = styled.div`
   }
 `;
 
-function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
+function JSEditorForm({
+  backLink,
+  contextMenu,
+  jsCollection: currentJSCollection,
+  onUpdateSettings,
+  saveJSObjectName,
+  showSettings = true,
+}: Props) {
   const theme = EditorTheme.LIGHT;
   const dispatch = useDispatch();
-  const { pageId } = useParams<ExplorerURLParams>();
   const { hash } = useLocation();
 
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
@@ -171,10 +180,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     currentJSCollection?.userPermissions || [],
   );
   const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    currentJSCollection?.userPermissions || [],
-  );
-  const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
     currentJSCollection?.userPermissions || [],
   );
@@ -309,24 +314,17 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
           handleRunAction(event, "KEYBOARD_SHORTCUT");
         }}
       >
-        <CloseEditor />
+        {backLink}
         <Form onSubmit={(event) => event.preventDefault()}>
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor
                 disabled={!isChangePermitted}
-                page="JS_PANE"
+                saveJSObjectName={saveJSObjectName}
               />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              <MoreJSCollectionsMenu
-                className="t--more-action-menu"
-                id={currentJSCollection.id}
-                isChangePermitted={isChangePermitted}
-                isDeletePermitted={isDeletePermitted}
-                name={currentJSCollection.name}
-                pageId={pageId}
-              />
+              {contextMenu}
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}
@@ -363,12 +361,14 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                       >
                         Code
                       </Tab>
-                      <Tab
-                        data-testid={`t--js-editor-` + JSEditorTab.SETTINGS}
-                        value={JSEditorTab.SETTINGS}
-                      >
-                        Settings
-                      </Tab>
+                      {showSettings && (
+                        <Tab
+                          data-testid={`t--js-editor-` + JSEditorTab.SETTINGS}
+                          value={JSEditorTab.SETTINGS}
+                        >
+                          Settings
+                        </Tab>
+                      )}
                     </TabsList>
                     <TabPanel value={JSEditorTab.CODE}>
                       <div className="js-editor-tab">
@@ -400,14 +400,17 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                         />
                       </div>
                     </TabPanel>
-                    <TabPanel value={JSEditorTab.SETTINGS}>
-                      <div className="js-editor-tab">
-                        <JSFunctionSettingsView
-                          actions={jsActions}
-                          disabled={!isChangePermitted}
-                        />
-                      </div>
-                    </TabPanel>
+                    {showSettings && (
+                      <TabPanel value={JSEditorTab.SETTINGS}>
+                        <div className="js-editor-tab">
+                          <JSFunctionSettingsView
+                            actions={jsActions}
+                            disabled={!isChangePermitted}
+                            onUpdateSettings={onUpdateSettings}
+                          />
+                        </div>
+                      </TabPanel>
+                    )}
                   </Tabs>
                 </TabbedViewContainer>
                 {showDebugger ? (

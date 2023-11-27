@@ -1,12 +1,9 @@
 import { get } from "lodash";
 import type { ChartType, ChartSelectedDataPoint } from "../constants";
-import {
-  THREE_D_CHART_CONFIGS,
-  THREE_D_CHART_SERIES_TYPES,
-} from "../constants";
 import { omit, cloneDeep } from "lodash";
 import type { ChartComponentProps } from ".";
-import equal from "fast-deep-equal/es6";
+import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
+import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 
 export const parseOnDataPointClickParams = (evt: any, chartType: ChartType) => {
   switch (chartType) {
@@ -94,102 +91,48 @@ export const getTextWidth = (text: string, font: string) => {
   }
 };
 
-export class EChartDisposalParams {
-  isBasicChart = false;
-  isCustom3DChart = false;
+export const getBasicEChartOptions = (props: ChartComponentProps) => {
+  const datasetBuilder = new EChartsDatasetBuilder(
+    props.chartType,
+    props.chartData,
+  );
+  const dataset = datasetBuilder.datasetFromData();
+  const echartsConfigurationBuilder = new EChartsConfigurationBuilder();
 
-  constructor(isBasicChart = false, isCustom3DChart = false) {
-    this.isBasicChart = isBasicChart;
-    this.isCustom3DChart = isCustom3DChart;
-  }
-
-  isCustomChart = () => {
-    return !this.isBasicChart;
+  const options = {
+    ...echartsConfigurationBuilder.prepareEChartConfig(
+      props,
+      datasetBuilder.filteredChartData,
+      datasetBuilder.longestDataLabels(),
+    ),
+    dataset: {
+      ...dataset,
+    },
   };
+  return options;
+};
 
-  isCustom2DChart = () => {
-    return !this.isCustom3DChart;
-  };
-}
-
-export const generateEChartInstanceDisposalParams = (
-  prevProps: ChartComponentProps,
-  currentProps: ChartComponentProps,
+export const chartOptions = (
+  chartType: ChartType,
+  props: ChartComponentProps,
 ) => {
-  const prevChartConfig = new EChartDisposalParams(
-    isBasicEChart(prevProps.chartType),
-    is3DChart(prevProps.customEChartConfig),
-  );
-  const currentChartConfig = new EChartDisposalParams(
-    isBasicEChart(currentProps.chartType),
-    is3DChart(currentProps.customEChartConfig),
-  );
-  const propsEqual = equal(prevProps, currentProps);
-  return {
-    prevChart: prevChartConfig,
-    currentChart: currentChartConfig,
-    propsEqual,
-  };
-};
-
-export const shouldDisposeEChartsInstance = (config: {
-  prevChart: EChartDisposalParams;
-  currentChart: EChartDisposalParams;
-  propsEqual: boolean;
-}) => {
-  let shouldDispose = false;
-  const prevChart = config.prevChart;
-  const currentChart = config.currentChart;
-
-  if (prevChart.isBasicChart) {
-    shouldDispose = currentChart.isCustomChart();
+  if (isCustomEChart(chartType)) {
+    return props.customEChartConfig;
+  } else if (isBasicEChart(chartType)) {
+    return getBasicEChartOptions(props);
   } else {
-    // Previous chart type was custom
-    if (currentChart.isBasicChart) {
-      shouldDispose = true;
-    } else {
-      // current chart type is custom chart
-      if (prevChart.isCustom3DChart) {
-        if (currentChart.isCustom2DChart()) {
-          shouldDispose = true;
-        } else {
-          // check if props have changed or not
-          shouldDispose = !config.propsEqual;
-        }
-      } else {
-        // previous chart type is 2D
-        shouldDispose = currentChart.isCustom3DChart;
-      }
-    }
-  }
-  return shouldDispose;
-};
-
-export const is3DChart = (chartConfig: Record<string, unknown>) => {
-  const chartConfigKeys = Object.keys(chartConfig);
-
-  const threeDConfigPresent = chartConfigKeys.some((key) =>
-    THREE_D_CHART_CONFIGS.includes(key),
-  );
-  if (threeDConfigPresent) {
-    return true;
-  }
-
-  const seriesConfig = chartConfig.series;
-  if (Array.isArray(seriesConfig)) {
-    return seriesConfig.some((series) => isSeriesConfig3D(series));
-  } else {
-    return isSeriesConfig3D(seriesConfig);
+    return {};
   }
 };
 
-const isSeriesConfig3D = (seriesConfig: unknown) => {
-  if (seriesConfig && typeof seriesConfig == "object") {
-    const seriesType = (seriesConfig as Record<string, unknown>).type as string;
-    return THREE_D_CHART_SERIES_TYPES.includes(seriesType);
-  } else {
-    return false;
-  }
+export const dataClickCallbackHelper = (
+  params: echarts.ECElementEvent,
+  props: ChartComponentProps,
+  chartType: ChartType,
+) => {
+  const dataPointClickParams = parseOnDataPointClickParams(params, chartType);
+
+  props.onDataPointClick(dataPointClickParams);
 };
 
 export const isBasicEChart = (type: ChartType) => {

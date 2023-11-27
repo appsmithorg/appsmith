@@ -1,3 +1,8 @@
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -26,6 +31,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   });
 
   it("2. Create & runs existing table data with dynamic binding and deletes the query", () => {
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     entityExplorer.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
     cy.NavigateToActiveDSQueryPane(datasourceName);
@@ -270,14 +276,13 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   });
 
   it("9. Validate Deletion of the Newly Created Page", () => {
-    cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Public.users_crud",
       action: "Delete",
       entityType: entityItems.Page,
     });
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {
@@ -285,12 +290,12 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     dataSources.NavigateFromActiveDS(datasourceName, true);
     dataSources.EnterQuery(deleteTblQuery);
     dataSources.RunQuery();
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: datasourceName,
-      action: "Refresh",
-    });
-    cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
+    // TODO use the schema on the query itself to check
+    dataSources.AssertTableInVirtuosoList(
+      datasourceName,
+      "public.users_crud",
+      false,
+    );
     cy.deleteQueryUsingContext();
   });
 
@@ -320,7 +325,6 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   });
 
   it("13. Deletes the datasource", () => {
-    cy.NavigateToQueryEditor();
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200, 409]);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
   });
 });

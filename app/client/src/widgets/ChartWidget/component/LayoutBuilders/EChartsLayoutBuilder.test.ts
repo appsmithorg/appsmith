@@ -259,7 +259,7 @@ describe("layout configs", () => {
         height: 30,
       },
       grid: {
-        top: 100,
+        top: 110,
         bottom: 113,
         left: 51,
       },

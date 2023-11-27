@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
@@ -59,7 +63,7 @@ describe("JSON Form Widget Form Bindings", () => {
   });
 
   it("2. Disabled Invalid Forms - disables the submit button when form has invalid field(s)", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
     cy.get("button")
       .contains("Submit")
@@ -87,7 +91,7 @@ describe("JSON Form Widget Form Bindings", () => {
   });
 
   it("3. Should set isValid to false when form is invalid", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{JSONForm1.isValid}}");
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");

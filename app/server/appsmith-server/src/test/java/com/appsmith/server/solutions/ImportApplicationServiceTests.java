@@ -33,6 +33,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -48,6 +49,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
@@ -55,6 +57,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
@@ -63,6 +66,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -179,6 +183,9 @@ public class ImportApplicationServiceTests {
     LayoutActionService layoutActionService;
 
     @Autowired
+    UpdateLayoutService updateLayoutService;
+
+    @Autowired
     LayoutCollectionService layoutCollectionService;
 
     @Autowired
@@ -214,6 +221,12 @@ public class ImportApplicationServiceTests {
     @SpyBean
     PluginService pluginService;
 
+    @Autowired
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
     @BeforeEach
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -222,6 +235,10 @@ public class ImportApplicationServiceTests {
         if (Boolean.TRUE.equals(isSetupDone)) {
             return;
         }
+        User currentUser = sessionUserService.getCurrentUser().block();
+        Set<String> beforeCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         Workspace workspace = new Workspace();
         workspace.setName("Import-Export-Test-Workspace");
@@ -230,6 +247,14 @@ public class ImportApplicationServiceTests {
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
+        Set<String> afterCreatingWorkspace =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+
+        log.info("Workspace ID: {}", workspaceId);
+        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.info("Policy for created Workspace: {}", workspace.getPolicies());
+        log.info("Current User ID: {}", currentUser.getId());
 
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
@@ -540,7 +565,7 @@ public class ImportApplicationServiceTests {
                             .createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
-                            .then(layoutActionService.updateLayout(
+                            .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -878,11 +903,14 @@ public class ImportApplicationServiceTests {
                 importApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable
-                                .getMessage()
-                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage(
-                                        "Field '" + FieldName.APPLICATION + "' is missing in the JSON.")))
+                .expectErrorMatches(
+                        throwable -> throwable instanceof AppsmithException
+                                && throwable
+                                        .getMessage()
+                                        .equals(
+                                                AppsmithError.VALIDATION_FAILURE.getMessage(
+                                                        "Field '" + FieldName.APPLICATION
+                                                                + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page.")))
                 .verify();
     }
 
@@ -2753,7 +2781,7 @@ public class ImportApplicationServiceTests {
                             .createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
-                            .then(layoutActionService.updateLayout(
+                            .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })

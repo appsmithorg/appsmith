@@ -1,3 +1,8 @@
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 import ApiEditor from "../../../../locators/ApiEditor";
@@ -13,7 +18,6 @@ import {
 describe("Test curl import flow", function () {
   it("1. Test curl import flow Run and Delete", function () {
     localStorage.setItem("ApiPaneV2", "ApiPaneV2");
-    cy.NavigateToApiEditor();
     dataSources.NavigateToDSCreateNew();
     cy.get(ApiEditor.curlImage).click({ force: true });
     cy.get("textarea").type(
@@ -40,10 +44,7 @@ describe("Test curl import flow", function () {
 
   it("2. Bug:15175 Creating new cURL import query from entity explorer crashes the app", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
-      cy.CheckAndUnfoldEntityItem("Pages");
-      cy.get(`.t--entity-name:contains("Page1")`)
-        .should("be.visible")
-        .click({ force: true });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       cy.get(globalSearchLocators.createNew).click();
       cy.xpath("//span[text()='New cURL import']").click();
       cy.get("textarea").type(

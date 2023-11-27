@@ -1,18 +1,26 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Numeric Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS, set Theme", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     agHelper.AddDsl("Datatypes/NumericDTdsl");
 
     appSettings.OpenPaneAndChangeTheme("Moon");
@@ -29,11 +37,11 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes");
   });
 
   it("2. Creating SELECT query - numerictypes + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Select",
     );
@@ -47,7 +55,8 @@ describe("Numeric Datatype tests", function () {
   it("3. Creating all queries - numerictypes", () => {
     query = `INSERT INTO public."numerictypes" ("bigintid", "decimalid", "numericid")
     VALUES ({{Insertbigint.text}}, {{Insertdecimal.text}}, {{Insertnumeric.text}})`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Insert",
     );
@@ -59,7 +68,8 @@ describe("Numeric Datatype tests", function () {
     "decimalid" = {{Updatedecimal.text}},
     "numericid" = {{Updatenumeric.text}}
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Update",
     );
@@ -67,7 +77,8 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("updateRecord");
 
     query = `DELETE FROM public."numerictypes"`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Delete",
     );
@@ -75,7 +86,8 @@ describe("Numeric Datatype tests", function () {
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."numerictypes"`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Delete",
     );
@@ -84,18 +96,18 @@ describe("Numeric Datatype tests", function () {
 
     query = `DELETE FROM public."numerictypes"
     WHERE serialId ={{Table1.selectedRow.serialid}}`;
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "public.numerictypes",
       "Delete",
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("4. Inserting record (+ve limit) - numerictypes + Bug 14516", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
@@ -289,16 +301,13 @@ describe("Numeric Datatype tests", function () {
 
   it("14. Validate Drop of the Newly Created - numerictypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("dropTable");
+    EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
   });
 
   it("15. Verify Deletion of the datasource after all created queries are deleted", () => {

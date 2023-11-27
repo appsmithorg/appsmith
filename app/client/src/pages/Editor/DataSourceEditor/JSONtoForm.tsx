@@ -48,13 +48,14 @@ export class JSONtoForm<
   SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
   renderForm = (formContent: any) => {
+    const { featureFlags } = this.props;
+    const isSidebarEnabled =
+      featureFlags?.release_app_sidebar_enabled === true ||
+      featureFlags?.rollout_app_sidebar_enabled === true;
     return (
       // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
-        {this.props.featureFlags?.release_app_sidebar_enabled ===
-        true ? null : (
-          <CloseEditor />
-        )}
+        {isSidebarEnabled ? null : <CloseEditor />}
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>

@@ -1,5 +1,4 @@
 import React, { lazy, Suspense } from "react";
-
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
@@ -75,6 +74,12 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      customEChartConfig: ["chartType"],
+    };
+  }
+
   static getDefaults() {
     return {
       rows: 32,
@@ -129,6 +134,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
@@ -151,7 +157,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             links: [
               {
                 text: "Learn more",
-                url: "https://docs.appsmith.com",
+                url: "https://www.appsmith.com/blog/deprecating-fusion-charts",
               },
             ],
           });

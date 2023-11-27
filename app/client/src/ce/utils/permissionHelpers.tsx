@@ -81,6 +81,10 @@ export const hasCreateDatasourcePermission = (_permissions?: string[]) => true;
 
 export const hasManageDatasourcePermission = (_permissions?: string[]) => true;
 
+export const hasManageWorkspaceDatasourcePermission = (
+  _permissions?: string[],
+) => true;
+
 export const hasDeleteDatasourcePermission = (_permissions?: string[]) => true;
 
 export const hasCreateDatasourceActionPermission = (_permissions?: string[]) =>

@@ -1,6 +1,9 @@
 /**
  * Spec to test the events made available by each field type
  */
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
@@ -30,7 +33,7 @@ describe("Radio Group Field", () => {
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("answer");
@@ -57,7 +60,7 @@ describe("Radio Group Field", () => {
     const schema = {
       colors: ["BLUE"],
     };
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     // cy.closePropertyPane();
   });
@@ -91,7 +94,7 @@ describe("Radio Group Field", () => {
       color: "BLUE",
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
     cy.openFieldConfiguration("color");
@@ -121,7 +124,7 @@ describe("Radio Group Field", () => {
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     cy.openFieldConfiguration("name");
 

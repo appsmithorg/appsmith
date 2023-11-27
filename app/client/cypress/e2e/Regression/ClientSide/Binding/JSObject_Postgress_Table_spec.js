@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 import homePage from "../../../../locators/HomePage";
@@ -31,8 +35,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       cy.onlyQueryRun();
       _.dataSources.AddSuggestedWidget(Widgets.Table);
       _.jsEditor.CreateJSObject("return Query1.data;");
-      cy.CheckAndUnfoldEntityItem("Widgets");
-      cy.get(".t--entity-name").contains("Table1").click({ force: true });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.propPane.EnterJSContext("Table data", "{{JSObject1.myFun1()}}");
       cy.isSelectRow(1);
       cy.readTableV2dataPublish("1", "0").then((tabData) => {

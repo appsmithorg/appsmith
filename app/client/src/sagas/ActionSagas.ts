@@ -23,7 +23,7 @@ import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type {
   FetchActionsPayload,
   SetActionPropertyPayload,
@@ -38,6 +38,7 @@ import {
   moveActionError,
   moveActionSuccess,
   updateAction,
+  updateActionData,
   updateActionProperty,
   updateActionSuccess,
 } from "actions/pluginActionActions";
@@ -747,6 +748,16 @@ export function* refactorActionName(
           actionId: id,
         },
       });
+      yield put(
+        updateActionData([
+          {
+            entityName: newName,
+            dataPath: "data",
+            data: undefined,
+            dataPathRef: `${oldName}.data`,
+          },
+        ]),
+      );
       if (currentPageId === pageId) {
         // @ts-expect-error: refactorResponse is of type unknown
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);

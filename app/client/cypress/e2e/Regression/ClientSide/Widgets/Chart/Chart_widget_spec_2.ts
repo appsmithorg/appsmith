@@ -1,11 +1,14 @@
 import {
   agHelper,
-  entityExplorer,
   deployMode,
   draggableWidgets,
-  propPane,
+  entityExplorer,
   locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("", () => {
   before(() => {
@@ -24,7 +27,7 @@ describe("", () => {
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/piechartsnapshotwithtitle");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
   });
 
   it("2. Test Adaptive axis", () => {
@@ -35,14 +38,14 @@ describe("", () => {
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/columnchartsnapshotwithoutadaptiveaxis");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.TogglePropertyState("Adaptive axis", "On");
     deployMode.DeployApp();
     agHelper
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/columnchartsnapshotwithadaptiveaxis");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
   });
 
   it("3. Test x axis label orientation chart", () => {
@@ -52,7 +55,7 @@ describe("", () => {
       .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
       .matchImageSnapshot("chartwidget/linechartWithAutoXAxisLabelOrientation");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("x-axis label orientation", "Slant");
     deployMode.DeployApp();
     agHelper
@@ -61,7 +64,7 @@ describe("", () => {
         "chartwidget/linechartWithSlantXAxisLabelOrientation",
       );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("x-axis label orientation", "Rotate");
     deployMode.DeployApp();
     agHelper
@@ -70,7 +73,7 @@ describe("", () => {
         "chartwidget/linechartWithRotateXAxisLabelOrientation",
       );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Chart1");
+    EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
   });
 
   it("4. Test x axis label orientation absence  in Pie, Bar, Custom Fusion Charts", () => {

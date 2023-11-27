@@ -10,27 +10,25 @@ export const createObjectPeekData = (
   parentKey: string,
 ) => {
   Object.keys(defs).forEach((key: string) => {
-    if (key.indexOf("!") === -1) {
-      const childKeyPathArray = [parentKey, key];
-      if (isObject(defs[key])) {
-        if (Object.keys(defs[key]).length > 0) {
-          peekData[key] = {};
-          const result = createObjectPeekData(
-            defs[key],
-            data[key],
-            peekData[key],
-            key,
-          );
-          _.set(peekData, childKeyPathArray, result.peekData);
-        } else {
-          peekData[key] = data[key];
-        }
-      } else {
-        peekData[key] = isTernFunctionDef(defs[key])
-          ? // eslint-disable-next-line @typescript-eslint/no-empty-function
-            function () {} // tern inference required here
-          : data[key];
-      }
+    if (key.startsWith("!")) return;
+    const childKeyPathArray = [parentKey, key];
+    if (
+      isObject(defs[key]) &&
+      Object.keys(defs[key]).filter((k) => !k.startsWith("!")).length > 0
+    ) {
+      peekData[key] = {};
+      const result = createObjectPeekData(
+        defs[key],
+        data[key],
+        peekData[key],
+        key,
+      );
+      _.set(peekData, childKeyPathArray, result.peekData);
+    } else {
+      peekData[key] = isTernFunctionDef(defs[key])
+        ? // eslint-disable-next-line @typescript-eslint/no-empty-function
+          function () {} // tern inference required here
+        : data[key];
     }
   });
   return { peekData };

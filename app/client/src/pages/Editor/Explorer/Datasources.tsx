@@ -24,7 +24,7 @@ import {
 import {
   useAppWideAndOtherDatasource,
   useDatasourceSuggestions,
-} from "./hooks";
+} from "@appsmith/pages/Editor/Explorer/hooks";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import { keyBy } from "lodash";
 import { useDatasourceIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";

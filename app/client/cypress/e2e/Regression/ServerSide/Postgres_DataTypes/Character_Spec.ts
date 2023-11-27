@@ -1,18 +1,26 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Character Datatype tests", function () {
   let dsName: any, query: string;
 
   before("Create Postgress DS", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     agHelper.AddDsl("Datatypes/CharacterDTdsl");
     appSettings.OpenPaneAndChangeTheme("Pacific");
     dataSources.CreateDataSource("Postgres");
@@ -28,12 +36,15 @@ describe("Character Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.chartypes");
   });
 
   it("2. Creating SELECT query - chartypes + Bug 14493", () => {
     query = `SELECT *, char_length("AsMany") as "AsMany-Len", char_length("Unlimited") as "Unlimited-Len" FROM public."chartypes" as charT LIMIT 10;`;
-    entityExplorer.ActionTemplateMenuByEntityName("public.chartypes", "Select");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.chartypes",
+      "Select",
+    );
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
@@ -47,7 +58,11 @@ describe("Character Datatype tests", function () {
   it("3. Creating all queries - chartypes", () => {
     query = `INSERT INTO public."chartypes" ("One(1)", "AsMany", "Limited(4)", "Unlimited")
     VALUES ({{Insertone.text}}, {{Insertasmany.text}}, {{Insertlimited.text}}::varchar(4), {{Insertunlimited.text}});`;
-    entityExplorer.ActionTemplateMenuByEntityName("public.chartypes", "Insert");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.chartypes",
+      "Insert",
+    );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("insertRecord");
 
@@ -57,31 +72,46 @@ describe("Character Datatype tests", function () {
     "Limited(4)" = {{Updatelimited.text}}::varchar(4),
     "Unlimited" = {{Updateunlimited.text}}
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
-    entityExplorer.ActionTemplateMenuByEntityName("public.chartypes", "Update");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.chartypes",
+      "Update",
+    );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
 
     query = `DELETE FROM public."chartypes"`;
-    entityExplorer.ActionTemplateMenuByEntityName("public.chartypes", "Delete");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.chartypes",
+      "Delete",
+    );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."chartypes"`;
-    entityExplorer.ActionTemplateMenuByEntityName("public.chartypes", "Delete");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.chartypes",
+      "Delete",
+    );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
     query = `DELETE FROM public."chartypes" WHERE serialId = {{Table1.selectedRow.serialid}};`;
-    entityExplorer.ActionTemplateMenuByEntityName("public.chartypes", "Delete");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.chartypes",
+      "Delete",
+    );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("4. Inserting record (null values) - chartypes", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
@@ -329,24 +359,13 @@ describe("Character Datatype tests", function () {
 
   it("14. Validate Drop of the Newly Created - chartypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("dropTable");
+    EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.chartypes"),
-    );
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.chartypes", false);
   });
 
   it("15. Verify Deletion of the datasource after all created queries are deleted", () => {

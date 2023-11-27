@@ -1,4 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let repoName: any;
 let tempBranch: any;
@@ -50,7 +54,7 @@ describe("Git Bugs", function () {
   it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
     _.entityExplorer.AddNewPage();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT);
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON);
     _.propPane.EnterJSContext(
       "onClick",
@@ -60,13 +64,13 @@ describe("Git Bugs", function () {
     );
     _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.Sleep(500);
-    _.entityExplorer.SelectEntityByName("Page2", "Pages");
-    _.entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
       "{{appsmith.URL.queryParams.testQP}}",
     );
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     _.agHelper.ClickButton("Submit");
     _.agHelper.Sleep(500);
     _.agHelper
@@ -81,12 +85,11 @@ describe("Git Bugs", function () {
     _.gitSync.CreateGitBranch(`st`, true);
     cy.get("@gitbranchName").then((branchName) => {
       statusBranch = branchName;
-      _.agHelper.GetNClick(_.locators._appEditMenuBtn);
-      // cy.wait(_.locators._appEditMenu);
-      _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+      EditorNavigation.ViaSidebar(SidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appThemeSettings);
       _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
       _.agHelper.GetNClick(_.locators._appThemeCard, 2);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
@@ -95,11 +98,10 @@ describe("Git Bugs", function () {
         _.gitSync._gitStatusChanges,
       );
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
-      _.agHelper.GetNClick(_.locators._appEditMenuBtn);
-      // cy.wait(_.locators._appEditMenu);
-      _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+      EditorNavigation.ViaSidebar(SidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
@@ -116,10 +118,10 @@ describe("Git Bugs", function () {
     _.gitSync.CreateGitBranch(`b24946`, true);
     cy.get("@gitbranchName").then((branchName) => {
       statusBranch = branchName;
-      _.agHelper.GetNClick(_.locators._appEditMenuBtn);
-      _.agHelper.GetNClick(_.locators._appEditMenuSettings);
+      EditorNavigation.ViaSidebar(SidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
+      EditorNavigation.ViaSidebar(SidebarButton.Pages);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.GetNClick(_.gitSync._discardChanges);
@@ -146,7 +148,7 @@ describe("Git Bugs", function () {
   it("7. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
     _.gitSync.SwitchGitBranch("master", false, true);
     // add navigation settings changes
-    _.agHelper.GetNClick(_.appSettings.locators._appSettings);
+    EditorNavigation.ViaSidebar(SidebarButton.Settings);
     _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
     _.agHelper.GetNClick(
       _.appSettings.locators._navigationSettings._orientationOptions._side,

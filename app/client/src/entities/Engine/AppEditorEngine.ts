@@ -1,11 +1,4 @@
-import {
-  fetchAppThemesAction,
-  fetchSelectedAppThemeAction,
-} from "actions/appThemingActions";
-import {
-  fetchDatasources,
-  fetchMockDatasources,
-} from "actions/datasourceActions";
+import { fetchMockDatasources } from "actions/datasourceActions";
 import {
   fetchGitRemoteStatusInit,
   fetchBranchesInit,
@@ -16,18 +9,13 @@ import {
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { fetchJSCollections } from "actions/jsActionActions";
 import { loadGuidedTourInit } from "actions/onboardingActions";
-import {
-  fetchAllPageEntityCompletion,
-  fetchPage,
-  fetchPageDSLs,
-} from "actions/pageActions";
+import { fetchAllPageEntityCompletion, setupPage } from "actions/pageActions";
 import {
   executePageLoadActions,
   fetchActions,
 } from "actions/pluginActionActions";
-import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
+import { fetchPluginFormConfigs } from "actions/pluginActions";
 import type {
   ApplicationPayload,
   ReduxAction,
@@ -72,6 +60,17 @@ import { getAIPromptTriggered } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
+import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import {
+  getFeatureFlagsForEngine,
+  type DependentFeatureFlags,
+} from "@appsmith/selectors/engineSelectors";
+import { fetchJSCollections } from "actions/jsActionActions";
+import {
+  fetchAppThemesAction,
+  fetchSelectedAppThemeAction,
+} from "actions/appThemingActions";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -116,7 +115,7 @@ export default class AppEditorEngine extends AppEngine {
     applicationId: string,
   ) {
     const initActionsCalls = [
-      fetchPage(toLoadPageId, true),
+      setupPage(toLoadPageId, true),
       fetchActions({ applicationId }, []),
       fetchJSCollections({ applicationId }),
       fetchSelectedAppThemeAction(applicationId),
@@ -128,7 +127,7 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
       ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
       ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
-      ReduxActionTypes.FETCH_PAGE_SUCCESS,
+      ReduxActionTypes.SETUP_PAGE_SUCCESS,
     ];
 
     const failureActionEffects = [
@@ -136,7 +135,7 @@ export default class AppEditorEngine extends AppEngine {
       ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
       ReduxActionErrorTypes.FETCH_APP_THEMES_ERROR,
       ReduxActionErrorTypes.FETCH_SELECTED_APP_THEME_ERROR,
-      ReduxActionErrorTypes.FETCH_PAGE_ERROR,
+      ReduxActionErrorTypes.SETUP_PAGE_ERROR,
     ];
 
     initActionsCalls.push(fetchJSLibraries(applicationId));
@@ -162,19 +161,12 @@ export default class AppEditorEngine extends AppEngine {
 
   private *loadPluginsAndDatasources() {
     const isAirgappedInstance = isAirgapped();
-    const initActions = [fetchPlugins(), fetchDatasources(), fetchPageDSLs()];
-
-    const successActions = [
-      ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
-      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
-      ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
-    ];
-
-    const errorActions = [
-      ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
-      ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
-      ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
-    ];
+    const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
+    const featureFlags: DependentFeatureFlags = yield select(
+      getFeatureFlagsForEngine,
+    );
+    const { errorActions, initActions, successActions } =
+      getPageDependencyActions(currentWorkspaceId, featureFlags);
 
     if (!isAirgappedInstance) {
       initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
