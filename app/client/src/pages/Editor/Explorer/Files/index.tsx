@@ -41,15 +41,15 @@ const StyledText = styled(Text)`
 function Files() {
   // Import the context
   const context = useContext(FilesContext);
-  const { canCreateActions, entityId } = context;
+  const { canCreateActions, parentEntityId } = context;
 
   const files = useSelector(selectFilesForExplorer);
   const dispatch = useDispatch();
-  const isFilesOpen = getExplorerStatus(entityId, "queriesAndJs");
+  const isFilesOpen = getExplorerStatus(parentEntityId, "queriesAndJs");
   const [isMenuOpen, openMenu] = useState(false);
   const [query, setQuery] = useState("");
 
-  const fileOperations = useFilteredFileOperations(query);
+  const fileOperations = useFilteredFileOperations(query, canCreateActions);
 
   const onCreate = useCallback(() => {
     openMenu(true);
@@ -67,9 +67,9 @@ function Files() {
 
   const onFilesToggle = useCallback(
     (isOpen: boolean) => {
-      saveExplorerStatus(entityId, "queriesAndJs", isOpen);
+      saveExplorerStatus(parentEntityId, "queriesAndJs", isOpen);
     },
-    [entityId],
+    [parentEntityId],
   );
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
@@ -129,12 +129,14 @@ function Files() {
     (item: any) => {
       if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
       if (item.action) {
-        dispatch(item.action(entityId, DatasourceCreateEntryPoints.SUBMENU));
+        dispatch(
+          item.action(parentEntityId, DatasourceCreateEntryPoints.SUBMENU),
+        );
       } else if (item.redirect) {
-        item.redirect(entityId, DatasourceCreateEntryPoints.SUBMENU);
+        item.redirect(parentEntityId, DatasourceCreateEntryPoints.SUBMENU);
       }
     },
-    [entityId, dispatch],
+    [parentEntityId, dispatch],
   );
 
   return (
@@ -154,13 +156,13 @@ function Files() {
           tooltipText={createMessage(ADD_QUERY_JS_TOOLTIP)}
         />
       }
-      entityId={entityId + "_actions"}
+      entityId={parentEntityId + "_actions"}
       icon={null}
       isDefaultExpanded={
         isFilesOpen === null || isFilesOpen === undefined ? true : isFilesOpen
       }
       isSticky
-      key={entityId + "_actions"}
+      key={parentEntityId + "_actions"}
       name="Queries/JS"
       onCreate={onCreate}
       onToggle={onFilesToggle}
@@ -182,7 +184,7 @@ function Files() {
       {fileEntities.length > 0 && canCreateActions && (
         <AddEntity
           action={onCreate}
-          entityId={entityId + "_queries_js_add_new_datasource"}
+          entityId={parentEntityId + "_queries_js_add_new_datasource"}
           icon={<Icon name="plus" />}
           name={createMessage(ADD_QUERY_JS_BUTTON)}
           step={1}

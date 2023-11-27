@@ -162,7 +162,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       />
       <FilesContextProvider
         canCreateActions={canCreateActions}
-        entityId={pageId}
+        parentEntityId={pageId}
       >
         <Files />
       </FilesContextProvider>

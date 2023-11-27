@@ -33,13 +33,16 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   getHasCreateActionPermission,
+  getHasCreateDatasourceActionPermission,
   getHasCreateDatasourcePermission,
-  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 
-export const useFilteredFileOperations = (query = "") => {
+export const useFilteredFileOperations = (
+  query = "",
+  canCreateActions?: boolean,
+) => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   const plugins = useSelector(getPlugins);
   const moduleOptions = useModuleOptions();
@@ -51,14 +54,16 @@ export const useFilteredFileOperations = (query = "") => {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const pagePermissions = useSelector(getPagePermissions);
-
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const canCreateActions = getHasCreateActionPermission(
-    isFeatureEnabled,
-    pagePermissions,
-  );
+  const pagePermissions = useSelector(getPagePermissions);
+
+  if (canCreateActions === undefined) {
+    canCreateActions = getHasCreateActionPermission(
+      isFeatureEnabled,
+      pagePermissions,
+    );
+  }
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
     isFeatureEnabled,
@@ -66,12 +71,12 @@ export const useFilteredFileOperations = (query = "") => {
   );
 
   // get all datasources, app ds listed first
-  const allDatasources = [...appWideDS, ...otherDS].filter((ds) =>
-    hasCreateDSActionPermissionInApp(
-      isFeatureEnabled,
-      ds.userPermissions ?? [],
-      pagePermissions,
-    ),
+  const allDatasources = [...appWideDS, ...otherDS].filter(
+    (ds) =>
+      getHasCreateDatasourceActionPermission(
+        isFeatureEnabled,
+        ds.userPermissions ?? [],
+      ) && canCreateActions,
   );
 
   return useFilteredAndSortedFileOperations({

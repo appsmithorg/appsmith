@@ -2,7 +2,7 @@ import React, { createContext, useMemo } from "react";
 
 interface FilesContextContextProps {
   canCreateActions: boolean;
-  entityId: string; // page, workflow or module
+  parentEntityId: string; // page, workflow or module
 }
 
 type FilesContextProviderProps =
@@ -17,14 +17,14 @@ export const FilesContext = createContext<FilesContextContextProps>(
 export const FilesContextProvider = ({
   canCreateActions,
   children,
-  entityId,
+  parentEntityId,
 }: FilesContextProviderProps) => {
   const value = useMemo(() => {
     return {
       canCreateActions,
-      entityId,
+      parentEntityId,
     };
-  }, [canCreateActions, entityId]);
+  }, [canCreateActions, parentEntityId]);
 
   return (
     <FilesContext.Provider value={value}>{children}</FilesContext.Provider>
