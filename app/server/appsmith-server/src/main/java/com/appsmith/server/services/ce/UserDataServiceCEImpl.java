@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String>
@@ -362,5 +364,51 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         return applicationRepository
                 .getAllApplicationId(workspaceId)
                 .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
+    }
+
+    /**
+     * Returns the GitProfile for the currently logged in user
+     * @return Mono of GitProfile
+     */
+    @Override
+    public Mono<GitProfile> getGitProfileForCurrentUser(String defaultApplicationId) {
+        return getForCurrentUser()
+                .flatMap(userData -> {
+                    if (CollectionUtils.isNullOrEmpty(userData.getGitProfiles())
+                            || userData.getGitProfileByKey(DEFAULT) == null) {
+                        return sessionUserService.getCurrentUser().flatMap(user -> {
+                            GitProfile gitProfile = new GitProfile();
+                            gitProfile.setAuthorName(
+                                    org.eclipse.jgit.util.StringUtils.isEmptyOrNull(user.getName())
+                                            ? user.getUsername().split("@")[0]
+                                            : user.getName());
+                            gitProfile.setAuthorEmail(user.getEmail());
+                            Map<String, GitProfile> updateProfiles = userData.getGitProfiles();
+                            if (CollectionUtils.isNullOrEmpty(updateProfiles)) {
+                                updateProfiles = Map.of(DEFAULT, gitProfile);
+                            } else {
+                                updateProfiles.put(DEFAULT, gitProfile);
+                            }
+
+                            userData.setGitProfiles(updateProfiles);
+                            return updateForCurrentUser(userData);
+                        });
+                    }
+                    return Mono.just(userData);
+                })
+                .map(currentUserData -> {
+                    GitProfile authorProfile = currentUserData.getGitProfileByKey(defaultApplicationId);
+
+                    if (authorProfile == null
+                            || org.eclipse.jgit.util.StringUtils.isEmptyOrNull(authorProfile.getAuthorName())
+                            || Boolean.TRUE.equals(authorProfile.getUseGlobalProfile())) {
+
+                        // Use default author profile as the fallback value
+                        if (currentUserData.getGitProfileByKey(DEFAULT) != null) {
+                            authorProfile = currentUserData.getGitProfileByKey(DEFAULT);
+                        }
+                    }
+                    return authorProfile;
+                });
     }
 }

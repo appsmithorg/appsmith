@@ -70,4 +70,7 @@ public class GitApplicationMetadata implements AppsmithDomain {
 
     @JsonView(Views.Public.class)
     Boolean isProtectedBranch;
+
+    @JsonView(Views.Internal.class)
+    AutoCommitConfig autoCommitConfig;
 }

@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -101,6 +102,25 @@ public class GitFileUtils {
     public Mono<Path> saveApplicationToLocalRepo(
             Path baseRepoSuffix, ApplicationJson applicationJson, String branchName)
             throws IOException, GitAPIException {
+        /*
+           1. Checkout to branch
+           2. Create application reference for appsmith-git module
+           3. Save application to git repo
+        */
+
+        ApplicationGitReference applicationReference = createApplicationReference(applicationJson);
+        // Save application to git repo
+        try {
+            return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName);
+        } catch (IOException | GitAPIException e) {
+            log.error("Error occurred while saving files to local git repo: ", e);
+            throw Exceptions.propagate(e);
+        }
+    }
+
+    public Mono<Path> saveApplicationToLocalRepoWithAnalytics(
+            Path baseRepoSuffix, ApplicationJson applicationJson, String branchName)
+            throws IOException, GitAPIException {
 
         /*
            1. Checkout to branch
@@ -108,12 +128,9 @@ public class GitFileUtils {
            3. Save application to git repo
         */
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE.getEventName());
-        ApplicationGitReference applicationReference = createApplicationReference(applicationJson);
         // Save application to git repo
         try {
-            Mono<Path> repoPathMono = fileUtils
-                    .saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName)
-                    .cache();
+            Mono<Path> repoPathMono = saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, branchName);
             return Mono.zip(repoPathMono, sessionUserService.getCurrentUser()).flatMap(tuple -> {
                 stopwatch.stopTimer();
                 Path repoPath = tuple.getT1();
@@ -138,6 +155,18 @@ public class GitFileUtils {
             log.error("Error occurred while saving files to local git repo: ", e);
             throw Exceptions.propagate(e);
         }
+    }
+
+    public Mono<Path> saveApplicationToLocalRepo(
+            String workspaceId,
+            String defaultApplicationId,
+            String repoName,
+            ApplicationJson applicationJson,
+            String branchName)
+            throws GitAPIException, IOException {
+        Path baseRepoSuffix = Paths.get(workspaceId, defaultApplicationId, repoName);
+
+        return saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, branchName);
     }
 
     /**
@@ -333,34 +362,45 @@ public class GitFileUtils {
      * @param branchName           for which branch the application needs to rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(
+    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepoWithAnalytics(
             String workspaceId, String defaultApplicationId, String repoName, String branchName) {
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE.getEventName());
+
+        return Mono.zip(
+                        reconstructApplicationJsonFromGitRepo(workspaceId, defaultApplicationId, repoName, branchName),
+                        sessionUserService.getCurrentUser())
+                .flatMap(tuple -> {
+                    stopwatch.stopTimer();
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID,
+                            defaultApplicationId,
+                            FieldName.ORGANIZATION_ID,
+                            workspaceId,
+                            FieldName.FLOW_NAME,
+                            stopwatch.getFlow(),
+                            "executionTime",
+                            stopwatch.getExecutionTime());
+                    return analyticsService
+                            .sendEvent(
+                                    AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
+                                    tuple.getT2().getUsername(),
+                                    data)
+                            .thenReturn(tuple.getT1());
+                });
+    }
+
+    public Mono<ApplicationJson> reconstructApplicationJsonFromGitRepo(
+            String workspaceId, String defaultApplicationId, String repoName, String branchName) {
+
         Mono<ApplicationGitReference> appReferenceMono = fileUtils.reconstructApplicationReferenceFromGitRepo(
                 workspaceId, defaultApplicationId, repoName, branchName);
-        return Mono.zip(appReferenceMono, sessionUserService.getCurrentUser()).flatMap(tuple -> {
-            ApplicationGitReference applicationReference = tuple.getT1();
+        return appReferenceMono.map(applicationReference -> {
             // Extract application metadata from the json
             ApplicationJson metadata =
                     getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
             ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
             copyNestedNonNullProperties(metadata, applicationJson);
-            stopwatch.stopTimer();
-            final Map<String, Object> data = Map.of(
-                    FieldName.APPLICATION_ID,
-                    defaultApplicationId,
-                    FieldName.ORGANIZATION_ID,
-                    workspaceId,
-                    FieldName.FLOW_NAME,
-                    stopwatch.getFlow(),
-                    "executionTime",
-                    stopwatch.getExecutionTime());
-            return analyticsService
-                    .sendEvent(
-                            AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
-                            tuple.getT2().getUsername(),
-                            data)
-                    .thenReturn(applicationJson);
+            return applicationJson;
         });
     }
 
