@@ -6,9 +6,9 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.UserDataRepositoryCake;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -39,7 +39,7 @@ import java.util.Map;
 public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, UserData, String>
         implements UserDataServiceCE {
 
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
 
     private final SessionUserService sessionUserService;
 
@@ -51,7 +51,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     private final UserChangedHandler userChangedHandler;
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
 
     private final TenantService tenantService;
 
@@ -65,13 +65,13 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
             ReactiveMongoTemplate reactiveMongoTemplate,
             UserDataRepositoryCake repository,
             AnalyticsService analyticsService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             SessionUserService sessionUserService,
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
             UserChangedHandler userChangedHandler,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             TenantService tenantService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userRepository = userRepository;
@@ -313,7 +313,9 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
      */
     @Override
     public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
-        return Mono.justOrEmpty(applicationRepository.getAllApplicationId(workspaceId))
+        return applicationRepository
+                .getAllApplicationId(workspaceId)
+                .collectList()
                 .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
     }
 }

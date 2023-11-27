@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.UserDataRepositoryCake;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.ce.UserDataServiceCEImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserChangedHandler;
@@ -22,13 +22,13 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
             ReactiveMongoTemplate reactiveMongoTemplate,
             UserDataRepositoryCake repository,
             AnalyticsService analyticsService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             SessionUserService sessionUserService,
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
             UserChangedHandler userChangedHandler,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             TenantService tenantService) {
 
         super(

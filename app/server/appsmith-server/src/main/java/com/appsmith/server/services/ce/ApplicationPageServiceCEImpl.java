@@ -25,12 +25,12 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
@@ -66,13 +66,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
-    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceRepositoryCake workspaceRepository;
     private final LayoutActionService layoutActionService;
 
     private final AnalyticsService analyticsService;
     private final PolicyGenerator policyGenerator;
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
@@ -86,7 +86,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final TransactionalOperator transactionalOperator;
 
     private final PermissionGroupService permissionGroupService;
-    private final ActionCollectionRepository actionCollectionRepository;
+    private final ActionCollectionRepositoryCake actionCollectionRepository;
     private final NewActionRepository newActionRepository;
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;

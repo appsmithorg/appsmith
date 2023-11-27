@@ -9,7 +9,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
@@ -33,7 +33,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     private final SessionUserService sessionUserService;
     private final TenantService tenantService;
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
     private final PolicySolution policySolution;
 
     private final ConfigRepository configRepository;
@@ -50,7 +50,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             TenantService tenantService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             PolicySolution policySolution,
             ConfigRepository configRepository,
             PermissionGroupPermission permissionGroupPermission) {

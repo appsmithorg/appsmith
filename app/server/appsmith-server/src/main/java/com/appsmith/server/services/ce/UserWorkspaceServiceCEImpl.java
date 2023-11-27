@@ -5,9 +5,9 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.UserDataRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.UserDataRepositoryCake;
+import com.appsmith.server.repositories.UserRepositoryCake;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -31,9 +31,9 @@ import java.util.Set;
 @Service
 public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
-    private final WorkspaceRepository workspaceRepository;
-    private final UserRepository userRepository;
-    private final UserDataRepository userDataRepository;
+    private final WorkspaceRepositoryCake workspaceRepository;
+    private final UserRepositoryCake userRepository;
+    private final UserDataRepositoryCake userDataRepository;
     private final PolicySolution policySolution;
     private final EmailSender emailSender;
     private final UserDataService userDataService;
@@ -45,9 +45,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Autowired
     public UserWorkspaceServiceCEImpl(
             SessionUserService sessionUserService,
-            WorkspaceRepository workspaceRepository,
-            UserRepository userRepository,
-            UserDataRepository userDataRepository,
+            WorkspaceRepositoryCake workspaceRepository,
+            UserRepositoryCake userRepository,
+            UserDataRepositoryCake userDataRepository,
             PolicySolution policySolution,
             EmailSender emailSender,
             UserDataService userDataService,

@@ -490,16 +490,17 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 criterias, includeFields, permission, sort, permissionGroups, limit, NO_SKIP));
     }
 
-    public Flux<T> queryAll(
+    public List<T> queryAll(
             List<Criteria> criterias,
             Optional<List<String>> includeFields,
             Optional<AclPermission> permission,
             Sort sort,
             int limit,
             int skip) {
+        return Collections.emptyList(); /*
         Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
         return permissionGroupsMono.flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
-                criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));
+                criterias, includeFields, permission, Optional.of(sort), permissionGroups, limit, skip));*/
     }
 
     @Deprecated

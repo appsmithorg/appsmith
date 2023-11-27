@@ -10,10 +10,10 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -58,14 +58,14 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @Service
-public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
+public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake, Workspace, String>
         implements WorkspaceServiceCE {
 
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
     private final AssetRepository assetRepository;
     private final AssetService assetService;
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     protected final PermissionGroupService permissionGroupService;
     private final PolicySolution policySolution;
     private final ModelMapper modelMapper;
@@ -79,13 +79,13 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            WorkspaceRepository repository,
+            WorkspaceRepositoryCake repository,
             AnalyticsService analyticsService,
             PluginRepository pluginRepository,
             SessionUserService sessionUserService,
             AssetRepository assetRepository,
             AssetService assetService,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             PermissionGroupService permissionGroupService,
             PolicySolution policySolution,
             ModelMapper modelMapper,
@@ -471,12 +471,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> findById(String id, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(id, permission));
+        return repository.findById(id, permission);
     }
 
     @Override
     public Mono<Workspace> findById(String id, Optional<AclPermission> permission) {
-        return Mono.justOrEmpty(repository.findById(id /*, permission*/));
+        return repository.findById(id /*, permission*/);
     }
 
     @Override
@@ -484,7 +484,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         if (StringUtils.hasLength(workspace.getName())) {
             workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
         }
-        return Mono.justOrEmpty(repository.save(workspace));
+        return repository.save(workspace);
     }
 
     @Override

@@ -4,8 +4,8 @@ import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandl
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
@@ -26,8 +26,8 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             SessionUserService sessionUserService,
             AnalyticsService analyticsService,
             UserDataService userDataService,
-            UserRepository userRepository,
-            WorkspaceRepository workspaceRepository,
+            UserRepositoryCake userRepository,
+            WorkspaceRepositoryCake workspaceRepository,
             WorkspaceService workspaceService,
             ApplicationPageService applicationPageService,
             WorkspacePermission workspacePermission,

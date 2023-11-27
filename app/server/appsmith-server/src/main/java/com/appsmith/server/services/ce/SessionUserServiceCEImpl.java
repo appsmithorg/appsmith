@@ -4,7 +4,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,7 @@ import static org.springframework.security.web.server.context.WebSessionServerSe
 @RequiredArgsConstructor
 public class SessionUserServiceCEImpl implements SessionUserServiceCE {
 
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
     private final ReactiveRedisOperations<String, Object> redisOperations;
 
     public static final String SPRING_SESSION_PATTERN = "spring:session:sessions:*";

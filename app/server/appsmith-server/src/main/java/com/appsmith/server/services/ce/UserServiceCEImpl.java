@@ -23,7 +23,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.EmailService;
@@ -67,7 +67,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class UserServiceCEImpl extends BaseService<UserRepository, User, String> implements UserServiceCE {
+public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, String> implements UserServiceCE {
 
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
@@ -105,7 +105,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            UserRepository repository,
+            UserRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,

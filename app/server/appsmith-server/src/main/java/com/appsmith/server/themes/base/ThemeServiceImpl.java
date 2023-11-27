@@ -1,7 +1,7 @@
 package com.appsmith.server.themes.base;
 
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
@@ -23,7 +23,7 @@ public class ThemeServiceImpl extends ThemeServiceCEImpl implements ThemeService
             ReactiveMongoTemplate reactiveMongoTemplate,
             ThemeRepository repository,
             AnalyticsService analyticsService,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             ApplicationService applicationService,
             PolicyGenerator policyGenerator,
             ApplicationPermission applicationPermission) {

@@ -6,12 +6,12 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ce.ApplicationPageServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -31,11 +31,11 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             WorkspaceService workspaceService,
             ApplicationService applicationService,
             SessionUserService sessionUserService,
-            WorkspaceRepository workspaceRepository,
+            WorkspaceRepositoryCake workspaceRepository,
             LayoutActionService layoutActionService,
             AnalyticsService analyticsService,
             PolicyGenerator policyGenerator,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             NewPageService newPageService,
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
@@ -48,7 +48,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             ActionPermission actionPermission,
             TransactionalOperator transactionalOperator,
             PermissionGroupService permissionGroupService,
-            ActionCollectionRepository actionCollectionRepository,
+            ActionCollectionRepositoryCake actionCollectionRepository,
             NewActionRepository newActionRepository,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,

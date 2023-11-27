@@ -12,7 +12,7 @@ import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -24,10 +24,10 @@ import java.util.Map;
 @Slf4j
 public class ActionCollectionImportableServiceCEImpl implements ImportableServiceCE<ActionCollection> {
     private final ActionCollectionService actionCollectionService;
-    private final ActionCollectionRepository repository;
+    private final ActionCollectionRepositoryCake repository;
 
     public ActionCollectionImportableServiceCEImpl(
-            ActionCollectionService actionCollectionService, ActionCollectionRepository repository) {
+            ActionCollectionService actionCollectionService, ActionCollectionRepositoryCake repository) {
         this.actionCollectionService = actionCollectionService;
         this.repository = repository;
     }

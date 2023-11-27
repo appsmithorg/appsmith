@@ -13,6 +13,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
@@ -33,11 +35,12 @@ public class CustomDatasourceStructureRepositoryCEImpl extends BaseAppsmithRepos
     }
 
     @Override
-    public Mono<UpdateResult> updateStructure(
+    public Optional<UpdateResult> updateStructure(
             String datasourceId, String environmentId, DatasourceStructure structure) {
+        return Optional.empty(); /*
         return mongoOperations.upsert(
                 new Query().addCriteria(getDatasourceIdAndEnvironmentIdCriteria(datasourceId, environmentId)),
                 Update.update("structure", structure),
-                DatasourceStorageStructure.class);
+                DatasourceStorageStructure.class);*/
     }
 }

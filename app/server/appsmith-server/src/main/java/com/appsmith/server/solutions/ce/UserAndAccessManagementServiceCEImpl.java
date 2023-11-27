@@ -4,7 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -23,7 +23,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final SessionUserService sessionUserService;
     private final PermissionGroupService permissionGroupService;
     private final WorkspaceService workspaceService;
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
     private final AnalyticsService analyticsService;
     private final UserService userService;
     private final PermissionGroupPermission permissionGroupPermission;
@@ -34,7 +34,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
             SessionUserService sessionUserService,
             PermissionGroupService permissionGroupService,
             WorkspaceService workspaceService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             AnalyticsService analyticsService,
             UserService userService,
             PermissionGroupPermission permissionGroupPermission,

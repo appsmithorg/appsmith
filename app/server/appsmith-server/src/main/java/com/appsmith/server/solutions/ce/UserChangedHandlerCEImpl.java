@@ -2,7 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.domains.User;
 import com.appsmith.server.events.UserChangedEvent;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -16,7 +16,7 @@ import reactor.core.scheduler.Schedulers;
 public class UserChangedHandlerCEImpl implements UserChangedHandlerCE {
 
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceRepositoryCake workspaceRepository;
 
     public User publish(User user) {
         applicationEventPublisher.publishEvent(new UserChangedEvent(user));

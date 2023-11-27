@@ -4,9 +4,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,11 +13,11 @@ public interface CustomWorkspaceRepositoryCE extends AppsmithRepository<Workspac
 
     Optional<Workspace> findByName(String name, AclPermission aclPermission);
 
-    Flux<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort);
+    List<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort);
 
-    Mono<Void> updateUserRoleNames(String userId, String userName);
+    Optional<Void> updateUserRoleNames(String userId, String userName);
 
-    Flux<Workspace> findAllWorkspaces();
+    List<Workspace> findAllWorkspaces();
 
-    Flux<Workspace> findAll(AclPermission permission);
+    List<Workspace> findAll(AclPermission permission);
 }

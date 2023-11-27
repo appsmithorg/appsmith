@@ -1,9 +1,9 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.UserDataRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.UserDataRepositoryCake;
+import com.appsmith.server.repositories.UserRepositoryCake;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ce.UserWorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -17,9 +17,9 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
 
     public UserWorkspaceServiceImpl(
             SessionUserService sessionUserService,
-            WorkspaceRepository workspaceRepository,
-            UserRepository userRepository,
-            UserDataRepository userDataRepository,
+            WorkspaceRepositoryCake workspaceRepository,
+            UserRepositoryCake userRepository,
+            UserDataRepositoryCake userDataRepository,
             PolicySolution policySolution,
             EmailSender emailSender,
             UserDataService userDataService,

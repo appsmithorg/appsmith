@@ -5,12 +5,12 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.util.WebClientUtils;
@@ -41,12 +41,12 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final SegmentConfig segmentConfig;
     private final CommonConfig commonConfig;
 
-    private final WorkspaceRepository workspaceRepository;
-    private final ApplicationRepository applicationRepository;
+    private final WorkspaceRepositoryCake workspaceRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
     private final DatasourceRepository datasourceRepository;
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
     private final ProjectProperties projectProperties;
     private final NetworkUtils networkUtils;
     private final PermissionGroupService permissionGroupService;
@@ -121,7 +121,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
         Mono<String> publicPermissionGroupIdMono = permissionGroupService.getPublicPermissionGroupId();
         Mono<Tuple6<Long, Long, Long, Long, Long, Long>> nonDeletedObjectsCountMono = Mono.zip(
                 workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                Mono.justOrEmpty(applicationRepository.countByDeletedAtNull()).defaultIfEmpty(0L),
+                applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 datasourceRepository.countByDeletedAtNull().defaultIfEmpty(0L),

@@ -5,12 +5,10 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.querydsl.core.types.dsl.StringPath;
 import org.springframework.data.domain.Sort;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.List;
 
 public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 

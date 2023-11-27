@@ -3,17 +3,19 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomWorkspaceRepository;
-import reactor.core.publisher.Mono;
+
+import java.util.Optional;
+import java.util.List;
 
 public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>, CustomWorkspaceRepository {
 
-    Mono<Workspace> findBySlug(String slug);
+    Optional<Workspace> findBySlug(String slug);
 
-    Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
+    Optional<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
 
-    Mono<Workspace> findByName(String name);
+    Optional<Workspace> findByName(String name);
 
-    Mono<Void> updateUserRoleNames(Long userId, String userName);
+    Optional<Void> updateUserRoleNames(Long userId, String userName);
 
-    Mono<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull();
 }

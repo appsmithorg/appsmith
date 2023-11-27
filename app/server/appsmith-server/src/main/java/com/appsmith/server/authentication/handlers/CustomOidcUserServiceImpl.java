@@ -1,7 +1,7 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.authentication.handlers.ce.CustomOidcUserServiceCEImpl;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +15,11 @@ import org.springframework.stereotype.Service;
 public class CustomOidcUserServiceImpl extends CustomOidcUserServiceCEImpl
         implements ReactiveOAuth2UserService<OidcUserRequest, OidcUser> {
 
-    private UserRepository repository;
+    private UserRepositoryCake repository;
     private UserService userService;
 
     @Autowired
-    public CustomOidcUserServiceImpl(UserRepository repository, UserService userService) {
+    public CustomOidcUserServiceImpl(UserRepositoryCake repository, UserService userService) {
         super(repository, userService);
         this.repository = repository;
         this.userService = userService;

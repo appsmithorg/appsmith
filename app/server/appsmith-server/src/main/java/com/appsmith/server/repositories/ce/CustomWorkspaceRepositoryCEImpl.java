@@ -10,11 +10,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,9 +41,9 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Flux<Workspace> findByIdsIn(
+    public List<Workspace> findByIdsIn(
             Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
-        return Flux.empty(); /*
+        return Collections.emptyList(); /*
         Criteria workspaceIdCriteria = where("id").in(workspaceIds);
         Criteria tenantIdCriteria =
                 where("tenantId").is(tenantId);
@@ -55,23 +52,25 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<Void> updateUserRoleNames(String userId, String userName) {
+    public Optional<Void> updateUserRoleNames(String userId, String userName) {
+        return Optional.empty(); /*
         return mongoOperations
                 .updateMulti(
                         Query.query(Criteria.where("userRoles.userId").is(userId)),
                         Update.update("userRoles.$.name", userName),
                         Workspace.class)
-                .then();
+                .then();*/
     }
 
     @Override
-    public Flux<Workspace> findAllWorkspaces() {
-        return mongoOperations.find(new Query(), Workspace.class);
+    public List<Workspace> findAllWorkspaces() {
+        return Collections.emptyList(); /*
+        return mongoOperations.find(new Query(), Workspace.class);*/
     }
 
     @Override
-    public Flux<Workspace> findAll(AclPermission permission) {
-        return Flux.empty(); /*
+    public List<Workspace> findAll(AclPermission permission) {
+        return Collections.emptyList(); /*
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
             Criteria tenantIdCriteria =
                     where("tenantId").is(user.getTenantId());

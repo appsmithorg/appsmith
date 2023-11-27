@@ -11,18 +11,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
 public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User> implements CustomUserRepositoryCE {
@@ -42,23 +38,26 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
 
     @Override
     public List<User> findAllByEmails(Set<String> emails) {
+        return Collections.emptyList(); /*
         Criteria emailCriteria = where("email").in(emails);
         Query query = new Query();
         query.addCriteria(emailCriteria);
-        return mongoOperations.find(query, User.class);
+        return mongoOperations.find(query, User.class);*/
     }
 
     @Override
     public Optional<User> findByCaseInsensitiveEmail(String email) {
+        return Optional.empty(); /*
         String findEmailRegex = String.format("^%s$", Pattern.quote(email));
         Criteria emailCriteria = where("email").regex(findEmailRegex, "i");
         Query query = new Query();
         query.addCriteria(emailCriteria);
-        return mongoOperations.findOne(query, User.class);
+        return mongoOperations.findOne(query, User.class);*/
     }
 
     @Override
     public Optional<User> findByEmailAndTenantId(String email, String tenantId) {
+        return Optional.empty(); /*
         Criteria emailCriteria = where("email").is(email);
         Criteria tenantIdCriteria = where("tenantId").is(tenantId);
 
@@ -67,7 +66,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
 
         Query query = new Query();
         query.addCriteria(andCriteria);
-        return mongoOperations.findOne(query, User.class);
+        return mongoOperations.findOne(query, User.class);*/
     }
 
     /**
@@ -78,6 +77,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
      */
     @Override
     public Optional<Boolean> isUsersEmpty() {
+        return Optional.empty(); /*
         final Query q = query(new Criteria());
         q.fields().include("email");
         // Basically limit to system generated emails plus 1 more.
@@ -86,7 +86,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
                 .find(q, User.class)
                 .filter(user -> !getSystemGeneratedUserEmails().contains(user.getEmail()))
                 .count()
-                .map(count -> count == 0);
+                .map(count -> count == 0);*/
     }
 
     @Override

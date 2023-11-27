@@ -2,7 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +15,10 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService {
 
-    private UserRepository repository;
+    private UserRepositoryCake repository;
 
     @Autowired
-    public CustomFormLoginServiceCEImpl(UserRepository repository) {
+    public CustomFormLoginServiceCEImpl(UserRepositoryCake repository) {
         this.repository = repository;
     }
 
