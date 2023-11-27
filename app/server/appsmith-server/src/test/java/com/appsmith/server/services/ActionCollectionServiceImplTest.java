@@ -372,6 +372,20 @@ public class ActionCollectionServiceImplTest {
                     argument.setId("testActionId");
                     return Mono.just(argument);
                 });
+        Mockito.when(newActionService.generateActionDomain(Mockito.any())).thenAnswer(invocation -> {
+            final ActionDTO argument = (ActionDTO) invocation.getArguments()[0];
+            NewAction newAction = new NewAction();
+            newAction.setId(argument.getId());
+            newAction.setUnpublishedAction(argument);
+            return newAction;
+        });
+        Mockito.when(newActionService.validateAndSaveActionToRepository(Mockito.any()))
+                .thenAnswer(invocation -> {
+                    final NewAction argument = (NewAction) invocation.getArguments()[0];
+                    ActionDTO unpublishedAction = argument.getUnpublishedAction();
+                    unpublishedAction.setId("testActionId");
+                    return Mono.just(unpublishedAction);
+                });
 
         Mockito.when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {

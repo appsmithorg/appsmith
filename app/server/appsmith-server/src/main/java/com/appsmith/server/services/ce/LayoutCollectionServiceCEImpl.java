@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
@@ -14,7 +13,6 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -96,151 +94,27 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 .flatMap(isNameAllowed -> {
                     // If the name is allowed, return list of actionDTOs for further processing
                     if (Boolean.TRUE.equals(isNameAllowed)) {
-                        return validateAndSaveCollection(actionCollection);
+                        return actionCollectionService.validateAndSaveCollection(actionCollection);
                     }
                     // Throw an error since the new action collection's name matches an existing action, widget or
                     // collection name.
                     return Mono.error(new AppsmithException(
                             AppsmithError.DUPLICATE_KEY_USER_ERROR, collectionDTO.getName(), FieldName.NAME));
                 })
+                .flatMap(collectionDTO1 -> {
+                    List<ActionDTO> actions = collectionDTO1.getActions();
+
+                    if (actions == null || actions.isEmpty()) {
+                        return Mono.just(collectionDTO1);
+                    }
+
+                    return Flux.fromIterable(actions)
+                            .flatMap(action -> layoutActionService.updateSingleAction(action.getId(), action))
+                            .then(Mono.just(collectionDTO1));
+                })
                 .flatMap(updatedCollection -> layoutActionService
                         .updatePageLayoutsByPageId(updatedCollection.getPageId())
                         .thenReturn(updatedCollection));
-    }
-
-    @Override
-    public Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection) {
-        ActionCollectionDTO collectionDTO = actionCollection.getUnpublishedCollection();
-        final Set<String> validationMessages = collectionDTO.validate();
-        if (!validationMessages.isEmpty()) {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.INVALID_ACTION_COLLECTION, collectionDTO.getName(), validationMessages.toString()));
-        }
-
-        DefaultResources defaultResources = collectionDTO.getDefaultResources();
-
-        if (defaultResources == null) {
-            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(collectionDTO, null);
-            actionCollection.setDefaultResources(collectionDTO.getDefaultResources());
-        }
-
-        return Mono.justOrEmpty(collectionDTO.getActions())
-                .defaultIfEmpty(List.of())
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(action -> {
-                    if (action.getId() == null) {
-                        return createJsAction(collectionDTO, action);
-                    }
-                    // actionCollectionService would occur when the new collection is created by grouping existing
-                    // actions
-                    // actionCollectionService could be a future enhancement for js editor templates,
-                    // but is also useful for generic collections
-                    // We do not expect to have to update the action at actionCollectionService point
-                    return Mono.just(action);
-                })
-                .collectList()
-                .flatMap(actions -> {
-
-                    // Store the default resource ids
-                    // Only store defaultPageId for collectionDTO level resource
-                    DefaultResources defaultDTOResource = new DefaultResources();
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(
-                            collectionDTO.getDefaultResources(), defaultDTOResource);
-
-                    defaultDTOResource.setApplicationId(null);
-                    defaultDTOResource.setCollectionId(null);
-                    defaultDTOResource.setBranchName(null);
-                    if (StringUtils.isEmpty(defaultDTOResource.getPageId())) {
-                        defaultDTOResource.setPageId(collectionDTO.getPageId());
-                    }
-                    collectionDTO.setDefaultResources(defaultDTOResource);
-
-                    // Only store branchName, defaultApplicationId and defaultActionCollectionId for ActionCollection
-                    // level resource
-                    DefaultResources defaults = new DefaultResources();
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), defaults);
-                    defaults.setPageId(null);
-                    if (StringUtils.isEmpty(defaults.getApplicationId())) {
-                        defaults.setApplicationId(actionCollection.getApplicationId());
-                    }
-                    actionCollection.setDefaultResources(defaults);
-
-                    final Map<String, String> actionIds = actions.stream()
-                            .collect(toMap(
-                                    actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId));
-                    collectionDTO.setDefaultToBranchedActionIdsMap(actionIds);
-
-                    // Create collection and return with actions
-                    final Mono<ActionCollection> actionCollectionMono = actionCollectionService
-                            .create(actionCollection)
-                            .flatMap(savedActionCollection -> {
-                                // If the default collection is not set then current collection will be the default one
-                                if (StringUtils.isEmpty(savedActionCollection
-                                        .getDefaultResources()
-                                        .getCollectionId())) {
-                                    savedActionCollection
-                                            .getDefaultResources()
-                                            .setCollectionId(savedActionCollection.getId());
-                                    return actionCollectionService.save(savedActionCollection);
-                                }
-                                return Mono.just(savedActionCollection);
-                            })
-                            .flatMap(actionCollectionRepository::setUserPermissionsInObject)
-                            .cache();
-
-                    return actionCollectionMono
-                            .map(actionCollection1 -> {
-                                actions.forEach(actionDTO -> {
-                                    // Update all the actions in the list to belong to actionCollectionService
-                                    // collection
-                                    actionDTO.setCollectionId(actionCollection1.getId());
-                                    if (StringUtils.isEmpty(
-                                            actionDTO.getDefaultResources().getCollectionId())) {
-                                        actionDTO.getDefaultResources().setCollectionId(actionCollection1.getId());
-                                    }
-                                });
-                                return actions;
-                            })
-                            .flatMapMany(Flux::fromIterable)
-                            .flatMap(action -> layoutActionService.updateSingleAction(action.getId(), action))
-                            .collectList()
-                            .zipWith(actionCollectionMono)
-                            .flatMap(tuple1 -> {
-                                final List<ActionDTO> actionDTOList = tuple1.getT1();
-                                final ActionCollection actionCollection1 = tuple1.getT2();
-                                return actionCollectionService
-                                        .generateActionCollectionByViewMode(actionCollection, false)
-                                        .flatMap(actionCollectionDTO ->
-                                                actionCollectionService.splitValidActionsByViewMode(
-                                                        actionCollection1.getUnpublishedCollection(),
-                                                        actionDTOList,
-                                                        false));
-                            });
-                });
-    }
-
-    protected Mono<ActionDTO> createJsAction(ActionCollectionDTO collectionDTO, ActionDTO action) {
-        // Make sure that the proper values are used for the new action
-        // Scope the actions' fully qualified names by collection name
-        action.getDatasource().setWorkspaceId(collectionDTO.getWorkspaceId());
-        action.getDatasource().setPluginId(collectionDTO.getPluginId());
-        action.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
-        action.setFullyQualifiedName(collectionDTO.getName() + "." + action.getName());
-        action.setPageId(collectionDTO.getPageId());
-        action.setPluginType(collectionDTO.getPluginType());
-        action.setDefaultResources(collectionDTO.getDefaultResources());
-        // Action doesn't exist. Create now.
-        return layoutActionService
-                .createSingleAction(action, Boolean.TRUE)
-                // return an empty action so that this action is disregarded from the list
-                .onErrorResume(throwable -> {
-                    log.debug(
-                            "Failed to create action with name {} for collection: {}",
-                            action.getName(),
-                            collectionDTO.getName());
-                    log.error(throwable.getMessage());
-                    return Mono.empty();
-                });
     }
 
     @Override

@@ -9,8 +9,6 @@ public interface LayoutCollectionServiceCE {
 
     Mono<ActionCollectionDTO> createCollection(ActionCollection actionCollection);
 
-    Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection);
-
     Mono<ActionCollectionDTO> createCollection(ActionCollectionDTO collection, String branchName);
 
     Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO);
