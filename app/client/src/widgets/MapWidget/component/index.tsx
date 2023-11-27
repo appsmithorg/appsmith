@@ -41,6 +41,7 @@ export interface MapComponentProps {
   borderRadius: string;
   boxShadow?: string;
   allowClustering?: boolean;
+  enableMapTypeControl: boolean;
 }
 
 const MapStatusText = styled.span`
