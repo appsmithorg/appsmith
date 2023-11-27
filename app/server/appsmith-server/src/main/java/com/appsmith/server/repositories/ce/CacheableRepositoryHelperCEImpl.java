@@ -36,8 +36,9 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     protected final TenantRepository tenantRepository;
 
     public CacheableRepositoryHelperCEImpl(
-        ReactiveMongoOperations mongoOperations,
-        InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper, TenantRepository tenantRepository) {
+            ReactiveMongoOperations mongoOperations,
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
+            TenantRepository tenantRepository) {
         this.mongoOperations = mongoOperations;
         this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
         this.tenantRepository = tenantRepository;
@@ -46,7 +47,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         // If the user is anonymous, then we don't need to fetch the permission groups from the database. We can just
         // return the cached permission group ids.
@@ -109,10 +110,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
         // All public access is via a single permission group. Fetch the same and set the cache with it.
         return mongoOperations
-                .findOne(
-                        Query.query(
-                                Criteria.where("name").is(FieldName.PUBLIC_PERMISSION_GROUP)),
-                        Config.class)
+                .findOne(Query.query(Criteria.where("name").is(FieldName.PUBLIC_PERMISSION_GROUP)), Config.class)
                 .map(publicPermissionGroupConfig ->
                         Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
                 .doOnSuccess(inMemoryCacheableRepositoryHelper::setAnonymousUserPermissionGroupIds);
@@ -144,10 +142,8 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(tenantAnonymousUserMap.get(tenantId));
         }
 
-        Criteria anonymousUserCriteria =
-                Criteria.where("email").is(FieldName.ANONYMOUS_USER);
-        Criteria tenantIdCriteria =
-                Criteria.where("tenantId").is(tenantId);
+        Criteria anonymousUserCriteria = Criteria.where("email").is(FieldName.ANONYMOUS_USER);
+        Criteria tenantIdCriteria = Criteria.where("tenantId").is(tenantId);
 
         Query query = new Query();
         query.addCriteria(anonymousUserCriteria);
@@ -161,7 +157,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
     @Override
     public Mono<User> getAnonymousUser() {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         String defaultTenantId = inMemoryCacheableRepositoryHelper.getDefaultTenantId();
         if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
             return getAnonymousUser(defaultTenantId);

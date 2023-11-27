@@ -25,7 +25,6 @@ import com.appsmith.server.solutions.PagePermission;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -38,8 +37,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @AllArgsConstructor
 @Slf4j
@@ -210,24 +207,24 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
 
         return datasourceRepository
                 // fetch datasources with execute permissions so that app viewers can invite other app viewers
-                .findAllByWorkspaceId(workspaceId/*, datasourcePermission.getExecutePermission()*/)
+                .findAllByWorkspaceId(workspaceId /*, datasourcePermission.getExecutePermission()*/)
                 // In case we have come across a datasource for this workspace that the current user is not allowed to
                 // manage, move on.
                 .switchIfEmpty(Mono.empty())
-                .map(datasource -> {
-                    if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(newPoliciesMap, datasource);
-                    } else {
-                        return removePoliciesFromExistingObject(newPoliciesMap, datasource);
-                    }
-                })
-                ;/*.collectList()
-                .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));*/
+                .map(
+                        datasource -> {
+                            if (addPolicyToObject) {
+                                return addPoliciesToExistingObject(newPoliciesMap, datasource);
+                            } else {
+                                return removePoliciesFromExistingObject(newPoliciesMap, datasource);
+                            }
+                        }); /*.collectList()
+                            .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));*/
     }
 
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(
             Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         return datasourceRepository
                 .findAllByIds(ids, datasourcePermission.getEditPermission())
@@ -250,7 +247,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIdsWithoutPermission(
             Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         // Find all the datasources without permission to update the policies.
         return datasourceRepository
@@ -272,7 +269,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
 
     public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(
             String workspaceId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
@@ -294,7 +291,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(
             String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures
         // that all the published
@@ -321,7 +318,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<Theme> updateThemePolicies(
             Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
         if (StringUtils.hasLength(application.getEditModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
@@ -359,7 +356,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<NewAction> updateWithPagePermissionsToAllItsActions(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         return newActionRepository
                 .findByApplicationId(applicationId)
@@ -378,7 +375,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     @Override
     public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(
             String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         return actionCollectionRepository
                 .findByApplicationId(applicationId)

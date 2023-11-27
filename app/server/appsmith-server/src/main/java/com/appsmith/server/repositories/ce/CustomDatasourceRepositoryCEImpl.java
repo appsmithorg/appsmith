@@ -4,12 +4,10 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,15 +29,15 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     // @Override
     @Deprecated
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria workspaceIdCriteria =
                 where("workspaceId").is(workspaceId);
         return queryAll(List.of(workspaceIdCriteria), permission, Sort.by("name"));*/
     }
 
     // @Override
-    public List<Datasource> findAllByWorkspaceId(Long workspaceId/*, Optional<AclPermission> permission*/) {
-        return Collections.emptyList();/*
+    public List<Datasource> findAllByWorkspaceId(Long workspaceId /*, Optional<AclPermission> permission*/) {
+        return Collections.emptyList(); /*
         Criteria workspaceIdCriteria =
                 where("workspaceId").is(workspaceId);
         return queryAll(
@@ -49,21 +47,20 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     @Override
     @Deprecated
     public Datasource findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
-        return null;/*
-        Criteria nameCriteria = where("name").is(name);
-        Criteria workspaceIdCriteria =
-                where("workspaceId").is(workspaceId);
-        return queryOne(List.of(nameCriteria, workspaceIdCriteria), aclPermission);*/
+        return null; /*
+                     Criteria nameCriteria = where("name").is(name);
+                     Criteria workspaceIdCriteria =
+                             where("workspaceId").is(workspaceId);
+                     return queryOne(List.of(nameCriteria, workspaceIdCriteria), aclPermission);*/
     }
 
     @Override
-    public Datasource findByNameAndWorkspaceId(
-            String name, String workspaceId, Optional<AclPermission> aclPermission) {
-        return null;/*
-        Criteria nameCriteria = where("name").is(name);
-        Criteria workspaceIdCriteria =
-                where("workspaceId").is(workspaceId);
-        return queryOne(List.of(nameCriteria, workspaceIdCriteria), null, aclPermission);*/
+    public Datasource findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> aclPermission) {
+        return null; /*
+                     Criteria nameCriteria = where("name").is(name);
+                     Criteria workspaceIdCriteria =
+                             where("workspaceId").is(workspaceId);
+                     return queryOne(List.of(nameCriteria, workspaceIdCriteria), null, aclPermission);*/
     }
 
     @Override
@@ -74,7 +71,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
 
     @Override
     public List<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
-        return Collections.emptyList();/*
+        return Collections.emptyList(); /*
         Criteria idCriteria = where("id").in(ids);
         return queryAll(
                 List.of(idCriteria),

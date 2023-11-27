@@ -83,7 +83,7 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
                     updateUser.setHashedEmail(hashedEmail);
 
                     // Avoid updating the ACL fields
-                    updateUser.setGroupIds(null);
+                    // updateUser.setGroupIds(null);
                     updateUser.setPolicies(null);
                     updateUser.setPermissions(null);
 
@@ -104,6 +104,6 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
      * @return Mono of UsagePulse
      */
     public Mono<UsagePulse> save(UsagePulse usagePulse) {
-        return repository.save(usagePulse);
+        return Mono.justOrEmpty(repository.save(usagePulse));
     }
 }

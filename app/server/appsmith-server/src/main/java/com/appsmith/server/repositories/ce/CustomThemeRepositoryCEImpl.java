@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -18,6 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -34,7 +34,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria appThemeCriteria =
                 Criteria.where("applicationId").is(applicationId);
         Criteria systemThemeCriteria =
@@ -45,19 +45,17 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public Flux<Theme> getSystemThemes() {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria systemThemeCriteria =
                 Criteria.where("isSystemTheme").is(Boolean.TRUE);
         return queryAll(List.of(systemThemeCriteria), AclPermission.READ_THEMES);*/
     }
 
     @Override
-    public Mono<Theme> getSystemThemeByName(String themeName) {
+    public Optional<Theme> getSystemThemeByName(String themeName) {
         String findNameRegex = String.format("^%s$", Pattern.quote(themeName));
-        Criteria criteria = where("name")
-                .regex(findNameRegex, "i")
-                .and("isSystemTheme")
-                .is(true);
+        Criteria criteria =
+                where("name").regex(findNameRegex, "i").and("isSystemTheme").is(true);
         return queryOne(List.of(criteria), AclPermission.READ_THEMES);
     }
 
@@ -79,8 +77,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public Mono<Boolean> archiveByApplicationId(String applicationId) {
-        return archiveThemeByCriteria(
-                where("applicationId").is(applicationId));
+        return archiveThemeByCriteria(where("applicationId").is(applicationId));
     }
 
     @Override

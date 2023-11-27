@@ -8,9 +8,9 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -24,7 +24,7 @@ public class CustomPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Page>
     }
 
     @Override
-    public Mono<Page> findByIdAndLayoutsId(String id, String layoutId, AclPermission aclPermission) {
+    public Optional<Page> findByIdAndLayoutsId(String id, String layoutId, AclPermission aclPermission) {
 
         Criteria idCriteria = getIdCriteria(id);
         String layoutsIdKey = "layouts" + "." + "id";
@@ -35,24 +35,23 @@ public class CustomPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Page>
     }
 
     @Override
-    public Mono<Page> findByName(String name, AclPermission aclPermission) {
+    public Optional<Page> findByName(String name, AclPermission aclPermission) {
         Criteria nameCriteria = where("name").is(name);
         return queryOne(List.of(nameCriteria), aclPermission);
     }
 
     @Override
     public Flux<Page> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission);*/
     }
 
     @Override
-    public Mono<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission aclPermission) {
+    public Optional<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission aclPermission) {
         Criteria nameCriteria = where("name").is(name);
-        Criteria applicationIdCriteria =
-                where("applicationId").is(applicationId);
+        Criteria applicationIdCriteria = where("applicationId").is(applicationId);
         return queryOne(List.of(nameCriteria, applicationIdCriteria), aclPermission);
     }
 }

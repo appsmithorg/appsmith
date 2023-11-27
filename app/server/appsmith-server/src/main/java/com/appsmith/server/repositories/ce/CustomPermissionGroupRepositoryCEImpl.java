@@ -36,7 +36,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria assignedToUserIdCriteria = where("assignedToUserIds")
                 .in(userId);
         Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
@@ -58,7 +58,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
                 .is(workspaceId);
         Criteria defaultDomainTypeCriteria = where("defaultDomainType")
@@ -68,7 +68,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
                 .in(workspaceIds);
         Criteria defaultDomainTypeCriteria = where("defaultDomainType")
@@ -99,8 +99,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
-        Criteria assignedToUserIdCriteria = where("assignedToUserIds")
-                .in(userIds);
+        Criteria assignedToUserIdCriteria = where("assignedToUserIds").in(userIds);
         return queryAll(
                 List.of(assignedToUserIdCriteria), includeFields, permission, Optional.empty(), NO_RECORD_LIMIT);
     }

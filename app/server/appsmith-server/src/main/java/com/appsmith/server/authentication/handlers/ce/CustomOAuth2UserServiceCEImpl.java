@@ -1,8 +1,6 @@
 package com.appsmith.server.authentication.handlers.ce;
 
-import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserState;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +39,7 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
      * In case the user doesn't exist, create and save the user.
      */
     private Mono<User> checkAndCreateUser(OAuth2User oAuth2User, OAuth2UserRequest userRequest) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         String username = oAuth2User.getName();
 

@@ -8,11 +8,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -28,7 +27,7 @@ public class CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Act
     }
 
     @Override
-    public Mono<Action> findByNameAndPageId(String name, String pageId, AclPermission aclPermission) {
+    public Optional<Action> findByNameAndPageId(String name, String pageId, AclPermission aclPermission) {
         Criteria nameCriteria = where("name").is(name);
         Criteria pageCriteria = where("pageId").is(pageId);
 
@@ -36,16 +35,16 @@ public class CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Act
     }
 
     @Override
-    public Flux<Action> findByPageId(String pageId, AclPermission aclPermission) {
-        return Flux.empty();/*
+    public List<Action> findByPageId(String pageId, AclPermission aclPermission) {
+        return Collections.emptyList(); /*
         Criteria pageCriteria = where("pageId").is(pageId);
         return queryAll(List.of(pageCriteria), aclPermission);*/
     }
 
     @Override
-    public Flux<Action> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(
+    public List<Action> findActionsByNameInAndPageIdAndActionConfiguration_HttpMethod(
             Set<String> names, String pageId, String httpMethod, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Collections.emptyList(); /*
         Criteria namesCriteria = where("name").in(names);
         Criteria pageCriteria = where("pageId").is(pageId);
         String httpMethodQueryKey = "actionConfiguration"
@@ -58,9 +57,9 @@ public class CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Act
     }
 
     @Override
-    public Flux<Action> findAllActionsByNameAndPageIds(
+    public List<Action> findAllActionsByNameAndPageIds(
             String name, List<String> pageIds, AclPermission aclPermission, Sort sort) {
-        return Flux.empty();/*
+        return Collections.emptyList(); /*
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover

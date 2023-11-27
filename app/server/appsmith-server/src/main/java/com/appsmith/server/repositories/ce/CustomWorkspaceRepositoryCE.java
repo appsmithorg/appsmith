@@ -7,11 +7,12 @@ import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface CustomWorkspaceRepositoryCE extends AppsmithRepository<Workspace> {
 
-    Mono<Workspace> findByName(String name, AclPermission aclPermission);
+    Optional<Workspace> findByName(String name, AclPermission aclPermission);
 
     Flux<Workspace> findByIdsIn(Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort);
 

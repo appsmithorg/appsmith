@@ -1,7 +1,5 @@
 package com.appsmith.server.newpages.exports;
 
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
@@ -16,15 +14,7 @@ import com.appsmith.server.solutions.PagePermission;
 import org.apache.commons.collections.CollectionUtils;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.appsmith.server.constants.ResourceModes.EDIT;
-import static com.appsmith.server.constants.ResourceModes.VIEW;
 
 public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPage> {
 
@@ -44,7 +34,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         Optional<AclPermission> optionalPermission = Optional.ofNullable(pagePermission.getExportPermission(
                 exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
 
@@ -137,8 +127,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
         }
 
         applicationJson
-                .getExportedApplication()
-                ;//.exportApplicationPages(mappedExportableResourcesDTO.getPageIdToNameMap());
+                .getExportedApplication(); // .exportApplicationPages(mappedExportableResourcesDTO.getPageIdToNameMap());
     }
 
     private void updateIdsForLayoutOnLoadAction(

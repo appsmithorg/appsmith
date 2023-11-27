@@ -9,8 +9,6 @@ import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.InsertManyResult;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +63,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission);*/
@@ -74,31 +72,25 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
-        Criteria applicationIdCriteria =
-                where("applicationId").is(applicationId);
+        Criteria applicationIdCriteria = where("applicationId").is(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission, sort);
     }
 
     @Override
-    public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
-        Criteria nameCriteria = where("unpublishedAction" + "."
-                        + "name")
-                .is(name);
-        Criteria pageCriteria = where("unpublishedAction" + "."
-                        + "pageId")
-                .is(pageId);
+    public Optional<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
+        Criteria nameCriteria = where("unpublishedAction" + "." + "name").is(name);
+        Criteria pageCriteria = where("unpublishedAction" + "." + "pageId").is(pageId);
         // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
         // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where("unpublishedAction" + "."
-                        + "deletedAt")
-                .is(null);
+        Criteria deletedCriteria =
+                where("unpublishedAction" + "." + "deletedAt").is(null);
 
         return queryOne(List.of(nameCriteria, pageCriteria, deletedCriteria), aclPermission);
     }
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         String unpublishedPage = "unpublishedAction" + "."
                 + "pageId";
         String publishedPage = "publishedAction" + "."
@@ -113,10 +105,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission) {
-        String unpublishedPage = "unpublishedAction" + "."
-                + "pageId";
-        String publishedPage = "publishedAction" + "."
-                + "pageId";
+        String unpublishedPage = "unpublishedAction" + "." + "pageId";
+        String publishedPage = "publishedAction" + "." + "pageId";
 
         Criteria pageCriteria = new Criteria()
                 .orOperator(
@@ -132,7 +122,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         List<Criteria> criteria = new ArrayList<>();
 
@@ -165,7 +155,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(
             Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria namesCriteria = where("unpublishedAction"
                         + "."
                         + "name")
@@ -196,7 +186,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
@@ -252,7 +242,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
             Set<String> names, String pageId, AclPermission permission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         List<Criteria> criteriaList = new ArrayList<>();
         if (names != null) {
             Criteria namesCriteria = where("unpublishedAction" + "."
@@ -283,7 +273,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findUnpublishedActionsByNameInAndPageId(
             Set<String> names, String pageId, AclPermission permission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         List<Criteria> criteriaList = new ArrayList<>();
 
         if (names != null) {
@@ -313,7 +303,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
             String pageId, AclPermission permission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         List<Criteria> criteriaList = new ArrayList<>();
 
         Criteria executeOnLoadCriteria = where("unpublishedAction" + "."
@@ -343,7 +333,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         Criteria applicationCriteria =
                 where("applicationId").is(applicationId);
@@ -354,7 +344,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         List<Criteria> criteria = new ArrayList<>();
 
@@ -376,12 +366,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<Long> countByDatasourceId(String datasourceId) {
-        Criteria unpublishedDatasourceCriteria = where(
-                        "unpublishedAction" + ".datasource._id")
-                .is(new ObjectId(datasourceId));
-        Criteria publishedDatasourceCriteria = where(
-                        "publishedAction" + ".datasource._id")
-                .is(new ObjectId(datasourceId));
+        Criteria unpublishedDatasourceCriteria =
+                where("unpublishedAction" + ".datasource._id").is(new ObjectId(datasourceId));
+        Criteria publishedDatasourceCriteria =
+                where("publishedAction" + ".datasource._id").is(new ObjectId(datasourceId));
 
         Criteria datasourceCriteria =
                 notDeleted().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
@@ -393,7 +381,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<NewAction> findByBranchNameAndDefaultActionId(
+    public Optional<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission) {
         final String defaultResources = "defaultResources";
         Criteria defaultActionIdCriteria =
@@ -421,7 +409,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         Criteria pageIdCriteria = where("unpublishedAction" + "."
                         + "pageId")
@@ -432,9 +420,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where("unpublishedAction" + "."
-                        + "pageId")
-                .in(pageIds);
+        Criteria pageIdCriteria = where("unpublishedAction" + "." + "pageId").in(pageIds);
 
         return queryAll(List.of(pageIdCriteria), permission);
     }
@@ -442,7 +428,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         List<Criteria> criteria = new ArrayList<>();
 
         Criteria applicationCriterion =
@@ -468,7 +454,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         List<Criteria> criteriaList = new ArrayList<>();
 
         Criteria nonJsTypeCriteria =
@@ -556,7 +542,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<List<BulkWriteResult>> bulkUpdate(List<NewAction> newActions) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (CollectionUtils.isEmpty(newActions)) {
             return Mono.just(Collections.emptyList());
         }
@@ -589,8 +575,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
-        Criteria applicationIdCriteria =
-                where("applicationId").is(applicationId);
+        Criteria applicationIdCriteria = where("applicationId").is(applicationId);
 
         Mono<Set<String>> permissionGroupsMono =
                 getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
@@ -619,12 +604,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
-        Criteria applicationIdCriteria =
-                where("applicationId").is(applicationId);
-        String unpublishedDeletedAtFieldName = String.format(
-                "%s.%s",
-                "unpublishedAction",
-                "deletedAt");
+        Criteria applicationIdCriteria = where("applicationId").is(applicationId);
+        String unpublishedDeletedAtFieldName = String.format("%s.%s", "unpublishedAction", "deletedAt");
         Criteria deletedFromUnpublishedCriteria =
                 where(unpublishedDeletedAtFieldName).ne(null);
 
@@ -636,12 +617,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId) {
-        GroupOperation countByPluginType =
-                group("pluginType").count().as("count");
-        MatchOperation filterStates = match(where("applicationId")
-                .is(applicationId)
-                .and("deleted")
-                .ne(Boolean.TRUE));
+        GroupOperation countByPluginType = group("pluginType").count().as("count");
+        MatchOperation filterStates =
+                match(where("applicationId").is(applicationId).and("deleted").ne(Boolean.TRUE));
         ProjectionOperation projectionOperation = project("count").and("_id").as("pluginType");
         Aggregation aggregation = newAggregation(filterStates, countByPluginType, projectionOperation);
         return mongoOperations.aggregate(
@@ -660,10 +638,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         List<Criteria> criteriaList = new ArrayList<>();
 
-        String contextIdPath = "unpublishedAction" + "."
-                + "pageId";
-        String contextTypePath = "unpublishedAction" + "."
-                + "contextType";
+        String contextIdPath = "unpublishedAction" + "." + "pageId";
+        String contextTypePath = "unpublishedAction" + "." + "contextType";
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
 
@@ -671,11 +647,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
-            jsInclusionOrExclusionCriteria =
-                    where("pluginType").is(PluginType.JS);
+            jsInclusionOrExclusionCriteria = where("pluginType").is(PluginType.JS);
         } else {
-            jsInclusionOrExclusionCriteria =
-                    where("pluginType").ne(PluginType.JS);
+            jsInclusionOrExclusionCriteria = where("pluginType").ne(PluginType.JS);
         }
 
         criteriaList.add(jsInclusionOrExclusionCriteria);
@@ -687,10 +661,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         List<Criteria> criteriaList = new ArrayList<>();
-        String contextIdPath = "publishedAction" + "."
-                + "pageId";
-        String contextTypePath = "publishedAction" + "."
-                + "contextType";
+        String contextIdPath = "publishedAction" + "." + "pageId";
+        String contextTypePath = "publishedAction" + "." + "contextType";
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
 
@@ -698,11 +670,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
-            jsInclusionOrExclusionCriteria =
-                    where("pluginType").is(PluginType.JS);
+            jsInclusionOrExclusionCriteria = where("pluginType").is(PluginType.JS);
         } else {
-            jsInclusionOrExclusionCriteria =
-                    where("pluginType").ne(PluginType.JS);
+            jsInclusionOrExclusionCriteria = where("pluginType").ne(PluginType.JS);
         }
 
         criteriaList.add(jsInclusionOrExclusionCriteria);

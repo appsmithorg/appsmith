@@ -6,13 +6,10 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ReleaseNode;
 import com.appsmith.server.dtos.UserHomepageDTO;
-import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -29,7 +26,6 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -93,7 +89,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
      * @return List of UserHomepageDTO
      */
     public Mono<UserHomepageDTO> getAllApplications() {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         Mono<User> userMono = sessionUserService
                 .getCurrentUser()

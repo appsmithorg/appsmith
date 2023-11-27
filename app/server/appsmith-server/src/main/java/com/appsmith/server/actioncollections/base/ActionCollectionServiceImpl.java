@@ -3,7 +3,7 @@ package com.appsmith.server.actioncollections.base;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -24,7 +24,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            ActionCollectionRepository repository,
+            ActionCollectionRepositoryCake repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
             PolicyGenerator policyGenerator,

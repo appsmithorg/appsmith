@@ -146,7 +146,9 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
                 }
 
                 final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
-                mappedExportableResourcesDTO.getActionIdToNameMap().put(Long.valueOf(newAction.getId()), updatedActionId);
+                mappedExportableResourcesDTO
+                        .getActionIdToNameMap()
+                        .put(Long.valueOf(newAction.getId()), updatedActionId);
                 // newAction.setId(updatedActionId);
             }
             if (newAction.getPublishedAction() != null) {
@@ -165,7 +167,9 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
 
                 if (!mappedExportableResourcesDTO.getActionIdToNameMap().containsValue(newAction.getId())) {
                     final String updatedActionId = actionDTO.getPageId() + "_" + actionDTO.getValidName();
-                    mappedExportableResourcesDTO.getActionIdToNameMap().put(Long.valueOf(newAction.getId()), updatedActionId);
+                    mappedExportableResourcesDTO
+                            .getActionIdToNameMap()
+                            .put(Long.valueOf(newAction.getId()), updatedActionId);
                     // newAction.setId(updatedActionId);
                 }
             }

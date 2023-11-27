@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
-
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
@@ -29,10 +28,8 @@ public class CustomDatasourceStructureRepositoryCEImpl extends BaseAppsmithRepos
     public static Criteria getDatasourceIdAndEnvironmentIdCriteria(String datasourceId, String environmentId) {
         return new Criteria()
                 .andOperator(
-                        where("datasourceId")
-                                .is(datasourceId),
-                        where("environmentId")
-                                .is(environmentId));
+                        where("datasourceId").is(datasourceId),
+                        where("environmentId").is(environmentId));
     }
 
     @Override

@@ -36,10 +36,8 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -151,8 +149,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                                 application, importingMetaDTO, mappedImportableResourcesDTO)
                                         .then(newPageImportableService.updateImportedEntities(
                                                 application, importingMetaDTO, mappedImportableResourcesDTO))
-                                        .flatMap(
-                                                newPage -> applicationService.update(String.valueOf(application.getId()), application));
+                                        .flatMap(newPage -> applicationService.update(
+                                                String.valueOf(application.getId()), application));
                             }));
                 })
                 .as(transactionalOperator::transactional);
@@ -242,7 +240,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             Mono<String> branchedPageIdMono,
             ApplicationJson applicationJson,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return branchedPageIdMono.flatMap(
                 pageId -> newPageService.findById(pageId, Optional.empty()).flatMap(newPage -> {
                     String pageName = newPage.getUnpublishedPage().getName();

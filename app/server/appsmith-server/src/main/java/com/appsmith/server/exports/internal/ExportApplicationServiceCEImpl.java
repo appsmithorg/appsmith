@@ -1,16 +1,11 @@
 package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
@@ -19,10 +14,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ExportFileDTO;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.exportable.ExportableService;
-import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
@@ -38,13 +30,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -72,7 +58,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
      */
     public Mono<ApplicationJson> exportApplicationById(
             String applicationId, SerialiseApplicationObjective serialiseFor) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
@@ -302,7 +288,7 @@ public class ExportApplicationServiceCEImpl implements ExportApplicationServiceC
      * @return The application which is imported or exported
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return applicationService.findById(applicationId).flatMap(application -> workspaceService
                 .getById(application.getWorkspaceId())
                 .flatMap(workspace -> {

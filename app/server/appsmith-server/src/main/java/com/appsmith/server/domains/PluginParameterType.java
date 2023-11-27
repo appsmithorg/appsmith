@@ -18,6 +18,7 @@ public class PluginParameterType {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
     private String key;
     private String dataType;
 }

@@ -14,7 +14,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
-import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.GitDefaultCommitMessage;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
@@ -40,7 +39,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
@@ -103,12 +101,10 @@ import static com.appsmith.external.constants.GitConstants.CONFLICTED_SUCCESS_ME
 import static com.appsmith.external.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
 import static com.appsmith.external.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
 import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
-import static com.appsmith.external.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.external.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_EMAIL;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
-import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 /**
@@ -721,6 +717,7 @@ public class GitServiceCEImpl implements GitServiceCE {
          *  The ssh keys is already present in application object from generate SSH key step
          *  We would be updating the remote url and default branchName
          * */
+        return Mono.empty(); /*
 
         if (StringUtils.isEmptyOrNull(gitConnectDTO.getRemoteUrl())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
@@ -1000,7 +997,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
 
         return Mono.create(
-                sink -> connectApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+                sink -> connectApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));*/
     }
 
     @Override
@@ -1167,6 +1164,7 @@ public class GitServiceCEImpl implements GitServiceCE {
      */
     @Override
     public Mono<Application> detachRemote(String defaultApplicationId) {
+        return Mono.empty(); /*
 
         Mono<Application> disconnectMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> checkPermissionOnWorkspace(
@@ -1210,9 +1208,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Remove the parent application branch name from the list
                     branch.remove(tuple.getT4());
                     defaultApplication.setGitApplicationMetadata(null);
-                    defaultApplication.getPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                    defaultApplication.getPages().forEach(page -> page.setDefaultPageId(String.valueOf(page.getId())));
                     if (!CollectionUtils.isNullOrEmpty(defaultApplication.getPublishedPages())) {
-                        defaultApplication.getPublishedPages().forEach(page -> page.setDefaultPageId(page.getId()));
+                        defaultApplication.getPublishedPages().forEach(page -> page.setDefaultPageId(String.valueOf(page.getId())));
                     }
                     return fileUtils.deleteLocalRepo(repoSuffix).flatMap(status -> Flux.fromIterable(branch)
                             .flatMap(gitBranch -> applicationService
@@ -1267,7 +1265,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         AnalyticsEvents.GIT_DISCONNECT.getEventName(), application, false))
                                 .map(responseUtils::updateApplicationWithDefaultResources));
 
-        return Mono.create(sink -> disconnectMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+        return Mono.create(sink -> disconnectMono.subscribe(sink::success, sink::error, null, sink.currentContext()));*/
     }
 
     public Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch) {
@@ -2641,6 +2639,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<GitAuth> generateSSHKey(String keyType) {
+        return Mono.empty(); /*
         GitAuth gitAuth = GitDeployKeyGenerator.generateSSHKey(keyType);
 
         GitDeployKeys gitDeployKeys = new GitDeployKeys();
@@ -2662,7 +2661,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 return gitDeployKeysRepository.save(gitDeployKeys1);
                             });
                 })
-                .thenReturn(gitAuth);
+                .thenReturn(gitAuth);*/
     }
 
     @Override

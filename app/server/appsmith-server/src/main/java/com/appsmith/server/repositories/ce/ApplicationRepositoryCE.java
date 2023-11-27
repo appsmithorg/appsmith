@@ -4,21 +4,20 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomApplicationRepository;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ApplicationRepositoryCE extends BaseRepository<Application, String>, CustomApplicationRepository {
 
-    Flux<Application> findByIdIn(List<String> ids);
+    List<Application> findByIdIn(List<String> ids);
 
-    Flux<Application> findByWorkspaceId(String workspaceId);
+    List<Application> findByWorkspaceId(String workspaceId);
 
-    Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
+    List<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
 
-    Mono<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull();
 
-    Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
+    Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
 }

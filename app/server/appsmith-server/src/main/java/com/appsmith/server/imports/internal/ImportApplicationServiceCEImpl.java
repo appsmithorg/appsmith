@@ -1,14 +1,11 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -22,11 +19,8 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
-import com.appsmith.server.migrations.ApplicationVersion;
-import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -46,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -54,16 +47,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.appsmith.server.helpers.ImportExportUtils.setPropertiesToExistingApplication;
-import static com.appsmith.server.helpers.ImportExportUtils.setPublishedApplicationProperties;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -122,8 +108,8 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
                         return updateNonGitConnectedAppFromJson(workspaceId, applicationId, applicationJson);
                     }
                 })
-                .flatMap(application ->
-                        getApplicationImportDTO(application.getId(), application.getWorkspace().getId(), application));
+                .flatMap(application -> getApplicationImportDTO(
+                        application.getId(), application.getWorkspace().getId(), application));
 
         return Mono.create(
                 sink -> importedApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
@@ -356,7 +342,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currUserMono) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         Mono<Application> importApplicationMono = Mono.just(importedApplication)
                 .map(application -> {
                     if (application.getApplicationVersion() == null) {
@@ -488,7 +474,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
            6. Extract and save pages in the application
            7. Extract and save actions in the application
         */
-        return Mono.empty();/*
+        return Mono.empty(); /*
         ApplicationJson importedDoc = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
 
         // check for validation error and raise exception if error found
@@ -736,7 +722,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
     @Override
     public Mono<ApplicationImportDTO> getApplicationImportDTO(
             String applicationId, String workspaceId, Application application) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return findDatasourceByApplicationId(applicationId, workspaceId)
                 .zipWith(workspaceService.getDefaultEnvironmentId(workspaceId, null))
                 .map(tuple2 -> {
@@ -766,7 +752,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
 
     @Override
     public Mono<List<Datasource>> findDatasourceByApplicationId(Long applicationId, Long workspaceId) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
         Mono<List<Datasource>> listMono = datasourceService
                 .getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty())
@@ -806,7 +792,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             String branchName,
             ApplicationJson applicationJson,
             List<String> pagesToImport) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         // Update the application JSON to prepare it for merging inside an existing application
         if (applicationJson.getExportedApplication() != null) {
             // setting some properties to null so that target application is not updated by these properties
@@ -891,7 +877,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
      */
     private Mono<Application> sendImportExportApplicationAnalyticsEvent(
             Application application, AnalyticsEvents event) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return workspaceService.getById(application.getWorkspaceId()).flatMap(workspace -> {
             final Map<String, Object> eventData = Map.of(
                     FieldName.APPLICATION, application,

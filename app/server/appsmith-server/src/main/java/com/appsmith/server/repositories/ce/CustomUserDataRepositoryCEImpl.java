@@ -1,25 +1,15 @@
 package com.appsmith.server.repositories.ce;
 
-
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.google.common.collect.Lists;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
@@ -32,23 +22,23 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
-    public Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
+    public Optional<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
+        return Optional.empty(); /*
         return mongoOperations.upsert(
                 query(where("userId").is(userId)),
-                Update.update("releaseNotesViewedVersion", version)
-                        .setOnInsert("userId", userId),
-                UserData.class);
+                Update.update("releaseNotesViewedVersion", version).setOnInsert("userId", userId),
+                UserData.class);*/
     }
 
     @Override
-    public Mono<UpdateResult> removeIdFromRecentlyUsedList(
+    public Optional<UpdateResult> removeIdFromRecentlyUsedList(
             String userId, String workspaceId, List<String> applicationIds) {
+        return Optional.empty(); /*
         Update update = new Update().pull("recentlyUsedWorkspaceIds", workspaceId);
         if (!CollectionUtils.isEmpty(applicationIds)) {
             update = update.pullAll("recentlyUsedAppIds", applicationIds.toArray());
         }
-        return mongoOperations.updateFirst(
-                query(where("userId").is(userId)), update, UserData.class);
+        return mongoOperations.updateFirst(query(where("userId").is(userId)), update, UserData.class);*/
     }
 
     /**
@@ -59,16 +49,17 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
      * @return Flux of UserData with only the photoAssetId and userId fields
      */
     @Override
-    public Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
+    public List<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
+        return Collections.emptyList(); /*
         // need to convert from Iterable to ArrayList because the "in" method of criteria takes a collection as input
         Criteria criteria = where("userId").in(Lists.newArrayList(userId));
-        List<String> fieldsToInclude =
-                List.of("profilePhotoAssetId", "userId");
-        return queryAll(List.of(criteria), Optional.of(fieldsToInclude), Optional.empty(), Optional.empty());
+        List<String> fieldsToInclude = List.of("profilePhotoAssetId", "userId");
+        return queryAll(List.of(criteria), Optional.of(fieldsToInclude), Optional.empty(), Optional.empty());*/
     }
 
     @Override
-    public Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
+    public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
+        return Optional.empty(); /*
         final Query query = query(where("userId").is(userId));
 
         query.fields().include("recentlyUsedWorkspaceIds");
@@ -76,6 +67,6 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         return mongoOperations.findOne(query, UserData.class).map(userData -> {
             final List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();
             return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds) ? "" : recentlyUsedWorkspaceIds.get(0);
-        });
+        });*/
     }
 }

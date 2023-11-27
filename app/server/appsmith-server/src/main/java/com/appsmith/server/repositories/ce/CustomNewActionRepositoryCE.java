@@ -20,7 +20,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission);
 
-    Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
+    Optional<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
 
     Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
@@ -53,7 +53,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Mono<Long> countByDatasourceId(String datasourceId);
 
-    Mono<NewAction> findByBranchNameAndDefaultActionId(
+    Optional<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission);
 
     Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(

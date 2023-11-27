@@ -7,7 +7,6 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -51,6 +50,7 @@ public class ApiTemplateServiceCEImpl extends BaseService<ApiTemplateRepository,
             apiTemplateExample.setVersionId(params.getFirst("versionId"));
         }
 
-        return repository.findAll(Example.of(apiTemplateExample), sort);
+        // return repository.findAll(Example.of(apiTemplateExample), sort);
+        return Flux.empty();
     }
 }

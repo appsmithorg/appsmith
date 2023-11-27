@@ -15,14 +15,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.repository.support.SimpleReactiveMongoRepository;
 import org.springframework.data.util.ParsingUtils;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.Assert;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -70,8 +66,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  *             Ref: https://theappsmith.slack.com/archives/CPQNLFHTN/p1669100205502599?thread_ts=1668753437.497369&cid=CPQNLFHTN
  */
 @Slf4j
-public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
-        extends SimpleJpaRepository<T, ID> implements BaseRepository<T, ID> {
+public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> extends SimpleJpaRepository<T, ID>
+        implements BaseRepository<T, ID> {
 
     protected final @NonNull JpaEntityInformation<T, ID> entityInformation;
     protected final @NonNull EntityManager entityManager;
@@ -79,7 +75,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     protected final DBConnection dbConnection;
 
     public BaseRepositoryImpl(
-        @NonNull JpaEntityInformation<T, ID> entityInformation, @NonNull EntityManager entityManager) {
+            @NonNull JpaEntityInformation<T, ID> entityInformation, @NonNull EntityManager entityManager) {
         super(entityInformation, entityManager);
         this.entityInformation = entityInformation;
         this.entityManager = entityManager;
@@ -100,8 +96,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     private Criteria getIdCriteria(Object id) {
-        return null;/*
-        return where(entityInformation.getIdAttribute()).is(id);*/
+        return null; /*
+                     return where(entityInformation.getIdAttribute()).is(id);*/
     }
 
     /**
@@ -109,8 +105,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
      * against the `fieldName` property in the matching object.
      */
     @Override
-    public Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames) {
-        return Mono.empty();/*
+    public Optional<T> findByIdAndFieldNames(ID id, List<String> fieldNames) {
+        return Optional.empty(); /*
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
@@ -136,8 +132,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     @Override
-    public Mono<T> retrieveById(ID id) {
-        return Mono.empty();/*
+    public Optional<T> retrieveById(ID id) {
+        return Optional.empty(); /*
         Query query = new Query(getIdCriteria(id));
         query.addCriteria(notDeleted());
 
@@ -150,22 +146,23 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
 
     @Override
     public Optional<T> findById(ID id) {
-        return Optional.empty();/*
+        return Optional.empty(); /*
         return this.findByIdAndFieldNames(id, null);*/
     }
 
     @Override
-    public Mono<T> findByIdAndBranchName(ID id, String branchName) {
+    public Optional<T> findByIdAndBranchName(ID id, String branchName) {
         // branchName will be ignored and this method is overridden for the services which are shared across branches
-        return Mono.justOrEmpty(this.findById(id));
+        return this.findById(id);
     }
 
     /**
      * This method is supposed to update the given list of field names with the associated values in an object as opposed to replacing the entire object.
      */
     @Override
-    public Mono<UpdateResult> updateByIdAndFieldNames(@NotNull ID id, @NotNull Map<String, Object> fieldNameValueMap) {
-        return Mono.empty();/*
+    public Optional<UpdateResult> updateByIdAndFieldNames(
+            @NotNull ID id, @NotNull Map<String, Object> fieldNameValueMap) {
+        return Optional.empty(); /*
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
@@ -184,7 +181,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
 
     @Override
     public List<T> findAll() {
-        return Collections.emptyList();/*
+        return Collections.emptyList(); /*
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
@@ -199,7 +196,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
 
     @Override
     public List<T> findAll(Example example, Sort sort) {
-        return Collections.emptyList();/*
+        return Collections.emptyList(); /*
         Assert.notNull(example, "Sample must not be null!");
         Assert.notNull(sort, "Sort must not be null!");
 
@@ -238,8 +235,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     @Override
-    public Mono<T> archive(T entity) {
-        return Mono.empty();/*
+    public Optional<T> archive(T entity) {
+        return Optional.empty(); /*
         Assert.notNull(entity, "The given entity must not be null!");
         Assert.notNull(entity.getId(), "The given entity's id must not be null!");
         // Entity is already deleted
@@ -252,8 +249,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     @Override
-    public Mono<Boolean> archiveById(ID id) {
-        return Mono.empty();/*
+    public Optional<Boolean> archiveById(ID id) {
+        return Optional.empty(); /*
         Assert.notNull(id, "The given id must not be null!");
 
         return ReactiveSecurityContextHolder.getContext()
@@ -277,8 +274,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     }
 
     @Override
-    public Mono<Boolean> archiveAllById(Collection<ID> ids) {
-        return Mono.empty();/*
+    public Optional<Boolean> archiveAllById(Collection<ID> ids) {
+        return Optional.empty(); /*
         Assert.notNull(ids, "The given ids must not be null!");
         Assert.notEmpty(ids, "The given list of ids must not be empty!");
 
@@ -298,16 +295,16 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
 
     @Override
     public <S extends T> S save(S entity) {
-        return entity;/*
-        final boolean isInsert = entity.getId() == null;
-        return super.save(entity).map(savedEntity -> {
-            try {
-                saveToPostgres(savedEntity, isInsert);
-            } catch (SQLException | JsonProcessingException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-            return savedEntity;
-        });*/
+        return entity; /*
+                       final boolean isInsert = entity.getId() == null;
+                       return super.save(entity).map(savedEntity -> {
+                           try {
+                               saveToPostgres(savedEntity, isInsert);
+                           } catch (SQLException | JsonProcessingException | IllegalAccessException e) {
+                               throw new RuntimeException(e);
+                           }
+                           return savedEntity;
+                       });*/
     }
 
     private <S extends T> void saveToPostgres(S entity, boolean isInsert)

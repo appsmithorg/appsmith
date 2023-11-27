@@ -1,16 +1,9 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserData;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -22,26 +15,17 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -86,7 +70,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     @Override
     public Mono<User> leaveWorkspace(String workspaceId) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         // Read the workspace
         Mono<Workspace> workspaceMono = workspaceRepository
                 .findById(workspaceId, workspacePermission.getReadPermission())
@@ -146,7 +130,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Override
     public Mono<MemberInfoDTO> updatePermissionGroupForMember(
             String workspaceId, UpdatePermissionGroupDTO changeUserGroupDTO, String originHeader) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (changeUserGroupDTO.getUsername() == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAME));
         }
@@ -238,7 +222,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     @Override
     public Mono<List<MemberInfoDTO>> getWorkspaceMembers(String workspaceId) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = this.getPermissionGroupsForWorkspace(workspaceId);
@@ -299,7 +283,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     @Override
     public Mono<Map<String, List<MemberInfoDTO>>> getWorkspaceMembers(Set<String> workspaceIds) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = permissionGroupService
@@ -371,7 +355,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     private List<MemberInfoDTO> mapPermissionGroupListToUserAndPermissionGroupDTOList(
             List<PermissionGroup> permissionGroupList) {
-        return Collections.emptyList();/*
+        return Collections.emptyList(); /*
         Set<String> userIds = new HashSet<>(); // Set of already collected users
         List<MemberInfoDTO> userAndGroupDTOList = new ArrayList<>();
         permissionGroupList.forEach(permissionGroup -> {
@@ -393,7 +377,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     protected Flux<PermissionGroup> getPermissionGroupsForWorkspace(String workspaceId) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Mono<Workspace> workspaceMono = workspaceRepository
                 .findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
@@ -406,8 +390,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     @Override
     public Boolean isLastAdminRoleEntity(PermissionGroup permissionGroup) {
-        return false;/*
-        return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
-                && permissionGroup.getAssignedToUserIds().size() == 1;*/
+        return false; /*
+                      return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
+                              && permissionGroup.getAssignedToUserIds().size() == 1;*/
     }
 }

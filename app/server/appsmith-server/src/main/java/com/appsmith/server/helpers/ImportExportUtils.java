@@ -168,11 +168,11 @@ public class ImportExportUtils {
             Map<String, Instant> datasourceNameToUpdatedAtMap,
             ActionDTO actionDTO,
             Instant applicationLastCommittedAt) {
-        return false;/*
-        String datasourceName = actionDTO.getDatasource().getId();
-        Instant datasourceUpdatedAt = datasourceName != null ? datasourceNameToUpdatedAtMap.get(datasourceName) : null;
-        return datasourceUpdatedAt != null
-                && applicationLastCommittedAt != null
-                && datasourceUpdatedAt.isAfter(applicationLastCommittedAt);*/
+        return false; /*
+                      String datasourceName = actionDTO.getDatasource().getId();
+                      Instant datasourceUpdatedAt = datasourceName != null ? datasourceNameToUpdatedAtMap.get(datasourceName) : null;
+                      return datasourceUpdatedAt != null
+                              && applicationLastCommittedAt != null
+                              && datasourceUpdatedAt.isAfter(applicationLastCommittedAt);*/
     }
 }

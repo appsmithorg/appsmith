@@ -12,6 +12,7 @@ import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
@@ -34,6 +35,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Config> updateByName(Config config) {
+        return Mono.empty(); /*
         final String name = config.getName();
         return repository
                 .findByName(name)
@@ -43,18 +45,19 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
                     log.debug("Found config with name: {} and id: {}", name, dbConfig.getId());
                     dbConfig.setConfig(config.getConfig());
                     return repository.save(dbConfig);
-                });
+                });*/
     }
 
     @Override
     public Mono<Config> save(Config config) {
+        return Mono.empty(); /*
         return repository
                 .findByName(config.getName())
                 .flatMap(dbConfig -> {
                     dbConfig.setConfig(config.getConfig());
                     return repository.save(dbConfig);
                 })
-                .switchIfEmpty(Mono.defer(() -> repository.save(config)));
+                .switchIfEmpty(Mono.defer(() -> repository.save(config)));*/
     }
 
     @Override
@@ -76,20 +79,21 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Void> delete(String name) {
+        return Mono.empty(); /*
         return repository
                 .findByName(name)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
-                .flatMap(repository::delete);
+                .flatMap(repository::delete);*/
     }
 
     @Override
-    public Mono<Config> getByName(String name, AclPermission permission) {
+    public Optional<Config> getByName(String name, AclPermission permission) {
         return repository.findByName(name, permission);
     }
 
     @Override
-    public Mono<Config> getByNameAsUser(String name, User user, AclPermission permission) {
+    public Optional<Config> getByNameAsUser(String name, User user, AclPermission permission) {
         return repository.findByNameAsUser(name, user, permission);
     }
 }

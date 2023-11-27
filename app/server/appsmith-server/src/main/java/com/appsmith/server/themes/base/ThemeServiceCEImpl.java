@@ -1,9 +1,7 @@
 package com.appsmith.server.themes.base;
 
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
@@ -21,14 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import reactor.util.function.Tuples;
-
-import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
-import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Slf4j
 public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, String> implements ThemeServiceCE {
@@ -82,7 +75,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
@@ -105,7 +98,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Flux<Theme> getApplicationThemes(String applicationId, String branchName) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
@@ -133,7 +126,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId, String branchName) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
                         branchName, applicationId, applicationPermission.getEditPermission())
@@ -191,7 +184,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<String> getDefaultThemeId() {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (StringUtils.isEmpty(defaultThemeId)) {
             return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
                 defaultThemeId = theme.getId();
@@ -203,7 +196,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return repository.findById(srcThemeId, READ_THEMES).flatMap(theme -> {
             if (theme.isSystemTheme()) { // it's a system theme, no need to copy
                 return Mono.just(theme);
@@ -226,7 +219,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      */
     @Override
     public Mono<Theme> publishTheme(String applicationId) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         // fetch application to make sure user has permission to manage this application
         return applicationRepository
                 .findById(applicationId, applicationPermission.getEditPermission())
@@ -279,7 +272,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             Theme targetThemeResource,
             Application application,
             ApplicationMode applicationMode) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return repository
                 .findById(currentThemeId, READ_THEMES)
                 .flatMap(currentTheme -> {
@@ -339,7 +332,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         return applicationService
                 .findByBranchNameAndDefaultApplicationId(
@@ -393,7 +386,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      * @return deleted theme mono
      */
     private Mono<Theme> deletePublishedCustomizedThemeCopy(String themeId) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (!StringUtils.hasLength(themeId)) {
             return Mono.empty();
         }
@@ -407,7 +400,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> archiveById(String themeId) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return repository
                 .findById(themeId, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(
@@ -425,12 +418,12 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> getSystemTheme(String themeName) {
-        return repository.getSystemThemeByName(themeName);
+        return Mono.justOrEmpty(repository.getSystemThemeByName(themeName));
     }
 
     @Override
     public Mono<Theme> getThemeById(String themeId, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(Long.valueOf(themeId), permission));
+        return Mono.justOrEmpty(repository.findById(themeId, permission));
     }
 
     @Override
@@ -440,7 +433,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> updateName(String id, Theme themeDto) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return repository
                 .findById(id, MANAGE_THEMES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.THEME, id)))
@@ -459,11 +452,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
     @Override
     public Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication) {
         if (theme == null) { // this application was exported without theme, assign the legacy theme to it
-            return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
+            return Mono.justOrEmpty(
+                    repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME)); // return the default theme
         } else if (theme.isSystemTheme()) {
-            return repository
-                    .getSystemThemeByName(theme.getName())
-                    .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
+            return Mono.justOrEmpty(repository.getSystemThemeByName(theme.getName()))
+                    .switchIfEmpty(Mono.justOrEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME)));
         } else {
             // create a new theme
             Theme newTheme = new Theme();

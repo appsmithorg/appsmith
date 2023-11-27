@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -23,7 +23,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            ApplicationRepository repository,
+            ApplicationRepositoryCake repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
             ConfigService configService,

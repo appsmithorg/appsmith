@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -36,13 +35,13 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Mono<User> findByEmail(String email, AclPermission aclPermission) {
+    public Optional<User> findByEmail(String email, AclPermission aclPermission) {
         Criteria emailCriteria = where("email").is(email);
         return queryOne(List.of(emailCriteria), aclPermission);
     }
 
     @Override
-    public Flux<User> findAllByEmails(Set<String> emails) {
+    public List<User> findAllByEmails(Set<String> emails) {
         Criteria emailCriteria = where("email").in(emails);
         Query query = new Query();
         query.addCriteria(emailCriteria);
@@ -50,7 +49,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Mono<User> findByCaseInsensitiveEmail(String email) {
+    public Optional<User> findByCaseInsensitiveEmail(String email) {
         String findEmailRegex = String.format("^%s$", Pattern.quote(email));
         Criteria emailCriteria = where("email").regex(findEmailRegex, "i");
         Query query = new Query();
@@ -59,7 +58,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
+    public Optional<User> findByEmailAndTenantId(String email, String tenantId) {
         Criteria emailCriteria = where("email").is(email);
         Criteria tenantIdCriteria = where("tenantId").is(tenantId);
 
@@ -78,7 +77,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
      * @return Boolean, indicated where there exists at least one user in the system or not.
      */
     @Override
-    public Mono<Boolean> isUsersEmpty() {
+    public Optional<Boolean> isUsersEmpty() {
         final Query q = query(new Criteria());
         q.fields().include("email");
         // Basically limit to system generated emails plus 1 more.
@@ -91,7 +90,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Flux<User> getAllByEmails(
+    public List<User> getAllByEmails(
             Set<String> emails,
             Optional<AclPermission> aclPermission,
             int limit,

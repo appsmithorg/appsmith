@@ -5,7 +5,6 @@ import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.EntityType;
-import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.helpers.DslUtils;
@@ -19,7 +18,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -27,7 +25,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -56,6 +53,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     @Override
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
+        return Mono.empty(); /*
         Mono<PageDTO> pageMono = refactoringMetaDTO.getPageDTOMono();
         Mono<Integer> evalVersionMono = refactoringMetaDTO.getEvalVersionMono();
         Set<String> updatedBindingPaths = refactoringMetaDTO.getUpdatedBindingPaths();
@@ -99,7 +97,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
             return Mono.just(page);
         });
 
-        return pageDTOMono.then();
+        return pageDTOMono.then();*/
     }
 
     @Override

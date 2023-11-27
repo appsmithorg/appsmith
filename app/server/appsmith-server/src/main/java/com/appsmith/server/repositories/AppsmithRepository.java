@@ -4,8 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,9 +11,9 @@ import java.util.Set;
 
 public interface AppsmithRepository<T> {
 
-    Optional<T> findById(Long id, AclPermission permission);
+    Optional<T> findById(String id, AclPermission permission);
 
-    Optional<T> findById(Long id, List<String> projectionFieldNames, AclPermission permission);
+    // Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
 
     // T updateById(Long id, T resource, AclPermission permission);
 

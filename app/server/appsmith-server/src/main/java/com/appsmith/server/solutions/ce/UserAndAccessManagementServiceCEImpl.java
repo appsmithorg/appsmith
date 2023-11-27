@@ -1,14 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.EmailService;
@@ -18,21 +13,9 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
-import reactor.util.function.Tuples;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementServiceCE {
@@ -83,7 +66,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
      */
     @Override
     public Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         if (originHeader == null || originHeader.isBlank()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
@@ -218,7 +201,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
 
     private Mono<Boolean> throwErrorIfUserAlreadyExistsInWorkspace(
             User user, List<PermissionGroup> defaultPermissionGroups) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         return Flux.fromIterable(defaultPermissionGroups)
                 .map(permissionGroup -> {

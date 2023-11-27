@@ -16,7 +16,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.imageio.ImageIO;
@@ -25,9 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.Constraint.THUMBNAIL_PHOTO_DIMENSION;
 
@@ -73,7 +70,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     @Override
     public Mono<Asset> upload(List<Part> fileParts, int maxFileSizeKB, boolean isThumbnail) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         fileParts = fileParts.stream().filter(Objects::nonNull).collect(Collectors.toList());
 
         if (fileParts.isEmpty()) {
@@ -124,7 +121,7 @@ public class AssetServiceCEImpl implements AssetServiceCE {
      */
     @Override
     public Mono<Void> remove(String assetId) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         final Asset tempAsset = new Asset();
         tempAsset.setId(assetId);
         return repository

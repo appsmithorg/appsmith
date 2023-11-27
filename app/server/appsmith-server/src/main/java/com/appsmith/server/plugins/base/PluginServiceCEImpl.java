@@ -15,7 +15,6 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.WorkspaceService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,8 +30,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.util.MultiValueMap;
@@ -52,12 +49,10 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
@@ -114,7 +109,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Flux<Plugin> get(MultiValueMap<String, String> params) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         // Remove branch name as plugins are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
@@ -191,7 +186,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Flux<Workspace> installDefaultPlugins(List<Plugin> plugins) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         final List<WorkspacePlugin> newWorkspacePlugins = plugins.stream()
                 .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
                 .map(plugin -> {
@@ -245,7 +240,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     private Mono<Workspace> storeWorkspacePlugin(PluginWorkspaceDTO pluginDTO, WorkspacePluginStatus status) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         Mono<Workspace> pluginInWorkspaceMono =
                 workspaceService.findByIdAndPluginsPluginId(pluginDTO.getWorkspaceId(), pluginDTO.getPluginId());
@@ -317,18 +312,18 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO) {
-        return null;/*
-        Mono<Plugin> pluginMono = repository.findById(
-                installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
-        return pluginMono
-                .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.debug(
-                            "During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install",
-                            installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
-                    return Mono.just(new Plugin());
-                }))
-                .block();*/
+        return null; /*
+                     Mono<Plugin> pluginMono = repository.findById(
+                             installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
+                     return pluginMono
+                             .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
+                             .switchIfEmpty(Mono.defer(() -> {
+                                 log.debug(
+                                         "During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install",
+                                         installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
+                                 return Mono.just(new Plugin());
+                             }))
+                             .block();*/
     }
 
     private Mono<Plugin> downloadAndStartPlugin(String workspaceId, Plugin plugin) {
@@ -629,7 +624,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Flux<Plugin> saveAll(Iterable<Plugin> plugins) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         return repository.saveAll(plugins);*/
     }
 

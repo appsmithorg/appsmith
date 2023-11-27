@@ -28,7 +28,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -148,7 +147,6 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -401,11 +399,8 @@ public class ApplicationServiceCETest {
     private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
         Query query = new Query(where("id").is(id));
 
-        final Query actionQuery = query(
-                        where("applicationId").exists(true))
-                .addCriteria(where("unpublishedAction" + "."
-                                + "archivedAt")
-                        .exists(true));
+        final Query actionQuery = query(where("applicationId").exists(true))
+                .addCriteria(where("unpublishedAction" + "." + "archivedAt").exists(true));
 
         return mongoOperations.findOne(query, domainClass);
     }

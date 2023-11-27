@@ -22,7 +22,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest

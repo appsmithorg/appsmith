@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.Plugin;
-
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -27,7 +26,7 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
 
     @Override
     public Flux<Plugin> findDefaultPluginIcons() {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria criteria =
                 Criteria.where("defaultInstall").is(Boolean.TRUE);
         List<String> projections = List.of(

@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.repositories.UserDataRepositoryCake;
 import com.appsmith.server.services.ce.AnalyticsServiceCEImpl;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
             ConfigService configService,
             UserUtils userUtils,
             ProjectProperties projectProperties,
-            UserDataRepository userDataRepository) {
+            UserDataRepositoryCake userDataRepository) {
         super(
                 analytics,
                 sessionUserService,

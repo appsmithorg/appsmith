@@ -1,16 +1,12 @@
 package com.appsmith.server.refactors.applications;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
@@ -22,17 +18,12 @@ import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.reactive.TransactionalOperator;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
-
-import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -69,7 +60,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
      * @return : The DSL after refactor updates
      */
     Mono<Tuple2<LayoutDTO, Set<String>>> refactorName(RefactorEntityNameDTO refactorEntityNameDTO) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         String pageId = refactorEntityNameDTO.getPageId();
         String layoutId = refactorEntityNameDTO.getLayoutId();
         String oldName = refactorEntityNameDTO.getOldFullyQualifiedName();
@@ -137,7 +128,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
 
     @Override
     public Mono<LayoutDTO> refactorEntityName(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         EntityRefactoringService<?> service = getEntityRefactoringService(refactorEntityNameDTO);
 
@@ -208,7 +199,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     }
 
     private Mono<String> getBranchedPageIdMono(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return newPageService
                 .findByBranchNameAndDefaultPageId(
                         branchName, refactorEntityNameDTO.getPageId(), pagePermission.getEditPermission())

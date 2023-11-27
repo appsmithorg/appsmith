@@ -14,7 +14,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -88,7 +87,6 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -1810,8 +1808,7 @@ public class WorkspaceServiceTest {
         Workspace createdWorkspace = workspaceService.create(workspace).block();
 
         Update updateAddAdditionalField = new Update().set(additionalField, true);
-        Query queryWorkspace =
-                new Query(Criteria.where("id").is(createdWorkspace.getId()));
+        Query queryWorkspace = new Query(Criteria.where("id").is(createdWorkspace.getId()));
         UpdateResult updateResult =
                 mongoTemplate.updateMulti(queryWorkspace, updateAddAdditionalField, Workspace.class);
 

@@ -27,10 +27,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-
 @Slf4j
 public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceCE {
 
@@ -70,12 +66,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Mono<DatasourceStorage> archive(DatasourceStorage datasourceStorage) {
-        return repository.archive(datasourceStorage);
+        return Mono.justOrEmpty(repository.archive(datasourceStorage));
     }
 
     @Override
     public Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource, String environmentId) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return this.findByDatasourceIdAndEnvironmentId(datasource.getId(), environmentId)
                 .map(datasourceStorage -> {
                     datasourceStorage.prepareTransientFields(datasource);
@@ -99,7 +95,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         return this.findByDatasourceId(datasource.getId()).map(datasourceStorage -> {
             datasourceStorage.prepareTransientFields(datasource);
             return datasourceStorage;
@@ -128,7 +124,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Mono<DatasourceStorage> updateDatasourceStorage(
             DatasourceStorage datasourceStorage, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         String datasourceId = datasourceStorage.getDatasourceId();
         String environmentId = datasourceStorage.getEnvironmentId();
 
@@ -207,8 +203,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
         return Mono.just(datasourceStorage)
                 .map(this::sanitizeDatasourceStorage)
-                .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
-                ;/*.flatMap(unsavedDatasourceStorage -> {
+                .flatMap(datasourceStorage1 ->
+                        validateDatasourceStorage(datasourceStorage1)); /*.flatMap(unsavedDatasourceStorage -> {
                     return repository.save(unsavedDatasourceStorage).map(datasourceStorage1 -> {
                         // datasourceStorage.pluginName is a transient field. It was set by validateDatasource method
                         // object from db will have pluginName=null so set it manually from the unsaved
@@ -377,7 +373,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
      * @return empty mono if no storage exists
      */
     private Mono<DatasourceStorage> checkDuplicateDatasourceStorage(DatasourceStorage datasourceStorage) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         String datasourceId = datasourceStorage.getDatasourceId();
         String environmentId = datasourceStorage.getEnvironmentId();

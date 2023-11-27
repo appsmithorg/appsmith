@@ -1,26 +1,15 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.constants.Authentication;
-import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.helpers.SSLHelper;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.OAuth2ResponseDTO;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.constants.Entity;
-import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.Url;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
@@ -37,41 +26,11 @@ import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
 
 import java.net.ConnectException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
-import static com.appsmith.external.constants.Authentication.AUDIENCE;
-import static com.appsmith.external.constants.Authentication.AUTHORIZATION_CODE;
-import static com.appsmith.external.constants.Authentication.CLIENT_ID;
-import static com.appsmith.external.constants.Authentication.CLIENT_SECRET;
-import static com.appsmith.external.constants.Authentication.CODE;
-import static com.appsmith.external.constants.Authentication.GRANT_TYPE;
-import static com.appsmith.external.constants.Authentication.REDIRECT_URI;
-import static com.appsmith.external.constants.Authentication.REFRESH_TOKEN;
-import static com.appsmith.external.constants.Authentication.RESOURCE;
-import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
-import static com.appsmith.external.constants.Authentication.SCOPE;
-import static com.appsmith.external.constants.Authentication.STATE;
-import static com.appsmith.external.constants.Authentication.SUCCESS;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -106,7 +65,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
             String pageId,
             String branchName,
             ServerHttpRequest httpRequest) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
 
@@ -190,7 +149,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
      * @return url for redirecting client to including a response_status
      */
     public Mono<String> getAccessTokenForGenericOAuth2(AuthorizationCodeCallbackDTO callbackDTO) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         final String error = callbackDTO.getError();
         String code = callbackDTO.getCode();
         final String state = callbackDTO.getState();
@@ -327,7 +286,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     }
 
     private Mono<String> getPageRedirectUrl(String state, String error) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         final String[] splitState = state.split(",");
 
         final String pageId = splitState[0];
@@ -366,7 +325,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
             String branchName,
             ServerHttpRequest request,
             String importForGit) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
         // If successful, then request for appsmithToken
@@ -480,7 +439,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
 
     public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
             String datasourceId, String environmentId, String appsmithToken) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         // Check if user has access to manage datasource
         // If yes, check if datasource is in intermediate state
         // If yes, request for token and store in datasource

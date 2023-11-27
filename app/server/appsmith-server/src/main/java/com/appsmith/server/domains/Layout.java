@@ -2,7 +2,6 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;

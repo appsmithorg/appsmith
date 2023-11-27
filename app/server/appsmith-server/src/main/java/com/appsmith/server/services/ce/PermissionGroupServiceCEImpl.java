@@ -2,16 +2,11 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -21,28 +16,17 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
-import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
-import static java.lang.Boolean.TRUE;
 
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepository, PermissionGroup, String>
         implements PermissionGroupServiceCE {
@@ -82,6 +66,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
+        return Mono.empty(); /*
         return repository
                 .save(permissionGroup)
                 .map(pg -> {
@@ -93,26 +78,27 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     policySolution.addPoliciesToExistingObject(policyMap, pg);
                     return pg;
                 })
-                .flatMap(pg -> repository.save(pg));
+                .flatMap(pg -> repository.save(pg));*/
     }
 
     @Override
     public Flux<PermissionGroup> findAllByIds(Set<String> ids) {
-        return repository.findAllById(ids);
+        return Flux.fromIterable(repository.findAllById(ids));
     }
 
     @Override
     public Mono<PermissionGroup> save(PermissionGroup permissionGroup) {
-        return repository.save(permissionGroup);
+        return Mono.justOrEmpty(repository.save(permissionGroup));
     }
 
     @Override
     public Mono<PermissionGroup> getById(String id, AclPermission permission) {
-        return repository.findById(id, permission);
+        return Mono.justOrEmpty(repository.findById(id, permission));
     }
 
     @Override
     public Mono<Void> delete(String id) {
+        return Mono.empty(); /*
 
         return repository.findById(id).flatMap(permissionGroup -> {
             Mono<Void> returnMono = null;
@@ -127,11 +113,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
             }
 
             return returnMono;
-        });
+        });*/
     }
 
     @Override
     public Mono<Void> deleteWithoutPermission(String id) {
+        return Mono.empty(); /*
 
         return repository.findById(id).flatMap(permissionGroup -> {
             Mono<Void> returnMono = null;
@@ -146,12 +133,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
             }
 
             return returnMono;
-        });
+        });*/
     }
 
     @Override
     public Mono<PermissionGroup> findById(String permissionGroupId) {
-        return repository.findById(permissionGroupId);
+        return Mono.justOrEmpty(repository.findById(permissionGroupId));
     }
 
     public Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user) {
@@ -159,13 +146,14 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
 
     private void ensureAssignedToUserIds(PermissionGroup permissionGroup) {
-        if (permissionGroup.getAssignedToUserIds() == null) {
-            permissionGroup.setAssignedToUserIds(new HashSet<>());
-        }
+        // if (permissionGroup.getAssignedToUserIds() == null) {
+        //     permissionGroup.setAssignedToUserIds(new HashSet<>());
+        // }
     }
 
     @Override
     public Mono<PermissionGroup> bulkAssignToUsers(PermissionGroup pg, List<User> users) {
+        return Mono.empty(); /*
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().addAll(userIds);
@@ -178,14 +166,15 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
         return permissionGroupUpdateMono
                 .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
-                .map(tuple -> tuple.getT1());
+                .map(tuple -> tuple.getT1());*/
     }
 
     @Override
     public Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users) {
+        return Mono.empty(); /*
         return repository
                 .findById(permissionGroupId, permissionGroupPermission.getAssignPermission())
-                .flatMap(permissionGroup -> bulkAssignToUsers(permissionGroup, users));
+                .flatMap(permissionGroup -> bulkAssignToUsers(permissionGroup, users));*/
     }
 
     @Override
@@ -202,6 +191,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> bulkUnassignFromUsers(PermissionGroup pg, List<User> users) {
+        return Mono.empty(); /*
 
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
@@ -212,17 +202,19 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
         return updatePermissionGroupMono
                 .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
-                .map(tuple -> tuple.getT1());
+                .map(tuple -> tuple.getT1());*/
     }
 
     @Override
     public Mono<PermissionGroup> bulkUnassignFromUsers(String permissionGroupId, List<User> users) {
+        return Mono.empty(); /*
         return repository
                 .findById(permissionGroupId, permissionGroupPermission.getUnAssignPermission())
-                .flatMap(permissionGroup -> bulkUnassignFromUsers(permissionGroup, users));
+                .flatMap(permissionGroup -> bulkUnassignFromUsers(permissionGroup, users));*/
     }
 
     Mono<PermissionGroup> bulkUnassignFromUserIds(PermissionGroup pg, List<String> userIds) {
+        return Mono.empty(); /*
         ensureAssignedToUserIds(pg);
         pg.getAssignedToUserIds().removeAll(userIds);
         Mono<PermissionGroup> updatePermissionGroupMono =
@@ -231,12 +223,13 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE);
         return updatePermissionGroupMono
                 .zipWhen(updatedPermissionGroup -> clearCacheForUsersMono)
-                .map(tuple -> tuple.getT1());
+                .map(tuple -> tuple.getT1());*/
     }
 
     @Override
     public Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(
             Set<String> userIds, Set<String> permissionGroupIds) {
+        return Mono.empty(); /*
         return repository
                 .findAllById(permissionGroupIds)
                 .flatMap(pg -> {
@@ -255,7 +248,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                             .zipWhen(updatedPermissionGroupResult -> clearCacheForUsersMono)
                             .map(tuple -> tuple.getT1());
                 })
-                .then(Mono.just(TRUE));
+                .then(Mono.just(TRUE));*/
     }
 
     @Override
@@ -270,6 +263,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds) {
+        return Mono.empty(); /*
 
         Mono<Map<String, String>> userMapMono =
                 userRepository.findAllById(userIds).collectMap(user -> user.getId(), user -> user.getEmail());
@@ -287,11 +281,12 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                 .thenReturn(TRUE);
                     });
                 })
-                .then();
+                .then();*/
     }
 
     @Override
     public Mono<PermissionGroup> getPublicPermissionGroup() {
+        return Mono.empty(); /*
 
         if (publicPermissionGroup != null) {
             return Mono.just(publicPermissionGroup);
@@ -301,7 +296,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                 .findByName(PUBLIC_PERMISSION_GROUP)
                 .map(configObj -> configObj.getConfig().getAsString(PERMISSION_GROUP_ID))
                 .flatMap(permissionGroupId -> repository.findById(permissionGroupId))
-                .doOnNext(permissionGroup -> publicPermissionGroup = permissionGroup);
+                .doOnNext(permissionGroup -> publicPermissionGroup = permissionGroup);*/
     }
 
     @Override
@@ -384,6 +379,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Boolean> leaveExplicitlyAssignedSelfRole(String permissionGroupId) {
+        return Mono.empty(); /*
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
@@ -420,7 +416,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                             .updateById(permissionGroupId, updateObj)
                             .then(cleanPermissionGroupCacheForUsers(List.of(userId)));
                 })
-                .map(tuple -> TRUE);
+                .map(tuple -> TRUE);*/
     }
 
     @Override

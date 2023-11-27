@@ -2,32 +2,18 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.InsertManyResult;
-import org.apache.commons.lang3.StringUtils;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
         implements CustomActionCollectionRepositoryCE {
@@ -41,8 +27,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     @Deprecated
-    public Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
-        return Flux.empty();/*
+    public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
+        return Collections.emptyList(); /*
 
         Criteria applicationCriteria = where("applicationId")
                 .is(applicationId);
@@ -51,19 +37,19 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByApplicationId(
+    public List<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
+        return Collections.emptyList(); /*
 
-        Criteria applicationCriteria = where("applicationId")
-                .is(applicationId);
+        Criteria applicationCriteria = where("applicationId").is(applicationId);
 
-        return queryAll(List.of(applicationCriteria), aclPermission, sort);
+        return queryAll(List.of(applicationCriteria), aclPermission, sort);*/
     }
 
     @Override
-    public Flux<ActionCollection> findByApplicationIdAndViewMode(
+    public List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Collections.emptyList(); /*
 
         List<Criteria> criteria = new ArrayList<>();
 
@@ -84,14 +70,14 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+    public List<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
             String branchName,
             AclPermission aclPermission,
             Sort sort) {
-        return Flux.empty();/*
+        return Collections.emptyList(); /*
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
@@ -150,8 +136,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByPageId(String pageId, AclPermission aclPermission) {
-        return Flux.empty();/*
+    public List<ActionCollection> findByPageId(String pageId, AclPermission aclPermission) {
+        return Collections.emptyList(); /*
         String unpublishedPage = "unpublishedCollection" + "."
                 + "pageId";
         String publishedPage = "publishedCollection" + "."
@@ -165,49 +151,52 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByPageId(String pageId) {
+    public List<ActionCollection> findByPageId(String pageId) {
         return this.findByPageId(pageId, null);
     }
 
     @Override
-    public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
+    public Optional<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission) {
+        return Optional.empty(); /*
         final String defaultResources = "defaultResources";
         Criteria defaultCollectionIdCriteria =
                 where(defaultResources + "." + FieldName.COLLECTION_ID).is(defaultCollectionId);
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
-        return queryOne(List.of(defaultCollectionIdCriteria, branchCriteria), permission);
+        return queryOne(List.of(defaultCollectionIdCriteria, branchCriteria), permission);*/
     }
 
     @Override
-    public Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
+    public Optional<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, AclPermission permission) {
         return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
     }
 
     @Override
-    public Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
+    public Optional<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        return Optional.empty(); /*
         final String defaultResources = "defaultResources";
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);*/
     }
 
     @Override
-    public Flux<ActionCollection> findByDefaultApplicationId(
+    public List<ActionCollection> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permission) {
+        return Collections.emptyList(); /*
         final String defaultResources = "defaultResources";
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
-        return queryAll(List.of(defaultAppIdCriteria), permission);
+        return queryAll(List.of(defaultAppIdCriteria), permission);*/
     }
 
     @Override
-    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
-        return Flux.empty();/*
+    public List<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
+        return Collections.emptyList(); /*
         Criteria pageIdCriteria = where("unpublishedCollection" + "."
                         + "pageId")
                 .in(pageIds);
@@ -215,15 +204,16 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where("unpublishedCollection" + "."
-                        + "pageId")
-                .in(pageIds);
-        return queryAll(List.of(pageIdCriteria), permission);
+    public List<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        return Collections.emptyList(); /*
+        Criteria pageIdCriteria =
+                where("unpublishedCollection" + "." + "pageId").in(pageIds);
+        return queryAll(List.of(pageIdCriteria), permission);*/
     }
 
     @Override
-    public Mono<List<InsertManyResult>> bulkInsert(List<ActionCollection> actionCollectionList) {
+    public Optional<List<InsertManyResult>> bulkInsert(List<ActionCollection> actionCollectionList) {
+        return Optional.empty(); /*
         if (CollectionUtils.isEmpty(actionCollectionList)) {
             return Mono.just(Collections.emptyList());
         }
@@ -240,12 +230,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return mongoOperations
                 .getCollection(mongoOperations.getCollectionName(ActionCollection.class))
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.insertMany(dbObjects))
-                .collectList();
+                .collectList();*/
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections) {
-        return Mono.empty();/*
+    public Optional<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections) {
+        return Optional.empty(); /*
         if (CollectionUtils.isEmpty(actionCollections)) {
             return Mono.just(Collections.emptyList());
         }
@@ -270,32 +260,31 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
+    public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
+        return Collections.emptyList(); /*
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
-        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+        return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);*/
     }
 
     @Override
-    public Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
+    public List<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
-        String contextIdPath = "unpublishedCollection" + "."
-                + "pageId";
-        String contextTypePath = "unpublishedCollection" + "."
-                + "contextType";
+        return Collections.emptyList(); /*
+        String contextIdPath = "unpublishedCollection" + "." + "pageId";
+        String contextTypePath = "unpublishedCollection" + "." + "contextType";
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));*/
     }
 
     @Override
-    public Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
+    public List<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
-        String contextIdPath = "publishedCollection" + "."
-                + "pageId";
-        String contextTypePath = "publishedCollection" + "."
-                + "contextType";
+        return Collections.emptyList(); /*
+        String contextIdPath = "publishedCollection" + "." + "pageId";
+        String contextTypePath = "publishedCollection" + "." + "contextType";
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
-        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));*/
     }
 }

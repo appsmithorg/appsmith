@@ -1,14 +1,13 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.repositories.UserDataRepositoryCake;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
@@ -21,7 +20,6 @@ import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -33,15 +31,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
-
-public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String>
+public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, UserData, String>
         implements UserDataServiceCE {
 
     private final UserRepository userRepository;
@@ -68,7 +63,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            UserDataRepository repository,
+            UserDataRepositoryCake repository,
             AnalyticsService analyticsService,
             UserRepository userRepository,
             SessionUserService sessionUserService,
@@ -91,7 +86,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> getForUser(User user) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return user == null ? Mono.empty() : getForUser(user.getId());*/
     }
 
@@ -129,7 +124,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> updateForUser(User user, UserData updates) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         // If a UserData document exists for this user, update it. If not, create one.
         updates.setUserId(user.getId());
         final Mono<UserData> updaterMono = update(user.getId(), updates);
@@ -140,12 +135,10 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     @Override
     public Mono<UserData> update(String userId, UserData resource) {
         if (userId == null) {
-            return Mono.error(
-                    new AppsmithException(AppsmithError.INVALID_PARAMETER, "userId"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "userId"));
         }
 
-        Query query =
-                new Query(Criteria.where("userId").is(userId));
+        Query query = new Query(Criteria.where("userId").is(userId));
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
@@ -178,7 +171,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<User> setViewedCurrentVersionReleaseNotes(User user, String version) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (user == null) {
             return Mono.empty();
         }
@@ -204,7 +197,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> saveProfilePhoto(Part filePart) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         final Mono<String> prevAssetIdMono =
                 getForCurrentUser().map(userData -> ObjectUtils.defaultIfNull(userData.getProfilePhotoAssetId(), ""));
 
@@ -226,7 +219,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<Void> deleteProfilePhoto() {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return getForCurrentUser()
                 .flatMap(userData -> {
                     String profilePhotoAssetId = userData.getProfilePhotoAssetId();
@@ -259,7 +252,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      */
     @Override
     public Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return sessionUserService
                 .getCurrentUser()
                 .zipWhen(this::getForUser)
@@ -281,7 +274,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> addTemplateIdToLastUsedList(String templateId) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return this.getForCurrentUser().flatMap(userData -> {
             // set recently used template ids
             userData.setRecentlyUsedTemplateIds(
@@ -320,8 +313,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      */
     @Override
     public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
-        return applicationRepository
-                .getAllApplicationId(workspaceId)
+        return Mono.justOrEmpty(applicationRepository.getAllApplicationId(workspaceId))
                 .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
     }
 }

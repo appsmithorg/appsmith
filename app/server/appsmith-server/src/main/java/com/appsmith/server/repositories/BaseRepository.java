@@ -1,35 +1,34 @@
 package com.appsmith.server.repositories;
 
 import com.mongodb.client.result.UpdateResult;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
-import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @NoRepositoryBean
-public interface BaseRepository<T, ID extends Serializable> extends CrudRepository<T, ID>, QuerydslPredicateExecutor<T> {
+public interface BaseRepository<T, ID extends Serializable>
+        extends CrudRepository<T, ID> /*, QuerydslPredicateExecutor<T>*/ {
 
     /**
      * This function should be used to get an object from the DB without applying any ACL rules
      *
      * @param id The identifier for this type
-     * @return Mono<T>
+     * @return Optional<T>
      */
-    Mono<T> retrieveById(ID id);
+    Optional<T> retrieveById(ID id);
 
     /**
      * This function sets the deleted flag to true and then saves the modified document.
      *
      * @param entity The entity which needs to be archived
-     * @return Mono<T>
+     * @return Optional<T>
      */
-    Mono<T> archive(T entity);
+    Optional<T> archive(T entity);
 
     /**
      * This function directly updates the document by setting the deleted flag to true for the entity with the given id
@@ -37,7 +36,7 @@ public interface BaseRepository<T, ID extends Serializable> extends CrudReposito
      * @param id The id of the document that needs to be archived
      * @return
      */
-    Mono<Boolean> archiveById(ID id);
+    Optional<Boolean> archiveById(ID id);
 
     /**
      * This function directly updates the DB by setting the deleted flag to true for all the documents in the collection
@@ -46,18 +45,18 @@ public interface BaseRepository<T, ID extends Serializable> extends CrudReposito
      * @param ids The list of ids of the document that needs to be archived.
      * @return
      */
-    Mono<Boolean> archiveAllById(Collection<ID> ids);
+    Optional<Boolean> archiveAllById(Collection<ID> ids);
 
-    Mono<T> findByIdAndBranchName(ID id, String branchName);
+    Optional<T> findByIdAndBranchName(ID id, String branchName);
 
     /**
      * When `fieldNames` is blank, this method will return the entire object. Otherwise, it will return only the values
      * against the `fieldNames` property in the matching object.
      */
-    Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames);
+    Optional<T> findByIdAndFieldNames(ID id, List<String> fieldNames);
 
     /**
      * This method is supposed to update the given list of fields in an object as opposed to replacing the entire object.
      */
-    Mono<UpdateResult> updateByIdAndFieldNames(ID id, Map<String, Object> fieldNameValueMap);
+    Optional<UpdateResult> updateByIdAndFieldNames(ID id, Map<String, Object> fieldNameValueMap);
 }

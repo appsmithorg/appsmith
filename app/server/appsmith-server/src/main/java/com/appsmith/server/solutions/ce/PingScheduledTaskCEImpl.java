@@ -121,7 +121,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
         Mono<String> publicPermissionGroupIdMono = permissionGroupService.getPublicPermissionGroupId();
         Mono<Tuple6<Long, Long, Long, Long, Long, Long>> nonDeletedObjectsCountMono = Mono.zip(
                 workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
+                Mono.justOrEmpty(applicationRepository.countByDeletedAtNull()).defaultIfEmpty(0L),
                 newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 datasourceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
@@ -132,8 +132,8 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                         configService.getInstanceId().defaultIfEmpty("null"),
                         networkUtils.getExternalAddress(),
                         nonDeletedObjectsCountMono,
-                        applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
-                                AclPermission.READ_APPLICATIONS, publicPermissionGroupId)))
+                        Mono.justOrEmpty(applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
+                                AclPermission.READ_APPLICATIONS, publicPermissionGroupId))))
                 .flatMap(statsData -> {
                     final String ipAddress = statsData.getT2();
                     return WebClientUtils.create("https://api.segment.io")

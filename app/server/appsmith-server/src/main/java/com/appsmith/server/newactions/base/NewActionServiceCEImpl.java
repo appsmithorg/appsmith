@@ -23,7 +23,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
@@ -65,7 +64,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
@@ -91,9 +89,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_REPOSITORY_CALL;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_UNPUBLISHED_ACTION;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_VIEW_MODE_ACTION;
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -265,7 +261,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         this.setGitSyncIdInNewAction(newAction);
 
@@ -597,7 +593,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
             String id, ActionDTO action, Optional<AclPermission> permission) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -652,8 +648,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
-        return repository
-                .findByUnpublishedNameAndPageId(name, pageId, permission)
+        return Mono.justOrEmpty(repository.findByUnpublishedNameAndPageId(name, pageId, permission))
                 .flatMap(action -> generateActionByViewMode(action, false));
     }
 
@@ -686,7 +681,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> findById(String id) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return repository.findById(id).flatMap(this::sanitizeAction);*/
     }
 
@@ -697,7 +692,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> findById(String id, AclPermission aclPermission) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return repository.findById(id, aclPermission).flatMap(this::sanitizeAction);*/
     }
 
@@ -824,7 +819,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         Mono<NewAction> actionMono = repository
                 .findById(id, actionPermission.getDeletePermission())
                 .switchIfEmpty(
@@ -1028,7 +1023,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActions(
             MultiValueMap<String, String> params, String branchName, Boolean includeJsActions) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
 
         MultiValueMap<String, String> updatedParams = new LinkedMultiValueMap<>(params);
         // Get branched applicationId and pageId
@@ -1243,7 +1238,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             action.setGitSyncId(action.getApplicationId() + "_" + Instant.now().toString());
         }
 
-        return sanitizeAction(action);//.flatMap(sanitizedAction -> repository.save(sanitizedAction));
+        return sanitizeAction(action); // .flatMap(sanitizedAction -> repository.save(sanitizedAction));
     }
 
     @Override
@@ -1253,9 +1248,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .forEach(action -> action.setGitSyncId(
                         action.getApplicationId() + "_" + Instant.now().toString()));
 
-        return Flux.fromIterable(actions)
-                .flatMap(this::sanitizeAction)
-                ;/*.collectList()
+        return Flux.fromIterable(actions).flatMap(this::sanitizeAction); /*.collectList()
                 .flatMapMany(actionList -> repository.saveAll(actionList));*/
     }
 
@@ -1408,7 +1401,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> archiveById(String id) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         Mono<NewAction> actionMono = repository
                 .findById(id)
                 .switchIfEmpty(
@@ -1438,7 +1431,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         Mono<NewAction> branchedActionMono =
                 this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getDeletePermission());
 
@@ -1449,14 +1442,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> archive(NewAction newAction) {
-        return repository.archive(newAction);
+        return Mono.justOrEmpty(repository.archive(newAction));
     }
 
     @Override
     public Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
         return repository
                 .findByApplicationId(applicationId, permission)
-                .flatMap(repository::archive)
+                .flatMap((NewAction entity) -> Mono.justOrEmpty(repository.archive(entity)))
                 .onErrorResume(throwable -> {
                     log.error(throwable.getMessage());
                     return Mono.empty();
@@ -1482,7 +1475,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     private Mono<Datasource> updateDatasourcePolicyForPublicAction(NewAction action, Datasource datasource) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (datasource.getId() == null) {
             // This seems to be a nested datasource. Return as is.
             return Mono.just(datasource);
@@ -1529,7 +1522,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     public Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (!StringUtils.hasLength(branchName)) {
             return repository
                     .findById(defaultActionId, permission)
@@ -1545,7 +1538,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     public Mono<String> findBranchedIdByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (!StringUtils.hasLength(branchName)) {
             return Mono.just(defaultActionId);
         }
@@ -1637,7 +1630,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 importActionCollectionResultDTO.getSavedActionCollectionMap().entrySet()) {
             String importedActionCollectionId = entry.getKey();
             ActionCollection savedActionCollection = entry.getValue();
-            final String savedActionCollectionId = savedActionCollection.getId().toString(); //todo: shouldn't need toString?
+            final String savedActionCollectionId =
+                    savedActionCollection.getId().toString(); // todo: shouldn't need toString?
             final String defaultCollectionId =
                     savedActionCollection.getDefaultResources().getCollectionId();
             List<String> collectionIds = List.of(savedActionCollectionId, defaultCollectionId);

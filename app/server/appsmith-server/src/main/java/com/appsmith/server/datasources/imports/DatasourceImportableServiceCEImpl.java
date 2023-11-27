@@ -10,33 +10,25 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
 public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Datasource> {
@@ -62,7 +54,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
             ApplicationJson applicationJson) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return workspaceMono.flatMap(workspace -> {
             final Flux<Datasource> existingDatasourceFlux = datasourceService
                     .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.empty())
@@ -104,7 +96,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             Workspace workspace,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return Mono.zip(existingDatasourceMono, workspaceService.getDefaultEnvironmentId(workspace.getId(), null))
                 .flatMapMany(objects -> {
                     List<Datasource> existingDatasources = objects.getT1();
@@ -243,7 +235,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             Workspace workspace,
             String environmentId,
             ImportApplicationPermissionProvider permissionProvider) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         /*
            1. If same datasource is present return
            2. If unable to find the datasource create a new datasource with unique name and return

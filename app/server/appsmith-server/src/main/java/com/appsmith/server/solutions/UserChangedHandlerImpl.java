@@ -11,8 +11,7 @@ import org.springframework.stereotype.Component;
 public class UserChangedHandlerImpl extends UserChangedHandlerCEImpl implements UserChangedHandler {
 
     public UserChangedHandlerImpl(
-            ApplicationEventPublisher applicationEventPublisher,
-            WorkspaceRepository workspaceRepository) {
+            ApplicationEventPublisher applicationEventPublisher, WorkspaceRepository workspaceRepository) {
 
         super(applicationEventPublisher, workspaceRepository);
     }

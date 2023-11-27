@@ -22,7 +22,7 @@ public class DatasourceStructureServiceCEImpl implements DatasourceStructureServ
 
     @Override
     public Mono<DatasourceStorageStructure> save(DatasourceStorageStructure datasourceStorageStructure) {
-        return repository.save(datasourceStorageStructure);
+        return Mono.justOrEmpty(repository.save(datasourceStorageStructure));
     }
 
     @Override

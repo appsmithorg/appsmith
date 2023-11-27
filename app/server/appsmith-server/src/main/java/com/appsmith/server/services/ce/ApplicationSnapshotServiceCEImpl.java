@@ -62,7 +62,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
         // check the size of the exported json before storing to avoid mongodb document size limit
         byte[] utf8JsonString = json.getBytes(StandardCharsets.UTF_8);
         List<ApplicationSnapshot> applicationSnapshots = createSnapshotsObjects(utf8JsonString, applicationId);
-        return applicationSnapshotRepository.saveAll(applicationSnapshots);
+        return Flux.fromIterable(applicationSnapshotRepository.saveAll(applicationSnapshots));
     }
 
     @Override

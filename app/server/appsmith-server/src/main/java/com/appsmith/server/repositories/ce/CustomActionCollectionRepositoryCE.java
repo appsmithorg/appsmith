@@ -7,23 +7,21 @@ import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.InsertManyResult;
 import org.springframework.data.domain.Sort;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<ActionCollection> {
 
-    Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
+    List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
-    Flux<ActionCollection> findByApplicationId(
+    List<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
 
-    Flux<ActionCollection> findByApplicationIdAndViewMode(
+    List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission);
 
-    Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+    List<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
@@ -31,34 +29,34 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
             AclPermission aclPermission,
             Sort sort);
 
-    Flux<ActionCollection> findByPageId(String pageId, AclPermission permission);
+    List<ActionCollection> findByPageId(String pageId, AclPermission permission);
 
-    Flux<ActionCollection> findByPageId(String pageId);
+    List<ActionCollection> findByPageId(String pageId);
 
-    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
+    Optional<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission);
 
-    Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
+    Optional<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, AclPermission permission);
 
-    Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
+    List<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
 
-    Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
+    Optional<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
-    Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission);
+    List<ActionCollection> findByListOfPageIds(List<String> pageIds, AclPermission permission);
 
-    Flux<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission);
+    List<ActionCollection> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
-    Mono<List<InsertManyResult>> bulkInsert(List<ActionCollection> newActions);
+    Optional<List<InsertManyResult>> bulkInsert(List<ActionCollection> newActions);
 
-    Mono<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections);
+    Optional<List<BulkWriteResult>> bulkUpdate(List<ActionCollection> actionCollections);
 
-    Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
+    List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
 
-    Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
+    List<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission);
 
-    Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
+    List<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission);
 }

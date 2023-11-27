@@ -7,11 +7,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.WriteModel;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -21,17 +17,14 @@ import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -52,7 +45,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission);*/
@@ -60,14 +53,13 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
-        Criteria applicationIdCriteria =
-                where("applicationId").is(applicationId);
+        Criteria applicationIdCriteria = where("applicationId").is(applicationId);
         return queryAll(List.of(applicationIdCriteria), permission);
     }
 
     @Override
     public Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
         // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist.
@@ -79,7 +71,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByIdAndLayoutsIdAndViewMode(
+    public Optional<NewPage> findByIdAndLayoutsIdAndViewMode(
             String id, String layoutId, AclPermission aclPermission, Boolean viewMode) {
         String layoutsIdKey;
         String layoutsKey;
@@ -89,17 +81,14 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         criteria.add(idCriterion);
 
         if (Boolean.TRUE.equals(viewMode)) {
-            layoutsKey =
-                    "publishedPage" + "." + "layouts";
+            layoutsKey = "publishedPage" + "." + "layouts";
         } else {
-            layoutsKey = "unpublishedPage" + "."
-                    + "layouts";
+            layoutsKey = "unpublishedPage" + "." + "layouts";
 
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
             // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriterion = where("unpublishedPage" + "."
-                            + "deletedAt")
-                    .is(null);
+            Criteria deletedCriterion =
+                    where("unpublishedPage" + "." + "deletedAt").is(null);
             criteria.add(deletedCriterion);
         }
         layoutsIdKey = layoutsKey + "." + "id";
@@ -111,7 +100,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
+    public Optional<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
 
         List<Criteria> criteria = new ArrayList<>();
 
@@ -121,9 +110,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         if (Boolean.FALSE.equals(viewMode)) {
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
             // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriterion = where("unpublishedPage" + "."
-                            + "deletedAt")
-                    .is(null);
+            Criteria deletedCriterion =
+                    where("unpublishedPage" + "." + "deletedAt").is(null);
             criteria.add(deletedCriterion);
         }
 
@@ -131,7 +119,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByNameAndApplicationIdAndViewMode(
+    public Optional<NewPage> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission aclPermission, Boolean viewMode) {
 
         List<Criteria> criteria = new ArrayList<>();
@@ -139,16 +127,14 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria nameCriterion = getNameCriterion(name, viewMode);
         criteria.add(nameCriterion);
 
-        Criteria applicationIdCriterion =
-                where("applicationId").is(applicationId);
+        Criteria applicationIdCriterion = where("applicationId").is(applicationId);
         criteria.add(applicationIdCriterion);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
             // exist. To handle this, only fetch non-deleted pages
-            Criteria deletedCriteria = where("unpublishedPage" + "."
-                            + "deletedAt")
-                    .is(null);
+            Criteria deletedCriteria =
+                    where("unpublishedPage" + "." + "deletedAt").is(null);
             criteria.add(deletedCriteria);
         }
 
@@ -157,7 +143,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         ArrayList<String> includedFields = new ArrayList<>(List.of(
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
@@ -188,8 +174,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         if (Boolean.TRUE.equals(viewMode)) {
             nameKey = "publishedPage" + "." + "name";
         } else {
-            nameKey = "unpublishedPage" + "."
-                    + "name";
+            nameKey = "unpublishedPage" + "." + "name";
         }
         return where(nameKey).is(name);
     }
@@ -198,8 +183,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Mono<String> getNameByPageId(String pageId, boolean isPublishedName) {
         return mongoOperations
                 .query(NewPage.class)
-                .matching(Query.query(
-                        Criteria.where("id").is(pageId)))
+                .matching(Query.query(Criteria.where("id").is(pageId)))
                 .one()
                 .map(p -> {
                     PageDTO page = (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage());
@@ -212,7 +196,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findPageByBranchNameAndDefaultPageId(
+    public Optional<NewPage> findPageByBranchNameAndDefaultPageId(
             String branchName, String defaultPageId, AclPermission permission) {
         final String defaultResources = "defaultResources";
         Criteria defaultPageIdCriteria =
@@ -224,7 +208,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").in(applicationIds);
         String unpublishedSlugFieldPath = String.format(
@@ -298,7 +282,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (CollectionUtils.isEmpty(newPages)) {
             return Mono.just(Collections.emptyList());
         }

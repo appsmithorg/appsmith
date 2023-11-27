@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
@@ -28,7 +27,6 @@ import reactor.core.scheduler.Scheduler;
 
 import java.util.Map;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -58,7 +56,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<String> getDefaultTenantId() {
-        return Mono.empty();/*
+        return Mono.empty(); /*
 
         // If the value exists in cache, return it as is
         if (StringUtils.hasLength(tenantId)) {
@@ -74,7 +72,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return repository
                 .findById(tenantId, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
@@ -108,7 +106,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> findById(String tenantId, AclPermission permission) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return repository
                 .findById(tenantId, permission)
                 .switchIfEmpty(
@@ -153,7 +151,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         // Get the default tenant object from the DB and then populate the relevant user permissions in that
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
         return repository
@@ -229,7 +227,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                                 // Fetch the tenant again from DB to make sure the downstream chain is consuming the
                                 // latest
                                 // DB object and not the modified one because of the client pertinent changes
-                                .then(repository.retrieveById(tenant.getId()))
+                                .then(Mono.justOrEmpty(repository.retrieveById(tenant.getId())))
                                 .flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
                     }
                     return Mono.error(
@@ -242,7 +240,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         if (!StringUtils.hasLength(id)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        return repository.retrieveById(id);
+        return Mono.justOrEmpty(repository.retrieveById(id));
     }
 
     /**

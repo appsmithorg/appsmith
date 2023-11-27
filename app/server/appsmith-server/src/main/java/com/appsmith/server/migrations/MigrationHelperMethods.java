@@ -10,7 +10,6 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
-
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -23,7 +22,6 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,24 +69,24 @@ public class MigrationHelperMethods {
     public static void arrangeApplicationPagesAsPerImportedPageOrder(ApplicationJson applicationJson) {
 
         Map<ResourceModes, List<ApplicationPage>> applicationPages = Map.of(
-            EDIT, new ArrayList<>(),
-            VIEW, new ArrayList<>());
+                EDIT, new ArrayList<>(),
+                VIEW, new ArrayList<>());
         // Reorder the pages based on edit mode page sequence
         List<String> pageOrderList;
         if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageOrder())) {
             pageOrderList = applicationJson.getPageOrder();
         } else {
             pageOrderList = applicationJson.getPageList().parallelStream()
-                .filter(newPage -> newPage.getUnpublishedPage() != null
-                    && newPage.getUnpublishedPage().getDeletedAt() == null)
-                .map(newPage -> newPage.getUnpublishedPage().getName())
-                .collect(Collectors.toList());
+                    .filter(newPage -> newPage.getUnpublishedPage() != null
+                            && newPage.getUnpublishedPage().getDeletedAt() == null)
+                    .map(newPage -> newPage.getUnpublishedPage().getName())
+                    .collect(Collectors.toList());
         }
         for (String pageName : pageOrderList) {
             ApplicationPage unpublishedAppPage = new ApplicationPage();
             // unpublishedAppPage.setId(pageName);
             unpublishedAppPage.setIsDefault(
-                StringUtils.equals(pageName, applicationJson.getUnpublishedDefaultPageName()));
+                    StringUtils.equals(pageName, applicationJson.getUnpublishedDefaultPageName()));
             applicationPages.get(EDIT).add(unpublishedAppPage);
         }
 
@@ -98,10 +96,10 @@ public class MigrationHelperMethods {
             pageOrderList = applicationJson.getPublishedPageOrder();
         } else {
             pageOrderList = applicationJson.getPageList().parallelStream()
-                .filter(newPage -> newPage.getPublishedPage() != null
-                    && !StringUtils.isEmpty(newPage.getPublishedPage().getName()))
-                .map(newPage -> newPage.getPublishedPage().getName())
-                .collect(Collectors.toList());
+                    .filter(newPage -> newPage.getPublishedPage() != null
+                            && !StringUtils.isEmpty(newPage.getPublishedPage().getName()))
+                    .map(newPage -> newPage.getPublishedPage().getName())
+                    .collect(Collectors.toList());
         }
         for (String pageName : pageOrderList) {
             ApplicationPage publishedAppPage = new ApplicationPage();
@@ -159,17 +157,17 @@ public class MigrationHelperMethods {
             applicationJson.getActionList().parallelStream().forEach(newAction -> {
                 if (newAction.getUnpublishedAction() != null) {
                     newAction
-                        .getUnpublishedAction()
-                        .setUserSetOnLoad(invisibleActionFieldsMap
-                            .get(newAction.getId())
-                            .getUnpublishedUserSetOnLoad());
+                            .getUnpublishedAction()
+                            .setUserSetOnLoad(invisibleActionFieldsMap
+                                    .get(newAction.getId())
+                                    .getUnpublishedUserSetOnLoad());
                 }
                 if (newAction.getPublishedAction() != null) {
                     newAction
-                        .getPublishedAction()
-                        .setUserSetOnLoad(invisibleActionFieldsMap
-                            .get(newAction.getId())
-                            .getPublishedUserSetOnLoad());
+                            .getPublishedAction()
+                            .setUserSetOnLoad(invisibleActionFieldsMap
+                                    .get(newAction.getId())
+                                    .getPublishedUserSetOnLoad());
                 }
             });
         }
@@ -190,7 +188,7 @@ public class MigrationHelperMethods {
     }
 
     public static void evictPermissionCacheForUsers(
-        Set<String> userIds, MongoTemplate mongoTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
+            Set<String> userIds, MongoTemplate mongoTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
 
         if (userIds == null || userIds.isEmpty()) {
             // Nothing to do here.
@@ -222,9 +220,9 @@ public class MigrationHelperMethods {
      * .newAction.id, type=NewAction.class
      */
     public static <T extends BaseDomain> T fetchDomainObjectUsingId(
-        String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
+            String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
         final T domainObject =
-            mongoTemplate.findOne(query(where(fieldName(path)).is(id)), type);
+                mongoTemplate.findOne(query(where(fieldName(path)).is(id)), type);
         return domainObject;
     }
 
@@ -235,9 +233,9 @@ public class MigrationHelperMethods {
      * .newAction.id, type=NewAction.class
      */
     public static <T extends BaseDomain> List<T> fetchAllDomainObjectsUsingId(
-        String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
+            String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
         final List<T> domainObject =
-            mongoTemplate.find(query(where(fieldName(path)).is(id)), type);
+                mongoTemplate.find(query(where(fieldName(path)).is(id)), type);
         return domainObject;
     }
 
@@ -247,17 +245,17 @@ public class MigrationHelperMethods {
      */
     public static Criteria notDeleted() {
         return new Criteria()
-            .andOperator(
-                // Older check for deleted
-                new Criteria()
-                    .orOperator(
-                        where(FieldName.DELETED).exists(false),
-                        where(FieldName.DELETED).is(false)),
-                // New check for deleted
-                new Criteria()
-                    .orOperator(
-                        where(FieldName.DELETED_AT).exists(false),
-                        where(FieldName.DELETED_AT).is(null)));
+                .andOperator(
+                        // Older check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED).exists(false),
+                                        where(FieldName.DELETED).is(false)),
+                        // New check for deleted
+                        new Criteria()
+                                .orOperator(
+                                        where(FieldName.DELETED_AT).exists(false),
+                                        where(FieldName.DELETED_AT).is(null)));
     }
 
     /**

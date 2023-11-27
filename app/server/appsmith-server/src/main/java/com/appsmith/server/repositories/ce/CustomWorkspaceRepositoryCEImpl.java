@@ -16,6 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -36,7 +37,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
+    public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
         Criteria nameCriteria = where("name").is(name);
 
         return queryOne(List.of(nameCriteria), aclPermission);
@@ -45,7 +46,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<Workspace> findByIdsIn(
             Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         Criteria workspaceIdCriteria = where("id").in(workspaceIds);
         Criteria tenantIdCriteria =
                 where("tenantId").is(tenantId);
@@ -70,7 +71,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<Workspace> findAll(AclPermission permission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
             Criteria tenantIdCriteria =
                     where("tenantId").is(user.getTenantId());

@@ -1,20 +1,11 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.AppsmithRole;
-import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
-
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.WorkspacePlugin;
-import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -31,7 +22,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.mongodb.DBObject;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -39,9 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -50,16 +37,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.EMAIL;
@@ -70,9 +53,7 @@ import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRI
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
 import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
-import static com.appsmith.server.helpers.PermissionUtils.collateAllPermissions;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -128,6 +109,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Flux<Workspace> get(MultiValueMap<String, String> params) {
+        return Flux.empty(); /*
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
             Set<String> workspaceIds = user.getWorkspaceIds();
             if (workspaceIds == null || workspaceIds.isEmpty()) {
@@ -135,7 +117,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 return Flux.empty();
             }
             return repository.findAllById(workspaceIds);
-        });
+        });*/
     }
 
     /**
@@ -169,6 +151,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
      */
     @Override
     public Mono<Workspace> create(Workspace workspace, User user, Boolean isDefault) {
+        return Mono.empty(); /*
         if (workspace == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE));
         }
@@ -191,7 +174,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
                    Not using it right now because of circular dependency b/w workspaceService and pluginService
                    Also, since all our deployments are single node, this logic will still work
-                */
+                * /
                 .flatMap(org -> pluginRepository
                         .findByDefaultInstall(true)
                         .map(obj -> new WorkspacePlugin(obj.getId(), WorkspacePluginStatus.FREE))
@@ -209,7 +192,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     return addPoliciesAndSaveWorkspace(permissionGroups, createdWorkspace);
                 })
                 .flatMap(this::createWorkspaceDependents)
-                .flatMap(analyticsService::sendCreateEvent);
+                .flatMap(analyticsService::sendCreateEvent);*/
     }
 
     protected void prepareWorkspaceToCreate(Workspace workspace, User user) {
@@ -218,7 +201,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         }
 
         workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
-        workspace.setTenantId(user.getTenantId());
+        // workspace.setTenantId(user.getTenantId());
     }
 
     protected Mono<Workspace> createWorkspaceDependents(Workspace createdWorkspace) {
@@ -228,6 +211,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     protected Mono<Workspace> addPoliciesAndSaveWorkspace(
             Set<PermissionGroup> permissionGroups, Workspace createdWorkspace) {
+        return Mono.empty(); /*
         createdWorkspace.setDefaultPermissionGroups(
                 permissionGroups.stream().map(PermissionGroup::getId).collect(Collectors.toSet()));
         // Apply the permissions to the workspace
@@ -236,7 +220,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     permissionGroup, createdWorkspace.getId());
             createdWorkspace = policySolution.addPoliciesToExistingObject(policyMap, createdWorkspace);
         }
-        return repository.save(createdWorkspace);
+        return repository.save(createdWorkspace);*/
     }
 
     @Override
@@ -265,7 +249,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         adminPermissionGroup.setName(generateDefaultRoleNameForResource(ADMINISTRATOR, workspaceName));
         adminPermissionGroup.setDefaultDomainId(workspaceId);
         adminPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        adminPermissionGroup.setTenantId(workspace.getTenantId());
+        // adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
         adminPermissionGroup.setPermissions(Set.of());
 
@@ -274,7 +258,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         developerPermissionGroup.setName(generateDefaultRoleNameForResource(DEVELOPER, workspaceName));
         developerPermissionGroup.setDefaultDomainId(workspaceId);
         developerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        developerPermissionGroup.setTenantId(workspace.getTenantId());
+        // developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
         developerPermissionGroup.setPermissions(Set.of());
 
@@ -283,7 +267,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         viewerPermissionGroup.setName(generateDefaultRoleNameForResource(VIEWER, workspaceName));
         viewerPermissionGroup.setDefaultDomainId(workspaceId);
         viewerPermissionGroup.setDefaultDomainType(Workspace.class.getSimpleName());
-        viewerPermissionGroup.setTenantId(workspace.getTenantId());
+        // viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
         viewerPermissionGroup.setPermissions(Set.of());
 
@@ -294,6 +278,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     Mono<Set<PermissionGroup>> generatePermissionsForDefaultPermissionGroups(
             Set<PermissionGroup> permissionGroups, Workspace workspace, User user) {
+        return Mono.empty(); /*
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst()
@@ -389,7 +374,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .thenReturn(TRUE);
 
         return savedPermissionGroupsMono.flatMap(
-                savedPermissionGroups -> cleanPermissionGroupCacheForCurrentUser.thenReturn(savedPermissionGroups));
+                savedPermissionGroups -> cleanPermissionGroupCacheForCurrentUser.thenReturn(savedPermissionGroups));*/
     }
 
     protected Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {
@@ -413,6 +398,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> update(String id, Workspace resource) {
+        return Mono.empty(); /*
 
         this.validateIncomingWorkspace(resource);
         // Ensure the resource has the same ID as from the parameter.
@@ -475,7 +461,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                 }
                                 return repository.findById(id).flatMap(analyticsService::sendUpdateEvent);
                             });
-                }));
+                }));*/
     }
 
     @Override
@@ -485,12 +471,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> findById(String id, AclPermission permission) {
-        return repository.findById(id, permission);
+        return Mono.justOrEmpty(repository.findById(id, permission));
     }
 
     @Override
     public Mono<Workspace> findById(String id, Optional<AclPermission> permission) {
-        return repository.findById(id, permission);
+        return Mono.justOrEmpty(repository.findById(id /*, permission*/));
     }
 
     @Override
@@ -498,7 +484,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         if (StringUtils.hasLength(workspace.getName())) {
             workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
         }
-        return repository.save(workspace);
+        return Mono.justOrEmpty(repository.save(workspace));
     }
 
     @Override
@@ -515,6 +501,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getPermissionGroupsForWorkspace(String workspaceId) {
+        return Mono.empty(); /*
         if (!StringUtils.hasLength(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
@@ -553,11 +540,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                             .collect(Collectors.toList());
                 });
 
-        return permissionGroupInfoDTOListMono;
+        return permissionGroupInfoDTOListMono;*/
     }
 
     @Override
     public Mono<Workspace> uploadLogo(String workspaceId, Part filePart) {
+        return Mono.empty(); /*
         if (filePart == null) {
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
         }
@@ -586,11 +574,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                             return assetService.remove(prevAssetId).thenReturn(savedWorkspace);
                         }
                     });
-                });
+                });*/
     }
 
     @Override
     public Mono<Workspace> deleteLogo(String workspaceId) {
+        return Mono.empty(); /*
         return repository
                 .findById(workspaceId, workspacePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
@@ -609,7 +598,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                             .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
                             .flatMap(analyticsService::sendDeleteEvent)
                             .then(repository.save(workspace));
-                });
+                });*/
     }
 
     @Override
@@ -619,6 +608,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> archiveById(String workspaceId) {
+        return Mono.empty(); /*
         return applicationRepository.countByWorkspaceId(workspaceId).flatMap(appCount -> {
             if (appCount == 0) { // no application found under this workspace
                 // fetching the workspace first to make sure user has permission to archive
@@ -646,7 +636,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }
-        });
+        });*/
     }
 
     protected Mono<Workspace> archiveWorkspaceDependents(Workspace workspace) {

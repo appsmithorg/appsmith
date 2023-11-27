@@ -115,7 +115,9 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
     public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
         return newActionService
                 .findByBranchNameAndDefaultActionId(
-                        branchName, refactorEntityNameDTO.getActionId().toString(), actionPermission.getEditPermission())
+                        branchName,
+                        refactorEntityNameDTO.getActionId().toString(),
+                        actionPermission.getEditPermission())
                 .flatMap(branchedAction -> newActionService.generateActionByViewMode(branchedAction, false))
                 .flatMap(action -> {
                     action.setName(refactorEntityNameDTO.getNewName());

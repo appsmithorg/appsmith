@@ -4,14 +4,16 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserRepository;
 import reactor.core.publisher.Mono;
+import java.util.List;
+import java.util.Optional;
 
 public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUserRepository {
 
-    Mono<User> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-    Mono<User> findByCaseInsensitiveEmail(String email);
+    Optional<User> findByCaseInsensitiveEmail(String email);
 
-    Mono<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull();
 
-    Mono<User> findByEmailAndTenantId(String email, String tenantId);
+    Optional<User> findByEmailAndTenantId(String email, String tenantId);
 }

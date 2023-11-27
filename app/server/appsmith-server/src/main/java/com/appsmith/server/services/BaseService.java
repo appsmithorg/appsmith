@@ -3,29 +3,20 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.AppsmithRepository;
-import com.appsmith.server.repositories.BaseRepository;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -34,9 +25,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
-public abstract class BaseService<
-                R extends BaseRepository<T, ID> & AppsmithRepository<T>, T extends BaseDomain, ID extends Serializable>
-        implements CrudService<T, ID> {
+public abstract class BaseService<R, T extends BaseDomain, ID extends Serializable> implements CrudService<T, ID> {
 
     final Scheduler scheduler;
 
@@ -71,7 +60,7 @@ public abstract class BaseService<
     }
 
     public Mono<T> update(ID id, T resource, String key) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -100,7 +89,7 @@ public abstract class BaseService<
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         List<Criteria> criterias = new ArrayList<>();
 
         if (params != null && !params.isEmpty()) {
@@ -117,7 +106,7 @@ public abstract class BaseService<
 
     @Override
     public Flux<T> get(MultiValueMap<String, String> params) {
-        return Flux.empty();/*
+        return Flux.empty(); /*
         // In the base service we aren't handling the query parameters. In order to filter records using the query
         // params,
         // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
@@ -126,7 +115,7 @@ public abstract class BaseService<
 
     @Override
     public Mono<T> getById(ID id) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -138,7 +127,7 @@ public abstract class BaseService<
 
     @Override
     public Mono<T> create(T object) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)

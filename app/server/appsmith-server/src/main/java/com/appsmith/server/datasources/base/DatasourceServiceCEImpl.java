@@ -63,9 +63,6 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -287,7 +284,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         // check method docstring for description
         datasource.nullifyStorageReplicaFields();
 
-        Optional<Datasource> datasourceOpt = repository.findById(id/*, datasourcePermission.getEditPermission()*/);
+        Optional<Datasource> datasourceOpt = repository.findById(id /*, datasourcePermission.getEditPermission()*/);
         if (datasourceOpt.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id));
         }
@@ -320,7 +317,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             String activeEnvironmentId,
             Boolean isUserRefreshedUpdate) {
 
-        final Long datasourceId = datasourceStorageDTO.getDatasourceId();
+        final String datasourceId = datasourceStorageDTO.getDatasourceId();
         String environmentId = datasourceStorageDTO.getEnvironmentId();
 
         if (datasourceId == null) {
@@ -334,7 +331,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         }
 
         // querying for each of the datasource
-        Mono<Datasource> datasourceMonoCached = findById(String.valueOf(datasourceId), datasourcePermission.getEditPermission())
+        Mono<Datasource> datasourceMonoCached = findById(
+                        String.valueOf(datasourceId), datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
 
@@ -462,7 +460,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 } else {
 
                     datasourceStorageMono = findById(
-                        datasourceStorage.getDatasourceId(), datasourcePermission.getExecutePermission())
+                                    datasourceStorage.getDatasourceId(), datasourcePermission.getExecutePermission())
                             .zipWhen(dbDatasource -> getTrueEnvironmentId(
                                     dbDatasource.getWorkspaceId(),
                                     datasourceStorage.getEnvironmentId(),
@@ -681,7 +679,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
-        return Mono.justOrEmpty(repository.findById(Long.valueOf(id)/*, aclPermission*/));
+        return Mono.justOrEmpty(repository.findById(Long.valueOf(id) /*, aclPermission*/));
     }
 
     @Override
@@ -734,14 +732,14 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(Long workspaceId, Optional<AclPermission> permission) {
-        return Flux.fromIterable(repository.findAllByWorkspaceId(workspaceId/*, permission*/));
+        return Flux.fromIterable(repository.findAllByWorkspaceId(workspaceId /*, permission*/));
     }
 
     @Override
     public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission) {
 
         return repository
-                .findAllByWorkspaceId(workspaceId/*, permission*/)
+                .findAllByWorkspaceId(workspaceId /*, permission*/)
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(datasource -> datasourceStorageService
                         .findByDatasource(datasource)
@@ -772,7 +770,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> archiveById(String id) {
-        return Mono.empty();/*
+        return Mono.empty(); /*
         return repository
                 .findById(id, datasourcePermission.getDeletePermission())
                 .switchIfEmpty(

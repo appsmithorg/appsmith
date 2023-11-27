@@ -35,7 +35,6 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.net.URLDecoder;
@@ -281,10 +280,8 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 user.setPassword(null);
                 user.setSource(authenticationLoginSource);
                 // Update the user in separate thread
-                userRepository
-                        .save(user)
-                        ;// .subscribeOn(Schedulers.boundedElastic())
-                        // .subscribe();
+                userRepository.save(user); // .subscribeOn(Schedulers.boundedElastic())
+                // .subscribe();
             }
             if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;

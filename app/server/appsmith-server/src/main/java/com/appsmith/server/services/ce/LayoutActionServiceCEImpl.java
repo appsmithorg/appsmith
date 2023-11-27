@@ -4,17 +4,12 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Executable;
-import com.appsmith.external.models.PluginType;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -23,13 +18,11 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -48,12 +41,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,7 +58,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
-import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -164,6 +152,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO) {
+        return Mono.empty(); /*
         ActionDTO action = actionMoveDTO.getAction();
         String oldPageId = actionMoveDTO.getAction().getPageId();
         final String destinationPageId = actionMoveDTO.getDestinationPageId();
@@ -181,7 +170,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
          * 3. Run updateLayout on the old page
          * 4. Run updateLayout on the new page.
          * 5. Return the saved action.
-         */
+         * /
         return destinationPageMono
                 .flatMap(destinationPage -> {
                     // 1. Update and save the action
@@ -239,7 +228,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                             .collect(toSet());
                                 })
                                 // 4. Return the saved action.
-                                .thenReturn(savedAction));
+                                .thenReturn(savedAction));*/
     }
 
     @Override
@@ -470,6 +459,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName) {
+        return Mono.empty(); /*
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         if (pageId != null) {
             params.add(FieldName.PAGE_ID, pageId);
@@ -486,7 +476,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                        The reason could be due to the lack of transactional behaviour when multiple inserts/updates that take place
                        during JS action creation. A detailed RCA is documented here
                        https://www.notion.so/appsmith/RCA-JSObject-name-already-exists-Please-use-a-different-name-e09c407f0ddb4653bd3974f3703408e6
-                    */
+                    * /
                     if (actionDTO.getPluginType().equals(PluginType.JS)
                             && !StringUtils.hasLength(actionDTO.getCollectionId())) {
                         log.debug(
@@ -504,7 +494,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         /*
          * TODO : Execute this check directly on the DB server. We can query array of arrays by:
          * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
-         */
+         * /
         Mono<Set<String>> widgetNamesMono = Mono.just(Set.of());
         Mono<Set<String>> actionCollectionNamesMono = Mono.just(Set.of());
 
@@ -552,7 +542,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         isAllowed = false;
                     }
                     return isAllowed;
-                });
+                });*/
     }
 
     /**
@@ -649,6 +639,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<String> updatePageLayoutsByPageId(String pageId) {
+        return Mono.empty(); /*
         return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page
                 .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
@@ -662,7 +653,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     });
                 })
                 .collectList()
-                .then(Mono.just(pageId));
+                .then(Mono.just(pageId));*/
     }
 
     private Mono<Boolean> sendUpdateLayoutAnalyticsEvent(
@@ -825,6 +816,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<LayoutDTO> updateLayout(
             String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName) {
+        return Mono.empty(); /*
         if (!StringUtils.hasLength(branchName)) {
             return updateLayout(defaultPageId, defaultApplicationId, layoutId, layout);
         }
@@ -832,7 +824,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
                 .flatMap(branchedPage ->
                         updateLayout(branchedPage.getId(), branchedPage.getApplicationId(), layoutId, layout))
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
+                .map(responseUtils::updateLayoutDTOWithDefaultResources);*/
     }
 
     @Override
@@ -856,12 +848,12 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         LayoutDTO layoutDTO = new LayoutDTO();
 
-        layoutDTO.setId(layout.getId());
+        // layoutDTO.setId(layout.getId());
         layoutDTO.setDsl(layout.getDsl());
         layoutDTO.setScreen(layout.getScreen());
         layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
         layoutDTO.setLayoutOnLoadActionErrors(layout.getLayoutOnLoadActionErrors());
-        layoutDTO.setUserPermissions(layout.getUserPermissions());
+        // layoutDTO.setUserPermissions(layout.getUserPermissions());
 
         return layoutDTO;
     }
@@ -924,6 +916,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<ActionDTO> createSingleActionWithBranch(ActionDTO action, String branchName) {
+        return Mono.empty(); /*
 
         DefaultResources defaultResources = new DefaultResources();
         defaultResources.setBranchName(branchName);
@@ -945,7 +938,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     action.setDefaultResources(defaultResources);
                     return createSingleAction(action, Boolean.FALSE);
                 })
-                .map(responseUtils::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources);*/
     }
 
     @Override
@@ -956,6 +949,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction) {
+        return Mono.empty(); /*
 
         if (action.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
@@ -1080,6 +1074,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return analyticsService
                             .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
                             .thenReturn(zippedActions.getT1());
-                });
+                });*/
     }
 }

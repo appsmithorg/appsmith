@@ -10,20 +10,21 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.List;
 
 public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
-    Mono<User> findByEmail(String email, AclPermission aclPermission);
+    Optional<User> findByEmail(String email, AclPermission aclPermission);
 
-    Flux<User> findAllByEmails(Set<String> emails);
+    List<User> findAllByEmails(Set<String> emails);
 
-    Mono<User> findByCaseInsensitiveEmail(String email);
+    Optional<User> findByCaseInsensitiveEmail(String email);
 
-    Mono<User> findByEmailAndTenantId(String email, String tenantId);
+    Optional<User> findByEmailAndTenantId(String email, String tenantId);
 
-    Mono<Boolean> isUsersEmpty();
+    Optional<Boolean> isUsersEmpty();
 
-    Flux<User> getAllByEmails(
+    List<User> getAllByEmails(
             Set<String> emails,
             Optional<AclPermission> aclPermission,
             int limit,
