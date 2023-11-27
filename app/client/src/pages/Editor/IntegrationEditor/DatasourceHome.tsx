@@ -25,7 +25,7 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { createNewApiAction } from "actions/apiPaneActions";
-import { PluginPackageName } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import { Spinner } from "design-system";
 import PlusLogo from "assets/images/Plus-logo.svg";
 import {
@@ -225,7 +225,26 @@ class DatasourceHomeScreen extends React.Component<Props> {
       <DatasourceHomePage>
         <DatasourceCardsContainer data-testid="database-datasource-card-container">
           {plugins.map((plugin, idx) => {
-            return (
+            return plugin.type === PluginType.API ? (
+              !!showMostPopularPlugins ? (
+                <ApiCard
+                  className="t--createBlankApiCard create-new-api"
+                  onClick={() => this.handleOnClick()}
+                >
+                  <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
+                    <img
+                      alt="New"
+                      className="curlImage t--plusImage content-icon"
+                      src={PlusLogo}
+                    />
+                    <p className="textBtn">
+                      {createMessage(CREATE_NEW_DATASOURCE_REST_API)}
+                    </p>
+                  </CardContentWrapper>
+                  {isCreating && <Spinner className="cta" size={25} />}
+                </ApiCard>
+              ) : null
+            ) : (
               <DatasourceCard
                 data-testid="database-datasource-card"
                 key={`${plugin.id}_${idx}`}
@@ -252,24 +271,6 @@ class DatasourceHomeScreen extends React.Component<Props> {
               </DatasourceCard>
             );
           })}
-          {!!showMostPopularPlugins ? (
-            <ApiCard
-              className="t--createBlankApiCard create-new-api"
-              onClick={() => this.handleOnClick()}
-            >
-              <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
-                <img
-                  alt="New"
-                  className="curlImage t--plusImage content-icon"
-                  src={PlusLogo}
-                />
-                <p className="textBtn">
-                  {createMessage(CREATE_NEW_DATASOURCE_REST_API)}
-                </p>
-              </CardContentWrapper>
-              {isCreating && <Spinner className="cta" size={25} />}
-            </ApiCard>
-          ) : null}
         </DatasourceCardsContainer>
       </DatasourceHomePage>
     );

@@ -1,5 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -10,7 +14,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("1. Table widget V2 toggle test for text alignment", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.editColumn("id");
     cy.moveToStyleTab();
     _.agHelper.Sleep();

@@ -23,7 +23,7 @@ import {
 } from "design-system";
 import { ControlIcons } from "icons/ControlIcons";
 import { MenuIcons } from "icons/MenuIcons";
-import { useAppWideAndOtherDatasource } from "pages/Editor/Explorer/hooks";
+import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
@@ -101,7 +101,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
             ...prev,
             jsObjects: [],
           }));
-          event.preventDefault();
+          event.stopPropagation();
         },
         title: createMessage(PARTIAL_IMPORT_EXPORT.export.sections.jsObjects),
       },

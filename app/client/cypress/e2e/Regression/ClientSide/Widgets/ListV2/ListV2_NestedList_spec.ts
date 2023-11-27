@@ -1,12 +1,14 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
-  entityExplorer,
   deployMode,
   propPane,
   appSettings,
   locators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Nested List widget V2 ", () => {
   before(() => {
@@ -22,15 +24,18 @@ describe("Nested List widget V2 ", () => {
     agHelper
       .GetElement(locators._widgetInCanvas(WIDGET.LIST_V2))
       .should("have.length", 5);
-    entityExplorer.SelectEntityByName("List1", "Widgets");
-    entityExplorer.SelectEntityByName("Container1", "List1");
-    entityExplorer.SelectEntityByName("List2", "Container1");
-    entityExplorer.SelectEntityByName("Container2", "List2");
-    entityExplorer.SelectEntityByName("List3", "Container2");
+    EditorNavigation.SelectEntityByName("List3", EntityType.Widget, {}, [
+      "List1",
+      "Container1",
+      "List2",
+      "Container2",
+    ]);
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{c}`);
     agHelper.Sleep(1000);
     agHelper.WaitUntilAllToastsDisappear();
-    entityExplorer.SelectEntityByName("Container3", "List3");
+    EditorNavigation.SelectEntityByName("Container3", EntityType.Widget, {}, [
+      "List3",
+    ]);
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
     agHelper.ValidateToastMessage(
       "Cannot have more than 3 levels of nesting in the list widget",
@@ -47,21 +52,21 @@ describe("Nested List widget V2 ", () => {
     const generalProperties = ["visible", "animateloading"];
 
     // Parent List
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.AssertPropertyVisibility(dataProperties, "data");
     propPane.AssertPropertyVisibility(paginationProperties, "pagination");
     propPane.AssertPropertyVisibility(itemSelectionProperties, "itemselection");
     propPane.AssertPropertyVisibility(generalProperties, "general");
 
     // First Child, List2
-    entityExplorer.SelectEntityByName("List2", "Widgets");
+    EditorNavigation.SelectEntityByName("List2", EntityType.Widget);
     propPane.AssertPropertyVisibility(dataProperties, "data");
     propPane.AssertPropertyVisibility(paginationProperties, "pagination");
     propPane.AssertPropertyVisibility(itemSelectionProperties, "itemselection");
     propPane.AssertPropertyVisibility(generalProperties, "general");
 
     // Second Child, List3
-    entityExplorer.SelectEntityByName("List3", "Widgets");
+    EditorNavigation.SelectEntityByName("List3", EntityType.Widget);
     propPane.AssertPropertyVisibility(dataProperties, "data");
     propPane.AssertPropertyVisibility(paginationProperties, "pagination");
     propPane.AssertPropertyVisibility(itemSelectionProperties, "itemselection");
@@ -70,7 +75,9 @@ describe("Nested List widget V2 ", () => {
 
   it("3. Verify auto suggestions and {{currentView}} displays all widgets added in that List ", () => {
     // Verify level_1 and level_2 are available
-    entityExplorer.SelectEntityByName("Text5", "Container3");
+    EditorNavigation.SelectEntityByName("Text5", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     propPane.TypeTextIntoField("Text", "{{level");
     agHelper.Sleep(500);
     agHelper.GetNAssertElementText(
@@ -119,11 +126,12 @@ describe("Nested List widget V2 ", () => {
   });
 
   it("4. Verify making child widget invisble should not break the app", () => {
-    entityExplorer.SelectEntityByName("List1", "Widgets");
-    entityExplorer.SelectEntityByName("Container1", "List1");
-    entityExplorer.SelectEntityByName("List2", "Container1");
-    entityExplorer.SelectEntityByName("Container2", "List2");
-    entityExplorer.SelectEntityByName("List3", "Container2");
+    EditorNavigation.SelectEntityByName("List3", EntityType.Widget, {}, [
+      "List1",
+      "Container1",
+      "List2",
+      "Container2",
+    ]);
 
     propPane.TogglePropertyState("visible", "Off");
     deployMode.DeployApp();

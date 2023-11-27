@@ -40,7 +40,6 @@ const _Button = (props: ButtonProps, ref: ButtonRef) => {
       {...mergeProps(buttonProps, hoverProps, focusProps)}
       aria-busy={props["aria-busy"] ?? undefined}
       aria-disabled={props["aria-disabled"] ?? undefined}
-      autoFocus={autoFocus}
       className={className}
       data-active={isPressed ? "" : undefined}
       data-disabled={isDisabled ? "" : undefined}

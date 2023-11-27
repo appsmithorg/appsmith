@@ -8,6 +8,9 @@ import {
   draggableWidgets,
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -22,7 +25,7 @@ describe("Table widget one click binding feature", () => {
     cy.get("@dsName").then((dsName) => {
       entityExplorer.NavigateToSwitcher("Widgets");
 
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(
         `${dsName}`,

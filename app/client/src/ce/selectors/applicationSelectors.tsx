@@ -309,3 +309,7 @@ export const getApplicationByIdFromWorkspaces = createSelector(
 );
 export const getPartialImportExportLoadingState = (state: AppState) =>
   state.ui.applications.partialImportExport;
+
+export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
+  return state.ui.applications.currentPluginIdForCreateNewApp;
+};

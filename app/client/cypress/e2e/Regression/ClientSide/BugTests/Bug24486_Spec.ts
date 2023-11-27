@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let guid: any;
 let ws1Name;
@@ -66,10 +69,10 @@ describe("Issue 24486 - Issue with Export Application", () => {
     _.homePage.ImportApp("app-b24486.json", ws2Name);
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.AssertEntityPresenceInExplorer("MyText");
-    _.entityExplorer.SelectEntityByName("MyText");
+    EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
     _.propPane.ValidatePropertyFieldValue("Text", "Hello World");
     _.entityExplorer.AssertEntityPresenceInExplorer("Button1");
-    _.entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.ValidatePropertyFieldValue("Label", "Submit");
   });
 
