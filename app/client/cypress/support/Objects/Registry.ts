@@ -295,3 +295,9 @@ declare namespace Cypress {
     }
   }
 }
+
+declare global {
+  interface Window {
+    cypressSpy: (action: any) => any;
+  }
+}

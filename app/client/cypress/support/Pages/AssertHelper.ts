@@ -1,5 +1,4 @@
 import "cypress-wait-until";
-import { ObjectsRegistry } from "../Objects/Registry";
 import { ReusableHelper } from "../Objects/ReusableHelper";
 
 export const EntityItems = {
@@ -63,9 +62,34 @@ export class AssertHelper extends ReusableHelper {
     //   errorMsg:
     //     "Loading state did not become false within the specified timeout.",
     // });
-    cy.get("@reduxCypressSpy").should("have.been.calledWith", {
-      type: type,
-    });
+
+    // //1st method
+    // cy.window().then((window) => {
+    //   //this or below can be used to get the spy & validate:
+    //   const result = window.cypressSpy(type);
+    //   expect(result).to.eq(type);
+    //   //2nd method
+    //   cy.get("@reduxCypressSpy").should("have.been.calledWith", type);
+    // });
+
+    cy.waitUntil(
+      () => {
+        return cy.window().then((window) => {
+          const result = window.cypressSpy(type);
+          expect(result).to.eq(type);
+
+          // return cy
+          //   .get("@reduxCypressSpy")
+          //   .should("have.been.calledWith", type)
+          //   .then(() => true) as Cypress.Chainable<boolean>;
+        });
+      },
+      {
+        errorMsg: "Redux was not completed within the timeout",
+        timeout,
+        interval: 500, // Polling interval in milliseconds (optional, defaults to 100)
+      },
+    );
 
     this.Sleep(500);
   }
