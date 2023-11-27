@@ -8,6 +8,9 @@ import {
   propPane,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Text widget tests", function () {
   before(() => {
@@ -33,7 +36,7 @@ describe("Text widget tests", function () {
     );
 
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "{{CheckboxGroup1.options}}");
     entityExplorer.DragNDropWidget(draggableWidgets.CHECKBOXGROUP, 300, 450);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
@@ -46,7 +49,7 @@ describe("Text widget tests", function () {
 
   it("2. Verify Visible property", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Visible", "true");
     propPane.EnterJSContext("Visible", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp();
@@ -54,7 +57,7 @@ describe("Text widget tests", function () {
       locators._widgetInDeployed(draggableWidgets.TEXT),
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
@@ -66,7 +69,7 @@ describe("Text widget tests", function () {
 
   it("3. Verify Disabled link property is JS convertible", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Disable link", "false");
     propPane.UpdatePropertyFieldValue("Text", "https://docs.appsmith.com/");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TEXT));
@@ -74,7 +77,7 @@ describe("Text widget tests", function () {
       widgetLocators.textWidgetLink("https://docs.appsmith.com/"),
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.EnterJSContext(
       "Disable link",
       "{{(45>55)?false:true}}",
@@ -89,7 +92,7 @@ describe("Text widget tests", function () {
 
   it("4. Verify Height property", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.AssertPropertiesDropDownCurrentValue("Height", "Auto Height");
     propPane.AssertPropertiesDropDownValues("Height", [
       "Auto Height",
@@ -104,7 +107,7 @@ describe("Text widget tests", function () {
       "50px",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
     agHelper.AssertElementVisibility(locators._autoHeightHandles);
     agHelper.AssertElementVisibility(locators._autoHeightMin);
@@ -201,7 +204,7 @@ describe("Text widget tests", function () {
   it("6. Verify text widget styles are JS convertible", function () {
     //JS conversion
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Font family", "Inter");
     propPane.EnterJSContext("Font size", "1.5rem");
@@ -260,7 +263,7 @@ describe("Text widget tests", function () {
 
   it("7. Pick color using Full color picker", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.MoveToTab("Style");
     propPane.ToggleJSMode("Background color", false);
     propPane.ToggleJSMode("Text color", false);
@@ -311,7 +314,7 @@ describe("Text widget tests", function () {
 
   it("8. Validate renaming, duplication(copy, paste) & deletion of text widget", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
 
     //Rename widget
     propPane.RenameWidget("Text1", "Text_Widget");
@@ -337,7 +340,7 @@ describe("Text widget tests", function () {
     deployMode.NavigateBacktoEditor();
 
     //Duplicate from property pane
-    entityExplorer.SelectEntityByName("Text_WidgetCopy", "Widgets");
+    EditorNavigation.SelectEntityByName("Text_WidgetCopy", EntityType.Widget);
     propPane.CopyPasteWidgetFromPropertyPane("Text_WidgetCopy");
     agHelper.ValidateToastMessage("Copied Text_WidgetCopy");
     agHelper.AssertContains(
@@ -355,7 +358,7 @@ describe("Text widget tests", function () {
     propPane.DeleteWidgetFromPropertyPane("Text_WidgetCopyCopy");
 
     //Delete widget using hotkeys
-    entityExplorer.SelectEntityByName("Text_WidgetCopy", "Widgets");
+    EditorNavigation.SelectEntityByName("Text_WidgetCopy", EntityType.Widget);
     agHelper.PressDelete();
     agHelper.AssertContains(
       "Text_WidgetCopyCopy",

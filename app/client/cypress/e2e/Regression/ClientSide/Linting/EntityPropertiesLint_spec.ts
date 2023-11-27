@@ -9,6 +9,9 @@ import {
   locators,
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Linting of entity properties", () => {
   before(() => {
@@ -23,7 +26,7 @@ describe("Linting of entity properties", () => {
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
     // Edit Button onclick property
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{function(){
@@ -56,7 +59,7 @@ describe("Linting of entity properties", () => {
     );
     const invalidProperty = "unknownFunction";
     // Edit Button onclick and text property
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{function(){
@@ -74,14 +77,14 @@ describe("Linting of entity properties", () => {
     agHelper.AssertContains(`"${invalidProperty}" doesn't exist in JSObject1`);
 
     // Edit JS Object and add "unknown" function
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(`export default {
       ${invalidProperty}: () => {
         console.log("JSOBJECT 1")
       }
   }`);
     // select button, and assert that no lint is present
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     agHelper.AssertElementAbsence(locators._lintErrorElement);
     // delete JSObject
     entityExplorer.ActionContextMenuByEntityName({
@@ -90,7 +93,7 @@ describe("Linting of entity properties", () => {
       entityType: entityItems.JSObject,
     });
     // select button, and assert that lint error is present
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     agHelper.AssertElementLength(locators._lintErrorElement, 2);
     agHelper.HoverElement(locators._lintErrorElement);
     agHelper.AssertContains(`'JSObject1' is not defined`);
@@ -110,7 +113,7 @@ describe("Linting of entity properties", () => {
     );
 
     // select button, and assert that no lint error is present
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     agHelper.AssertElementAbsence(locators._lintErrorElement);
   });
 });

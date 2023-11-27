@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { removeSpecialChars } from "utils/helpers";
 import type { AppState } from "@appsmith/reducers";
-import { saveJSObjectName } from "actions/jsActionActions";
 import {
   getJSCollection,
   getPlugin,
@@ -25,8 +24,13 @@ import NameEditorComponent, {
   NameWrapper,
 } from "components/utils/NameEditorComponent";
 import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
-interface JSObjectNameEditorProps {
+interface SaveActionNameParams {
+  id: string;
+  name: string;
+}
+export interface JSObjectNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
     So, that we can toggle between ads editable-text component and existing editable-text component
@@ -35,6 +39,9 @@ interface JSObjectNameEditorProps {
   */
   page?: string;
   disabled?: boolean;
+  saveJSObjectName: (
+    params: SaveActionNameParams,
+  ) => ReduxAction<SaveActionNameParams>;
 }
 
 export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
@@ -54,7 +61,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
 
   return (
     <NameEditorComponent
-      dispatchAction={saveJSObjectName}
+      dispatchAction={props.saveJSObjectName}
       id={currentJSObjectConfig?.id}
       idUndefinedErrorMessage={JSOBJECT_ID_NOT_FOUND_IN_URL}
       name={currentJSObjectConfig?.name}

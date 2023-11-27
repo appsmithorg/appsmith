@@ -7,6 +7,9 @@ import {
   locators,
   gitSync,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const NAVIGATION_ATTRIBUTE = "data-navigate-to";
 
@@ -50,7 +53,9 @@ describe("1. CommandClickNavigation", function () {
     //Assert link and and style
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.SelectEntityByName("Text1", "Container1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+      "Container1",
+    ]);
 
     cy.updateCodeInput(".t--property-control-text", "{{ Graphql_Query.data }}");
 
@@ -127,7 +132,9 @@ describe("1. CommandClickNavigation", function () {
     });
 
     entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.SelectEntityByName("Text1", "Container1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+      "Container1",
+    ]);
     cy.updateCodeInput(".t--property-control-text", "{{ JSObject1.myFun1() }}");
 
     agHelper.Sleep();
@@ -141,7 +148,7 @@ describe("1. CommandClickNavigation", function () {
     agHelper.Sleep();
 
     // Assert context switching works when going back to canvas
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
     cy.get(".t--property-pane-title").should("contain", "Text1");
@@ -187,7 +194,7 @@ describe("1. CommandClickNavigation", function () {
   // Functionality isn't implemented yet
   // it("5. Will work with string arguments in framework functions", () => {
   //   entityExplorer.ExpandCollapseEntity("Widgets");
-  //   entityExplorer.SelectEntityByName("Button1", "Container1");
+  // EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, ["Container1"]);
   //   cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
   //   cy.updateCodeInput(
   //     PROPERTY_SELECTOR.onClick,

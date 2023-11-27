@@ -8,6 +8,8 @@ import type { Action, ActionViewMode } from "entities/Action";
 import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { omit } from "lodash";
+import type { OtlpSpan } from "UITelemetry/generateTraces";
+import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -201,12 +203,10 @@ class ActionAPI extends API {
   static async deleteAction(id: string) {
     return API.delete(`${ActionAPI.url}/${id}`);
   }
-
-  static async executeAction(
+  private static async executeApiCall(
     executeAction: FormData,
     timeout?: number,
   ): Promise<AxiosPromise<ActionExecutionResponse>> {
-    ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
       headers: {
@@ -215,6 +215,20 @@ class ActionAPI extends API {
         Expect: "100-continue",
       },
       cancelToken: ActionAPI.abortActionExecutionTokenSource.token,
+    });
+  }
+
+  static async executeAction(
+    executeAction: FormData,
+    timeout?: number,
+    parentSpan?: OtlpSpan,
+  ): Promise<AxiosPromise<ActionExecutionResponse>> {
+    ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
+    if (!parentSpan) {
+      return this.executeApiCall(executeAction, timeout);
+    }
+    return wrapFnWithParentTraceContext(parentSpan, async () => {
+      return await this.executeApiCall(executeAction, timeout);
     });
   }
 

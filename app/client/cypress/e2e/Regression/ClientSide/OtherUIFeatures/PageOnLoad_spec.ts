@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const explorer = require("../../../../locators/explorerlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -15,7 +19,7 @@ describe("Check debugger logs state when there are onPageLoad actions", function
   });
 
   it("1. Check debugger logs state when there are onPageLoad actions", function () {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Table data", "{{TestApi.data.users}}");
     apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods, "TestApi");
     apiPage.RunAPI();

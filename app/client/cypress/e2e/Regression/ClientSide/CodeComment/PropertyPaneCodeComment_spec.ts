@@ -3,6 +3,9 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Property Pane Code Commenting", () => {
   before(() => {
@@ -10,14 +13,14 @@ describe("Property Pane Code Commenting", () => {
   });
 
   it("1. Should comment code in Property Pane", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "{{appsmith}}");
     propPane.ToggleCommentInTextField("Label");
 
     propPane.ValidatePropertyFieldValue("Label", "{{// appsmith}}");
 
     //Uncomment
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "{{// appsmith}}");
     propPane.ToggleCommentInTextField("Label");
     propPane.ValidatePropertyFieldValue("Label", "{{appsmith}}");
