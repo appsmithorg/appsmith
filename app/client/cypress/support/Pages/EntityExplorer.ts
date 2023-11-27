@@ -309,6 +309,7 @@ export class EntityExplorer {
     dropTargetId = "",
     skipWidgetSearch = false,
   ) {
+    AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     this.DragNDropWidget(
       widgetType,

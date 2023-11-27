@@ -42,7 +42,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     });
 
     cy.wait(500);
-
+    AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 

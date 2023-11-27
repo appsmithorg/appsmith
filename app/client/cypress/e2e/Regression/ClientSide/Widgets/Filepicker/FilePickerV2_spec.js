@@ -39,6 +39,7 @@ describe("File picker widget v2", () => {
   });
 
   it("3. Check if the uploaded data does not reset when back from query page", () => {
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
