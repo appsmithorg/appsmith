@@ -21,7 +21,7 @@ describe("Validating use cases for Auto Dimension", () => {
 
   it("1. Should increase the height of the text widget when text is added", () => {
     entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.SelectEntityByName("Input1");
+    agHelper.GetNClick(locators._widgetInCanvas(draggableWidgets.INPUT_V2));
     propPane.TypeTextIntoField("Default Value", "This is a test");
     agHelper.ClickButton("Submit");
     agHelper
@@ -31,7 +31,7 @@ describe("Validating use cases for Auto Dimension", () => {
         expect(textHeight).to.eq(36);
       });
 
-    entityExplorer.SelectEntityByName("Input1");
+    agHelper.GetNClick(locators._widgetInCanvas(draggableWidgets.INPUT_V2));
     propPane.TypeTextIntoField("Default Value", largeText);
     agHelper.ClickButton("Submit");
     agHelper
