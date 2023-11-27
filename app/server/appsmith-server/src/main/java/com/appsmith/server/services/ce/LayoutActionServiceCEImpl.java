@@ -429,6 +429,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         action.setExecuteOnLoad(false);
                     }
 
+                    newAction.setUnpublishedAction(action);
+
                     newActionService.updateDefaultResourcesInAction(newAction);
 
                     return Mono.just(newAction);
