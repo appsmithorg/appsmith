@@ -84,7 +84,6 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         sampleData={this.props.controlConfig.sampleData}
         searchableColumn={this.props.controlConfig.searchableColumn}
         showEditFieldsModal={this.props.controlConfig?.showEditFieldsModal}
-        toggleDynamicProperty={this.props.toggleDynamicProperty}
         widgetId={this.props.widgetProperties.widgetId}
       />
     );
