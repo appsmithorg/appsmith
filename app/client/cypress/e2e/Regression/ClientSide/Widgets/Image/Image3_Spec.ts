@@ -7,6 +7,9 @@ import {
   propPane,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Image widget - Rotation & Download", function () {
   const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
@@ -20,7 +23,7 @@ describe("Image widget - Rotation & Download", function () {
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementAbsence(widgetLocators.imageRotateClockwiseBtn);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Image1", "Widgets");
+    EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Enable rotation", "false");
     propPane.TogglePropertyState("Enable rotation", "On");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
@@ -49,7 +52,7 @@ describe("Image widget - Rotation & Download", function () {
     agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
     agHelper.AssertElementAbsence(widgetLocators.imageDownloadBtn);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Image1", "Widgets");
+    EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Enable download", "false");
     propPane.TogglePropertyState("Enable download", "On");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));

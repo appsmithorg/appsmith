@@ -9,8 +9,8 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
-import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -32,17 +32,16 @@ import reactor.core.publisher.Mono;
 public class LayoutControllerCE {
 
     private final LayoutService service;
-    private final LayoutActionService layoutActionService;
-
+    private final UpdateLayoutService updateLayoutService;
     private final RefactoringSolution refactoringSolution;
 
     @Autowired
     public LayoutControllerCE(
             LayoutService layoutService,
-            LayoutActionService layoutActionService,
+            UpdateLayoutService updateLayoutService,
             RefactoringSolution refactoringSolution) {
         this.service = layoutService;
-        this.layoutActionService = layoutActionService;
+        this.updateLayoutService = updateLayoutService;
         this.refactoringSolution = refactoringSolution;
     }
 
@@ -73,7 +72,7 @@ public class LayoutControllerCE {
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestBody @Valid UpdateMultiplePageLayoutDTO request) {
         log.debug("update multiple layout received for application {} branch {}", applicationId, branchName);
-        return layoutActionService
+        return updateLayoutService
                 .updateMultipleLayouts(applicationId, branchName, request)
                 .map(updatedCount -> new ResponseDTO<>(HttpStatus.OK.value(), updatedCount, null));
     }
@@ -87,7 +86,7 @@ public class LayoutControllerCE {
             @RequestBody Layout layout,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("update layout received for page {}", pageId);
-        return layoutActionService
+        return updateLayoutService
                 .updateLayout(pageId, applicationId, layoutId, layout, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
@@ -14,7 +18,7 @@ describe("Table Widget V2 property pane deafult feature validation", function ()
   it("1. Verify default table row Data", function () {
     entityExplorer.DragNDropWidget(draggableWidgets.TABLE);
     table.AddSampleTableData();
-    entityExplorer.SelectEntityByName("Table2");
+    EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
 
     // Verify default array data
     cy.readTableV2dataFromSpecificIndex("0", "0", 0).then((tabData) => {
@@ -22,7 +26,7 @@ describe("Table Widget V2 property pane deafult feature validation", function ()
       cy.log("the table is" + tabValue);
       cy.get(".bp3-ui-text span").eq(1).should("have.text", tabData);
     });
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.readTableV2dataFromSpecificIndex("2", "0", 1).then((tabData) => {
       const tabValue = tabData;
       cy.log("the table is" + tabValue);

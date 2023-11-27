@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 import {
@@ -19,7 +23,7 @@ describe("Test Create Api and Bind to Table widget", function () {
       this.dataSet.paginationUrl + "mock-api?records=20&page=1&size=10",
     );
     cy.RunAPI();
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     cy.get(`.t--widget-tablewidget .page-item`).first().should("contain", "1");

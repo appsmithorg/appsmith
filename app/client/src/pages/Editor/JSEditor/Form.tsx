@@ -320,7 +320,6 @@ function JSEditorForm({
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor
                 disabled={!isChangePermitted}
-                page="JS_PANE"
                 saveJSObjectName={saveJSObjectName}
               />
             </NameWrapper>

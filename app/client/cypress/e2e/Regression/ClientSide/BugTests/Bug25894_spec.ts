@@ -4,11 +4,14 @@ import {
   draggableWidgets,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Bug 25894 - Moustache brackets should be highlighted", () => {
   it("1. should show {{ }} in bold", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     propPane.EnterJSContext(
       "onClick",

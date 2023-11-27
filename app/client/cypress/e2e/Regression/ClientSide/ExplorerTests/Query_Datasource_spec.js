@@ -1,6 +1,7 @@
 /// <reference types="Cypress" />
 
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
@@ -30,7 +31,7 @@ describe("Entity explorer tests related to query and datasource", function () {
   it("1. Create a page/moveQuery/rename/delete in explorer", function () {
     cy.Createpage(pageid);
     cy.wait(2000);
-    cy.get(".t--entity-name").contains("Page1").click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(2000);
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
@@ -54,18 +55,15 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.testSaveDatasource();
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
-    dataSources.navigateToDatasource(datasourceName);
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     agHelper.RenameWithInPane(`${datasourceName}new`, false);
     cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
 
     // reverting the name
     agHelper.RenameWithInPane(datasourceName, false);
 
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-
     // going  to the query create page
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.contains(commonlocators.entityName, "Query1").click();
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
 
     cy.wait("@getPluginForm").should(
       "have.nested.property",
@@ -102,8 +100,7 @@ describe("Entity explorer tests related to query and datasource", function () {
       toastToValidate: "action moved to page",
     });
     cy.wait(2000);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("MyQuery");
+    EditorNavigation.SelectEntityByName("MyQuery", EntityType.Query);
     cy.wait(2000);
     cy.runQuery();
 

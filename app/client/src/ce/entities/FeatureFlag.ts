@@ -38,6 +38,10 @@ export const FEATURE_FLAG = {
   release_show_new_sidebar_announcement_enabled:
     "release_show_new_sidebar_announcement_enabled",
   rollout_app_sidebar_enabled: "rollout_app_sidebar_enabled",
+  release_show_partial_import_export_enabled:
+    "release_show_partial_import_export_enabled",
+  release_show_new_sidebar_pages_pane_enabled:
+    "release_show_new_sidebar_pages_pane_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -73,6 +77,8 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_create_new_apps_enabled: false,
   release_show_new_sidebar_announcement_enabled: false,
   rollout_app_sidebar_enabled: false,
+  release_show_partial_import_export_enabled: false,
+  release_show_new_sidebar_pages_pane_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

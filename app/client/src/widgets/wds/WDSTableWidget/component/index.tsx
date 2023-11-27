@@ -15,28 +15,6 @@ import type { EditableCell, TableVariant } from "../constants";
 import { ColumnTypes } from "../constants";
 import { useCallback } from "react";
 
-export interface ColumnMenuOptionProps {
-  content: string | JSX.Element;
-  closeOnClick?: boolean;
-  isSelected?: boolean;
-  editColumnName?: boolean;
-  columnAccessor?: string;
-  id?: string;
-  category?: boolean;
-  options?: ColumnMenuSubOptionProps[];
-  onClick?: (columnIndex: number, isSelected: boolean) => void;
-}
-
-export interface ColumnMenuSubOptionProps {
-  content: string | JSX.Element;
-  isSelected?: boolean;
-  closeOnClick?: boolean;
-  onClick?: (columnIndex: number) => void;
-  id?: string;
-  category?: boolean;
-  isHeader?: boolean;
-}
-
 interface ReactTableComponentProps {
   widgetId: string;
   widgetName: string;

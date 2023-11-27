@@ -2,10 +2,8 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 import { useParams } from "react-router-dom";
-import styled from "styled-components";
 import { removeSpecialChars } from "utils/helpers";
 import type { AppState } from "@appsmith/reducers";
-import { Classes } from "@blueprintjs/core";
 import {
   getJSCollection,
   getPlugin,
@@ -20,32 +18,13 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import { Spinner } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import NameEditorComponent from "components/utils/NameEditorComponent";
+import NameEditorComponent, {
+  IconBox,
+  IconWrapper,
+  NameWrapper,
+} from "components/utils/NameEditorComponent";
 import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-
-const JSObjectNameWrapper = styled.div<{ page?: string }>`
-  min-width: 50%;
-  margin-right: 10px;
-  display: flex;
-  justify-content: flex-start;
-  align-content: center;
-  & > div {
-    max-width: 100%;
-    flex: 0 1 auto;
-    font-size: ${(props) => props.theme.fontSizes[5]}px;
-    font-weight: ${(props) => props.theme.fontWeights[2]};
-  }
-
-  ${(props) =>
-    props.page === "JS_PANE"
-      ? `  &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
-    font-size: ${props.theme.typography.h3.fontSize}px;
-    letter-spacing: ${props.theme.typography.h3.letterSpacing}px;
-    font-weight: ${props.theme.typography.h3.fontWeight};
-  }`
-      : null}
-`;
 
 interface SaveActionNameParams {
   id: string;
@@ -64,21 +43,6 @@ export interface JSObjectNameEditorProps {
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
 }
-
-const IconContainer = styled.div`
-  height: 34px;
-  width: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 8px;
-  flex-shrink: 0;
-`;
-
-const JSIcon = styled.img`
-  width: 34px;
-  height: auto;
-`;
 
 export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
   const params = useParams<{ collectionId?: string; queryId?: string }>();
@@ -116,7 +80,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
         isNew: boolean;
         saveStatus: { isSaving: boolean; error: boolean };
       }) => (
-        <JSObjectNameWrapper page={props.page}>
+        <NameWrapper enableFontStyling>
           <div
             style={{
               display: "flex",
@@ -124,12 +88,12 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
             }}
           >
             {currentPlugin && (
-              <IconContainer>
-                <JSIcon
+              <IconBox>
+                <IconWrapper
                   alt={currentPlugin.name}
                   src={getAssetUrl(currentPlugin.iconLocation)}
                 />
-              </IconContainer>
+              </IconBox>
             )}
             <EditableText
               className="t--js-action-name-edit-field"
@@ -151,7 +115,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
             />
             {saveStatus.isSaving && <Spinner size="md" />}
           </div>
-        </JSObjectNameWrapper>
+        </NameWrapper>
       )}
     </NameEditorComponent>
   );

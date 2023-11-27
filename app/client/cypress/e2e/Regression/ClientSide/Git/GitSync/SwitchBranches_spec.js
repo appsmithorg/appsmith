@@ -12,6 +12,9 @@ import {
   apiPage,
   dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch",
@@ -102,19 +105,17 @@ describe("Git sync:", function () {
       .should("be.visible")
       .should("have.class", "activePage");
 
-    cy.CheckAndUnfoldEntityItem("Pages");
-
-    cy.get(`.t--entity-name:contains("ParentPage1")`).click();
-    cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
+    EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
+    entityExplorer.AssertEntityAbsenceInExplorer("ChildPage1");
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
-    cy.get(`.t--entity-name:contains("ChildJsAction1")`).should("not.exist");
+    entityExplorer.AssertEntityAbsenceInExplorer("ChildApi1");
+    entityExplorer.AssertEntityAbsenceInExplorer("ChildJSAction1");
   });
 
   // rename entities
   it("3. makes branch specific resource updates", function () {
     cy.switchGitBranch(childBranchKey);
-    entityExplorer.SelectEntityByName("ParentPage1", "Pages");
+    EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
     entityExplorer.RenameEntityFromExplorer(
       "ParentPage1",
       "ParentPageRenamed",
@@ -127,16 +128,14 @@ describe("Git sync:", function () {
     cy.switchGitBranch(parentBranchKey);
 
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("ParentPageRenamed")`).should("not.exist");
-    cy.get(`.t--entity-name:contains("ParentApiRenamed")`).should("not.exist");
-    // cy.get(`.t--entity-name:contains("ParentJsActionRenamed")`).should(
-    //   "not.exist",
-    // );
+    entityExplorer.AssertEntityAbsenceInExplorer("ParentPageRenamed");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    entityExplorer.AssertEntityAbsenceInExplorer("ParentApiRenamed");
   });
 
   it("4. enables switching branch from the URL", () => {
     cy.url().then((url) => {
-      entityExplorer.SelectEntityByName("ParentPage1", "Pages");
+      EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
       cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
       cy.get(".t--widget-tablewidgetv2").should("exist");

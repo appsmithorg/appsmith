@@ -1,19 +1,23 @@
 import {
   agHelper,
-  locators,
   entityExplorer,
+  locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Listv2 - Event bindings spec", () => {
   it("1. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {
     agHelper.AddDsl("Listv2/nestedList.json");
     // Open the property pane of button in the inner list widget
-    entityExplorer.ExpandCollapseEntity("List1");
-    entityExplorer.ExpandCollapseEntity("Container1");
-    entityExplorer.ExpandCollapseEntity("List2");
-    entityExplorer.ExpandCollapseEntity("Container2");
-    entityExplorer.SelectEntityByName("Button3");
+    EditorNavigation.SelectEntityByName("Button3", EntityType.Widget, {}, [
+      "List1",
+      "Container1",
+      "List2",
+      "Container2",
+    ]);
     // Enable JS mode for onClick
     propPane.ToggleJSMode("onClick", true);
     propPane.UpdatePropertyFieldValue(
