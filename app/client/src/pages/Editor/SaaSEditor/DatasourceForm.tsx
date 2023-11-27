@@ -91,6 +91,7 @@ import {
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -175,6 +176,7 @@ type SaasEditorWrappperProps = RouteProps & {
   hiddenHeader?: boolean; // for reconnect modal
   isInsideReconnectModal?: boolean; // for reconnect modal
   currentEnvironment: string;
+  isOnboardingFlow?: boolean;
 };
 interface RouteProps {
   datasourceId: string;
@@ -283,7 +285,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       this.blockRoutes();
     }
 
-    this.setViewModeFromQueryParams();
+    if (!this.props.isOnboardingFlow) {
+      this.setViewModeFromQueryParams();
+    }
 
     // When save button is clicked in DS form, routes should be unblocked
     if (this.props.isDatasourceBeingSaved) {
@@ -362,7 +366,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
-      this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
+      this.props?.match?.params?.datasourceId === TEMP_DATASOURCE_ID
     ) {
       this.props.createTempDatasource({
         pluginId,
@@ -816,6 +820,10 @@ const mapStateToProps = (state: AppState, props: any) => {
         )
       : false;
 
+  // This is only present during onboarding flow
+  const currentApplicationIdForCreateNewApp =
+    getCurrentApplicationIdForCreateNewApp(state);
+
   return {
     datasource,
     datasourceButtonConfiguration,
@@ -838,7 +846,9 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
-    applicationId: getCurrentApplicationId(state),
+    applicationId: !!currentApplicationIdForCreateNewApp
+      ? currentApplicationIdForCreateNewApp
+      : getCurrentApplicationId(state),
     canManageDatasource,
     canDeleteDatasource,
     datasourceName: datasource?.name ?? "",

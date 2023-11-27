@@ -52,11 +52,13 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { fetchPlugins } from "actions/pluginActions";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
-import { getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
+import type { Datasource } from "entities/Datasource";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -202,6 +204,9 @@ const CreateNewAppsOption = ({
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
   const selectedPlugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, createNewAppPluginId || ""),
+  );
+  const selectedDatasource: Datasource | undefined = useSelector((state) =>
+    getDatasource(state, TEMP_DATASOURCE_ID || ""),
   );
 
   const application = useSelector((state) =>
@@ -451,13 +456,19 @@ const CreateNewAppsOption = ({
             title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
           />
           <WithDataWrapper>
-            {createNewAppPluginId ? (
+            {createNewAppPluginId && !!selectedDatasource ? (
               selectedPlugin?.type === PluginType.SAAS ? (
-                <div>Load Gsheets</div>
+                <DatasourceForm
+                  datasourceId={TEMP_DATASOURCE_ID}
+                  isOnboardingFlow
+                  pageId={application?.defaultPageId || ""}
+                  pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
+                />
               ) : (
                 <DataSourceEditor
                   applicationId={currentApplicationIdForCreateNewApp}
                   datasourceId={TEMP_DATASOURCE_ID}
+                  isOnboardingFlow
                   pageId={application?.defaultPageId}
                 />
               )
