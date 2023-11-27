@@ -1,5 +1,5 @@
 import React, { createContext, useMemo } from "react";
-import type { ACTION_PARENT_ENTITY_TYPE } from "actions/apiPaneActions";
+import type { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 
 interface FilesContextContextProps {
   canCreateActions: boolean;

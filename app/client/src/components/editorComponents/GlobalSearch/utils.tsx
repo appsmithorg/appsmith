@@ -18,7 +18,6 @@ import {
   GraphQLIconV2,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ACTION_PARENT_ENTITY_TYPE } from "actions/apiPaneActions";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
@@ -29,6 +28,7 @@ import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon } from "design-system";
+import type { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 
 export type SelectEvent =
   | React.MouseEvent
