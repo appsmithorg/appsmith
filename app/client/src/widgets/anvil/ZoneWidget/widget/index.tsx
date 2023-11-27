@@ -38,6 +38,7 @@ class ZoneWidget extends ContainerWidget {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+            defaultValue: true,
           },
           {
             propertyName: "animateLoading",
