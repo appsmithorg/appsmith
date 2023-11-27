@@ -5,7 +5,7 @@ import type {
   WidgetDefaultProps,
 } from "WidgetProvider/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { SetterConfig } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import ContainerWidget from "widgets/ContainerWidget/widget";
 import { anvilConfig, baseConfig, defaultConfig } from "./config";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -56,6 +56,10 @@ class ZoneWidget extends ContainerWidget {
     ];
   }
 
+  static getPropertyPaneStyleConfig() {
+    return super.getPropertyPaneStyleConfig();
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
   }
@@ -78,6 +82,10 @@ class ZoneWidget extends ContainerWidget {
 
   static getAnvilConfig(): AnvilConfig | null {
     return anvilConfig;
+  }
+
+  static getStylesheetConfig(): Stylesheet {
+    return super.getStylesheetConfig();
   }
 }
 

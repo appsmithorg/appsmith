@@ -5,24 +5,20 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { generateReactKey } from "utils/generators";
-import type { RenderModes } from "constants/WidgetConstants";
-import {
-  FlexLayerAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
-import { sectionPreset } from "layoutSystems/anvil/layoutComponents/presets/sectionPreset";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { createZoneAndAddWidgets } from "./zoneUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { call, select } from "redux-saga/effects";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { getNextWidgetName } from "sagas/WidgetOperationUtils";
-import { getRenderMode } from "selectors/editorSelectors";
+import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { SectionWidget } from "widgets/anvil/SectionWidget";
+import {
+  addNewWidgetToDsl,
+  getCreateWidgetPayload,
+} from "../../widgetAdditionUtils";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
@@ -30,54 +26,29 @@ export function* createSectionAndAddWidget(
   widgets: WidgetLayoutProps[],
   parentId: string,
 ) {
-  const evalTree: DataTree = yield select(getDataTree);
-  const renderMode: RenderModes = yield select(getRenderMode);
   /**
    * Step 1: Create Section widget.
    */
-  const sectionProps: WidgetProps = {
-    bottomRow: 10,
-    children: [],
-    isLoading: false,
-    isVisible: true,
-    leftColumn: 0,
-    parentColumnSpace: 1,
-    parentId,
-    parentRowSpace: 10,
-    renderMode,
-    responsiveBehavior: ResponsiveBehavior.Fill,
-    rightColumn: 64,
-    topRow: 0,
-    type: "SECTION_WIDGET",
-    version: 1,
-    widgetId: generateReactKey(),
-    zoneCount: 1,
-    widgetName: getNextWidgetName(allWidgets, "SECTION_WIDGET", evalTree),
-  };
+  const widgetId: string = generateReactKey();
+  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    addNewWidgetToDsl,
+    allWidgets,
+    getCreateWidgetPayload(widgetId, SectionWidget.type, parentId),
+  );
 
   /**
-   * Step 2: Create Canvas widget and add to Section.
+   * Step 2: Extract canvas widget and section layout.
    */
-  const preset: LayoutProps[] = sectionPreset();
+
+  const sectionProps: FlattenedWidgetProps = updatedWidgets[widgetId];
+  const canvasId: string | undefined =
+    sectionProps.children && sectionProps.children[0];
+
+  if (!canvasId) return allWidgets;
+
+  const canvasProps: FlattenedWidgetProps = updatedWidgets[canvasId];
+  const preset: LayoutProps[] = canvasProps.layout;
   const sectionLayout: LayoutProps = preset[0];
-  const canvasProps: WidgetProps = {
-    bottomRow: 10,
-    children: [],
-    isLoading: false,
-    layout: preset,
-    leftColumn: 0,
-    parentId: sectionProps.widgetId,
-    parentColumnSpace: 1,
-    parentRowSpace: 10,
-    renderMode,
-    responsiveBehavior: ResponsiveBehavior.Fill,
-    rightColumn: 64,
-    topRow: 0,
-    type: "CANVAS_WIDGET",
-    version: 1,
-    widgetId: generateReactKey(),
-    widgetName: getNextWidgetName(allWidgets, "CANVAS_WIDGET", evalTree),
-  };
 
   /**
    * Step 3: Add widgets to section. and update relationships.
@@ -85,16 +56,12 @@ export function* createSectionAndAddWidget(
   const res: { canvasWidgets: CanvasWidgetsReduxState; section: WidgetProps } =
     yield call(
       addWidgetsToSection,
-      allWidgets,
+      updatedWidgets,
       widgets,
       highlight,
       sectionProps,
       canvasProps,
       sectionLayout,
-      {
-        [sectionProps.widgetId]: sectionProps,
-        [canvasProps.widgetId]: canvasProps,
-      },
     );
 
   return res;
@@ -148,7 +115,6 @@ export function* addWidgetsToSection(
   section: WidgetProps,
   canvas: WidgetProps,
   sectionLayout: LayoutProps,
-  additionalWidgets: CanvasWidgetsReduxState = {},
 ) {
   let canvasWidgets = { ...allWidgets };
   const sectionProps = { ...section };
@@ -209,7 +175,6 @@ export function* addWidgetsToSection(
         nonZones,
         highlight,
         canvasProps.widgetId,
-        additionalWidgets,
       );
 
     canvasProps.children = [...canvasProps.children, data.zone.widgetId];
