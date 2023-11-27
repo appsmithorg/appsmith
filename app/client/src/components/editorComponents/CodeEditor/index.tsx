@@ -594,10 +594,6 @@ class CodeEditor extends Component<Props, State> {
     }
 
     this.editor.operation(() => {
-      if (prevProps.lintErrors !== this.props.lintErrors) {
-        this.lintCode(this.editor);
-      }
-
       const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
       const inputValue = getInputValue(this.props.input.value);
@@ -642,6 +638,9 @@ class CodeEditor extends Component<Props, State> {
           this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
+      }
+      if (prevProps.lintErrors !== this.props.lintErrors) {
+        this.lintCode(this.editor);
       }
       if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
         sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
@@ -1694,7 +1693,6 @@ class CodeEditor extends Component<Props, State> {
                 <CodeEditorSignPosting
                   editorTheme={this.props.theme}
                   forComp="editor"
-                  isAIEnabled={this.AIEnabled}
                   isOpen={this.isBindingPromptOpen()}
                   mode={this.props.mode}
                   promptMessage={this.props.promptMessage}

@@ -1,16 +1,19 @@
 import {
+  getWidgetSelector,
   PROPERTY_SELECTOR,
   WIDGET,
-  getWidgetSelector,
 } from "../../../../locators/WidgetLocators";
 
 import {
+  agHelper,
   entityExplorer,
   jsEditor,
-  agHelper,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const setterMethodsToTest = [
   {
@@ -185,7 +188,7 @@ describe("Linting warning for setter methods", function () {
     agHelper.Sleep();
 
     //Add myFun1 to onClick
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "{{JSObject1.myFun1()}}");
 
     agHelper.AssertContains(

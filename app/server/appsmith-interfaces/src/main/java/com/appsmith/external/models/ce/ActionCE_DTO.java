@@ -7,6 +7,7 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.AnalyticsInfo;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Documentation;
@@ -74,6 +75,9 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @JsonView(Views.Public.class)
     String pageId;
+
+    @JsonView(Views.Public.class)
+    CreatorContextType contextType;
 
     @JsonView(Views.Public.class)
     String collectionId;

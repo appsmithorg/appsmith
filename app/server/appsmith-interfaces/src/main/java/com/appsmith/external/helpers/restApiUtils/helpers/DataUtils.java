@@ -12,10 +12,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import net.minidev.json.writer.CollectionMapper;
+import net.minidev.json.writer.JsonReader;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpMethod;
@@ -35,6 +37,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -50,6 +53,8 @@ public class DataUtils {
         TEXT,
         FILE,
         ARRAY,
+        // this is for allowing application/json in Multipart from data
+        JSON,
     }
 
     public DataUtils() {
@@ -145,6 +150,13 @@ public class DataUtils {
                     continue;
                 }
 
+                // null values are not accepted by the Mutli-part form data standards,
+                // null values cannot be achieved via client side changes, hence skipping the form-data property
+                // altogether instead of throwing an error over here.
+                if (property.getValue() == null) {
+                    continue;
+                }
+
                 // This condition is for the current scenario, while we wait for client changes to come in
                 // before the migration can be introduced
                 if (property.getType() == null) {
@@ -192,6 +204,39 @@ public class DataUtils {
                             }
                         } else {
                             bodyBuilder.part(key, property.getValue());
+                        }
+                        break;
+                    case JSON:
+                        // apart from String we can expect json list or a JSON dictionary as input,
+                        // while spring would typecast a json list to List, a Json Dictionary is not always expected to
+                        // be type-casted as a map, hence this has been chosen to be built as it is.
+                        if (!(property.getValue() instanceof String jsonString)) {
+                            bodyBuilder.part(key, property.getValue(), MediaType.APPLICATION_JSON);
+                            break;
+                        }
+
+                        if (!StringUtils.hasText(jsonString)) {
+                            // the jsonString is empty, it could be intended by the user hence continuing execution.
+                            bodyBuilder.part(key, "", MediaType.APPLICATION_JSON);
+                            break;
+                        }
+
+                        Object objectFromJson;
+                        try {
+                            objectFromJson = objectFromJson(jsonString);
+                        } catch (JsonSyntaxException | ParseException e) {
+                            throw new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR,
+                                    jsonString,
+                                    "Malformed JSON: " + e.getMessage());
+                        }
+
+                        if (objectFromJson == null) {
+                            // Although this is not expected to be true; However, in case the parsed object is null,
+                            // choosing to error out as the value provided by user has not transformed into json.
+                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, jsonString);
+                        } else {
+                            bodyBuilder.part(key, objectFromJson, MediaType.APPLICATION_JSON);
                         }
                         break;
                 }
@@ -260,12 +305,20 @@ public class DataUtils {
         }
 
         JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-        Object parsedJson = null;
+
+        Object parsedJson;
 
         if (type.equals(List.class)) {
             parsedJson = (JSONArray) jsonParser.parse(jsonString);
         } else {
-            parsedJson = (JSONObject) jsonParser.parse(jsonString);
+            // We learned from issue #23456 that some use-cases require the order of keys to be preserved
+            //  i.e. for AWS authorisation, one signature header is required whose value holds the hash
+            // of the body.
+            JsonReader jsonReader = new JsonReader();
+            TypeToken<LinkedHashMap<String, Object>> linkedHashMapTypeToken = new TypeToken<>() {};
+            CollectionMapper.MapClass<LinkedHashMap<String, Object>> collectionMapper =
+                    new CollectionMapper.MapClass<>(jsonReader, linkedHashMapTypeToken.getRawType());
+            parsedJson = jsonParser.parse(jsonString, collectionMapper);
         }
 
         return parsedJson;
@@ -282,7 +335,7 @@ public class DataUtils {
                 PluginUtils.getValueSafelyFromFormData(actionConfiguration.getFormData(), FIELD_API_CONTENT_TYPE);
         ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
 
-        if (httpMethod.equals(HttpMethod.GET) && (apiContentType == null || apiContentType == ApiContentType.NONE)) {
+        if (HttpMethod.GET.equals(httpMethod) && (apiContentType == null || apiContentType == ApiContentType.NONE)) {
             /**
              * Setting request body object to null makes the webClient object to ignore the body when sending the API
              * request. Earlier, we were setting it to an empty string, which worked fine for almost all the use
@@ -297,7 +350,7 @@ public class DataUtils {
         // Based on the content-type, this Object may be of type MultiValueMap or String
         Object requestBodyObj = "";
 
-        if (!httpMethod.equals(HttpMethod.GET)) {
+        if (!HttpMethod.GET.equals(httpMethod)) {
             // Read the body normally as this is a non-GET request
             requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
         } else if (apiContentType != null && apiContentType != ApiContentType.NONE) {

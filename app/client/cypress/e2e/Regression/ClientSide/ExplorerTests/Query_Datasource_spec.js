@@ -1,6 +1,9 @@
 /// <reference types="Cypress" />
 
-const datasource = require("../../../../locators/DatasourcesEditor.json");
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
@@ -28,7 +31,7 @@ describe("Entity explorer tests related to query and datasource", function () {
   it("1. Create a page/moveQuery/rename/delete in explorer", function () {
     cy.Createpage(pageid);
     cy.wait(2000);
-    cy.get(".t--entity-name").contains("Page1").click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(2000);
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("PostgreSQL");
@@ -52,30 +55,15 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.testSaveDatasource();
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
-    /* eslint-disable */
-    cy.wait(2000);
-    cy.NavigateToQueryEditor();
-    cy.CheckAndUnfoldEntityItem("Datasources");
-    cy.contains(".t--entity-name", datasourceName).click();
-
-    cy.get(".t--edit-datasource-name").click();
-    cy.get(".t--edit-datasource-name input")
-      .clear()
-      .type(`${datasourceName}new`, { force: true })
-      .blur();
-
-    cy.contains(commonlocators.entityName, `${datasourceName}new`);
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
+    agHelper.RenameWithInPane(`${datasourceName}new`, false);
+    cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
 
     // reverting the name
-    cy.get(".t--edit-datasource-name").click();
-    cy.get(".t--edit-datasource-name input")
-      .clear()
-      .type(`${datasourceName}`, { force: true })
-      .blur();
+    agHelper.RenameWithInPane(datasourceName, false);
 
     // going  to the query create page
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.contains(commonlocators.entityName, "Query1").click();
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
 
     cy.wait("@getPluginForm").should(
       "have.nested.property",
@@ -112,8 +100,7 @@ describe("Entity explorer tests related to query and datasource", function () {
       toastToValidate: "action moved to page",
     });
     cy.wait(2000);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("MyQuery");
+    EditorNavigation.SelectEntityByName("MyQuery", EntityType.Query);
     cy.wait(2000);
     cy.runQuery();
 
@@ -122,6 +109,6 @@ describe("Entity explorer tests related to query and datasource", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName);
   });
 });

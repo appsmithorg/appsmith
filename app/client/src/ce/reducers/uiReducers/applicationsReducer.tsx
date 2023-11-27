@@ -56,6 +56,12 @@ export const initialState: ApplicationsReduxState = {
     isFetchingAllRoles: false,
     isFetchingAllUsers: false,
   },
+  partialImportExport: {
+    isExporting: false,
+    isExportDone: false,
+    isImporting: false,
+    isImportDone: false,
+  },
 };
 
 export const handlers = {
@@ -422,6 +428,34 @@ export const handlers = {
       importingApplication: false,
     };
   },
+  [ReduxActionTypes.PARTIAL_IMPORT_INIT]: (state: ApplicationsReduxState) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImporting: true,
+      isImportDone: false,
+    },
+  }),
+  [ReduxActionTypes.PARTIAL_IMPORT_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImporting: false,
+      isImportDone: true,
+    },
+  }),
+  [ReduxActionErrorTypes.PARTIAL_IMPORT_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImporting: false,
+      isImportDone: true,
+    },
+  }),
   [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (state: ApplicationsReduxState) => {
     return {
       ...state,
@@ -833,6 +867,51 @@ export const handlers = {
       currentApplicationIdForCreateNewApp: undefined,
     };
   },
+  [ReduxActionTypes.PARTIAL_EXPORT_INIT]: (state: ApplicationsReduxState) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExporting: true,
+      isExportDone: false,
+    },
+  }),
+  [ReduxActionTypes.PARTIAL_EXPORT_SUCCESS]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExporting: false,
+      isExportDone: true,
+    },
+  }),
+  [ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExporting: false,
+      isExportDone: true,
+    },
+  }),
+  [ReduxActionTypes.SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      currentPluginIdForCreateNewApp: action.payload,
+    };
+  },
+  [ReduxActionTypes.RESET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      currentPluginIdForCreateNewApp: undefined,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -876,6 +955,13 @@ export interface ApplicationsReduxState {
     isFetchingAllUsers: boolean;
   };
   currentApplicationIdForCreateNewApp?: string;
+  partialImportExport: {
+    isExporting: boolean;
+    isExportDone: boolean;
+    isImporting: boolean;
+    isImportDone: boolean;
+  };
+  currentPluginIdForCreateNewApp?: string;
 }
 
 export interface Application {

@@ -134,6 +134,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
@@ -156,7 +157,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             links: [
               {
                 text: "Learn more",
-                url: "https://docs.appsmith.com",
+                url: "https://www.appsmith.com/blog/deprecating-fusion-charts",
               },
             ],
           });

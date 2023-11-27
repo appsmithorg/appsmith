@@ -1,11 +1,14 @@
 import {
-  entityExplorer,
-  jsEditor,
   agHelper,
   draggableWidgets,
+  entityExplorer,
+  jsEditor,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const jsObjectBody = `export default {
 	myVar1: [],
@@ -76,13 +79,13 @@ describe("Autocomplete tests for setters", () => {
 
   it("2. Check if setters are present in autocomplete for widgets in property Pane", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 500, 500);
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "{{Input1.set", true, false);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "setDisabled");
   });
 
   it("3. function arguments hint shows up", () => {
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "{{", true, false);
     agHelper.GetNClickByContains(locators._hints, "appsmith", 0, false);
     agHelper.AssertElementVisibility(locators._evalValuePopover);
@@ -100,7 +103,7 @@ describe("Autocomplete tests for setters", () => {
 
   it("4. function description tooltip shows up", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 100);
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "{{showAlert", true, false);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "showAlert");
     agHelper.AssertElementExist(locators._tern_doc);

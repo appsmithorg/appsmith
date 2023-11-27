@@ -1,11 +1,11 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type {
   AppEmbedSetting,
   ApplicationResponsePayload,
-  UpdateApplicationPayload,
-  ImportApplicationRequest,
   FetchApplicationPayload,
+  ImportApplicationRequest,
+  UpdateApplicationPayload,
 } from "@appsmith/api/ApplicationApi";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 import type { IconNames } from "design-system";
 import type { Datasource } from "entities/Datasource";
@@ -151,6 +151,21 @@ export const importApplication = (appDetails: ImportApplicationRequest) => {
   return {
     type: ReduxActionTypes.IMPORT_APPLICATION_INIT,
     payload: appDetails,
+  };
+};
+
+export const importPartialApplication = (appPartialDetails: {
+  applicationFile: File;
+}) => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
+    payload: appPartialDetails,
+  };
+};
+
+export const importPartialApplicationSuccess = () => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_SUCCESS,
   };
 };
 

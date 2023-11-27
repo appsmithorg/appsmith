@@ -20,11 +20,14 @@ const CreateDatasourcePopover = () => {
     isFeatureEnabled,
     userWorkspacePermissions,
   );
+  if (!canCreateDatasource) {
+    return null;
+  }
   return (
     <Popover open={false}>
       <PopoverTrigger>
         <Button
-          disabled={!canCreateDatasource}
+          className={"t--add-datasource-button"}
           isIconButton
           kind="tertiary"
           onClick={() =>

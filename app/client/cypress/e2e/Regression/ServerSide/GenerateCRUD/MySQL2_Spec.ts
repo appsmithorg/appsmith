@@ -1,17 +1,20 @@
 // import { INTERCEPT } from "../../../../fixtures/variables";
-let dsName: any, newStoreSecret: any;
-
 import {
   agHelper,
-  entityExplorer,
-  propPane,
-  deployMode,
+  assertHelper,
   dataSources,
-  table,
+  deployMode,
+  entityExplorer,
   entityItems,
   locators,
-  assertHelper,
+  propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
+let dsName: any, newStoreSecret: any;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
   // beforeEach(function() {
@@ -64,12 +67,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
+    dataSources.AssertTableInVirtuosoList(dsName, "Stores");
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
-
-    dataSources.AssertTableInVirtuosoList(dsName, "Stores");
   });
 
   it("2. Validate Select record from Postgress datasource & verify query response", () => {
@@ -101,7 +104,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("4. Verify Update data from Deploy page - on Stores - existing record", () => {
-    entityExplorer.SelectEntityByName("update_form", "Widgets");
+    EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
 
     updatingStoreJSONPropertyFileds();
     deployMode.DeployApp();
@@ -223,9 +226,9 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("8. Verify Add/Insert from Deploy page - on Stores - new record", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Insert_Modal");
-    entityExplorer.SelectEntityByName("insert_form");
+    EditorNavigation.SelectEntityByName("insert_form", EntityType.Widget, {}, [
+      "Insert_Modal",
+    ]);
     agHelper.Sleep(2000);
 
     //Removing Default values & setting placeholder!
@@ -359,19 +362,12 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
+    dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("Stores"),
-    );
   });
 
   after(

@@ -1,24 +1,34 @@
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
-  appSettings,
   apiPage,
-  dataSources,
-  table,
-  locators,
-  entityItems,
+  appSettings,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  SidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("UUID Datatype tests", function () {
   let dsName: any, query: string, imageNameToUpload: string;
 
   before("Importing App & setting theme", () => {
+    featureFlagIntercept({
+      ab_gsheet_schema_enabled: true,
+      ab_mock_mongo_schema_enabled: true,
+    });
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    EditorNavigation.ViaSidebar(SidebarButton.Pages);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");
@@ -40,11 +50,14 @@ describe("UUID Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
-    dataSources.AssertTableInVirtuosoList(dsName, "public.uuidtype");
   });
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("public.uuidtype", "Select");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.uuidtype",
+      "Select",
+    );
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
@@ -79,11 +92,10 @@ describe("UUID Datatype tests", function () {
     agHelper.RenameWithInPane("deleteRecord");
 
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity(dsName, false);
   });
 
   it("5. Inserting record - uuidtype", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
@@ -288,8 +300,10 @@ describe("UUID Datatype tests", function () {
     table.WaitUntilTableLoad();
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("verifyUUIDFunctions");
+    EditorNavigation.SelectEntityByName(
+      "verifyUUIDFunctions",
+      EntityType.Query,
+    );
 
     //Validating altering the new column default value to generate id from pgcrypto package
     query = `ALTER TABLE uuidtype ALTER COLUMN newUUID SET DEFAULT gen_random_uuid();`;
@@ -304,8 +318,10 @@ describe("UUID Datatype tests", function () {
 
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("verifyUUIDFunctions");
+    EditorNavigation.SelectEntityByName(
+      "verifyUUIDFunctions",
+      EntityType.Query,
+    );
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -314,7 +330,7 @@ describe("UUID Datatype tests", function () {
   });
 
   it("11. Deleting records - uuidtype", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
@@ -363,24 +379,13 @@ describe("UUID Datatype tests", function () {
 
   it("14. Validate Drop of the Newly Created - uuidtype - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("dropTable");
+    EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.ExpandCollapseEntity("Datasources");
-    entityExplorer.ExpandCollapseEntity(dsName);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: dsName,
-      action: "Refresh",
-    });
-    agHelper.AssertElementAbsence(
-      entityExplorer._entityNameInExplorer("public.uuidtype"),
-    );
-    entityExplorer.ExpandCollapseEntity(dsName, false);
-    entityExplorer.ExpandCollapseEntity("Datasources", false);
+    dataSources.AssertTableInVirtuosoList(dsName, "public.uuidtype", false);
   });
 
   it("15. Verify Deletion of all created queries", () => {
