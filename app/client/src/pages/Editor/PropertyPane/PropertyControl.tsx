@@ -61,6 +61,7 @@ import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -162,7 +163,7 @@ const PropertyControl = memo((props: Props) => {
   const propertyValue = _.get(widgetProperties, props.propertyName);
 
   const experimentalJSToggle = useFeatureFlag(
-    "ab_one_click_learning_popover_enabled",
+    FEATURE_FLAG.ab_one_click_learning_popover_enabled,
   );
 
   /**
@@ -811,13 +812,11 @@ const PropertyControl = memo((props: Props) => {
               <Tooltip content={JSToggleTooltip} isDisabled={!JSToggleTooltip}>
                 <span>
                   <ToggleButton
-                    className={classNames(
-                      "t--js-toggle",
-                      {
-                        "is-active": isDynamic,
-                      },
-                      experimentalJSToggle && "!h-[20px]",
-                    )}
+                    className={classNames({
+                      "t--js-toggle": true,
+                      "is-active": isDynamic,
+                      "!h-[20px]": experimentalJSToggle,
+                    })}
                     icon="js-toggle-v2"
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
