@@ -34,9 +34,9 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
 import { addWidgetToSection } from "./sections/utils";
 import { moveWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 
 export function* getMainCanvasLastRowHighlight() {
   const mainCanvas: WidgetProps = yield select(

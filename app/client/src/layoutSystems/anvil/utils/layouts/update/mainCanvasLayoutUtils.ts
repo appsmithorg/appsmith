@@ -4,7 +4,7 @@ import type {
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
-import { getAffectedLayout } from "./additionUtils";
+import { addWidgetsToChildTemplate, getAffectedLayout } from "./additionUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { createSectionAndAddWidget } from "./sectionUtils";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
@@ -83,8 +83,10 @@ export function* addWidgetsToMainCanvasLayout(
       ...mainCanvasWidget,
       children: [...mainCanvasWidget.children, res.section.widgetId],
     };
-    mainCanvasLayout = Comp.addChild(
+
+    mainCanvasLayout = addWidgetsToChildTemplate(
       mainCanvasLayout,
+      LayoutFactory.get(mainCanvasLayout.layoutType),
       [
         {
           alignment: highlight.alignment,
@@ -149,8 +151,9 @@ function addSectionToMainCanvasLayout(
   /**
    * Step 2: Add section to mainCanvas layout.
    */
-  mainCanvasLayout = mainCanvasComp.addChild(
+  mainCanvasLayout = addWidgetsToChildTemplate(
     mainCanvasLayout,
+    LayoutFactory.get(mainCanvasLayout.layoutType),
     [section],
     highlight,
   );

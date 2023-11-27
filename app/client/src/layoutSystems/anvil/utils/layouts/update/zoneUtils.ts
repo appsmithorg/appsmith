@@ -17,6 +17,7 @@ import { select } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getRenderMode } from "selectors/editorSelectors";
+import { addWidgetsToChildTemplate } from "./additionUtils";
 
 export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,
@@ -167,43 +168,4 @@ function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
     else smallWidgets.push(widget);
   });
   return [smallWidgets, largeWidgets];
-}
-
-function addWidgetsToChildTemplate(
-  zoneLayout: LayoutProps,
-  zoneComp: typeof BaseLayoutComponent,
-  draggedWidgets: WidgetLayoutProps[],
-  highlight: AnvilHighlightInfo,
-): LayoutProps {
-  /**
-   * Get the child template from the zone component.
-   */
-  let template: LayoutProps | null | undefined = zoneComp.getChildTemplate(
-    zoneLayout,
-    draggedWidgets,
-  );
-
-  if (template) {
-    template = { ...template, layoutId: generateReactKey() };
-    /**
-     * There is a template.
-     * => use the template to create the child layout.
-     * => add widgets to the child layout.
-     * => add child layout to the zone layout.
-     */
-    const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
-      template.layoutType,
-    );
-    /**
-     * If template has insertChild === true, then add the widgets to the layout.
-     */
-    if (template.insertChild) {
-      template = Comp.addChild(template, draggedWidgets, highlight);
-      return zoneComp.addChild(zoneLayout, [template], highlight);
-    }
-  }
-  /**
-   * If no template is available, then add widgets directly to layout.
-   */
-  return zoneComp.addChild(zoneLayout, draggedWidgets, highlight);
 }

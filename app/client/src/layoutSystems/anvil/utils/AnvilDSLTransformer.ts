@@ -17,7 +17,7 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
     _dsl.layout = [
       {
         layoutId: generateReactKey(),
-        layoutType: LayoutComponentTypes.ALIGNED_WIDGET_COLUMN,
+        layoutType: LayoutComponentTypes.ALIGNED_LAYOUT_COLUMN,
         layout: [],
         layoutStyle: {
           border: "none",
@@ -27,7 +27,15 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
         },
         isDropTarget: true,
         isPermanent: true,
-        childTemplate: null,
+        childTemplate: {
+          insertChild: true,
+          isDropTarget: false,
+          isPermanent: false,
+          layout: [],
+          layoutId: "",
+          layoutType: LayoutComponentTypes.WIDGET_ROW,
+          maxChildLimit: 1,
+        },
       },
     ];
   }
