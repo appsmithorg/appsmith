@@ -1,5 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -53,7 +54,7 @@ describe("Git Bugs", function () {
   it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
     _.entityExplorer.AddNewPage();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT);
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON);
     _.propPane.EnterJSContext(
       "onClick",
@@ -63,13 +64,13 @@ describe("Git Bugs", function () {
     );
     _.propPane.ToggleJSMode("onClick", false);
     _.agHelper.Sleep(500);
-    _.entityExplorer.SelectEntityByName("Page2", "Pages");
-    _.entityExplorer.SelectEntityByName("Text1", "Widgets");
+    EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
       "{{appsmith.URL.queryParams.testQP}}",
     );
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     _.agHelper.ClickButton("Submit");
     _.agHelper.Sleep(500);
     _.agHelper

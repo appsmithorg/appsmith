@@ -960,18 +960,14 @@ Cypress.Commands.add("DeleteModal", () => {
 });
 
 Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
-  let pageId;
   cy.CreatePage();
   cy.wait("@createPage").then((xhr) => {
     expect(xhr.response.body.responseMeta.status).to.equal(201);
     if (pageName) {
-      pageId = xhr.response.body.data.id;
+      const pageId = xhr.response.body.data.id;
+      const oldPageName = xhr.response.body.data.name;
       cy.wait(2000);
-      cy.get(`div[id=entity-${pageId}] .t--context-menu`).click({
-        force: true,
-      });
-      cy.get(pages.editName).click({ force: true });
-      cy.get(pages.editInput).type(pageName + "{enter}");
+      ee.RenameEntityFromExplorer(oldPageName, pageName);
       cy.wrap(pageId).as("currentPageId");
     }
     cy.get("#loading").should("not.exist");
@@ -1147,21 +1143,14 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
-  if (widgetType === "List1Copy") {
-    cy.SearchEntityandOpen(widgetType);
-  } else {
-    const selector = `.t--draggable-${widgetType}`;
-    cy.get(selector).last().trigger("mouseover", { force: true }).wait(500);
-    cy.get(`${selector}:first-of-type`)
-      .first()
-      .click({ force: true })
-      .wait(500);
-    cy.get(".t--widget-propertypane-toggle > .t--widget-name")
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-  }
+  const selector = `.t--draggable-${widgetType}`;
+  cy.get(selector).last().trigger("mouseover", { force: true }).wait(500);
+  cy.get(`${selector}:first-of-type`).first().click({ force: true }).wait(500);
+  cy.get(".t--widget-propertypane-toggle > .t--widget-name")
+    .first()
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {

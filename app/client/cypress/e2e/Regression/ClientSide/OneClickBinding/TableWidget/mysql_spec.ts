@@ -8,6 +8,9 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 import { OneClickBinding } from "../spec_utility";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -21,7 +24,7 @@ describe.skip("Table widget one click binding feature", () => {
     cy.get("@dsName").then((dsName) => {
       entityExplorer.NavigateToSwitcher("Widgets");
 
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "configs", {
         searchableColumn: "configName",

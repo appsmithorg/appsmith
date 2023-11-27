@@ -23,7 +23,7 @@ import {
 } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 
 export function* getMainCanvasLastRowHighlight() {
   const mainCanvas: WidgetProps = yield select(

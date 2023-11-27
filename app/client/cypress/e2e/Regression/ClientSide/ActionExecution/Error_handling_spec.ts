@@ -1,13 +1,16 @@
 import {
   agHelper,
-  entityExplorer,
-  propPane,
-  deployMode,
   apiPage,
-  draggableWidgets,
   assertHelper,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
   locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
@@ -19,7 +22,7 @@ describe("Test Create Api and Bind to Button widget", function () {
   });
 
   it("1. Call the api with & without error handling", () => {
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "{{Api1.run()}}");
     deployMode.DeployApp();
     agHelper.Sleep(2000);
@@ -29,7 +32,7 @@ describe("Test Create Api and Bind to Button widget", function () {
     deployMode.NavigateBacktoEditor();
 
     //With Error handling
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "{{Api1.run(() => {}, () => {})}}");
     deployMode.DeployApp();
     agHelper.Sleep(2000);

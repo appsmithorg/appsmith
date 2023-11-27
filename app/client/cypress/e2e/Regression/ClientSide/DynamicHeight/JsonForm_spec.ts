@@ -5,12 +5,15 @@ import {
   propPane,
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for JsonForm", function () {
     agHelper.AddDsl("jsonFormDynamicHeightDsl");
 
-    entityExplorer.SelectEntityByName("JSONForm1", "Widgets");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     agHelper
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.JSONFORM))
       .then((initialFormheight: number) => {
