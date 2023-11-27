@@ -75,6 +75,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -705,7 +706,7 @@ public class PostgresPlugin extends BasePlugin {
                 HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
 
             final DatasourceStructure structure = new DatasourceStructure();
-            final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
+            final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>();
 
             return Mono.fromSupplier(() -> {
                         Connection connectionFromPool;
