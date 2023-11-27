@@ -57,6 +57,7 @@ import { importSvg } from "design-system-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -156,6 +157,10 @@ const PropertyControl = memo((props: Props) => {
   })();
 
   const propertyValue = _.get(widgetProperties, props.propertyName);
+
+  const experimentalJSToggle = useFeatureFlag(
+    "ab_one_click_learning_popover_enabled",
+  );
 
   /**
    * checks if property value is deviated or not.
@@ -800,9 +805,13 @@ const PropertyControl = memo((props: Props) => {
               >
                 <span>
                   <ToggleButton
-                    className={classNames("t--js-toggle", {
-                      "is-active": isDynamic,
-                    })}
+                    className={classNames(
+                      "t--js-toggle",
+                      {
+                        "is-active": isDynamic,
+                      },
+                      experimentalJSToggle && "!h-[20px]",
+                    )}
                     icon="js-toggle-v2"
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
@@ -816,7 +825,7 @@ const PropertyControl = memo((props: Props) => {
                         ),
                       )
                     }
-                    size="sm"
+                    size={experimentalJSToggle ? "md" : "sm"}
                   />
                 </span>
               </Tooltip>
