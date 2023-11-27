@@ -4,18 +4,10 @@ import { useSelector } from "react-redux";
 import { keyBy } from "lodash";
 import type { LogItemProps } from "../ErrorLogItem";
 import { Colors } from "constants/Colors";
-import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
-import {
-  ApiMethodIcon,
-  EntityIcon,
-  JsFileIconV2,
-} from "pages/Editor/Explorer/ExplorerIcons";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { PluginType } from "entities/Action";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import EntityLink from "../../EntityLink";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
+import { getIconForEntity } from "@appsmith/components/editorComponents/Debugger/ErrorLogs/getLogIconForEntity";
 import type { Plugin } from "api/PluginApi";
 
 const EntityLinkWrapper = styled.div`
@@ -39,40 +31,12 @@ const IconWrapper = styled.span`
 
 // This function is used to fetch the icon component for the entity link.
 const getIcon = (props: LogItemProps, pluginGroups: Record<string, Plugin>) => {
-  if (props.source) {
-    // If the source is a widget.
-    if (props.source.type === ENTITY_TYPE.WIDGET && props.source.pluginType) {
-      return (
-        <WidgetIcon height={16} type={props.source.pluginType} width={16} />
-      );
-    }
-    // If the source is a JS action.
-    else if (props.source.type === ENTITY_TYPE.JSACTION) {
-      return JsFileIconV2(16, 16, true, true);
-    } else if (props.source.type === ENTITY_TYPE.ACTION) {
-      // If the source is an API action.
-      if (
-        props.source.pluginType === PluginType.API &&
-        props.source.httpMethod
-      ) {
-        return ApiMethodIcon(props.source.httpMethod, "16px", "32px", 50);
-      }
-      // If the source is a Datasource action.
-      else if (props.iconId && pluginGroups[props.iconId]) {
-        return (
-          <EntityIcon height={"16px"} noBackground noBorder width={"16px"}>
-            <img
-              alt="entityIcon"
-              src={getAssetUrl(pluginGroups[props.iconId].iconLocation)}
-            />
-          </EntityIcon>
-        );
-      }
-    }
+  const entityType = props.source?.type;
+  let icon = null;
+  if (entityType) {
+    icon = getIconForEntity[entityType](props, pluginGroups);
   }
-  // If the source is not defined then return an empty icon.
-  // this case is highly unlikely to happen.
-  return <img alt="icon" src={undefined} />;
+  return icon || <img alt="icon" src={undefined} />;
 };
 
 // This component is used to render the entity link in the error logs.
