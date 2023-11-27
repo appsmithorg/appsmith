@@ -1,8 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-#cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-cypress/e2e/Regression/ServerSide/MySQL_Datatypes/Basic_Spec.ts
-cypress/e2e/Regression/ServerSide/Postgres_DataTypes/Array_Spec.ts
-cypress/e2e/Regression/ServerSide/Postgres_DataTypes/BooleanEnum_Spec.ts
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 
 
 # For running all specs - uncomment below:
