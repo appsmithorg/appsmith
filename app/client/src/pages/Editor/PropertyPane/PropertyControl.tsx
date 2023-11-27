@@ -808,7 +808,7 @@ const PropertyControl = memo((props: Props) => {
               tooltip={helpText}
             />
             {isConvertible && (
-              <Tooltip content={JSToggleTooltip}>
+              <Tooltip content={JSToggleTooltip} isDisabled={!JSToggleTooltip}>
                 <span>
                   <ToggleButton
                     className={classNames(
