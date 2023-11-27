@@ -87,7 +87,6 @@ function InputText(props: InputTextProp) {
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
-        positionCursorInsideBinding
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={theme}

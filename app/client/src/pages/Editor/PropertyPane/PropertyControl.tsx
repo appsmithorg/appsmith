@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import _, { get, isFunction, merge } from "lodash";
 import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
@@ -216,6 +216,8 @@ const PropertyControl = memo((props: Props) => {
       ) {
         shouldRejectDynamicBindingPathList = false;
       }
+
+      setSwitchedToDynamic(!isDynamic);
 
       dispatch(
         setWidgetDynamicProperty(
@@ -607,6 +609,15 @@ const PropertyControl = memo((props: Props) => {
 
   const { propertyName } = props;
 
+  const isDynamic: boolean = widgetProperties?.isPropertyDynamicPath;
+
+  /**
+   * Position cursor inside binding when switched to JS mode
+   * Check to see if a toggle operation was made.
+   */
+  const [switchedToDynamic, setSwitchedToDynamic] = useState(false);
+  const shouldFocusOnJSControl = switchedToDynamic;
+
   if (widgetProperties) {
     // Do not render the control if it needs to be hidden
     if (
@@ -655,6 +666,10 @@ const PropertyControl = memo((props: Props) => {
       additionalDynamicData: {},
       label,
     };
+    config.additionalControlData = {
+      ...config.additionalControlData,
+      shouldFocusOnJSControl,
+    };
     config.expected = getExpectedValue(props.validation);
     if (widgetProperties.isPropertyDynamicTrigger) {
       config.validationMessage = "";
@@ -666,7 +681,6 @@ const PropertyControl = memo((props: Props) => {
       delete config.evaluatedValue;
     }
 
-    const isDynamic: boolean = widgetProperties.isPropertyDynamicPath;
     const isConvertible = !!props.isJSConvertible;
     const className = label.split(" ").join("").toLowerCase();
 
@@ -812,8 +826,7 @@ const PropertyControl = memo((props: Props) => {
                     icon="js-toggle-v2"
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
-                    kind="tertiary"
-                    onClick={() =>
+                    onClick={() => {
                       toggleDynamicProperty(
                         propertyName,
                         isDynamic,
@@ -821,9 +834,9 @@ const PropertyControl = memo((props: Props) => {
                           config,
                           propertyValue,
                         ),
-                      )
-                    }
-                    size="md"
+                      );
+                    }}
+                    size="sm"
                   />
                 </span>
               </Tooltip>

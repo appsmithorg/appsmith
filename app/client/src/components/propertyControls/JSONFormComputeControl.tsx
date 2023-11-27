@@ -122,6 +122,7 @@ export function InputText(props: {
   dataTreePath?: string;
   additionalDynamicData: Record<string, Record<string, any>>;
   theme: EditorTheme;
+  additionalControlData?: Record<string, unknown>;
 }) {
   const {
     additionalDynamicData,
@@ -133,6 +134,7 @@ export function InputText(props: {
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -152,7 +154,6 @@ export function InputText(props: {
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
-        positionCursorInsideBinding
         promptMessage={
           <PromptMessage>
             Access the current form using{" "}

@@ -33,8 +33,10 @@ export function InputText(props: {
   hideEvaluatedValue?: boolean;
   enableAI?: boolean;
   isEditorHidden?: boolean;
+  additionalControlData?: Record<string, unknown>;
 }) {
   const {
+    additionalControlData,
     dataTreePath,
     enableAI = true,
     evaluatedValue,
@@ -48,6 +50,9 @@ export function InputText(props: {
     placeholder,
     value,
   } = props;
+
+  const positionCursorInsideBinding =
+    !!additionalControlData?.shouldFocusOnJSControl;
 
   return (
     <StyledDynamicInput>
@@ -75,7 +80,7 @@ export function InputText(props: {
         onEditorBlur={onBlur}
         onEditorFocus={onFocus}
         placeholder={placeholder}
-        positionCursorInsideBinding
+        positionCursorInsideBinding={positionCursorInsideBinding}
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={props.theme || EditorTheme.LIGHT}
@@ -91,6 +96,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
   render() {
     const {
       additionalAutoComplete,
+      additionalControlData,
       dataTreePath,
       defaultValue,
       expected,
@@ -108,6 +114,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     return (
       <InputText
         additionalAutocomplete={additionalAutoComplete}
+        additionalControlData={additionalControlData}
         dataTreePath={dataTreePath}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
