@@ -39,6 +39,7 @@ export function* createSectionAndAddWidget(
     bottomRow: 10,
     children: [],
     isLoading: false,
+    isVisible: true,
     leftColumn: 0,
     parentColumnSpace: 1,
     parentId,
