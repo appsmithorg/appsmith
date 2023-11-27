@@ -8,6 +8,9 @@ const {
   entityExplorer,
   propPane,
 } = require("../../../../support/Objects/ObjectsCore");
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -176,8 +179,7 @@ describe("Undo/Redo functionality", function () {
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(219, 234, 254)");
     cy.get("body").click({ force: true }).type(`{${modifierKey}}z`);
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.MoveToTab("Style");
     cy.get(widgetsPage.textColor)
       .first()
@@ -185,8 +187,7 @@ describe("Undo/Redo functionality", function () {
       .should("contain", "#231F20");
 
     cy.get("body").type(`{${modifierKey}}{shift}z`);
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.MoveToTab("Style");
     cy.get(widgetsPage.textColor)
       .first()
@@ -205,16 +206,14 @@ describe("Undo/Redo functionality", function () {
     cy.wait(200);
 
     cy.get("body").type(`{${modifierKey}}z`);
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.SelectEntityByName("RadioGroup1");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     cy.get(widgetsPage.RadioInput)
       .first()
       .invoke("attr", "value")
       .should("contain", "Yes");
 
     cy.get("body").type(`{${modifierKey}}{shift}z`);
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.SelectEntityByName("RadioGroup1");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     cy.get(widgetsPage.RadioInput)
       .first()
       .invoke("attr", "value")

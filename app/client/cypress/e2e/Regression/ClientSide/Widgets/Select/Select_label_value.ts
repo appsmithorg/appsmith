@@ -5,6 +5,9 @@ import {
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Select Widget Functionality", function () {
   it("Validate select widget data - source data , label key , value key, default selected value ", () => {
@@ -90,7 +93,7 @@ describe("Select Widget Functionality", function () {
       agHelper.AssertText(locators._textInside, "text", d.text);
     });
 
-    entityExplorer.SelectEntityByName("Select1");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
     propPane.SelectPropertiesDropDown("label", "test2");
 

@@ -6,6 +6,9 @@ import {
   dataManager,
   assertHelper,
 } from "../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("JSEditor tests", function () {
@@ -54,7 +57,7 @@ describe("JSEditor tests", function () {
         shouldCreateNewJSObj: true,
       },
     );
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(2000);
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
@@ -92,7 +95,7 @@ describe("JSEditor tests", function () {
     cy.wait(1000);
 
     // hit audio play button and trigger actions
-    entityExplorer.SelectEntityByName("Audio1", "Widgets");
+    EditorNavigation.SelectEntityByName("Audio1", EntityType.Widget);
     agHelper.GetElement("audio").then(($audio) => {
       $audio[0].play();
     });
@@ -113,10 +116,10 @@ describe("JSEditor tests", function () {
   });
 
   it("2. Testing dynamic widgets display using consecutive storeValue calls", () => {
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.SelectFunctionDropdown("clearStore");
     jsEditor.RunJSObj();
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.xpath("//span[text()='Clear store']").click({ force: true });
     cy.get(".t--draggable-textwidget span")
       .eq(5)

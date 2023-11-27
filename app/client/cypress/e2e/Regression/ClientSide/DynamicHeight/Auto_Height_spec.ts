@@ -1,11 +1,13 @@
 import {
-  entityExplorer,
-  locators,
   agHelper,
-  propPane,
   assertHelper,
   draggableWidgets,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Dynamic Height Width validation", function () {
   afterEach(() => {
@@ -19,8 +21,12 @@ describe("Dynamic Height Width validation", function () {
   it("1. Validate change with auto height width for widgets", function () {
     agHelper.AddDsl("dynamicHeightContainerCheckboxdsl");
 
-    entityExplorer.SelectEntityByName("Container1", "Widgets");
-    entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
+    EditorNavigation.SelectEntityByName(
+      "CheckboxGroup1",
+      EntityType.Widget,
+      {},
+      ["Container1"],
+    );
     propPane.MoveToTab("Style");
     agHelper
       .GetWidgetCSSFrAttribute(
@@ -115,10 +121,15 @@ describe("Dynamic Height Width validation", function () {
   it("2. Validate container with auto height and child widgets with fixed height", function () {
     agHelper.AddDsl("dynamicHeigthContainerFixedDsl");
 
-    entityExplorer.SelectEntityByName("CheckboxGroup1", "Container1");
+    EditorNavigation.SelectEntityByName(
+      "CheckboxGroup1",
+      EntityType.Widget,
+      {},
+      ["Container1"],
+    );
     agHelper.AssertElementVisibility(propPane._propertyPaneHeightLabel);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     agHelper.AssertElementVisibility(propPane._propertyPaneHeightLabel);
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     agHelper
@@ -126,7 +137,7 @@ describe("Dynamic Height Width validation", function () {
         locators._widgetInDeployed(draggableWidgets.CONTAINER),
       )
       .then((currentHeight: number) => {
-        entityExplorer.SelectEntityByName("Container1", "Widgets");
+        EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
         propPane.SelectPropertiesDropDown("height", "Auto Height");
         agHelper.Sleep(4000);
         agHelper

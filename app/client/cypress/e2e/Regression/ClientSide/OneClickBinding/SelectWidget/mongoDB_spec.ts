@@ -12,6 +12,7 @@ import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
@@ -29,7 +30,7 @@ describe("Table widget one click binding feature", () => {
       EditorNavigation.ViaSidebar(SidebarButton.Pages);
       entityExplorer.NavigateToSwitcher("Widgets");
 
-      entityExplorer.SelectEntityByName("Select1", "Widgets");
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
         label: "name",

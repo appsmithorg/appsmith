@@ -1,14 +1,13 @@
-import {
-  entityExplorer,
-  agHelper,
-  propPane,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, propPane } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Dynamic Height Width validation with limits", function () {
   it("1. Validate change in auto height with limits width for widgets and highlight section validation", function () {
     agHelper.AddDsl("dynamicHeightContainerdsl");
 
-    entityExplorer.SelectEntityByName("Container1");
+    EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("height", "Auto Height with limits");
     agHelper.HoverElement(propPane._autoHeightLimitMin);
     agHelper.AssertContains("Min-Height: 10 rows");

@@ -1,14 +1,17 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  draggableWidgets,
-  deployMode,
   apiPage,
   dataManager,
+  deployMode,
+  draggableWidgets,
+  locators,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const dsl = require("../../../../../fixtures/Listv2/ListV2_Reset_dsl.json");
 
 const items = dsl.dsl.children[4]?.listData;
@@ -45,7 +48,7 @@ function setUpDataSource() {
     dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl + "0",
   );
   apiPage.RunAPI(false);
-  entityExplorer.SelectEntityByName("List1");
+  EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
   agHelper.Sleep(200);
 }
 
@@ -76,7 +79,7 @@ describe("List widget v2 defaultSelectedItem", () => {
       });
 
     //Change Default Selected Item
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     propPane.UpdatePropertyFieldValue("Default selected item", "001");
 
@@ -114,7 +117,7 @@ describe("List widget v2 defaultSelectedItem", () => {
     );
 
     //Change Default Selected Item
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     propPane.UpdatePropertyFieldValue("Items", "{{Api1.data}}");
     propPane.UpdatePropertyFieldValue("Default selected item", "4");
@@ -159,7 +162,7 @@ describe("List widget v2 defaultSelectedItem", () => {
 
 describe("List widget v2 Reset List widget and Refresh Data", () => {
   it("1. Setup List Widget", () => {
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Default selected item",
       "4",
