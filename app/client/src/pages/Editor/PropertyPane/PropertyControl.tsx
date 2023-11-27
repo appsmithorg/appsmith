@@ -786,17 +786,6 @@ const PropertyControl = memo((props: Props) => {
       }
     }
 
-    const handleToggleDynamicProperty = () => {
-      toggleDynamicProperty(
-        propertyName,
-        isDynamic,
-        controlMethods?.shouldValidateValueOnDynamicPropertyOff(
-          config,
-          propertyValue,
-        ),
-      );
-    };
-
     try {
       return (
         <ControlWrapper
@@ -831,7 +820,16 @@ const PropertyControl = memo((props: Props) => {
                     icon="js-toggle-v2"
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
-                    onClick={handleToggleDynamicProperty}
+                    onClick={() => {
+                      toggleDynamicProperty(
+                        propertyName,
+                        isDynamic,
+                        controlMethods?.shouldValidateValueOnDynamicPropertyOff(
+                          config,
+                          propertyValue,
+                        ),
+                      );
+                    }}
                     size="sm"
                   />
                 </span>
@@ -876,7 +874,6 @@ const PropertyControl = memo((props: Props) => {
               onBatchUpdateWithAssociatedUpdates:
                 onBatchUpdateWithAssociatedWidgetUpdates,
               theme: props.theme,
-              toggleDynamicProperty: handleToggleDynamicProperty,
             },
             isDynamic,
             customJSControl,

@@ -21,15 +21,6 @@ import {
 } from "@appsmith/constants/messages";
 
 import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { getCurrentUser } from "selectors/usersSelectors";
-import {
-  getFeatureWalkthroughShown,
-  isUserSignedUpFlagSet,
-  setFeatureWalkthroughShown,
-} from "utils/storage";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import type { User } from "constants/userConstants";
 
 interface WidgetQueryGeneratorFormContextType {
   widgetId: string;
@@ -109,7 +100,6 @@ interface Props {
   propertyPath: string;
   propertyValue: string;
   onUpdate: (snippet?: string, makeDynamicPropertyPath?: boolean) => void;
-  toggleDynamicProperty?: () => void;
   widgetId: string;
   errorMsg: string;
   expectedType: string;
@@ -231,34 +221,11 @@ function WidgetQueryGeneratorForm(props: Props) {
     );
   };
 
-  const isFeatureEnabled = useFeatureFlag(
-    "ab_one_click_learning_popover_enabled",
-  );
-  const user = useSelector(getCurrentUser) as User;
-
-  const toggleDynamicProperty = useCallback(async () => {
-    if ((window as any).Cypress) return;
-    if (!isFeatureEnabled) return;
-    const isFeatureWalkthroughShown = await getFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.customize_one_click_data,
-    );
-    if (isFeatureWalkthroughShown) return;
-    const isSignUpFlagSet = await isUserSignedUpFlagSet(user.email);
-    const isNewUser = user && isSignUpFlagSet;
-    if (!isNewUser) return;
-    await setFeatureWalkthroughShown(
-      FEATURE_WALKTHROUGH_KEYS.customize_one_click_data,
-      true,
-    );
-    props.toggleDynamicProperty?.();
-  }, [props.toggleDynamicProperty, isFeatureEnabled, user]);
-
   const addBinding = useCallback(
-    async (binding?: string, makeDynamicPropertyPath?: boolean) => {
+    (binding?: string, makeDynamicPropertyPath?: boolean) => {
       onUpdate(binding, makeDynamicPropertyPath);
-      if (!makeDynamicPropertyPath) toggleDynamicProperty();
     },
-    [onUpdate, toggleDynamicProperty],
+    [onUpdate],
   );
 
   const contextValue = useMemo(() => {
@@ -307,9 +274,8 @@ function WidgetQueryGeneratorForm(props: Props) {
   useEffect(() => {
     if (!pristine && propertyValue && !isConnecting) {
       updateConfig("datasource", "");
-      toggleDynamicProperty();
     }
-  }, [isConnecting, toggleDynamicProperty]);
+  }, [isConnecting]);
 
   return (
     <Wrapper>
