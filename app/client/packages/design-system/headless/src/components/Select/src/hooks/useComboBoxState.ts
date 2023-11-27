@@ -9,7 +9,11 @@ import type { ComboBoxProps, MenuTriggerAction } from "@react-types/combobox";
 import type { FormValidationState } from "@react-stately/form";
 import { useFormValidationState } from "@react-stately/form";
 import { getChildNodes } from "@react-stately/collections";
-import { ListCollection, useSingleSelectListState } from "@react-stately/list";
+import {
+  ListCollection,
+  useListState,
+  useSingleSelectListState,
+} from "@react-stately/list";
 import type { SelectState } from "@react-stately/select";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useControlledState } from "@react-stately/utils";
@@ -31,6 +35,7 @@ export interface ComboBoxState<T> extends SelectState<T>, FormValidationState {
   ): void;
   /** Resets the input value to the previously selected item's text if any and closes the menu.  */
   revert(): void;
+  selectedKeys: any;
 }
 
 type FilterFn = (textValue: string, inputValue: string) => boolean;
@@ -44,6 +49,7 @@ export interface ComboBoxStateOptions<T>
   allowsEmptyCollection?: boolean;
   /** Whether the combo box menu should close on blur. */
   shouldCloseOnBlur?: boolean;
+  isMultiple?: Boolean;
 }
 
 /**
@@ -60,6 +66,7 @@ export function useComboBoxState<T extends object>(
     defaultFilter,
     menuTrigger = "input",
     shouldCloseOnBlur = true,
+    isMultiple = false,
   } = props;
 
   const [showAllItems, setShowAllItems] = useState(false);
@@ -72,28 +79,39 @@ export function useComboBoxState<T extends object>(
 
     // If key is the same, reset the inputValue and close the menu
     // (scenario: user clicks on already selected option)
-    if (key === selectedKey) {
+    if (!isMultiple && key === selectedKey) {
       resetInputValue();
       closeMenu();
     }
   };
 
-  const {
-    collection,
-    disabledKeys,
-    selectedItem,
-    selectedKey,
-    selectionManager,
-    setSelectedKey,
-  } = useSingleSelectListState({
+  // const {
+  //   collection,
+  //   disabledKeys,
+  //   selectedItem,
+  //   selectedKey,
+  //   selectionManager,
+  //   setSelectedKey,
+  // } = useSingleSelectListState({
+  //   ...props,
+  //   onSelectionChange,
+  //   items: props.items ?? props.defaultItems,
+  // });
+
+  const { collection, disabledKeys, selectionManager } = useListState({
     ...props,
+    selectionBehavior: "toggle",
+    selectionMode: "multiple",
     onSelectionChange,
     items: props.items ?? props.defaultItems,
   });
 
+  // console.log(selectionManager.selectedKeys);
+
   const [inputValue, setInputValue] = useControlledState(
     props.inputValue,
-    props.defaultInputValue ?? collection.getItem(selectedKey)?.textValue ?? "",
+    // props.defaultInputValue ?? collection.getItem(selectedKey)?.textValue ?? "",
+    "",
     props.onInputChange,
   );
 
@@ -208,7 +226,8 @@ export function useComboBoxState<T extends object>(
 
   const [lastValue, setLastValue] = useState(inputValue);
   const resetInputValue = () => {
-    const itemText = collection.getItem(selectedKey)?.textValue ?? "";
+    // const itemText = collection.getItem(selectedKey)?.textValue ?? "";
+    const itemText = "";
     setLastValue(itemText);
     setInputValue(itemText);
   };
@@ -216,9 +235,10 @@ export function useComboBoxState<T extends object>(
   const lastSelectedKey = useRef(
     props.selectedKey ?? props.defaultSelectedKey ?? null,
   );
-  const lastSelectedKeyText = useRef(
-    collection.getItem(selectedKey)?.textValue ?? "",
-  );
+  // const lastSelectedKeyText = useRef(
+  //   collection.getItem(selectedKey)?.textValue ?? "",
+  // );
+
   // intentional omit dependency array, want this to happen on every render
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -246,7 +266,11 @@ export function useComboBoxState<T extends object>(
     }
 
     // Close when an item is selected.
-    if (selectedKey != null && selectedKey !== lastSelectedKey.current) {
+    if (
+      !isMultiple &&
+      selectedKey != null &&
+      selectedKey !== lastSelectedKey.current
+    ) {
       closeMenu();
     }
 
@@ -258,6 +282,7 @@ export function useComboBoxState<T extends object>(
       // Set selectedKey to null when the user clears the input.
       // If controlled, this is the application developer's responsibility.
       if (
+        !isMultiple &&
         inputValue === "" &&
         (props.inputValue === undefined || props.selectedKey === undefined)
       ) {
@@ -269,11 +294,12 @@ export function useComboBoxState<T extends object>(
     // Do nothing if both inputValue and selectedKey are controlled.
     // In this case, it's the user's responsibility to update inputValue in onSelectionChange.
     if (
+      !isMultiple &&
       selectedKey !== lastSelectedKey.current &&
       (props.inputValue === undefined || props.selectedKey === undefined)
     ) {
       resetInputValue();
-    } else if (lastValue !== inputValue) {
+    } else if (!isMultiple && lastValue !== inputValue) {
       setLastValue(inputValue);
     }
 
@@ -281,29 +307,37 @@ export function useComboBoxState<T extends object>(
     // This is to handle cases where a selectedKey is specified but the items aren't available (async loading) or the selected item's text value updates.
     // Only reset if the user isn't currently within the field so we don't erroneously modify user input.
     // If inputValue is controlled, it is the user's responsibility to update the inputValue when items change.
-    const selectedItemText = collection.getItem(selectedKey)?.textValue ?? "";
-    if (
-      !isFocused &&
-      selectedKey != null &&
-      props.inputValue === undefined &&
-      selectedKey === lastSelectedKey.current
-    ) {
-      if (lastSelectedKeyText.current !== selectedItemText) {
-        setLastValue(selectedItemText);
-        setInputValue(selectedItemText);
-      }
-    }
+    // const selectedItemText = collection.getItem(selectedKey)?.textValue ?? "";
+    // if (
+    //   !isMultiple &&
+    //   !isFocused &&
+    //   selectedKey != null &&
+    //   props.inputValue === undefined &&
+    //   selectedKey === lastSelectedKey.current
+    // ) {
+    //   if (lastSelectedKeyText.current !== selectedItemText) {
+    //     setLastValue(selectedItemText);
+    //     setInputValue(selectedItemText);
+    //   }
+    // }
 
-    lastSelectedKey.current = selectedKey;
-    lastSelectedKeyText.current = selectedItemText;
+    // ???
+    // lastSelectedKey.current = selectedKey;
+    // lastSelectedKeyText.current = selectedItemText;
   });
+
+  // ???
+  // const validation = useFormValidationState({
+  //   ...props,
+  //   value: useMemo(
+  //     () => ({ inputValue, selectedKey }),
+  //     [inputValue, selectedKey],
+  //   ),
+  // });
 
   const validation = useFormValidationState({
     ...props,
-    value: useMemo(
-      () => ({ inputValue, selectedKey }),
-      [inputValue, selectedKey],
-    ),
+    value: useMemo(() => ({ inputValue, selectedKey: "" }), [inputValue, ""]),
   });
 
   // Revert input value and close menu
@@ -324,10 +358,11 @@ export function useComboBoxState<T extends object>(
   const commitSelection = () => {
     // If multiple things are controlled, call onSelectionChange
     if (props.selectedKey !== undefined && props.inputValue !== undefined) {
-      props.onSelectionChange(selectedKey);
+      // props.onSelectionChange(selectedKey);
 
       // Stop menu from reopening from useEffect
-      const itemText = collection.getItem(selectedKey)?.textValue ?? "";
+      // const itemText = collection.getItem(selectedKey)?.textValue ?? "";
+      const itemText = "";
       setLastValue(itemText);
       closeMenu();
     } else {
@@ -406,12 +441,13 @@ export function useComboBoxState<T extends object>(
     open,
     close: commitValue,
     selectionManager,
-    selectedKey,
-    setSelectedKey,
+    selectedKeys: selectionManager.state.selectedKeys,
+    // selectedKey,
+    // setSelectedKey,
     disabledKeys,
     isFocused,
     setFocused,
-    selectedItem,
+    // selectedItem,
     collection: displayedCollection,
     inputValue,
     setInputValue,

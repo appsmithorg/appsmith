@@ -72,34 +72,35 @@ export const AutocompleteBase = (props: any) => {
 
   // Specify how each of the ComboBox values should change when the input
   // field is altered by the user
-  const onInputChange = (value) => {
-    setFieldState((prevState) => ({
-      inputValue: value,
-      selectedKey: value === "" ? null : prevState.selectedKey,
-      items: props.defaultItems.filter((item) => startsWith(item.name, value)),
-    }));
-  };
+  // const onInputChange = (value) => {
+  //   setFieldState((prevState) => ({
+  //     inputValue: value,
+  //     selectedKey: value === "" ? null : prevState.selectedKey,
+  //     items: props.defaultItems.filter((item) => startsWith(item.name, value)),
+  //   }));
+  // };
 
   // Show entire list if user opens the menu manually
-  const onOpenChange = (isOpen, menuTrigger) => {
-    if (menuTrigger === "manual" && isOpen) {
-      setFieldState((prevState) => ({
-        inputValue: prevState.inputValue,
-        selectedKey: prevState.selectedKey,
-        items: props.defaultItems,
-      }));
-    }
-  };
+  // const onOpenChange = (isOpen, menuTrigger) => {
+  //   if (menuTrigger === "manual" && isOpen) {
+  //     setFieldState((prevState) => ({
+  //       inputValue: prevState.inputValue,
+  //       selectedKey: prevState.selectedKey,
+  //       items: props.defaultItems,
+  //     }));
+  //   }
+  // };
 
   // Implement custom filtering logic and control what items are
   // available to the ComboBox.
   const { startsWith } = useFilter({ sensitivity: "base" });
   const state = useComboBoxState({
     ...props,
+    isMultiple: true,
     defaultFilter: startsWith,
     onSelectionChange,
-    onInputChange,
-    onOpenChange,
+    // onInputChange,
+    // onOpenChange,
     items: fieldState.items,
     selectedKey: fieldState.selectedKey,
     inputValue: fieldState.inputValue,
@@ -155,6 +156,12 @@ export const AutocompleteBase = (props: any) => {
 
   return (
     <div ref={refs.setReference} {...getReferenceProps()}>
+      {[...state.collection].map(
+        (item) =>
+          state.selectionManager.isSelected(item.key) && (
+            <div>{item.rendered}</div>
+          ),
+      )}
       <label {...labelProps}>{props.label}</label>
       <input {...inputProps} ref={inputRef} />
       <Button {...buttonProps} ref={buttonRef}>
