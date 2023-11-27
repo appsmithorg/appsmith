@@ -3,6 +3,10 @@ import styled from "styled-components";
 import { Flex, Text } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import {
+  createMessage,
+  DATASOURCE_SECURELY_TITLE,
+} from "@appsmith/constants/messages";
 
 const Wrapper = styled(Flex)`
   background: var(--ads-v2-color-blue-100);
@@ -15,12 +19,12 @@ function AddDatasourceSecurely() {
   return (
     <Wrapper>
       <img
-        alt="Secure & fast connection"
+        alt={createMessage(DATASOURCE_SECURELY_TITLE)}
         src={getAssetUrl(`${ASSETS_CDN_URL}/secure-lock.svg`)}
       />
       <Flex flexDirection="column" ml="spaces-4">
         <Text color="var(--ads-v2-color-gray-700)" kind="heading-m">
-          Secure & fast connection
+          {createMessage(DATASOURCE_SECURELY_TITLE)}
         </Text>
         <Text color="var(--ads-v2-color-gray-600)" kind="body-m">
           Connect a datasource to start building workflows. Your passwords are{" "}
