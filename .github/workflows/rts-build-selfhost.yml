@@ -127,6 +127,9 @@ jobs:
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
           echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
