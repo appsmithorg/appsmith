@@ -53,6 +53,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
 import localStorage from "utils/localStorage";
+import { fetchMockDatasources } from "actions/datasourceActions";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -224,6 +225,7 @@ const CreateNewAppsOption = ({
       // fetch plugins information to show list of all plugins
       if (isEnabledForStartWithData) {
         dispatch(fetchPlugins());
+        dispatch(fetchMockDatasources());
         setUseType(START_WITH_TYPE.DATA);
       }
     } else {
@@ -448,17 +450,9 @@ const CreateNewAppsOption = ({
               title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
             />
             <WithDataWrapper>
-              <CreateNewDatasourceTab />
+              <CreateNewDatasourceTab isOnboarding />
             </WithDataWrapper>
           </Flex>
-        )
-      ) : useType === START_WITH_TYPE.DATA ? (
-        createNewAppPluginId ? (
-          <div>{createNewAppPluginId}</div>
-        ) : (
-          <WithDataWrapper>
-            <CreateNewDatasourceTab />
-          </WithDataWrapper>
         )
       ) : (
         <OptionWrapper>

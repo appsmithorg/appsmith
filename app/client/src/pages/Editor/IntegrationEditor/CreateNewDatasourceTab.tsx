@@ -205,6 +205,7 @@ interface CreateNewDatasourceScreenProps {
   isAppSidebarEnabled: boolean;
   isEnabledForStartWithData: boolean;
   currentApplicationIdForCreateNewApp?: string;
+  isOnboarding?: boolean;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -258,12 +259,14 @@ class CreateNewDatasourceTab extends React.Component<
           !this.props.currentApplicationIdForCreateNewApp && (
             <AddDatasourceSecurely />
           )}
-        {dataSources.length === 0 && this.props.mockDatasources.length > 0 && (
-          <>
-            {mockDataSection}
-            <StyledDivider />
-          </>
-        )}
+        {dataSources.length === 0 &&
+          this.props.mockDatasources.length > 0 &&
+          !this.props.isOnboarding && (
+            <>
+              {mockDataSection}
+              <StyledDivider />
+            </>
+          )}
         {isEnabledForStartWithData && (
           <>
             <CreateNewDatasource
@@ -304,12 +307,13 @@ class CreateNewDatasourceTab extends React.Component<
           pageId={pageId}
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
-        {dataSources.length > 0 && this.props.mockDatasources.length > 0 && (
-          <StyledDivider />
-        )}
-        {dataSources.length > 0 &&
-          this.props.mockDatasources.length > 0 &&
-          mockDataSection}
+        {(this.props.isOnboarding || dataSources.length > 0) &&
+          this.props.mockDatasources.length > 0 && (
+            <>
+              <StyledDivider />
+              {mockDataSection}
+            </>
+          )}
       </NewIntegrationsContainer>
     );
   }
