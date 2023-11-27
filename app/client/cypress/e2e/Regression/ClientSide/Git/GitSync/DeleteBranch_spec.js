@@ -1,12 +1,14 @@
-import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
 import {
   agHelper,
-  entityExplorer,
   homePage,
   gitSync,
 } from "../../../../../support/Objects/ObjectsCore";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
 
 let repoName, branchName;
 describe("Delete branch flow", () => {
@@ -50,7 +52,7 @@ describe("Delete branch flow", () => {
     cy.switchGitBranch("master");
     gitSync.CreateGitBranch("", true);
     cy.wait(1000);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
     cy.get(".t--draggable-checkboxwidget").should("exist");
     cy.wait(2000);
@@ -74,7 +76,7 @@ describe("Delete branch flow", () => {
   it("3. Create new branch, commit data in that branch , delete the branch, verify data should not reflect in master ", () => {
     gitSync.CreateGitBranch("", true);
     cy.wait(1000);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
     cy.get(".t--widget-chartwidget").should("exist");
     cy.wait(2000);

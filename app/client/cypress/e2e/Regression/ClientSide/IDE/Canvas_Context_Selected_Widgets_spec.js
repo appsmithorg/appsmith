@@ -1,5 +1,7 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const dsl = require("../../../../fixtures/editorContextdsl.json");
@@ -17,7 +19,7 @@ describe("Canvas context widget selection", function () {
     EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     cy.CreateAPI(api1);
     _.agHelper.Sleep(2000); // adding wait for page to load
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
   });
 
   beforeEach(() => {

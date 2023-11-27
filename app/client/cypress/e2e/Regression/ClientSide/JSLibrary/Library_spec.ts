@@ -3,6 +3,8 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
   AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "Tests JS Libraries", () => {
@@ -17,7 +19,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("2. Installs the library against a unique namespace when there is a collision with the existing entity", () => {
     AppSidebar.navigate(AppSidebarButton.Pages);
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
     AppSidebar.navigate(AppSidebarButton.Libraries);
     _.installer.OpenInstaller();

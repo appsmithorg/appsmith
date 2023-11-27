@@ -1,5 +1,10 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-import { AppSidebar, AppSidebarButton } from "./EditorNavigation";
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
+} from "./EditorNavigation";
 
 type RightPaneTabs = "datasources" | "connections";
 
@@ -91,6 +96,7 @@ export class ApiPage {
     else {
       AppSidebar.navigate(AppSidebarButton.Pages);
       this.agHelper.RemoveUIElement("EvaluatedPopUp");
+      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
       this.agHelper.GetHoverNClick(this.locator._createNew);
       this.agHelper.GetNClick(this._blankAPI, 0, true);
       this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");

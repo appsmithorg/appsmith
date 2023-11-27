@@ -29,8 +29,6 @@ describe("Array Datatype tests", function () {
       dsName = $dsName;
     });
     agHelper.AddDsl("Datatypes/ArrayDTdsl");
-    AppSidebar.navigate(AppSidebarButton.Pages);
-    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(-31, -27);
   });
 

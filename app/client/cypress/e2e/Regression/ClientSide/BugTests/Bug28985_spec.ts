@@ -17,7 +17,6 @@ describe("Api execution results test cases", () => {
     entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
     entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 400, 400);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
     // Create a new API
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,

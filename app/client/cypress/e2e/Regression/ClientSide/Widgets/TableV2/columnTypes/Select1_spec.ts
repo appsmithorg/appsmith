@@ -1,3 +1,8 @@
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
@@ -328,7 +333,7 @@ describe("Table widget - Select column type functionality", () => {
     cy.wait("@saveAction");
     cy.get(".t--run-query").click();
     cy.wait("@postExecute");
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
     cy.get(".t--property-control-serversidefiltering input").click();

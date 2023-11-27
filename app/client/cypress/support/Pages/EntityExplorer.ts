@@ -4,6 +4,8 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
+  PagePaneSegment,
 } from "./EditorNavigation";
 
 type templateActions =
@@ -79,8 +81,6 @@ export class EntityExplorer {
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
   private _newPageOptions = (option: string) =>
     `//span[text()='${option}']/parent::div`;
-  _openNavigationTab = (tabToOpen: string) =>
-    "//span[text()='" + tabToOpen + "']/ancestor::div";
   private _overlaySearch = "[data-testId='t--search-file-operation']";
   _allQueriesforDB = (dbName: string) =>
     "//span[text()='" +
@@ -98,7 +98,7 @@ export class EntityExplorer {
     section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
     ctrlKey = false,
   ) {
-    this.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     this.ExpandCollapseEntity(modalNameinEE);
     cy.xpath(this._modalTextWidget(modalNameinEE))
@@ -124,25 +124,6 @@ export class EntityExplorer {
     }
   }
 
-  public NavigateToSwitcher(
-    navigationTab: "Explorer" | "Widgets",
-    index = 0,
-    force = false,
-  ) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
-    this.agHelper
-      .GetAttribute(this._openNavigationTab(navigationTab), "data-selected")
-      .then(($value) => {
-        if ($value === "true") return;
-        else
-          this.agHelper.GetNClick(
-            this._openNavigationTab(navigationTab),
-            index,
-            force,
-          );
-      });
-  }
-
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
     AppSidebar.navigate(AppSidebarButton.Pages);
     this.agHelper.AssertElementLength(
@@ -160,6 +141,7 @@ export class EntityExplorer {
 
   public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
     AppSidebar.navigate(AppSidebarButton.Pages);
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     this.agHelper.AssertElementVisibility(
       this._expandCollapseArrow(entityName),
       true,
@@ -269,7 +251,7 @@ export class EntityExplorer {
   }
 
   public SearchWidgetPane(widgetType: string) {
-    this.NavigateToSwitcher("Widgets", 0, true);
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     this.agHelper.Sleep();
     this.agHelper.ClearTextField(this.locator._entityExplorersearch);
     this.agHelper.TypeText(
@@ -327,6 +309,7 @@ export class EntityExplorer {
     dropTargetId = "",
     skipWidgetSearch = false,
   ) {
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     this.DragNDropWidget(
       widgetType,
       x,
@@ -379,7 +362,7 @@ export class EntityExplorer {
   }
 
   public CopyPasteWidget(widgetName: string) {
-    this.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);

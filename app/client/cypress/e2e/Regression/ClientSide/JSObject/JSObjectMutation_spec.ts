@@ -102,7 +102,6 @@ describe("JSObject testing", () => {
       true,
       false,
     );
-    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.apiPage.CreateAndFillApi(
       _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
     );

@@ -32,12 +32,10 @@ describe("UUID Datatype tests", function () {
     AppSidebar.navigate(AppSidebarButton.Pages);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
-    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeTheme("Earth");
   });
 
   it("1. Creating supporting api's for generating random UUID's", () => {
-    entityExplorer.NavigateToSwitcher("Explorer");
     cy.fixture("datasources").then((datasourceFormData) => {
       apiPage.CreateAndFillApi(datasourceFormData.uuid1Api, "version1");
       apiPage.CreateAndFillApi(datasourceFormData.uuid4Api, "version4");

@@ -1,5 +1,7 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const generatePage = require("../../../../../locators/GeneratePage.json");
@@ -319,7 +321,7 @@ describe.skip("Git sync apps", function () {
       toastToValidate: "moved to page",
     });
     cy.wait(2000);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });

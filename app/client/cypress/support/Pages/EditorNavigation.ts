@@ -9,6 +9,20 @@ export enum AppSidebarButton {
   Libraries = "Libraries",
   Settings = "Settings",
 }
+export const AppSidebar = new Sidebar(Object.values(AppSidebarButton));
+
+export enum PagePaneSegment {
+  Explorer = "Explorer",
+  Widgets = "Widgets",
+}
+
+const pagePaneListItemSelector = (name: string) =>
+  "//div[contains(@class, 't--entity-name')][text()='" + name + "']";
+
+export const PageLeftPane = new LeftPane(
+  pagePaneListItemSelector,
+  Object.values(PagePaneSegment),
+);
 
 export enum EntityType {
   Widget = "Widget",
@@ -18,16 +32,6 @@ export enum EntityType {
   JSObject = "JSObject",
   Page = "Page",
 }
-
-export const AppSidebar = new Sidebar(Object.values(AppSidebarButton));
-const pagePaneListItemSelector = (name: string) =>
-  "//div[contains(@class, 't--entity-name')][text()='" + name + "']";
-
-export const PageLeftPane = new LeftPane(pagePaneListItemSelector, [
-  "Explorer",
-  "Widgets",
-]);
-
 class EditorNavigation {
   NavigateToDatasource(name: string) {
     AppSidebar.navigate(AppSidebarButton.Data);
@@ -47,7 +51,7 @@ class EditorNavigation {
     hierarchy: string[] = [],
   ) {
     AppSidebar.navigate(AppSidebarButton.Pages);
-    _.EntityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     _.EntityExplorer.ExpandCollapseEntity("Widgets");
     hierarchy.forEach((level) => {
       _.EntityExplorer.ExpandCollapseEntity(level);
@@ -58,7 +62,7 @@ class EditorNavigation {
 
   NavigateToQuery(name: string) {
     AppSidebar.navigate(AppSidebarButton.Pages);
-    _.EntityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     _.EntityExplorer.ExpandCollapseEntity("Queries/JS");
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
@@ -66,7 +70,7 @@ class EditorNavigation {
 
   NavigateToJSObject(name: string) {
     AppSidebar.navigate(AppSidebarButton.Pages);
-    _.EntityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     _.EntityExplorer.ExpandCollapseEntity("Queries/JS");
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
@@ -74,7 +78,6 @@ class EditorNavigation {
 
   NavigateToPage(name: string) {
     AppSidebar.navigate(AppSidebarButton.Pages);
-    _.EntityExplorer.NavigateToSwitcher("Explorer");
     _.EntityExplorer.ExpandCollapseEntity("Pages");
     PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AggregateHelper.Sleep(); //for selection to settle
@@ -106,6 +109,11 @@ class EditorNavigation {
         this.NavigateToPage(name);
         break;
     }
+  }
+
+  ShowCanvas() {
+    AppSidebar.navigate(AppSidebarButton.Pages);
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
   }
 }
 

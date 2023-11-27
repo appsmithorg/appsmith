@@ -96,7 +96,6 @@ describe("API Bugs", function () {
 
   it("5. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object & array", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
-    entityExplorer.NavigateToSwitcher("Explorer");
 
     // Case where api returns array response
     apiPage.CreateAndFillApi(

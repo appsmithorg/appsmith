@@ -12,6 +12,8 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
@@ -35,16 +37,13 @@ describe("excludeForAirgap", "One click binding control", () => {
       oneClickBindingLocator.datasourceOtherActionsSelector,
     );
 
-    entityExplorer.NavigateToSwitcher("Explorer", 0, true);
-
     dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
       dataSources.CreateQueryAfterDSSaved();
     });
 
     cy.wait(500);
 
-    entityExplorer.NavigateToSwitcher("Widgets");
-    entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
     agHelper.AssertElementExist(
@@ -114,8 +113,6 @@ describe("excludeForAirgap", "One click binding control", () => {
     oneClickBinding.ChooseAndAssertForm("sample Movies", "movies", "movies", {
       searchableColumn: "status",
     });
-
-    entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Mongo");
     agHelper.RenameWithInPane("myinvalidds", false);
@@ -143,7 +140,6 @@ describe("excludeForAirgap", "One click binding control", () => {
 
   it("2. should check that load more options and search", () => {
     [1, 2].forEach((I) => {
-      entityExplorer.NavigateToSwitcher("Explorer");
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Mongo");
       agHelper.RenameWithInPane(`dummy${I}`, false);
@@ -152,8 +148,6 @@ describe("excludeForAirgap", "One click binding control", () => {
       agHelper.UpdateInputValue(dataSources._port, "8000");
 
       dataSources.SaveDatasource();
-
-      AppSidebar.navigate(AppSidebarButton.Pages);
     });
 
     propPane.MoveToTab("Style");

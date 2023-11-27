@@ -31,7 +31,6 @@ describe("Json & JsonB Datatype tests", function () {
     AppSidebar.navigate(AppSidebarButton.Pages);
     agHelper.AddDsl("Datatypes/JsonDTdsl");
 
-    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(16, 20);
   });
 
@@ -340,7 +339,6 @@ describe("Json & JsonB Datatype tests", function () {
   it("14. Importing App & setting theme", () => {
     agHelper.AddDsl("Datatypes/JsonBDTdsl");
 
-    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(12, 23);
   });
 

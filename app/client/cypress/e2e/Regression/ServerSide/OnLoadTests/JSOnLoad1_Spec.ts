@@ -20,7 +20,6 @@ let dsName: any, jsName: any;
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
     agHelper.AddDsl("tablev1NewDsl");
-    entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

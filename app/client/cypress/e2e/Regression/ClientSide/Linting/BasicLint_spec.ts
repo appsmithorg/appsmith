@@ -60,7 +60,6 @@ const createMySQLDatasourceQuery = () => {
 describe("Linting", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName as unknown as string;

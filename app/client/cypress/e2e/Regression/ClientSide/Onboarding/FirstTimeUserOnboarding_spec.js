@@ -1,6 +1,7 @@
 import EditorNavigation, {
   EntityType,
-  AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
@@ -193,7 +194,7 @@ describe("FirstTimeUserOnboarding", function () {
   it("3. onboarding flow - should check directly opening widget pane", function () {
     agHelper.AssertElementVisibility(OnboardingLocator.checklistDatasourceBtn);
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     agHelper.AssertElementVisibility(OnboardingLocator.widgetSidebar);
     agHelper.AssertElementVisibility(OnboardingLocator.dropTarget);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);

@@ -1,3 +1,8 @@
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -55,7 +60,7 @@ describe("File picker widget v2", () => {
       .click({ force: true });
 
     // Go back to widgets page
-    _.entityExplorer.NavigateToSwitcher("Widgets", 0, true);
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.get(widgetsPage.filepickerwidgetv2).should(
       "contain",
       "1 files selected",
@@ -68,7 +73,6 @@ describe("File picker widget v2", () => {
     cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
-    _.entityExplorer.NavigateToSwitcher("Explorer");
 
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     cy.get(".t--entity-item:contains(Api1)").click();

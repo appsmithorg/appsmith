@@ -1,5 +1,10 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-import { AppSidebar, AppSidebarButton } from "./EditorNavigation";
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
+} from "./EditorNavigation";
 
 export interface ICreateJSObjectOptions {
   paste: boolean;
@@ -130,6 +135,7 @@ export class JSEditor {
   public NavigateToNewJSEditor() {
     this.agHelper.ClickOutside(); //to enable click of below!
     AppSidebar.navigate(AppSidebarButton.Pages);
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
 

@@ -1,5 +1,4 @@
 import { agHelper } from "../../Objects/ObjectsCore";
-import { ObjectsRegistry as _ } from "../../Objects/Registry";
 
 export class LeftPane {
   segments?: string[];
@@ -42,7 +41,7 @@ export class LeftPane {
     name: string,
     clickOptions?: Partial<Cypress.ClickOptions>,
   ) {
-    cy.xpath(_.EntityExplorer._entityNameInExplorer(name))
+    cy.xpath(this.listItemSelector(name))
       .first()
       .click(
         clickOptions?.ctrlKey
