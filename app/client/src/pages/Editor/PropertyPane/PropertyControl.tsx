@@ -60,6 +60,7 @@ import { importSvg } from "design-system-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -618,6 +619,10 @@ const PropertyControl = memo((props: Props) => {
   const [switchedToDynamic, setSwitchedToDynamic] = useState(false);
   const shouldFocusOnJSControl = switchedToDynamic;
 
+  const experimentalJSToggle = useFeatureFlag(
+    "ab_one_click_learning_popover_enabled",
+  );
+
   if (widgetProperties) {
     // Do not render the control if it needs to be hidden
     if (
@@ -820,9 +825,13 @@ const PropertyControl = memo((props: Props) => {
               <Tooltip content={JSToggleTooltip} isDisabled={!JSToggleTooltip}>
                 <span>
                   <ToggleButton
-                    className={classNames("t--js-toggle !h-[20px]", {
-                      "is-active": isDynamic,
-                    })}
+                    className={classNames(
+                      "t--js-toggle",
+                      {
+                        "is-active": isDynamic,
+                      },
+                      experimentalJSToggle && "!h-[20px]",
+                    )}
                     icon="js-toggle-v2"
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
@@ -836,7 +845,7 @@ const PropertyControl = memo((props: Props) => {
                         ),
                       );
                     }}
-                    size="sm"
+                    size={experimentalJSToggle ? "md" : "sm"}
                   />
                 </span>
               </Tooltip>
