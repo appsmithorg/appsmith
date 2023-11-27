@@ -12,6 +12,7 @@ import {
 import EditorNavigation, {
   EntityType,
   AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -27,7 +28,7 @@ describe("Json & JsonB Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     agHelper.AddDsl("Datatypes/JsonDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");

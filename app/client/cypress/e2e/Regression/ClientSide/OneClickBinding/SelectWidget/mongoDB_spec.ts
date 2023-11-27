@@ -14,6 +14,7 @@ import commonlocators from "../../../../../locators/commonlocators.json";
 import EditorNavigation, {
   EntityType,
   AppSidebarButton,
+  AppSidebar,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
@@ -27,7 +28,7 @@ describe("Table widget one click binding feature", () => {
     dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
-      EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       entityExplorer.NavigateToSwitcher("Widgets");
 
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);

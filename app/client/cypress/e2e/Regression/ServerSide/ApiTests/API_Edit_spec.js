@@ -1,6 +1,7 @@
 import EditorNavigation, {
   EntityType,
   AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -39,7 +40,7 @@ describe("API Panel Test Functionality", function () {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
   });
 

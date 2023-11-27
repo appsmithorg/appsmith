@@ -13,6 +13,7 @@ import {
 import EditorNavigation, {
   EntityType,
   AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -28,7 +29,7 @@ describe("UUID Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
     entityExplorer.NavigateToSwitcher("Widgets");

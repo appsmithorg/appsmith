@@ -1,4 +1,5 @@
-import EditorNavigation, {
+import {
+  AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -19,7 +20,7 @@ describe("Bug 14666: Api Response Test Functionality ", function () {
   });
 
   it("2. Test table loading when data is not in array format", function () {
-    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     apiPage.CreateAndFillApi(
       testdata.baseUrl + testdata.echoMethod,
       "TableTestAPI",

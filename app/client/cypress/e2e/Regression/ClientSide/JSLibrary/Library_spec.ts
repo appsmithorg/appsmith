@@ -1,12 +1,13 @@
 import HomePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
+import {
+  AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
-    EditorNavigation.ViaSidebar(AppSidebarButton.Libraries);
+    AppSidebar.navigate(AppSidebarButton.Libraries);
     _.installer.OpenInstaller();
     _.installer.InstallLibrary("uuidjs", "UUID");
     _.installer.uninstallLibrary("uuidjs");
@@ -14,17 +15,17 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   });
 
   it("2. Installs the library against a unique namespace when there is a collision with the existing entity", () => {
-    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
     _.entityExplorer.NavigateToSwitcher("Explorer");
     _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
-    EditorNavigation.ViaSidebar(AppSidebarButton.Libraries);
+    AppSidebar.navigate(AppSidebarButton.Libraries);
     _.installer.OpenInstaller();
     _.installer.InstallLibrary("jsonwebtoken", "jsonwebtoken_1", true);
   });
 
   it("3. Checks jspdf library", () => {
-    EditorNavigation.ViaSidebar(AppSidebarButton.Libraries);
+    AppSidebar.navigate(AppSidebarButton.Libraries);
     _.installer.OpenInstaller();
     _.installer.InstallLibrary("jspdf", "jspdf");
     _.jsEditor.CreateJSObject(
@@ -50,7 +51,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   });
 
   it("4. ESM build should pass installation, uninstallation and reinstallation", () => {
-    EditorNavigation.ViaSidebar(AppSidebarButton.Libraries);
+    AppSidebar.navigate(AppSidebarButton.Libraries);
     _.installer.OpenInstaller();
     _.installer.InstallLibraryViaURL(
       "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
@@ -71,7 +72,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
 
   it("5. Shows list of recommended libraries", () => {
     const recommendedLibraryNames = ["jsonwebtoken", "jspdf", "bcryptjs"];
-    EditorNavigation.ViaSidebar(AppSidebarButton.Libraries);
+    AppSidebar.navigate(AppSidebarButton.Libraries);
     _.installer.OpenInstaller();
     for (const recommendedLib of recommendedLibraryNames) {
       cy.contains(recommendedLib);

@@ -13,6 +13,7 @@ import {
 import EditorNavigation, {
   EntityType,
   AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, jsName: any;
@@ -34,7 +35,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       dsName = $dsName;
     });
     cy.fixture("datasources").then((datasourceFormData: any) => {
-      EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       apiPage.CreateAndFillApi(
         "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",

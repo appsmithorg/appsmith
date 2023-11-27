@@ -1,6 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
-import EditorNavigation, {
+import {
+  AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -12,7 +13,7 @@ describe("Add widget - Postgress DataSource", function () {
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
     });
-    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("1. Validate Snipping with query and table widget on canvas", () => {

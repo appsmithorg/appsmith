@@ -7,7 +7,8 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 let dsName: any;
 import formControls from "../../../locators/FormControl.json";
-import EditorNavigation, {
+import {
+  AppSidebar,
   AppSidebarButton,
 } from "../../../support/Pages/EditorNavigation";
 
@@ -30,7 +31,7 @@ describe(
         );
 
         dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
-        EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+        AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -39,7 +40,7 @@ describe(
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.RunQueryNVerifyResponseViews(10, true);
-        EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+        AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -65,7 +66,7 @@ describe(
         agHelper.Sleep(2000); //for movies collection to load & populate in dropdown
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+        AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -76,7 +77,7 @@ describe(
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+        AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
@@ -86,7 +87,7 @@ describe(
     });
 
     afterEach(() => {
-      EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
@@ -98,7 +99,7 @@ describe(
         action: "Delete",
         entityType: entityItems.Query,
       });
-      EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+      AppSidebar.navigate(AppSidebarButton.Data);
       dataSources
         .getDatasourceListItemDescription(dsName)
         .then(($queryCount) =>

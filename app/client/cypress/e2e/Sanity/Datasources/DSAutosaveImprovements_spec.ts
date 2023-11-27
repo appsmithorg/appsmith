@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
-import EditorNavigation, {
+import {
+  AppSidebar,
   AppSidebarButton,
 } from "../../../support/Pages/EditorNavigation";
 
@@ -18,7 +19,7 @@ describe("Datasource Autosave Improvements Tests", function () {
       dataSources.SaveDSFromDialog(false);
 
       // assert that datasource is not saved and cant be seen in active ds list
-      EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+      AppSidebar.navigate(AppSidebarButton.Data);
       agHelper.AssertContains(dsName, "not.exist", dataSources._datasourceCard);
     });
   });
@@ -36,7 +37,7 @@ describe("Datasource Autosave Improvements Tests", function () {
       dataSources.SaveDSFromDialog(true);
 
       // assert that datasource is saved and can be seen in active ds list
-      EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+      AppSidebar.navigate(AppSidebarButton.Data);
       agHelper.AssertContains(dsName, "exist", dataSources._datasourceCard);
 
       // delete datasource

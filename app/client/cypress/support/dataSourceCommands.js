@@ -1,15 +1,13 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
-import EditorNavigation, { AppSidebarButton } from "./Pages/EditorNavigation";
+import { AppSidebar, AppSidebarButton } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import { ObjectsRegistry } from "../support/Objects/Registry";
-const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
-const explorer = require("../locators/explorerlocators.json");
 const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
 const apiEditorLocators = require("../locators/ApiEditor");
 const dataSources = ObjectsRegistry.DataSources;
@@ -58,7 +56,7 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
 });
 
 Cypress.Commands.add("NavigateToActiveDatasources", () => {
-  EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+  AppSidebar.navigate(AppSidebarButton.Data);
 });
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {

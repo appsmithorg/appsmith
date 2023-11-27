@@ -1,5 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-import EditorNavigation, {
+import {
+  AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -139,7 +140,7 @@ describe("GlobalSearch", function () {
   });
 
   it("7. Api actions should have API as prefix", () => {
-    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(globalSearchLocators.blankDatasource).first().click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
@@ -152,7 +153,7 @@ describe("GlobalSearch", function () {
     cy.fillAuthenticatedAPIForm();
     cy.saveDatasource();
 
-    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(".ads-v2-menu__menu-item span:contains('omnibarApiDatasource')")
       .first()

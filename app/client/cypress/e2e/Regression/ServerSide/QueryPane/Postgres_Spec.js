@@ -1,9 +1,9 @@
 import EditorNavigation, {
   EntityType,
   AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
-const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
@@ -31,7 +31,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   });
 
   it("2. Create & runs existing table data with dynamic binding and deletes the query", () => {
-    EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     entityExplorer.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
     cy.NavigateToActiveDSQueryPane(datasourceName);

@@ -1,5 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
+import {
+  AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -16,7 +17,7 @@ describe("Visual tests for datasources", () => {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
-    EditorNavigation.ViaSidebar(AppSidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     cy.get(".t--data-blank-state").matchImageSnapshot("emptydatasourcepage");
   });
   /* cy.NavigateToDatasourceEditor();

@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-import EditorNavigation, { AppSidebarButton } from "./EditorNavigation";
+import { AppSidebar, AppSidebarButton } from "./EditorNavigation";
 
 type RightPaneTabs = "datasources" | "connections";
 
@@ -89,7 +89,7 @@ export class ApiPage {
   ) {
     if (aftDSSaved) this.agHelper.GetNClick(this._createQuery);
     else {
-      EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       this.agHelper.RemoveUIElement("EvaluatedPopUp");
       this.agHelper.GetHoverNClick(this.locator._createNew);
       this.agHelper.GetNClick(this._blankAPI, 0, true);

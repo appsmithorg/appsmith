@@ -2,6 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 let repoName: any;
@@ -85,11 +86,11 @@ describe("Git Bugs", function () {
     _.gitSync.CreateGitBranch(`st`, true);
     cy.get("@gitbranchName").then((branchName) => {
       statusBranch = branchName;
-      EditorNavigation.ViaSidebar(AppSidebarButton.Settings);
+      AppSidebar.navigate(AppSidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appThemeSettings);
       _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
       _.agHelper.GetNClick(_.locators._appThemeCard, 2);
-      EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
@@ -98,10 +99,10 @@ describe("Git Bugs", function () {
         _.gitSync._gitStatusChanges,
       );
       _.agHelper.GetNClick(_.locators._dialogCloseButton);
-      EditorNavigation.ViaSidebar(AppSidebarButton.Settings);
+      AppSidebar.navigate(AppSidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
-      EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
@@ -118,10 +119,10 @@ describe("Git Bugs", function () {
     _.gitSync.CreateGitBranch(`b24946`, true);
     cy.get("@gitbranchName").then((branchName) => {
       statusBranch = branchName;
-      EditorNavigation.ViaSidebar(AppSidebarButton.Settings);
+      AppSidebar.navigate(AppSidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
-      EditorNavigation.ViaSidebar(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.GetNClick(_.gitSync._discardChanges);
@@ -148,7 +149,7 @@ describe("Git Bugs", function () {
   it("7. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
     _.gitSync.SwitchGitBranch("master", false, true);
     // add navigation settings changes
-    EditorNavigation.ViaSidebar(AppSidebarButton.Settings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     _.agHelper.GetNClick(_.appSettings.locators._navigationSettingsTab);
     _.agHelper.GetNClick(
       _.appSettings.locators._navigationSettings._orientationOptions._side,

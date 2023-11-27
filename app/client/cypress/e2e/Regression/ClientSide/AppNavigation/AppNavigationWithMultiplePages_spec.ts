@@ -8,7 +8,8 @@ import {
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
+import {
+  AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -16,7 +17,7 @@ let currentUrl: string;
 
 describe("Page orientation and navigation related usecases ", function () {
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
-    EditorNavigation.ViaSidebar(AppSidebarButton.Settings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
