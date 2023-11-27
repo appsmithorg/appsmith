@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionServiceCEImpl;
+import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -110,6 +111,9 @@ public class NewActionServiceUnitTest {
     @MockBean
     PagePermission pagePermission;
 
+    @MockBean
+    NewActionHelper newActionHelper;
+
     ActionPermission actionPermission = new ActionPermissionImpl();
 
     @MockBean
@@ -135,6 +139,7 @@ public class NewActionServiceUnitTest {
                 configService,
                 responseUtils,
                 permissionGroupService,
+                newActionHelper,
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,

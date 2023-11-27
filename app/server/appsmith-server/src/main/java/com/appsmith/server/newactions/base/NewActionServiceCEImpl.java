@@ -42,6 +42,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -125,6 +126,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ResponseUtils responseUtils;
 
     private final PermissionGroupService permissionGroupService;
+    private final NewActionHelper newActionHelper;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
@@ -152,6 +154,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
+            NewActionHelper newActionHelper,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
@@ -169,6 +172,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationService = applicationService;
         this.policySolution = policySolution;
         this.permissionGroupService = permissionGroupService;
+        this.newActionHelper = newActionHelper;
         this.observationRegistry = observationRegistry;
         this.responseUtils = responseUtils;
         this.configService = configService;
@@ -292,7 +296,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        this.validateCreatorId(action);
+        newActionHelper.validateCreatorId(action);
 
         if (!validateActionName(action.getName())) {
             action.setIsValid(false);
@@ -306,7 +310,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         if (action.getPluginType() == PluginType.JS
                 && action.getActionConfiguration() != null
-                && Boolean.FALSE.equals(action.getActionConfiguration().getIsValid())) {
+                && FALSE.equals(action.getActionConfiguration().getIsValid())) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_JS_ACTION.getMessage());
         }
@@ -421,13 +425,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(repository::setUserPermissionsInObject)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
-    }
-
-    protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
-        if (action.getPageId() == null || action.getPageId().isBlank()) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID);
-        }
-        return Mono.just(action);
     }
 
     protected void setGitSyncIdInNewAction(NewAction newAction) {

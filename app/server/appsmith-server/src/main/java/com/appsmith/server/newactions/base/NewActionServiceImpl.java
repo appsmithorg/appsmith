@@ -4,6 +4,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -51,7 +52,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            NewActionHelper newActionHelper) {
 
         super(
                 scheduler,
@@ -71,6 +73,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 configService,
                 responseUtils,
                 permissionGroupService,
+                newActionHelper,
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,

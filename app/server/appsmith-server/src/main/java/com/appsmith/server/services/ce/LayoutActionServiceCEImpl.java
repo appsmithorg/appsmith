@@ -374,6 +374,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction) {
 
+        if (!StringUtils.hasLength(action.getPageId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+        }
+
         NewAction newAction = newActionService.generateActionDomain(action);
 
         // If the action is a JS action, then we don't need to validate the page. Fetch the page with read.
