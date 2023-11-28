@@ -14,6 +14,7 @@ import type { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import type { OtlpSpan } from "UITelemetry/generateTraces";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -340,21 +341,29 @@ export const bindDataOnCanvas = (payload: {
   };
 };
 
-export const updateActionData = ({
-  data,
-  dataPath,
-  entityName,
-}: {
+type actionDataPayload = {
   entityName: string;
   dataPath: string;
   data: unknown;
-}) => {
+  dataPathRef?: string;
+}[];
+
+export interface updateActionDataPayloadType {
+  actionDataPayload: actionDataPayload;
+  parentSpan?: OtlpSpan;
+}
+export const updateActionData = (
+  payload: actionDataPayload,
+  parentSpan?: OtlpSpan,
+): {
+  type: string;
+  payload: updateActionDataPayloadType;
+} => {
   return {
     type: ReduxActionTypes.UPDATE_ACTION_DATA,
     payload: {
-      entityName,
-      dataPath,
-      data,
+      actionDataPayload: payload,
+      parentSpan,
     },
   };
 };
