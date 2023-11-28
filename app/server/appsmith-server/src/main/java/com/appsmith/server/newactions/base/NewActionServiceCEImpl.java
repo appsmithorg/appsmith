@@ -128,7 +128,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final PagePermission pagePermission;
     protected final ActionPermission actionPermission;
     private final EntityValidationService entityValidationService;
-
     private final ObservationRegistry observationRegistry;
     private final Map<String, Plugin> defaultPluginMap = new HashMap<>();
     private final AtomicReference<Plugin> jsTypePluginReference = new AtomicReference<>();

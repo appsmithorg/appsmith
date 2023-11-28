@@ -153,8 +153,8 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
         service.sanitizeRefactorEntityDTO(refactorEntityNameDTO);
 
         // Validate whether this name is allowed based on the type of entity
-        Mono<Boolean> isValidNameMono = Mono.just(
-                        entityValidationService.validateName(refactorEntityNameDTO.getNewName()))
+        Mono<Boolean> isValidNameMono = Mono.just(entityValidationService.validateName(
+                        refactorEntityNameDTO.getNewName(), refactorEntityNameDTO.getIsInternal()))
                 .flatMap(isValid -> {
                     if (!isValid) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
