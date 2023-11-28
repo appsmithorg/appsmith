@@ -139,7 +139,7 @@ export function* addWidgetsToSection(
       highlight,
       zone,
     );
-    console.log("#### add zone", { sectionProps });
+
     sectionProps = res.canvas;
     sectionLayout = res.section;
     // Update parent of the zone.
@@ -169,7 +169,7 @@ export function* addWidgetsToSection(
         highlight,
         sectionProps.widgetId,
       );
-    console.log("#### after creating zone", { sectionProps });
+
     sectionProps.children = [
       ...(sectionProps?.children || []),
       data.zone.widgetId,

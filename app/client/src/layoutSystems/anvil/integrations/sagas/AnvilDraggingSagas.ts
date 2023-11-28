@@ -157,14 +157,8 @@ export function* addNewChildToDSL(
       widgetType: newWidget.type,
     },
   ];
-  console.log("#### before add", {
-    updatedWidgets,
-    newWidget: updatedWidgets[newWidget.newWidgetId],
-    parent: updatedWidgets[canvasId],
-  });
 
   if (!!isMainCanvas) {
-    console.log("#### main canvas", { updatedWidgets });
     updatedWidgets = yield call(
       addWidgetToMainCanvas,
       updatedWidgets,
@@ -172,7 +166,6 @@ export function* addNewChildToDSL(
       highlight,
       newWidget.newWidgetId,
     );
-    console.log("#### post main canvas", { updatedWidgets });
   } else if (!!isSection) {
     updatedWidgets = yield call(
       addWidgetToSection,
@@ -209,7 +202,6 @@ function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
       !!isMainCanvas,
       !!isSection,
     );
-    console.log("#### before save", { updatedWidgets });
     yield put(saveAnvilLayout(updatedWidgets));
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),

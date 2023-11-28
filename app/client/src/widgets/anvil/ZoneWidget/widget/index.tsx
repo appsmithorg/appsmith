@@ -1,3 +1,4 @@
+import React, { type ReactNode } from "react";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -6,11 +7,21 @@ import type {
 } from "WidgetProvider/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import ContainerWidget from "widgets/ContainerWidget/widget";
 import { anvilConfig, baseConfig, defaultConfig } from "./config";
 import { ValidationTypes } from "constants/WidgetValidation";
+import BaseWidget, {
+  type WidgetProps,
+  type WidgetState,
+} from "widgets/BaseWidget";
+import type {
+  LayoutComponentProps,
+  LayoutProps,
+} from "layoutSystems/anvil/utils/anvilTypes";
+import { renderLayouts } from "layoutSystems/anvil/utils/layouts/renderUtils";
+import { RenderModes } from "constants/WidgetConstants";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 
-class ZoneWidget extends ContainerWidget {
+class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   static type = "ZONE_WIDGET";
 
   static getConfig(): WidgetBaseConfiguration {
@@ -87,6 +98,29 @@ class ZoneWidget extends ContainerWidget {
   static getStylesheetConfig(): Stylesheet {
     return super.getStylesheetConfig();
   }
+
+  getWidgetView(): ReactNode {
+    const map: LayoutComponentProps["childrenMap"] = {};
+    (this.props.children ?? []).forEach((child: WidgetProps) => {
+      map[child.widgetId] = child;
+    });
+    return (
+      <div className="h-full w-full">
+        {renderLayouts(
+          this.props.layout,
+          map,
+          this.props.widgetId,
+          "",
+          this.props.renderMode || RenderModes.CANVAS,
+          [],
+        )}
+      </div>
+    );
+  }
+}
+
+export interface ZoneWidgetProps extends ContainerWidgetProps<WidgetProps> {
+  layout: LayoutProps[];
 }
 
 export default ZoneWidget;

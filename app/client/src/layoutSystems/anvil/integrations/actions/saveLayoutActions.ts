@@ -7,7 +7,6 @@ export const saveAnvilLayout = (
   options: updateLayoutOptions = {},
 ) => {
   const { isRetry, shouldReplay, updatedWidgetIds } = options;
-  console.log("#### action", { widgets });
   return {
     type: AnvilReduxActionTypes.SAVE_ANVIL_LAYOUT,
     payload: { widgets, isRetry, shouldReplay, updatedWidgetIds },

@@ -34,16 +34,11 @@ export function* createZoneAndAddWidgets(
   );
 
   /**
-   * Step 2: Extract Canvas widget and zone layout.
+   * Step 2: Extract zone layout.
    */
   const zoneProps: FlattenedWidgetProps = updatedWidgets[widgetId];
-  const canvasId: string | undefined =
-    zoneProps.children && zoneProps.children[0];
 
-  if (!canvasId) return allWidgets;
-
-  const canvasProps: FlattenedWidgetProps = updatedWidgets[canvasId];
-  const preset: LayoutProps[] = canvasProps.layout;
+  const preset: LayoutProps[] = zoneProps.layout;
   let zoneLayout: LayoutProps = preset[0];
 
   /**
@@ -89,35 +84,28 @@ export function* createZoneAndAddWidgets(
   /**
    * Step 7: Update canvas widget with the updated preset.
    */
-  canvasProps.layout = preset;
+  zoneProps.layout = preset;
 
   /**
    * Step 8: Add new widgetIds to children of canvas widget.
    */
-  canvasProps.children = draggedWidgets.map(
+  zoneProps.children = draggedWidgets.map(
     (widget: WidgetLayoutProps) => widget.widgetId,
   );
 
   /**
-   * Step 9: Establish relationship between zone and canvas widgets.
-   */
-  zoneProps.children = [canvasProps.widgetId];
-  canvasProps.parentId = zoneProps.widgetId;
-
-  /**
-   * Step 10: Revert the relationships that were originally established while creating the dragged widgets.
+   * Step 9: Revert the relationships that were originally established while creating the dragged widgets.
    */
   draggedWidgets.forEach((widget: WidgetLayoutProps) => {
     updatedWidgets[widget.widgetId] = {
       ...updatedWidgets[widget.widgetId],
-      parentId: canvasProps.widgetId,
+      parentId: zoneProps.widgetId,
     };
   });
 
   return {
     canvasWidgets: {
       ...updatedWidgets,
-      [canvasProps.widgetId]: canvasProps,
       [zoneProps.widgetId]: zoneProps,
     },
     zone: zoneProps,
