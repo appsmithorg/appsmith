@@ -1,16 +1,19 @@
 package com.appsmith.external.models;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class ApiTemplate extends BaseDomain {
 
     // ApiTemplate fields below :
@@ -19,9 +22,16 @@ public class ApiTemplate extends BaseDomain {
     String publisher; // e.g. RapidAPI
     String packageName; // Plugin package name used to execute the final action created by this template
     String versionId;
+
+    @Type(JsonType.class)
     ApiTemplateConfiguration apiTemplateConfiguration;
+
+    @OneToOne
     ActionConfiguration actionConfiguration;
+
+    @OneToOne
     DatasourceConfiguration datasourceConfiguration;
+
     String hashValue;
     String scraperId;
 }

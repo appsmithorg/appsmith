@@ -19,8 +19,8 @@ import org.springframework.data.annotation.Transient;
 @Entity
 public class ApplicationPage {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @JsonView(Views.Public.class)
     Boolean isDefault;

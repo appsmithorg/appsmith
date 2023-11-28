@@ -1,11 +1,14 @@
 package com.appsmith.external.models;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
@@ -13,7 +16,7 @@ import java.util.List;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class Provider extends BaseDomain {
 
     @Indexed(unique = true)
@@ -29,12 +32,16 @@ public class Provider extends BaseDomain {
 
     String credentialSteps; // How to generate/get the credentials to run the APIs which belong to this provider
 
+    @Type(JsonType.class)
     List<String> categories; // Category names here
 
+    @Type(JsonType.class)
     Statistics statistics; // Cumulative statistics for all the APIs for this provider
 
+    @OneToOne
     DatasourceConfiguration datasourceConfiguration;
 
+    @Type(JsonType.class)
     List<PricingPlan> pricingPlans;
 
     String planSubscribed;

@@ -2,7 +2,6 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -32,6 +31,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
@@ -140,11 +140,11 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     public Mono<UserData> update(String userId, UserData resource) {
         if (userId == null) {
             return Mono.error(
-                    new AppsmithException(AppsmithError.INVALID_PARAMETER, fieldName(QUserData.userData.userId)));
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, "userId"));
         }
 
         Query query =
-                new Query(Criteria.where(fieldName(QUserData.userData.userId)).is(userId));
+                new Query(Criteria.where("userId").is(userId));
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
@@ -304,8 +304,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      */
     @Override
     public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
-        return applicationRepository
-                .getAllApplicationId(workspaceId)
+        return Flux.fromIterable(applicationRepository
+                .getAllApplicationId(workspaceId))
                 .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
     }
 }

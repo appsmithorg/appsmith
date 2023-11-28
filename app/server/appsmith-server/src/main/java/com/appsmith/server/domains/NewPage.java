@@ -22,7 +22,7 @@ public class NewPage extends BranchAwareDomain {
     private Application application;
 
     @Column(name = "application_id", insertable = false, updatable = false)
-    private Long applicationId;
+    private String applicationId;
 
     @Type(JsonType.class)
     @JsonView(Views.Public.class)

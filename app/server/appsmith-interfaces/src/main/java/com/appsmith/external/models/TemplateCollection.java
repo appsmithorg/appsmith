@@ -2,20 +2,25 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,13 +29,13 @@ import java.util.List;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class TemplateCollection implements Persistable<String> {
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
-    @JsonView(Views.Public.class)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
 
     @JsonView(Views.Internal.class)
     @Indexed
@@ -67,9 +72,11 @@ public class TemplateCollection implements Persistable<String> {
     String name;
 
     @JsonView(Views.Internal.class)
+    @Type(JsonType.class)
     List<String> apiTemplateIds;
 
     @Transient
     @JsonView(Views.Public.class)
+    @OneToMany
     List<ApiTemplate> apiTemplateList;
 }

@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.server.domains.ce.NewActionCE;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,5 +12,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class NewAction extends NewActionCE {}

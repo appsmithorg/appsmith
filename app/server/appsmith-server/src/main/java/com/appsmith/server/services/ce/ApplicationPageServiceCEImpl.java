@@ -217,8 +217,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 ? page.getId()
                 : page.getDefaultResources().getPageId();
         if (isDuplicatePage(application, page.getId())) {
-            return applicationRepository
-                    .addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId)
+            return Mono.justOrEmpty(applicationRepository
+                    .addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId))
                     .doOnSuccess(result -> {
                         if (result.getModifiedCount() != 1) {
                             log.error(
@@ -340,8 +340,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(applicationService.findById(applicationId, applicationPermission.getEditPermission()))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .flatMap(application -> applicationRepository
-                        .setDefaultPage(applicationId, pageId)
+                .flatMap(application -> Mono.justOrEmpty(applicationRepository
+                        .setDefaultPage(applicationId, pageId))
                         .then(applicationService.getById(applicationId)));
     }
 
@@ -425,8 +425,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application) {
         return userMono.flatMap(user -> {
-            Mono<Workspace> workspaceMono = workspaceRepository
-                    .findById(workspaceId, workspacePermission.getApplicationCreatePermission())
+            Mono<Workspace> workspaceMono = Mono.justOrEmpty(workspaceRepository
+                    .findById(workspaceId/*, workspacePermission.getApplicationCreatePermission()*/))
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
@@ -456,8 +456,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> deleteApplication(String id) {
         log.debug("Archiving application with id: {}", id);
 
-        Mono<Application> applicationMono = applicationRepository
-                .findById(id, applicationPermission.getDeletePermission())
+        Mono<Application> applicationMono = Mono.justOrEmpty(applicationRepository
+                .findById(id/*, applicationPermission.getDeletePermission()*/))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .cache();
@@ -558,7 +558,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         .map(layout -> {
                             Layout newLayout = new Layout();
                             String id = new ObjectId().toString();
-                            newLayout.setId(id);
+                            // newLayout.setId(id);
                             newLayout.setMongoEscapedWidgetNames(layout.getMongoEscapedWidgetNames());
                             newLayout.setDsl(layout.getDsl());
                             return newLayout;
@@ -781,7 +781,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(layout -> {
                                 layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
                                 return updateLayoutService.updateLayout(
-                                        savedPage.getId(), savedPage.getApplicationId(), layout.getId(), layout);
+                                        savedPage.getId(), savedPage.getApplicationId(), "layout.getId()", layout);
                             })
                             .collectList()
                             .thenReturn(savedPage);
@@ -1343,8 +1343,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         pages.add(order, foundPage);
                     }
 
-                    return applicationRepository
-                            .setPages(application.getId(), pages)
+                    return Mono.justOrEmpty(applicationRepository
+                            .setPages(application.getId(), pages))
                             .flatMap(updateResult ->
                                     sendPageOrderAnalyticsEvent(application, defaultPageId, order, branchName))
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(
@@ -1457,8 +1457,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
-        Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
-                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+        Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> Flux.fromIterable(newPageRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies")))
                 .flatMap(newPageRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))

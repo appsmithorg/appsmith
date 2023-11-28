@@ -1,17 +1,17 @@
 package com.appsmith.external.models;
 
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
 public class Category extends BaseDomain {
 
     @Indexed(unique = true)

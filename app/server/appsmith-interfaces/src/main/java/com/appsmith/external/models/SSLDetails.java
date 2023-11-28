@@ -1,21 +1,28 @@
 package com.appsmith.external.models;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-@Document
+@Entity
 public class SSLDetails implements AppsmithDomain {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
 
     public enum AuthType {
         // Default driver configurations
@@ -61,13 +68,17 @@ public class SSLDetails implements AppsmithDomain {
 
     CACertificateType caCertificateType;
 
+    @Type(JsonType.class)
     UploadedFile keyFile;
 
+    @Type(JsonType.class)
     UploadedFile certificateFile;
 
+    @Type(JsonType.class)
     UploadedFile caCertificateFile;
 
     Boolean usePemCertificate;
 
+    @Type(JsonType.class)
     PEMCertificate pemCertificate;
 }
