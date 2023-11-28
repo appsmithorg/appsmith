@@ -8,6 +8,9 @@ import {
   dataSources,
   dataManager,
 } from "../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
 
 describe("Content Management System App", function () {
   before(() => {
@@ -111,9 +114,7 @@ describe("Content Management System App", function () {
   });
 
   it("6. Connect app to git, verify data binding in edit and deploy mode", () => {
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;

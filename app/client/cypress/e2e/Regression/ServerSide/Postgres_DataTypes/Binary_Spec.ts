@@ -1,15 +1,18 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  entityItems,
-  dataSources,
-  table,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Binary Datatype tests", function () {
   let dsName: any, query: string, imageNameToUpload: string;
@@ -69,8 +72,7 @@ describe("Binary Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "dropTable");
     dataSources.SetQueryTimeout(30000);
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
   });

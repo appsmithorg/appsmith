@@ -11,19 +11,20 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 let dsName: any, jsName: any;
 
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
     agHelper.AddDsl("tablev1NewDsl");
-    entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("1. Tc 54, 55 - Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function () {
@@ -50,7 +51,7 @@ describe("JSObjects OnLoad Actions tests", function () {
           jsObjName +
           ".getEmployee.data}}",
       );
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Table data", "{{GetEmployee.data}}");
       agHelper.ValidateToastMessage(
         "[GetEmployee, " +
@@ -80,7 +81,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     jsEditor.ConfirmationClick("Yes");
     //agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
-    entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+    EditorNavigation.SelectEntityByName(jsName as string, EntityType.JSObject);
     jsEditor.VerifyAsyncFuncSettings("getEmployee", true, true);
   });
 
@@ -117,7 +118,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   //Skipping due to - "tableData":"ERROR: invalid input syntax for type smallint: "{}""
   it("4. Tc 53 - Verify OnPage Load - Enabled & Disabling - Before Function calling for JSOBject", function () {
-    entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+    EditorNavigation.SelectEntityByName(jsName as string, EntityType.JSObject);
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
     //jsEditor.RunJSObj(); //Even running JS functin before delpoying does not help
     //agHelper.Sleep(2000);
@@ -136,7 +137,7 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   it("5. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function () {
-    entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+    EditorNavigation.SelectEntityByName(jsName as string, EntityType.JSObject);
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true);
     deployMode.DeployApp(locators._widgetInDeployed("tablewidget"), false);
     agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
@@ -171,7 +172,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     // jsEditor.ConfirmationClick("Yes");
     // agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
 
-    entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+    EditorNavigation.SelectEntityByName(jsName as string, EntityType.JSObject);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: jsName as string,
       action: "Delete",

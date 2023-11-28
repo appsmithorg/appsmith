@@ -3,6 +3,10 @@ import {
   agHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Entity explorer tests related to widgets and validation", function () {
   // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
@@ -71,7 +75,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
   };
 
   it("1. All widget tags should be visible and open by default.", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
 
     agHelper.AssertElementLength(
       entityExplorer._widgetTagsList,

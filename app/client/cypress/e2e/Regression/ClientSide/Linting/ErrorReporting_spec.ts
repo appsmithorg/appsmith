@@ -9,13 +9,15 @@ import {
   propPane,
   table,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Lint error reporting", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 300, 500);
     table.AddSampleTableData();
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Doesn't show lint warnings in debugger but shows on Hover only", () => {
@@ -65,7 +67,7 @@ describe("Lint error reporting", () => {
 
     // Test in PropertyPane
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{
@@ -118,7 +120,7 @@ describe("Lint error reporting", () => {
 
     // Test in PropertyPane
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{ {
@@ -171,7 +173,7 @@ describe("Lint error reporting", () => {
 
     // Test in PropertyPane
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
       `{{ {
@@ -226,7 +228,7 @@ describe("Lint error reporting", () => {
     `;
     // Test in PropertyPane
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Tooltip", "{{currentItem}}");
     propPane.UpdatePropertyFieldValue("Label", "{{currentRow}}");
     propPane.UpdatePropertyFieldValue("onClick", "");
@@ -234,7 +236,7 @@ describe("Lint error reporting", () => {
     agHelper.AssertElementLength(locators._lintErrorElement, 2);
 
     //Test in Table for no error when using {{currentRow}}
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     agHelper.GetNClick(table._columnSettings("step", "Edit"));
     agHelper.AssertElementAbsence(locators._lintErrorElement);
 
@@ -273,7 +275,7 @@ describe("Lint error reporting", () => {
     }
     `;
     // Test in PropertyPane
-    entityExplorer.SelectEntityByName("Button1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Tooltip", "");
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.UpdatePropertyFieldValue(
@@ -289,7 +291,7 @@ describe("Lint error reporting", () => {
     agHelper.AssertElementAbsence(locators._lintErrorElement);
 
     // Test in JS Object
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(JSOBJECT_WITH_UNNECCESARY_SEMICOLON);
     agHelper.AssertElementAbsence(locators._lintErrorElement);
 

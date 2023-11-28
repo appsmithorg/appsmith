@@ -3,12 +3,15 @@ import {
   deployMode,
   draggableWidgets,
   entityExplorer,
+  locators,
   propPane,
   table,
-  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Button Group Widget Test", function () {
   before("Login to the app and navigate to the workspace", function () {
@@ -25,7 +28,7 @@ describe("Button Group Widget Test", function () {
       .children()
       .should("have.length", 4);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     agHelper.GetNClick(table._deleteColumn, 3);
     deployMode.DeployApp();
     agHelper
@@ -33,7 +36,7 @@ describe("Button Group Widget Test", function () {
       .children()
       .should("have.length", 3);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
   });
 
   it("2. Add, Delete menu item to a button group and verify", function () {
@@ -63,7 +66,7 @@ describe("Button Group Widget Test", function () {
     );
     // delete a menu option and asserts its not available
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 2);
     agHelper.GetNClick(buttongroupwidgetlocators.menu);
     agHelper.GetNClick(table._deleteColumn, 2);
@@ -79,7 +82,7 @@ describe("Button Group Widget Test", function () {
       buttongroupwidgetlocators.buttonMenuOptions("Option3"),
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
   });
 
   it("3. Assert button group options - single and menu visibility ", function () {
@@ -87,14 +90,14 @@ describe("Button Group Widget Test", function () {
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(buttongroupwidgetlocators.buttongroup);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     propPane.TogglePropertyState("Visible", "On");
     agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 1);
     propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(locators._buttonByText("Add"));
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 1);
     propPane.TogglePropertyState("Visible", "On");
     agHelper.GetNClick(propPane._goBackToProperty);
@@ -128,16 +131,16 @@ describe("Button Group Widget Test", function () {
   });
 
   it("4. Assert button group options - single and menu disability ", function () {
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     deployMode.DeployApp();
     agHelper.AssertElementExist(buttongroupwidgetlocators.buttongroup);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     propPane.TogglePropertyState("Disabled", "On");
     deployMode.DeployApp();
     agHelper.AssertElementEnabledDisabled(buttongroupwidgetlocators.button);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     propPane.TogglePropertyState("Disabled", "Off");
     agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 2);
     // // Setting menu values in button More
@@ -155,7 +158,7 @@ describe("Button Group Widget Test", function () {
   it("5. Assert On click button group ", function () {
     entityExplorer.DragNDropWidget(draggableWidgets.MODAL, 250, 250);
     agHelper.ClickButton("Close");
-    entityExplorer.SelectEntityByName("ButtonGroup1");
+    EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
     agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 0);
     propPane.EnterJSContext("onClick", "{{showModal('Modal1')}}");
     deployMode.DeployApp();

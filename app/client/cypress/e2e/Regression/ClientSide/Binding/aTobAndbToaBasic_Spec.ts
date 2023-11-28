@@ -1,11 +1,13 @@
 import {
-  assertHelper,
   agHelper,
-  propPane,
-  locators,
+  assertHelper,
   deployMode,
-  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate basic binding of Input widget to Input widget", () => {
   before(() => {
@@ -14,7 +16,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
 
   it("1. Input widget test with default value for atob method", () => {
     cy.fixture("testdata").then(function (dataSet: any) {
-      entityExplorer.SelectEntityByName("Input1", "Widgets");
+      EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Default value",
         dataSet.atobInput + "}}",
@@ -25,7 +27,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
         .invoke("attr", "value")
         .should("equal", "A"); //Before mapping JSObject value of input
       //Input widget test with default value for btoa method"
-      entityExplorer.SelectEntityByName("Input2");
+      EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Default value",
         dataSet.btoaInput + "}}",

@@ -10,6 +10,9 @@ import {
   debuggerHelper,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 interface IFunctionSettingData {
   name: string;
@@ -60,7 +63,6 @@ describe("JS Function Execution", function () {
 
   before(() => {
     agHelper.AddDsl("tablev1NewDsl");
-    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
@@ -257,7 +259,7 @@ describe("JS Function Execution", function () {
     });
 
     cy.get("@jsObjName").then((jsObjName) => {
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Table data",
         `{{${jsObjName}.largeData}}`,
@@ -271,7 +273,7 @@ describe("JS Function Execution", function () {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       deployMode.NavigateBacktoEditor();
     });
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
@@ -465,7 +467,7 @@ describe("JS Function Execution", function () {
       agHelper.Sleep(2000); //for current pop up to close & next to appear!
     }
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName(jsObj, "Queries/JS");
+    EditorNavigation.SelectEntityByName(jsObj, EntityType.JSObject);
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 

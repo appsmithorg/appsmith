@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Evaluations causing error when page is cloned", function () {
   it("1. Bug: 20841: JSObjects | Sync methods | Not run consistently when Page is cloned", function () {
@@ -12,7 +15,6 @@ describe("Evaluations causing error when page is cloned", function () {
       200,
       600,
     );
-    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,
@@ -20,7 +22,7 @@ describe("Evaluations causing error when page is cloned", function () {
       shouldCreateNewJSObj: true,
       prettify: false,
     });
-    _.entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     _.propPane.UpdatePropertyFieldValue(
       "Default value",
       "{{JSObject1.myFun1()}}",

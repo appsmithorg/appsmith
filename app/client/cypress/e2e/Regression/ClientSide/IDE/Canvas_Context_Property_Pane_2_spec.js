@@ -1,9 +1,11 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 
-let propertyControlSelector,
-  propertyControlClickSelector,
-  propertyControlVerifySelector,
-  propertySectionState;
+let propertyControlSelector, propertySectionState;
 const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
@@ -13,9 +15,9 @@ describe("Canvas context Property Pane", function () {
     _.agHelper.AddDsl("editorContextdsl");
     _.entityExplorer.AddNewPage("New blank page");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
-    _.entityExplorer.SelectEntityByName(page1, "Pages");
+    EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     _.apiPage.CreateApi(api1);
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
   });
 
   beforeEach(() => {
@@ -208,7 +210,7 @@ function verifyPropertyPaneContext(
   isStyleTab = false,
 ) {
   //select Button1 widget in page1
-  _.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+  EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
 
   //verify the Button1 is selected in page1
   cy.get(".t--property-pane-title").should("contain", widgetName);
@@ -221,28 +223,28 @@ function verifyPropertyPaneContext(
   focusCallback();
 
   //Select Camera1 widget
-  _.entityExplorer.SelectEntityByName("Camera1", "Widgets");
+  EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
   cy.get(".t--property-pane-title").should("contain", "Camera1");
 
   //Switch back to Button1 widget
-  _.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+  EditorNavigation.SelectEntityByName(widgetName, EntityType.Widget);
   cy.wait(500);
 
   //assert Callback
   assertCallback();
 
   //switch to page2 and back
-  _.entityExplorer.SelectEntityByName(page2, "Pages");
-  _.entityExplorer.SelectEntityByName("Text1", "Widgets");
+  EditorNavigation.SelectEntityByName(page2, EntityType.Page);
+  EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
   cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
-  _.entityExplorer.SelectEntityByName(page1, "Pages");
+  EditorNavigation.SelectEntityByName(page1, EntityType.Page);
   cy.wait(500);
 
   //assert Callback
   assertCallback();
 
   //Navigate to API1 Pane and back
-  _.entityExplorer.SelectEntityByName(api1, "Queries/JS");
+  EditorNavigation.SelectEntityByName(api1, EntityType.Api);
   cy.get(".t--close-editor").click();
   cy.wait(500);
 

@@ -1,15 +1,18 @@
 import {
   agHelper,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  deployMode,
+  locators,
   propPane,
   table,
-  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 import widgets from "../../../../../locators/Widgets.json";
 import commonloc from "../../../../../locators/commonlocators.json";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Switch widget testcases", () => {
   const jsonData = `[
@@ -32,7 +35,7 @@ describe("Switch widget testcases", () => {
   });
 
   it("1. Validate general properties - Default state values set via JS", () => {
-    entityExplorer.SelectEntityByName("Switch1");
+    EditorNavigation.SelectEntityByName("Switch1", EntityType.Widget);
     // set default state value to be fetched via the value set in select widget
     propPane.EnterJSContext(
       "Default state",
@@ -56,7 +59,7 @@ describe("Switch widget testcases", () => {
   });
 
   it("2. Validate general properties - Visible via JS", () => {
-    entityExplorer.SelectEntityByName("Switch1");
+    EditorNavigation.SelectEntityByName("Switch1", EntityType.Widget);
     propPane.EnterJSContext("Default state", "true");
     propPane.EnterJSContext(
       "Visible",
@@ -76,7 +79,7 @@ describe("Switch widget testcases", () => {
   });
 
   it("3. Validate general properties - Disabled", () => {
-    entityExplorer.SelectEntityByName("Switch1");
+    EditorNavigation.SelectEntityByName("Switch1", EntityType.Widget);
     propPane.EnterJSContext("Visible", "true");
     propPane.EnterJSContext("Default state", "false");
 
@@ -97,7 +100,7 @@ describe("Switch widget testcases", () => {
   });
 
   it("4. Validate error texts", () => {
-    entityExplorer.SelectEntityByName("Switch1");
+    EditorNavigation.SelectEntityByName("Switch1", EntityType.Widget);
     propPane.EnterJSContext("Default state", "90");
     agHelper.VerifyEvaluatedErrorMessage(
       "This value does not evaluate to type boolean",
@@ -119,7 +122,7 @@ describe("Switch widget testcases", () => {
   });
 
   it("5. validate on change - via JS", () => {
-    entityExplorer.SelectEntityByName("Switch1");
+    EditorNavigation.SelectEntityByName("Switch1", EntityType.Widget);
     propPane.EnterJSContext("Default state", "false");
     propPane.EnterJSContext("Visible", "true");
     propPane.EnterJSContext("Disabled", "false");

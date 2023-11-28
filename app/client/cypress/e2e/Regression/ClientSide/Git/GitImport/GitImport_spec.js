@@ -15,6 +15,11 @@ import {
   homePage,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Git import flow ", function () {
   before(() => {
@@ -169,8 +174,8 @@ describe("Git import flow ", function () {
 
     // verify jsObject is not duplicated
     agHelper.Sleep(2000); //for cloning of table data to finish
-    entityExplorer.SelectEntityByName(jsObject, "Queries/JS"); //Also checking jsobject exists after cloning the page
-    entityExplorer.SelectEntityByName("Page1 Copy");
+    EditorNavigation.SelectEntityByName(jsObject, EntityType.JSObject); //Also checking jsobject exists after cloning the page
+    EditorNavigation.SelectEntityByName("Page1 Copy", EntityType.Page);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -222,7 +227,7 @@ describe("Git import flow ", function () {
   });
 
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);

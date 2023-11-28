@@ -8,6 +8,9 @@ import {
   draggableWidgets,
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -15,14 +18,10 @@ describe("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
-      entityExplorer.NavigateToSwitcher("Widgets");
-
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(
         `${dsName}`,

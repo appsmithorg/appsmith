@@ -1,5 +1,7 @@
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -32,13 +34,13 @@ describe("API Panel Test Functionality", function () {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    entityExplorer.SelectEntityByName("FirstAPI", "Queries/JS");
+    EditorNavigation.SelectEntityByName("FirstAPI", EntityType.Api);
     entityExplorer.RenameEntityFromExplorer("FirstAPI", "SecondAPI", true);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
   });
 

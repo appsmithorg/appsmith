@@ -1,3 +1,9 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
@@ -118,7 +124,7 @@ describe("Widget Copy paste", function () {
     cy.get("body").type("{del}");
 
     //add list widget
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("listwidgetv2", { x: 500, y: 700 });
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 
@@ -151,7 +157,9 @@ describe("Widget Copy paste", function () {
 
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB, 400, 200);
 
-    _.entityExplorer.SelectEntityByName("Tab 1", "Tabs1");
+    EditorNavigation.SelectEntityByName("Tab 1", EntityType.Widget, {}, [
+      "Tabs1",
+    ]);
 
     cy.get("body").type(`{${modifierKey}}{c}`);
 

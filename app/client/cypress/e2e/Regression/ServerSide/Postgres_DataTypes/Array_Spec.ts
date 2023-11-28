@@ -1,16 +1,18 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
-  entityItems,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -27,8 +29,6 @@ describe("Array Datatype tests", function () {
       dsName = $dsName;
     });
     agHelper.AddDsl("Datatypes/ArrayDTdsl");
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(-31, -27);
   });
 
@@ -76,7 +76,7 @@ describe("Array Datatype tests", function () {
   });
 
   it("2. Inserting record - arraytypes", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
@@ -479,7 +479,7 @@ describe("Array Datatype tests", function () {
   });
 
   it("7. Deleting records - arraytypes", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
@@ -521,8 +521,7 @@ describe("Array Datatype tests", function () {
 
   it("9. Validate Drop of the Newly Created - arraytypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("dropTable");
+    EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.AssertQueryTableResponse(0, "0");
     entityExplorer.ExpandCollapseEntity("Queries/JS", false);
@@ -534,7 +533,7 @@ describe("Array Datatype tests", function () {
     () => {
       //Verify Deletion of all created queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
       //Ds Deletion
@@ -542,7 +541,7 @@ describe("Array Datatype tests", function () {
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
     },
   );
 });

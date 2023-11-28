@@ -10,6 +10,9 @@ import {
   table,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -20,15 +23,12 @@ describe("JSONForm widget one click binding feature", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 600, 400);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
       datasourceName = dsName as unknown as string;
-      entityExplorer.NavigateToSwitcher("Widgets");
 
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(
         `${datasourceName}`,
@@ -46,9 +46,7 @@ describe("JSONForm widget one click binding feature", () => {
 
     agHelper.Sleep(2000);
 
-    entityExplorer.NavigateToSwitcher("Widgets");
-
-    entityExplorer.SelectEntityByName("JSONForm1", "Widgets");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
     agHelper.GetNClick(
@@ -84,9 +82,7 @@ describe("JSONForm widget one click binding feature", () => {
 
     agHelper.Sleep(2000);
 
-    entityExplorer.NavigateToSwitcher("Widgets");
-
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     propPane.UpdatePropertyFieldValue("Default selected item", "001");
 

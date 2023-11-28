@@ -1,12 +1,14 @@
 import {
   agHelper,
-  entityItems,
   dataSources,
   entityExplorer,
+  entityItems,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -49,11 +51,11 @@ describe("Datasource form related tests", function () {
 
   it("2. Verify if schema was fetched once #18448", () => {
     agHelper.RefreshPage();
-    dataSources.navigateToDatasource(dataSourceName);
+    EditorNavigation.SelectEntityByName(dataSourceName, EntityType.Datasource);
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    entityExplorer.SelectEntityByName("Query1");
+    AppSidebar.navigate(AppSidebarButton.Pages);
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,

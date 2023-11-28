@@ -1,17 +1,19 @@
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
-  locators,
   assertHelper,
+  dataSources,
+  deployMode,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate Mongo URI CRUD with JSON Form", () => {
@@ -26,7 +28,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       agHelper.RenameWithInPane(dsName, false);
       dataSources.FillMongoDatasourceFormWithURI();
       dataSources.TestSaveDatasource();
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       entityExplorer.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
@@ -51,8 +53,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
   it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
     //Update documents query to handle the int _id data
-    entityExplorer.NavigateToSwitcher("Explorer", 0, true);
-    entityExplorer.SelectEntityByName("UpdateQuery");
+    EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
     agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
       propFieldName: "",
       directInput: false,

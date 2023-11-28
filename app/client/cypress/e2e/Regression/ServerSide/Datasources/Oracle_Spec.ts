@@ -13,9 +13,10 @@ import {
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
-import datasource from "../../../../locators/DatasourcesEditor.json";
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate Oracle DS", () => {
@@ -112,8 +113,8 @@ describe("Validate Oracle DS", () => {
     dataSources.AssertDataSourceInfo(["Host address", "Port", "Service Name"]);
     agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
     dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Data);
     dataSources.AssertDSInActiveList(dataSourceName);
   });
 
@@ -338,7 +339,7 @@ describe("Validate Oracle DS", () => {
   });
 
   it("4. Tc #2362  - Update query validation", () => {
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     query = `UPDATE ${guid}
 SET
     maximum_speed = CASE
@@ -373,7 +374,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
   });
 
   it("5. Tc #2361  - Delete query validation", () => {
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     query = `DELETE FROM ${guid}
     WHERE
         (aircraft_type = 'Cargo Plane' AND seating_capacity <= 100)
@@ -413,7 +414,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
   });
 
   it("6. Tc #2363  - Copy & Move query validations", () => {
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Copy to page",
       subAction: "Page1",
@@ -422,7 +423,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
     agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
     dataSources.RunQueryNVerifyResponseViews(2);
     entityExplorer.AddNewPage();
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.ActionContextMenuWithInPane({
       action: "Move to page",
       subAction: "Page2",
@@ -435,8 +436,8 @@ WHERE aircraft_type = 'Passenger Plane'`;
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
   });
 
   it("7. Tc #2365  - Query settings tab validations", () => {
