@@ -168,7 +168,7 @@ describe("emptyChartData", () => {
       expect(deprecationMessage.links).toEqual([
         {
           text: "Learn more",
-          url: "https://docs.appsmith.com",
+          url: "https://www.appsmith.com/blog/deprecating-fusion-charts",
         },
       ]);
     });

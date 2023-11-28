@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -80,11 +84,11 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   it("5. Text widgets binding with datepicker", function () {
-    _.entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
-    _.entityExplorer.SelectEntityByName("Text2");
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
 
     cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");

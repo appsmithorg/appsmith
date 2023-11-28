@@ -31,7 +31,7 @@ export interface ExplorerReduxState {
   };
 }
 
-const initialState: ExplorerReduxState = {
+export const initialState: ExplorerReduxState = {
   pinnedState: ExplorerPinnedState.PINNED,
   entity: {},
   width: DEFAULT_ENTITY_EXPLORER_WIDTH,

@@ -1,14 +1,15 @@
 import React from "react";
 import type { ActionsPropsType } from "./actions";
-import Actions from "./actions";
+import { Actions } from "./actions";
 import type { BannerPropType } from "./banner";
 import { Banner } from "./banner";
 
-function TableHeader(props: ActionsPropsType & BannerPropType) {
+interface TableHeaderProps extends ActionsPropsType, BannerPropType {
+  isAddRowInProgress: boolean;
+}
+
+function TableHeader(props: TableHeaderProps) {
   const {
-    accentColor,
-    borderRadius,
-    boxShadow,
     disabledAddNewRowSave,
     isAddRowInProgress,
     onAddNewRowAction,
@@ -17,20 +18,11 @@ function TableHeader(props: ActionsPropsType & BannerPropType) {
 
   return isAddRowInProgress ? (
     <Banner
-      accentColor={accentColor}
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
       disabledAddNewRowSave={disabledAddNewRowSave}
-      isAddRowInProgress={isAddRowInProgress}
       onAddNewRowAction={onAddNewRowAction}
     />
   ) : (
-    <Actions
-      accentColor={accentColor}
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
-      {...ActionProps}
-    />
+    <Actions {...ActionProps} />
   );
 }
 

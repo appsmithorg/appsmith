@@ -1,15 +1,18 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validating Mobile Views", function () {
   it("1. Validate change with height width for widgets", function () {
     _.agHelper.AddDsl("AutolayoutWidgetsDsl");
     //cy.openPropertyPane("containerwidget");
-    cy.get(".t--entity-name:contains('Container1')").click({ force: true });
+    EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
     cy.get(".t--widget-containerwidget")
       .first()
       .invoke("css", "height")
       .then((height) => {
-        cy.get(".t--entity-name:contains('Container2')").click({ force: true });
+        EditorNavigation.SelectEntityByName("Container2", EntityType.Widget);
         cy.get(".t--widget-containerwidget")
           .invoke("css", "height")
           .then((newheight) => {
