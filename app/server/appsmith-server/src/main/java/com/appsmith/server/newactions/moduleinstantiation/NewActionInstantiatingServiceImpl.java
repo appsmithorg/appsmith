@@ -15,7 +15,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
     private final NewActionRepository newActionRepository;
     private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringService refactoringSolution;
     private final NewActionService newActionService;
 
     @Override

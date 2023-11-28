@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-public interface RefactoringSolution extends RefactoringSolutionCE {
+public interface RefactoringService extends RefactoringServiceCE {
     Mono<Object> refactorCurrentEntity(
             Object currentEntity,
             EntityType entityType,

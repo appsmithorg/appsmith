@@ -14,7 +14,7 @@ import com.appsmith.server.dtos.ModuleInstantiatingMetaDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.moduleinstantiation.JSActionType;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleIns
     private final ModuleInstantiatingService<JSActionType> jsActionInstantiatingService;
     private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringService refactoringSolution;
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {

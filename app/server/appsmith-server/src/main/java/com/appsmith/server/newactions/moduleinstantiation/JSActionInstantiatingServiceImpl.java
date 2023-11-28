@@ -15,7 +15,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.moduleinstantiation.JSActionType;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -34,7 +34,7 @@ import java.util.Set;
 public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingService<JSActionType> {
     private final NewActionRepository newActionRepository;
     private final PolicyGenerator policyGenerator;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringService refactoringSolution;
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {

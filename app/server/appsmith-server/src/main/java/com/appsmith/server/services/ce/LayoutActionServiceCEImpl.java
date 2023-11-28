@@ -21,7 +21,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CollectionService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -44,7 +44,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final AnalyticsService analyticsService;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringService refactoringService;
     private final CollectionService collectionService;
     private final UpdateLayoutService updateLayoutService;
     private final ResponseUtils responseUtils;
@@ -396,7 +396,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     String name = action.getValidName();
                     CreatorContextType contextType =
                             action.getContextType() == null ? CreatorContextType.PAGE : action.getContextType();
-                    return refactoringSolution.isNameAllowed(page.getId(), contextType, layout.getId(), name);
+                    return refactoringService.isNameAllowed(page.getId(), contextType, layout.getId(), name);
                 })
                 .flatMap(nameAllowed -> {
                     // If the name is allowed, return pageMono for further processing

@@ -68,12 +68,6 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<Boolean> validateName(String name) {
-        return Mono.just(newActionService.validateActionName(name));
-    }
-
-    @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
         Mono<Integer> evalVersionMono = refactoringMetaDTO.getEvalVersionMono();
