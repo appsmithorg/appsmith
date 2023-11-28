@@ -250,10 +250,10 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     /**
-     * The application.workspaceId is prepended to the list {@link UserData#getRecentlyUsedWorkspaceIds}.
-     * The application.id is prepended to the list {@link UserData#getRecentlyUsedAppIds()}.
+     * This function is used to update the recently used application and workspace for the user
      *
-     * @param application@return Updated {@link UserData}
+     * @param application
+     * @return Updated {@link UserData}
      */
     @Override
     public Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application) {
@@ -263,19 +263,23 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final UserData userData = tuple.getT2();
+                    // TODO remove the updated to deprecated fields once client starts consuming the updated API
                     // set recently used workspace ids
                     userData.setRecentlyUsedWorkspaceIds(addIdToRecentList(
                             userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10));
                     // set recently used application ids
                     userData.setRecentlyUsedAppIds(
-                            addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 40));
+                            addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20));
+
+                    // Update recently used workspace and corresponding application ids
                     List<RecentlyUsedEntityDTO> recentlyUsedEntities = reorderWorkspacesInRecentlyUsedOrderForUser(
-                            userData.getRecentlyUsedEntityIds(), application.getWorkspaceId(), 20);
+                            userData.getRecentlyUsedEntityIds(), application.getWorkspaceId(), 10);
 
                     if (!CollectionUtils.isNullOrEmpty(recentlyUsedEntities)) {
                         RecentlyUsedEntityDTO latest = recentlyUsedEntities.get(0);
                         // Add the current applicationId to the list
-                        addIdToRecentList(latest.getApplicationIds(), application.getId(), 10);
+                        latest.setApplicationIds(
+                                addIdToRecentList(latest.getApplicationIds(), application.getId(), 10));
                     }
                     userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
                     return Mono.zip(
@@ -305,7 +309,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     protected List<RecentlyUsedEntityDTO> reorderWorkspacesInRecentlyUsedOrderForUser(
             List<RecentlyUsedEntityDTO> srcIdList, String workspaceId, int maxSize) {
         if (srcIdList == null) {
-            srcIdList = new ArrayList<>();
+            srcIdList = new ArrayList<>(maxSize);
         }
         if (!StringUtils.hasLength(workspaceId)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID);

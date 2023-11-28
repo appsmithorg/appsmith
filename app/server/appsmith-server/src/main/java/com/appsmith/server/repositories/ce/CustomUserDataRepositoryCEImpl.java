@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.QRecentlyUsedEntityDTO;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.google.common.collect.Lists;
@@ -76,11 +77,13 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     public Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
         final Query query = query(where(fieldName(QUserData.userData.userId)).is(userId));
 
-        query.fields().include(fieldName(QUserData.userData.recentlyUsedWorkspaceIds));
+        query.fields().include(fieldName(QUserData.userData.recentlyUsedEntityIds));
 
         return mongoOperations.findOne(query, UserData.class).map(userData -> {
-            final List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();
-            return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds) ? "" : recentlyUsedWorkspaceIds.get(0);
+            final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();
+            return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds)
+                    ? ""
+                    : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
         });
     }
 }

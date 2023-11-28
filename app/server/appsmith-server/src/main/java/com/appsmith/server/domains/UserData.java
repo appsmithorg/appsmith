@@ -57,8 +57,8 @@ public class UserData extends BaseDomain {
     private List<String> recentlyUsedOrgIds;
 
     // list of workspace ids that were recently accessed by the user
-    @JsonView(Views.Public.class)
     @Deprecated
+    @JsonView(Views.Public.class)
     private List<String> recentlyUsedWorkspaceIds;
 
     // list of application ids that were recently accessed by the user
