@@ -108,6 +108,7 @@ import {
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -898,6 +899,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       canCreateDatasourceActions,
       canDeleteDatasource,
       canManageDatasource,
+      currentApplicationIdForCreateNewApp,
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
@@ -1157,6 +1159,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
 
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
+
+  // This is only present during onboarding flow
+  const currentApplicationIdForCreateNewApp =
+    getCurrentApplicationIdForCreateNewApp(state);
 
   return {
     canCreateDatasourceActions,

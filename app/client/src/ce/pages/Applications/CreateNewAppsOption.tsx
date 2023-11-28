@@ -52,6 +52,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
+import localStorage from "utils/localStorage";
 import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { PluginPackageName, PluginType } from "entities/Action";
@@ -230,10 +231,26 @@ const CreateNewAppsOption = ({
   };
 
   const onClickStartWithData = () => {
-    // fetch plugins information to show list of all plugins
-    if (isEnabledForStartWithData) {
-      dispatch(fetchPlugins());
-      setUseType(START_WITH_TYPE.DATA);
+    const devEnabled = localStorage.getItem(
+      "ab_onboarding_flow_start_with_data_dev_only_enabled",
+    );
+    if (devEnabled) {
+      // fetch plugins information to show list of all plugins
+      if (isEnabledForStartWithData) {
+        dispatch(fetchPlugins());
+        setUseType(START_WITH_TYPE.DATA);
+      }
+    } else {
+      if (application) {
+        AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
+        dispatch(
+          firstTimeUserOnboardingInit(
+            application.id,
+            application.defaultPageId as string,
+            "datasources/NEW",
+          ),
+        );
+      }
     }
   };
 
