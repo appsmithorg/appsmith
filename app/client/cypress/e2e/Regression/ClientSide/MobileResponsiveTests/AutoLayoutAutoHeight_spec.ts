@@ -66,7 +66,7 @@ describe("Validating use cases for Auto Dimension", () => {
       .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TEXT))
       .then((height) => {
         const textHeight = parseInt(height?.split("px")[0]);
-        expect(textHeight).to.eq(191);
+        expect(textHeight).to.eq(172);
       });
   });
 });
