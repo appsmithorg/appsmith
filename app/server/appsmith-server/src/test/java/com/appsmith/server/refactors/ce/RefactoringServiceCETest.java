@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions.ce;
+package com.appsmith.server.refactors.ce;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;

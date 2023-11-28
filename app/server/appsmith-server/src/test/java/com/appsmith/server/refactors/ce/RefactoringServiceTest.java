@@ -1,4 +1,4 @@
-package com.appsmith.server.refactors;
+package com.appsmith.server.refactors.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
@@ -59,7 +59,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-public class RefactoringSolutionTest {
+public class RefactoringServiceTest {
 
     @SpyBean
     NewActionService newActionService;
