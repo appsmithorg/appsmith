@@ -9,6 +9,8 @@ import {
 import { expandLoadMoreOptions, OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -144,7 +146,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
       dataSources.SaveDatasource();
     });
-
+    AppSidebar.navigate(AppSidebarButton.Pages);
     propPane.MoveToTab("Style");
 
     propPane.MoveToTab("Content");
