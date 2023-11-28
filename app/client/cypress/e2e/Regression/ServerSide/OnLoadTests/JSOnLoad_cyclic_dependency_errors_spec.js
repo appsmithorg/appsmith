@@ -1,5 +1,7 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -10,7 +12,6 @@ let queryName = "Query1";
 
 import {
   agHelper,
-  entityExplorer,
   jsEditor,
   propPane,
   dataSources,
@@ -45,7 +46,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
         dataSources.ToggleUsePreparedStatement(false);
         dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       });
-      entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       cy.openPropertyPane("inputwidgetv2");
       cy.get(widgetsPage.defaultInput).type(
         "{{" + queryName + ".data[0].gender",
@@ -72,7 +73,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
       cy.get(datasource.createQuery).click();
       dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       dataSources.ToggleUsePreparedStatement(false);
-      entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       cy.openPropertyPane("inputwidgetv2");
       cy.get(widgetsPage.defaultInput).type(
         "{{" + queryName + ".data[0].gender",
