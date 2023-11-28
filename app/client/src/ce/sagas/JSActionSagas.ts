@@ -385,19 +385,19 @@ export function* refactorJSObjectName(
         getJSCollection(state, id),
       );
       const functions = jsObject.actions;
-      yield put(
-        updateActionData(
-          functions.map((f) => ({
-            entityName: newName,
-            data: undefined,
-            dataPath: `${f.name}.data`,
-            dataPathRef: `${oldName}.${f.name}.data`,
-          })),
-        ),
-      );
       if (currentPageId === pageId) {
         // @ts-expect-error: refactorResponse.data is of type unknown
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
+        yield put(
+          updateActionData(
+            functions.map((f) => ({
+              entityName: newName,
+              data: undefined,
+              dataPath: `${f.name}.data`,
+              dataPathRef: `${oldName}.${f.name}.data`,
+            })),
+          ),
+        );
       } else {
         yield put(fetchJSCollectionsForPage(pageId));
       }

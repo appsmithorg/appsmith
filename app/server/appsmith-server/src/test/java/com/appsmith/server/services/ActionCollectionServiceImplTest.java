@@ -289,7 +289,7 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(layoutActionService.createAction(Mockito.any())).thenReturn(Mono.just(new ActionDTO()));
 
-        Mockito.when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
+        Mockito.when(updateLayoutService.updatePageLayoutsByPageId(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
                     return Mono.just(actionCollectionDTO.getPageId());
                 });
@@ -359,7 +359,7 @@ public class ActionCollectionServiceImplTest {
                     return Mono.just(argument);
                 });
 
-        Mockito.when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
+        Mockito.when(updateLayoutService.updatePageLayoutsByPageId(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
                     return Mono.just(actionCollectionDTO.getPageId());
                 });
@@ -530,7 +530,7 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
                 .thenReturn(Mono.just(modifiedActionCollection));
 
-        Mockito.when(layoutActionService.updatePageLayoutsByPageId(Mockito.anyString()))
+        Mockito.when(updateLayoutService.updatePageLayoutsByPageId(Mockito.anyString()))
                 .thenAnswer(invocationOnMock -> {
                     return Mono.just(actionCollection.getUnpublishedCollection().getPageId());
                 });

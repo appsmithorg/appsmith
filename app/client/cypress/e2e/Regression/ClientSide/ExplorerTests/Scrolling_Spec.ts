@@ -5,6 +5,10 @@ import {
   entityExplorer,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 let mockDBNameUsers: string, mockDBNameMovies: string;
 
 describe("Entity explorer context menu should hide on scrolling", function () {
@@ -23,7 +27,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
       agHelper.GetNClick(locators._closeModal, 0, true, 0);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
-      entityExplorer.NavigateToSwitcher("Explorer");
+      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
       entityExplorer.ExpandCollapseEntity("Modal1");
       entityExplorer.ExpandCollapseEntity("Modal2");
       entityExplorer.ExpandCollapseEntity("Modal3");
@@ -73,7 +77,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
       agHelper.GetNClick(locators._closeModal, 0, true, 0);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
-      entityExplorer.NavigateToSwitcher("Explorer");
+      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
       entityExplorer.ExpandCollapseEntity("Modal1");
       entityExplorer.ExpandCollapseEntity("Modal2");
       entityExplorer.ExpandCollapseEntity("Modal3");

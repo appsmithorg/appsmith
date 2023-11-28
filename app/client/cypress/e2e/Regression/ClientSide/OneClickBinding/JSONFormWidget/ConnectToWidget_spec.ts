@@ -23,13 +23,10 @@ describe("JSONForm widget one click binding feature", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 600, 400);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
       datasourceName = dsName as unknown as string;
-      entityExplorer.NavigateToSwitcher("Widgets");
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
@@ -48,8 +45,6 @@ describe("JSONForm widget one click binding feature", () => {
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(2000);
-
-    entityExplorer.NavigateToSwitcher("Widgets");
 
     EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
@@ -86,8 +81,6 @@ describe("JSONForm widget one click binding feature", () => {
     agHelper.GetNClick(oneClickBindingLocator.datasourceQuerySelector("List1"));
 
     agHelper.Sleep(2000);
-
-    entityExplorer.NavigateToSwitcher("Widgets");
 
     EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 

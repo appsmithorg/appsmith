@@ -9,10 +9,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("transformed one-click binding", function () {
-  before(() => {
-    entityExplorer.NavigateToSwitcher("Explorer");
-  });
-
   it("Transforms API data to match widget exppected type ", function () {
     // Create anAPI that mreturns object response
     apiPage.CreateAndFillApi(
