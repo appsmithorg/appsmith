@@ -1095,6 +1095,7 @@ export class DataSources {
         expectedStatus,
       );
     }
+    this.assertHelper.AssertReduxLoad("RUN_ACTION_SUCCESS");
   }
 
   AssertRunButtonDisability(disabled = false) {
