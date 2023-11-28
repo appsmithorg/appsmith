@@ -285,6 +285,24 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         return dsl;
     }
 
+    @Override
+    public Mono<String> updatePageLayoutsByPageId(String pageId) {
+        return Mono.justOrEmpty(pageId)
+                // fetch the unpublished page
+                .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
+                .flatMapMany(page -> {
+                    if (page.getLayouts() == null) {
+                        return Mono.empty();
+                    }
+                    return Flux.fromIterable(page.getLayouts()).flatMap(layout -> {
+                        layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
+                        return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
+                    });
+                })
+                .collectList()
+                .then(Mono.just(pageId));
+    }
+
     private JSONObject unEscapeDslKeys(JSONObject dsl, Set<String> escapedWidgetNames) {
 
         String widgetName = (String) dsl.get(FieldName.WIDGET_NAME);
