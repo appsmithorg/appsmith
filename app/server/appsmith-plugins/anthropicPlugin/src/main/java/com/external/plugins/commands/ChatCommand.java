@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static com.external.plugins.constants.AnthropicConstants.CHAT_MODEL_SELECTOR;
 import static com.external.plugins.constants.AnthropicConstants.CONTENT;
+import static com.external.plugins.constants.AnthropicConstants.DATA;
 import static com.external.plugins.constants.AnthropicConstants.DEFAULT_MAX_TOKEN;
 import static com.external.plugins.constants.AnthropicConstants.MAX_TOKENS;
 import static com.external.plugins.constants.AnthropicConstants.MESSAGES;
@@ -42,7 +43,7 @@ public class ChatCommand implements AnthropicCommand {
 
     @Override
     public URI createTriggerUri() {
-        return URI.create("https://cs-1467-customer.dp.appsmith.com/api/v1/ai/models?provider=anthropic");
+        return URI.create("https://cs.appsmith.com/api/v1/ai/models?provider=anthropic");
     }
 
     @Override
@@ -84,9 +85,9 @@ public class ChatCommand implements AnthropicCommand {
      */
     private String createPrompt(Map<String, Object> formData) {
         StringBuilder stringBuilder = new StringBuilder();
-        formData.get(MESSAGES);
-        if (formData.containsKey(MESSAGES) && ((List) formData.get(MESSAGES)).size() > 0) {
-            List<Map<String, String>> messagesMap = (List<Map<String, String>>) formData.get(MESSAGES);
+        if (formData.containsKey(MESSAGES) && ((Map) formData.get(MESSAGES)).containsKey(DATA)) {
+            List<Map<String, String>> messagesMap =
+                    (List<Map<String, String>>) ((Map<?, ?>) formData.get(MESSAGES)).get(DATA);
             for (Map<String, String> message : messagesMap) {
                 if (message.containsKey(ROLE) && message.containsKey(CONTENT)) {
                     stringBuilder
