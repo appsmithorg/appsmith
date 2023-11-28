@@ -105,7 +105,7 @@ interface Migration {
  * Migrations will be used to construct mockFnObj object where mockFnObj's key is the version and value is an array of jest mock functions.
  *
  * NOTE:
- * - In Migrations the sequence of object should exactly match the sequence that is present in the transformDSL function.
+ * - In Migrations the sequence of object should exactly match the sequence that is present in the migrateDSL function.
  *
  * - For cases were migration is skipped, we include them in Migrations.
  *   Simply add the object with functionLookup and version of the skipped migration.
@@ -939,9 +939,7 @@ describe("Test all the migrations are running", () => {
   });
 
   // Runs all the migrations
-  DSLMigrations.transformDSL(
-    originalDSLForDSLMigrations as unknown as DSLWidget,
-  );
+  DSLMigrations.migrateDSL(originalDSLForDSLMigrations as unknown as DSLWidget);
 
   migrations.forEach((item: any, testIdx: number) => {
     const { functionLookup, version } = item;

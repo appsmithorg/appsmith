@@ -109,7 +109,7 @@ export const calculateDynamicHeight = () => {
   return calculatedMinHeight;
 };
 
-const buildInitialDSL = (currentDSL: DSLWidget) => {
+const migrateUnversionedDSL = (currentDSL: DSLWidget) => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
@@ -140,7 +140,7 @@ const buildInitialDSL = (currentDSL: DSLWidget) => {
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 // This needs the widget config to be already built to migrate correctly
-const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
+const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === 1) {
     if (currentDSL.children && currentDSL.children.length > 0)
       currentDSL.children = currentDSL.children.map(updateContainers);
@@ -586,14 +586,14 @@ const migrateDSL = (currentDSL: DSLWidget, newPage = false) => {
   return currentDSL;
 };
 
-export const transformDSL = (
+export const migrateDSL = (
   currentDSL: DSLWidget,
   newPage = false,
 ): DSLWidget => {
   if (currentDSL.version === undefined) {
-    const initialDSL = buildInitialDSL(currentDSL);
-    return migrateDSL(initialDSL, newPage) as DSLWidget;
+    const initialDSL = migrateUnversionedDSL(currentDSL);
+    return migrateVersionedDSL(initialDSL, newPage) as DSLWidget;
   } else {
-    return migrateDSL(currentDSL, newPage) as DSLWidget;
+    return migrateVersionedDSL(currentDSL, newPage) as DSLWidget;
   }
 };

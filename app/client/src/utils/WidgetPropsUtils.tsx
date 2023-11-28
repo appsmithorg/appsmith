@@ -23,7 +23,7 @@ import type {
   WidgetDraggingBlock,
   XYCord,
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import { transformDSL } from "@shared/dsl";
+import { migrateDSL } from "@shared/dsl";
 
 export interface WidgetOperationParams {
   operation: WidgetOperation;
@@ -36,7 +36,7 @@ const defaultDSL = defaultTemplate;
 /**
  * This function is responsible for the following operations:
  * 1. Using the default DSL if the response doesn't give us a DSL
- * 2. Running all the DSL migrations on the DSL (transformDSL)
+ * 2. Running all the DSL migrations on the DSL (migrateDSL)
  * 3. Transforming the DSL for the specifications of the layout system (only if a DSLTransformer is passed as an argument)
  * @param dslTransformer A function that takes a DSL and returns a DSL transformed for the specifications of the layout system
  * @param fetchPageResponse The response from the fetchPage API Call
@@ -62,7 +62,7 @@ export const extractCurrentDSL = ({
   let dsl = currentDSL as DSLWidget;
   if (migrateDSLLocally) {
     // Run all the migrations on this DSL
-    dsl = transformDSL(
+    dsl = migrateDSL(
       currentDSL as ContainerWidgetProps<WidgetProps>,
       newPage,
     ) as DSLWidget;

@@ -1,11 +1,11 @@
-import { LATEST_DSL_VERSION, transformDSL } from "..";
+import { LATEST_DSL_VERSION, migrateDSL } from "..";
 import { migrateRadioGroupAlignmentProperty } from "../migrations/056-migrate-radio-group-alignment-property";
 import type { DSLWidget } from "../types";
 
 const ASSETS_CDN_URL = "https://assets.appsmith.com";
 
 describe("correctly migrate dsl", () => {
-  it("transformDSL for private widget", () => {
+  it("migrateDSL for private widget", () => {
     const currentVersion = 49; // before adding privateWidgets to all List widgets
     const nextVersion = LATEST_DSL_VERSION; // It runs Two Migrations, Always Update as migration increases
 
@@ -1229,12 +1229,12 @@ describe("correctly migrate dsl", () => {
       isLoading: false,
     };
 
-    const actualNextDsl = transformDSL(currentDSL);
+    const actualNextDsl = migrateDSL(currentDSL);
 
     expect(actualNextDsl).toEqual(expectedNextDSL);
   });
 
-  it("transformDSL for theming v1", () => {
+  it("migrateDSL for theming v1", () => {
     const currentVersion = 53;
     const nextVersion = LATEST_DSL_VERSION;
     const currentDSL: DSLWidget = {
@@ -2452,7 +2452,7 @@ describe("correctly migrate dsl", () => {
       isLoading: false,
     };
 
-    const actualNextDsl = transformDSL(currentDSL);
+    const actualNextDsl = migrateDSL(currentDSL);
 
     expect(actualNextDsl).toEqual(expectedNextDSL);
   });
@@ -3170,7 +3170,7 @@ describe("correctly migrate dsl", () => {
         },
       ],
     };
-    const nextDSL = transformDSL(currentDSL);
+    const nextDSL = migrateDSL(currentDSL);
 
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     const validations = (nextDSL.children || [])[0].primaryColumns.column1
