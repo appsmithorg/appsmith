@@ -7,16 +7,19 @@ import {
   PACKAGE_EDITOR_PATH,
 } from "@appsmith/constants/routes/packageRoutes";
 import type { APP_MODE } from "entities/App";
+import { WORKFLOW_EDITOR_URL } from "@appsmith/constants/routes/workflowRoutes";
 
 export enum EDITOR_TYPE {
   PKG = "PKG",
   APP = "APP",
+  WORKFLOW = "WORKFLOW",
 }
 
 type ID = string;
 
 export type URLBuilderParams = CE_URLBuilderParams & {
   moduleId?: string;
+  workflowId?: string;
   generateEditorPath?: boolean;
 };
 
@@ -50,6 +53,8 @@ export class URLBuilder extends CE_URLBuilderClass {
   private packageParams: PackageParams;
   private modulesParams: ModulesParams;
   private currentModuleId?: string | null;
+  private workflowId?: string | null;
+  private editorType?: EDITOR_TYPE | null;
 
   constructor() {
     super();
@@ -73,6 +78,14 @@ export class URLBuilder extends CE_URLBuilderClass {
     this.stateParams = {};
   }
 
+  setEditorType(builderParams: URLBuilderParams) {
+    this.editorType = this.getDefaultEditorType(builderParams);
+  }
+
+  unsetEditorType() {
+    this.editorType = null;
+  }
+
   setPackageParams(params: PackageParams) {
     this.packageParams = params;
   }
@@ -86,8 +99,16 @@ export class URLBuilder extends CE_URLBuilderClass {
     this.currentModuleId = moduleId;
   }
 
+  setCurrentWorkflowId(workflowId: URLBuilder["workflowId"]) {
+    this.workflowId = workflowId;
+  }
+
   getCurrentModuleId() {
     return this.currentModuleId;
+  }
+
+  getCurrentWorkflowId() {
+    return this.workflowId;
   }
 
   getPackageParams() {
@@ -98,26 +119,42 @@ export class URLBuilder extends CE_URLBuilderClass {
     return this.modulesParams;
   }
 
-  getDefaultEditorType() {
+  getDefaultEditorType(builderParams?: URLBuilderParams) {
     /**
      * Fallback for this is always the app. If a user visits an unknown route,
      * which does not start with /app or /pkg this should return APP as the editor
      * by default. The ternary condition satisfies the above condition.
      */
-    const editorType = location.pathname.startsWith("/pkg")
-      ? EDITOR_TYPE.PKG
-      : EDITOR_TYPE.APP;
-    return editorType;
+    if (
+      location.pathname.startsWith("/pkg") ||
+      builderParams?.hasOwnProperty("moduleId")
+    ) {
+      return EDITOR_TYPE.PKG;
+    }
+
+    if (
+      location.pathname.startsWith("/workflow") ||
+      builderParams?.hasOwnProperty("workflowId")
+    ) {
+      return EDITOR_TYPE.WORKFLOW;
+    }
+
+    return EDITOR_TYPE.APP;
   }
 
   generateBasePath(entityId: string, mode: APP_MODE) {
-    const editorType = this.getDefaultEditorType();
+    const editorType = this.editorType || this.getDefaultEditorType();
 
-    if (EDITOR_TYPE.PKG === editorType) {
-      return this.generateBasePathForPkg(entityId);
+    switch (editorType) {
+      case EDITOR_TYPE.PKG:
+        return this.generateBasePathForPkg(entityId);
+
+      case EDITOR_TYPE.WORKFLOW:
+        return this.generateBasePathForWorkflow(entityId);
+
+      default:
+        return this.generateBasePathForApp(entityId, mode);
     }
-
-    return this.generateBasePathForApp(entityId, mode);
   }
 
   /**
@@ -152,12 +189,33 @@ export class URLBuilder extends CE_URLBuilderClass {
 
     return generatePath(MODULE_EDITOR_PATH, formattedParams);
   }
+  /**
+   * Generates base url for a workflow based route.
+   * Creates a url with the default pattern of the path and extracts the
+   * workflowId and workflowSlug.
+   *
+   * @param workflowId
+   * @returns string
+   */
+  generateBasePathForWorkflow(workflowId: string) {
+    const formattedParams = {
+      workflowId,
+      // workflowSlug: match.params.workflowSlug, // TODO (Workflows): Add workflow slug
+    };
+
+    return generatePath(WORKFLOW_EDITOR_URL, formattedParams);
+  }
 
   resolveEntityId(builderParams: URLBuilderParams) {
-    const editorType = this.getDefaultEditorType();
+    const editorType =
+      this.editorType || this.getDefaultEditorType(builderParams);
 
     if (EDITOR_TYPE.PKG === editorType) {
       return this.resolveEntityIdForPkg(builderParams);
+    }
+
+    if (editorType === EDITOR_TYPE.WORKFLOW) {
+      return this.resolveEntityIdForWorkflow(builderParams);
     }
 
     return this.resolveEntityIdForApp(builderParams);
@@ -167,11 +225,17 @@ export class URLBuilder extends CE_URLBuilderClass {
     return builderParams.moduleId || this.getCurrentModuleId() || "";
   }
 
+  resolveEntityIdForWorkflow(builderParams: URLBuilderParams) {
+    return builderParams.workflowId || this.getCurrentWorkflowId() || "";
+  }
+
   build(builderParams: URLBuilderParams, mode?: APP_MODE) {
     this.setStateParams(builderParams);
+    this.setEditorType(builderParams);
 
     const path = super.build(builderParams, mode);
 
+    this.unsetEditorType();
     this.unsetStateParams();
 
     return path;

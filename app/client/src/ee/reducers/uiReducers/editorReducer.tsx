@@ -17,6 +17,8 @@ export type EditorReduxState = CE_EditorReduxState & {
   currentPackageId?: string;
   isPackagePublishing: boolean;
   isModuleFetchingActions: boolean;
+  currentWorkflowId?: string;
+  isWorkflowEditorInitialized: boolean;
   isModuleUpdating: boolean;
 };
 
@@ -25,6 +27,7 @@ export const initialState: EditorReduxState = {
   isPackageEditorInitialized: false,
   isPackagePublishing: false,
   isModuleFetchingActions: false,
+  isWorkflowEditorInitialized: false,
   isModuleUpdating: false,
 };
 
@@ -80,6 +83,30 @@ const handlers = {
     };
   },
 
+  [ReduxActionTypes.SET_CURRENT_WORKFLOW_ID]: (
+    state: EditorReduxState,
+    action: ReduxAction<{ workflowId: string }>,
+  ) => {
+    return {
+      ...state,
+      currentWorkflowId: action.payload.workflowId,
+    };
+  },
+
+  [ReduxActionTypes.INITIALIZE_WORKFLOW_EDITOR_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      isWorkflowEditorInitialized: true,
+    };
+  },
+  [ReduxActionTypes.INITIALIZE_WORKFLOW_EDITOR]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      isWorkflowEditorInitialized: false,
+    };
+  },
   [ReduxActionTypes.UPDATE_MODULE_INPUTS_INIT]: (state: EditorReduxState) => {
     return {
       ...state,

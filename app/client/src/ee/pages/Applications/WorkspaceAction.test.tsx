@@ -8,6 +8,7 @@ import "@testing-library/jest-dom";
 import store from "store";
 import WorkspaceAction from "./WorkspaceAction";
 import * as moduleFeatureSelectors from "@appsmith/selectors/moduleFeatureSelectors";
+import * as workflowSelectors from "@appsmith/selectors/workflowSelectors";
 import * as applicationSelectors from "@appsmith/selectors/applicationSelectors";
 import * as packageSelectors from "@appsmith/selectors/packageSelectors";
 import * as packageActions from "@appsmith/actions/packageActions";
@@ -16,6 +17,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 jest.mock("@appsmith/selectors/moduleFeatureSelectors");
+jest.mock("@appsmith/selectors/workflowSelectors");
 jest.mock("@appsmith/selectors/packageSelectors");
 jest.mock("@appsmith/selectors/applicationSelectors");
 jest.mock("@appsmith/actions/packageActions");
@@ -55,6 +57,14 @@ const DEFAULT_USER_WORKSPACES = [
         workspaceId: DEFAULT_WORKSPACE_ID,
       },
     ],
+    workflows: [
+      {
+        id: "wf",
+        userPermissions: [],
+        name: "Workflow 1",
+        workspaceId: DEFAULT_WORKSPACE_ID,
+      },
+    ],
   },
 ];
 
@@ -63,6 +73,15 @@ const setQueryModuleFeatureFlag = (value: boolean) => {
     typeof moduleFeatureSelectors
   >;
   moduleFeatureSelectorsFactory.getShowQueryModule.mockImplementation(
+    () => value,
+  );
+};
+
+const setWorkflowFeatureFlag = (value: boolean) => {
+  const workflowSelectorsFactory = workflowSelectors as jest.Mocked<
+    typeof workflowSelectors
+  >;
+  workflowSelectorsFactory.getShowWorkflowFeature.mockImplementation(
     () => value,
   );
 };
@@ -86,6 +105,16 @@ const setIsCreatingApplicationSelector = (value: boolean) => {
   );
 };
 
+const setIsCreatingWorkflowSelector = (value: boolean) => {
+  const workflowSelectorsFactory = workflowSelectors as jest.Mocked<
+    typeof workflowSelectors
+  >;
+
+  workflowSelectorsFactory.getIsCreatingWorkflow.mockImplementation(
+    () => value,
+  );
+};
+
 const mockGetUserApplicationsList = (
   userWorkspaces = DEFAULT_USER_WORKSPACES,
 ) => {
@@ -101,9 +130,11 @@ const mockGetUserApplicationsList = (
 };
 
 describe("WorkspaceAction", () => {
-  it("should render the CE UI when the showQueryModule is disabled", () => {
+  it("should render the CE UI when the showQueryModule and workflow feature is disabled", () => {
     setQueryModuleFeatureFlag(false);
+    setWorkflowFeatureFlag(false);
     setIsCreatingPackageSelector(false);
+    setIsCreatingWorkflowSelector(false);
     setIsCreatingApplicationSelector(false);
     mockGetUserApplicationsList();
 
@@ -123,8 +154,32 @@ describe("WorkspaceAction", () => {
     expect(screen.queryByText("Create new")).not.toBeInTheDocument();
   });
 
-  it("should render the EE action button when the showQueryModule is enabled", () => {
+  it("should render the EE action button when only the showQueryModule is enabled", () => {
     setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(false);
+    setIsCreatingPackageSelector(false);
+    setIsCreatingWorkflowSelector(false);
+    setIsCreatingApplicationSelector(false);
+
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <Provider store={store}>
+          <WorkspaceAction
+            isMobile={false}
+            onCreateNewApplication={jest.fn()}
+            workspaceId={DEFAULT_WORKSPACE_ID}
+          />
+        </Provider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.queryByText("New")).not.toBeInTheDocument();
+    expect(screen.queryByText("Create new")).toBeInTheDocument();
+  });
+
+  it("should render the EE action button when only workflows are enabled", () => {
+    setQueryModuleFeatureFlag(false);
+    setWorkflowFeatureFlag(true);
     setIsCreatingPackageSelector(false);
     setIsCreatingApplicationSelector(false);
 
@@ -146,6 +201,7 @@ describe("WorkspaceAction", () => {
 
   it("it should be in a loading state when package is creating", () => {
     setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(false);
     setIsCreatingPackageSelector(true);
     setIsCreatingApplicationSelector(false);
 
@@ -167,8 +223,34 @@ describe("WorkspaceAction", () => {
     );
   });
 
+  it("it should be in a loading state when workflow is creating", () => {
+    setQueryModuleFeatureFlag(false);
+    setWorkflowFeatureFlag(true);
+    setIsCreatingPackageSelector(false);
+    setIsCreatingApplicationSelector(false);
+    setIsCreatingWorkflowSelector(true);
+
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <Provider store={store}>
+          <WorkspaceAction
+            isMobile={false}
+            onCreateNewApplication={jest.fn()}
+            workspaceId={DEFAULT_WORKSPACE_ID}
+          />
+        </Provider>
+      </ThemeProvider>,
+    );
+
+    expect(screen.getByTestId("t--workspace-action-btn")).toHaveAttribute(
+      "data-loading",
+      "true",
+    );
+  });
+
   it("it should be in a loading state when application is creating", async () => {
     setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(false);
     setIsCreatingPackageSelector(false);
     setIsCreatingApplicationSelector(true);
 
@@ -190,9 +272,11 @@ describe("WorkspaceAction", () => {
     );
   });
 
-  it("show create App/Package options when Create new button is clicked", () => {
+  it("show create App/Package/Workflow options when Create new button is clicked", () => {
     setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(true);
     setIsCreatingPackageSelector(false);
+    setIsCreatingWorkflowSelector(false);
     setIsCreatingApplicationSelector(false);
 
     render(
@@ -212,6 +296,7 @@ describe("WorkspaceAction", () => {
     // Check for options to be not preset
     expect(screen.queryByText("New App")).not.toBeInTheDocument();
     expect(screen.queryByText("New Package")).not.toBeInTheDocument();
+    expect(screen.queryByText("New Workflow")).not.toBeInTheDocument();
 
     fireEvent.click(button);
 
@@ -226,7 +311,9 @@ describe("WorkspaceAction", () => {
 
   it("executes onCreateNewApplication when the New App is clicked", async () => {
     setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(false);
     setIsCreatingPackageSelector(false);
+    setIsCreatingWorkflowSelector(false);
     setIsCreatingApplicationSelector(false);
 
     const onCreateNewAppMock = jest.fn();
@@ -256,7 +343,9 @@ describe("WorkspaceAction", () => {
 
   it("executes createPackageFromWorkspace action when the New Package is clicked", async () => {
     setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(false);
     setIsCreatingPackageSelector(false);
+    setIsCreatingWorkflowSelector(false);
     setIsCreatingApplicationSelector(false);
 
     const packageActionsFactory = packageActions as jest.Mocked<
@@ -294,7 +383,9 @@ describe("WorkspaceAction", () => {
 
   it("disables create package option when permission is missing", () => {
     setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(true);
     setIsCreatingPackageSelector(false);
+    setIsCreatingWorkflowSelector(false);
     setIsCreatingApplicationSelector(false);
 
     // Add only Create app permission
@@ -322,6 +413,9 @@ describe("WorkspaceAction", () => {
     fireEvent.click(button);
 
     expect(
+      screen.getByTestId("t--workspace-action-create-workflow"),
+    ).toHaveAttribute("data-disabled");
+    expect(
       screen.getByTestId("t--workspace-action-create-package"),
     ).toHaveAttribute("data-disabled");
     expect(
@@ -331,7 +425,9 @@ describe("WorkspaceAction", () => {
 
   it("disables create app when permission is missing", () => {
     setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(true);
     setIsCreatingPackageSelector(false);
+    setIsCreatingWorkflowSelector(false);
     setIsCreatingApplicationSelector(false);
 
     // Add only Create app permission
@@ -359,6 +455,9 @@ describe("WorkspaceAction", () => {
     fireEvent.click(button);
 
     expect(
+      screen.getByTestId("t--workspace-action-create-workflow"),
+    ).toHaveAttribute("data-disabled");
+    expect(
       screen.getByTestId("t--workspace-action-create-app"),
     ).toHaveAttribute("data-disabled");
     expect(
@@ -366,9 +465,50 @@ describe("WorkspaceAction", () => {
     ).not.toHaveAttribute("data-disabled");
   });
 
-  it("hides the primary action button when permission for both create app and package are missing", () => {
+  it("disables create workflow when permission is missing", () => {
     setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(true);
     setIsCreatingPackageSelector(false);
+    setIsCreatingWorkflowSelector(false);
+    setIsCreatingApplicationSelector(false);
+
+    // Add only Create app permission
+    const userWorkspaces = klona(DEFAULT_USER_WORKSPACES);
+    userWorkspaces[0].workspace.userPermissions = [
+      PERMISSION_TYPE.CREATE_PACKAGE,
+    ];
+
+    mockGetUserApplicationsList(userWorkspaces);
+
+    render(
+      <ThemeProvider theme={lightTheme}>
+        <Provider store={store}>
+          <WorkspaceAction
+            isMobile={false}
+            onCreateNewApplication={jest.fn()}
+            workspaceId={DEFAULT_WORKSPACE_ID}
+          />
+        </Provider>
+      </ThemeProvider>,
+    );
+
+    // Click on workspace action button (Create new)
+    const button = screen.getByTestId("t--workspace-action-btn");
+    fireEvent.click(button);
+
+    expect(
+      screen.getByTestId("t--workspace-action-create-workflow"),
+    ).toHaveAttribute("data-disabled");
+    expect(
+      screen.getByTestId("t--workspace-action-create-app"),
+    ).toHaveAttribute("data-disabled");
+  });
+
+  it("hides the primary action button when permission for create app, package and workflows are missing", () => {
+    setQueryModuleFeatureFlag(true);
+    setWorkflowFeatureFlag(false);
+    setIsCreatingPackageSelector(false);
+    setIsCreatingWorkflowSelector(false);
     setIsCreatingApplicationSelector(false);
 
     // Add only Create app permission
