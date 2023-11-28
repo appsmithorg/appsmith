@@ -17,8 +17,9 @@ import {
   ERROR_ACTION_EXECUTE_FAIL,
   createMessage,
 } from "../../../../support/Objects/CommonErrorMessages";
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebar,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("API Bugs", function () {
@@ -63,7 +64,7 @@ describe("API Bugs", function () {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {
@@ -95,7 +96,6 @@ describe("API Bugs", function () {
 
   it("5. Bug 26897, Invalid binding of table data when used existing suggested widgets for an action returning object & array", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
-    entityExplorer.NavigateToSwitcher("Explorer");
 
     // Case where api returns array response
     apiPage.CreateAndFillApi(

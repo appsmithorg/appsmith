@@ -4,8 +4,9 @@ import {
   apiPage,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebar,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 let APIName;
@@ -20,10 +21,10 @@ describe("API Panel Test Functionality ", function () {
   it("1. Test Search API fetaure", function () {
     cy.log("Login Successful");
     cy.generateUUID().then((uid) => {
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       cy.CreateAPI(`FirstAPI_${uid}`);
       cy.log("Creation of FirstAPI Action successful");
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Pages);
       cy.CreateAPI(`SecondAPI_${uid}`);
       cy.CheckAndUnfoldEntityItem("Queries/JS");
       cy.log("Creation of SecondAPI Action successful");

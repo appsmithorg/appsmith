@@ -4,7 +4,8 @@
 
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
@@ -407,7 +408,7 @@ Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
   // );
 
   // Logout is a POST request in CE
-  const httpMethod = "POST";
+  let httpMethod = "POST";
   if (CURRENT_REPO === REPO.EE) {
     httpMethod = "GET";
   }
@@ -1998,7 +1999,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreatePage", () => {
-  EditorNavigation.ViaSidebar(SidebarButton.Pages);
+  AppSidebar.navigate(AppSidebarButton.Pages);
   cy.get(pages.AddPage).first().click();
   cy.xpath("//span[text()='New blank page']/parent::div").click();
 });

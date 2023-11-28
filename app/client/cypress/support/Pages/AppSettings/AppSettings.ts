@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
-import EditorNavigation, { SidebarButton } from "../EditorNavigation";
+import { AppSidebar, AppSidebarButton } from "../EditorNavigation";
 export class AppSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private theme = ObjectsRegistry.ThemeSettings;
@@ -68,11 +68,11 @@ export class AppSettings {
   };
 
   public OpenAppSettings() {
-    EditorNavigation.ViaSidebar(SidebarButton.Settings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
   }
 
   public ClosePane() {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   }
 
   public GoToThemeSettings() {
