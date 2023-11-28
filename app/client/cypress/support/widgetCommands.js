@@ -12,7 +12,6 @@ const formWidgetsPage = require("../locators/FormWidgets.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
-const generatePage = require("../locators/GeneratePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
 
@@ -21,6 +20,7 @@ let pageidcopy = " ";
 const ee = ObjectsRegistry.EntityExplorer;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const propPane = ObjectsRegistry.PropertyPane;
+const assertHelper = ObjectsRegistry.AssertHelper;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -966,7 +966,7 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
     if (pageName) {
       const pageId = xhr.response.body.data.id;
       const oldPageName = xhr.response.body.data.name;
-      cy.wait(2000);
+      assertHelper.AssertReduxLoad("SETUP_PAGE_SUCCESS");
       ee.RenameEntityFromExplorer(oldPageName, pageName, true);
       cy.wrap(pageId).as("currentPageId");
     }
