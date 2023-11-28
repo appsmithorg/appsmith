@@ -20,14 +20,10 @@ describe("JSONForm widget one click binding feature", () => {
   it("1.Create flow: should check that queries are created and bound to jsonform widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 450, 200);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
       datasourceName = dsName as unknown as string;
-
-      entityExplorer.NavigateToSwitcher("Widgets");
 
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
@@ -70,8 +66,6 @@ describe("JSONForm widget one click binding feature", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 600, 400);
 
-    entityExplorer.NavigateToSwitcher("Widgets");
-
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     oneClickBinding.ChooseAndAssertForm(
@@ -88,8 +82,6 @@ describe("JSONForm widget one click binding feature", () => {
     assertHelper.AssertNetworkStatus("@postExecute");
 
     agHelper.Sleep(2000);
-
-    entityExplorer.NavigateToSwitcher("Widgets");
 
     EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
@@ -132,8 +124,6 @@ describe("JSONForm widget one click binding feature", () => {
 
     // reloading because we don't create select query with json form, so we need to reload the page to get the updated data
     cy.reload();
-
-    entityExplorer.NavigateToSwitcher("Widgets");
 
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 

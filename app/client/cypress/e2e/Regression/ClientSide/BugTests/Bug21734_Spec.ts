@@ -1,7 +1,8 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 const dataSources = ObjectsRegistry.DataSources,
@@ -38,7 +39,7 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
     // Have to fill form since modal won't show for empty ds
     dataSources.FillPostgresDSForm();
 
-    EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
+    AppSidebar.navigate(AppSidebarButton.Pages, true);
     agHelper.AssertContains(
       "Don't save",
       "exist",

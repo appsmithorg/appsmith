@@ -9,7 +9,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validating multiple widgets in auto layout mode with App navigation settings", function () {
@@ -23,13 +24,13 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
 
   it("2. Change App navigation settings and valdiate the layout settings", () => {
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    EditorNavigation.ViaSidebar(SidebarButton.Settings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
     );
     agHelper.AssertElementExist(appSettings.locators._sideNavbar);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"));
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"), 1);
     agHelper.AssertElementExist(locators._fixedLayout);
