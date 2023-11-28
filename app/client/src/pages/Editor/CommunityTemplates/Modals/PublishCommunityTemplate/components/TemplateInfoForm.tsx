@@ -138,14 +138,7 @@ const UseCasesSelect = ({
     >
       {useCases &&
         useCases.map((useCase, index) => (
-          <Option
-            key={`${useCase}-${index}`}
-            label={useCase}
-            style={{
-              whiteSpace: "normal",
-            }}
-            value={useCase}
-          >
+          <Option key={`${useCase}-${index}`} label={useCase} value={useCase}>
             {useCase}
           </Option>
         ))}
