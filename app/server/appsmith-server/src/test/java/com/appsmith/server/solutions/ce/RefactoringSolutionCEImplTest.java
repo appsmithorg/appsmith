@@ -27,6 +27,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.validations.EntityValidationService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,7 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Slf4j
 @SpringBootTest
 class RefactoringSolutionCEImplTest {
-    RefactoringSolutionCEImpl refactoringSolutionCE;
+    RefactoringSolutionCEImpl refactoringServiceCE;
 
     @Autowired
     PagePermission pagePermission;
@@ -102,12 +103,15 @@ class RefactoringSolutionCEImplTest {
     @Autowired
     private TransactionalOperator transactionalOperator;
 
+    @Autowired
+    private EntityValidationService entityValidationService;
+
     @BeforeEach
     public void setUp() {
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(new User()));
 
-        refactoringSolutionCE = new RefactoringSolutionCEImpl(
+        refactoringServiceCE = new RefactoringSolutionCEImpl(
                 newPageService,
                 responseUtils,
                 updateLayoutService,
@@ -116,6 +120,7 @@ class RefactoringSolutionCEImplTest {
                 analyticsService,
                 sessionUserService,
                 transactionalOperator,
+                entityValidationService,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,
                 actionCollectionEntityRefactoringService,
@@ -188,7 +193,7 @@ class RefactoringSolutionCEImplTest {
                 .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         final Mono<LayoutDTO> layoutDTOMono =
-                refactoringSolutionCE.refactorEntityName(refactorActionCollectionNameDTO, null);
+                refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
 
         StepVerifier.create(layoutDTOMono)
                 .assertNext(layoutDTO -> {
@@ -241,7 +246,7 @@ class RefactoringSolutionCEImplTest {
         Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
 
         final Mono<LayoutDTO> layoutDTOMono =
-                refactoringSolutionCE.refactorEntityName(refactorActionCollectionNameDTO, null);
+                refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
 
         StepVerifier.create(layoutDTOMono)
                 .expectErrorMatches(e -> AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR
@@ -330,7 +335,7 @@ class RefactoringSolutionCEImplTest {
                 .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString());
 
         final Mono<LayoutDTO> layoutDTOMono =
-                refactoringSolutionCE.refactorEntityName(refactorActionCollectionNameDTO, null);
+                refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
 
         StepVerifier.create(layoutDTOMono)
                 .assertNext(layoutDTO -> {

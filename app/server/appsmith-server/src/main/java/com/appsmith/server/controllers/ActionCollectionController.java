@@ -15,7 +15,7 @@ public class ActionCollectionController extends ActionCollectionControllerCE {
     public ActionCollectionController(
             ActionCollectionService actionCollectionService,
             LayoutCollectionService layoutCollectionService,
-            RefactoringSolution refactoringSolution) {
-        super(actionCollectionService, layoutCollectionService, refactoringSolution);
+            RefactoringSolution refactoringService) {
+        super(actionCollectionService, layoutCollectionService, refactoringService);
     }
 }

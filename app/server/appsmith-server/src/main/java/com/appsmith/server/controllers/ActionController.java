@@ -19,10 +19,10 @@ public class ActionController extends ActionControllerCE {
     public ActionController(
             LayoutActionService layoutActionService,
             NewActionService newActionService,
-            RefactoringSolution refactoringSolution,
+            RefactoringSolution refactoringService,
             ActionExecutionSolution actionExecutionSolution,
             OtlpTelemetry otlpTelemetry) {
 
-        super(layoutActionService, newActionService, refactoringSolution, actionExecutionSolution, otlpTelemetry);
+        super(layoutActionService, newActionService, refactoringService, actionExecutionSolution, otlpTelemetry);
     }
 }

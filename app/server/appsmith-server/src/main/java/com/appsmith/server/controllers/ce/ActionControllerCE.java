@@ -47,7 +47,7 @@ public class ActionControllerCE {
 
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringSolution refactoringService;
     private final ActionExecutionSolution actionExecutionSolution;
     private final OtlpTelemetry otlpTelemetry;
 
@@ -55,12 +55,12 @@ public class ActionControllerCE {
     public ActionControllerCE(
             LayoutActionService layoutActionService,
             NewActionService newActionService,
-            RefactoringSolution refactoringSolution,
+            RefactoringSolution refactoringService,
             ActionExecutionSolution actionExecutionSolution,
             OtlpTelemetry otlpTelemetry) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
-        this.refactoringSolution = refactoringSolution;
+        this.refactoringService = refactoringService;
         this.actionExecutionSolution = actionExecutionSolution;
         this.otlpTelemetry = otlpTelemetry;
     }
@@ -128,7 +128,7 @@ public class ActionControllerCE {
             @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         refactorEntityNameDTO.setEntityType(EntityType.ACTION);
-        return refactoringSolution
+        return refactoringService
                 .refactorEntityName(refactorEntityNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }

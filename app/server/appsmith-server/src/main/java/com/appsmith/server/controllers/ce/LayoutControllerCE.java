@@ -33,16 +33,16 @@ public class LayoutControllerCE {
 
     private final LayoutService service;
     private final UpdateLayoutService updateLayoutService;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringSolution refactoringService;
 
     @Autowired
     public LayoutControllerCE(
             LayoutService layoutService,
             UpdateLayoutService updateLayoutService,
-            RefactoringSolution refactoringSolution) {
+            RefactoringSolution refactoringService) {
         this.service = layoutService;
         this.updateLayoutService = updateLayoutService;
-        this.refactoringSolution = refactoringSolution;
+        this.refactoringService = refactoringService;
     }
 
     @JsonView(Views.Public.class)
@@ -107,7 +107,7 @@ public class LayoutControllerCE {
             @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         refactorEntityNameDTO.setEntityType(EntityType.WIDGET);
-        return refactoringSolution
+        return refactoringService
                 .refactorEntityName(refactorEntityNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }

@@ -91,7 +91,7 @@ public class ActionCollectionServiceTest {
     LayoutActionService layoutActionService;
 
     @Autowired
-    RefactoringSolution refactoringSolution;
+    RefactoringSolution refactoringService;
 
     @Autowired
     NewPageService newPageService;
@@ -411,7 +411,7 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("testAction1");
         refactorActionNameDTO.setNewName("newTestAction1");
 
-        final LayoutDTO layoutDTO = refactoringSolution
+        final LayoutDTO layoutDTO = refactoringService
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 
@@ -503,7 +503,7 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("run");
         refactorActionNameDTO.setNewName("newRun");
 
-        final LayoutDTO layoutDTO = refactoringSolution
+        final LayoutDTO layoutDTO = refactoringService
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 

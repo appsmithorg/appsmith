@@ -86,7 +86,7 @@ public class RefactoringSolutionTest {
     UpdateLayoutService updateLayoutService;
 
     @Autowired
-    RefactoringSolution refactoringSolution;
+    RefactoringSolution refactoringService;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -249,7 +249,7 @@ public class RefactoringSolutionTest {
         Mockito.when(actionCollectionService.getActionCollectionsByViewMode(Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Flux.just(mockActionCollectionDTO));
 
-        Mono<Boolean> nameAllowedMono = refactoringSolution.isNameAllowed(
+        Mono<Boolean> nameAllowedMono = refactoringService.isNameAllowed(
                 testPage.getId(),
                 CreatorContextType.PAGE,
                 testPage.getLayouts().get(0).getId(),
@@ -284,7 +284,7 @@ public class RefactoringSolutionTest {
         Mockito.when(actionCollectionService.getActionCollectionsByViewMode(Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Flux.just(mockActionCollectionDTO));
 
-        Mono<Boolean> nameAllowedMono = refactoringSolution.isNameAllowed(
+        Mono<Boolean> nameAllowedMono = refactoringService.isNameAllowed(
                 testPage.getId(),
                 CreatorContextType.PAGE,
                 testPage.getLayouts().get(0).getId(),

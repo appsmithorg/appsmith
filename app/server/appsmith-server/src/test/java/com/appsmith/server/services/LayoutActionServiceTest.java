@@ -109,7 +109,7 @@ public class LayoutActionServiceTest {
     UpdateLayoutService updateLayoutService;
 
     @Autowired
-    RefactoringSolution refactoringSolution;
+    RefactoringSolution refactoringService;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -1288,7 +1288,7 @@ public class LayoutActionServiceTest {
         refactorActionNameDTO.setPageId(testPage.getId());
         refactorActionNameDTO.setActionId(createdAction.getId());
 
-        Mono<LayoutDTO> layoutDTOMono = refactoringSolution.refactorEntityName(refactorActionNameDTO, null);
+        Mono<LayoutDTO> layoutDTOMono = refactoringService.refactorEntityName(refactorActionNameDTO, null);
         StepVerifier.create(layoutDTOMono.map(
                         layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
                 .expectNext(1)

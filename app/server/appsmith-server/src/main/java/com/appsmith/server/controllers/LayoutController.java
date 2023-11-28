@@ -17,7 +17,7 @@ public class LayoutController extends LayoutControllerCE {
     public LayoutController(
             LayoutService layoutService,
             UpdateLayoutService updateLayoutService,
-            RefactoringSolution refactoringSolution) {
-        super(layoutService, updateLayoutService, refactoringSolution);
+            RefactoringSolution refactoringService) {
+        super(layoutService, updateLayoutService, refactoringService);
     }
 }
