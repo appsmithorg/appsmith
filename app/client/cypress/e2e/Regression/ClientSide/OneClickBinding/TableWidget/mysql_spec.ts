@@ -22,8 +22,6 @@ describe.skip("Table widget one click binding feature", () => {
     dataSources.CreateDataSource("MySql");
 
     cy.get("@dsName").then((dsName) => {
-      entityExplorer.NavigateToSwitcher("Widgets");
-
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "configs", {

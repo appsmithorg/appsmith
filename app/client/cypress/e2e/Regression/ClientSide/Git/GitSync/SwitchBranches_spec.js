@@ -14,6 +14,8 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 let parentBranchKey = "ParentBranch",
@@ -38,7 +40,7 @@ describe("Git sync:", function () {
   });
 
   it("1. create branch input", function () {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.get(gitSyncLocators.branchButton).click();
 
     // validate of the branch name
@@ -226,7 +228,7 @@ describe("Git sync:", function () {
       cy.wait(400);
       cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
-      entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       cy.get(`.t--entity.page`)
         .contains("Page1")
         .closest(".t--entity")
@@ -239,7 +241,7 @@ describe("Git sync:", function () {
 
   it("7. branch list search", function () {
     cy.get(".ads-v2-spinner").should("not.exist");
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;
     gitSync.CreateGitBranch("parentBranch", true);

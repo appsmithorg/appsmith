@@ -3,6 +3,10 @@ import {
   draggableWidgets,
   entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Statbox Widget Functionality", function () {
   before(() => {
@@ -17,7 +21,7 @@ describe("Statbox Widget Functionality", function () {
       100,
       draggableWidgets.CONTAINER,
     );
-    entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     entityExplorer.AssertEntityPresenceInExplorer("Statbox1");
     entityExplorer.ExpandCollapseEntity("Container1");
     entityExplorer.AssertEntityPresenceInExplorer("Statbox2");

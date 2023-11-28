@@ -5,13 +5,14 @@ import {
   debuggerHelper,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "JSObjects", () => {
   it("1. Switch to settings pane when clicked on update logs", () => {
     jsEditor.NavigateToNewJSEditor();
     jsEditor.EnableDisableAsyncFuncSettings("myFun2");
     agHelper.GetNClick(jsEditor._codeTab);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    EditorNavigation.ShowCanvas();
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClickLogsTab();
     debuggerHelper.ClicklogEntityLink(true);

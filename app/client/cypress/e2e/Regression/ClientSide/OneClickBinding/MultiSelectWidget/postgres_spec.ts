@@ -24,13 +24,9 @@ describe("Table widget one click binding feature", () => {
       200,
     );
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
-      entityExplorer.NavigateToSwitcher("Widgets");
-
       EditorNavigation.SelectEntityByName("MultiSelect1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(
