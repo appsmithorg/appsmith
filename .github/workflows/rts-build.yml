@@ -10,6 +10,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      skip-tests:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "false"
       branch:
         description: "This is the branch to be used for the build."
         required: false
@@ -116,7 +121,7 @@ jobs:
           # `-SNAPSHOT` suffix.
           latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
           echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $3++; print }')"
           echo "next_version = $next_version"
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
           echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
@@ -124,17 +129,21 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --immutable
+        run: |
+          npm install -g yarn
+          yarn install --immutable
 
       # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0 && inputs.skip-tests != 'true'
         run: yarn run test:unit
 
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
+          if ! grep -qF "info.json" src/version.js; then
+            echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
+          fi
           yarn build
 
       # Set status = failure

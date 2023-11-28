@@ -1,4 +1,5 @@
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
@@ -23,7 +24,7 @@ describe("Dropdown Widget Check value does not reset on navigation", function ()
     EditorNavigation.ViaSidebar(SidebarButton.Pages);
 
     //Again navigate back to the widget
-    _.entityExplorer.SelectEntityByName("Select3");
+    EditorNavigation.SelectEntityByName("Select3", EntityType.Widget);
 
     //Check for the select value again
     cy.get(

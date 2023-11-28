@@ -7,7 +7,7 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";
 import history from "utils/history";
-import { setDataUrl } from "sagas/PageSagas";
+import { setDataUrl } from "@appsmith/sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { TriggerFailureError } from "./errorUtils";

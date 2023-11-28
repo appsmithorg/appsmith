@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let forkedApplicationDsl;
 let parentApplicationDsl: any;
@@ -11,7 +14,7 @@ describe("Fork application across workspaces", function () {
   it("1. Signed user should be able to fork a public forkable app & Check if the forked application has the same dsl as the original", function () {
     const appname: string =
       localStorage.getItem("workspaceName") || "randomApp";
-    _.entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
 
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
     _.propPane.TypeTextIntoField("defaultvalue", "A");

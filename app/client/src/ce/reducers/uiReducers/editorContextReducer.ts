@@ -62,6 +62,7 @@ export const entitySections = {
   ["Queries/JS"]: "Queries/JS",
   Datasources: "Datasources",
   Libraries: "Libraries",
+  Queries: "Queries",
 };
 
 export const isSubEntities = (name: string): boolean => {

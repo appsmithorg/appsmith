@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
@@ -39,7 +43,7 @@ describe("JSON Form Widget Field Change", () => {
       "Cannot read properties of null (reading 'toString')",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.get(`${fieldPrefix}-name`).find("button").should("have.length", 2);
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("name");
@@ -59,7 +63,7 @@ describe("JSON Form Widget Field Change", () => {
       .invoke("attr", "type")
       .should("contain", "checkbox");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
   });
@@ -73,7 +77,7 @@ describe("JSON Form Widget Field Change", () => {
     cy.get(`${fieldPrefix}-name`).find("input").click({ force: true });
     cy.get(".bp3-popover.bp3-dateinput-popover").should("exist");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
   });
@@ -91,7 +95,7 @@ describe("JSON Form Widget Field Change", () => {
       .find(".bp3-control.bp3-switch")
       .should("exist");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
   });
@@ -106,7 +110,7 @@ describe("JSON Form Widget Field Change", () => {
     deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name`).find(".rc-select-multiple").should("exist");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
   });
@@ -124,7 +128,7 @@ describe("JSON Form Widget Field Change", () => {
       .should("exist")
       .should("have.length", 2);
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
   });
@@ -139,7 +143,7 @@ describe("JSON Form Widget Field Change", () => {
     deployMode.DeployApp();
     cy.get('button span:contains("Add New")').first().should("be.visible");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
   });
@@ -156,7 +160,7 @@ describe("JSON Form Widget Field Change", () => {
     deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name`).find("input").should("exist");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
   });
@@ -177,7 +181,7 @@ describe("JSON Form Widget Field Change", () => {
         .should("have.length", 2);
     });
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
   });

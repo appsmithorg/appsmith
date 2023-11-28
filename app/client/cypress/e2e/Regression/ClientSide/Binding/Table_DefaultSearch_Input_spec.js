@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -8,8 +12,9 @@ describe("Binding the Table and input Widget", function () {
   });
 
   it("1. Input widget test with default value from table widget", function () {
-    _.entityExplorer.ExpandCollapseEntity("Form1");
-    _.entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait("@updateLayout").should(
@@ -18,7 +23,7 @@ describe("Binding the Table and input Widget", function () {
       200,
     );
     //validation of data displayed in input widgets based on search value set
-    _.entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.testJsontext("defaultsearchtext", "2736212");
 
     cy.wait("@updateLayout").isSelectRow(0);

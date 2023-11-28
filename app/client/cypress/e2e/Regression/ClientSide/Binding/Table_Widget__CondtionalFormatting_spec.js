@@ -3,6 +3,9 @@ import {
   entityExplorer,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Table Widget condtional formatting to remain consistent", function () {
   before(() => {
@@ -10,7 +13,7 @@ describe("Table Widget condtional formatting to remain consistent", function () 
   });
 
   it("check the cell styles before and after sorting", function () {
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     //Check Font weight, font style, and text color before sorting
     cy.readTabledataValidateCSS("0", "1", "font-weight", "700");
     cy.readTabledataValidateCSS("0", "1", "font-style", "normal");

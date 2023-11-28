@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -13,13 +17,13 @@ describe("Binding the multiple widgets and validating default data", function ()
   });
 
   it("1. Input widget test with default value from table widget", function () {
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Default value",
       testdata.defaultInputWidget + "}}",
     );
     //Dropdown widget test with default value from table widget
-    entityExplorer.SelectEntityByName("Dropdown1");
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget);
     propPane.ToggleJSMode("sourcedata");
     cy.testJsontext(
       "sourcedata",

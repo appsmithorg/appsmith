@@ -1,25 +1,36 @@
 import {
-  entityExplorer,
   agHelper,
-  locators,
-  propPane,
   assertHelper,
   draggableWidgets,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Dynamic Height Width validation for multiple container", function () {
   before(() => {
     agHelper.AddDsl("multipleContainerdsl");
   });
   it("1. Validate change in auto height width with multiple containers", function () {
-    entityExplorer.SelectEntityByName("Container1");
+    EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("height", "Fixed");
     propPane.SelectPropertiesDropDown("height", "Auto Height");
-    entityExplorer.SelectEntityByName("Container2", "Container1");
+    EditorNavigation.SelectEntityByName("Container2", EntityType.Widget, {}, [
+      "Container1",
+    ]);
     propPane.SelectPropertiesDropDown("height", "Fixed");
     propPane.SelectPropertiesDropDown("height", "Auto Height");
-    entityExplorer.SelectEntityByName("Container3", "Container2");
-    entityExplorer.SelectEntityByName("CheckboxGroup1", "Container3");
+    EditorNavigation.SelectEntityByName("Container3", EntityType.Widget, {}, [
+      "Container2",
+    ]);
+    EditorNavigation.SelectEntityByName(
+      "CheckboxGroup1",
+      EntityType.Widget,
+      {},
+      ["Container3"],
+    );
     propPane.SelectPropertiesDropDown("height", "Fixed");
     propPane.SelectPropertiesDropDown("height", "Auto Height");
     agHelper

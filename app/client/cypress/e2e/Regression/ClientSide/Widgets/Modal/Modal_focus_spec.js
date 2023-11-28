@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -16,7 +20,7 @@ describe("Modal focus", function () {
       `{{showModal('Modal1')}}`,
     );
     //add modal
-    _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     cy.get(widgets.modalWidget).should("exist");
 
     cy.get(explorer.addWidget).click();

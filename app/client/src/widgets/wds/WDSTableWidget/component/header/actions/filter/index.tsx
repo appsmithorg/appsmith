@@ -1,8 +1,6 @@
-import React, { useEffect, useCallback } from "react";
+import { Button } from "@design-system/widgets";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { IconWrapper } from "constants/IconConstants";
-import { Colors } from "constants/Colors";
-import { TableIconWrapper } from "../../../TableStyledWrappers";
 import TableFilterPane from "./FilterPane";
 
 import type {
@@ -10,11 +8,9 @@ import type {
   ReactTableFilter,
 } from "../../../Constants";
 
-//TODO(abhinav): All of the following imports should not exist in a widget component
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import ActionItem from "../ActionItem";
 import { importSvg } from "design-system-old";
 
 const FilterIcon = importSvg(
@@ -31,18 +27,19 @@ interface TableFilterProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   widgetId: string;
-  accentColor: string;
-  borderRadius: string;
 }
 
-function TableFilters(props: TableFilterProps) {
-  const [filters, updateFilters] = React.useState(
-    new Array<ReactTableFilter>(),
-  );
+export const TableFilters = (props: TableFilterProps) => {
+  const { columns, widgetId } = props;
+  const actionItemRef = useRef<HTMLButtonElement>(null);
 
-  const dispatch = useDispatch();
   //TODO(abhinav): This is incorrect, we should useReducer instead of using the global redux state
   const tableFilterPaneState = useSelector(getTableFilterState);
+  const isTableFilterPaneVisible =
+    tableFilterPaneState.isVisible &&
+    tableFilterPaneState.widgetId === props.widgetId;
+  const [filters, updateFilters] = useState(new Array<ReactTableFilter>());
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const filters: ReactTableFilter[] = props.filters ? [...props.filters] : [];
@@ -52,58 +49,44 @@ function TableFilters(props: TableFilterProps) {
   const toggleFilterPane = useCallback(
     (selected: boolean) => {
       if (selected) {
-        // filter button select
         dispatch({
           type: ReduxActionTypes.SHOW_TABLE_FILTER_PANE,
-          payload: { widgetId: props.widgetId, force: true },
+          payload: { widgetId, force: true },
         });
       } else {
-        // filter button de-select
         dispatch({
           type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
-          payload: { widgetId: props.widgetId },
+          payload: { widgetId },
         });
       }
     },
-    [props.widgetId],
+    [widgetId],
   );
-
-  if (props.columns.length === 0) {
-    return (
-      <TableIconWrapper disabled>
-        <IconWrapper color={Colors.CADET_BLUE} height={20} width={20}>
-          <FilterIcon />
-        </IconWrapper>
-      </TableIconWrapper>
-    );
-  }
 
   const hasAnyFilters = !!(
     filters.length >= 1 &&
     filters[0].column &&
     filters[0].condition
   );
-  const className =
-    "t--table-filter-toggle-btn " + generateClassName(props.widgetId);
-  const isTableFilterPaneVisible =
-    tableFilterPaneState.isVisible &&
-    tableFilterPaneState.widgetId === props.widgetId;
 
   return (
     <>
-      <ActionItem
-        borderRadius={props.borderRadius}
-        className={className}
-        icon="filter"
-        selectMenu={toggleFilterPane}
-        selected={isTableFilterPaneVisible}
-        title={`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
-        titleColor={hasAnyFilters ? Colors.CODE_GRAY : Colors.GRAY}
-        width={16}
+      <Button
+        data-testid={`t--table-filter-toggle-btn ${generateClassName(
+          widgetId,
+        )}`}
+        icon={FilterIcon}
+        isDisabled={columns.length === 0}
+        onPress={() => toggleFilterPane(!isTableFilterPaneVisible)}
+        ref={actionItemRef}
+        variant="ghost"
+      >
+        {`Filters${hasAnyFilters ? ` (${filters.length})` : ""}`}
+      </Button>
+      <TableFilterPane
+        targetNode={actionItemRef.current ?? undefined}
+        {...props}
       />
-      <TableFilterPane {...props} />
     </>
   );
-}
-const TableFiltersMemoised = React.memo(TableFilters);
-export default TableFiltersMemoised;
+};

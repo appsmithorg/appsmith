@@ -7,6 +7,9 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import template from "../../../../locators/TemplatesLocators.json";
 import widgetLocators from "../../../../locators/Widgets.json";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Handle Cases while conversion", () => {
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
@@ -20,7 +23,7 @@ describe("Handle Cases while conversion", () => {
 
     entityExplorer.VerifyIsCurrentPage("Page2");
 
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
     cy.wait(1000);
 
