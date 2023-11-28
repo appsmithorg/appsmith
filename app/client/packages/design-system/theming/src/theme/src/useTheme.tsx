@@ -20,16 +20,14 @@ export function useTheme(props: UseThemeProps = {}) {
     borderRadius,
     colorMode = "light",
     fontFamily,
+    providerRef,
     seedColor,
     userDensity = 1,
     userSizing = 1,
   } = props;
 
-  const { innerSpacing, outerSpacing, sizing, typography } = useFluidTokens(
-    fluid,
-    userDensity,
-    userSizing,
-  );
+  const { innerSpacing, outerSpacing, sizing, typography, width } =
+    useFluidTokens(fluid, userDensity, userSizing, providerRef);
 
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
 
@@ -150,5 +148,5 @@ export function useTheme(props: UseThemeProps = {}) {
     }
   }, [typography]);
 
-  return { theme, setTheme };
+  return { theme, width, setTheme };
 }

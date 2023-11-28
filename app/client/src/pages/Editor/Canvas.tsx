@@ -1,5 +1,6 @@
 import log from "loglevel";
 import React from "react";
+import { useRef } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
@@ -47,11 +48,12 @@ const Canvas = (props: CanvasProps) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
   const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
-
-  const { theme } = useTheme({
+  const wdsProviderRef = useRef(null);
+  const { theme, width } = useTheme({
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
     fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
+    providerRef: wdsProviderRef,
   });
 
   /**
@@ -82,7 +84,7 @@ const Canvas = (props: CanvasProps) => {
   const paddingBottomClass = props.enableMainCanvasResizer ? "" : "pb-52";
   try {
     return (
-      <WDSThemeProvider theme={theme}>
+      <WDSThemeProvider ref={wdsProviderRef} theme={theme} width={width}>
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
           background={backgroundForCanvas}

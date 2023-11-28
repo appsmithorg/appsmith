@@ -31,7 +31,7 @@ export const getFluidSpacing = (
   return scales.reduce(
     (acc, currentValue, index) => {
       const { maxSize, minSize, r, v } = currentValue;
-      const value = `clamp(${minSize}px, calc(${v}vw + ${r}px), ${maxSize}px)`;
+      const value = `clamp(${minSize}px, calc(${v} * var(--provider-width) / 100 + ${r}px), ${maxSize}px)`;
 
       return {
         ...acc,

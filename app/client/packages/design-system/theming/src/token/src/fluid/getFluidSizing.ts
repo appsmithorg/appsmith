@@ -29,7 +29,7 @@ const getFluidValue = (
     maxVw,
   )[0];
 
-  return `clamp(${minSize}px, calc(${v}vw + ${r}px), ${maxSize}px)`;
+  return `clamp(${minSize}px, calc(${v} * var(--provider-width) / 100 + ${r}px), ${maxSize}px)`;
 };
 
 export const getFluidSizing = (

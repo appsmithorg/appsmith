@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import type { RouteComponentProps } from "react-router";
@@ -111,10 +111,12 @@ function AppViewer(props: Props) {
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,
   );
-  const { theme } = useTheme({
+  const wdsProviderRef = useRef(null);
+  const { theme, width } = useTheme({
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
     seedColor: selectedTheme.properties.colors.primaryColor,
     fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
+    providerRef: wdsProviderRef,
   });
   const focusRef = useWidgetFocus();
 
@@ -220,7 +222,7 @@ function AppViewer(props: Props) {
     : selectedTheme.properties.colors.backgroundColor;
 
   return (
-    <WDSThemeProvider theme={theme}>
+    <WDSThemeProvider ref={wdsProviderRef} theme={theme} width={width}>
       <ThemeProvider theme={lightTheme}>
         <EditorContextProvider renderMode="PAGE">
           {!isWDSV2Enabled && (
