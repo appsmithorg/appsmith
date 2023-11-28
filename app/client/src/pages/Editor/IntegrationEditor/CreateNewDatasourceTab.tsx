@@ -181,7 +181,7 @@ function CreateNewSaasIntegration({
   }, [active]);
   return !isAirgappedInstance ? (
     <div id="new-saas-api" ref={newSaasAPIRef}>
-      <Text type={TextType.H2}>Saas Integrations</Text>
+      <Text type={TextType.H2}>SaaS Integrations</Text>
       <NewApiScreen
         history={history}
         isCreating={isCreating}
