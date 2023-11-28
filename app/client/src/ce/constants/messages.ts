@@ -2274,6 +2274,10 @@ export const PAGES_PANE_TEXTS = {
   queries_tab: () => "Queries",
   js_tab: () => "JS",
   ui_tab: () => "UI",
+  query_blank_state: () => "Write your first query or API to access data",
+  js_blank_state: () => "Use JS to transform your data or write business logic",
+  query_blank_button: () => "New Query/API",
+  js_blank_button: () => "New JS Object",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
