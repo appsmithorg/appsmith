@@ -10,6 +10,7 @@ import {
   entityItems,
   draggableWidgets,
   propPane,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -421,6 +422,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       cy.setQueryTimeout(30000);
 
       dataSources.RunQuery({ toValidateResponse: false });
+      assertHelper.AssertReduxLoad("RUN_ACTION_SUCCESS");
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);
       });
