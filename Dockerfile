@@ -43,6 +43,8 @@ RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd 
   && chmod ugo+w /etc /appsmith-stacks \
   && chmod -R ugo+w /var/lib/nginx /var/log/nginx /var/run /usr/sbin/cron /.mongodb /etc/ssl /usr/local/share
 
+RUN chmod -R ugo+w /opt/keycloak /opt/appsmith/rts
+
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
 
