@@ -31,7 +31,7 @@ import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -109,7 +109,7 @@ public class LayoutActionServiceTest {
     UpdateLayoutService updateLayoutService;
 
     @Autowired
-    RefactoringSolution refactoringService;
+    RefactoringService refactoringService;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;

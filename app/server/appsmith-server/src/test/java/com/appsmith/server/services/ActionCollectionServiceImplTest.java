@@ -24,7 +24,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
@@ -87,7 +87,7 @@ public class ActionCollectionServiceImplTest {
     UpdateLayoutService updateLayoutService;
 
     @MockBean
-    RefactoringSolution refactoringService;
+    RefactoringService refactoringService;
 
     @MockBean
     ActionCollectionRepository actionCollectionRepository;

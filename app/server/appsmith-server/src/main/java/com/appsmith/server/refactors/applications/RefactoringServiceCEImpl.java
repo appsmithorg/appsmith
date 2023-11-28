@@ -41,7 +41,7 @@ import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALU
 
 @Slf4j
 @RequiredArgsConstructor
-public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
+public class RefactoringServiceCEImpl implements RefactoringServiceCE {
     private final NewPageService newPageService;
     private final ResponseUtils responseUtils;
     private final UpdateLayoutService updateLayoutService;

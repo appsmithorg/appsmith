@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -38,13 +38,13 @@ import java.util.List;
 public class ActionCollectionControllerCE {
     private final ActionCollectionService actionCollectionService;
     private final LayoutCollectionService layoutCollectionService;
-    private final RefactoringSolution refactoringService;
+    private final RefactoringService refactoringService;
 
     @Autowired
     public ActionCollectionControllerCE(
             ActionCollectionService actionCollectionService,
             LayoutCollectionService layoutCollectionService,
-            RefactoringSolution refactoringService) {
+            RefactoringService refactoringService) {
         this.actionCollectionService = actionCollectionService;
         this.layoutCollectionService = layoutCollectionService;
         this.refactoringService = refactoringService;

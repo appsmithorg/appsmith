@@ -13,7 +13,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -47,7 +47,7 @@ public class ActionControllerCE {
 
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
-    private final RefactoringSolution refactoringService;
+    private final RefactoringService refactoringService;
     private final ActionExecutionSolution actionExecutionSolution;
     private final OtlpTelemetry otlpTelemetry;
 
@@ -55,7 +55,7 @@ public class ActionControllerCE {
     public ActionControllerCE(
             LayoutActionService layoutActionService,
             NewActionService newActionService,
-            RefactoringSolution refactoringService,
+            RefactoringService refactoringService,
             ActionExecutionSolution actionExecutionSolution,
             OtlpTelemetry otlpTelemetry) {
         this.layoutActionService = layoutActionService;

@@ -18,9 +18,9 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Service
 @Slf4j
-public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implements RefactoringSolution {
+public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements RefactoringService {
 
-    public RefactoringSolutionImpl(
+    public RefactoringServiceImpl(
             NewPageService newPageService,
             ResponseUtils responseUtils,
             UpdateLayoutService updateLayoutService,

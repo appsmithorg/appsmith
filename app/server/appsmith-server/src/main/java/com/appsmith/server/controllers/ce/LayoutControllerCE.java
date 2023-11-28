@@ -10,7 +10,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -33,13 +33,13 @@ public class LayoutControllerCE {
 
     private final LayoutService service;
     private final UpdateLayoutService updateLayoutService;
-    private final RefactoringSolution refactoringService;
+    private final RefactoringService refactoringService;
 
     @Autowired
     public LayoutControllerCE(
             LayoutService layoutService,
             UpdateLayoutService updateLayoutService,
-            RefactoringSolution refactoringService) {
+            RefactoringService refactoringService) {
         this.service = layoutService;
         this.updateLayoutService = updateLayoutService;
         this.refactoringService = refactoringService;

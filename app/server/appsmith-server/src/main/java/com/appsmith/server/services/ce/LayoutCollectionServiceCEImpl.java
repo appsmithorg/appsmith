@@ -19,7 +19,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
@@ -52,7 +52,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
     private final UpdateLayoutService updateLayoutService;
-    private final RefactoringSolution refactoringService;
+    private final RefactoringService refactoringService;
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;

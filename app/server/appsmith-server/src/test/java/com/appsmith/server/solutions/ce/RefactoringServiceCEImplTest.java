@@ -19,7 +19,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.refactors.applications.RefactoringSolutionCEImpl;
+import com.appsmith.server.refactors.applications.RefactoringServiceCEImpl;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -55,8 +55,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(SpringExtension.class)
 @Slf4j
 @SpringBootTest
-class RefactoringSolutionCEImplTest {
-    RefactoringSolutionCEImpl refactoringServiceCE;
+class RefactoringServiceCEImplTest {
+    RefactoringServiceCEImpl refactoringServiceCE;
 
     @Autowired
     PagePermission pagePermission;
@@ -111,7 +111,7 @@ class RefactoringSolutionCEImplTest {
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(new User()));
 
-        refactoringServiceCE = new RefactoringSolutionCEImpl(
+        refactoringServiceCE = new RefactoringServiceCEImpl(
                 newPageService,
                 responseUtils,
                 updateLayoutService,
