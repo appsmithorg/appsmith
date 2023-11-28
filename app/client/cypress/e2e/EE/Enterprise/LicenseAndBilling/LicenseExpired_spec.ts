@@ -4,16 +4,17 @@ import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 describe("License expired", function () {
   it("1. should show ADMIN license expiry page for airgap", function () {
+    cy.LogOut();
+    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+    cy.visit("/applications");
+    cy.wait(2000);
     cy.interceptLicenseApi({
       licenseStatus: "EXPIRED",
       licenseType: "PAID",
       active: false,
       plan: "BUSINESS",
     });
-    cy.LogOut();
-    cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
-    cy.wait(2000);
+    cy.reload();
     agHelper.AssertURL("/license");
     agHelper.GetNAssertElementText(
       LicenseLocators.noSubscriptionText,
@@ -40,13 +41,15 @@ describe("License expired", function () {
     agHelper.AssertURL("/login");
   });
   it("2. should show NON ADMIN license expiry page", function () {
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    cy.wait(2000);
     cy.interceptLicenseApi({
       licenseStatus: "EXPIRED",
       licenseType: "PAID",
       active: false,
       plan: "BUSINESS",
     });
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    cy.reload();
     cy.wait(2000);
     cy.url().should("contain", "/license");
     agHelper.AssertURL("/license");
