@@ -377,6 +377,15 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     expect(cookie).to.not.be.null;
     cy.log("cookie.value is: " + cookie.value);
 
+    if (CURRENT_REPO === REPO.EE) {
+      cy.wait(2000);
+      cy.url().then((url) => {
+        if (url.indexOf("/license") > -1) {
+          cy.validateLicense();
+        }
+      });
+    }
+
     cy.location().should((loc) => {
       expect(loc.href).to.eq(loc.origin + "/applications");
     });
