@@ -1,19 +1,25 @@
 import Color from "colorjs.io";
 import { useEffect, useState } from "react";
-import type { TokenSource } from "@design-system/theming";
-import {
-  TokensAccessor,
-  defaultTokens,
-  useFluidTokens,
-} from "@design-system/theming";
+import { TokensAccessor, defaultTokens } from "../../token";
+import { useFluidSizing, useFluidSpacing, useFluidTypography } from "./";
 
-import type { UseThemeProps } from "./types";
+import type { ColorMode } from "../../color";
+import type { TokenSource, FontFamily } from "../../token";
 
 const { fluid, ...restDefaultTokens } = defaultTokens;
 
 const tokensAccessor = new TokensAccessor({
   ...(restDefaultTokens as TokenSource),
 });
+
+export interface UseThemeProps {
+  seedColor?: string;
+  colorMode?: ColorMode;
+  borderRadius?: string;
+  fontFamily?: FontFamily;
+  userDensity?: number;
+  userSizing?: number;
+}
 
 export function useTheme(props: UseThemeProps = {}) {
   const {
@@ -25,8 +31,15 @@ export function useTheme(props: UseThemeProps = {}) {
     userSizing = 1,
   } = props;
 
-  const { innerSpacing, outerSpacing, sizing, typography } = useFluidTokens(
+  const { sizing } = useFluidSizing(fluid, userDensity, userSizing);
+  const { innerSpacing, outerSpacing } = useFluidSpacing(
     fluid,
+    userDensity,
+    userSizing,
+  );
+  const { typography } = useFluidTypography(
+    fluid,
+    fontFamily,
     userDensity,
     userSizing,
   );
@@ -71,9 +84,10 @@ export function useTheme(props: UseThemeProps = {}) {
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
+        return; // Prevent further execution if color parsing fails
       }
 
-      if (color) {
+      if (color != null) {
         tokensAccessor.updateSeedColor(seedColor);
 
         setTheme((prevState) => {
@@ -87,16 +101,20 @@ export function useTheme(props: UseThemeProps = {}) {
   }, [seedColor]);
 
   useEffect(() => {
-    tokensAccessor.updateFontFamily(fontFamily);
+    // Check typography, as fontFamily may be undefined
+    if (typography != null) {
+      tokensAccessor.updateFontFamily(fontFamily);
+      tokensAccessor.updateTypography(typography);
 
-    setTheme((prevState) => {
-      return {
-        ...prevState,
-        typography: tokensAccessor.getTypography(),
-        fontFamily: tokensAccessor.getFontFamily(),
-      };
-    });
-  }, [fontFamily]);
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          typography: tokensAccessor.getTypography(),
+          fontFamily: tokensAccessor.getFontFamily(),
+        };
+      });
+    }
+  }, [typography, fontFamily]);
 
   useEffect(() => {
     if (sizing) {
@@ -136,19 +154,6 @@ export function useTheme(props: UseThemeProps = {}) {
       });
     }
   }, [innerSpacing]);
-
-  useEffect(() => {
-    if (typography) {
-      tokensAccessor.updateTypography(typography);
-
-      setTheme((prevState) => {
-        return {
-          ...prevState,
-          typography: tokensAccessor.getTypography(),
-        };
-      });
-    }
-  }, [typography]);
 
   return { theme, setTheme };
 }
