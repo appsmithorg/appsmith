@@ -160,11 +160,17 @@ export function* addWidgetToSection(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
+  widgetId: string,
 ) {
   /**
    * Add new widgets to section.
    */
-  let sectionWidget: WidgetProps = allWidgets[highlight.canvasId];
+  let sectionWidget: WidgetProps = {
+    ...allWidgets[highlight.canvasId],
+    children: (allWidgets[highlight.canvasId].children || []).filter(
+      (each: string) => each !== widgetId,
+    ),
+  };
   const canvasPreset: LayoutProps[] = sectionWidget.layout
     ? sectionWidget.layout
     : sectionPreset();
@@ -180,11 +186,9 @@ export function* addWidgetToSection(
     canvasPreset[0],
   );
   sectionWidget = res.canvasWidgets[highlight.canvasId];
+  console.log("#### section after addition", { sectionWidget });
   return {
     ...res.canvasWidgets,
-    [sectionWidget.widgetId]: {
-      ...sectionWidget,
-      zoneCount: (sectionWidget.children ?? []).length,
-    },
+    [sectionWidget.widgetId]: sectionWidget,
   };
 }

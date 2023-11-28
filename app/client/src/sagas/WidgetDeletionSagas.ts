@@ -55,6 +55,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { saveAnvilLayout } from "layoutSystems/anvil/integrations/actions/saveLayoutActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -133,7 +134,7 @@ function* deleteTabChildSaga(
           widgetType,
         );
       }
-      yield put(updateAndSaveLayout(finalData));
+      yield put(saveAnvilLayout(finalData));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
     }
   }
@@ -276,7 +277,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             widget.type,
           );
         }
-        yield put(updateAndSaveLayout(finalData));
+        yield put(saveAnvilLayout(finalData));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
 
         const currentApplication: ApplicationPayload = yield select(
@@ -400,7 +401,7 @@ function* deleteAllSelectedWidgetsSaga(
     //   );
     // }
 
-    yield put(updateAndSaveLayout(finalData));
+    yield put(saveAnvilLayout(finalData));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));
