@@ -12,6 +12,10 @@ import {
 } from "../../support/Objects/ObjectsCore";
 import { Widgets } from "../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../locators/OneClickBindingLocator";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../support/Pages/EditorNavigation";
 
 const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-selected";
@@ -75,7 +79,7 @@ describe("GSheet-widget binding for selected sheet access", function () {
 
   after("Delete app", function () {
     // Delete data in spreadsheet and app
-    entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     gsheetHelper.EnterBasicQueryValues(
       "Delete One",
       dataSourceName,

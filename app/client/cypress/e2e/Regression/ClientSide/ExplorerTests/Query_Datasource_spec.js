@@ -2,7 +2,7 @@
 
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");

@@ -100,7 +100,6 @@ describe("Modal Widget Functionality", function () {
       300,
       300,
     );
-    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.entityExplorer.ExpandCollapseEntity("Widgets", true);
 
     //select all widgets and copy

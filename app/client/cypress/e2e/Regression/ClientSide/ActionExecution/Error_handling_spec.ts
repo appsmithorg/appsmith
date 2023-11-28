@@ -15,7 +15,6 @@ import EditorNavigation, {
 describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
-    entityExplorer.NavigateToSwitcher("Explorer");
     cy.fixture("TestDataSet1").then(function (dataSet) {
       apiPage.CreateAndFillApi(dataSet.userApi + "/random");
     });
