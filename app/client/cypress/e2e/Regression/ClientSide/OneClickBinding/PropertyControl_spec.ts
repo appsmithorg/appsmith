@@ -38,7 +38,7 @@ describe("excludeForAirgap", "One click binding control", () => {
     });
 
     cy.wait(500);
-    EditorNavigation.ShowCanvas();
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
     agHelper.AssertElementExist(
@@ -67,7 +67,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.AssertElementExist(dataSources._newDatasourceContainer);
 
-    EditorNavigation.ShowCanvas();
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -117,7 +117,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     dataSources.SaveDatasource();
 
-    EditorNavigation.ShowCanvas();
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
