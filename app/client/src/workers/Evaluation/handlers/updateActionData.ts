@@ -12,6 +12,7 @@ export interface UpdateActionProps {
 export default function (request: EvalWorkerSyncRequest) {
   const actionsDataToUpdate: UpdateActionProps[] = request.data;
   handleActionsDataUpdate(actionsDataToUpdate);
+  return true;
 }
 
 export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
