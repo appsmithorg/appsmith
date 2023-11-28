@@ -16,7 +16,6 @@ import EditorNavigation, {
 describe("Linting of entity properties", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
-    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Shows correct lint error when wrong Api property is binded", () => {

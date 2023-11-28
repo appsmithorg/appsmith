@@ -1,5 +1,6 @@
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebar,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -54,7 +55,7 @@ describe("API Panel request body", function () {
   });
 
   it("2. Bug 14624 - Verifying the content-type none is not added", function () {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     cy.CreateAPI("FirstAPI");
 
     // Checking for default Body type to be NONE
