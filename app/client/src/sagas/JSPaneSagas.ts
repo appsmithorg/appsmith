@@ -553,7 +553,7 @@ function* handleRefactorJSActionNameSaga(
   const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
   const params: FetchPageRequest = { id: data.payload.refactorAction.pageId };
   if (isServerDSLMigrationsEnabled) {
-    params.migrateDSL = "true";
+    params.migrateDSL = true;
   }
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);

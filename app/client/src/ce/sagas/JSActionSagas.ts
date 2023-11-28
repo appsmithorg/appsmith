@@ -351,7 +351,7 @@ export function* refactorJSObjectName(
   const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
   const params: FetchPageRequest = { id: pageId };
   if (isServerDSLMigrationsEnabled) {
-    params.migrateDSL = "true";
+    params.migrateDSL = true;
   }
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful

@@ -385,7 +385,7 @@ export function* fetchPageSaga(
     );
     const params: FetchPageRequest = { id };
     if (isServerDSLMigrationsEnabled) {
-      params.migrateDSL = "true";
+      params.migrateDSL = true;
     }
     const fetchPageResponse: FetchPageResponse = yield call(
       PageApi.fetchPage,
@@ -1203,7 +1203,7 @@ export function* fetchPageDSLSaga(pageId: string) {
     );
     const params: FetchPageRequest = { id: pageId };
     if (isServerDSLMigrationsEnabled) {
-      params.migrateDSL = "true";
+      params.migrateDSL = true;
     }
     const fetchPageResponse: FetchPageResponse = yield call(
       PageApi.fetchPage,
