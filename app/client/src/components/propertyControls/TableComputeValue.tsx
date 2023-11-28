@@ -16,7 +16,6 @@ import { isString } from "utils/helpers";
 import { JSToString, stringToJS } from "./utils";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
@@ -70,11 +69,7 @@ function InputText(props: InputTextProp) {
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
-        hinting={[
-          bindingHintHelper,
-          assistiveBindingHinter,
-          slashCommandHintHelper,
-        ]}
+        hinting={[bindingHintHelper, slashCommandHintHelper]}
         input={{
           value: value,
           onChange: onChange,

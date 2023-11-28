@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any;

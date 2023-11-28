@@ -23,7 +23,6 @@ import {
   ROOT_SCHEMA_KEY,
 } from "widgets/JSONFormWidget/constants";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
@@ -141,11 +140,7 @@ export function InputText(props: {
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
-        hinting={[
-          bindingHintHelper,
-          assistiveBindingHinter,
-          slashCommandHintHelper,
-        ]}
+        hinting={[bindingHintHelper, slashCommandHintHelper]}
         input={{
           value: value,
           onChange: onChange,

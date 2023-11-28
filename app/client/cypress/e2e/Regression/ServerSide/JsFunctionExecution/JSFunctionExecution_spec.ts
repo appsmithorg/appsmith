@@ -63,7 +63,6 @@ describe("JS Function Execution", function () {
 
   before(() => {
     agHelper.AddDsl("tablev1NewDsl");
-    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {

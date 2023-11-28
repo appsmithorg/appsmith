@@ -17,7 +17,6 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   it("1. Api mapping on page load", function () {
     cy.fixture("testdata").then(function (dataSet: any) {
-      entityExplorer.NavigateToSwitcher("Explorer");
       apiPage.CreateAndFillApi(
         dataSet.baseUrl + dataSet.methods,
         "PageLoadApi",

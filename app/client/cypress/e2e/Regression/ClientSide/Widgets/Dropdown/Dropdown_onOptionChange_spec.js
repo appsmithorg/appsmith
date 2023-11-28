@@ -1,5 +1,7 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -113,7 +115,7 @@ describe("Dropdown Widget", function () {
     cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
       force: true,
     });
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.openPropertyPane("selectwidget");
     cy.reload();
     // Adding the query in the onOptionChangeAction of the dropdown widget.

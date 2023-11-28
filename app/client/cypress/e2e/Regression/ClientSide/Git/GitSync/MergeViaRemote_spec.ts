@@ -3,6 +3,10 @@ import commonlocators from "../../../../../locators/commonlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
 
 let tempBranch = "tempBranch",
   tempBranch0 = "tempBranch0",
@@ -53,7 +57,7 @@ describe("Git sync: Merge changes via remote", function () {
       cy.log("tempBranch is " + tempBranch);
 
       //cy.createGitBranch(tempBranch);
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       cy.wait(2000); // wait for transition
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
       // cy.createGitBranch(tempBranch0);
@@ -100,7 +104,7 @@ describe("Git sync: Merge changes via remote", function () {
 
   it.skip("2. Detect conflicts when merging head to base branch", function () {
     cy.switchGitBranch(mainBranch);
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     _.gitSync.CreateGitBranch(tempBranch1, false);
@@ -133,7 +137,7 @@ describe("Git sync: Merge changes via remote", function () {
   it("3. Supports merging head to base branch", function () {
     //cy.switchGitBranch(mainBranch);
     _.gitSync.CreateGitBranch(tempBranch2, true);
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("NewPage");
     cy.commitAndPush();
@@ -147,7 +151,7 @@ describe("Git sync: Merge changes via remote", function () {
 
   it.skip("4. Enables pulling remote changes from bottom bar", function () {
     _.gitSync.CreateGitBranch(tempBranch3, false);
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.wait("@updateLayout");
