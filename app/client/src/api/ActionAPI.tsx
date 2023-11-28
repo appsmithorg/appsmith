@@ -159,10 +159,10 @@ class ActionAPI extends API {
     return API.post(ActionAPI.url, apiConfig);
   }
 
-  static async fetchActions(
-    applicationId: string,
-  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
-    return API.get(ActionAPI.url, { applicationId });
+  static async fetchActions({
+    payload,
+  }: Record<string, string>): Promise<AxiosPromise<ApiResponse<Action[]>>> {
+    return API.get(ActionAPI.url, payload);
   }
 
   static async fetchActionsForViewMode(
