@@ -1,4 +1,4 @@
-package com.appsmith.server.refactors;
+package com.appsmith.server.refactors.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
