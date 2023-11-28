@@ -13,11 +13,14 @@ ENV LC_ALL C.UTF-8
 RUN apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl nfs-common gnupg wget netcat openssh-client \
+    supervisor curl cron nfs-common nginx nginx-extras gnupg wget netcat openssh-client \
     gettext \
-    python3-pip git ca-certificates \
+    python3-pip python3-venv git ca-certificates \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
-  && apt-get remove --yes git python3-pip \
+  && python3 -m venv --prompt certbot /opt/certbot/venv \
+  && /opt/certbot/venv/bin/pip install --upgrade certbot setuptools pip \
+  && ln -s /opt/certbot/venv/bin/certbot /usr/local/bin \
+  && apt-get remove --yes git python3-pip python3-venv \
   && apt-get autoremove --yes
 
 # Install MongoDB v5.0.14, Redis, PostgreSQL v13
