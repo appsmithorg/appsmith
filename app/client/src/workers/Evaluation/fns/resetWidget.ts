@@ -46,7 +46,7 @@ async function resetWidget(
   const metaUpdates: EvalMetaUpdates = [];
   const updatedProperties: string[][] = [];
 
-  await resetWidgetMetaProperty(
+  resetWidgetMetaProperty(
     widgetName,
     resetChildren,
     metaUpdates,
@@ -60,7 +60,7 @@ async function resetWidget(
   );
 }
 
-async function resetWidgetMetaProperty(
+function resetWidgetMetaProperty(
   widgetName: string,
   resetChildren = true,
   evalMetaUpdates: EvalMetaUpdates,
@@ -145,7 +145,7 @@ async function resetWidgetMetaProperty(
     }
 
     if (resetChildren) {
-      await resetChildrenMetaProperty(
+      resetChildrenMetaProperty(
         widget.widgetId,
         evalTree,
         evalMetaUpdates,
@@ -254,7 +254,7 @@ export function getWidgetDescendantToReset(
   return descendantList;
 }
 
-async function resetChildrenMetaProperty(
+function resetChildrenMetaProperty(
   parentWidgetId: string,
   evaluatedDataTree: DataTree,
   evalMetaUpdates: EvalMetaUpdates,
@@ -272,7 +272,7 @@ async function resetChildrenMetaProperty(
 
     if (!childWidget) continue;
 
-    await resetWidgetMetaProperty(
+    resetWidgetMetaProperty(
       childWidget?.widgetName,
       false,
       evalMetaUpdates,
