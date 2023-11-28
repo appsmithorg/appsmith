@@ -57,12 +57,12 @@ describe("Statbox spec", () => {
   });
   it("2. Validate if the default widgets are present inside the statbox", () => {
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    entityExplorer.AssertEntityPresenceInExplorer("Statbox1");
+    PageLeftPane.assertPresence("Statbox1");
     PageLeftPane.expandCollapseItem("Statbox1");
-    entityExplorer.AssertEntityPresenceInExplorer("Text1");
-    entityExplorer.AssertEntityPresenceInExplorer("Text2");
-    entityExplorer.AssertEntityPresenceInExplorer("IconButton1");
-    entityExplorer.AssertEntityPresenceInExplorer("Text3");
+    PageLeftPane.assertPresence("Text1");
+    PageLeftPane.assertPresence("Text2");
+    PageLeftPane.assertPresence("IconButton1");
+    PageLeftPane.assertPresence("Text3");
   });
   it("3. Validate visibility", () => {
     propPane.MoveToTab("Content");
@@ -101,7 +101,7 @@ describe("Statbox spec", () => {
     //Verifying if the dropped widget exists in the container
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     PageLeftPane.expandCollapseItem("Statbox1");
-    entityExplorer.AssertEntityPresenceInExplorer("IconButton1");
+    PageLeftPane.assertPresence("IconButton1");
     //Verifying if the dropped widget exists once deployed
     deployMode.DeployApp();
     agHelper.AssertElementVisibility(

@@ -507,12 +507,12 @@ describe.skip("Git sync apps", function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify Child_Page is not on master
     cy.switchGitBranch(mainBranch);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    entityExplorer.AssertEntityAbsenceInExplorer("Child_Page Copy");
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence("Child_Page Copy");
     // create another branch and verify deleted page doesn't exist on it
     gitSync.CreateGitBranch(tempBranch0, true);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    entityExplorer.AssertEntityAbsenceInExplorer("Child_Page Copy");
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence("Child_Page Copy");
   });
 
   it("10. Import app from git and verify page order should not change", () => {

@@ -52,7 +52,7 @@ describe("Git Connect V2", function () {
       _.gitSync.ImportAppFromGitV2(ws2Name, repoName);
       _.gitSync.SwitchGitBranch(branchName);
       PageLeftPane.expandCollapseItem("Widgets");
-      _.entityExplorer.AssertEntityPresenceInExplorer("MyText");
+      PageLeftPane.assertPresence("MyText");
       EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
       _.propPane.ValidatePropertyFieldValue("Text", "Hello World");
     });

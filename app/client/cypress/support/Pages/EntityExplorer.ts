@@ -73,21 +73,6 @@ export class EntityExplorer {
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
   _widgetTagSuggestedWidgets = ".widget-tag-collapisble-suggested";
 
-  public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
-    this.agHelper.AssertElementLength(
-      this._entityNameInExplorer(entityNameinLeftSidebar),
-      1,
-    );
-  }
-
-  public AssertEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
-    this.agHelper.AssertElementAbsence(
-      this._entityNameInExplorer(entityNameinLeftSidebar),
-    );
-  }
-
   public ActionContextMenuByEntityName({
     action = "Delete",
     entityNameinLeftSidebar,
@@ -124,7 +109,7 @@ export class EntityExplorer {
     cy.xpath(this.locator._contextMenuItem("Delete")).click({ force: true });
     this.agHelper.Sleep(500);
     this.assertHelper.AssertNetworkStatus("@updateLayout");
-    this.AssertEntityAbsenceInExplorer(widgetNameinLeftSidebar);
+    PageLeftPane.assertAbsence(widgetNameinLeftSidebar);
   }
 
   public ValidateDuplicateMessageToolTip(tooltipText: string) {
@@ -273,6 +258,6 @@ export class EntityExplorer {
       .type("{enter}")
       .wait(300);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
-    this.AssertEntityPresenceInExplorer(renameVal);
+    PageLeftPane.assertPresence(renameVal);
   }
 }

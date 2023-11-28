@@ -9,6 +9,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
 
@@ -108,7 +109,7 @@ describe("Checkbox Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.CopyPasteWidget("NewCheckBox");
-    entityExplorer.AssertEntityPresenceInExplorer("NewCheckBoxCopy");
+    PageLeftPane.assertPresence("NewCheckBoxCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewCheckBoxCopy");
 
     // Copy paste from property pane and delete from property pane

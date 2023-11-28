@@ -88,7 +88,7 @@ describe("Tabs widget Tests", function () {
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
     agHelper.Sleep(1000);
     PageLeftPane.expandCollapseItem("Tab 1");
-    entityExplorer.AssertEntityPresenceInExplorer("NewTabsCopy");
+    PageLeftPane.assertPresence("NewTabsCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewTabsCopy");
 
     // Copy paste from property pane and delete from property pane

@@ -67,13 +67,13 @@ describe("Git sync Bug #10773", function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify ChildPage is not on master
     cy.switchGitBranch(mainBranch);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    entityExplorer.AssertEntityAbsenceInExplorer(pagename);
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence(pagename);
     // create another branch and verify deleted page doesn't exist on it
     //cy.createGitBranch(tempBranch0);
     gitSync.CreateGitBranch(tempBranch0, false);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    entityExplorer.AssertEntityAbsenceInExplorer(pagename);
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence(pagename);
   });
 
   it("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
@@ -107,9 +107,9 @@ describe("Git sync Bug #10773", function () {
       "response.body.responseMeta.status",
       201,
     );
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     // verify jsObject is not duplicated
-    entityExplorer.AssertEntityPresenceInExplorer(jsObject);
+    PageLeftPane.assertPresence(jsObject);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -141,9 +141,9 @@ describe("Git sync Bug #10773", function () {
     gitSync.CreateGitBranch(tempBranch, true);
     cy.wait(2000);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     // verify jsObject is not duplicated
-    entityExplorer.AssertEntityPresenceInExplorer(jsObject);
+    PageLeftPane.assertPresence(jsObject);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
@@ -223,16 +223,16 @@ describe("Git sync Bug #10773", function () {
           }
 
           // verify jsObject data binding on Page 1
-          cy.CheckAndUnfoldEntityItem("Queries/JS");
-          entityExplorer.AssertEntityPresenceInExplorer(jsObject);
+          PageLeftPane.expandCollapseItem("Queries/JS");
+          PageLeftPane.assertPresence(jsObject);
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );
           // switch to Page1 copy and verify jsObject data binding
           EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-          cy.CheckAndUnfoldEntityItem("Queries/JS");
+          PageLeftPane.expandCollapseItem("Queries/JS");
           // verify jsObject is not duplicated
-          entityExplorer.AssertEntityPresenceInExplorer(jsObject);
+          PageLeftPane.assertPresence(jsObject);
           cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
             "be.visible",
           );

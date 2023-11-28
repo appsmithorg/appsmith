@@ -41,7 +41,7 @@ describe("Rich Text Editor widget Tests", function () {
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
     agHelper.Sleep(1000);
     PageLeftPane.expandCollapseItem("NewContainer");
-    entityExplorer.AssertEntityPresenceInExplorer("NewContainerCopy");
+    PageLeftPane.assertPresence("NewContainerCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewContainerCopy");
 
     // Copy paste from property pane and delete from property pane
@@ -89,7 +89,7 @@ describe("Rich Text Editor widget Tests", function () {
     });
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{g}`);
     agHelper.Sleep(1000);
-    entityExplorer.AssertEntityPresenceInExplorer("Container3");
+    PageLeftPane.assertPresence("Container3");
     entityExplorer.DeleteWidgetFromEntityExplorer("Container3");
   });
 

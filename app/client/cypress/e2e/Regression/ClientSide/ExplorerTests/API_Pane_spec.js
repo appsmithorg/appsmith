@@ -78,7 +78,7 @@ describe("Entity explorer API pane related testcases", function () {
     });
     cy.wait(500);
     PageLeftPane.expandCollapseItem("Queries/JS");
-    ee.AssertEntityPresenceInExplorer("SecondAPI");
+    PageLeftPane.assertPresence("SecondAPI");
     ee.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "SecondAPI",
       action: "Show bindings",

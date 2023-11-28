@@ -10,7 +10,6 @@ const pageid = "MyPage";
 import {
   agHelper,
   propPane,
-  entityExplorer,
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
@@ -33,7 +32,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     PageLeftPane.expandCollapseItem("Pages");
-    entityExplorer.AssertEntityPresenceInExplorer(pageid);
+    PageLeftPane.assertPresence(pageid);
     //Table Widget V2 Functionality with multiple page
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [

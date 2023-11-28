@@ -51,7 +51,7 @@ describe("Api Naming conflict on different pages test", function () {
     PageList.AddNewPage();
     cy.CreateAPI(firstApiName);
     PageLeftPane.expandCollapseItem("Queries/JS", true);
-    entityExplorer.AssertEntityPresenceInExplorer(firstApiName);
+    PageLeftPane.assertPresence(firstApiName);
     cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });

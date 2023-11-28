@@ -109,10 +109,10 @@ describe("Git sync:", function () {
       .should("have.class", "activePage");
 
     EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
-    entityExplorer.AssertEntityAbsenceInExplorer("ChildPage1");
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    entityExplorer.AssertEntityAbsenceInExplorer("ChildApi1");
-    entityExplorer.AssertEntityAbsenceInExplorer("ChildJSAction1");
+    PageLeftPane.assertAbsence("ChildPage1");
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.assertAbsence("ChildApi1");
+    PageLeftPane.assertAbsence("ChildJSAction1");
   });
 
   // rename entities
@@ -130,10 +130,10 @@ describe("Git sync:", function () {
 
     cy.switchGitBranch(parentBranchKey);
 
-    cy.CheckAndUnfoldEntityItem("Pages");
-    entityExplorer.AssertEntityAbsenceInExplorer("ParentPageRenamed");
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    entityExplorer.AssertEntityAbsenceInExplorer("ParentApiRenamed");
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence("ParentPageRenamed");
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.assertAbsence("ParentApiRenamed");
   });
 
   it("4. enables switching branch from the URL", () => {

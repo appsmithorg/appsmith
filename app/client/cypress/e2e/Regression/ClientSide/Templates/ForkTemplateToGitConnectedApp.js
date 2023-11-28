@@ -8,6 +8,7 @@ const jsObject = "Utils";
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "Fork a template to the current app", () => {
   before(() => {
@@ -78,7 +79,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       );
       // [Bug]: On forking a template the JS Objects are not cloned #17425
       cy.CheckAndUnfoldEntityItem("Queries/JS");
-      _.entityExplorer.AssertEntityPresenceInExplorer(jsObject);
+      PageLeftPane.assertPresence(jsObject);
       _.homePage.NavigateToHome();
       cy.get(homePage.searchInput).clear().type(newWorkspaceName);
       cy.wait(2000);
