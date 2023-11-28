@@ -118,7 +118,7 @@ describe("Table widget - Select column type functionality", () => {
       ]}}
     `,
     );
-    cy.get(".t--property-control-filterable input").click();
+    cy.get(".t--property-control-filterable input").click({ force: true });
     cy.editTableSelectCell(0, 0);
     cy.get(".select-popover-wrapper .bp3-input-group input").should("exist");
     cy.get(".select-popover-wrapper .bp3-input-group input").type("1", {

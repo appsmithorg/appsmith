@@ -1,9 +1,10 @@
+import { templateIdUrl } from "@appsmith/RouteBuilder";
 import {
   FORK_THIS_TEMPLATE,
+  FORK_THIS_TEMPLATE_BUILDING_BLOCK,
   GO_BACK,
   createMessage,
 } from "@appsmith/constants/messages";
-import { templateIdUrl } from "@appsmith/RouteBuilder";
 import { Button, Link, Text } from "design-system";
 import { useQuery } from "pages/Editor/utils";
 import React from "react";
@@ -16,6 +17,7 @@ import {
 import styled from "styled-components";
 import history from "utils/history";
 import ForkTemplate from "./ForkTemplate";
+import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "./constants";
 
 const HeaderWrapper = styled.div`
   display: flex;
@@ -61,6 +63,13 @@ function TemplateViewHeader({
       );
     }
   };
+
+  const FORK_BUTTON_TEXT = currentTemplate?.functions.includes(
+    TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
+  )
+    ? FORK_THIS_TEMPLATE_BUILDING_BLOCK
+    : FORK_THIS_TEMPLATE;
+
   return (
     <HeaderWrapper>
       {showBack && (
@@ -90,7 +99,7 @@ function TemplateViewHeader({
               size="md"
               startIcon="fork-2"
             >
-              {createMessage(FORK_THIS_TEMPLATE)}
+              {createMessage(FORK_BUTTON_TEXT)}
             </Button>
           </ForkTemplate>
         )}
