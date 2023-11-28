@@ -12,9 +12,14 @@ if (APPSMITH_CUSTOM_DOMAIN != null) {
     certLocation = "/appsmith-stacks/ssl"
   } catch (_) {
     // no custom certs, see if old certbot certs are there.
+    const letsEncryptCertLocation = "/etc/letsencrypt/live/" + APPSMITH_CUSTOM_DOMAIN
+    const fullChainPath = letsEncryptCertLocation + `/fullchain.pem`
     try {
-      fs.accessSync(`/etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN}/fullchain.pem`, fs.constants.R_OK)
-      certLocation = "/etc/letsencrypt/live" + APPSMITH_CUSTOM_DOMAIN
+      fs.accessSync(fullChainPath, fs.constants.R_OK)
+      // cert file exists, now check if it's expired.
+      if (!isCertExpired(fullChainPath)) {
+        certLocation = letsEncryptCertLocation
+      }
     } catch (_) {
       // no certs there either, ignore.
     }
@@ -119,3 +124,9 @@ fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
 spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
 spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
+
+function isCertExpired(path) {
+  const {X509Certificate} = require("crypto")
+  const cert = new X509Certificate(fs.readFileSync(path, "utf-8"))
+  return new Date(cert.validTo) < new Date()
+}
