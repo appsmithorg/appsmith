@@ -27,8 +27,6 @@ apply-env-vars() {
 
 apply-env-vars /opt/appsmith/editor/index.html "$NGINX_WWW_PATH/index.html"
 
-# todo: use caddy storage export and import as part of backup/restore.
-
 node caddy-reconfigure.mjs
 
 # Caddy may already be running for the loading page.

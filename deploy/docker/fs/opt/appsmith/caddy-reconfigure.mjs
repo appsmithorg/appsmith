@@ -5,6 +5,25 @@ import {spawnSync} from "child_process"
 const APPSMITH_CUSTOM_DOMAIN = process.env.APPSMITH_CUSTOM_DOMAIN ?? null
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
+let certLocation = null
+if (APPSMITH_CUSTOM_DOMAIN != null) {
+  try {
+    fs.accessSync("/appsmith-stacks/ssl/fullchain.pem", fs.constants.R_OK)
+    certLocation = "/appsmith-stacks/ssl"
+  } catch (_) {
+    // no custom certs, see if old certbot certs are there.
+    try {
+      fs.accessSync(`/etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN}/fullchain.pem`, fs.constants.R_OK)
+      certLocation = "/etc/letsencrypt/live" + APPSMITH_CUSTOM_DOMAIN
+    } catch (_) {
+      // no certs there either, ignore.
+    }
+  }
+
+}
+
+const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
+
 const parts = []
 
 parts.push(`
@@ -85,44 +104,16 @@ parts.push(`
     respond "{err.status_code} {err.status_text}" {err.status_code}
   }
 }
-`)
-// todo: use 404.html for the 404 error
 
-if (APPSMITH_CUSTOM_DOMAIN != null) {
-  let certLocation = null
-  try {
-    fs.accessSync("/appsmith-stacks/ssl/fullchain.pem", fs.constants.R_OK)
-    certLocation = "/appsmith-stacks/ssl"
-  } catch (_) {
-    // no custom certs, see if old certbot certs are there.
-    try {
-      fs.accessSync(`/etc/letsencrypt/live/${APPSMITH_CUSTOM_DOMAIN}/fullchain.pem`, fs.constants.R_OK)
-      certLocation = "/etc/letsencrypt/live" + APPSMITH_CUSTOM_DOMAIN
-    } catch (_) {
-      // no certs there either, ignore.
-    }
-  }
-
-  const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
-
-  parts.push(`
-  localhost:80 127.0.0.1:80 {
-    import all-config
-  }
-  ${APPSMITH_CUSTOM_DOMAIN} {
-    import all-config
-    ${tlsConfig}
-  }
-  `)
-
-} else {
-  parts.push(`
-  :80 {
-    import all-config
-  }
-  `)
-
+localhost:80 127.0.0.1:80 {
+  import all-config
 }
+
+${APPSMITH_CUSTOM_DOMAIN || ":80"} {
+  import all-config
+  ${tlsConfig}
+}
+`)
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
