@@ -10,8 +10,9 @@ import {
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "../constants/routes";
 import { shouldStorePageURLForFocus } from "./FocusUtils";
-import { FocusEntity, identifyEntityFromPath, QueryTypes } from "./FocusEntity";
+import { FocusEntity, identifyEntityFromPath } from "./FocusEntity";
 import { SAAS_EDITOR_API_ID_PATH } from "../pages/Editor/SaaSEditor/constants";
+import { PluginType } from "../entities/Action";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {
   const match = matchPath<{ datasourceId?: string }>(path, [
@@ -39,9 +40,11 @@ export const getCurrentAppUrl = (path: string): string | undefined => {
   }
 };
 
-export const getSelectedQueryId = (
-  path: string,
-): { id: string | undefined; type: string } | undefined => {
+export type QueryListState =
+  | { id: string; type: PluginType; pluginPackageName?: string }
+  | undefined;
+
+export const getSelectedQueryId = (path: string): QueryListState => {
   const match = matchPath<{
     queryId?: string;
     apiId?: string;
@@ -62,14 +65,19 @@ export const getSelectedQueryId = (
   ]);
   if (!match) return undefined;
   const { apiId, pluginPackageName, queryId } = match.params;
-  if (!queryId && !apiId) {
+  if (!queryId || !apiId) {
     return undefined;
   }
-  const type: QueryTypes =
-    apiId && !pluginPackageName ? QueryTypes.API : QueryTypes.QUERY;
+  let type: PluginType = PluginType.API;
+  if (pluginPackageName) {
+    type = PluginType.SAAS;
+  } else if (queryId) {
+    type = PluginType.DB;
+  }
   return {
     type,
     id: apiId || queryId,
+    pluginPackageName,
   };
 };
 

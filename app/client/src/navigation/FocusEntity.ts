@@ -35,11 +35,6 @@ export enum FocusEntity {
   SETTINGS = "SETTINGS",
 }
 
-export enum QueryTypes {
-  API = "API",
-  QUERY = "QUERY",
-}
-
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
   [FocusEntity.PROPERTY_PANE]: FocusEntity.CANVAS,
   [FocusEntity.DATASOURCE]: FocusEntity.DATASOURCE_LIST,

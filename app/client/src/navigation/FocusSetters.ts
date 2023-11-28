@@ -4,8 +4,10 @@ import {
   datasourcesEditorIdURL,
   jsCollectionIdURL,
   queryEditorIdURL,
+  saasEditorApiIdURL,
 } from "@appsmith/RouteBuilder";
-import { QueryTypes } from "./FocusEntity";
+import { PluginType } from "../entities/Action";
+import type { QueryListState } from "./FocusSelectors";
 
 export function setSelectedDatasource(id: string | undefined) {
   if (id) {
@@ -31,22 +33,35 @@ export function setAppUrl(path: string | undefined) {
   }
 }
 
-export function setSelectedQuery(
-  state: { type: QueryTypes; id: string } | undefined,
-) {
+export function setSelectedQuery(state: QueryListState) {
   if (state) {
-    if (state.type === QueryTypes.QUERY) {
-      history.replace(
-        queryEditorIdURL({
-          queryId: state.id,
-        }),
-      );
-    } else {
-      history.replace(
-        apiEditorIdURL({
-          apiId: state.id,
-        }),
-      );
+    switch (state.type) {
+      case PluginType.SAAS:
+        if (state.pluginPackageName) {
+          history.replace(
+            saasEditorApiIdURL({
+              apiId: state.id,
+              pluginPackageName: state.pluginPackageName,
+            }),
+          );
+        }
+        break;
+      case PluginType.DB:
+        history.replace(
+          queryEditorIdURL({
+            queryId: state.id,
+          }),
+        );
+        break;
+      case PluginType.API:
+        history.replace(
+          apiEditorIdURL({
+            apiId: state.id,
+          }),
+        );
+        break;
+      default:
+        break;
     }
   }
 }
