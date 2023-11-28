@@ -161,8 +161,8 @@ function Deploy() {
 
   useEffect(() => {
     if (isGitStatusLiteEnabled) {
-      dispatch(fetchGitRemoteStatusInit());
       dispatch(fetchGitStatusInit({ compareRemote: false }));
+      dispatch(fetchGitRemoteStatusInit());
     } else {
       dispatch(fetchGitStatusInit({ compareRemote: true }));
     }
