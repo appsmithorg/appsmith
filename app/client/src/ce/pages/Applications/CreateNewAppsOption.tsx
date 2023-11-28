@@ -41,10 +41,7 @@ import {
   resetCurrentApplicationIdForCreateNewApp,
   resetCurrentPluginIdForCreateNewApp,
 } from "actions/onboardingActions";
-import {
-  getApplicationByIdFromWorkspaces,
-  getCurrentPluginIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
+import { getCurrentPluginIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -52,6 +49,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { fetchPlugins } from "actions/pluginActions";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -195,11 +193,9 @@ const CreateNewAppsOption = ({
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
-  const application = useSelector((state) =>
-    getApplicationByIdFromWorkspaces(
-      state,
-      currentApplicationIdForCreateNewApp,
-    ),
+  const applications = useSelector(getApplicationsOfWorkspace);
+  const application = applications.find(
+    (app) => app.id === currentApplicationIdForCreateNewApp,
   );
   const isEnabledForStartWithData = useFeatureFlag(
     FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,

@@ -77,7 +77,7 @@ export const initialState: any = {
         forkingEnabled: true,
         isPublic: true,
       },
-      userWorkspaces: [],
+      workspaces: [],
     },
     theme: {
       theme: {

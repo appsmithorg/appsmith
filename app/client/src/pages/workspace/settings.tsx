@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
-import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
@@ -23,6 +22,7 @@ import { debounce } from "lodash";
 import { WorkspaceSettingsTabs } from "@appsmith/components/WorkspaceSettingsTabs";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { fetchAllWorkspacesAndAppsOfFirstWorkspace } from "@appsmith/actions/workspaceActions";
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
@@ -65,7 +65,7 @@ enum TABS {
 
 export default function Settings() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
-  const currentWorkspace = useSelector(getCurrentWorkspace).filter(
+  const currentWorkspace = useSelector(getFetchedWorkspaces).filter(
     (el) => el.id === workspaceId,
   )[0];
   const location = useLocation();
@@ -98,7 +98,7 @@ export default function Settings() {
 
   useEffect(() => {
     if (!currentWorkspace) {
-      dispatch(getAllApplications());
+      dispatch(fetchAllWorkspacesAndAppsOfFirstWorkspace());
     } else {
       setPageTitle(`${currentWorkspace?.name}`);
     }

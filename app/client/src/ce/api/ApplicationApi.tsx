@@ -107,8 +107,6 @@ export interface ForkApplicationRequest {
   editMode?: boolean;
 }
 
-export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
-
 export interface UpdateApplicationPayload {
   icon?: string;
   color?: string;
@@ -285,12 +283,7 @@ export class ApplicationApi extends Api {
     return Api.get(ApplicationApi.baseURL);
   }
 
-  static async getAllApplication(): Promise<
-    AxiosPromise<GetAllApplicationResponse>
-  > {
-    return Api.get(ApplicationApi.baseURL + "/new");
-  }
-  static async getAllApplicationsOfWorkspace(
+  static async fetchAllApplicationsOfWorkspace(
     workspaceId: string,
   ): Promise<any> {
     return Api.get(ApplicationApi.baseURL + "/home?workspaceId=" + workspaceId);

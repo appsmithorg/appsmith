@@ -49,6 +49,7 @@ import analyticsReducer from "reducers/uiReducers/analyticsReducer";
 import layoutConversionReducer from "reducers/uiReducers/layoutConversionReducer";
 import oneClickBindingReducer from "reducers/uiReducers/oneClickBindingReducer";
 import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
+import selectedWorkspaceReducer from "./selectedWorkspaceReducer";
 
 export const uiReducerObject = {
   analytics: analyticsReducer,
@@ -62,6 +63,7 @@ export const uiReducerObject = {
   auth: authReducer,
   templates: templateReducer,
   workspaces: workspaceReducer,
+  selectedWorkspace: selectedWorkspaceReducer,
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
   importedCollections: importedCollectionsReducer,

@@ -25,11 +25,6 @@ import {
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import type { AppState } from "@appsmith/reducers";
 import { editorInitializer } from "utils/editor/EditorUtils";
-import {
-  getIsFetchingApplications,
-  getUserApplicationsWorkspacesList,
-} from "@appsmith/selectors/applicationSelectors";
-import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import type { Template } from "api/TemplatesApi";
 import LoadingScreen from "./TemplatesModal/LoadingScreen";
@@ -37,6 +32,8 @@ import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceMo
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { debounce } from "lodash";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -98,7 +95,7 @@ function TemplateRoutes() {
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
   const workspaceListLength = useSelector(
-    (state: AppState) => getUserApplicationsWorkspacesList(state).length,
+    (state: AppState) => getFetchedWorkspaces(state).length,
   );
   const pluginListLength = useSelector(
     (state: AppState) => state.entities.plugins.defaultPluginList.length,
@@ -122,7 +119,7 @@ function TemplateRoutes() {
 
   useEffect(() => {
     if (!workspaceListLength) {
-      dispatch(getAllApplications());
+      dispatch({ type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT });
     }
   }, [workspaceListLength]);
 

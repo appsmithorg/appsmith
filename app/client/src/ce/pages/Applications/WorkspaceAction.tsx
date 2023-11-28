@@ -9,10 +9,7 @@ import {
 } from "design-system";
 import { useSelector } from "react-redux";
 
-import {
-  getIsCreatingApplicationByWorkspaceId,
-  getIsFetchingApplications,
-} from "@appsmith/selectors/applicationSelectors";
+import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import {
   IMPORT_BTN_LABEL,
@@ -22,6 +19,7 @@ import {
 import { NEW_APP } from "@appsmith/constants/messages";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type { Application } from "@appsmith/reducers/uiReducers/applicationsReducer";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 export interface WorkspaceActionProps {
   workspace: Workspace;

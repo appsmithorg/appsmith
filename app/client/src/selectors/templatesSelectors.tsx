@@ -2,9 +2,11 @@ import type { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
 import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { getWorkspaceCreateApplication } from "@appsmith/selectors/applicationSelectors";
 import { getDefaultPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { Filter } from "pages/Templates/Filters";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 
 const fuzzySearchOptions = {
   keys: ["title", "id", "datasources", "widgets"],
@@ -28,17 +30,6 @@ export const buildingBlocksSourcePageIdSelector = (state: AppState) =>
   state.ui.templates.buildingBlockSourcePageId;
 export const showTemplateNotificationSelector = (state: AppState) =>
   state.ui.templates.templateNotificationSeen;
-
-export const getWorkspaceForTemplates = createSelector(
-  getWorkspaceCreateApplication,
-  (workspaceList) => {
-    if (workspaceList.length) {
-      return workspaceList[0];
-    }
-
-    return null;
-  },
-);
 
 export const getTemplateFilterSelector = (state: AppState) =>
   state.ui.templates.filters;
@@ -202,14 +193,18 @@ export const getFilterListSelector = createSelector(
 );
 
 export const getForkableWorkspaces = createSelector(
-  getWorkspaceCreateApplication,
-  (workspaces) => {
-    return workspaces.map((workspace) => {
-      return {
-        label: workspace.workspace.name,
-        value: workspace.workspace.id,
-      };
-    });
+  getFetchedWorkspaces,
+  (workspaces: Workspace[]) => {
+    return workspaces
+      .filter((workspace) =>
+        hasCreateNewAppPermission(workspace.userPermissions ?? []),
+      )
+      .map((workspace) => {
+        return {
+          label: workspace.name,
+          value: workspace.id,
+        };
+      });
   },
 );
 

@@ -11,7 +11,7 @@ import { Input } from "design-system";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
-  getCurrentWorkspace,
+  getFetchedWorkspaces,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
@@ -19,8 +19,8 @@ import styled from "styled-components";
 import type { SetProgress, UploadCallback } from "design-system-old";
 import { FilePickerV2, FileType, Text, TextType } from "design-system-old";
 import { Classes } from "@blueprintjs/core";
-import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { useMediaQuery } from "react-responsive";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 // This wrapper ensures that the scroll behaviour is consistent with the other tabs
 const ScrollWrapper = styled.div`
@@ -109,7 +109,7 @@ export const Row = styled.div`
 export function GeneralSettings() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const dispatch = useDispatch();
-  const currentWorkspace = useSelector(getCurrentWorkspace).filter(
+  const currentWorkspace = useSelector(getFetchedWorkspaces).filter(
     (el) => el.id === workspaceId,
   )[0];
   function saveChanges(settings: SaveWorkspaceRequest) {
@@ -139,7 +139,7 @@ export function GeneralSettings() {
     });
   }, timeout);
 
-  const { isFetchingWorkspace } = useSelector(getWorkspaceLoadingStates);
+  const { isFetchingCurrentWorkspace } = useSelector(getWorkspaceLoadingStates);
   const logoUploadError = useSelector(getCurrentError);
 
   const FileUploader = (
@@ -204,10 +204,10 @@ export function GeneralSettings() {
             <InputLabelWrapper>
               <Text type={TextType.P1}>Upload logo</Text>
             </InputLabelWrapper>
-            {isFetchingWorkspace && (
+            {isFetchingCurrentWorkspace && (
               <FilePickerLoader className={Classes.SKELETON} />
             )}
-            {!isFetchingWorkspace && (
+            {!isFetchingCurrentWorkspace && (
               <FilePickerV2
                 fileType={FileType.IMAGE}
                 fileUploader={FileUploader}

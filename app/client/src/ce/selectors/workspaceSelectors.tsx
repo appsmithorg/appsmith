@@ -1,8 +1,9 @@
 import { createSelector } from "reselect";
 import type { AppState } from "@appsmith/reducers";
-import type { WorkspaceRole } from "@appsmith/constants/workspaceConstants";
-import { getApplicationsState } from "./applicationSelectors";
-import type { ApplicationsReduxState } from "@appsmith/reducers/uiReducers/applicationsReducer";
+import type {
+  Workspace,
+  WorkspaceRole,
+} from "@appsmith/constants/workspaceConstants";
 
 export const getRolesFromState = (state: AppState) => {
   return state.ui.workspaces.roles;
@@ -10,9 +11,14 @@ export const getRolesFromState = (state: AppState) => {
 
 export const getWorkspaceLoadingStates = (state: AppState) => {
   return {
-    isFetchingWorkspace: state.ui.workspaces.loadingStates.isFetchingWorkspace,
+    isFetchingCurrentWorkspace:
+      state.ui.workspaces.loadingStates.isFetchingCurrentWorkspace,
+    isFetchingWorkspaces:
+      state.ui.workspaces.loadingStates.isFetchingWorkspaces,
     isFetchingAllUsers: state.ui.workspaces.loadingStates.isFetchAllUsers,
     isFetchingAllRoles: state.ui.workspaces.loadingStates.isFetchAllRoles,
+    isSavingWorkspaceInfo:
+      state.ui.workspaces.loadingStates.isSavingWorkspaceInfo,
     deletingUserInfo: state.ui.workspaces.workspaceUsers.filter(
       (el) => el.isDeleting,
     )[0],
@@ -22,37 +28,45 @@ export const getWorkspaceLoadingStates = (state: AppState) => {
   };
 };
 
-export const getIsFetchingWorkspaces = createSelector(
-  getApplicationsState,
-  (applications: ApplicationsReduxState): boolean =>
-    applications.isFetchingWorkspaces,
-);
+export const getIsFetchingWorkspaces = (state: AppState) => {
+  return state.ui.workspaces.loadingStates.isFetchingWorkspaces;
+};
 
-export const getFetchedWorkspaces = (state: AppState) => {
-  return state.ui.applications.workspaces;
+export const getFetchedWorkspaces = (state: AppState): Workspace[] => {
+  return state.ui.workspaces.list || [];
 };
 
 export const getCurrentWorkspaceId = (state: AppState) =>
   state.ui.workspaces.currentWorkspace.id;
-export const getWorkspaces = (state: AppState) => {
-  return state.ui.applications.userWorkspaces;
-};
+
 export const getWorkspaceFromId = (state: AppState, workspaceId: string) => {
-  const filteredWorkspaces = state.ui.applications.userWorkspaces.filter(
-    (el) => el.workspace.id === workspaceId,
+  const filteredWorkspaces = state.ui.workspaces.list.filter(
+    (el) => el.id === workspaceId,
   );
   return !!filteredWorkspaces && filteredWorkspaces.length > 0
-    ? filteredWorkspaces[0].workspace
+    ? filteredWorkspaces[0]
     : undefined;
 };
-export const getCurrentWorkspace = (state: AppState) => {
-  return state.ui.applications.userWorkspaces.map((el) => el.workspace);
-};
+
+export const getCurrentWorkspace = createSelector(
+  getFetchedWorkspaces,
+  getCurrentWorkspaceId,
+  (fetchedWorkspaces: Workspace[], currentWorkspaceId: string) => {
+    if (fetchedWorkspaces && currentWorkspaceId) {
+      return fetchedWorkspaces.find(
+        (workspace: Workspace) => workspace.id === currentWorkspaceId,
+      );
+    }
+  },
+);
+
 export const getCurrentAppWorkspace = (state: AppState) => {
   return state.ui.workspaces.currentWorkspace;
 };
+
 export const getAllUsers = (state: AppState) =>
   state.ui.workspaces.workspaceUsers;
+
 export const getAllRoles = (state: AppState) =>
   state.ui.workspaces.workspaceRoles;
 
@@ -87,3 +101,6 @@ export const getDefaultRole = createSelector(
 export const getCurrentError = (state: AppState) => {
   return state.ui.errors.currentError;
 };
+
+export const getIsSavingWorkspaceInfo = (state: AppState) =>
+  state.ui.workspaces.loadingStates.isSavingWorkspaceInfo;

@@ -37,10 +37,7 @@ import { get, noop } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Banner, ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
-import {
-  getCurrentApplicationIdForCreateNewApp,
-  getIsFetchingApplications,
-} from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import {
   getAdminSettingsPath,
   getShowAdminSettings,
@@ -66,6 +63,7 @@ import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { searchEntities } from "@appsmith/actions/applicationActions";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -402,117 +400,119 @@ export function PageHeader(props: PageHeaderProps) {
               startIcon="search"
             />
           ) : (
-            <SearchContainer isMobile={isMobile}>
-              <SearchInput
-                data-testid="t--application-search-input"
-                isDisabled={isFetchingApplications}
-                onChange={handleSearchInput}
-                placeholder={""}
-                value={searchInput}
-              />
-              <SearchListContainer>
-                <Text className="!mb-2" kind="body-s">
-                  Workspaces
-                </Text>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text className="truncate" kind="body-m">
-                    Unitiled Workspace 1 dbshjds sadusa dsdusa dhsaud hsuadhusa
-                    dus dsui
+            false && (
+              <SearchContainer isMobile={isMobile}>
+                <SearchInput
+                  data-testid="t--application-search-input"
+                  isDisabled={isFetchingApplications}
+                  onChange={handleSearchInput}
+                  placeholder={""}
+                  value={searchInput}
+                />
+                <SearchListContainer>
+                  <Text className="!mb-2" kind="body-s">
+                    Workspaces
                   </Text>
-                </SearhListItem>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text kind="body-m">Unitiled Workspace 2</Text>
-                </SearhListItem>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text kind="body-m">Unitiled Workspace 3</Text>
-                </SearhListItem>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text kind="body-m">Unitiled Workspace 4</Text>
-                </SearhListItem>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text kind="body-m">Unitiled Workspace 4</Text>
-                </SearhListItem>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text kind="body-m">Unitiled Workspace 4</Text>
-                </SearhListItem>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text kind="body-m">Unitiled Workspace 4</Text>
-                </SearhListItem>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text kind="body-m">Unitiled Workspace 4</Text>
-                </SearhListItem>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text kind="body-m">Unitiled Workspace 4</Text>
-                </SearhListItem>
-                <SearhListItem>
-                  <Icon
-                    className="!mr-2"
-                    color="var(--ads-v2-color-fg)"
-                    name="group-2-line"
-                    size="md"
-                  />
-                  <Text kind="body-m">Unitiled Workspace 4</Text>
-                </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text className="truncate" kind="body-m">
+                      Unitiled Workspace 1 dbshjds sadusa dsdusa dhsaud
+                      hsuadhusa dus dsui
+                    </Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 2</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 3</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
 
-                <Text className="!mb-2 !mt-2" kind="body-s">
-                  Applications
-                </Text>
-              </SearchListContainer>
-            </SearchContainer>
+                  <Text className="!mb-2 !mt-2" kind="body-s">
+                    Applications
+                  </Text>
+                </SearchListContainer>
+              </SearchContainer>
+            )
           ))}
 
         {user && !isMobile && (

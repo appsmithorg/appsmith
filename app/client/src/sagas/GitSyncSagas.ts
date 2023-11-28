@@ -104,7 +104,7 @@ import {
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
@@ -829,7 +829,7 @@ function* disconnectGitSaga() {
         }),
       );
       yield put({
-        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+        type: ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
       });
 
       // while disconnecting another application, i.e. not the current one
@@ -874,7 +874,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
       getLogToSentryFromResponse(response),
     );
     if (isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === workspaceIdForImport,
       );

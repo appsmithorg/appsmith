@@ -4,7 +4,6 @@ import {
   updateApplicationLayoutSaga,
   updateApplicationSaga,
   changeAppViewAccessSaga,
-  getAllApplicationSaga,
   fetchAppAndPagesSaga,
   forkApplicationSaga,
   createApplicationSaga,
@@ -18,8 +17,8 @@ import {
   uploadNavigationLogoSaga,
   deleteNavigationLogoSaga,
   deleteMultipleApplicationSaga,
-  getAllApplicationsOfWorkspaceSaga,
-  searchWorkspaceEntitiesSaga,
+  fetchAllApplicationsOfWorkspaceSaga,
+  // searchWorkspaceEntitiesSaga,
 } from "ce/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
@@ -37,12 +36,8 @@ export default function* applicationSagas() {
       changeAppViewAccessSaga,
     ),
     takeLatest(
-      ReduxActionTypes.GET_ALL_APPLICATION_INIT,
-      getAllApplicationSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.GET_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
-      getAllApplicationsOfWorkspaceSaga,
+      ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
+      fetchAllApplicationsOfWorkspaceSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchAppAndPagesSaga),
     takeLatest(ReduxActionTypes.FORK_APPLICATION_INIT, forkApplicationSaga),
@@ -65,10 +60,10 @@ export default function* applicationSagas() {
       ReduxActionTypes.DELETE_NAVIGATION_LOGO_INIT,
       deleteNavigationLogoSaga,
     ),
-    takeLatest(
-      ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
-      searchWorkspaceEntitiesSaga,
-    ),
+    // takeLatest(
+    //   ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
+    //   searchWorkspaceEntitiesSaga,
+    // ),
     takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
     takeLatest(
       ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,

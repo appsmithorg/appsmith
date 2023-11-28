@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
@@ -22,8 +21,9 @@ import {
   FORK_APP_MODAL_LOADING_TITLE,
   FORK_APP_MODAL_SUCCESS_TITLE,
 } from "@appsmith/constants/messages";
-import { getAllApplications } from "@appsmith/actions/applicationActions";
 import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { fetchAllWorkspacesAndAppsOfFirstWorkspace } from "@appsmith/actions/workspaceActions";
 
 interface ForkApplicationModalProps {
   applicationId: string;
@@ -43,7 +43,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     value: string;
   }>({ label: "", value: "" });
   const dispatch = useDispatch();
-  const userWorkspaces = useSelector(getFetchedWorkspaces);
+  const workspaces = useSelector(getFetchedWorkspaces);
   const forkingApplication = useSelector(
     (state: AppState) => state.ui.applications.forkingApplication,
   );
@@ -86,7 +86,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   };
 
   const workspaceList = useMemo(() => {
-    const filteredUserWorkspaces = userWorkspaces.filter((item) => {
+    const filteredUserWorkspaces = workspaces.filter((item) => {
       const permitted = hasCreateNewAppPermission(item.userPermissions ?? []);
       return permitted;
     });
@@ -104,7 +104,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
         value: workspace.id,
       };
     });
-  }, [userWorkspaces]);
+  }, [workspaces]);
 
   const modalHeading = isFetchingApplications
     ? createMessage(FORK_APP_MODAL_LOADING_TITLE)
@@ -113,7 +113,8 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     : createMessage(FORK_APP_MODAL_SUCCESS_TITLE);
 
   const getApplicationsListAndOpenModal = () => {
-    !workspaceList.length && dispatch(getAllApplications());
+    !workspaceList.length &&
+      dispatch(fetchAllWorkspacesAndAppsOfFirstWorkspace());
     handleOpen && handleOpen();
   };
 

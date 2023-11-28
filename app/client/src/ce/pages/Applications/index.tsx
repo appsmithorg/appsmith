@@ -18,14 +18,11 @@ import {
 import {
   getApplicationList,
   getApplicationSearchKeyword,
-  getApplicationsOfWorkspace,
   getCreateApplicationError,
   getCurrentApplicationIdForCreateNewApp,
   getDeletingMultipleApps,
   getIsCreatingApplication,
   getIsDeletingApplication,
-  getIsFetchingApplications,
-  getIsSavingWorkspaceInfo,
 } from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -43,7 +40,7 @@ import {
 } from "design-system-old";
 import { Button, Icon, Text as NewText } from "design-system";
 import {
-  getAllApplicationsOfWorkspace,
+  fetchAllApplicationsOfWorkspace,
   updateApplication,
 } from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -111,10 +108,15 @@ import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActi
 import {
   getFetchedWorkspaces,
   getIsFetchingWorkspaces,
+  getIsSavingWorkspaceInfo,
 } from "@appsmith/selectors/workspaceSelectors";
 import ApplicationsSubHeader from "pages/common/SubHeader";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
+import {
+  getApplicationsOfWorkspace,
+  getIsFetchingApplications,
+} from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -262,7 +264,7 @@ export function LeftPaneSection(props: {
       },
       dispatch,
     );
-    dispatch({ type: ReduxActionTypes.GET_ALL_WORKSPACES_INIT });
+    dispatch({ type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT });
   };
 
   return (
@@ -589,7 +591,7 @@ export function ApplicationsSection(props: any) {
 
   // let updatedWorkspaces;
   // if (!isLoadingResources) {
-  //   updatedWorkspaces = userWorkspaces;
+  //   updatedWorkspaces = workspaces;
   // } else {
   //   // updatedWorkspaces = loadingUserWorkspaces as any;
   // }
@@ -817,7 +819,16 @@ export const ApplictionsMainPage = (props: any) => {
 
   useEffect(() => {
     if (activeWorkspaceId) {
-      dispatch(getAllApplicationsOfWorkspace(activeWorkspaceId));
+      const activeWorkspace: Workspace = workspaces.find(
+        (workspace: Workspace) => workspace.id === activeWorkspaceId,
+      );
+      if (activeWorkspace) {
+        dispatch({
+          type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
+          payload: { ...activeWorkspace },
+        });
+      }
+      dispatch(fetchAllApplicationsOfWorkspace(activeWorkspaceId));
       dispatch(fetchUsersForWorkspace(activeWorkspaceId));
     }
   }, [activeWorkspaceId]);
@@ -863,7 +874,7 @@ export interface ApplicationProps {
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
   getAllWorkspaces: () => void;
-  userWorkspaces: any;
+  workspaces: any;
   currentUser?: User;
   searchKeyword: string | undefined;
   setHeaderMetaData: (
@@ -934,7 +945,7 @@ export const mapStateToProps = (state: AppState) => ({
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
-  userWorkspaces: getFetchedWorkspaces(state),
+  workspaces: getFetchedWorkspaces(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),
   currentApplicationIdForCreateNewApp:
@@ -943,7 +954,7 @@ export const mapStateToProps = (state: AppState) => ({
 
 export const mapDispatchToProps = (dispatch: any) => ({
   getAllWorkspaces: () => {
-    dispatch({ type: ReduxActionTypes.GET_ALL_WORKSPACES_INIT });
+    dispatch({ type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT });
   },
   resetEditor: () => {
     dispatch(resetEditorRequest());
