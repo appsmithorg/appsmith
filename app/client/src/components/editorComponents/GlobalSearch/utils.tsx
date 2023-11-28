@@ -1,3 +1,5 @@
+// TODO (workflows): remove eslint disable
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import {
   ACTION_OPERATION_DESCRIPTION,
@@ -258,13 +260,13 @@ export interface ActionOperation {
   kind: SEARCH_ITEM_TYPES;
   action?: (
     entityId: string,
-    entityType: ACTION_PARENT_ENTITY_TYPE,
     location: EventLocation,
+    entityType?: ACTION_PARENT_ENTITY_TYPE,
   ) => any;
   redirect?: (
     entityId: string,
-    entityType: ACTION_PARENT_ENTITY_TYPE,
     location: EventLocation,
+    entityType?: ACTION_PARENT_ENTITY_TYPE,
   ) => any;
   pluginId?: string;
 }
@@ -276,8 +278,8 @@ export const actionOperations: ActionOperation[] = [
     kind: SEARCH_ITEM_TYPES.actionOperation,
     action: (
       entityId: string,
-      entityType: ACTION_PARENT_ENTITY_TYPE,
       location: EventLocation,
+      entityType?: ACTION_PARENT_ENTITY_TYPE,
     ) => createNewApiAction(entityId, location),
   },
   {
@@ -287,8 +289,8 @@ export const actionOperations: ActionOperation[] = [
     kind: SEARCH_ITEM_TYPES.actionOperation,
     action: (
       entityId: string,
-      entityType: ACTION_PARENT_ENTITY_TYPE,
       location: EventLocation,
+      entityType?: ACTION_PARENT_ENTITY_TYPE,
     ) => createNewApiAction(entityId, location, PluginPackageName.GRAPHQL),
   },
   {
@@ -298,8 +300,8 @@ export const actionOperations: ActionOperation[] = [
     icon: JsFileIconV2(),
     action: (
       entityId: string,
-      entityType: ACTION_PARENT_ENTITY_TYPE,
       from: EventLocation,
+      entityType?: ACTION_PARENT_ENTITY_TYPE,
     ) => createNewJSCollection(entityId, from),
   },
   {
@@ -309,8 +311,8 @@ export const actionOperations: ActionOperation[] = [
     icon: <CurlIconV2 />,
     redirect: (
       entityId: string,
-      entityType: ACTION_PARENT_ENTITY_TYPE,
       from: EventLocation,
+      entityType?: ACTION_PARENT_ENTITY_TYPE,
     ) => {
       const queryParams = getQueryParams();
       const curlImportURL = curlImportPageURL({
