@@ -3,6 +3,7 @@ import ActionTree from "./ActionTree";
 import { useApisQueriesAndJsActionOptions } from "../../helpers";
 import type { TActionBlock } from "../../types";
 import { actionToCode, codeToAction } from "../../utils";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 interface TRootActionProps {
   code: string;
@@ -13,6 +14,7 @@ interface TRootActionProps {
   widgetName: string;
   widgetType: string;
   dataTreePath: string | undefined;
+  additionalAutoComplete?: AdditionalDynamicDataTree;
 }
 
 export default function Action(props: TRootActionProps) {
@@ -41,6 +43,7 @@ export default function Action(props: TRootActionProps) {
   return (
     <ActionTree
       actionBlock={action}
+      additionalAutoComplete={props.additionalAutoComplete}
       className={`${props.index === 0 ? "mt-1" : "mt-2"}`}
       dataTreePath={props.dataTreePath}
       id={id}

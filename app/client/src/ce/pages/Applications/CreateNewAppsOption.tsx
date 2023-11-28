@@ -53,6 +53,11 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
 import localStorage from "utils/localStorage";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
+import type { Plugin } from "api/PluginApi";
+import { PluginType } from "entities/Action";
+import DataSourceEditor from "pages/Editor/DataSourceEditor";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { fetchMockDatasources } from "actions/datasourceActions";
 
 const SectionWrapper = styled.div`
@@ -181,6 +186,10 @@ const CreateNewAppsOption = ({
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
+  const selectedPlugin: Plugin | undefined = useSelector((state) =>
+    getPlugin(state, createNewAppPluginId || ""),
+  );
+
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(
       state,
@@ -441,19 +450,27 @@ const CreateNewAppsOption = ({
           </Flex>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
-        createNewAppPluginId ? (
-          <div>{createNewAppPluginId}</div>
-        ) : (
-          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-            <Header
-              subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
-              title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
-            />
-            <WithDataWrapper>
-              <CreateNewDatasourceTab isOnboarding />
-            </WithDataWrapper>
-          </Flex>
-        )
+        <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+          <Header
+            subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+            title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+          />
+          <WithDataWrapper>
+            {createNewAppPluginId ? (
+              selectedPlugin?.type === PluginType.SAAS ? (
+                <div>Load Gsheets</div>
+              ) : (
+                <DataSourceEditor
+                  applicationId={currentApplicationIdForCreateNewApp}
+                  datasourceId={TEMP_DATASOURCE_ID}
+                  pageId={application?.defaultPageId}
+                />
+              )
+            ) : (
+              <CreateNewDatasourceTab />
+            )}
+          </WithDataWrapper>
+        </Flex>
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">
