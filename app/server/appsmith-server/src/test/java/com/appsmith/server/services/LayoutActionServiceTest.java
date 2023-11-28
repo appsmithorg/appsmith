@@ -293,7 +293,7 @@ public class LayoutActionServiceTest {
                     // Save updated configuration and re-compute on page load actions.
                     return layoutActionService
                             .updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService
+                            .flatMap(updatedAction -> updateLayoutService
                                     .updatePageLayoutsByPageId(updatedAction.getPageId())
                                     .thenReturn(updatedAction));
                 })
@@ -362,7 +362,7 @@ public class LayoutActionServiceTest {
                     updates.setDatasource(datasource);
                     return layoutActionService
                             .updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService
+                            .flatMap(updatedAction -> updateLayoutService
                                     .updatePageLayoutsByPageId(updatedAction.getPageId())
                                     .thenReturn(updatedAction));
                 })
@@ -375,7 +375,7 @@ public class LayoutActionServiceTest {
                     updates.setDatasource(datasource);
                     return layoutActionService
                             .updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService
+                            .flatMap(updatedAction -> updateLayoutService
                                     .updatePageLayoutsByPageId(updatedAction.getPageId())
                                     .thenReturn(updatedAction));
                 })
@@ -390,7 +390,7 @@ public class LayoutActionServiceTest {
                     updates.setDatasource(d2);
                     return layoutActionService
                             .updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService
+                            .flatMap(updatedAction -> updateLayoutService
                                     .updatePageLayoutsByPageId(updatedAction.getPageId())
                                     .thenReturn(updatedAction));
                 })
@@ -564,7 +564,7 @@ public class LayoutActionServiceTest {
                     updates.setDatasource(ds);
                     return layoutActionService
                             .updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService
+                            .flatMap(updatedAction -> updateLayoutService
                                     .updatePageLayoutsByPageId(updatedAction.getPageId())
                                     .thenReturn(updatedAction));
                 });
@@ -836,7 +836,7 @@ public class LayoutActionServiceTest {
                     // Save updated configuration and re-compute on page load actions.
                     return layoutActionService
                             .updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService
+                            .flatMap(updatedAction -> updateLayoutService
                                     .updatePageLayoutsByPageId(updatedAction.getPageId())
                                     .thenReturn(updatedAction));
                 })
@@ -852,7 +852,7 @@ public class LayoutActionServiceTest {
                     // Save updated configuration and re-compute on page load actions.
                     return layoutActionService
                             .updateSingleAction(savedAction.getId(), updates)
-                            .flatMap(updatedAction -> layoutActionService
+                            .flatMap(updatedAction -> updateLayoutService
                                     .updatePageLayoutsByPageId(updatedAction.getPageId())
                                     .thenReturn(updatedAction));
                 })
