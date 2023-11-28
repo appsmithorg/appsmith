@@ -14,7 +14,6 @@ import {
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { assistiveBindingHinter } from "components/editorComponents/CodeEditor/assistiveBindingHinter";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 
@@ -60,11 +59,7 @@ export function InputText(props: {
         evaluatedValue={evaluatedValue}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
-        hinting={[
-          bindingHintHelper,
-          assistiveBindingHinter,
-          slashCommandHintHelper,
-        ]}
+        hinting={[bindingHintHelper, slashCommandHintHelper]}
         hoverInteraction
         input={{
           value: value,
