@@ -48,7 +48,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     homePage.RenameApplication(appName);
     assertHelper.AssertNetworkResponseData("gitStatus");
     agHelper.AssertElementExist(gitSync._bottomBarCommit, 0, 30000);
-    agHelper.AssertText(gitSync._gitPullCount, "text", "4");
+    agHelper.AssertText(gitSync._gitPullCount, "text", "17");
     agHelper.GetNClick(gitSync._bottomBarCommit);
     agHelper.AssertElementVisibility(gitSync._gitSyncModal);
 
