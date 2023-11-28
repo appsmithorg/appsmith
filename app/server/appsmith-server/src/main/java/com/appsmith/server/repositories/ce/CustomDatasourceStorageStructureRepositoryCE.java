@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Optional;
 
-public interface CustomDatasourceStructureRepositoryCE {
+public interface CustomDatasourceStorageStructureRepositoryCE {
 
     Optional<UpdateResult> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure);
 }

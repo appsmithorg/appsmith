@@ -231,7 +231,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                                         actionDTOList,
                                                         false));
                             })
-                            .flatMap(updatedCollection -> layoutActionService
+                            .flatMap(updatedCollection -> updateLayoutService
                                     .updatePageLayoutsByPageId(updatedCollection.getPageId())
                                     .thenReturn(updatedCollection));
                 });
@@ -578,7 +578,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject)
-                .flatMap(savedActionCollection -> layoutActionService
+                .flatMap(savedActionCollection -> updateLayoutService
                         .updatePageLayoutsByPageId(
                                 savedActionCollection.getUnpublishedCollection().getPageId())
                         .thenReturn(savedActionCollection))

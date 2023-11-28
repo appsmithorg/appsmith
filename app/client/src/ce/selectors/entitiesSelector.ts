@@ -590,6 +590,10 @@ export const getCurrentJSCollections = createSelector(
   },
 );
 
+export const getCurrentModuleActions = () => [];
+
+export const getCurrentModuleJSCollections = () => [];
+
 export const getJSCollectionFromName = createSelector(
   [
     getCurrentJSCollections,

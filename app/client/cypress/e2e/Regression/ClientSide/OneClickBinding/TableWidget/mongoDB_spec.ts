@@ -21,8 +21,6 @@ describe("one click binding mongodb datasource", function () {
 
   it("1. test connect datasource", () => {
     //#region bind to mongoDB datasource
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {

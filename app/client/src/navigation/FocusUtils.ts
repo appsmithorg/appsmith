@@ -1,6 +1,11 @@
 import type { FocusEntityInfo } from "./FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "./FocusEntity";
-import { builderURL, datasourcesEditorURL } from "@appsmith/RouteBuilder";
+import {
+  builderURL,
+  datasourcesEditorURL,
+  jsCollectionListURL,
+  queryListURL,
+} from "@appsmith/RouteBuilder";
 
 export const getEntityParentUrl = (
   entityInfo: FocusEntityInfo,
@@ -12,6 +17,12 @@ export const getEntityParentUrl = (
   }
   if (parentEntity === FocusEntity.DATASOURCE_LIST) {
     return datasourcesEditorURL({ pageId: entityInfo.pageId });
+  }
+  if (parentEntity === FocusEntity.JS_OBJECT_LIST) {
+    return jsCollectionListURL({ pageId: entityInfo.pageId });
+  }
+  if (parentEntity === FocusEntity.QUERY_LIST) {
+    return queryListURL({ pageId: entityInfo.pageId });
   }
   return "";
 };

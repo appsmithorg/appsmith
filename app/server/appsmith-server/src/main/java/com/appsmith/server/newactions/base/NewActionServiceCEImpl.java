@@ -779,42 +779,38 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // No need to sort the results
         return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                .map(action -> {
-                    ActionViewDTO actionViewDTO = new ActionViewDTO();
-                    actionViewDTO.setId(action.getDefaultResources().getActionId());
-                    actionViewDTO.setName(action.getPublishedAction().getValidName());
-                    actionViewDTO.setPageId(action.getPublishedAction().getPageId());
-                    actionViewDTO.setConfirmBeforeExecute(
-                            action.getPublishedAction().getConfirmBeforeExecute());
-                    // Update defaultResources
-                    DefaultResources defaults = action.getDefaultResources();
-                    // Consider a situation when action is not published but user is viewing in deployed mode
-                    if (action.getPublishedAction().getDefaultResources() != null) {
-                        defaults.setPageId(action.getPublishedAction()
-                                .getDefaultResources()
-                                .getPageId());
-                        defaults.setCollectionId(action.getPublishedAction()
-                                .getDefaultResources()
-                                .getCollectionId());
-                    } else {
-                        defaults.setPageId(null);
-                        defaults.setCollectionId(null);
-                    }
-                    actionViewDTO.setDefaultResources(defaults);
-                    if (action.getPublishedAction().getJsonPathKeys() != null
-                            && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
-                        Set<String> jsonPathKeys;
-                        jsonPathKeys = new HashSet<>();
-                        jsonPathKeys.addAll(action.getPublishedAction().getJsonPathKeys());
-                        actionViewDTO.setJsonPathKeys(jsonPathKeys);
-                    }
-                    if (action.getPublishedAction().getActionConfiguration() != null) {
-                        actionViewDTO.setTimeoutInMillisecond(action.getPublishedAction()
-                                .getActionConfiguration()
-                                .getTimeoutInMillisecond());
-                    }
-                    return actionViewDTO;
-                });
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction()));
+    }
+
+    @Override
+    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO) {
+        ActionViewDTO actionViewDTO = new ActionViewDTO();
+        actionViewDTO.setId(action.getDefaultResources().getActionId());
+        actionViewDTO.setName(actionDTO.getValidName());
+        actionViewDTO.setPageId(actionDTO.getPageId());
+        actionViewDTO.setConfirmBeforeExecute(actionDTO.getConfirmBeforeExecute());
+        // Update defaultResources
+        DefaultResources defaults = action.getDefaultResources();
+        // Consider a situation when action is not published but user is viewing in deployed mode
+        if (actionDTO.getDefaultResources() != null) {
+            defaults.setPageId(actionDTO.getDefaultResources().getPageId());
+            defaults.setCollectionId(actionDTO.getDefaultResources().getCollectionId());
+        } else {
+            defaults.setPageId(null);
+            defaults.setCollectionId(null);
+        }
+        actionViewDTO.setDefaultResources(defaults);
+        if (actionDTO.getJsonPathKeys() != null && !actionDTO.getJsonPathKeys().isEmpty()) {
+            Set<String> jsonPathKeys;
+            jsonPathKeys = new HashSet<>();
+            jsonPathKeys.addAll(actionDTO.getJsonPathKeys());
+            actionViewDTO.setJsonPathKeys(jsonPathKeys);
+        }
+        if (actionDTO.getActionConfiguration() != null) {
+            actionViewDTO.setTimeoutInMillisecond(
+                    actionDTO.getActionConfiguration().getTimeoutInMillisecond());
+        }
+        return actionViewDTO;
     }
 
     @Override

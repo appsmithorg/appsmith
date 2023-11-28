@@ -18,9 +18,10 @@ import java.util.Optional;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
-public class CustomDatasourceStructureRepositoryCEImpl extends BaseAppsmithRepositoryImpl<DatasourceStorageStructure>
-        implements CustomDatasourceStructureRepositoryCE {
-    public CustomDatasourceStructureRepositoryCEImpl(
+public class CustomDatasourceStorageStructureRepositoryCEImpl
+        extends BaseAppsmithRepositoryImpl<DatasourceStorageStructure>
+        implements CustomDatasourceStorageStructureRepositoryCE {
+    public CustomDatasourceStorageStructureRepositoryCEImpl(
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
