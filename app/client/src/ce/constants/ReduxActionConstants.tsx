@@ -7,7 +7,7 @@ import type {
   GitApplicationMetadata,
 } from "@appsmith/api/ApplicationApi";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import type { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import type {
   LayoutOnLoadActionErrors,
@@ -1242,6 +1242,7 @@ export interface ApplicationPayload {
   applicationDetail?: {
     appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
+    themeSetting?: ThemeSetting;
   };
   collapseInvisibleWidgets?: boolean;
   evaluationVersion?: EvaluationVersion;

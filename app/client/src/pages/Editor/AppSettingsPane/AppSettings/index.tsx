@@ -1,5 +1,6 @@
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
+import { ThemePropertyPane as ThemePropertyPaneV2 } from "pages/Editor/ThemePropertyPaneV2";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
@@ -34,6 +35,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export enum AppSettingsTabs {
   General,
@@ -83,6 +85,7 @@ function AppSettings() {
   const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
   const dispatch = useDispatch();
+  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
     type: context?.type || AppSettingsTabs.General,
@@ -226,7 +229,11 @@ function AppSettings() {
                     </SectionTitle>
                   </div>
                   <ThemeContentWrapper>
-                    <ThemePropertyPane />
+                    {isWDSEnabled ? (
+                      <ThemePropertyPaneV2 />
+                    ) : (
+                      <ThemePropertyPane />
+                    )}
                   </ThemeContentWrapper>
                 </>
               );

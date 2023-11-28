@@ -90,6 +90,14 @@ export interface NavigationSetting {
   logoConfiguration: (typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION)[keyof typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION];
 }
 
+export interface ThemeSetting {
+  accentColor: string;
+  mode: "light" | "dark";
+  borderRadius: number;
+  density: number;
+  sizing: number;
+}
+
 export type StringsFromNavigationSetting = Omit<
   NavigationSetting,
   "showNavbar" | "showSignIn"
@@ -118,6 +126,14 @@ export const defaultNavigationSetting = {
   logoAssetId: NAVIGATION_SETTINGS.LOGO_ASSET_ID,
   logoConfiguration:
     NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+};
+
+export const defaultThemeSetting = {
+  accentColor: "red",
+  mode: "light",
+  borderRadius: 6,
+  density: 100,
+  sizing: 100,
 };
 
 export const SIDEBAR_WIDTH = {

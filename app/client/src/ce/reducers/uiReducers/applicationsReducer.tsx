@@ -25,7 +25,7 @@ import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
 import type { IconNames } from "design-system";
 import type { NavigationSetting } from "constants/AppConstants";
-import { defaultNavigationSetting } from "constants/AppConstants";
+import { defaultNavigationSetting, defaultThemeSetting } from "constants/AppConstants";
 import produce from "immer";
 import { groupBy, isEmpty } from "lodash";
 
@@ -246,6 +246,7 @@ export const handlers = {
       currentApplication: {
         applicationDetail: {
           navigationSetting: defaultNavigationSetting,
+          themeSetting: defaultThemeSetting,
         },
         ...action.payload,
       },
@@ -258,6 +259,14 @@ export const handlers = {
     ) {
       newState.currentApplication.applicationDetail.navigationSetting =
         defaultNavigationSetting;
+    }
+
+    if (
+      !newState.currentApplication.applicationDetail.themeSetting ||
+      isEmpty(newState.currentApplication.applicationDetail.navigationSetting)
+    ) {
+      newState.currentApplication.applicationDetail.themeSetting =
+        defaultThemeSetting;
     }
 
     return newState;
