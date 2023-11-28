@@ -8,6 +8,8 @@ import {
   getInputsForModule,
   getModuleInstances,
   getModuleInstanceEntities,
+  getCurrentModuleActions,
+  getCurrentModuleJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
@@ -51,11 +53,13 @@ const getLayoutSystemPayload = createSelector(
 
 const getCurrentActionEntities = createSelector(
   getCurrentActions,
+  getCurrentModuleActions,
   getCurrentJSCollections,
-  (actions, jsActions) => {
+  getCurrentModuleJSCollections,
+  (actions, moduleActions, jsActions, moduleJSActions) => {
     return {
-      actions: actions,
-      jsActions: jsActions,
+      actions: [...actions, ...moduleActions],
+      jsActions: [...jsActions, ...moduleJSActions],
     };
   },
 );
