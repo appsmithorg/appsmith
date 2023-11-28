@@ -6,6 +6,8 @@ import com.appsmith.server.domains.ModuleInstance;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 public interface CustomModuleInstanceRepository extends AppsmithRepository<ModuleInstance> {
     Mono<Long> getModuleInstanceCountByModuleId(String moduleId);
 
@@ -15,6 +17,5 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
     Mono<ModuleInstance> findByBranchNameAndDefaultModuleInstanceId(
             String branchName, String defaultModuleInstanceId, AclPermission permission);
 
-    Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByContextIdAndContextTypeAndModuleInstanceId(
-            String contextId, CreatorContextType contextType, String moduleInstanceId, AclPermission permission);
+    Flux<ModuleInstance> findAllByRootModuleInstanceId(String rootModuleInstanceId, Optional<AclPermission> permission);
 }

@@ -1,6 +1,8 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.ce.ActionCollectionCE;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,4 +18,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString
 @NoArgsConstructor
 @Document
-public class ActionCollection extends ActionCollectionCE {}
+public class ActionCollection extends ActionCollectionCE {
+    @JsonView(Views.Public.class)
+    String moduleInstanceId;
+
+    @JsonView(Views.Public.class)
+    Boolean isPublic;
+
+    @JsonView(Views.Public.class)
+    String rootModuleInstanceId;
+}

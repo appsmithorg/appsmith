@@ -1,7 +1,8 @@
 package com.appsmith.server.newactions.base;
 
-import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import reactor.core.publisher.Flux;
@@ -15,16 +16,16 @@ public interface NewActionService extends NewActionServiceCE {
 
     Mono<List<NewAction>> archiveActionsByModuleId(String moduleId);
 
-    Mono<NewAction> findPublicActionByModuleId(String moduleId);
+    Mono<List<ActionDTO>> archiveActionsByRootModuleInstanceId(String moduleInstanceId);
+
+    Mono<NewAction> findPublicActionByModuleId(String moduleId, ResourceModes resourceMode);
 
     Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInModule(String moduleId);
 
-    Flux<NewAction> findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
-            String contextId,
-            CreatorContextType contextType,
-            String moduleInstanceId,
-            AclPermission permission,
-            boolean includeJs);
+    Flux<NewAction> findAllUnpublishedComposedActionsByRootModuleInstanceId(
+            String moduleInstanceId, AclPermission permission, boolean includeJs);
+
+    Flux<NewAction> findAllJSActionsByCollectionIds(List<String> collectionIds, List<String> projectionFields);
 
     Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission);
 }

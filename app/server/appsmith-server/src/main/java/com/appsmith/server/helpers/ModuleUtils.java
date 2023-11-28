@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.Iterator;
 
 public class ModuleUtils {
+    public static final String MODULE_ENTITY_NAME_SEPARATOR_PREFIX = "_$";
+    public static final String MODULE_ENTITY_NAME_SEPARATOR_SUFFIX = "$_";
+
     public static boolean isModuleContext(ActionDTO action) {
         return action.getContextType() == CreatorContextType.MODULE;
     }
@@ -39,5 +42,9 @@ public class ModuleUtils {
             }
         }
         return false;
+    }
+
+    public static String getValidName(String rootName, String currentFQN) {
+        return MODULE_ENTITY_NAME_SEPARATOR_PREFIX + rootName + MODULE_ENTITY_NAME_SEPARATOR_SUFFIX + currentFQN;
     }
 }

@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCE;
 import reactor.core.publisher.Flux;
@@ -19,17 +19,13 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
 
     Flux<NewAction> findAllNonJSActionsByModuleId(String moduleId);
 
-    Mono<NewAction> findPublicActionByModuleId(String moduleId);
+    Mono<NewAction> findPublicActionByModuleId(String moduleId, ResourceModes resourceMode);
+
+    Flux<NewAction> findAllByRootModuleInstanceId(
+            String rootModuleInstanceId, Optional<AclPermission> permission, boolean includeJs);
 
     Flux<NewAction> findUnpublishedActionsByModuleIdAndExecuteOnLoadSetByUserTrue(
             String moduleId, AclPermission editPermission);
-
-    Flux<NewAction> findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
-            String contextId,
-            CreatorContextType contextType,
-            String moduleInstanceId,
-            AclPermission permission,
-            boolean includeJs);
 
     Flux<NewAction> findByWorkflowId(String workflowId, Optional<AclPermission> aclPermission);
 }

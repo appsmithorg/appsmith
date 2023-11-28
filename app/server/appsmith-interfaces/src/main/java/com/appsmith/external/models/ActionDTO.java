@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 
 @Getter
 @Setter
@@ -18,17 +19,13 @@ public class ActionDTO extends ActionCE_DTO {
     @JsonView(Views.Public.class)
     String moduleId;
 
-    @JsonView(Views.Public.class)
-    String moduleInstanceId;
-
+    @Transient
     @JsonView(Views.Public.class)
     Boolean isPublic;
 
+    @Transient
     @JsonView(Views.Public.class)
-    String rootModuleInstanceId;
-
-    @JsonView(Views.Public.class)
-    String owningModuleInstanceId;
+    String moduleInstanceId;
 
     @JsonView(Views.Public.class)
     String workflowId;

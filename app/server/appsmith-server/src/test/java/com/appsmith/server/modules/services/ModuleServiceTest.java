@@ -435,8 +435,6 @@ public class ModuleServiceTest {
                         ModuleActionDTO moduleActionDTO1 = (ModuleActionDTO) moduleConsumable;
                         assertThat(moduleActionDTO1.getContextType()).isEqualTo(CreatorContextType.MODULE);
                         assertThat(moduleActionDTO1.getModuleId()).isEqualTo(moduleIdRef.get());
-                        assertThat(moduleActionDTO1.getRootModuleInstanceId()).isNull();
-                        assertThat(moduleActionDTO1.getOwningModuleInstanceId()).isNull();
                     });
                 })
                 .verifyComplete();

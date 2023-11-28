@@ -10,9 +10,11 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -306,8 +308,17 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Mono<NewAction> findPublicActionByModuleId(String moduleId) {
-        return repository.findPublicActionByModuleId(moduleId);
+    public Mono<List<ActionDTO>> archiveActionsByRootModuleInstanceId(String rootModuleInstanceId) {
+        return repository
+                .findAllByRootModuleInstanceId(
+                        rootModuleInstanceId, Optional.of(actionPermission.getDeletePermission()), false)
+                .flatMap(newAction -> deleteUnpublishedAction(newAction.getId()))
+                .collectList();
+    }
+
+    @Override
+    public Mono<NewAction> findPublicActionByModuleId(String moduleId, ResourceModes resourceMode) {
+        return repository.findPublicActionByModuleId(moduleId, resourceMode);
     }
 
     @Override
@@ -319,14 +330,14 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Flux<NewAction> findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
-            String contextId,
-            CreatorContextType contextType,
-            String moduleInstanceId,
-            AclPermission permission,
-            boolean includeJs) {
-        return repository.findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
-                contextId, contextType, moduleInstanceId, permission, includeJs);
+    public Flux<NewAction> findAllUnpublishedComposedActionsByRootModuleInstanceId(
+            String rootModuleInstanceId, AclPermission permission, boolean includeJs) {
+        return repository.findAllByRootModuleInstanceId(rootModuleInstanceId, Optional.of(permission), includeJs);
+    }
+
+    @Override
+    public Flux<NewAction> findAllJSActionsByCollectionIds(List<String> collectionIds, List<String> projectionFields) {
+        return repository.findAllByActionCollectionIdWithoutPermissions(collectionIds, projectionFields);
     }
 
     @Override
@@ -365,5 +376,31 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 .flatMap(repository::setUserPermissionsInObject)
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
+    }
+
+    @Override
+    public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
+        return super.generateActionByViewMode(newAction, viewMode).flatMap(actionDTO -> {
+            actionDTO.setIsPublic(newAction.getIsPublic());
+            actionDTO.setModuleInstanceId(newAction.getModuleInstanceId());
+            return Mono.just(actionDTO);
+        });
+    }
+
+    @Override
+    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO) {
+        ActionViewDTO actionViewDTO = super.generateActionViewDTO(action, actionDTO);
+
+        if (action.getModuleInstanceId() != null) {
+            actionViewDTO.setPluginId(action.getPluginId());
+            actionViewDTO.setIsPublic(action.getIsPublic());
+            actionViewDTO.setModuleInstanceId(action.getModuleInstanceId());
+            actionViewDTO.setExecuteOnLoad(actionDTO.getUserSetOnLoad());
+            if (!actionDTO.getUserSetOnLoad()) {
+                actionViewDTO.setExecuteOnLoad(actionDTO.getExecuteOnLoad() != null && actionDTO.getExecuteOnLoad());
+            }
+        }
+
+        return actionViewDTO;
     }
 }

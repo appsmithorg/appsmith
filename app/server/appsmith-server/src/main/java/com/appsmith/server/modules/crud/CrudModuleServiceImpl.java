@@ -106,7 +106,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     }
 
     private Mono<ModuleDTO> setModuleSettingsForCreator(ModuleDTO moduleDTO) {
-        Mono<NewAction> publicActionMono = newActionService.findPublicActionByModuleId(moduleDTO.getId());
+        Mono<NewAction> publicActionMono =
+                newActionService.findPublicActionByModuleId(moduleDTO.getId(), ResourceModes.EDIT);
         return getSettingsFormForModuleInstance().zipWith(publicActionMono).flatMap(tuple2 -> pluginService
                 .getFormConfig(tuple2.getT2().getPluginId())
                 .flatMap(pluginConfigMap -> {
@@ -272,7 +273,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
         ModuleActionDTO unpublishedAction = (ModuleActionDTO) moduleDTO.getEntity();
 
-        unpublishedAction.setIsPublic(isPublic);
+        moduleAction.setIsPublic(isPublic);
         unpublishedAction.setName(moduleDTO.getName());
         unpublishedAction.setModuleId(moduleDTO.getId());
         unpublishedAction.setDefaultResources(new DefaultResources());
@@ -334,7 +335,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                             }
 
                             return newActionService
-                                    .findPublicActionByModuleId(moduleId)
+                                    .findPublicActionByModuleId(moduleId, ResourceModes.EDIT)
                                     .flatMap(newAction -> {
                                         ActionDTO updateActionDTO = new ActionDTO();
                                         updateActionDTO.setContextType(CreatorContextType.MODULE);

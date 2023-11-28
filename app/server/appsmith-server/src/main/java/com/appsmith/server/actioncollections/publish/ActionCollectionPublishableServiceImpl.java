@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,24 +43,19 @@ public class ActionCollectionPublishableServiceImpl implements PackagePublishabl
                 publishingMetaDTO.getOldModuleIdToNewModuleIdMap().keySet());
 
         return actionCollectionRepository
-                .findAllByModuleIds(sourceModuleIds, null)
+                .findAllByModuleIds(sourceModuleIds, Optional.empty())
                 .collectList()
                 .flatMap(sourceActionCollections -> {
                     Map<String, ActionCollection> newCollectionIdToNewCollectionMap = sourceActionCollections.stream()
                             .map(sourceActionCollection -> {
-                                ActionCollection toBePublishedActionCollection = new ActionCollection();
+                                ActionCollection toBePublishedActionCollection =
+                                        createActionCollectionFromSource(sourceActionCollection);
+                                setUnpublishedAndPublishedData(sourceActionCollection, toBePublishedActionCollection);
 
-                                AppsmithBeanUtils.copyNestedNonNullProperties(
-                                        sourceActionCollection, toBePublishedActionCollection);
-                                toBePublishedActionCollection.setId(new ObjectId().toString());
-                                toBePublishedActionCollection.setUnpublishedCollection(new ActionCollectionDTO());
-                                toBePublishedActionCollection.setPublishedCollection(
-                                        sourceActionCollection.getUnpublishedCollection());
+                                setDefaultResources(sourceActionCollection, toBePublishedActionCollection);
 
-                                DefaultResources defaultResources = sourceActionCollection.getDefaultResources();
-                                defaultResources.setCollectionId(toBePublishedActionCollection.getId());
-
-                                toBePublishedActionCollection.setDefaultResources(defaultResources);
+                                setNewSourceModuleId(
+                                        publishingMetaDTO, sourceActionCollection, toBePublishedActionCollection);
 
                                 oldToNewCollectionIdMap.put(
                                         sourceActionCollection.getId(), toBePublishedActionCollection.getId());
@@ -92,6 +88,38 @@ public class ActionCollectionPublishableServiceImpl implements PackagePublishabl
                                         .collectList();
                             });
                 });
+    }
+
+    private void setNewSourceModuleId(
+            PublishingMetaDTO publishingMetaDTO,
+            ActionCollection sourceActionCollection,
+            ActionCollection toBePublishedActionCollection) {
+        toBePublishedActionCollection
+                .getPublishedCollection()
+                .setModuleId(publishingMetaDTO
+                        .getOldModuleIdToNewModuleIdMap()
+                        .get(sourceActionCollection.getUnpublishedCollection().getModuleId()));
+    }
+
+    private void setDefaultResources(
+            ActionCollection sourceActionCollection, ActionCollection toBePublishedActionCollection) {
+        DefaultResources defaultResources = sourceActionCollection.getDefaultResources();
+        defaultResources.setCollectionId(toBePublishedActionCollection.getId());
+
+        toBePublishedActionCollection.setDefaultResources(defaultResources);
+    }
+
+    private void setUnpublishedAndPublishedData(
+            ActionCollection sourceActionCollection, ActionCollection toBePublishedActionCollection) {
+        toBePublishedActionCollection.setUnpublishedCollection(new ActionCollectionDTO());
+        toBePublishedActionCollection.setPublishedCollection(sourceActionCollection.getUnpublishedCollection());
+    }
+
+    private ActionCollection createActionCollectionFromSource(ActionCollection sourceActionCollection) {
+        ActionCollection toBePublishedActionCollection = new ActionCollection();
+        AppsmithBeanUtils.copyNestedNonNullProperties(sourceActionCollection, toBePublishedActionCollection);
+        toBePublishedActionCollection.setId(new ObjectId().toString());
+        return toBePublishedActionCollection;
     }
 
     @Override

@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,33 +62,11 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByContextIdAndContextTypeAndModuleInstanceId(
-            String contextId, CreatorContextType contextType, String moduleInstanceId, AclPermission permission) {
-        List<Criteria> criteriaList = new ArrayList<>();
+    public Flux<ModuleInstance> findAllByRootModuleInstanceId(
+            String rootModuleInstanceId, Optional<AclPermission> permission) {
+        Criteria rootModuleInstanceIdCriterion = where(fieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
+                .is(rootModuleInstanceId);
 
-        String contextIdPath;
-        if (CreatorContextType.PAGE.equals(contextType)) {
-
-            contextIdPath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
-                    + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.pageId);
-        } else {
-            contextIdPath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
-                    + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.moduleId);
-        }
-
-        String contextTypePath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
-                + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.contextType);
-        String moduleInstanceIdPath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
-                + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.rootModuleInstanceId);
-        Criteria contextIdAndContextTypeAndModuleInstanceIdCriteria = where(contextIdPath)
-                .is(contextId)
-                .and(contextTypePath)
-                .is(contextType)
-                .and(moduleInstanceIdPath)
-                .is(moduleInstanceId);
-
-        criteriaList.add(contextIdAndContextTypeAndModuleInstanceIdCriteria);
-
-        return queryAll(criteriaList, Optional.of(permission));
+        return queryAll(List.of(rootModuleInstanceIdCriterion), permission);
     }
 }

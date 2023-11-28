@@ -117,6 +117,8 @@ public class FieldName extends FieldNameCE {
     public static final String PACKAGE_ID = "packageId";
     public static final String MODULE_ID = "moduleId";
     public static final String MODULE_INSTANCE_ID = "moduleInstanceId";
+    public static final String CONTEXT_TYPE = "contextType";
+    public static final String CONTEXT_ID = "contextId";
     public static final String MODULE = "module";
     public static final String MODULE_INSTANCE = "moduleInstance";
     public static final String ENTITY = "entity";

@@ -32,8 +32,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -232,5 +234,70 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                 refactorEntityNameDTO, refactoringMetaDTO);
         return super.refactorAllReferences(refactorEntityNameDTO, refactoringMetaDTO)
                 .then(moduleInstancesMono);
+    }
+
+    @Override
+    public Mono<Object> refactorCurrentEntity(
+            Object currentEntity,
+            EntityType entityType,
+            RefactorEntityNameDTO refactorEntityNameDTO,
+            Mono<Integer> evalVersionMono) {
+        Pattern oldNamePattern = getReplacementPattern(refactorEntityNameDTO.getOldFullyQualifiedName());
+        return switch (entityType) {
+            case MODULE_INSTANCE -> moduleInstanceEntityRefactoringService.refactorCurrentEntity(
+                    currentEntity, refactorEntityNameDTO, oldNamePattern, evalVersionMono);
+            case WIDGET -> null;
+            case ACTION, JS_ACTION -> newActionEntityRefactoringService.refactorCurrentEntity(
+                    currentEntity, refactorEntityNameDTO, oldNamePattern, evalVersionMono);
+            case JS_OBJECT -> actionCollectionEntityRefactoringService.refactorCurrentEntity(
+                    currentEntity, refactorEntityNameDTO, oldNamePattern, evalVersionMono);
+        };
+    }
+
+    @Override
+    public Mono<Set<RefactorEntityNameDTO>> getRefactorDTOsForAllExistingEntitiesMono(
+            String contextId, CreatorContextType contextType, String layoutId, boolean isFQN) {
+        Iterable<Flux<RefactorEntityNameDTO>> existingEntityNamesFlux =
+                getRefactorDTOsForExistingEntityNamesFlux(contextId, layoutId, isFQN, contextType);
+
+        return Flux.merge(existingEntityNamesFlux).collect(Collectors.toSet());
+    }
+
+    protected Iterable<Flux<RefactorEntityNameDTO>> getRefactorDTOsForExistingEntityNamesFlux(
+            String contextId, String layoutId, boolean isFQN, CreatorContextType contextType) {
+        Flux<RefactorEntityNameDTO> existingActionNamesFlux =
+                newActionEntityRefactoringService.getRefactorDTOsForExistingEntityNames(
+                        contextId, contextType, layoutId);
+
+        /*
+         * TODO : Execute this check directly on the DB server. We can query array of arrays by:
+         * https://stackoverflow.com/questions/12629692/querying-an-array-of-arrays-in-mongodb
+         */
+        Flux<RefactorEntityNameDTO> existingWidgetNamesFlux = Flux.empty();
+        Flux<RefactorEntityNameDTO> existingActionCollectionNamesFlux = Flux.empty();
+
+        // Widget and collection names cannot collide with FQNs because of the dot operator
+        // Hence we can avoid unnecessary DB calls
+        if (!isFQN) {
+            existingWidgetNamesFlux = widgetEntityRefactoringService.getRefactorDTOsForExistingEntityNames(
+                    contextId, contextType, layoutId);
+
+            existingActionCollectionNamesFlux =
+                    actionCollectionEntityRefactoringService.getRefactorDTOsForExistingEntityNames(
+                            contextId, contextType, layoutId);
+        }
+
+        Flux<RefactorEntityNameDTO> existingModuleInstancesNamesFlux =
+                moduleInstanceEntityRefactoringService.getRefactorDTOsForExistingEntityNames(
+                        contextId, contextType, layoutId);
+
+        ArrayList<Flux<RefactorEntityNameDTO>> list = new ArrayList<>();
+
+        list.add(existingActionNamesFlux);
+        list.add(existingWidgetNamesFlux);
+        list.add(existingActionCollectionNamesFlux);
+        list.add(existingModuleInstancesNamesFlux);
+
+        return list;
     }
 }
