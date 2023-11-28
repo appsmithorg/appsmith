@@ -24,6 +24,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.validations.EntityValidationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -39,12 +40,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implements RefactoringSolution {
+public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements RefactoringService {
 
     private final EntityRefactoringService<ModuleInstance> moduleInstanceEntityRefactoringService;
     private final CompositeEntityRefactoringService<ModuleInstance> moduleInstanceCompositeEntityRefactoringService;
 
-    public RefactoringSolutionImpl(
+    public RefactoringServiceImpl(
             NewPageService newPageService,
             ResponseUtils responseUtils,
             UpdateLayoutService updateLayoutService,
@@ -53,6 +54,7 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             TransactionalOperator transactionalOperator,
+            EntityValidationService entityValidationService,
             EntityRefactoringService<Void> jsActionEntityRefactoringService,
             EntityRefactoringService<NewAction> newActionEntityRefactoringService,
             EntityRefactoringService<ActionCollection> actionCollectionEntityRefactoringService,
@@ -68,6 +70,7 @@ public class RefactoringSolutionImpl extends RefactoringSolutionCEImpl implement
                 analyticsService,
                 sessionUserService,
                 transactionalOperator,
+                entityValidationService,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,
                 actionCollectionEntityRefactoringService,

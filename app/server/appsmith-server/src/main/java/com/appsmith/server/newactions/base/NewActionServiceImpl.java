@@ -35,6 +35,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.validations.EntityValidationService;
 import com.appsmith.server.workflows.helpers.WorkflowUtils;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
@@ -88,6 +89,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             PagePermission pagePermission,
             ActionPermission actionPermission,
             ObservationRegistry observationRegistry,
+            EntityValidationService entityValidationService,
             PermissionGroupRepository permissionGroupRepository) {
 
         super(
@@ -112,6 +114,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 applicationPermission,
                 pagePermission,
                 actionPermission,
+                entityValidationService,
                 observationRegistry);
 
         this.permissionGroupRepository = permissionGroupRepository;

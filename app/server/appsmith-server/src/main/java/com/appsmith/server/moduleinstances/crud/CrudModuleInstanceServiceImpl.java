@@ -35,7 +35,7 @@ import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.ModuleRepository;
 import com.appsmith.server.services.ApplicationService;
@@ -75,7 +75,7 @@ public class CrudModuleInstanceServiceImpl extends BaseModuleInstanceServiceImpl
     private final ModuleRepository moduleRepository;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringService refactoringSolution;
 
     private final ApplicationService applicationService;
 
@@ -96,7 +96,7 @@ public class CrudModuleInstanceServiceImpl extends BaseModuleInstanceServiceImpl
             ModuleRepository moduleRepository,
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
-            RefactoringSolution refactoringSolution,
+            RefactoringService refactoringSolution,
             ApplicationService applicationService,
             UpdateLayoutService updateLayoutService) {
         super(repository);

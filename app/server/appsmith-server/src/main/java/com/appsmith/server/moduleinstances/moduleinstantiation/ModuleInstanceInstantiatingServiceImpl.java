@@ -15,7 +15,7 @@ import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.moduleinstances.base.BaseModuleInstanceServiceImpl;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -31,13 +31,13 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
     private final ModuleInstanceRepository repository;
     private final ModuleInstancePermission moduleInstancePermission;
     private final PolicyGenerator policyGenerator;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringService refactoringSolution;
 
     public ModuleInstanceInstantiatingServiceImpl(
             ModuleInstanceRepository repository,
             ModuleInstancePermission moduleInstancePermission,
             PolicyGenerator policyGenerator,
-            RefactoringSolution refactoringSolution) {
+            RefactoringService refactoringSolution) {
         super(repository);
         this.repository = repository;
         this.moduleInstancePermission = moduleInstancePermission;

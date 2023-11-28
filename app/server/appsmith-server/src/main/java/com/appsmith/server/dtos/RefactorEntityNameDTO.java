@@ -27,7 +27,8 @@ public class RefactorEntityNameDTO extends RefactorEntityNameCE_DTO {
             String oldFullyQualifiedName,
             String newFullyQualifiedName,
             String moduleId,
-            String moduleInstanceId) {
+            String moduleInstanceId,
+            Boolean isInternal) {
         super(
                 pageId,
                 layoutId,
@@ -39,7 +40,8 @@ public class RefactorEntityNameDTO extends RefactorEntityNameCE_DTO {
                 collectionName,
                 actionCollection,
                 oldFullyQualifiedName,
-                newFullyQualifiedName);
+                newFullyQualifiedName,
+                isInternal);
         this.moduleId = moduleId;
         this.moduleInstanceId = moduleInstanceId;
     }
