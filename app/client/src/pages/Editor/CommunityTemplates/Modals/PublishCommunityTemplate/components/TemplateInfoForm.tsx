@@ -130,12 +130,22 @@ const UseCasesSelect = ({
       data-testid="t--community-template-usecases-input"
       getPopupContainer={(triggerNode) => triggerNode.parentNode.parentNode}
       isMultiSelect
+      maxTagCount="responsive"
+      maxTagTextLength={20}
       onChange={setTemplateUseCases}
+      showSearch
       value={templateUseCases}
     >
       {useCases &&
         useCases.map((useCase, index) => (
-          <Option key={`${useCase}-${index}`} label={useCase} value={useCase}>
+          <Option
+            key={`${useCase}-${index}`}
+            label={useCase}
+            style={{
+              whiteSpace: "normal",
+            }}
+            value={useCase}
+          >
             {useCase}
           </Option>
         ))}
