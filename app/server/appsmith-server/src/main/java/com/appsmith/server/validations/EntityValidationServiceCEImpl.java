@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import javax.lang.model.SourceVersion;
 
 @Service
-public class EntityValidationServiceCECEImpl implements EntityValidationServiceCE {
+public class EntityValidationServiceCEImpl implements EntityValidationServiceCE {
 
     @Override
     public boolean validateName(String name, Boolean isInternal) {

@@ -3,7 +3,7 @@ package com.appsmith.server.validations;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EntityValidationServiceImpl extends EntityValidationServiceCECEImpl implements EntityValidationService {
+public class EntityValidationServiceImpl extends EntityValidationServiceCEImpl implements EntityValidationService {
 
     @Override
     public boolean validateName(String name, Boolean isInternal) {
