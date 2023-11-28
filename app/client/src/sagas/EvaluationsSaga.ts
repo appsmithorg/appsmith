@@ -52,7 +52,6 @@ import {
 import ConfigTreeActions from "utils/configTree";
 import {
   dynamicTriggerErrorHandler,
-  evalErrorHandler,
   handleJSFunctionExecutionErrorLog,
   logJSVarCreatedEvent,
   logSuccessfulBindings,
@@ -102,6 +101,10 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
+import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
+import { evalErrorHandler } from "./EvalErrorHandler";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(
@@ -188,7 +191,7 @@ export function* updateDataTreeHandler(
     configTree,
     removedPaths,
   );
-
+  AnalyticsUtil.setBlockErrorLogs(isCreateFirstTree);
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
     postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
@@ -605,7 +608,16 @@ function* evaluationChangeListenerSaga(): any {
   const initAction: EvaluationReduxAction<unknown> = yield take(
     FIRST_EVAL_REDUX_ACTIONS,
   );
-  yield call(waitForWidgetConfigBuild);
+
+  // Wait for widget config build to complete before starting evaluation only if the current editor is not a workflow
+  const isCurrentEditorWorkflowType = yield select(
+    getIsCurrentEditorWorkflowType,
+  );
+
+  if (!isCurrentEditorWorkflowType) {
+    yield call(waitForWidgetConfigBuild);
+  }
+
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evalAndLintingHandler, false, initAction, {
     shouldReplay: false,

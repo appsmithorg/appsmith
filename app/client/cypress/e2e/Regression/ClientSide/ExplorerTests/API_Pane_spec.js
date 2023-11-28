@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pageid = "MyPage";
@@ -52,7 +56,7 @@ describe("Entity explorer API pane related testcases", function () {
     });
     cy.get(apiwidget.actionlist).contains(testdata.Get).should("be.visible");
     cy.Createpage(pageid);
-    ee.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.Sleep(); //for the selected entity to settle loading!
     ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName({

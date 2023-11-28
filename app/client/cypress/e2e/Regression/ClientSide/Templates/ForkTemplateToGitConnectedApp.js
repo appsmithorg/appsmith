@@ -77,7 +77,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       );
       // [Bug]: On forking a template the JS Objects are not cloned #17425
       cy.CheckAndUnfoldEntityItem("Queries/JS");
-      cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+      _.entityExplorer.AssertEntityPresenceInExplorer(jsObject);
       _.homePage.NavigateToHome();
       cy.get(homePage.searchInput).clear().type(newWorkspaceName);
       cy.wait(2000);

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
@@ -9,7 +13,7 @@ describe("Icon button Widget Functionality", function () {
   });
 
   it("1. check default buttonVariant with isJSConvertible", function () {
-    _.entityExplorer.SelectEntityByName("IconButton1");
+    EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
     _.propPane.MoveToTab("Style");
     cy.get(widgetsPage.iconWidgetBtn).should(
       "have.css",

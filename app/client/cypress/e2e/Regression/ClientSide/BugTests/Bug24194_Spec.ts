@@ -5,6 +5,9 @@ import {
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Responsiveness of linting", () => {
   before(() => {
@@ -28,12 +31,12 @@ describe("Responsiveness of linting", () => {
       shouldCreateNewJSObj: true,
     });
 
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     agHelper.AssertElementAbsence(locators._lintErrorElement);
     agHelper.RefreshPage();
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.RenameJSObjFromPane("JSObject2");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     agHelper.AssertElementAbsence(locators._lintErrorElement);
   });
 });

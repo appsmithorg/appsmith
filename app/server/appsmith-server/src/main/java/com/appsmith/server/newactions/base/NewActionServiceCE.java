@@ -8,11 +8,11 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
+import com.appsmith.server.dtos.ImportActionResultDTO;
+import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
-import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
-import com.appsmith.server.dtos.ce.ImportActionResultDTO;
-import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.services.CrudService;
 import com.mongodb.bulk.BulkWriteResult;
 import org.springframework.data.domain.Sort;
@@ -74,6 +74,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
+
+    ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 

@@ -28,7 +28,7 @@ import BrandingBadge from "./BrandingBadge";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
-import { fetchPublishedPage } from "actions/pageActions";
+import { setupPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
@@ -176,7 +176,7 @@ function AppViewer(props: Props) {
        * when redirected to the default page
        */
       if (prevPageId && pageId && isPageIdUpdated) {
-        dispatch(fetchPublishedPage(pageId, true));
+        dispatch(setupPublishedPage(pageId, true));
       }
     }
   }, [branch, pageId, applicationId, pathname]);

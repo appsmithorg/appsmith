@@ -219,11 +219,13 @@ function* setUpTourAppSaga() {
   const query: ActionData | undefined = yield select(getQueryAction);
   yield put(clearActionResponse(query?.config.id ?? ""));
   yield put(
-    updateActionData({
-      entityName: query?.config.name || "",
-      dataPath: "data",
-      data: undefined,
-    }),
+    updateActionData([
+      {
+        entityName: query?.config.name || "",
+        dataPath: "data",
+        data: undefined,
+      },
+    ]),
   );
   const applicationId: string = yield select(getCurrentApplicationId);
   yield put(
@@ -431,7 +433,11 @@ function* endFirstTimeUserOnboardingSaga() {
 }
 
 function* firstTimeUserOnboardingInitSaga(
-  action: ReduxAction<{ applicationId: string; pageId: string }>,
+  action: ReduxAction<{
+    applicationId: string;
+    pageId: string;
+    suffix?: string;
+  }>,
 ) {
   yield call(setEnableStartSignposting, true);
   yield put({
@@ -441,6 +447,7 @@ function* firstTimeUserOnboardingInitSaga(
   history.replace(
     builderURL({
       pageId: action.payload.pageId,
+      suffix: action.payload.suffix || "",
     }),
   );
 

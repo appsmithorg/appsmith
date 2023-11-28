@@ -170,6 +170,7 @@ describe("Shopping cart App", function () {
     );
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
+    agHelper.Sleep(3000);
     // Deleting the book from the cart
     agHelper.GetNClick(appPage.deleteButton, 1, false);
     assertHelper.AssertNetworkStatus("@postExecute");

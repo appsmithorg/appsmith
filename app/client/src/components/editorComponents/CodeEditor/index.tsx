@@ -594,10 +594,6 @@ class CodeEditor extends Component<Props, State> {
     }
 
     this.editor.operation(() => {
-      if (prevProps.lintErrors !== this.props.lintErrors) {
-        this.lintCode(this.editor);
-      }
-
       const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
       const inputValue = getInputValue(this.props.input.value);
@@ -642,6 +638,9 @@ class CodeEditor extends Component<Props, State> {
           this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
+      }
+      if (prevProps.lintErrors !== this.props.lintErrors) {
+        this.lintCode(this.editor);
       }
       if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
         sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
@@ -1362,7 +1361,6 @@ class CodeEditor extends Component<Props, State> {
     const token = cm.getTokenAt(cursor);
     let showAutocomplete = false;
     const prevChar = line[cursor.ch - 1];
-    const mode = cm.getModeAt(cursor);
 
     // If the token is a comment or string, do not show autocomplete
     if (token?.type && ["comment", "string"].includes(token.type)) return;
@@ -1376,9 +1374,7 @@ class CodeEditor extends Component<Props, State> {
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
-      showAutocomplete =
-        mode.name != EditorModes.JAVASCRIPT || // for JSmode donot show autocomplete
-        prevChar === "{"; // for non JSmode mode show autocomplete. This will endup showing assistiveBindignHinter.
+      showAutocomplete = prevChar === "{";
     } else if (key === "'" || key === '"') {
       /* Autocomplete for [ should show up only when a user attempts to write {['']} for Object property suggestions. */
       showAutocomplete = prevChar === "[";

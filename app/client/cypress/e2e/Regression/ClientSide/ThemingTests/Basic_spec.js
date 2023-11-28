@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -795,9 +799,7 @@ describe("App Theming funtionality", function () {
 
     deployMode.NavigateBacktoEditor();
     //Resetting back to theme
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.ExpandCollapseEntity("Widgets"); //to expand widgets
-    entityExplorer.SelectEntityByName("Button2");
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
     cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
@@ -893,9 +895,7 @@ describe("App Theming funtionality", function () {
       .wait(2000);
 
     //Change individual widget properties for Button1
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.ExpandCollapseEntity("Widgets"); //to expand widgets
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.moveToStyleTab();
 
     //Change Color & verify
@@ -1009,9 +1009,7 @@ describe("App Theming funtionality", function () {
 
     deployMode.NavigateBacktoEditor();
     //Resetting back to theme
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.ExpandCollapseEntity("Widgets"); //to expand widgets
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");

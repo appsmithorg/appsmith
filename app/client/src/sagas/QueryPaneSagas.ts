@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -87,6 +88,11 @@ import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import type { ChangeQueryPayload } from "actions/queryPaneActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -371,7 +377,16 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
-  const pageId: string = yield select(getCurrentPageId);
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const application: ApplicationPayload | undefined = yield select(
+    getApplicationByIdFromWorkspaces,
+    currentApplicationIdForCreateNewApp || "",
+  );
+  const pageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultPageId
+    : yield select(getCurrentPageId);
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
   // Only look at db plugins
@@ -412,7 +427,10 @@ function* handleDatasourceCreatedSaga(
         },
       }),
     );
-  } else {
+  } else if (
+    !currentApplicationIdForCreateNewApp ||
+    (!!currentApplicationIdForCreateNewApp && payload.id !== TEMP_DATASOURCE_ID)
+  ) {
     history.push(
       datasourcesEditorIdURL({
         pageId,

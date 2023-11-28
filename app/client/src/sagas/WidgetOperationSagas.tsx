@@ -136,7 +136,11 @@ import {
   mergeDynamicPropertyPaths,
   purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
-import { widgetSelectionSagas } from "./WidgetSelectionSagas";
+import {
+  partialImportSaga,
+  partialExportSaga,
+  widgetSelectionSagas,
+} from "./WidgetSelectionSagas";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
@@ -2204,5 +2208,7 @@ export default function* widgetOperationSagas() {
     takeLeading(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
+    takeEvery(ReduxActionTypes.PARTIAL_IMPORT_INIT, partialImportSaga),
+    takeEvery(ReduxActionTypes.PARTIAL_EXPORT_INIT, partialExportSaga),
   ]);
 }

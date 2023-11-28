@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -24,7 +28,7 @@ describe("Text Field Property Control", () => {
     };
     agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
   });
 
@@ -40,7 +44,7 @@ describe("Text Field Property Control", () => {
   });
 
   it("2. throws max character error when exceeds maxChar limit for default text and input text", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.testJsontext("maxchars", 5).wait(200);
     cy.get(`${fieldPrefix}-name input`).click();
@@ -49,7 +53,7 @@ describe("Text Field Property Control", () => {
         "Default text length must be less than or equal to 5 characters",
       );
     });
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.testJsontext("maxchars", "").wait(200);
     cy.testJsontext("defaultvalue", 5).wait(200);
@@ -63,7 +67,7 @@ describe("Text Field Property Control", () => {
   });
 
   it("3. sets placeholder", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
     const placeholderText = "First name";
     cy.testJsontext("placeholder", placeholderText);
@@ -75,14 +79,14 @@ describe("Text Field Property Control", () => {
   });
 
   it("4. sets valid property with custom error message", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.testJsontext("valid", "false");
     deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
     cy.get(".bp3-popover-content").contains("Invalid input");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.testJsontext("errormessage", "Custom error message");
 
@@ -91,7 +95,7 @@ describe("Text Field Property Control", () => {
     cy.get(`${fieldPrefix}-name input`).click({ force: true });
     cy.get(".bp3-popover-content").contains("Custom error message");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
 
     // Reset the error message
@@ -105,7 +109,7 @@ describe("Text Field Property Control", () => {
     deployMode.DeployApp();
     cy.get(`${fieldPrefix}-name`).should("not.exist");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     propPane.TogglePropertyState("Visible", "On");
     deployMode.DeployApp();
@@ -114,7 +118,7 @@ describe("Text Field Property Control", () => {
   });
 
   it("6. disables field when disabled switched on and when autofill is disabled we should see the autofill attribute in the input field", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.togglebar(`.t--property-control-disabled input`);
     deployMode.DeployApp();
@@ -123,14 +127,14 @@ describe("Text Field Property Control", () => {
     });
 
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.togglebarDisable(`.t--property-control-disabled input`);
     validateAutocompleteAttributeInJSONForm();
   });
 
   it("7. throws error when REGEX does not match the input value", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("name");
     cy.testJsontext("regex", "^\\d+$");
     deployMode.DeployApp();
@@ -168,7 +172,7 @@ describe("Text Field Property Control", () => {
     deployMode.DeployApp();
     cy.get(`${fieldPrefix}-check`).should("not.exist");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("check");
     cy.togglebar(`.t--property-control-visible input`);
     deployMode.DeployApp();
@@ -176,7 +180,7 @@ describe("Text Field Property Control", () => {
     deployMode.NavigateBacktoEditor();
 
     // disables field when disabled switched on
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("check");
     cy.togglebar(`.t--property-control-disabled input`);
     deployMode.DeployApp();

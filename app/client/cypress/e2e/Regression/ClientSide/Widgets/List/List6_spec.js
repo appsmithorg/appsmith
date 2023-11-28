@@ -1,4 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Binding the list widget with text widget", function () {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -30,7 +33,7 @@ describe("Binding the list widget with text widget", function () {
   });
 
   it("2. Validate text widget data based on changes in list widget Data2", function () {
-    _.entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     _.propPane.UpdatePropertyFieldValue(
       "Items",
@@ -38,7 +41,10 @@ describe("Binding the list widget with text widget", function () {
     );
     _.entityExplorer.ExpandCollapseEntity("List1");
     _.entityExplorer.ExpandCollapseEntity("Container1");
-    _.entityExplorer.SelectEntityByName("Text3");
+    EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, [
+      "List1",
+      "Container1",
+    ]);
 
     cy.wait(1000);
     _.propPane.UpdatePropertyFieldValue(
@@ -59,8 +65,7 @@ describe("Binding the list widget with text widget", function () {
   });
 
   it("3. Validate text widget data based on changes in list widget Data3", function () {
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     _.propPane.UpdatePropertyFieldValue(
       "Items",
@@ -68,7 +73,10 @@ describe("Binding the list widget with text widget", function () {
     );
     _.entityExplorer.ExpandCollapseEntity("List1");
     _.entityExplorer.ExpandCollapseEntity("Container1");
-    _.entityExplorer.SelectEntityByName("Text3");
+    EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, [
+      "List1",
+      "Container1",
+    ]);
 
     cy.wait(1000);
     _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");

@@ -20,11 +20,9 @@ import { noop } from "lodash";
 import { Button } from "design-system";
 
 export default function WidgetBuilder() {
-  const [srcDoc, setSrcDoc] = useState({
-    html: "",
-    css: "",
-    js: "",
-  });
+  const [html, setHTML] = useState("");
+  const [css, setcss] = useState("");
+  const [js, setjs] = useState("");
 
   const [model, setModel] = useState({});
 
@@ -44,7 +42,9 @@ export default function WidgetBuilder() {
       if (event.source === window.opener) {
         switch (event.data.type) {
           case "BUILDER_READY_ACK":
-            setSrcDoc(event.data.srcDoc);
+            setHTML(event.data.srcDoc.html);
+            setcss(event.data.srcDoc.css);
+            setjs(event.data.srcDoc.js);
             setModel(event.data.model);
             setLoading(false);
             break;
@@ -70,12 +70,16 @@ export default function WidgetBuilder() {
     window.parent.postMessage(
       {
         type: "BUILDER_UPDATE",
-        srcDoc,
+        srcDoc: {
+          html,
+          css,
+          js,
+        },
       },
       "*",
     );
     window.close();
-  }, [srcDoc]);
+  }, [html, css, js]);
 
   const onCancel = useCallback(() => {
     window.parent.postMessage(
@@ -99,6 +103,18 @@ export default function WidgetBuilder() {
       height: preview.current?.clientHeight || 200,
     });
   }, [loading]);
+
+  const htmlChange = useCallback((value: string) => {
+    setHTML(value);
+  }, []);
+
+  const cssChange = useCallback((value: string) => {
+    setcss(value);
+  }, []);
+
+  const jsChange = useCallback((value: string) => {
+    setjs(value);
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -132,10 +148,8 @@ export default function WidgetBuilder() {
                 height="130"
                 label="HTML"
                 mode="htmlmixed"
-                onChange={(value: string) =>
-                  setSrcDoc({ ...srcDoc, html: value })
-                }
-                value={srcDoc.html}
+                onChange={htmlChange}
+                value={html}
                 width="250"
               />
             </div>
@@ -144,10 +158,8 @@ export default function WidgetBuilder() {
                 height="130"
                 label="css"
                 mode="css"
-                onChange={(value: string) =>
-                  setSrcDoc({ ...srcDoc, css: value })
-                }
-                value={srcDoc.css}
+                onChange={cssChange}
+                value={css}
                 width="250"
               />
             </div>
@@ -159,10 +171,8 @@ export default function WidgetBuilder() {
                   height={jsEditorHeight}
                   label="JS"
                   mode={EditorModes.JAVASCRIPT}
-                  onChange={(value: string) =>
-                    setSrcDoc({ ...srcDoc, js: value })
-                  }
-                  value={srcDoc.js}
+                  onChange={jsChange}
+                  value={js}
                   width="250"
                 />
               }
@@ -172,7 +182,11 @@ export default function WidgetBuilder() {
                 execute={noop}
                 height={previewDimensions.height}
                 model={model}
-                srcDoc={srcDoc}
+                srcDoc={{
+                  html,
+                  css,
+                  js,
+                }}
                 update={noop}
                 width={previewDimensions.width}
               />

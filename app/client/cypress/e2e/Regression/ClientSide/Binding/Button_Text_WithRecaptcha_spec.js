@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
@@ -14,7 +18,7 @@ describe(
       _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
-      _.entityExplorer.SelectEntityByName("Button1");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.SelectPropertiesDropDown(
         "Google reCAPTCHA version",
         "reCAPTCHA v2",
@@ -30,7 +34,7 @@ describe(
     });
 
     it("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key & upward compatibilty doesnt work", function () {
-      _.entityExplorer.SelectEntityByName("Button1");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.UpdatePropertyFieldValue(
         "Google reCAPTCHA key",
         testdata.v2Key,
@@ -40,7 +44,7 @@ describe(
       _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
-      _.entityExplorer.SelectEntityByName("Button1");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.SelectPropertiesDropDown(
         "Google reCAPTCHA version",
         "reCAPTCHA v2",
@@ -59,7 +63,7 @@ describe(
     });
 
     it("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function () {
-      _.entityExplorer.SelectEntityByName("Button1");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.UpdatePropertyFieldValue(
         "Google reCAPTCHA key",
         testdata.v3Key,
@@ -88,7 +92,7 @@ describe(
       _.agHelper
         .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("not.be.empty");
-      _.entityExplorer.SelectEntityByName("Button1");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.SelectPropertiesDropDown(
         "Google reCAPTCHA version",
         "reCAPTCHA v2",
@@ -99,14 +103,14 @@ describe(
 
     it("4. Validate the Button binding with Text Widget with Recaptcha Token with invalid key (after using valid key)", function () {
       _.propPane.DeleteWidgetFromPropertyPane("Text1");
-      _.entityExplorer.SelectEntityByName("Button1");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.UpdatePropertyFieldValue(
         "Google reCAPTCHA key",
         testdata.invalidKey,
       );
       _.agHelper.ClickButton("Submit"); //for version 3
       _.agHelper.WaitUntilToastDisappear(testdata.errorMsg);
-      _.entityExplorer.SelectEntityByName("Button1");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.SelectPropertiesDropDown(
         "Google reCAPTCHA version",
         "reCAPTCHA v2",

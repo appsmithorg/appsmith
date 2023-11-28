@@ -7,6 +7,9 @@ import {
   locators,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Divider Widget functionality tests", () => {
   before(() => {
@@ -32,7 +35,7 @@ describe("Divider Widget functionality tests", () => {
   });
 
   it("2. Divider widget style section verification", () => {
-    entityExplorer.SelectEntityByName("Divider1", "Widgets");
+    EditorNavigation.SelectEntityByName("Divider1", EntityType.Widget);
     propPane.TogglePropertyState("Visible", "On");
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Color", "Purple");
@@ -66,7 +69,7 @@ describe("Divider Widget functionality tests", () => {
       400,
       400,
     );
-    entityExplorer.SelectEntityByName("Divider1", "Widgets");
+    EditorNavigation.SelectEntityByName("Divider1", EntityType.Widget);
     propPane.EnterJSContext(
       "Direction",
       "{{RadioGroup1.selectedOptionValue==='Y'?'horizontal':'vertical'}}",
@@ -86,7 +89,7 @@ describe("Divider Widget functionality tests", () => {
     );
     agHelper.AssertExistingCheckedState(locators._checkboxTypeByOption("Yes"));
     agHelper.AssertElementAbsence(widgetLocators.dividerVertical);
-    entityExplorer.SelectEntityByName("Divider1", "Widgets");
+    EditorNavigation.SelectEntityByName("Divider1", EntityType.Widget);
     agHelper.AssertCSS(
       widgetLocators.dividerHorizontal,
       "border-top-color",
@@ -97,7 +100,7 @@ describe("Divider Widget functionality tests", () => {
       "border-top-style",
       "solid",
     );
-    entityExplorer.SelectEntityByName("RadioGroup1", "Widgets");
+    EditorNavigation.SelectEntityByName("RadioGroup1", EntityType.Widget);
     agHelper.CheckUncheck(locators._checkboxTypeByOption("No"));
     agHelper.AssertElementAbsence(widgetLocators.dividerHorizontal);
     agHelper.AssertCSS(

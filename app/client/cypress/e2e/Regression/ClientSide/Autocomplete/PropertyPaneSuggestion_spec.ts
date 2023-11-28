@@ -6,6 +6,9 @@ import {
   propPane,
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Property Pane Suggestions", () => {
   before(() => {
@@ -13,7 +16,7 @@ describe("Property Pane Suggestions", () => {
   });
 
   it("1. Should show Property Pane Suggestions on / command & when typing {{}}", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "/");
     agHelper.Sleep(500);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "Add a binding");
@@ -21,7 +24,7 @@ describe("Property Pane Suggestions", () => {
     propPane.ValidatePropertyFieldValue("Label", "{{}}");
 
     //typing {{}}
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "{{");
     agHelper.Sleep(500);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "appsmith");
@@ -32,14 +35,14 @@ describe("Property Pane Suggestions", () => {
   it("2. [Bug]-[2040]: undefined binding on / command dropdown", () => {
     // Create js object
     jsEditor.CreateJSObject("");
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "/");
     agHelper.Sleep(500);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "JSObject1");
   });
 
   it("3. Should add Autocomplete Suggestions on Tab press", () => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "{{");
     agHelper.Sleep(500);
     agHelper.GetElementsNAssertTextPresence(locators._hints, "appsmith");
