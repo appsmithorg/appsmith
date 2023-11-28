@@ -74,6 +74,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
+    Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String pageId, String branchName);
 
     ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO);
 

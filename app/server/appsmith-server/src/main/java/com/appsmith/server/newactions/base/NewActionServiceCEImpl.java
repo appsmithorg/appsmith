@@ -35,6 +35,7 @@ import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
 import com.appsmith.server.dtos.ImportActionResultDTO;
 import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -96,6 +97,7 @@ import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class NewActionServiceCEImpl extends BaseService<NewActionRepository, NewAction, String>
@@ -757,6 +759,19 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
+    }
+
+    public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String pageId, String branchName) {
+        if (!isBlank(defaultApplicationId)) {
+            return getActionsForViewMode(defaultApplicationId, branchName);
+        }
+        else if (!isBlank(pageId)) {
+            return newPageService.findPageById(pageId, pagePermission.getReadPermission(), true)
+                .map(PageDTO::getApplicationId)
+                .flatMapMany(appId -> getActionsForViewMode(appId, branchName));
+        }
+
+        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "application id / page id"));
     }
 
     @Override
