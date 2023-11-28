@@ -32,6 +32,6 @@ apply-env-vars /opt/appsmith/editor/index.html "$NGINX_WWW_PATH/index.html"
 node caddy-reconfigure.mjs
 
 # Caddy may already be running for the loading page.
-/opt/caddy/caddy stop || true
+/opt/caddy/caddy stop --config "$TMP/Caddyfile" || true
 
 exec /opt/caddy/caddy run --config "$TMP/Caddyfile"
