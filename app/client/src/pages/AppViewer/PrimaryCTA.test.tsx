@@ -79,6 +79,14 @@ export const initialState: any = {
       },
       workspaces: [],
     },
+    workspaces: {
+      list: [],
+    },
+    selectedWorkspace: {
+      loadingStates: {
+        isFetchingApplications: false,
+      },
+    },
     theme: {
       theme: {
         colors: {
