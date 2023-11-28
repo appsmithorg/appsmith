@@ -185,6 +185,10 @@ public class ApplicationRepositoryCake {
         return Mono.justOrEmpty(repository.findByName(name, permission));
     }
 
+    public Mono<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages) {
+        return Mono.justOrEmpty(repository.setPages(applicationId, pages));
+    }
+
     public Mono<UpdateResult> unprotectAllBranches(String applicationId, AclPermission permission) {
         return Mono.justOrEmpty(repository.unprotectAllBranches(applicationId, permission));
     }

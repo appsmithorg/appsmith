@@ -20,7 +20,7 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -57,7 +57,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
-    private final ActionCollectionRepository actionCollectionRepository;
+    private final ActionCollectionRepositoryCake actionCollectionRepository;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
 

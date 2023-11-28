@@ -11,7 +11,7 @@ import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ce.ApplicationPageServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
@@ -52,7 +52,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             PermissionGroupService permissionGroupService,
             ActionCollectionRepositoryCake actionCollectionRepository,
             NewActionRepository newActionRepository,
-            NewPageRepository newPageRepository,
+            NewPageRepositoryCake newPageRepository,
             DatasourceRepository datasourceRepository,
             DatasourcePermission datasourcePermission) {
         super(

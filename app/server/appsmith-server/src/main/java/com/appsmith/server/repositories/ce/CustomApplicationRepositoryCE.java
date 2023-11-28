@@ -38,12 +38,13 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Optional<UpdateResult> addPageToApplication(
             String applicationId, String pageId, boolean isDefault, String defaultPageId);
 
-    @Modifying
+    /*@Modifying
     @Query(value = "UPDATE Application SET pages = :pages WHERE id = :applicationId")
     default Optional<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages) {
         return Optional.empty();
-    }
-    ;
+    }*/
+
+    Optional<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages);
 
     Optional<UpdateResult> setDefaultPage(String applicationId, String pageId);
 

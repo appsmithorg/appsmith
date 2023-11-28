@@ -44,7 +44,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
+    public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return Flux.empty(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
@@ -52,13 +52,13 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
+    public List<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         Criteria applicationIdCriteria = where("applicationId").is(applicationId);
         return queryAll(List.of(applicationIdCriteria), permission);
     }
 
     @Override
-    public Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
+    public List<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
         return Flux.empty(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
@@ -142,7 +142,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
+    public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
         return Flux.empty(); /*
         ArrayList<String> includedFields = new ArrayList<>(List.of(
                 FieldName.APPLICATION_ID,
@@ -180,7 +180,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<String> getNameByPageId(String pageId, boolean isPublishedName) {
+    public Optional<String> getNameByPageId(String pageId, boolean isPublishedName) {
         return mongoOperations
                 .query(NewPage.class)
                 .matching(Query.query(Criteria.where("id").is(pageId)))
@@ -207,7 +207,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
+    public List<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
         return Flux.empty(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").in(applicationIds);
@@ -236,13 +236,13 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
+    public Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, AclPermission permission) {
         return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
     }
 
     @Override
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
+    public Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
         final String defaultResources = "defaultResources";
         Criteria defaultAppIdCriteria =
@@ -252,10 +252,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
+    public Optional<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
         Criteria applicationIdCriteria = where("id").in(pageIds);
 
-        Mono<Set<String>> permissionGroupsMono =
+        Optional<Set<String>> permissionGroupsMono =
                 getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
 
         return permissionGroupsMono.flatMap(permissionGroups -> {
@@ -281,7 +281,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages) {
+    public Optional<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages) {
         return Mono.empty(); /*
         if (CollectionUtils.isEmpty(newPages)) {
             return Mono.just(Collections.emptyList());
@@ -306,7 +306,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findAllByApplicationIdsWithoutPermission(
+    public List<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
         return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);

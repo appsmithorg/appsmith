@@ -5,10 +5,12 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomNewPageRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import java.util.List;
+import java.util.Optional;
 
 public interface NewPageRepositoryCE extends BaseRepository<NewPage, String>, CustomNewPageRepository {
 
-    Flux<NewPage> findByApplicationId(String applicationId);
+    List<NewPage> findByApplicationId(String applicationId);
 
-    Mono<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull();
 }

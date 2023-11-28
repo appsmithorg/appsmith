@@ -21,7 +21,6 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -40,12 +39,12 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.NewPageRepositoryCake;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
@@ -96,14 +95,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
-    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceRepositoryCake workspaceRepository;
     private final LayoutActionService layoutActionService;
     private final UpdateLayoutService updateLayoutService;
 
     private final AnalyticsService analyticsService;
     private final PolicyGenerator policyGenerator;
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
@@ -117,9 +116,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final TransactionalOperator transactionalOperator;
 
     private final PermissionGroupService permissionGroupService;
-    private final ActionCollectionRepository actionCollectionRepository;
+    private final ActionCollectionRepositoryCake actionCollectionRepository;
     private final NewActionRepository newActionRepository;
-    private final NewPageRepository newPageRepository;
+    private final NewPageRepositoryCake newPageRepository;
     private final DatasourceRepository datasourceRepository;
     private final DatasourcePermission datasourcePermission;
 
@@ -146,9 +145,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         }
 
         for (final Layout layout : layoutList) {
-            if (StringUtils.isEmpty(layout.getId())) {
-                layout.setId(new ObjectId().toString());
-            }
+            // if (StringUtils.isEmpty(layout.getId())) {
+            //     layout.setId(new ObjectId().toString());
+            // }
         }
 
         Mono<Application> applicationMono = applicationService
@@ -217,8 +216,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 ? page.getId()
                 : page.getDefaultResources().getPageId();
         if (isDuplicatePage(application, page.getId())) {
-            return Mono.justOrEmpty(applicationRepository
-                    .addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId))
+            return applicationRepository
+                    .addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId)
                     .doOnSuccess(result -> {
                         if (result.getModifiedCount() != 1) {
                             log.error(
@@ -425,8 +424,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application) {
         return userMono.flatMap(user -> {
-            Mono<Workspace> workspaceMono = Mono.justOrEmpty(workspaceRepository
-                    .findById(workspaceId/*, workspacePermission.getApplicationCreatePermission()*/))
+            Mono<Workspace> workspaceMono = workspaceRepository
+                    .findById(workspaceId/*, workspacePermission.getApplicationCreatePermission()*/)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
@@ -456,8 +455,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> deleteApplication(String id) {
         log.debug("Archiving application with id: {}", id);
 
-        Mono<Application> applicationMono = Mono.justOrEmpty(applicationRepository
-                .findById(id/*, applicationPermission.getDeletePermission()*/))
+        Mono<Application> applicationMono = applicationRepository
+                .findById(id/*, applicationPermission.getDeletePermission()*/)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .cache();
@@ -1343,8 +1342,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         pages.add(order, foundPage);
                     }
 
-                    return Mono.justOrEmpty(applicationRepository
-                            .setPages(application.getId(), pages))
+                    return applicationRepository
+                            .setPages(application.getId(), pages)
                             .flatMap(updateResult ->
                                     sendPageOrderAnalyticsEvent(application, defaultPageId, order, branchName))
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(
@@ -1457,8 +1456,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
-        Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> Flux.fromIterable(newPageRepository
-                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies")))
+        Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
                 .flatMap(newPageRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
@@ -1499,9 +1498,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         List.of(application.getId()),
                         List.of(
                                 "id",
-                                fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
-                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource.id))))
+                                "unpublishedAction.datasource.id")))
                 .collectList()
                 .map(actions -> {
                     return actions.stream()

@@ -13,7 +13,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
@@ -41,7 +41,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
-public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage, String> implements NewPageServiceCE {
+public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, NewPage, String> implements NewPageServiceCE {
 
     private final ApplicationService applicationService;
     private final UserDataService userDataService;
@@ -56,7 +56,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            NewPageRepository repository,
+            NewPageRepositoryCake repository,
             AnalyticsService analyticsService,
             ApplicationService applicationService,
             UserDataService userDataService,

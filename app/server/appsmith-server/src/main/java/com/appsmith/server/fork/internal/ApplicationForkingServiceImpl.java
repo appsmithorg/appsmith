@@ -8,7 +8,7 @@ import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -40,7 +40,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
             ApplicationPermission applicationPermission,
             ImportApplicationService importApplicationService,
             ApplicationPageService applicationPageService,
-            NewPageRepository newPageRepository,
+            NewPageRepositoryCake newPageRepository,
             NewActionService newActionService,
             LayoutActionService layoutActionService,
             ActionCollectionService actionCollectionService,

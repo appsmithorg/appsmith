@@ -2,7 +2,7 @@ package com.appsmith.server.newpages.base;
 
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.UserDataService;
@@ -24,7 +24,7 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            NewPageRepository repository,
+            NewPageRepositoryCake repository,
             AnalyticsService analyticsService,
             ApplicationService applicationService,
             UserDataService userDataService,

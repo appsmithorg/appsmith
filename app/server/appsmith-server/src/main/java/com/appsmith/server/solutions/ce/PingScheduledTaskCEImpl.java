@@ -8,7 +8,7 @@ import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ConfigService;
@@ -43,7 +43,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final WorkspaceRepositoryCake workspaceRepository;
     private final ApplicationRepositoryCake applicationRepository;
-    private final NewPageRepository newPageRepository;
+    private final NewPageRepositoryCake newPageRepository;
     private final NewActionRepository newActionRepository;
     private final DatasourceRepository datasourceRepository;
     private final UserRepositoryCake userRepository;
