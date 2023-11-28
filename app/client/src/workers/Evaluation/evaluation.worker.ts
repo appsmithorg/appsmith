@@ -23,7 +23,6 @@ function syncRequestMessageListener(
   const messageHandler = syncHandlerMap[method];
   if (typeof messageHandler !== "function") return;
   const responseData = messageHandler(body);
-  if (!responseData) return;
   const transmissionErrorHandler = transmissionErrorHandlerMap[method];
   const endTime = performance.now();
   WorkerMessenger.respond(
@@ -46,7 +45,6 @@ async function asyncRequestMessageListener(
   const messageHandler = asyncHandlerMap[method];
   if (typeof messageHandler !== "function") return;
   const data = await messageHandler(body);
-  if (!data) return;
   const end = performance.now();
   const transmissionErrorHandler = transmissionErrorHandlerMap[method];
   WorkerMessenger.respond(
