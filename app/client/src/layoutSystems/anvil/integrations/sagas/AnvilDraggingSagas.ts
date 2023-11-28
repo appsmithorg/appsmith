@@ -164,7 +164,6 @@ export function* addNewChildToDSL(
       updatedWidgets,
       draggedWidgets,
       highlight,
-      newWidget.newWidgetId,
     );
   } else {
     updatedWidgets = addWidgetToGenericLayout(

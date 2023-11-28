@@ -6,11 +6,21 @@ import type {
 } from "WidgetProvider/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import ContainerWidget from "widgets/ContainerWidget/widget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { anvilConfig, baseConfig, defaultConfig } from "./config";
 import { ValidationTypes } from "constants/WidgetValidation";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type {
+  LayoutComponentProps,
+  LayoutProps,
+} from "layoutSystems/anvil/utils/anvilTypes";
+import BaseWidget from "widgets/BaseWidget";
+import type { ReactNode } from "react";
+import { renderLayouts } from "layoutSystems/anvil/utils/layouts/renderUtils";
+import { RenderModes } from "constants/WidgetConstants";
+import React from "react";
 
-class SectionWidget extends ContainerWidget {
+class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   static type = "SECTION_WIDGET";
 
   static getConfig(): WidgetBaseConfiguration {
@@ -97,6 +107,29 @@ class SectionWidget extends ContainerWidget {
   static getStylesheetConfig(): Stylesheet {
     return super.getStylesheetConfig();
   }
+
+  getWidgetView(): ReactNode {
+    const map: LayoutComponentProps["childrenMap"] = {};
+    (this.props.children ?? []).forEach((child: WidgetProps) => {
+      map[child.widgetId] = child;
+    });
+    return (
+      <div>
+        {renderLayouts(
+          this.props.layout,
+          map,
+          this.props.widgetId,
+          "",
+          this.props.renderMode || RenderModes.CANVAS,
+          [],
+        )}
+      </div>
+    );
+  }
+}
+
+export interface SectionWidgetProps extends ContainerWidgetProps<WidgetProps> {
+  layout: LayoutProps[];
 }
 
 export default SectionWidget;

@@ -1,4 +1,3 @@
-import { get } from "lodash";
 import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
@@ -21,19 +20,6 @@ export const defaultConfig: WidgetDefaultProps = {
   widgetName: "Section",
   zoneCount: 1,
   blueprint: {
-    view: [
-      {
-        type: "CANVAS_WIDGET",
-        position: { left: 0, top: 0 },
-        props: {
-          canExtend: false,
-          children: [],
-          containerStyle: "none",
-          detachFromLayout: true,
-          version: 1,
-        },
-      },
-    ],
     operations: [
       {
         type: BlueprintOperationTypes.MODIFY_PROPS,
@@ -45,13 +31,10 @@ export const defaultConfig: WidgetDefaultProps = {
         ) => {
           if (layoutSystemType !== LayoutSystemTypes.ANVIL) return [];
 
-          //get Canvas Widget
-          const canvasWidget: FlattenedWidgetProps = get(widget, "children.0");
-
           const layout: LayoutProps[] = sectionPreset();
 
           return getWidgetBluePrintUpdates({
-            [canvasWidget.widgetId]: {
+            [widget.widgetId]: {
               layout,
             },
           });

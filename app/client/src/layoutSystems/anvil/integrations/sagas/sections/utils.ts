@@ -1,5 +1,3 @@
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 import type {
   AnvilHighlightInfo,
   LayoutProps,
@@ -17,6 +15,7 @@ import { generateReactKey } from "utils/generators";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { addNewChildToDSL } from "../AnvilDraggingSagas";
+import { sectionPreset } from "layoutSystems/anvil/layoutComponents/presets/sectionPreset";
 
 function getSectionLastColumnHighlight(sectionCanvas: FlattenedWidgetProps) {
   const layoutId: string = sectionCanvas.layout[0].layoutId;
@@ -161,15 +160,14 @@ export function* addWidgetToSection(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
-  widgetId: string,
 ) {
   /**
    * Add new widgets to section.
    */
-  const canvasWidget: WidgetProps = allWidgets[highlight.canvasId];
-  const canvasPreset: LayoutProps[] = canvasWidget.layout
-    ? canvasWidget.layout
-    : generateDefaultLayoutPreset();
+  let sectionWidget: WidgetProps = allWidgets[highlight.canvasId];
+  const canvasPreset: LayoutProps[] = sectionWidget.layout
+    ? sectionWidget.layout
+    : sectionPreset();
   const res: {
     canvasWidgets: CanvasWidgetsReduxState;
     section: WidgetProps;
@@ -178,23 +176,15 @@ export function* addWidgetToSection(
     allWidgets,
     draggedWidgets,
     highlight,
-    allWidgets[canvasWidget.parentId || MAIN_CONTAINER_WIDGET_ID],
-    {
-      ...canvasWidget,
-      children: canvasWidget.children.filter(
-        (each: string) => each !== widgetId,
-      ),
-    },
+    sectionWidget,
     canvasPreset[0],
   );
-  const sectionCanvas = res.canvasWidgets[highlight.canvasId];
-  const sectionWidget =
-    res.canvasWidgets[sectionCanvas.parentId || MAIN_CONTAINER_WIDGET_ID];
+  sectionWidget = res.canvasWidgets[highlight.canvasId];
   return {
     ...res.canvasWidgets,
     [sectionWidget.widgetId]: {
       ...sectionWidget,
-      zoneCount: sectionCanvas.layout[0].layout.length,
+      zoneCount: (sectionWidget.children ?? []).length,
     },
   };
 }
