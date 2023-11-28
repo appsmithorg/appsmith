@@ -16,4 +16,6 @@ public interface UpdateLayoutServiceCE {
             String defaultApplicationId, String branchName, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO);
 
     JSONObject unescapeMongoSpecialCharacters(Layout layout);
+
+    Mono<String> updatePageLayoutsByPageId(String pageId);
 }

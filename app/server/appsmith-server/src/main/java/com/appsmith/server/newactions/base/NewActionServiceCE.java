@@ -75,6 +75,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
 
+    ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO);
+
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions);

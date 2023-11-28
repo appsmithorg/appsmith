@@ -74,9 +74,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         // The change was not in CollectionId, just go ahead and update normally
         if (action.getCollectionId() == null) {
-            return this.updateSingleAction(id, action)
-                    .flatMap(updatedAction -> this.updatePageLayoutsByPageId(updatedAction.getPageId())
-                            .thenReturn(updatedAction));
+            return this.updateSingleAction(id, action).flatMap(updatedAction -> updateLayoutService
+                    .updatePageLayoutsByPageId(updatedAction.getPageId())
+                    .thenReturn(updatedAction));
         } else if (action.getCollectionId().length() == 0) {
             // The Action has been removed from existing collection.
             return newActionService
@@ -86,9 +86,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     .flatMap(action1 -> {
                         log.debug("Action {} has been removed from its collection.", action1.getId());
                         action.setCollectionId(null);
-                        return this.updateSingleAction(id, action)
-                                .flatMap(updatedAction -> this.updatePageLayoutsByPageId(updatedAction.getPageId())
-                                        .thenReturn(updatedAction));
+                        return this.updateSingleAction(id, action).flatMap(updatedAction -> updateLayoutService
+                                .updatePageLayoutsByPageId(updatedAction.getPageId())
+                                .thenReturn(updatedAction));
                     });
         } else {
             // If the code flow has reached this point, that means that the collectionId has been changed to another
@@ -114,9 +114,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         log.debug(
                                 "Action {} removed from its previous collection and added to the new collection",
                                 action1.getId());
-                        return this.updateSingleAction(id, action)
-                                .flatMap(updatedAction -> this.updatePageLayoutsByPageId(updatedAction.getPageId())
-                                        .thenReturn(updatedAction));
+                        return this.updateSingleAction(id, action).flatMap(updatedAction -> updateLayoutService
+                                .updatePageLayoutsByPageId(updatedAction.getPageId())
+                                .thenReturn(updatedAction));
                     });
         }
     }
@@ -260,7 +260,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         return newActionService
                 .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
-                .flatMap(updatedAction -> this.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
+                .flatMap(updatedAction ->
+                        updateLayoutService.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
                 .zipWith(
                         newPageService.findPageById(pageId, pagePermission.getEditPermission(), false),
@@ -287,7 +288,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     newAction.setUnpublishedAction(action);
 
-                    return newActionService.save(newAction).flatMap(savedAction -> updatePageLayoutsByPageId(
+                    return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
+                            .updatePageLayoutsByPageId(
                                     savedAction.getUnpublishedAction().getPageId())
                             .then(newActionService.generateActionByViewMode(savedAction, false)));
                 });
@@ -308,7 +310,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
         return newActionService
                 .deleteUnpublishedAction(id)
-                .flatMap(actionDTO -> Mono.zip(Mono.just(actionDTO), updatePageLayoutsByPageId(actionDTO.getPageId())))
+                .flatMap(actionDTO -> Mono.zip(
+                        Mono.just(actionDTO), updateLayoutService.updatePageLayoutsByPageId(actionDTO.getPageId())))
                 .flatMap(tuple -> {
                     ActionDTO actionDTO = tuple.getT1();
                     return Mono.just(actionDTO);
@@ -320,25 +323,6 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getDeletePermission())
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
-    }
-
-    @Override
-    public Mono<String> updatePageLayoutsByPageId(String pageId) {
-        return Mono.justOrEmpty(pageId)
-                // fetch the unpublished page
-                .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
-                .flatMapMany(page -> {
-                    if (page.getLayouts() == null) {
-                        return Mono.empty();
-                    }
-                    return Flux.fromIterable(page.getLayouts()).flatMap(layout -> {
-                        layout.setDsl(updateLayoutService.unescapeMongoSpecialCharacters(layout));
-                        return updateLayoutService.updateLayout(
-                                page.getId(), page.getApplicationId(), layout.getId(), layout);
-                    });
-                })
-                .collectList()
-                .then(Mono.just(pageId));
     }
 
     @Override
