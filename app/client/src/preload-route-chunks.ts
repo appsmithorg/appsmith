@@ -1,3 +1,4 @@
+import { getBaseURL } from "@appsmith/utils/preloadHelpers";
 // This file preloads chunks for the edit and view modes ahead of the import()
 // call that will actually require them. This puts these chunks into HTTP cache
 // (so they can be executed immediately) but doesn’t execute them (so that the
@@ -27,9 +28,9 @@ if (
   window.__APPSMITH_CHUNKS_TO_PRELOAD &&
   currentMode
 ) {
+  const BASE_URL = getBaseURL();
   window.__APPSMITH_CHUNKS_TO_PRELOAD[currentMode]
-    // @ts-expect-error __webpack_public_path__ might be set on runtime when the CDN is used in EE
-    .map((url) => __webpack_public_path__ + url)
+    .map((url) => BASE_URL + url)
     .forEach((url) => {
       const link = document.createElement("link");
       link.rel = "preload";

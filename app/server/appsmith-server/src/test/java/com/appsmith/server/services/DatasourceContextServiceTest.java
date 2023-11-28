@@ -26,6 +26,7 @@ import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
@@ -82,6 +83,9 @@ public class DatasourceContextServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
+
+    @SpyBean
+    DatasourceService spyDatasourceService;
 
     @SpyBean
     DatasourceStorageService datasourceStorageService;
@@ -722,5 +726,31 @@ public class DatasourceContextServiceTest {
                             .isEqualTo(updatedBearerToken);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyDatasourceContext_withRateLimitExceeded_returnsTooManyRequests() {
+        String sampleDatasourceId = new ObjectId().toHexString();
+        Plugin redshiftPlugin = pluginService
+                .findByPackageName(PluginConstants.PackageName.REDSHIFT_PLUGIN)
+                .block();
+
+        DatasourceStorage datasourceStorage = new DatasourceStorage();
+        datasourceStorage.setDatasourceId(sampleDatasourceId);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorage.setPluginId(redshiftPlugin.getId());
+
+        String expectedErrorMessage = "Too many failed requests received. Please try again after 5 minutes";
+
+        doReturn(Mono.just(true)).when(spyDatasourceService).isEndpointBlockedForConnectionRequest(Mockito.any());
+        Mono<DatasourceContext<?>> datasourceContextMono =
+                datasourceContextService.getDatasourceContext(datasourceStorage, redshiftPlugin);
+        StepVerifier.create(datasourceContextMono)
+                .expectErrorSatisfies(error -> {
+                    assertTrue(error instanceof AppsmithException);
+                    assertEquals(expectedErrorMessage, error.getMessage());
+                })
+                .verify();
     }
 }

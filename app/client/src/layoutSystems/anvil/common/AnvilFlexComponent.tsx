@@ -60,7 +60,11 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   // Create a ref so that this DOM node can be
   // observed by the observer for changes in size
   const ref = React.useRef<HTMLDivElement>(null);
-  usePositionObserver("widget", { widgetId: props.widgetId }, ref);
+  usePositionObserver(
+    "widget",
+    { widgetId: props.widgetId, layoutId: props.layoutId },
+    ref,
+  );
   /** EO POSITIONS OBSERVER LOGIC */
 
   const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
@@ -105,8 +109,17 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
         props.widgetId
       } ${widgetTypeClassname(
         props.widgetType,
-      )} t--widget-${props.widgetName.toLowerCase()}`,
-    [props.parentId, props.widgetId, props.widgetType, props.widgetName],
+      )} t--widget-${props.widgetName.toLowerCase()} drop-target-${
+        props.layoutId
+      } row-index-${props.rowIndex}`,
+    [
+      props.parentId,
+      props.widgetId,
+      props.widgetType,
+      props.widgetName,
+      props.layoutId,
+      props.rowIndex,
+    ],
   );
 
   // Memoize flex props to be passed to the WDS Flex component.
@@ -148,7 +161,9 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
   const styleProps: CSSProperties = useMemo(() => {
     return {
       position: "relative",
-      opacity: isDragging && isSelected ? 0.5 : 1,
+      // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
+      overflow: "hidden",
+      opacity: (isDragging && isSelected) || !props.isVisible ? 0.5 : 1,
       "&:hover": {
         zIndex: onHoverZIndex,
       },

@@ -9,11 +9,10 @@ import type {
   SizingDimension,
   SpacingDimension,
 } from "@design-system/widgets";
-import { MOBILE_ROW_GAP, ROW_GAP } from "layoutSystems/common/utils/constants";
+import { ROW_GAP } from "layoutSystems/common/utils/constants";
 import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import { MOBILE_BREAKPOINT } from "layoutSystems/anvil/utils/constants";
 import type {
   OverflowValues,
   PositionValues,
@@ -31,6 +30,8 @@ export interface FlexLayoutProps
   children: ReactNode;
   isDropTarget?: boolean;
   layoutId: string;
+  layoutIndex: number;
+  parentDropTarget: string;
   renderMode: RenderMode;
 
   border?: string;
@@ -66,11 +67,13 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     isDropTarget,
     justifyContent,
     layoutId,
+    layoutIndex,
     maxHeight,
     maxWidth,
     minHeight,
     minWidth,
     padding,
+    parentDropTarget,
     position,
     renderMode,
     rowGap,
@@ -88,6 +91,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       layoutId: layoutId,
       canvasId: canvasId,
       isDropTarget: isDropTarget,
+      parentDropTarget,
     },
     ref,
   );
@@ -109,8 +113,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       minWidth: minWidth || "unset",
       padding: padding || (isDropTarget ? "4px" : "0px"),
       rowGap: rowGap || {
-        base: addPixelToSize(MOBILE_ROW_GAP),
-        [addPixelToSize(MOBILE_BREAKPOINT)]: addPixelToSize(ROW_GAP),
+        base: addPixelToSize(ROW_GAP),
       },
       width: width || "auto",
       wrap: wrap || "nowrap",
@@ -147,9 +150,14 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     };
   }, [border, isDropTarget, position, renderMode]);
 
+  const className = useMemo(() => {
+    return `layout-${layoutId} layout-index-${layoutIndex}`;
+  }, [layoutId, layoutIndex]);
+
   return (
     <Flex
       {...flexProps}
+      className={className}
       id={getAnvilLayoutDOMId(canvasId, layoutId)}
       ref={ref}
       style={styleProps}

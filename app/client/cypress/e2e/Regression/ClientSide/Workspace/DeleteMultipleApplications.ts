@@ -85,8 +85,8 @@ describe("Delete multiple application", function () {
     );
     agHelper.ClickButton("Delete");
     agHelper.ClickButton("Yes");
-    assertHelper.WaitForNetworkCall("@deleteMultipleApp").then((intercept) => {
-      expect(intercept.response?.body?.data?.length).to.be.equal(2);
+    assertHelper.WaitForNetworkCall("@deleteMultipleApp").then((response) => {
+      expect(response?.body?.data?.length).to.be.equal(2);
       agHelper.AssertElementAbsence(
         homePage._appCard(MultipleDeleteFirstWorkspace.applicationName),
       );

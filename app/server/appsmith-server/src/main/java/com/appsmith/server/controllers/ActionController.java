@@ -2,10 +2,11 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.ActionControllerCE;
+import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.refactors.applications.RefactoringSolution;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
-import com.appsmith.server.solutions.RefactoringSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +20,9 @@ public class ActionController extends ActionControllerCE {
             LayoutActionService layoutActionService,
             NewActionService newActionService,
             RefactoringSolution refactoringSolution,
-            ActionExecutionSolution actionExecutionSolution) {
+            ActionExecutionSolution actionExecutionSolution,
+            OtlpTelemetry otlpTelemetry) {
 
-        super(layoutActionService, newActionService, refactoringSolution, actionExecutionSolution);
+        super(layoutActionService, newActionService, refactoringSolution, actionExecutionSolution, otlpTelemetry);
     }
 }

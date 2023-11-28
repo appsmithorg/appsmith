@@ -5,6 +5,9 @@ import {
   agHelper,
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const data = [
   {
@@ -26,7 +29,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
   });
 
   beforeEach(() => {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
   });
 
   it("1. should search against display text when on client search", () => {
@@ -65,7 +68,7 @@ describe("Table V2 sort & filter using display text functionality", () => {
       true,
       false,
     );
-    agHelper.RemoveEvaluatedPopUp();
+    agHelper.RemoveUIElement("EvaluatedPopUp");
     table.OpenNFilterTable("name", "contains", "Y");
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
       expect($cellData).to.eq("Y");

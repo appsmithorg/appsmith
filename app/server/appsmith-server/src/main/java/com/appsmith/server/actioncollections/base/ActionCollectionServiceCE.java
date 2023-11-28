@@ -1,15 +1,12 @@
 package com.appsmith.server.actioncollections.base;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
-import com.appsmith.server.dtos.ce.ImportActionResultDTO;
-import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.services.CrudService;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
@@ -17,7 +14,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface ActionCollectionServiceCE extends CrudService<ActionCollection, String> {
@@ -74,12 +70,6 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     void populateDefaultResources(
             ActionCollection actionCollection, ActionCollection branchedActionCollection, String branchName);
 
-    Mono<ImportActionCollectionResultDTO> importActionCollections(
-            ImportActionResultDTO importActionResultDTO,
-            Application importedApplication,
-            String branchName,
-            List<ActionCollection> importedActionCollectionList,
-            Map<String, String> pluginMap,
-            Map<String, NewPage> pageNameMap,
-            ImportApplicationPermissionProvider permissionProvider);
+    Flux<ActionCollection> findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode);
 }

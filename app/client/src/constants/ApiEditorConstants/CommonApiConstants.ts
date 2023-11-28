@@ -100,6 +100,7 @@ export enum MultiPartOptionTypes {
   TEXT = "Text",
   FILE = "File",
   ARRAY = "Array",
+  JSON = "JSON",
 }
 
 export interface MULTI_PART_DROPDOWN_OPTION {

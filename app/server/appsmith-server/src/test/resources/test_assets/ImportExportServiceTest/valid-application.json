@@ -25,7 +25,7 @@
         "read:datasources"
       ],
       "name": "db-auth",
-      "pluginId": "mongo-plugin",
+      "pluginId": "installed-plugin",
       "gitSyncId": "datasource1_git",
       "datasourceConfiguration": {
         "connection": {
@@ -59,7 +59,7 @@
         "read:datasources"
       ],
       "name": "api_ds_wo_auth",
-      "pluginId": "restapi-plugin",
+      "pluginId": "installed-plugin",
       "gitSyncId": "datasource2_git",
       "datasourceConfiguration": {
         "sshProxyEnabled": false,
@@ -434,7 +434,7 @@
       "userPermissions": [],
       "applicationId": "valid_application",
       "pluginType": "DB",
-      "pluginId": "mongo-plugin",
+      "pluginId": "installed-plugin",
       "gitSyncId": "action1_git",
       "unpublishedAction": {
         "name": "get_users",
@@ -478,7 +478,7 @@
       "userPermissions": [],
       "applicationId": "valid_application",
       "pluginType": "API",
-      "pluginId": "restapi-plugin",
+      "pluginId": "installed-plugin",
       "gitSyncId": "action2_git",
       "unpublishedAction": {
         "name": "api_wo_auth",
@@ -571,14 +571,14 @@
         "manage:actions"
       ],
       "pluginType": "JS",
-      "pluginId": "js-plugin",
+      "pluginId": "installed-js-plugin",
       "unpublishedAction": {
         "name": "run",
         "fullyQualifiedName": "JSObject1.run",
         "datasource": {
           "userPermissions": [],
           "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
+          "pluginId": "installed-js-plugin",
           "isValid": true,
           "new": true
         },
@@ -625,7 +625,7 @@
       "unpublishedCollection": {
         "name": "JSObject1",
         "pageId": "Page1",
-        "pluginId": "js-plugin",
+        "pluginId": "installed-js-plugin",
         "pluginType": "JS",
         "actions": [],
         "archivedActions": [],
@@ -640,7 +640,7 @@
       "publishedCollection": {
         "name": "JSObject1_Published",
         "pageId": "Page1",
-        "pluginId": "js-plugin",
+        "pluginId": "installed-js-plugin",
         "pluginType": "JS",
         "actions": [],
         "archivedActions": [],
@@ -664,7 +664,7 @@
       "unpublishedCollection": {
         "name": "JSObject2",
         "pageId": "Page1",
-        "pluginId": "js-plugin",
+        "pluginId": "installed-js-plugin",
         "pluginType": "JS",
         "actions": [],
         "archivedActions": [],

@@ -1,11 +1,13 @@
 import {
-  entityExplorer,
-  locators,
   agHelper,
-  propPane,
   assertHelper,
   draggableWidgets,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Dynamic Height Width validation with multiple containers and text widget", function () {
   it("1. Validate change with auto height width for widgets", function () {
@@ -14,14 +16,16 @@ describe("Dynamic Height Width validation with multiple containers and text widg
     agHelper.AddDsl("dynamicHeightCanvasResizeDsl");
 
     // Select the Outer container and capture initial height
-    entityExplorer.SelectEntityByName("Container1");
+    EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
     agHelper
       .GetWidgetCSSHeight(
         locators._widgetInDeployed(draggableWidgets.CONTAINER),
       )
       .then((initialContainerHeight: number) => {
         // Select the Text Widget and capture its initial height
-        entityExplorer.SelectEntityByName("Text1", "Container1");
+        EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+          "Container1",
+        ]);
         agHelper.Sleep(1000);
         agHelper
           .GetWidgetCSSHeight(locators._widgetInDeployed(draggableWidgets.TEXT))
@@ -31,7 +35,7 @@ describe("Dynamic Height Width validation with multiple containers and text widg
             propPane.MoveToTab("Style");
             assertHelper.AssertNetworkStatus("@updateLayout", 200);
             // Select the Text Widget and capture its updated height post change of text label
-            entityExplorer.SelectEntityByName("Text1");
+            EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
             agHelper
               .GetWidgetCSSHeight(
                 locators._widgetInDeployed(draggableWidgets.TEXT),
@@ -42,7 +46,10 @@ describe("Dynamic Height Width validation with multiple containers and text widg
                   updatedTextWidgetHeight,
                 );
                 // Select the outer Container Widget and capture its updated height post change of text label
-                entityExplorer.SelectEntityByName("Container1");
+                EditorNavigation.SelectEntityByName(
+                  "Container1",
+                  EntityType.Widget,
+                );
                 agHelper
                   .GetWidgetCSSHeight(
                     locators._widgetInDeployed(draggableWidgets.CONTAINER),
@@ -52,12 +59,18 @@ describe("Dynamic Height Width validation with multiple containers and text widg
                     expect(initialContainerHeight).to.not.equal(
                       updatedContainerHeight,
                     );
-                    entityExplorer.SelectEntityByName("Text1");
+                    EditorNavigation.SelectEntityByName(
+                      "Text1",
+                      EntityType.Widget,
+                    );
                     propPane.MoveToTab("Content");
                     // Clear Text Label
                     propPane.RemoveText("Text");
                     assertHelper.AssertNetworkStatus("@updateLayout", 200);
-                    entityExplorer.SelectEntityByName("Container1");
+                    EditorNavigation.SelectEntityByName(
+                      "Container1",
+                      EntityType.Widget,
+                    );
                     agHelper
                       .GetWidgetCSSHeight(
                         locators._widgetInDeployed(draggableWidgets.CONTAINER),

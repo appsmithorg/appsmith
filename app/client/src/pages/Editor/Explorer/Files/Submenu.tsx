@@ -1,23 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
+import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import {
   comboHelpText,
   SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
 } from "components/editorComponents/GlobalSearch/utils";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { useSelector } from "react-redux";
 import EntityAddButton from "../Entity/AddButton";
 import keyBy from "lodash/keyBy";
 import type { AppState } from "@appsmith/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import { AddButtonWrapper, EntityClassNames } from "../Entity";
-import {
-  ADD_QUERY_JS_TOOLTIP,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { useCloseMenuOnScroll } from "../hooks";
+import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import {
   Menu,
@@ -28,7 +23,6 @@ import {
   SearchInput,
   Text,
 } from "design-system";
-import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -41,25 +35,31 @@ const SubMenuContainer = styled.div`
 `;
 
 interface SubMenuProps {
-  canCreateActions: boolean;
+  canCreate: boolean;
   className: string;
+  handleClick: (item: any) => void;
   openMenu: boolean;
   onMenuClose: () => void;
+  fileOperations: ActionOperation[] | undefined;
+  setQuery: (val: string) => void;
+  query: string;
+  tooltipText: string;
 }
 
 export default function ExplorerSubMenu({
-  canCreateActions,
+  canCreate,
   className,
+  fileOperations,
+  handleClick,
   onMenuClose,
   openMenu,
+  query,
+  setQuery,
+  tooltipText,
 }: SubMenuProps) {
-  const [query, setQuery] = useState("");
   const [show, setShow] = useState(openMenu);
-  const fileOperations = useFilteredFileOperations(query);
 
-  const pageId = useSelector(getCurrentPageId);
-  const dispatch = useDispatch();
-  const filteredFileOperations = fileOperations.filter(
+  const filteredFileOperations = fileOperations?.filter(
     (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
   );
   const plugins = useSelector((state: AppState) => {
@@ -88,28 +88,15 @@ export default function ExplorerSubMenu({
     setShow(open);
   };
 
-  const handleClick = useCallback(
-    (item: any) => {
-      if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
-      if (item.action) {
-        dispatch(item.action(pageId, DatasourceCreateEntryPoints.SUBMENU));
-      } else if (item.redirect) {
-        item.redirect(pageId, DatasourceCreateEntryPoints.SUBMENU);
-      }
-      handleOpenChange(false);
-    },
-    [pageId, dispatch, handleOpenChange],
-  );
-
   return (
     <Menu open={show}>
       <MenuTrigger asChild={false}>
-        {canCreateActions && (
+        {canCreate && (
           <Tooltip
             content={
               (
                 <>
-                  {createMessage(ADD_QUERY_JS_TOOLTIP)} (
+                  {tooltipText} (
                   {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
                 </>
               ) as unknown as string
@@ -151,7 +138,7 @@ export default function ExplorerSubMenu({
             value={query}
           />
           <div className="ops-container">
-            {filteredFileOperations.map((item: any, idx: number) => {
+            {filteredFileOperations?.map((item: any, idx: number) => {
               const icon =
                 item.icon ||
                 (item.pluginId && (
@@ -165,7 +152,10 @@ export default function ExplorerSubMenu({
                   data-testid="t--file-operation"
                   id={`file-op-${idx}`}
                   key={`file-op-${idx}`}
-                  onClick={() => handleClick(item)}
+                  onClick={() => {
+                    handleClick(item);
+                    handleOpenChange(false);
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     {icon && <span className="flex-shrink-0">{icon}</span>}

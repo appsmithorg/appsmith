@@ -1,5 +1,5 @@
 import { APP_MODE } from "entities/App";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import Api from "./Api";
 
 export default class LibraryApi extends Api {
@@ -10,7 +10,7 @@ export default class LibraryApi extends Api {
 
   static async addLibrary(
     applicationId: string,
-    library: Partial<TJSLibrary> & { defs: string },
+    library: Partial<JSLibrary> & { defs: string },
   ) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/add";
     return Api.patch(url, library);
@@ -18,7 +18,7 @@ export default class LibraryApi extends Api {
 
   static async removeLibrary(
     applicationId: string,
-    library: Partial<TJSLibrary>,
+    library: Partial<JSLibrary>,
   ) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/remove";
     return Api.patch(url, library);

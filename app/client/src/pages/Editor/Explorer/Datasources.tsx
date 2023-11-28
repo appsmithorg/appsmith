@@ -24,12 +24,12 @@ import {
 import {
   useAppWideAndOtherDatasource,
   useDatasourceSuggestions,
-} from "./hooks";
+} from "@appsmith/pages/Editor/Explorer/hooks";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import { keyBy } from "lodash";
 import { useDatasourceIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { Datasource } from "entities/Datasource";
-import ExplorerDatasourceEntity from "./Datasources/DatasourceEntity";
+import ExplorerDatasourceEntity from "../DatasourceInfo/DatasourceEntity";
 
 interface DatasourcesProps {
   isDatasourcesOpen: boolean | null;

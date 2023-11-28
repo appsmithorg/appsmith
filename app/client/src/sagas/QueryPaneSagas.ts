@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -35,6 +36,7 @@ import {
   getSettingConfig,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
+  getActions,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -55,7 +57,7 @@ import get from "lodash/get";
 import {
   initFormEvaluations,
   startFormEvaluations,
-} from "@appsmith/actions/evaluationActions";
+} from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
@@ -76,7 +78,7 @@ import { validateResponse } from "./ErrorSagas";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
-import { createDefaultActionPayload } from "./ActionSagas";
+import { createDefaultActionPayloadWithPluginDefaults } from "./ActionSagas";
 import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
@@ -84,6 +86,13 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { ChangeQueryPayload } from "actions/queryPaneActions";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -341,7 +350,8 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   const { actionConfiguration, id, pluginId, pluginType } =
     actionPayload.payload;
   const pageId: string = yield select(getCurrentPageId);
-  if (pluginType !== PluginType.DB && pluginType !== PluginType.REMOTE) return;
+  if (![PluginType.DB, PluginType.REMOTE, PluginType.AI].includes(pluginType))
+    return;
   const pluginTemplates: Record<string, unknown> =
     yield select(getPluginTemplates);
   const queryTemplate = pluginTemplates[pluginId];
@@ -367,14 +377,24 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
-  const pageId: string = yield select(getCurrentPageId);
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const application: ApplicationPayload | undefined = yield select(
+    getApplicationByIdFromWorkspaces,
+    currentApplicationIdForCreateNewApp || "",
+  );
+  const pageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultPageId
+    : yield select(getCurrentPageId);
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
   // Only look at db plugins
   if (
     plugin &&
     plugin.type !== PluginType.DB &&
-    plugin.type !== PluginType.REMOTE
+    plugin.type !== PluginType.REMOTE &&
+    plugin.type !== PluginType.AI
   )
     return;
 
@@ -407,7 +427,10 @@ function* handleDatasourceCreatedSaga(
         },
       }),
     );
-  } else {
+  } else if (
+    !currentApplicationIdForCreateNewApp ||
+    (!!currentApplicationIdForCreateNewApp && payload.id !== TEMP_DATASOURCE_ID)
+  ) {
     history.push(
       datasourcesEditorIdURL({
         pageId,
@@ -476,17 +499,32 @@ function* createNewQueryForDatasourceSaga(
     from: EventLocation;
   }>,
 ) {
-  const { datasourceId } = action.payload;
+  const { datasourceId, from, pageId } = action.payload;
   if (!datasourceId) return;
 
+  const actions: ActionDataState = yield select(getActions);
+  const datasource: Datasource = yield select(getDatasource, datasourceId);
+  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
+  const newActionName =
+    plugin?.type === PluginType.DB
+      ? createNewQueryName(actions, pageId || "")
+      : createNewApiName(actions, pageId || "");
+
   const createActionPayload: Partial<Action> = yield call(
-    createDefaultActionPayload,
-    action.payload.pageId,
-    action.payload.datasourceId,
-    action.payload.from,
+    createDefaultActionPayloadWithPluginDefaults,
+    {
+      datasourceId,
+      from,
+      newActionName,
+    },
   );
 
-  yield put(createActionRequest(createActionPayload));
+  yield put(
+    createActionRequest({
+      ...createActionPayload,
+      pageId: action.payload.pageId,
+    }),
+  );
 }
 
 function* handleNameChangeFailureSaga(

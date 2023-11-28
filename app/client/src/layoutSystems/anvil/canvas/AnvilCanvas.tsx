@@ -5,27 +5,18 @@ import type { LayoutComponentProps } from "../utils/anvilTypes";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { renderLayouts } from "../utils/layouts/renderUtils";
 import { getAnvilCanvasId } from "./utils";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
-import { getCanvasClassName } from "utils/generators";
+import { RenderModes } from "constants/WidgetConstants";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
   const map: LayoutComponentProps["childrenMap"] = {};
   props.children.forEach((child: WidgetProps) => {
     map[child.widgetId] = child;
   });
-  props;
+
+  const className: string = `anvil-canvas ${props.classList?.join(" ")}`;
+
   return (
-    <div
-      className={`anvil-canvas ${
-        props.widgetId === MAIN_CONTAINER_WIDGET_ID
-          ? `${getCanvasClassName()} overflowY`
-          : ""
-      }`}
-      id={getAnvilCanvasId(props.widgetId)}
-    >
+    <div className={className} id={getAnvilCanvasId(props.widgetId)}>
       {renderLayouts(
         props.layout,
         map,

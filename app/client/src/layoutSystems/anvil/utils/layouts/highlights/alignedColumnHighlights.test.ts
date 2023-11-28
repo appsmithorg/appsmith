@@ -26,7 +26,14 @@ describe("AlignedColumnHighlights tests", () => {
         layout: [],
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -40,8 +47,7 @@ describe("AlignedColumnHighlights tests", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       ]);
-      const highlightWidth: number =
-        (positions[layout.layoutId].width - HIGHLIGHT_SIZE) / 3;
+      const highlightWidth: number = positions[layout.layoutId].width / 3;
       expect(res.length).toEqual(3);
       // Each highlight should be of equal width = 1/3 width of the layout.
       expect(res[0].width).toEqual(highlightWidth);
@@ -59,7 +65,14 @@ describe("AlignedColumnHighlights tests", () => {
         layout: [],
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -75,9 +88,7 @@ describe("AlignedColumnHighlights tests", () => {
       ]);
 
       expect(res.length).toEqual(1);
-      expect(res[0].width).toEqual(
-        positions[layout.layoutId].width - HIGHLIGHT_SIZE,
-      );
+      expect(res[0].width).toEqual(positions[layout.layoutId].width);
     });
     it("should derive highlights using widget positions", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -87,9 +98,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -130,9 +162,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -148,7 +201,9 @@ describe("AlignedColumnHighlights tests", () => {
       ]);
 
       // Top of first set of highlights should span the empty space above the first widget.
-      expect(res[0].dropZone.top).toEqual(positions[button].top);
+      expect(res[0].dropZone.top).toEqual(
+        positions[button].top - HIGHLIGHT_SIZE,
+      );
       // Bottom of first set of highlights should span half of the vertical space between this highlight and the next.
       expect(res[0].dropZone.bottom).toEqual(
         (positions[input].top - positions[button].top) / 2,
@@ -159,13 +214,11 @@ describe("AlignedColumnHighlights tests", () => {
 
       // Bottom of second set of highlights should span half of the vertical space between this highlight and the next.
       // Since this is the last widget, it should cover half the height of the widget.
-      expect(res[4].dropZone.bottom).toEqual(positions[input].height / 2);
+      expect(res[4].dropZone.bottom).toEqual(res[7].dropZone.top);
 
       // Bottom of final set of highlights should span the empty space below the last widget.
       expect(res[8].dropZone.bottom).toEqual(
-        positions[layout.layoutId].height -
-          positions[input].top -
-          positions[input].height,
+        positions[layout.layoutId].height - res[8].posY,
       );
     });
     it("should calculate highlights properly if a dragged widget is Fill widget", () => {
@@ -176,9 +229,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveAlignedColumnHighlights(
         layout,
@@ -211,9 +285,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       /**
        * Second widget (input) is being dragged over it's parent layout.
@@ -250,9 +345,30 @@ describe("AlignedColumnHighlights tests", () => {
       const button: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const input: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 400, left: 0, top: 0, width: 300 },
-        [button]: { height: 40, left: 10, top: 10, width: 120 },
-        [input]: { height: 70, left: 10, top: 60, width: 290 },
+        [layout.layoutId]: {
+          height: 400,
+          left: 0,
+          top: 0,
+          width: 300,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        [button]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 120,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input]: {
+          height: 70,
+          left: 10,
+          top: 60,
+          width: 290,
+          offsetLeft: 10,
+          offsetTop: 60,
+        },
       };
       /**
        * First widget (button) is being dragged over it's parent layout.
@@ -308,13 +424,62 @@ describe("AlignedColumnHighlights tests", () => {
        * Create dimensions data
        */
       const dimensions: LayoutElementPositions = {
-        [row1.layoutId]: { height: 80, left: 10, top: 10, width: 300 },
-        [button1]: { height: 40, left: 10, top: 10, width: 100 },
-        [input1]: { height: 70, left: 120, top: 10, width: 170 },
-        [row2.layoutId]: { height: 80, left: 10, top: 90, width: 300 },
-        [button2]: { height: 40, left: 10, top: 10, width: 100 },
-        [input2]: { height: 70, left: 120, top: 10, width: 170 },
-        [column.layoutId]: { height: 200, left: 0, top: 0, width: 320 },
+        [row1.layoutId]: {
+          height: 80,
+          left: 10,
+          top: 10,
+          width: 300,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [button1]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input1]: {
+          height: 70,
+          left: 120,
+          top: 10,
+          width: 170,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
+        [row2.layoutId]: {
+          height: 80,
+          left: 10,
+          top: 90,
+          width: 300,
+          offsetLeft: 10,
+          offsetTop: 90,
+        },
+        [button2]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input2]: {
+          height: 70,
+          left: 120,
+          top: 10,
+          width: 170,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
+        [column.layoutId]: {
+          height: 200,
+          left: 0,
+          top: 0,
+          width: 320,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
 
       /**
@@ -350,7 +515,9 @@ describe("AlignedColumnHighlights tests", () => {
       expect(res[0].posY).toEqual(
         dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
       );
-      expect(res[0].dropZone.top).toEqual(dimensions[row1.layoutId].top);
+      expect(res[0].dropZone.top).toEqual(
+        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
+      );
 
       expect(res[4].isVertical).toBeFalsy();
       expect(res[4].posY).toEqual(
@@ -360,9 +527,7 @@ describe("AlignedColumnHighlights tests", () => {
         (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
           VERTICAL_DROP_ZONE_MULTIPLIER,
       );
-      expect(res[4].dropZone.bottom).toEqual(
-        dimensions[row2.layoutId].height * VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
+      expect(res[4].dropZone.bottom).toEqual(res[8].dropZone.top);
     });
     it("2. should skip highlights of non drop target child layouts in the final output", () => {
       /**
@@ -393,13 +558,62 @@ describe("AlignedColumnHighlights tests", () => {
        * Create dimensions data
        */
       const dimensions: LayoutElementPositions = {
-        [row1.layoutId]: { height: 80, left: 10, top: 10, width: 300 },
-        [button1]: { height: 40, left: 10, top: 10, width: 100 },
-        [input1]: { height: 70, left: 120, top: 10, width: 170 },
-        [row2.layoutId]: { height: 80, left: 10, top: 90, width: 300 },
-        [button2]: { height: 40, left: 10, top: 10, width: 100 },
-        [input2]: { height: 70, left: 120, top: 10, width: 170 },
-        [column.layoutId]: { height: 200, left: 0, top: 0, width: 320 },
+        [row1.layoutId]: {
+          height: 80,
+          left: 10,
+          top: 10,
+          width: 300,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [button1]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input1]: {
+          height: 70,
+          left: 120,
+          top: 10,
+          width: 170,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
+        [row2.layoutId]: {
+          height: 80,
+          left: 10,
+          top: 90,
+          width: 300,
+          offsetLeft: 10,
+          offsetTop: 90,
+        },
+        [button2]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input2]: {
+          height: 70,
+          left: 120,
+          top: 10,
+          width: 170,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
+        [column.layoutId]: {
+          height: 200,
+          left: 0,
+          top: 0,
+          width: 320,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
 
       /**
@@ -435,7 +649,9 @@ describe("AlignedColumnHighlights tests", () => {
       expect(res[0].posY).toEqual(
         dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
       );
-      expect(res[0].dropZone.top).toEqual(dimensions[row1.layoutId].top);
+      expect(res[0].dropZone.top).toEqual(
+        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
+      );
 
       expect(res[4].isVertical).toBeFalsy();
       expect(res[4].posY).toEqual(
@@ -445,13 +661,10 @@ describe("AlignedColumnHighlights tests", () => {
         (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
           VERTICAL_DROP_ZONE_MULTIPLIER,
       );
-      expect(res[4].dropZone.bottom).toEqual(
-        dimensions[row2.layoutId].height * VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
+      expect(res[4].dropZone.bottom).toEqual(res[5].dropZone.top);
 
       expect(res[5].dropZone.bottom).toEqual(
-        dimensions[column.layoutId].height -
-          (dimensions[row2.layoutId].top + dimensions[row2.layoutId].height),
+        dimensions[column.layoutId].height - res[5].posY,
       );
     });
   });

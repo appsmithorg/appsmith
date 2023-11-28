@@ -1,20 +1,9 @@
-import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import {
-  unEvalTree,
-  unEvalTreeWidgetSelectWidget,
-} from "workers/common/DataTreeEvaluator/mockData/mockUnEvalTree";
 import ButtonWidget from "widgets/ButtonWidget";
 import SelectWidget from "widgets/SelectWidget";
 import type {
   WidgetEntity,
   DataTreeEntityConfig,
 } from "@appsmith/entities/DataTree/types";
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
-import {
-  unEvalTreeWidgetSelectWidgetConfig,
-  configTree,
-} from "workers/common/DataTreeEvaluator/mockData/mockConfigTree";
-
 import { getEntityPathDependencies } from "./utils/getEntityDependencies";
 import type BaseWidget from "widgets/BaseWidget";
 
@@ -31,48 +20,6 @@ const widgetConfigMap = {};
       metaProperties: widget.getMetaPropertiesMap(),
     };
   }
-});
-
-const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
-
-describe("test validationDependencyMap", () => {
-  beforeAll(() => {
-    dataTreeEvaluator.setupFirstTree(
-      unEvalTreeWidgetSelectWidget as unknown as DataTree,
-      unEvalTreeWidgetSelectWidgetConfig as unknown as ConfigTree,
-    );
-    dataTreeEvaluator.evalAndValidateFirstTree();
-  });
-
-  it("initial validation dependencyMap computation", () => {
-    expect(
-      dataTreeEvaluator.validationDependencyMap.dependencies,
-    ).toStrictEqual({
-      "Select2.defaultOptionValue": [
-        "Select2.serverSideFiltering",
-        "Select2.options",
-      ],
-    });
-  });
-
-  it("update validation dependencyMap computation", () => {
-    const { evalOrder, nonDynamicFieldValidationOrder, unEvalUpdates } =
-      dataTreeEvaluator.setupUpdateTree(
-        unEvalTree as unknown as DataTree,
-        configTree as unknown as ConfigTree,
-      );
-
-    dataTreeEvaluator.evalAndValidateSubTree(
-      evalOrder,
-      nonDynamicFieldValidationOrder,
-      configTree as unknown as ConfigTree,
-      unEvalUpdates,
-    );
-
-    expect(
-      dataTreeEvaluator.validationDependencyMap.dependencies,
-    ).toStrictEqual({});
-  });
 });
 
 describe("DependencyMap utils", function () {

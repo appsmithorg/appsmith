@@ -8,18 +8,19 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.themes.base.ThemeService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,7 @@ import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -49,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
+@Slf4j
 public class ThemeServiceTest {
 
     @Autowired
@@ -92,6 +95,12 @@ public class ThemeServiceTest {
     @Autowired
     PermissionGroupService permissionGroupService;
 
+    @Autowired
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    @Autowired
+    SessionUserService sessionUserService;
+
     @BeforeEach
     public void setup() {
         Workspace workspace = new Workspace();
@@ -112,13 +121,29 @@ public class ThemeServiceTest {
     }
 
     private Application createApplication() {
+        User currentUser = sessionUserService.getCurrentUser().block();
+        Set<String> beforeCreatingApplication =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingApplication);
         Application application = new Application();
         application.setName("ThemeTest_" + UUID.randomUUID());
         application.setWorkspaceId(this.workspace.getId());
-        applicationPageService
+        Application createdApplication = applicationPageService
                 .createApplication(application, this.workspace.getId())
                 .block();
-        return application;
+
+        Set<String> afterCreatingApplication =
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
+        log.info("Permission Groups for User after creating Application: {}", afterCreatingApplication);
+
+        log.info("Workspace ID: {}", this.workspace.getId());
+        log.info("Workspace Role Ids: {}", this.workspace.getDefaultPermissionGroups());
+        log.info("Policy for created Workspace: {}", this.workspace.getPolicies());
+        log.info("Application ID: {}", createdApplication.getId());
+        log.info("Policies for created Application: {}", createdApplication.getPolicies());
+        log.info("Current User ID: {}", currentUser.getId());
+
+        return createdApplication;
     }
 
     public void replaceApiUserWithAnotherUserInWorkspace() {
@@ -859,74 +884,6 @@ public class ThemeServiceTest {
                     assertThat(theme.getApplicationId()).isNotNull();
                     assertThat(theme.getWorkspaceId()).isEqualTo(this.workspace.getId());
                     assertThat(theme.getConfig()).isNotNull();
-                })
-                .verifyComplete();
-    }
-
-    @WithUserDetails("api_user")
-    @Test
-    public void importThemesToApplication_WhenBothImportedThemesAreCustom_NewThemesCreated() {
-        Application application = createApplication();
-
-        // create a application json with a custom theme set as both edit mode and published mode
-        ApplicationJson applicationJson = new ApplicationJson();
-        Theme customTheme = new Theme();
-        customTheme.setName("Custom theme name");
-        customTheme.setDisplayName("Custom theme display name");
-        applicationJson.setEditModeTheme(customTheme);
-        applicationJson.setPublishedTheme(customTheme);
-
-        Mono<Application> applicationMono = Mono.just(application)
-                .flatMap(savedApplication -> themeService
-                        .importThemesToApplication(savedApplication, applicationJson)
-                        .thenReturn(savedApplication.getId()))
-                .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
-
-        StepVerifier.create(applicationMono)
-                .assertNext(app -> {
-                    assertThat(app.getEditModeThemeId().equals(app.getPublishedModeThemeId()))
-                            .isFalse();
-                })
-                .verifyComplete();
-    }
-
-    @WithUserDetails("api_user")
-    @Test
-    public void importThemesToApplication_ApplicationThemeNotFound_DefaultThemeImported() {
-        Theme defaultTheme =
-                themeRepository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).block();
-
-        // create the theme information present in the application JSON
-        Theme themeInJson = new Theme();
-        themeInJson.setSystemTheme(true);
-        themeInJson.setName(defaultTheme.getName());
-
-        // create a application json with the above theme set in both modes
-        ApplicationJson applicationJson = new ApplicationJson();
-        applicationJson.setEditModeTheme(themeInJson);
-        applicationJson.setPublishedTheme(themeInJson);
-
-        Mono<Application> applicationMono = Mono.just(createApplication())
-                .map(application -> {
-                    // setting invalid ids to themes to check the case
-                    application.setEditModeThemeId(UUID.randomUUID().toString());
-                    application.setPublishedModeThemeId(UUID.randomUUID().toString());
-                    return application;
-                })
-                .flatMap(applicationRepository::save)
-                .flatMap(savedApplication -> {
-                    assert savedApplication.getId() != null;
-                    return themeService
-                            .importThemesToApplication(savedApplication, applicationJson)
-                            .thenReturn(savedApplication.getId());
-                })
-                .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
-
-        StepVerifier.create(applicationMono)
-                .assertNext(app -> {
-                    // both edit mode and published mode should have default theme set
-                    assertThat(app.getEditModeThemeId()).isEqualTo(app.getPublishedModeThemeId());
-                    assertThat(app.getEditModeThemeId()).isEqualTo(defaultTheme.getId());
                 })
                 .verifyComplete();
     }

@@ -4,7 +4,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put, select, takeEvery } from "redux-saga/effects";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import type { AppState } from "@appsmith/reducers";
@@ -29,7 +29,7 @@ const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const lintWorker = new Linter();
 
 function* updateLintGlobals(
-  action: ReduxAction<{ add?: boolean; libs: TJSLibrary[] }>,
+  action: ReduxAction<{ add?: boolean; libs: JSLibrary[] }>,
 ) {
   const appMode: APP_MODE = yield select(getAppMode);
   const isEditorMode = appMode === APP_MODE.EDIT;

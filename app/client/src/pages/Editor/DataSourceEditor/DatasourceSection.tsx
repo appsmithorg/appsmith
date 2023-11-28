@@ -43,6 +43,18 @@ const FieldWrapper = styled.div`
   }
 `;
 
+export const ViewModeWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: var(--ads-v2-spaces-7) 0;
+  gap: var(--ads-v2-spaces-4);
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+  flex-shrink: 0;
+`;
+
 interface RenderDatasourceSectionProps {
   config: any;
   datasource: Datasource;
@@ -169,9 +181,11 @@ export function renderDatasourceSection(
             if (
               !value &&
               !!viewMode &&
-              !!section.hidden &&
-              "comparison" in section.hidden &&
-              section.hidden.comparison === ComparisonOperationsEnum.VIEW_MODE
+              (!section.hidden ||
+                (!!section.hidden &&
+                  "comparison" in section.hidden &&
+                  section.hidden.comparison ===
+                    ComparisonOperationsEnum.VIEW_MODE))
             ) {
               value = section.initialValue;
             }

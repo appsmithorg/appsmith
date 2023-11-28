@@ -24,7 +24,7 @@ export interface AnvilDnDStates {
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
   selectedWidgets: string[];
-  isChildOfCanvas: boolean;
+  isChildOfLayout: boolean;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
   isNewWidget: boolean;
@@ -94,7 +94,6 @@ const checkIfWidgetTypeDraggedIsAllowedToDrop = (
 
 export const useAnvilDnDStates = ({
   allowedWidgetTypes,
-  canvasId,
   layoutId,
 }: AnvilDnDStatesProps): AnvilDnDStates => {
   const mainCanvasLayoutId: string = useSelector((state) =>
@@ -122,9 +121,9 @@ export const useAnvilDnDStates = ({
    */
   const isNewWidget = !!newWidget && !dragParent;
   /**
-   * boolean to indicate if the widget being dragged is this particular canvas's child.
+   * boolean to indicate if the widget being dragged is this particular layout's child.
    */
-  const isChildOfCanvas = dragParent === canvasId;
+  const isChildOfLayout = dragParent === layoutId;
   /**
    * boolean to indicate if the widget is being dragged on this particular canvas.
    */
@@ -172,7 +171,7 @@ export const useAnvilDnDStates = ({
     draggedBlocks,
     dragDetails,
     selectedWidgets,
-    isChildOfCanvas,
+    isChildOfLayout,
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,

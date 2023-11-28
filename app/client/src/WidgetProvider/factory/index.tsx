@@ -1,4 +1,7 @@
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type {
+  PropertyPaneConfig,
+  PropertyPaneSectionConfig,
+} from "constants/PropertyControlConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
 import * as log from "loglevel";
@@ -30,6 +33,7 @@ import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
 // import { WIDGETS_COUNT } from "widgets";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
+import produce from "immer";
 import { defaultSizeConfig } from "layoutSystems/anvil/utils/widgetUtils";
 
 type WidgetDerivedPropertyType = any;
@@ -64,23 +68,9 @@ class WidgetFactory {
       WidgetFactory.widgetBuilderMap.set(widget.type, builder);
 
       WidgetFactory.configureWidget(widget);
-
-      WidgetFactory.preloadConfig(widget);
     }
 
     log.debug("Widget registration took: ", performance.now() - start, "ms");
-  }
-
-  private static preloadConfig(widget: typeof BaseWidget) {
-    if (widget.preloadConfig) {
-      // Call functions so we can store the configs in the memo cache
-      WidgetFactory.getWidgetPropertyPaneCombinedConfig(widget.type);
-      WidgetFactory.getWidgetPropertyPaneConfig(widget.type);
-      WidgetFactory.getWidgetPropertyPaneContentConfig(widget.type);
-      WidgetFactory.getWidgetPropertyPaneStyleConfig(widget.type);
-      WidgetFactory.getWidgetPropertyPaneSearchConfig(widget.type);
-      WidgetFactory.getWidgetAutoLayoutConfig(widget.type);
-    }
   }
 
   private static configureWidget(widget: typeof BaseWidget) {
@@ -223,6 +213,23 @@ class WidgetFactory {
 
   @memoize
   @freeze
+  static getWidgetDependencyMap(
+    widgetType: WidgetType,
+  ): Record<string, string[]> {
+    const widget = WidgetFactory.widgetsMap.get(widgetType);
+
+    const dependencyMap = widget?.getDependencyMap();
+
+    if (dependencyMap) {
+      return dependencyMap;
+    } else {
+      log.error(`Dependency map is defined for widget type: ${widgetType}`);
+      return {};
+    }
+  }
+
+  @memoize
+  @freeze
   static getWidgetMetaPropertiesMap(
     widgetType: WidgetType,
   ): Record<string, unknown> {
@@ -244,18 +251,19 @@ class WidgetFactory {
   @freeze
   static getWidgetPropertyPaneCombinedConfig(
     type: WidgetType,
+    widgetProperties: WidgetProps,
   ): readonly PropertyPaneConfig[] {
-    const contentConfig =
-      WidgetFactory.getWidgetPropertyPaneContentConfig(type);
+    const contentConfig = WidgetFactory.getWidgetPropertyPaneContentConfig(
+      type,
+      widgetProperties,
+    );
     const styleConfig = WidgetFactory.getWidgetPropertyPaneStyleConfig(type);
     return [...contentConfig, ...styleConfig];
   }
 
   @memoize
   @freeze
-  static getWidgetPropertyPaneConfig(
-    type: WidgetType,
-  ): readonly PropertyPaneConfig[] {
+  private static getWidgetPropertyPaneConfigWithMemo(type: WidgetType) {
     const widget = WidgetFactory.widgetsMap.get(type);
 
     const propertyPaneConfig = widget?.getPropertyPaneConfig();
@@ -267,13 +275,28 @@ class WidgetFactory {
         enhancePropertyPaneConfig,
         convertFunctionsToString,
         addPropertyConfigIds,
-        Object.freeze,
       ]);
       const enhancedPropertyPaneConfig = enhance(propertyPaneConfig, features);
 
       return enhancedPropertyPaneConfig;
+    }
+  }
+
+  @memoize
+  static getWidgetPropertyPaneConfig(
+    type: WidgetType,
+    widgetProperties: WidgetProps,
+  ): readonly PropertyPaneConfig[] {
+    const propertyPaneConfig =
+      WidgetFactory.getWidgetPropertyPaneConfigWithMemo(type);
+
+    if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
+      return propertyPaneConfig;
     } else {
-      const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(type);
+      const config = WidgetFactory.getWidgetPropertyPaneCombinedConfig(
+        type,
+        widgetProperties,
+      );
 
       if (config === undefined) {
         log.error("Widget property pane config not defined", type);
@@ -285,10 +308,9 @@ class WidgetFactory {
   }
 
   @memoize
-  @freeze
-  static getWidgetPropertyPaneContentConfig(
+  private static getWidgetPropertyPaneContentConfigWithDynamicPropertyGenerator(
     type: WidgetType,
-  ): readonly PropertyPaneConfig[] {
+  ) {
     const widget = WidgetFactory.widgetsMap.get(type);
 
     const propertyPaneContentConfig = widget?.getPropertyPaneContentConfig();
@@ -301,7 +323,6 @@ class WidgetFactory {
         convertFunctionsToString,
         addPropertyConfigIds,
         addSearchConfigToPanelConfig,
-        Object.freeze,
       ]);
 
       const enhancedPropertyPaneContentConfig = enhance(
@@ -314,6 +335,44 @@ class WidgetFactory {
       return enhancedPropertyPaneContentConfig;
     } else {
       return [];
+    }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetPropertyPaneContentConfig(
+    type: WidgetType,
+    widgetProperties: WidgetProps,
+  ): readonly PropertyPaneConfig[] {
+    const propertyPaneContentConfigWithDynamicPropertyGenerator: PropertyPaneSectionConfig[] =
+      WidgetFactory.getWidgetPropertyPaneContentConfigWithDynamicPropertyGenerator(
+        type,
+      );
+
+    if (
+      propertyPaneContentConfigWithDynamicPropertyGenerator.some(
+        (d) => d.hasDynamicProperties,
+      )
+    ) {
+      return propertyPaneContentConfigWithDynamicPropertyGenerator.map(
+        (section: PropertyPaneSectionConfig) => {
+          if (section.hasDynamicProperties) {
+            const dynamicProperties =
+              section.generateDynamicProperties?.(widgetProperties);
+
+            if (dynamicProperties && dynamicProperties.length) {
+              addPropertyConfigIds(dynamicProperties, false);
+              section = produce(section, (draft) => {
+                draft.children = [...dynamicProperties, ...section.children];
+              });
+            }
+          }
+
+          return section;
+        },
+      );
+    } else {
+      return propertyPaneContentConfigWithDynamicPropertyGenerator;
     }
   }
 
@@ -334,7 +393,6 @@ class WidgetFactory {
         convertFunctionsToString,
         addPropertyConfigIds,
         addSearchConfigToPanelConfig,
-        Object.freeze,
       ]);
 
       const enhancedPropertyPaneConfig = enhance(
@@ -353,9 +411,10 @@ class WidgetFactory {
   @freeze
   static getWidgetPropertyPaneSearchConfig(
     type: WidgetType,
+    widgetProperties: WidgetProps,
   ): readonly PropertyPaneConfig[] {
     const config = generatePropertyPaneSearchConfig(
-      WidgetFactory.getWidgetPropertyPaneContentConfig(type),
+      WidgetFactory.getWidgetPropertyPaneContentConfig(type, widgetProperties),
       WidgetFactory.getWidgetPropertyPaneStyleConfig(type),
     );
 
@@ -415,6 +474,7 @@ class WidgetFactory {
     if (!baseAnvilConfig) {
       log.error(`Anvil config is not defined for widget type: ${type}`);
       return {
+        isLargeWidget: false,
         widgetSize: defaultSizeConfig,
       };
     }

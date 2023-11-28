@@ -285,15 +285,19 @@ function GitConnection({ isImport }: Props) {
             importAppFromGit({
               payload: {
                 remoteUrl,
-                gitProfile: authorInfo,
-                isDefaultProfile: useGlobalConfigInputVal,
+                gitProfile: {
+                  ...authorInfo,
+                  useDefaultProfile: useGlobalConfigInputVal,
+                },
               },
             }),
           )
         : connectToGit({
             remoteUrl,
-            gitProfile: authorInfo,
-            isDefaultProfile: useGlobalConfigInputVal,
+            gitProfile: {
+              ...authorInfo,
+              useDefaultProfile: useGlobalConfigInputVal,
+            },
           });
     }
   }, [

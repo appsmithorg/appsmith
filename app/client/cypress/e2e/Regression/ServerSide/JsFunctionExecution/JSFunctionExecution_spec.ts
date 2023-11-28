@@ -10,6 +10,9 @@ import {
   debuggerHelper,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 interface IFunctionSettingData {
   name: string;
@@ -257,7 +260,7 @@ describe("JS Function Execution", function () {
     });
 
     cy.get("@jsObjName").then((jsObjName) => {
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Table data",
         `{{${jsObjName}.largeData}}`,
@@ -271,7 +274,7 @@ describe("JS Function Execution", function () {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       deployMode.NavigateBacktoEditor();
     });
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
@@ -407,6 +410,7 @@ describe("JS Function Execution", function () {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
     agHelper.RefreshPage();
+    agHelper.Sleep(2000); //for confirmatiom modal to appear before clicking on "Yes" button for CI runs
     // click "Yes" button for all onPageload && ConfirmExecute functions
     for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
       //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
@@ -464,7 +468,7 @@ describe("JS Function Execution", function () {
       agHelper.Sleep(2000); //for current pop up to close & next to appear!
     }
     entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName(jsObj, "Queries/JS");
+    EditorNavigation.SelectEntityByName(jsObj, EntityType.JSObject);
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
@@ -549,10 +553,7 @@ return "yes";`;
     // Assert that response tab is not empty
     agHelper.AssertContains("No signs of trouble here!", "not.exist");
     // Assert presence of typeError in response tab
-    agHelper.AssertContains(
-      "Cannot read properties of undefined (reading 'id')",
-      "exist",
-    );
+    agHelper.AssertContains('"Table1.unknown" is undefined', "exist");
     agHelper.AssertContains("TypeError", "exist");
 
     // click the error tab
@@ -560,10 +561,7 @@ return "yes";`;
     // Assert that errors tab is not empty
     agHelper.AssertContains("No signs of trouble here!", "not.exist");
     // Assert presence of typeError in error tab
-    agHelper.AssertContains(
-      "Cannot read properties of undefined (reading 'id')",
-      "exist",
-    );
+    agHelper.AssertContains('"Table1.unknown" is undefined', "exist");
     agHelper.AssertContains("TypeError", "exist");
 
     // Fix parse error and assert that debugger error is removed
@@ -573,10 +571,7 @@ return "yes";`;
     //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
     agHelper.AssertElementAbsence(locators._btnSpinner, 10000);
     agHelper.GetNClick(locators._errorTab);
-    agHelper.AssertContains(
-      "Cannot read properties of undefined (reading 'id')",
-      "not.exist",
-    );
+    agHelper.AssertContains('"Table1.unknown" is undefined', "not.exist");
 
     // Switch back to response tab
     agHelper.GetNClick(locators._responseTab);
@@ -590,10 +585,7 @@ return "yes";`;
     jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true, false);
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locators._errorTab);
-    agHelper.AssertContains(
-      "Cannot read properties of undefined (reading 'id')",
-      "not.exist",
-    );
+    agHelper.AssertContains('"Table1.unknown" is undefined.', "not.exist");
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.JSObject,

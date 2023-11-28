@@ -7,5 +7,5 @@ public interface GitPrivateRepoHelperCE {
 
     Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache);
 
-    Mono<Boolean> isProtectedBranch(String branchName, GitApplicationMetadata gitApplicationMetadata);
+    Mono<Boolean> isBranchProtected(GitApplicationMetadata metaData, String branchName);
 }

@@ -10,6 +10,7 @@ import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTyp
 import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "@appsmith/constants/ReduxActionConstants";
 import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
@@ -24,6 +25,11 @@ export interface PropertyPaneSectionConfig {
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
   tag?: string; // Used to show a tag right after the section name (only in the search results)
+
+  hasDynamicProperties?: boolean;
+  generateDynamicProperties?: (
+    widget: WidgetProps,
+  ) => PropertyPaneControlConfig[];
 }
 
 export interface PanelConfig {
@@ -140,7 +146,6 @@ interface ValidationConfigParams {
 export interface ValidationConfig {
   type: ValidationTypes;
   params?: ValidationConfigParams;
-  dependentPaths?: string[];
 }
 
 export type PropertyPaneConfig =

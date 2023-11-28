@@ -1,11 +1,16 @@
 import {
   agHelper,
+  debuggerHelper,
+  deployMode,
+  draggableWidgets,
   entityExplorer,
   jsEditor,
+  locators,
   propPane,
-  deployMode,
-  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("storeValue Action test", () => {
   before(() => {
@@ -40,7 +45,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "");
     propPane.TypeTextIntoField("Label", "StoreTest");
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -52,6 +57,9 @@ describe("storeValue Action test", () => {
     });
 
     deployMode.DeployApp();
+    agHelper.AssertElementVisibility(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
+    );
     agHelper.ClickButton("StoreTest");
     agHelper.AssertContains(
       JSON.stringify({
@@ -102,7 +110,7 @@ describe("storeValue Action test", () => {
     });
 
     // Button1
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "StorePathTest");
     cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -114,7 +122,7 @@ describe("storeValue Action test", () => {
 
     // Button 2
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    entityExplorer.SelectEntityByName("Button2", "Widgets");
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "modifyStorePath");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -169,7 +177,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "SetStore");
     cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -179,7 +187,7 @@ describe("storeValue Action test", () => {
       );
     });
 
-    entityExplorer.SelectEntityByName("Button2", "Widgets");
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "ShowStore");
     cy.get(".action-block-tree").click({ force: true });
     cy.get("@jsObjName").then((jsObj: any) => {
@@ -217,7 +225,7 @@ describe("storeValue Action test", () => {
     });
 
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 400, 400);
-    entityExplorer.SelectEntityByName("Button3", "Widgets");
+    EditorNavigation.SelectEntityByName("Button3", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "Test store logs");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(

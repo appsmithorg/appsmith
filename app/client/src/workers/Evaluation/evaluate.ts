@@ -13,10 +13,14 @@ import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutio
 import indirectEval from "./indirectEval";
 import DOM_APIS from "./domApis";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
-import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
+import {
+  ActionInDataFieldErrorModifier,
+  errorModifier,
+  FoundPromiseInSyncEvalError,
+  PrimitiveErrorModifier,
+  TypeErrorModifier,
+} from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import log from "loglevel";
-import * as Sentry from "@sentry/react";
 
 export interface EvalResult {
   result: any;
@@ -286,17 +290,21 @@ export default function evaluateSync(
          */
         throw new FoundPromiseInSyncEvalError();
       }
-    } catch (error) {
-      const { errorCategory, errorMessage } = errorModifier.run(error as Error);
+    } catch (error: any) {
+      const { errorCategory, errorMessage, rootcause } = errorModifier.run(
+        error,
+        { userScript: error.userScript || userScript, source: error.source },
+        [ActionInDataFieldErrorModifier, TypeErrorModifier],
+      );
       errors.push({
         errorMessage,
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
-        kind: errorCategory && {
+        kind: {
           category: errorCategory,
-          rootcause: "",
+          rootcause,
         },
       });
     } finally {
@@ -331,20 +339,12 @@ export async function evaluateAsync(
 
     try {
       result = await indirectEval(script);
-    } catch (e: any) {
-      let errorMessage;
-      if (e instanceof Error) {
-        errorMessage = { name: e.name, message: e.message };
-      } else {
-        // this covers cases where any primitive value is thrown
-        // for eg., throw "error";
-        // These types of errors might have a name/message but are not an instance of Error class
-        const message = convertAllDataTypesToString(e);
-        errorMessage = {
-          name: e?.name || "Error",
-          message: e?.message || message,
-        };
-      }
+    } catch (error: any) {
+      const { errorMessage } = errorModifier.run(
+        error,
+        { userScript: error.userScript || userScript, source: error.source },
+        [PrimitiveErrorModifier, TypeErrorModifier],
+      );
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
@@ -359,23 +359,6 @@ export async function evaluateAsync(
       };
     }
   })();
-}
-
-export function convertAllDataTypesToString(e: any) {
-  // Functions do not get converted properly with JSON.stringify
-  // So using String fot functions
-  // Types like [], {} get converted to "" using String
-  // hence using JSON.stringify for the rest
-  if (typeof e === "function") {
-    return String(e);
-  } else {
-    try {
-      return JSON.stringify(e);
-    } catch (error) {
-      log.debug(error);
-      Sentry.captureException(error);
-    }
-  }
 }
 
 export function shouldAddSetter(setter: any, entity: DataTreeEntity) {

@@ -14,7 +14,6 @@ export const EntityItems = {
 export type EntityItemsType = (typeof EntityItems)[keyof typeof EntityItems];
 
 export class AssertHelper extends ReusableHelper {
-  private locator = ObjectsRegistry.CommonLocators;
   public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   public isMac = Cypress.platform === "darwin";
@@ -64,41 +63,84 @@ export class AssertHelper extends ReusableHelper {
     return aliasName;
   }
 
-  public WaitForNetworkCall(aliasName: string, responseTimeout = 60000) {
+  public WaitForNetworkCall(aliasName: string, responseTimeout = 150000) {
     // cy.wait(aliasName).then(($apiCall: any) => {
     //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
     // });
 
-    // cy.wait(aliasName).should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   expectedStatus,
-    // );
-    this.Sleep(); //Wait a bit for call to finish!
-    return cy.wait(this.GetAliasName(aliasName), { responseTimeout });
+    this.Sleep(); //wait a bit to avoid flaky tests
+    return cy
+      .wait(this.GetAliasName(aliasName), { timeout: responseTimeout })
+      .then((interceptions) => {
+        return cy
+          .get(this.GetAliasName(aliasName), { timeout: responseTimeout })
+          .its("response");
+      });
   }
 
-  public AssertNetworkStatus(aliasName: string, expectedStatus = 200) {
-    this.WaitForNetworkCall(aliasName);
-    cy.get(this.GetAliasName(aliasName))
-      .its("response.body.responseMeta.status")
-      .should("eq", expectedStatus);
-
-    //To improve below:
-    // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {
-    //   expect(response.status).to.be.oneOf([expectedStatus]);
-    // });
+  public AssertNetworkStatus(
+    aliasName: string,
+    expectedStatus: number | number[] = 200,
+    waitForNetworkCall = true,
+  ) {
+    if (waitForNetworkCall) {
+      // If waitForNetworkCall is true, then use the response from WaitForNetworkCall call
+      return this.WaitForNetworkCall(aliasName).then((response: any) =>
+        this.processNetworkStatus(response, expectedStatus),
+      );
+    } else {
+      // If interception is not available, directly get the alias & use it
+      return cy
+        .get(this.GetAliasName(aliasName))
+        .its("response")
+        .then((interception: any) =>
+          this.processNetworkStatus(interception, expectedStatus),
+        );
+    }
   }
 
-  public AssertNetworkResponseData(aliasName: string) {
-    this.WaitForNetworkCall(aliasName, 100000);
-    cy.get(this.GetAliasName(aliasName))
-      .its("response.body.data")
-      .should("not.be.empty");
+  private processNetworkStatus(
+    response: any,
+    expectedStatus: number | number[],
+  ) {
+    const responseStatus = Number(response.body.responseMeta.status);
+    const expectedStatusArray = Array.isArray(expectedStatus)
+      ? expectedStatus
+      : [expectedStatus];
+
+    expect(expectedStatusArray).to.include(responseStatus);
+    return responseStatus;
   }
 
-  public AssertNetworkExecutionSuccess(aliasName: string, expectedRes = true) {
-    this.WaitForNetworkCall(aliasName);
+  public AssertNetworkResponseData(
+    aliasName: string,
+    waitForNetworkCall = true,
+  ) {
+    if (waitForNetworkCall) {
+      // If waitForNetworkCall is true, then use the interception from received call
+      this.WaitForNetworkCall(aliasName).then((interception: any) => {
+        this.processNetworkResponseData(interception);
+      });
+    } else {
+      // If interception is not available, directly get the alias & use it
+      cy.get(this.GetAliasName(aliasName))
+        .its("response")
+        .then((interception: any) => {
+          this.processNetworkResponseData(interception);
+        });
+    }
+  }
+
+  private processNetworkResponseData(response: any) {
+    expect(response.body.data).to.not.be.empty;
+  }
+
+  public AssertNetworkExecutionSuccess(
+    aliasName: string,
+    expectedRes = true,
+    waitForNetworkCall = true,
+  ) {
+    waitForNetworkCall && this.WaitForNetworkCall(aliasName);
     cy.get(aliasName)
       .its("response.body.data.isExecutionSuccess")
       .should("eq", expectedRes);

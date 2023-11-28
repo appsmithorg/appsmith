@@ -49,6 +49,7 @@ import type {
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export function defaultValueValidation(
   value: any,
@@ -363,6 +364,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
@@ -536,7 +538,23 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
           ],
         },
       ],
-      super.getPropertyPaneContentConfig(),
+      super.getPropertyPaneContentConfig([
+        {
+          propertyName: "rtl",
+          label: "Enable RTL",
+          helpText: "Enables right to left text direction",
+          controlType: "SWITCH",
+          isJSConvertible: true,
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.BOOLEAN },
+          hidden: () => {
+            return !super.getFeatureFlag(
+              FEATURE_FLAG.license_widget_rtl_support_enabled,
+            );
+          },
+        },
+      ]),
     );
   }
 
@@ -850,6 +868,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
+        rtl={this.props.rtl}
         showError={!!this.props.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
@@ -869,6 +888,7 @@ export interface InputWidgetProps extends BaseInputWidgetProps {
   maxNum?: number;
   minNum?: number;
   inputText: string;
+  rtl?: boolean;
 }
 
 export default InputWidget;

@@ -37,7 +37,6 @@ describe("Workspace Import Application", function () {
 
         cy.generateUUID().then((uid) => {
           workspaceId = uid;
-          localStorage.setItem("WorkspaceName", workspaceId);
           cy.createWorkspace();
           cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
             newWorkspaceName =

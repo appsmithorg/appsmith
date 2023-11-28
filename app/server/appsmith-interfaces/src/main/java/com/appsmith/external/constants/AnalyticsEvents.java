@@ -76,8 +76,6 @@ public enum AnalyticsEvents {
     UNASSIGNED_USERS_FROM_PERMISSION_GROUP,
     ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP,
     UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP,
-    ACTIVATE_NEW_INSTANCE("Activate_New_Instance"),
-    UPDATE_EXISTING_LICENSE("Update_Existing_License"),
 
     DS_SCHEMA_FETCH_EVENT("Datasource_Schema_Fetch"),
 
@@ -86,7 +84,11 @@ public enum AnalyticsEvents {
     DS_TEST_EVENT_FAILED("Test_Datasource_Failed"),
 
     GIT_STALE_FILE_LOCK_DELETED,
-    SERVER_SETUP_COMPLETE("server_setup_complete");
+    SERVER_SETUP_COMPLETE("server_setup_complete"),
+
+    PARTIAL_IMPORT,
+
+    PARTIAL_EXPORT;
 
     private final String eventName;
 

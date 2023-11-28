@@ -7,6 +7,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -34,7 +35,8 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             NewActionRepository newActionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            SessionUserService sessionUserService) {
         super(
                 scheduler,
                 validator,
@@ -49,6 +51,7 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
                 newActionRepository,
                 assetService,
                 datasourcePermission,
-                applicationPermission);
+                applicationPermission,
+                sessionUserService);
     }
 }

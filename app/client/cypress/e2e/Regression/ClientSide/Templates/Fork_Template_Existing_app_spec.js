@@ -5,6 +5,9 @@ import {
   agHelper,
   templates,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 beforeEach(() => {
   // Closes template dialog if it is already open - useful for retry
@@ -13,7 +16,7 @@ beforeEach(() => {
       cy.xpath(template.closeButton).click({ force: true });
     }
   });
-  entityExplorer.SelectEntityByName("Page1", "Pages");
+  EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 });
 
 describe(
@@ -27,10 +30,7 @@ describe(
       agHelper.AssertElementExist(template.templateDialogBox);
       agHelper.AssertElementVisibility(templates.locators._templateCard);
       agHelper.Sleep(4000);
-      cy.xpath("//h1[text()='Meeting Scheduler']/parent::div")
-        .scrollIntoView()
-        .wait(500)
-        .click();
+      agHelper.GetNClick(template.vehicleMaintenenceApp);
       agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       agHelper.Sleep();
       agHelper.CheckForErrorToast(
@@ -58,7 +58,7 @@ describe(
         0,
         30000,
       );
-      agHelper.GetNClick(template.meetingSchedulerDashboard);
+      agHelper.GetNClick(template.vehicleMaintenenceApp);
       //agHelper.WaitUntilEleDisappear("//*[text()='Loading template details']");
       cy.wait("@getTemplatePages").should(
         "have.nested.property",

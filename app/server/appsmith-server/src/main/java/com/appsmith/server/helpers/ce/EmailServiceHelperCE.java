@@ -14,4 +14,10 @@ public interface EmailServiceHelperCE {
     String getEmailVerificationTemplate();
 
     String getAdminInstanceInviteTemplate();
+
+    String getJoinInstanceCtaPrimaryText();
+
+    String getSubjectJoinInstanceAsAdmin(String instanceName);
+
+    String getSubjectJoinWorkspace(String workspaceName);
 }

@@ -26,7 +26,7 @@ import { Colors } from "constants/Colors";
 import {
   getBooleanPropertyValue,
   getPropertyValue,
-} from "widgets/TableWidgetV2/widget/utilities";
+} from "widgets/wds/WDSTableWidget/widget/utilities";
 import type { ThemeProp } from "WidgetProvider/constants";
 import type {
   ConfigureMenuItems,

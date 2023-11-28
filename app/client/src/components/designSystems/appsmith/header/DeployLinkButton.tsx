@@ -12,6 +12,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Button } from "design-system";
 import { KBEditorMenuItem } from "@appsmith/pages/Editor/KnowledgeBase/KBEditorMenuItem";
+import { useIsGitAdmin } from "pages/Editor/gitSync/hooks/useIsGitAdmin";
 
 interface Props {
   trigger: ReactNode;
@@ -21,6 +22,7 @@ interface Props {
 export const DeployLinkButton = (props: Props) => {
   const dispatch = useDispatch();
   const isGitConnected = useSelector(getIsGitConnected);
+  const isGitAdmin = useIsGitAdmin();
 
   const goToGitConnectionPopup = () => {
     AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
@@ -46,7 +48,7 @@ export const DeployLinkButton = (props: Props) => {
         />
       </MenuTrigger>
       <MenuContent>
-        {!isGitConnected && (
+        {!isGitConnected && isGitAdmin && (
           <MenuItem
             className="t--connect-to-git-btn"
             onClick={goToGitConnectionPopup}

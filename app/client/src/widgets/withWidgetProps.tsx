@@ -23,9 +23,9 @@ import {
   getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
-  previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
+  combinedPreviewModeSelector,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -62,7 +62,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetId,
     } = props;
 
-    const isPreviewMode = useSelector(previewModeSelector);
+    const isPreviewMode = useSelector(combinedPreviewModeSelector);
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
@@ -242,7 +242,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       !isPreviewMode;
 
     widgetProps.mainCanvasWidth = mainCanvasWidth;
-    if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+    if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+      if (shouldCollapseWidgetInViewOrPreviewMode) {
+        return null;
+      }
+    } else {
       // We don't render invisible widgets in view mode
       if (shouldCollapseWidgetInViewOrPreviewMode) {
         // This flag (isMetaWidget) is used to prevent the Auto height saga from updating

@@ -61,6 +61,7 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +78,7 @@ import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.Exceptions;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -144,10 +146,12 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final PluginService pluginService;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
+    private final WorkspacePermission workspacePermission;
     private final WorkspaceService workspaceService;
     private final RedisUtils redisUtils;
     private final ObservationRegistry observationRegistry;
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
+    private final TransactionalOperator transactionalOperator;
 
     private static final Duration RETRY_DELAY = Duration.ofSeconds(1);
     private static final Integer MAX_RETRIES = 20;
@@ -429,18 +433,17 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         boolean isSystemGenerated = isSystemGeneratedTemp;
         Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
-                .flatMap(application -> gitPrivateRepoHelper
-                        .isProtectedBranch(branchName, application.getGitApplicationMetadata())
-                        .flatMap(status -> {
-                            if (Boolean.TRUE.equals(status)) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED,
-                                        "commit",
-                                        "Cannot commit to protected branch" + branchName));
-                            } else {
-                                return Mono.just(application);
-                            }
-                        }))
+                .zipWhen(application ->
+                        gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName))
+                .map(objects -> {
+                    if (objects.getT2()) {
+                        throw new AppsmithException(
+                                AppsmithError.GIT_ACTION_FAILED,
+                                "commit",
+                                "Cannot commit to protected branch " + branchName);
+                    }
+                    return objects.getT1();
+                })
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if (Boolean.TRUE.equals(isFileLock)) {
@@ -744,7 +747,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                 GitUtils.isRepoPrivate(browserSupportedUrl).cache();
 
         Mono<Application> connectApplicationMono = profileMono
-                .then(getApplicationById(defaultApplicationId).zipWith(isPrivateRepoMono))
+                .then(getApplicationById(defaultApplicationId))
+                .flatMap(application ->
+                        // Check if the user has permission to create app on the workspace, if yes then proceed
+                        checkPermissionOnWorkspace(
+                                        application.getWorkspaceId(),
+                                        workspacePermission.getApplicationCreatePermission(),
+                                        "Connect to Git")
+                                .thenReturn(application))
+                .zipWith(isPrivateRepoMono)
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     boolean isRepoPrivate = tuple.getT2();
@@ -1158,6 +1169,11 @@ public class GitServiceCEImpl implements GitServiceCE {
     public Mono<Application> detachRemote(String defaultApplicationId) {
 
         Mono<Application> disconnectMono = getApplicationById(defaultApplicationId)
+                .flatMap(application -> checkPermissionOnWorkspace(
+                                application.getWorkspaceId(),
+                                workspacePermission.getApplicationCreatePermission(),
+                                "Disconnect from Git")
+                        .thenReturn(application))
                 .flatMap(defaultApplication -> {
                     if (Optional.ofNullable(defaultApplication.getGitApplicationMetadata())
                                     .isEmpty()
@@ -1578,6 +1594,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
 
+    protected Mono<Workspace> checkPermissionOnWorkspace(
+            String workspaceId, AclPermission aclPermission, String operationName) {
+        return workspaceService
+                .findById(workspaceId, aclPermission)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, operationName)));
+    }
+
     /**
      * Method to pull application json files from remote repo, make a commit with the changes present in local DB and
      * make a system commit to remote repo
@@ -1598,18 +1622,6 @@ public class GitServiceCEImpl implements GitServiceCE {
          * */
 
         Mono<GitPullDTO> pullMono = getApplicationById(defaultApplicationId)
-                .flatMap(application -> gitPrivateRepoHelper
-                        .isProtectedBranch(branchName, application.getGitApplicationMetadata())
-                        .flatMap(status -> {
-                            if (Boolean.TRUE.equals(status)) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED,
-                                        "commit",
-                                        "Cannot commit to protected branch" + branchName));
-                            } else {
-                                return Mono.just(application);
-                            }
-                        }))
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     return addFileLock(gitData.getDefaultApplicationId()).then(Mono.just(application));
@@ -1658,6 +1670,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 defaultApplicationId, applicationPermission.getEditPermission())
                         .flatMap(application2 -> {
                             application2.getGitApplicationMetadata().setDefaultBranchName(defaultBranchName);
+                            // clear the branch protection rules as the default branch name has been changed
+                            application2.getGitApplicationMetadata().setBranchProtectionRules(null);
                             return applicationService.save(application2);
                         }));
     }
@@ -1673,6 +1687,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (StringUtils.isEmptyOrNull(defaultBranchNameInRemote)) {
                         // If the default branch name in remote is empty or same as the one in DB, nothing to do
                         return Mono.just(defaultBranchInDb);
+                    }
+                    // check if default branch has been changed in remote
+                    if (defaultBranchNameInRemote.equals(defaultBranchInDb)) {
+                        return Mono.just(defaultBranchNameInRemote);
                     }
                     return updateDefaultBranchName(
                                     repoPath, defaultBranchNameInRemote, metadata.getDefaultApplicationId())
@@ -2705,18 +2723,17 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<Application> deleteBranch(String defaultApplicationId, String branchName) {
         Mono<Application> deleteBranchMono = getApplicationById(defaultApplicationId)
-                .flatMap(application -> gitPrivateRepoHelper
-                        .isProtectedBranch(branchName, application.getGitApplicationMetadata())
-                        .flatMap(status -> {
-                            if (Boolean.TRUE.equals(status)) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED,
-                                        "delete",
-                                        "Cannot delete protected branch" + branchName));
-                            } else {
-                                return Mono.just(application);
-                            }
-                        }))
+                .zipWhen(application ->
+                        gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName))
+                .map(objects -> {
+                    if (objects.getT2()) {
+                        throw new AppsmithException(
+                                AppsmithError.GIT_ACTION_FAILED,
+                                "delete",
+                                "Cannot delete protected branch " + branchName);
+                    }
+                    return objects.getT1();
+                })
                 .flatMap(application -> addFileLock(defaultApplicationId).map(status -> application))
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -3283,5 +3300,54 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
         return redisUtils.releaseFileLock(defaultApplicationId);
+    }
+
+    @Override
+    public Mono<List<String>> updateProtectedBranches(String defaultApplicationId, List<String> branchNames) {
+        return getApplicationById(defaultApplicationId)
+                .flatMap(application ->
+                        // Check if the user has permission to create app on the workspace, if yes then proceed
+                        checkPermissionOnWorkspace(
+                                        application.getWorkspaceId(),
+                                        workspacePermission.getApplicationCreatePermission(),
+                                        "Protect branch")
+                                .thenReturn(application))
+                .flatMap(rootApplication -> {
+                    GitApplicationMetadata metadata = rootApplication.getGitApplicationMetadata();
+                    String defaultBranchName = metadata.getDefaultBranchName();
+
+                    if (branchNames.isEmpty()
+                            || (branchNames.size() == 1 && branchNames.get(0).equals(defaultBranchName))) {
+                        // user wants to unprotect all branches or user wants to protect only default branch
+                        metadata.setBranchProtectionRules(branchNames);
+                        return applicationService
+                                .save(rootApplication)
+                                .then(applicationService.updateProtectedBranches(defaultApplicationId, branchNames))
+                                .thenReturn(branchNames);
+                    } else {
+                        // user want to protect multiple branches, not allowed
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+                })
+                .as(transactionalOperator::transactional);
+    }
+
+    @Override
+    public Mono<List<String>> getProtectedBranches(String defaultApplicationId) {
+        return getApplicationById(defaultApplicationId).map(application -> {
+            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+            /*
+             user may have multiple branches as protected, but we only return the default branch
+             as protected branch if it's present in the list of protected branches
+            */
+            List<String> protectedBranches = gitApplicationMetadata.getBranchProtectionRules();
+            String defaultBranchName = gitApplicationMetadata.getDefaultBranchName();
+
+            if (!CollectionUtils.isNullOrEmpty(protectedBranches) && protectedBranches.contains(defaultBranchName)) {
+                return List.of(defaultBranchName);
+            } else {
+                return List.of();
+            }
+        });
     }
 }

@@ -10,7 +10,7 @@ import type {
 } from "workers/Evaluation/evaluate";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
@@ -78,5 +78,5 @@ export interface getLintErrorsFromTreeResponse {
 
 export interface updateJSLibraryProps {
   add?: boolean;
-  libs: TJSLibrary[];
+  libs: JSLibrary[];
 }

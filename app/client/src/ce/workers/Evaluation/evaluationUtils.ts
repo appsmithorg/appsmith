@@ -32,6 +32,7 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
+import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -351,7 +352,7 @@ export const addDependantsOfNestedPropertyPaths = (
 };
 
 export function isWidget(
-  entity: Partial<DataTreeEntity> | WidgetEntityConfig,
+  entity: Partial<DataTreeEntity> | DataTreeEntityConfig,
 ): entity is WidgetEntity | WidgetEntityConfig {
   return (
     typeof entity === "object" &&
@@ -650,8 +651,7 @@ export const isDynamicLeaf = (
 
   const entityConfig = configTree[entityName];
   const entity = unEvalTree[entityName];
-  if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
-    return false;
+  if (!isWidgetActionOrJsObject(entity)) return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
     (!isEmpty(entityConfig.reactivePaths) &&
@@ -972,7 +972,7 @@ export const isAPathDynamicBindingPath = (
   propertyPath: string,
 ) => {
   return (
-    (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
+    isWidgetActionOrJsObject(entity) &&
     isPathADynamicBinding(entityConfig, propertyPath)
   );
 };

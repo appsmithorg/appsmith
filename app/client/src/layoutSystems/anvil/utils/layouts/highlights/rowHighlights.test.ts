@@ -20,6 +20,7 @@ import {
 import {
   HIGHLIGHT_SIZE,
   HORIZONTAL_DROP_ZONE_MULTIPLIER,
+  INFINITE_DROP_ZONE,
 } from "../../constants";
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
@@ -63,15 +64,40 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: LayoutElementPositions = {
-        "0": { top: 0, left: 0, width: 200, height: 200 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 30, left: 220, width: 100, height: 30 },
+        "0": {
+          top: 0,
+          left: 0,
+          width: 200,
+          height: 200,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 30,
+          left: 220,
+          width: 100,
+          height: 30,
+          offsetLeft: 220,
+          offsetTop: 30,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "0",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -93,16 +119,48 @@ describe("rowHighlights tests", () => {
         { widgetId: "4", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: LayoutElementPositions = {
-        "0": { top: 0, left: 0, width: 300, height: 200 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 70, left: 10, width: 100, height: 30 },
-        "4": { top: 70, left: 110, width: 100, height: 80 },
+        "0": {
+          top: 0,
+          left: 0,
+          width: 300,
+          height: 200,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 70,
+          left: 10,
+          width: 100,
+          height: 30,
+          offsetLeft: 10,
+          offsetTop: 70,
+        },
+        "4": {
+          top: 70,
+          left: 110,
+          width: 100,
+          height: 80,
+          offsetLeft: 110,
+          offsetTop: 70,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "0",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -126,16 +184,48 @@ describe("rowHighlights tests", () => {
         { widgetId: "4", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: LayoutElementPositions = {
-        "0": { top: 0, left: 0, width: 200, height: 200 },
-        "1": { top: 70, left: 4, width: 100, height: 40 },
-        "2": { top: 70, left: 110, width: 100, height: 60 },
-        "3": { top: 0, left: 10, width: 100, height: 30 },
-        "4": { top: 0, left: 110, width: 100, height: 80 },
+        "0": {
+          top: 0,
+          left: 0,
+          width: 200,
+          height: 200,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 70,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 70,
+        },
+        "2": {
+          top: 70,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 70,
+        },
+        "3": {
+          top: 0,
+          left: 10,
+          width: 100,
+          height: 30,
+          offsetLeft: 10,
+          offsetTop: 0,
+        },
+        "4": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 80,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "0",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -172,15 +262,40 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 340, height: 100 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 30, left: 220, width: 100, height: 30 },
+        layoutID: {
+          top: 0,
+          left: 0,
+          width: 340,
+          height: 100,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 30,
+          left: 220,
+          width: 100,
+          height: 30,
+          offsetLeft: 220,
+          offsetTop: 30,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "layoutID",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -204,9 +319,7 @@ describe("rowHighlights tests", () => {
       );
       expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
       expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        dimensions["layoutID"].width -
-          dimensions["3"].left -
-          dimensions["3"].width,
+        INFINITE_DROP_ZONE,
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
@@ -225,15 +338,40 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 340, height: 100 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 30, left: 220, width: 100, height: 30 },
+        layoutID: {
+          top: 0,
+          left: 0,
+          width: 340,
+          height: 100,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 30,
+          left: 220,
+          width: 100,
+          height: 30,
+          offsetLeft: 220,
+          offsetTop: 30,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "layoutID",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -262,9 +400,7 @@ describe("rowHighlights tests", () => {
       // Drop zone at the end should be maximum
       expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
       expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        dimensions["layoutID"].width -
-          dimensions["3"].left -
-          dimensions["3"].width,
+        INFINITE_DROP_ZONE,
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
@@ -281,15 +417,40 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 230, height: 100 },
-        "1": { top: 0, left: 4, width: 100, height: 40 },
-        "2": { top: 0, left: 110, width: 100, height: 60 },
-        "3": { top: 70, left: 10, width: 100, height: 30 },
+        layoutID: {
+          top: 0,
+          left: 0,
+          width: 230,
+          height: 100,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 0,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 0,
+        },
+        "2": {
+          top: 0,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 0,
+        },
+        "3": {
+          top: 70,
+          left: 10,
+          width: 100,
+          height: 30,
+          offsetLeft: 10,
+          offsetTop: 70,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "layoutID",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -318,9 +479,7 @@ describe("rowHighlights tests", () => {
       // Drop zone at the end should be maximum
       expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
       expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        dimensions["layoutID"].width -
-          dimensions["3"].left -
-          dimensions["3"].width,
+        INFINITE_DROP_ZONE,
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
@@ -340,15 +499,40 @@ describe("rowHighlights tests", () => {
         { widgetId: "3", alignment: FlexLayerAlignment.Start },
       ];
       const dimensions: LayoutElementPositions = {
-        layoutID: { top: 0, left: 0, width: 230, height: 100 },
-        "1": { top: 40, left: 4, width: 100, height: 40 },
-        "2": { top: 40, left: 110, width: 100, height: 60 },
-        "3": { top: 0, left: 10, width: 100, height: 30 },
+        layoutID: {
+          top: 0,
+          left: 0,
+          width: 230,
+          height: 100,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
+        "1": {
+          top: 40,
+          left: 4,
+          width: 100,
+          height: 40,
+          offsetLeft: 4,
+          offsetTop: 40,
+        },
+        "2": {
+          top: 40,
+          left: 110,
+          width: 100,
+          height: 60,
+          offsetLeft: 110,
+          offsetTop: 40,
+        },
+        "3": {
+          top: 0,
+          left: 10,
+          width: 100,
+          height: 30,
+          offsetLeft: 10,
+          offsetTop: 0,
+        },
       };
-      const getDimensions: GetDimensions = getRelativeDimensions(
-        "layoutID",
-        dimensions,
-      );
+      const getDimensions: GetDimensions = getRelativeDimensions(dimensions);
       const res: RowMetaInformation = extractMetaInformation(
         data,
         getDimensions,
@@ -377,9 +561,7 @@ describe("rowHighlights tests", () => {
       // Drop zone at the end should be maximum
       expect(highlights[0].dropZone.left).toEqual(dimensions["1"].left);
       expect(highlights[highlights.length - 1].dropZone.right).toEqual(
-        dimensions["layoutID"].width -
-          dimensions["3"].left -
-          dimensions["3"].width,
+        INFINITE_DROP_ZONE,
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
@@ -402,7 +584,14 @@ describe("rowHighlights tests", () => {
         layout: [],
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
+        [layout.layoutId]: {
+          height: 100,
+          left: 10,
+          top: 10,
+          width: 500,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
@@ -434,7 +623,14 @@ describe("rowHighlights tests", () => {
         },
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
+        [layout.layoutId]: {
+          height: 100,
+          left: 10,
+          top: 10,
+          width: 500,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
@@ -470,7 +666,14 @@ describe("rowHighlights tests", () => {
         },
       });
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
+        [layout.layoutId]: {
+          height: 100,
+          left: 10,
+          top: 10,
+          width: 500,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
@@ -491,9 +694,7 @@ describe("rowHighlights tests", () => {
       expect(res[0].posX).toEqual(posX);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
       expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
-      expect(res[0].dropZone?.right).toEqual(
-        positions[layout.layoutId].width - posX,
-      );
+      expect(res[0].dropZone?.right).toEqual(INFINITE_DROP_ZONE);
       expect(res[0].dropZone?.left).toEqual(posX);
     });
   });
@@ -545,13 +746,62 @@ describe("rowHighlights tests", () => {
        * Create a map of widget positions.
        */
       const positions: LayoutElementPositions = {
-        [layoutOne.layoutId]: { height: 100, left: 10, top: 10, width: 500 },
-        [button1]: { height: 40, left: 10, top: 10, width: 100 },
-        [input1]: { height: 100, left: 60, top: 10, width: 430 },
-        [layoutTwo.layoutId]: { height: 100, left: 510, top: 10, width: 500 },
-        [button2]: { height: 40, left: 10, top: 10, width: 100 },
-        [input2]: { height: 100, left: 60, top: 10, width: 430 },
-        [layout.layoutId]: { height: 100, left: 0, top: 0, width: 1020 },
+        [layoutOne.layoutId]: {
+          height: 100,
+          left: 10,
+          top: 10,
+          width: 500,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [button1]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input1]: {
+          height: 100,
+          left: 60,
+          top: 10,
+          width: 430,
+          offsetLeft: 60,
+          offsetTop: 10,
+        },
+        [layoutTwo.layoutId]: {
+          height: 100,
+          left: 510,
+          top: 10,
+          width: 500,
+          offsetLeft: 510,
+          offsetTop: 10,
+        },
+        [button2]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input2]: {
+          height: 100,
+          left: 60,
+          top: 10,
+          width: 430,
+          offsetLeft: 60,
+          offsetTop: 10,
+        },
+        [layout.layoutId]: {
+          height: 100,
+          left: 0,
+          top: 0,
+          width: 1020,
+          offsetLeft: 0,
+          offsetTop: 0,
+        },
       };
       const res: AnvilHighlightInfo[] = deriveRowHighlights(
         layout,
@@ -592,9 +842,30 @@ describe("rowHighlights tests", () => {
        * Create a map of widget positions.
        */
       const positions: LayoutElementPositions = {
-        [layout.layoutId]: { height: 100, left: 0, top: 10, width: 500 },
-        [button1]: { height: 40, left: 10, top: 10, width: 100 },
-        [input1]: { height: 100, left: 120, top: 10, width: 370 },
+        [layout.layoutId]: {
+          height: 100,
+          left: 0,
+          top: 10,
+          width: 500,
+          offsetLeft: 0,
+          offsetTop: 10,
+        },
+        [button1]: {
+          height: 40,
+          left: 10,
+          top: 10,
+          width: 100,
+          offsetLeft: 10,
+          offsetTop: 10,
+        },
+        [input1]: {
+          height: 100,
+          left: 120,
+          top: 10,
+          width: 370,
+          offsetLeft: 120,
+          offsetTop: 10,
+        },
       };
 
       /**
@@ -622,7 +893,7 @@ describe("rowHighlights tests", () => {
       );
       // Second highlight should be placed after input widget
       expect(res[1].posX).toEqual(
-        positions[input1].left + positions[input1].width + HIGHLIGHT_SIZE / 2,
+        positions[input1].left + positions[input1].width,
       );
     });
   });

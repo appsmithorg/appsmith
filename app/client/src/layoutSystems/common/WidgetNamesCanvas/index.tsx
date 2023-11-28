@@ -1,10 +1,7 @@
-import type { DragEventHandler, DragEvent } from "react";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { throttle } from "lodash";
 import { Layer, Stage } from "react-konva/lib/ReactKonvaCore";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 import {
   useShowTableFilterPane,
@@ -13,12 +10,10 @@ import {
 import type {
   CanvasPositions,
   WidgetNameData,
-  WidgetNamePositionData,
-  WIDGET_NAME_TYPE,
+  WidgetNamePositionType,
 } from "./WidgetNameTypes";
 import {
   DEFAULT_WIDGET_NAME_CANVAS_HEIGHT,
-  WIDGET_NAME_CANVAS_PADDING,
   widgetNameWrapperStyle,
   WIDGET_NAME_CANVAS,
 } from "./WidgetNameConstants";
@@ -26,11 +21,20 @@ import {
   getFocusedWidgetNameData,
   getSelectedWidgetNameData,
 } from "../selectors";
-import type { LayoutElementPosition } from "layoutSystems/common/types";
+
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import type { Stage as CanvasStageType } from "konva/lib/Stage";
-import type { Layer as KonvaLayer } from "konva/lib/Layer";
-import { getWidgetNameComponent } from "./utils";
+import {
+  getMainContainerAnvilCanvasDOMElement,
+  resetCanvas,
+  updateSelectedWidgetPositions,
+} from "./widgetNameRenderUtils";
+import {
+  getDragStartHandler,
+  getMouseMoveHandler,
+  getScrollEndHandler,
+  getScrollHandler,
+} from "./eventHandlers";
 
 /**
  * This Component contains logic to draw widget name on canvas
@@ -38,34 +42,29 @@ import { getWidgetNameComponent } from "./utils";
  * @param props Object that contains
  * @prop canvasWidth width of canvas in pixels
  * @prop containerRef ref of PageViewWrapper component
- * @prop parentRef ref of the MainContainerWrapper component i.e, the parent of the canvas component
  */
-const OverlayCanvasContainer = (props: {
-  canvasWidth: number;
-  containerRef: React.RefObject<HTMLDivElement>;
-  parentRef: React.RefObject<HTMLDivElement>;
-}) => {
+const OverlayCanvasContainer = (props: { canvasWidth: number }) => {
   //widget name data of widgets
-  const selectedWidgetNameData: WidgetNameData | undefined = useSelector(
+  const selectedWidgetNameData: WidgetNameData[] | undefined = useSelector(
     getSelectedWidgetNameData,
   );
   const focusedWidgetNameData: WidgetNameData | undefined = useSelector(
     getFocusedWidgetNameData,
   );
 
+  // should we allow dragging of widgets
   const shouldAllowDrag = useSelector(getShouldAllowDrag);
-
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  // used to keep track of positions of widgetName drawn on canvas to make it intractable
-  const widgetNamePositions = useRef<{
-    selected: WidgetNamePositionData | undefined;
-    focused: WidgetNamePositionData | undefined;
-  }>({ selected: undefined, focused: undefined });
-
+  // When we begin dragging, the drag and resize hooks need a few details to take over
   const { setDraggingState } = useWidgetDragResize();
   const showTableFilterPane = useShowTableFilterPane();
+  const { selectWidget } = useWidgetSelection();
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  // used to keep track of positions of widgetName drawn on canvas to make it intractable
+  const widgetNamePositions = useRef<WidgetNamePositionType>({
+    selected: {},
+    focused: {},
+  });
   //Positions of canvas
   const canvasPositions = useRef<CanvasPositions>({
     top: 0,
@@ -77,19 +76,28 @@ const OverlayCanvasContainer = (props: {
   });
 
   const scrollTop = useRef<number>(0);
-  const isScrolling = useRef(0);
+  const isScrolling = useRef<number>(0);
   const hasScroll = useRef<boolean>(false);
-  const stageRef = useRef<CanvasStageType>(null);
+  const stageRef = useRef<CanvasStageType | null>(null);
 
-  const { selectWidget } = useWidgetSelection();
+  // Pre bind arguments to the updateSelectedWidgetPositions function
+  // This makes it easier to use the function later in the code
+  const updateFn = updateSelectedWidgetPositions.bind(this, {
+    stageRef,
+    selectedWidgetNameData,
+    focusedWidgetNameData,
+    selectWidget,
+    scrollTop,
+    widgetNamePositions,
+    canvasPositions,
+  });
 
-  //used to set canvasPositions, which is used further to calculate the exact positions of widgets
+  // Used to set canvasPositions, which is used further to calculate the exact positions of widgets
   useEffect(() => {
     if (!stageRef?.current?.content || !wrapperRef?.current) return;
 
     const HTMLCanvas: HTMLDivElement = stageRef?.current?.content;
     const rect: DOMRect = HTMLCanvas.getBoundingClientRect();
-
     const wrapper: HTMLDivElement = wrapperRef?.current as HTMLDivElement;
     const wrapperRect: DOMRect = wrapper.getBoundingClientRect();
 
@@ -99,266 +107,89 @@ const OverlayCanvasContainer = (props: {
         height: wrapperRect.height,
         left: rect.left,
         top: rect.top,
-        width: rect.width,
+        width: wrapperRect.width,
       };
     }
   }, [wrapperRef?.current, props.canvasWidth]);
 
   /**
-   * Method used to add widget name to the Konva canvas' layer
-   * @param layer Konva layer onto which the widget name is to be added
-   * @param widgetNameData widget name data contains more information regarding the widget that is used in drawing the name
-   * @param position position of widget in pixels
-   * @param type if it's either selected or focused widget name
+   * Adds 3 event listeners.
+   * 1. Mouse Move: On the container, to check if the mouse is over a widget, so that we can focus it
+   * 2. Scroll: On the MainContainer, to check if the user is scrolling. This is so that we can hide the widget names
+   * Also, this tells us that we need to compute and store scroll offset values to correctly position the widget name components.
+   * 3. Scroll End: On the MainContainer, to check if the user has stopped scrolling. This is so that we can show the widget names again
    */
-  const addWidgetNameToCanvas = (
-    layer: KonvaLayer,
-    widgetNameData: WidgetNameData,
-    position: LayoutElementPosition,
-    type: WIDGET_NAME_TYPE,
-  ) => {
-    if (!position) return;
+  useEffect(() => {
+    const scrollParent: HTMLDivElement | null =
+      getMainContainerAnvilCanvasDOMElement();
+    const wrapper: HTMLDivElement | null = wrapperRef?.current;
 
-    const { id: widgetId, widgetName } = widgetNameData;
+    if (!wrapper || !scrollParent) return;
 
-    //Get Widget Name
-    if (widgetName) {
-      const {
-        canvasLeftOffset,
-        canvasTopOffset,
-        widgetNameComponent,
-        widgetNamePosition,
-      } = getWidgetNameComponent(
-        position,
-        widgetName,
-        widgetNameData,
-        props?.parentRef?.current,
-        stageRef?.current?.content,
-        scrollTop.current,
-      );
+    const reset = resetCanvas.bind(this, widgetNamePositions, stageRef);
 
-      widgetNamePositions.current[type] = { ...widgetNamePosition };
-
-      canvasPositions.current = {
-        ...canvasPositions.current,
-        xDiff: canvasLeftOffset,
-        yDiff: canvasTopOffset,
-      };
-
-      //Make widget name clickable
-      widgetNameComponent.on("click", () => {
-        selectWidget(SelectionRequestType.One, [widgetId]);
-      });
-
-      //Add widget name to canvas
-      layer.add(widgetNameComponent);
-    }
-  };
-
-  /**
-   * This method is called whenever there is a change in state of canvas,
-   * i.e, widget position is changed, canvas resized, selected widget changes
-   * @param widgetPosition
-   */
-  const updateSelectedWidgetPositions = (
-    widgetPosition?: LayoutElementPosition,
-  ) => {
-    if (!stageRef?.current) return;
-
-    const stage = stageRef.current;
-    const layer = stage.getLayers()[0];
-    //destroy all drawings on canvas
-    layer.destroyChildren();
-
-    //Check and draw selected Widget
-    if (selectedWidgetNameData) {
-      const { position: selectedWidgetPosition } = selectedWidgetNameData;
-
-      const position = widgetPosition || selectedWidgetPosition;
-
-      addWidgetNameToCanvas(
-        layer,
-        selectedWidgetNameData,
-        position,
-        "selected",
-      );
-    }
-
-    //Check and draw focused Widget
-    if (focusedWidgetNameData) {
-      const { position } = focusedWidgetNameData;
-
-      addWidgetNameToCanvas(layer, focusedWidgetNameData, position, "focused");
-    }
-
-    layer.draw();
-  };
-
-  /**
-   * Mouse Move event function, this tracks every mouse move on canvas such that
-   * if the mouse position coincides with the positions of widget name, it makes the canvas intractable
-   * This is throttled since it tracks every single mouse move
-   */
-  const handleMouseMove = throttle((e: MouseEvent) => {
-    const wrapper = wrapperRef?.current as HTMLDivElement;
-    if (!wrapper) return;
-
-    //check if the mouse is coinciding with the widget name drawing on canvas
-    const { cursor, isMouseOver } = getMouseOverDetails(e);
-
-    //if mouse over make the canvas intractable
-    if (isMouseOver) {
-      if (wrapper.style.pointerEvents === "none") {
-        wrapper.style.pointerEvents = "auto";
-      }
-    } // if not mouse over then keep it default
-    else if (wrapper.style.pointerEvents !== "none") {
-      wrapper.style.pointerEvents = "none";
-      wrapper.style.cursor = "default";
-    }
-
-    //set cursor based on intractability
-    if (!cursor) {
-      wrapper.style.cursor = "default";
-    } else if (wrapper.style.cursor !== cursor) {
-      wrapper.style.cursor = cursor;
-    }
-  }, 20);
-
-  /**
-   * on Drag Start event handler to enable drag of widget from the widget name component drawing on canvas
-   * @param e
-   */
-  const handleDragStart: DragEventHandler = (e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    //checks if the mouse is over the widget name, if so return it's details
-    const { isMouseOver, widgetNameData } = getMouseOverDetails(
-      e as unknown as MouseEvent,
+    const scrollHandler = getScrollHandler(
+      isScrolling,
+      hasScroll,
+      reset,
+      scrollTop,
     );
 
-    if (!isMouseOver || !shouldAllowDrag || widgetNameData?.dragDisabled)
-      return;
+    const scrollEndHandler = getScrollEndHandler(
+      isScrolling,
+      hasScroll,
+      updateFn,
+    );
 
-    //set dragging state
-    const startPoints = {
-      top: 0,
-      left: 0,
-    };
-    showTableFilterPane();
-    setDraggingState({
-      isDragging: true,
-      dragGroupActualParent: widgetNameData?.parentId,
-      draggingGroupCenter: { widgetId: widgetNameData?.id },
-      startPoints,
-      draggedOn: widgetNameData?.parentId,
-    });
-  };
+    const mouseMoveHandler = getMouseMoveHandler(
+      wrapperRef,
+      canvasPositions,
+      widgetNamePositions,
+    );
 
-  /**
-   * handle Scroll of the canvas, this helps in keeping track og canvas scroll
-   * so that the widget name remains accurately placed even when the canvas is scrolled
-   */
-  const handleScroll = () => {
-    if (!props.parentRef?.current) return;
+    scrollParent.addEventListener("mousemove", mouseMoveHandler);
+    scrollParent.addEventListener("scroll", scrollHandler);
+    scrollParent.addEventListener("scrollend", scrollEndHandler);
+    wrapper.addEventListener("mousemove", mouseMoveHandler);
 
-    const currentScrollTop: number = props.parentRef?.current?.scrollTop;
-
-    if (!isScrolling.current) {
-      resetCanvas();
-    }
-
-    clearTimeout(isScrolling.current);
-    isScrolling.current = setTimeout(() => {
-      scrollTop.current = currentScrollTop;
-      //while scrolling update the widget name position
-      updateSelectedWidgetPositions();
-      isScrolling.current = 0;
-      if (
-        (props.parentRef?.current?.scrollHeight || 0) >
-        (props.parentRef?.current?.clientHeight || 0)
-      )
-        hasScroll.current = true;
-    }, 100);
-  };
-
-  //Add event listeners
-  useEffect(() => {
-    if (
-      !props.containerRef?.current ||
-      !props.parentRef?.current ||
-      !wrapperRef?.current
-    )
-      return;
-
-    const container: HTMLDivElement = props.containerRef
-      ?.current as HTMLDivElement;
-    const parent: HTMLDivElement = props.parentRef?.current as HTMLDivElement;
-
-    container.addEventListener("mousemove", handleMouseMove);
-    parent.addEventListener("scroll", handleScroll);
     return () => {
-      container.removeEventListener("mousemove", handleMouseMove);
-      parent.removeEventListener("scroll", handleScroll);
+      scrollParent.removeEventListener("mousemove", mouseMoveHandler);
+      scrollParent.removeEventListener("scroll", scrollHandler);
+      scrollParent.removeEventListener("scrollend", scrollEndHandler);
+      wrapper.removeEventListener("mousemove", mouseMoveHandler);
     };
-  }, [
-    props.containerRef?.current,
-    props.parentRef?.current,
-    wrapperRef?.current,
-    widgetNamePositions.current,
-    canvasPositions.current,
-  ]);
+  }, [wrapperRef?.current, stageRef?.current]);
 
-  /**
-   * This Method verifies if the mouse position coincides with any widget name drawn on canvas
-   * and returns details regarding the widget
-   * @param e Mouse event
-   * @returns Mainly isMouseOver indicating if the mouse is on any one of the widget name
-   * if true also returns data regarding the widget
-   */
-  const getMouseOverDetails = (e: MouseEvent) => {
-    const x = e.clientX - canvasPositions.current.left;
-    const y = e.clientY - canvasPositions.current.top;
-    const widgetNamePositionsArray = Object.values(widgetNamePositions.current);
-
-    //for selected and focused widget names check the widget name positions with respect to mouse positions
-    for (const widgetNamePosition of widgetNamePositionsArray) {
-      if (widgetNamePosition) {
-        const { height, left, top, widgetNameData, width } = widgetNamePosition;
-        if (x > left && x < left + width && y > top && y < top + height) {
-          return { isMouseOver: true, cursor: "pointer", widgetNameData };
-        }
-      }
-    }
-
-    return { isMouseOver: false };
-  };
-
-  //Used when the position of selected or focused widget changes
+  // Reset the canvas if no widgets are focused or selected
+  // Update the widget name positions if there are widgets focused or selected
+  // and they've changed.
   useEffect(() => {
     if (!selectedWidgetNameData && !focusedWidgetNameData) {
-      resetCanvas();
+      resetCanvas(widgetNamePositions, stageRef);
     } else {
-      updateSelectedWidgetPositions();
+      // The following is a hack, where if the widget name data is an empty array
+      // The source is the fact that we're moving a widget
+      // In this case, we don't want to lose the references we have right now,
+      // because after dropping, the selectedWidgetNameData will come back as it was before
+      // the move. We only want to recompute widget name positions if the widget name data
+      // has changed after the layout element positions have been computed
+      // In the case of layout element positions being recomputed, the actual widget name data
+      // will be different from the widget name data we have right now.
+      if (selectedWidgetNameData?.length === 0) {
+        resetCanvas(widgetNamePositions, stageRef, true);
+      } else {
+        updateFn();
+      }
     }
   }, [selectedWidgetNameData, focusedWidgetNameData]);
 
-  /**
-   * Resets canvas when there is nothing to be drawn on canvas
-   */
-  const resetCanvas = () => {
-    // Resets stored widget position names
-    widgetNamePositions.current = { selected: undefined, focused: undefined };
-
-    // clears all drawings on canvas
-    const stage = stageRef.current;
-    if (!stage) return;
-    const layer = stage.getLayers()[0];
-    if (!layer) return;
-    layer.destroyChildren();
-    layer.draw();
-  };
+  const handleDragStart = getDragStartHandler(
+    showTableFilterPane,
+    setDraggingState,
+    shouldAllowDrag,
+    canvasPositions,
+    widgetNamePositions,
+  );
 
   return (
     <div
@@ -373,7 +204,7 @@ const OverlayCanvasContainer = (props: {
           canvasPositions?.current.height || DEFAULT_WIDGET_NAME_CANVAS_HEIGHT
         }
         ref={stageRef}
-        width={props.canvasWidth + WIDGET_NAME_CANVAS_PADDING}
+        width={canvasPositions?.current.width || 0}
       >
         <Layer />
       </Stage>

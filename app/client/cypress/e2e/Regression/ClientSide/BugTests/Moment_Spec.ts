@@ -2,14 +2,17 @@ import {
   agHelper,
   appSettings,
   dataSources,
-  jsEditor,
-  propPane,
   deployMode,
   entityExplorer,
-  table,
-  locators,
   entityItems,
+  jsEditor,
+  locators,
+  propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, query: string;
 
@@ -41,19 +44,19 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       },
     );
 
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Table data",
       `{{JSObject1.runAstros.data}}`,
     );
 
-    entityExplorer.SelectEntityByName("DatePicker1");
+    EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Default Date",
       `{{moment(Table1.selectedRow.date_of_death)}}`,
     );
 
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Text",
       `Date: {{moment(Table1.selectedRow.date_of_death).toString()}}`,
@@ -110,8 +113,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
   after(
     "Verify Deletion of the datasource after all created queries are deleted",
     () => {
-      deployMode.NavigateBacktoEditor();
-      agHelper.AssertContains("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
+      deployMode.NavigateBacktoEditor("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "JSObject1",
@@ -122,7 +124,6 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       agHelper.WaitUntilAllToastsDisappear();
       deployMode.DeployApp(locators._widgetInDeployed("tablewidget"), false);
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Datasources");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );

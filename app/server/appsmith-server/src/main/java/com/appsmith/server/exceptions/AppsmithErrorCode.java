@@ -132,7 +132,8 @@ public enum AppsmithErrorCode {
 
     INVALID_METHOD_LEVEL_ANNOTATION_USAGE("AE-APP-4094", "Invalid usage for custom annotation"),
     FEATURE_FLAG_MIGRATION_FAILURE("AE-APP-5045", "Feature flag based migration error"),
-    ;
+    DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
+            "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed");
     private final String code;
     private final String description;
 

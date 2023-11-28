@@ -8,7 +8,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.exports.exportable.ExportableService;
-import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
@@ -34,7 +33,7 @@ public class ExportApplicationServiceImpl extends ExportApplicationServiceCEImpl
             ExportableService<NewPage> newPageExportableService,
             ExportableService<NewAction> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
-            ExportableServiceCE<Theme> themeExportableService,
+            ExportableService<Theme> themeExportableService,
             ExportableService<CustomJSLib> customJSLibExportableService) {
         super(
                 sessionUserService,

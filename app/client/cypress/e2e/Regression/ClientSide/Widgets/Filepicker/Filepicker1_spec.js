@@ -4,6 +4,9 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("FilePicker Widget Functionality", function () {
   before(() => {
@@ -11,7 +14,7 @@ describe("FilePicker Widget Functionality", function () {
   });
 
   it("Should test allowed values", () => {
-    entityExplorer.SelectEntityByName("FilePicker1");
+    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
     propPane.EnterJSContext("Allowed file types", `[".csv"]`);
     agHelper.AssertElementAbsence(
       ".t--property-control-allowedfiletypes .t--codemirror-has-error",

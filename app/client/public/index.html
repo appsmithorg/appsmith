@@ -17,30 +17,53 @@
         transition: all ease-in 0.3s;
       }
     </style>
-    <script>
-      // '' (empty strings), 'false' are falsy
-      // could return either boolean or string based on value
-      const parseConfig = (config) => {
-        if (
-          config.indexOf("__") === 0 ||
-          config.indexOf("$") === 0 ||
-          config.indexOf("%") === 0
-        )
-          return "";
-
-        const result = config.trim();
-        if (result.toLowerCase() === "false" || result === "") {
-          return false;
-        } else if (result.toLowerCase() === "true") {
-          return true;
+      <script>
+        // '' (empty strings), 'false' are falsy
+        // could return either boolean or string based on value
+        const parseConfig = (config) => {
+          if (
+            config.indexOf("__") === 0 ||
+            config.indexOf("$") === 0 ||
+            config.indexOf("%") === 0
+          )
+            return "";
+  
+          const result = config.trim();
+          if (result.toLowerCase() === "false" || result === "") {
+            return false;
+          } else if (result.toLowerCase() === "true") {
+            return true;
+          }
+  
+          return result;
+        };
+        const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
+        const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
+        const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
+        // NREUM variable is required when we are we are are dynamically loading new relic browser agent script
+        NREUM = undefined
+      </script>
+      <script>
+        
+        const enableNewRelic=parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__");
+      //only when newRelic is enabled do we load the browser agent script
+      if (!!enableNewRelic) {
+          const accountId = parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__");
+          const applicationId = parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__");
+          const browserAgentlicenseKey = parseConfig("__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__");
+          const script = document.createElement("script");
+          //we load the new relic browser agent script from our CDN.
+          script.src = "https://assets.appsmith.com/newRelicBrowserAgent1.js";
+          script.onload = () => {
+            // we have defined and init function within the Browser agent script. 
+            // This init fn gets assigned to a global var called NEW_RELIC_BROWSER_AGENT, when the script tag element loads 
+            // we call the init fn with all env vars. Through this step browser agent has the required license key to push telemetry info to new relic.
+            NEW_RELIC_BROWSER_AGENT && NEW_RELIC_BROWSER_AGENT.init([accountId,applicationId,browserAgentlicenseKey]);
+          };
+          const head = document.getElementsByTagName("head")[0];
+          head && head.appendChild(script);
         }
-
-        return result;
-      };
-      const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
-      const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
-      const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
-    </script>
+      </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
       <%=
@@ -246,6 +269,17 @@
         segment: {
           apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
           ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),
+        },
+        newRelic:{
+          enableNewRelic: parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__"),
+          accountId: parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__"),
+          applicationId: parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__"),
+          browserAgentlicenseKey: parseConfig("__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__"),
+          otlpLicenseKey: parseConfig("__APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__"),
+          //OTLP following the naming convention of Sdk initialisation
+          otlpServiceName: parseConfig("__APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME__"),
+          otlpEndpoint:parseConfig("__APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__"), 
+
         },
         fusioncharts: {
           licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),

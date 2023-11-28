@@ -24,8 +24,10 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.ce.GitServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Service
 public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitServiceCECompatible {
@@ -51,10 +53,12 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
             PluginService pluginService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
+            WorkspacePermission workspacePermission,
             WorkspaceService workspaceService,
             RedisUtils redisUtils,
             ObservationRegistry observationRegistry,
-            GitPrivateRepoHelper gitPrivateRepoHelper) {
+            GitPrivateRepoHelper gitPrivateRepoHelper,
+            TransactionalOperator transactionalOperator) {
         super(
                 userService,
                 userDataService,
@@ -76,9 +80,11 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
                 pluginService,
                 datasourcePermission,
                 applicationPermission,
+                workspacePermission,
                 workspaceService,
                 redisUtils,
                 observationRegistry,
-                gitPrivateRepoHelper);
+                gitPrivateRepoHelper,
+                transactionalOperator);
     }
 }

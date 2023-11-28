@@ -6,7 +6,6 @@ import classNames from "classnames";
 import styled from "styled-components";
 import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import type { Action } from "entities/Action";
-import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -22,6 +21,7 @@ import { tailwindLayers } from "constants/Layers";
 import VariableEditor from "./VariableEditor";
 import Pagination from "./Pagination";
 import { ApiEditorContext } from "../ApiEditorContext";
+import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
 
 const ResizeableDiv = styled.div`
   display: flex;
@@ -235,37 +235,21 @@ export default connect(
 
     let hasResponse = false;
     let suggestedWidgets;
-    if (apiId) {
-      const response = getActionData(state, apiId) || EMPTY_RESPONSE;
+    const actionResponse = getActionData(state, apiId);
+    if (actionResponse) {
       hasResponse =
-        !isEmpty(response.statusCode) && response.statusCode[0] === "2";
-      suggestedWidgets = response.suggestedWidgets;
+        !isEmpty(actionResponse.statusCode) &&
+        actionResponse.statusCode[0] === "2";
+      suggestedWidgets = actionResponse.suggestedWidgets;
     }
 
     const actionData = getActionData(state, apiId);
-    let responseDisplayFormat: { title: string; value: string };
-    let responseDataTypes: { key: string; title: string }[];
-    if (!!actionData && actionData.responseDisplayFormat) {
-      responseDataTypes = actionData.dataTypes.map((data) => {
-        return {
-          key: data.dataType,
-          title: data.dataType,
-        };
-      });
-      responseDisplayFormat = {
-        title: actionData.responseDisplayFormat,
-        value: actionData.responseDisplayFormat,
-      };
-    } else {
-      responseDataTypes = [];
-      responseDisplayFormat = {
-        title: "",
-        value: "",
-      };
-    }
+    const { responseDataTypes, responseDisplayFormat } =
+      actionResponseDisplayDataFormats(actionData);
 
     return {
       actionName,
+      actionResponse,
       apiId,
       httpMethodFromForm,
       actionConfigurationHeaders,

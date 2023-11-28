@@ -117,7 +117,10 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                     analyticsProperties.put(FieldNameCE.IP_ADDRESS, ipAddress);
                     analyticsProperties.put(FieldNameCE.VERSION, releaseNotesService.getRunningVersion());
                     return analyticsService.sendEvent(
-                            AnalyticsEvents.SERVER_SETUP_COMPLETE.getEventName(), instanceId, analyticsProperties);
+                            AnalyticsEvents.SERVER_SETUP_COMPLETE.getEventName(),
+                            instanceId,
+                            analyticsProperties,
+                            false);
                 })
                 .subscribeOn(commonConfig.scheduler())
                 .subscribe();

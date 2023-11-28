@@ -11,6 +11,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -79,6 +80,9 @@ public class ImportApplicationTransactionServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
+    @MockBean
+    ImportableService<NewAction> newActionImportableService;
+
     Long applicationCount = 0L, pageCount = 0L, actionCount = 0L, actionCollectionCount = 0L;
     private ApplicationJson applicationJson = new ApplicationJson();
 
@@ -131,7 +135,7 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionService.importActions(any(), any(), any(), any(), any(), any(), any()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST)));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
@@ -162,7 +166,7 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionService.importActions(any(), any(), any(), any(), any(), any(), any()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new MongoTransactionException(
                         "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'")));
 

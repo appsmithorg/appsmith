@@ -14,6 +14,7 @@ import {
 } from "widgets/components/LabelWithTooltip";
 import { lightenColor } from "widgets/WidgetUtils";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
+import { CLASSNAMES } from "../constants";
 
 export const StyledDiv = styled.div`
   display: flex;
@@ -220,6 +221,8 @@ ${({ dropDownWidth, id }) => `
 export const DropdownContainer = styled.div<{
   compactMode: boolean;
   labelPosition?: LabelPosition;
+  dropdownPopoverContainer?: string;
+  rtl?: boolean;
 }>`
   ${BlueprintCSSTransform}
   ${labelLayoutStyles}
@@ -247,6 +250,49 @@ export const DropdownContainer = styled.div<{
       }};
     }
   }
+
+  ${(props) =>
+    props.rtl
+      ? `
+
+    .${LABEL_CONTAINER_CLASS} {
+      direction: rtl;
+    }
+
+    .${CLASSNAMES.selectButton} {
+      direction: rtl;
+
+      .bp3-button-text {
+        display: block;
+        direction: rtl;
+        text-align: right;
+        margin: 0;
+      }
+    }
+  `
+      : ``}
+`;
+
+export const RTLStyleContainer = createGlobalStyle<{
+  dropdownPopoverContainer: string;
+}>`
+  ${(props) => `
+  .${props.dropdownPopoverContainer} {
+    .bp3-input-group {
+      .bp3-icon-search {
+        left: auto !important;
+        right: 0;
+      }
+
+      input {
+        direction: rtl;
+        padding-left: 10px !important;
+        padding-right: 34px !important;
+      }
+    }
+  }
+`}
+
 `;
 
 export const MenuItem = styled.div<{

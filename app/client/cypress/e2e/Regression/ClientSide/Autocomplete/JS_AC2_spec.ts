@@ -5,6 +5,9 @@ import {
   jsEditor,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let jsName: any;
 
@@ -49,10 +52,10 @@ describe("Autocomplete tests", () => {
       0,
     );
 
-    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
+    agHelper.GetNAssertElementText(locators._hints, "myFun1", "have.text", 4);
 
     // Same check in JSObject1
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(locators._codeMirrorTextArea, "JSObject2");
     agHelper.Sleep(500);
@@ -65,7 +68,7 @@ describe("Autocomplete tests", () => {
       0,
     );
 
-    agHelper.GetNAssertElementText(locators._hints, "myFun1()", "have.text", 4);
+    agHelper.GetNAssertElementText(locators._hints, "myFun1", "have.text", 4);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
@@ -97,7 +100,10 @@ describe("Autocomplete tests", () => {
     agHelper.GetNAssertElementText(locators._hints, "async", "have.text", 0);
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      EditorNavigation.SelectEntityByName(
+        jsName as string,
+        EntityType.JSObject,
+      );
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",
@@ -172,7 +178,10 @@ describe("Autocomplete tests", () => {
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      EditorNavigation.SelectEntityByName(
+        jsName as string,
+        EntityType.JSObject,
+      );
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: jsName as string,
         action: "Delete",

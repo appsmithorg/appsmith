@@ -21,9 +21,9 @@ import {
   getIsDraggingForSelection,
 } from "selectors/canvasSelectors";
 import {
+  combinedPreviewModeSelector,
   getCurrentApplicationLayout,
   getCurrentPageId,
-  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
@@ -70,7 +70,7 @@ export function CanvasSelectionArena({
     (parentWidget && parentWidget.detachFromLayout)
   );
   const appMode = useSelector(getAppMode);
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );

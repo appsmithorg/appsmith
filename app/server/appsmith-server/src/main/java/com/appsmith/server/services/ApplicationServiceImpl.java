@@ -32,7 +32,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             NewActionRepository newActionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            SessionUserService sessionUserService) {
 
         super(
                 scheduler,
@@ -48,6 +49,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 newActionRepository,
                 assetService,
                 datasourcePermission,
-                applicationPermission);
+                applicationPermission,
+                sessionUserService);
     }
 }

@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FontFamily } from "@design-system/theming";
@@ -18,6 +18,8 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -38,12 +40,13 @@ const Wrapper = styled.section<{
 `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
+  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
 
   const { theme } = useTheme({
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
@@ -92,7 +95,13 @@ const Canvas = (props: CanvasProps) => {
           width={canvasWidth}
         >
           {props.widgetsStructure.widgetId &&
-            renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
+            renderAppsmithCanvas({
+              ...props.widgetsStructure,
+              classList:
+                layoutSystemType === LayoutSystemTypes.ANVIL
+                  ? ["main-anvil-canvas"]
+                  : [],
+            } as WidgetProps)}
         </Wrapper>
       </WDSThemeProvider>
     );

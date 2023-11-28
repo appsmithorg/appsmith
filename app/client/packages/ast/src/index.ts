@@ -2,10 +2,11 @@ import type { Node, SourceLocation, Options, Comment } from "acorn";
 import { parse } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants";
-import { has, isFinite, isString, toPath } from "lodash";
-import { isTrueObject, sanitizeScript } from "./utils";
+import { has, isFinite, isNil, isString, toPath } from "lodash";
+import { getStringValue, isTrueObject, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject";
 import { attachComments } from "astravel";
+import { generate } from "astring";
 /*
  * Valuable links:
  *
@@ -886,3 +887,34 @@ export const isFunctionPresent = (
     return false;
   }
 };
+
+export function getMemberExpressionObjectFromProperty(
+  propertyName: string,
+  code: string,
+  evaluationVersion = 2,
+) {
+  if (!propertyName) return [];
+  const memberExpressionObjects = new Set<string>();
+  let ast: Node = { end: 0, start: 0, type: "" };
+  try {
+    const sanitizedScript = sanitizeScript(code, evaluationVersion);
+    const wrappedCode = wrapCode(sanitizedScript);
+    ast = getAST(wrappedCode, { locations: true });
+    simple(ast, {
+      MemberExpression(node: Node) {
+        const { object, property } = node as MemberExpressionNode;
+        if (!isLiteralNode(property) && !isIdentifierNode(property)) return;
+        const propName = isLiteralNode(property)
+          ? property.value
+          : property.name;
+        if (!isNil(propName) && getStringValue(propName) === propertyName) {
+          const memberExpressionObjectString = generate(object);
+          memberExpressionObjects.add(memberExpressionObjectString);
+        }
+      },
+    });
+    return Array.from(memberExpressionObjects);
+  } catch (e) {
+    return [];
+  }
+}

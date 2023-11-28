@@ -2,7 +2,7 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createSelector } from "reselect";
 import WidgetFactory from "WidgetProvider/factory";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import type { TJSLibrary } from "workers/common/JSLibrary";
+import type { JSLibrary } from "workers/common/JSLibrary";
 import { getDataTree } from "./dataTreeSelectors";
 import {
   getExistingPageNames,
@@ -28,7 +28,7 @@ export const getUsedActionNames = createSelector(
     pageNames: Record<string, any>,
     dataTree: DataTree,
     parentWidget: FlattenedWidgetProps | undefined,
-    installedLibraries: TJSLibrary[],
+    installedLibraries: JSLibrary[],
   ) => {
     const map: Record<string, boolean> = {};
     // The logic has been copied from Explorer/Entity/Name.tsx Component.

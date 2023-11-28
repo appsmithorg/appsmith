@@ -76,12 +76,6 @@ abstract class BaseWidget<
 > extends Component<T, K> {
   static contextType = EditorContext;
 
-  /*
-   * Turning on this flag will preload all the widget configs like
-   * derivedProperties, propertyPaneconfig etc into the widgetFactory.
-   */
-  static preloadConfig = false;
-
   context!: React.ContextType<Context<EditorContextType<TCache>>>;
 
   static type = "BASE_WIDGET";
@@ -133,6 +127,10 @@ abstract class BaseWidget<
   }
 
   static getDefaultPropertiesMap(): Record<string, any> {
+    return {};
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
     return {};
   }
 
@@ -490,6 +488,7 @@ export interface WidgetDisplayProps {
   deferRender?: boolean;
   wrapperRef?: RefObject<HTMLDivElement>;
   selectedWidgetAncestry?: string[];
+  classList?: string[];
 }
 
 export interface WidgetDataProps

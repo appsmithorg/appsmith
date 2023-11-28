@@ -6,6 +6,7 @@ import omit from "lodash/omit";
 import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -50,7 +51,11 @@ import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
-import type { Action, ApiAction } from "entities/Action";
+import type {
+  Action,
+  ApiAction,
+  CreateApiActionDefaultsParams,
+} from "entities/Action";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import log from "loglevel";
@@ -89,6 +94,10 @@ import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -586,11 +595,20 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const application: ApplicationPayload | undefined = yield select(
+    getApplicationByIdFromWorkspaces,
+    currentApplicationIdForCreateNewApp || "",
+  );
+  const pageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultPageId
+    : yield select(getCurrentPageId);
   const plugin: Plugin | undefined = yield select(
     getPlugin,
     actionPayload.payload.pluginId,
   );
-  const pageId: string = yield select(getCurrentPageId);
   // Only look at API plugins
   if (plugin && plugin.type !== PluginType.API) return;
 
@@ -639,7 +657,7 @@ function* handleDatasourceCreatedSaga(
         apiId: actionRouteInfo.apiId ?? "",
       }),
     );
-  } else {
+  } else if (!currentApplicationIdForCreateNewApp) {
     history.push(
       datasourcesEditorIdURL({
         pageId,
@@ -654,6 +672,33 @@ function* handleDatasourceCreatedSaga(
   }
 }
 
+export function* createDefaultApiActionPayload(
+  props: CreateApiActionDefaultsParams,
+) {
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const { apiType, from, newActionName } = props;
+  const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
+  // Default Config is Rest Api Plugin Config
+  let defaultConfig = DEFAULT_CREATE_API_CONFIG;
+  if (apiType === PluginPackageName.GRAPHQL) {
+    defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
+  }
+
+  return {
+    actionConfiguration: defaultConfig.config,
+    name: newActionName,
+    datasource: {
+      name: defaultConfig.datasource.name,
+      pluginId,
+      workspaceId,
+    },
+    eventData: {
+      actionType: defaultConfig.eventData.actionType,
+      from: from,
+    },
+  };
+}
+
 /**
  * Creates an API with datasource as DEFAULT_REST_DATASOURCE (No user created datasource)
  * @param action
@@ -665,16 +710,9 @@ function* handleCreateNewApiActionSaga(
     apiType?: string;
   }>,
 ) {
-  const workspaceId: string = yield select(getCurrentWorkspaceId);
-  const { apiType = PluginPackageName.REST_API, pageId } = action.payload;
-  const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
-  // Default Config is Rest Api Plugin Config
-  let defaultConfig = DEFAULT_CREATE_API_CONFIG;
-  if (apiType === PluginPackageName.GRAPHQL) {
-    defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
-  }
+  const { apiType = PluginPackageName.REST_API, from, pageId } = action.payload;
 
-  if (pageId && pluginId) {
+  if (pageId) {
     const actions: ActionDataState = yield select(getActions);
     const pageActions = actions.filter(
       (a: ActionData) => a.config.pageId === pageId,
@@ -682,21 +720,21 @@ function* handleCreateNewApiActionSaga(
     const newActionName = createNewApiName(pageActions, pageId);
     // Note: Do NOT send pluginId on top level here.
     // It breaks embedded rest datasource flow.
+
+    const createApiActionPayload: Partial<ApiAction> = yield call(
+      createDefaultApiActionPayload,
+      {
+        apiType,
+        from,
+        newActionName,
+      },
+    );
+
     yield put(
       createActionRequest({
-        actionConfiguration: defaultConfig.config,
-        name: newActionName,
-        datasource: {
-          name: defaultConfig.datasource.name,
-          pluginId,
-          workspaceId,
-        },
-        eventData: {
-          actionType: defaultConfig.eventData.actionType,
-          from: action.payload.from,
-        },
+        ...createApiActionPayload,
         pageId,
-      } as ApiAction), // We don't have recursive partial in typescript for now.
+      }), // We don't have recursive partial in typescript for now.
     );
   }
 }

@@ -169,6 +169,7 @@ export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.SAAS]: saasActionSettingsConfig,
   [PluginType.REMOTE]: saasActionSettingsConfig,
   [PluginType.JS]: [],
+  [PluginType.AI]: saasActionSettingsConfig,
 };
 
 export const defaultActionEditorConfigs: Record<PluginType, any> = {
@@ -177,6 +178,7 @@ export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.SAAS]: [],
   [PluginType.REMOTE]: [],
   [PluginType.JS]: [],
+  [PluginType.AI]: [],
 };
 
 export const defaultActionDependenciesConfig: Record<
@@ -188,6 +190,7 @@ export const defaultActionDependenciesConfig: Record<
   [PluginType.SAAS]: {},
   [PluginType.REMOTE]: {},
   [PluginType.JS]: {},
+  [PluginType.AI]: {},
 };
 
 export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
@@ -196,4 +199,5 @@ export const defaultDatasourceFormButtonConfig: Record<PluginType, string[]> = {
   [PluginType.SAAS]: apiActionDatasourceFormButtonConfig.SAAS,
   [PluginType.REMOTE]: apiActionDatasourceFormButtonConfig.REMOTE,
   [PluginType.JS]: [],
+  [PluginType.AI]: apiActionDatasourceFormButtonConfig.AI,
 };

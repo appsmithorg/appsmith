@@ -44,6 +44,7 @@ import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -58,6 +59,7 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.themes.base.ThemeService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -121,6 +123,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApplicationForkingServiceTests {
 
     private static String sourceAppId;
+    private static String forkingEnabledAppId;
     private static String sourceWorkspaceId;
     private static String sourceEnvironmentId;
     private static String testUserWorkspaceId;
@@ -155,6 +158,9 @@ public class ApplicationForkingServiceTests {
 
     @Autowired
     private LayoutActionService layoutActionService;
+
+    @Autowired
+    private UpdateLayoutService updateLayoutService;
 
     @Autowired
     private NewPageService newPageService;
@@ -221,9 +227,47 @@ public class ApplicationForkingServiceTests {
         Application app1 = new Application();
         app1.setName("1 - public app");
         app1.setWorkspaceId(sourceWorkspaceId);
-        app1.setForkingEnabled(true);
+        sourceAppId = createApplication(app1);
+
+        // Test user does not have access to this application
+        Application app2 = new Application();
+        app2.setName("2 - public app");
+        app2.setForkingEnabled(true);
+        app2.setWorkspaceId(sourceWorkspaceId);
+        forkingEnabledAppId = createApplication(app2);
+
+        // Invite "usertest@usertest.com" with VIEW access, api_user will be the admin of sourceWorkspace and we are
+        // controlling this with @FixMethodOrder(MethodSorters.NAME_ASCENDING) to run the TCs in a sequence.
+        // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
+        // application as a part of this flow.
+        // We need to test with VIEW user access so that any user should be able to fork template applications
+        inviteUserToWorkspaceWithViewAccess(sourceWorkspace);
+
+        isSetupDone = true;
+    }
+
+    private void inviteUserToWorkspaceWithViewAccess(Workspace sourceWorkspace) {
+        PermissionGroup permissionGroup = permissionGroupService
+                .getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
+                .collectList()
+                .block()
+                .stream()
+                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
+                .findFirst()
+                .get();
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        ArrayList<String> users = new ArrayList<>();
+        users.add("usertest@usertest.com");
+        users.add("admin@solutiontest.com");
+        inviteUsersDTO.setUsernames(users);
+        inviteUsersDTO.setPermissionGroupId(permissionGroup.getId());
+        userAndAccessManagementService
+                .inviteUsers(inviteUsersDTO, "http://localhost:8080")
+                .block();
+    }
+
+    private String createApplication(Application app1) throws JsonProcessingException {
         app1 = applicationPageService.createApplication(app1).block();
-        sourceAppId = app1.getId();
 
         PageDTO testPage = newPageService
                 .findPageById(app1.getPages().get(0).getId(), READ_PAGES, false)
@@ -253,7 +297,7 @@ public class ApplicationForkingServiceTests {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(app1.getPages().get(0).getId());
-        actionCollectionDTO.setApplicationId(sourceAppId);
+        actionCollectionDTO.setApplicationId(app1.getId());
         actionCollectionDTO.setWorkspaceId(sourceWorkspaceId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
@@ -297,32 +341,10 @@ public class ApplicationForkingServiceTests {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(parentDsl);
 
-        layoutActionService
+        updateLayoutService
                 .updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)
                 .block();
-        // Invite "usertest@usertest.com" with VIEW access, api_user will be the admin of sourceWorkspace and we are
-        // controlling this with @FixMethodOrder(MethodSorters.NAME_ASCENDING) to run the TCs in a sequence.
-        // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
-        // application as a part of this flow.
-        // We need to test with VIEW user access so that any user should be able to fork template applications
-        PermissionGroup permissionGroup = permissionGroupService
-                .getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUP_MEMBERS)
-                .collectList()
-                .block()
-                .stream()
-                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
-                .findFirst()
-                .get();
-        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-        ArrayList<String> users = new ArrayList<>();
-        users.add("usertest@usertest.com");
-        inviteUsersDTO.setUsernames(users);
-        inviteUsersDTO.setPermissionGroupId(permissionGroup.getId());
-        userAndAccessManagementService
-                .inviteUsers(inviteUsersDTO, "http://localhost:8080")
-                .block();
-
-        isSetupDone = true;
+        return app1.getId();
     }
 
     @Test
@@ -451,17 +473,13 @@ public class ApplicationForkingServiceTests {
         // timeoutException.
         Workspace workspace = workspaceService.create(targetWorkspace).block();
         testUserWorkspaceId = workspace.getId();
-        Application targetApplication = applicationForkingService
-                .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, sourceEnvironmentId)
-                .block();
-        final Mono<Application> resultMono = Mono.just(targetApplication);
+        Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(
+                sourceAppId, testUserWorkspaceId, sourceEnvironmentId);
 
         StepVerifier.create(resultMono)
-                .assertNext(application -> {
-                    assertThat(application).isNotNull();
-                    assertThat(application.getName()).isEqualTo("1 - public app");
-                })
-                .verifyComplete();
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().contains("Forking this application is not permitted at this time."))
+                .verify();
     }
 
     @Test
@@ -480,6 +498,28 @@ public class ApplicationForkingServiceTests {
                                 .equals(AppsmithError.NO_RESOURCE_FOUND.getMessage(
                                         FieldName.WORKSPACE, testUserWorkspaceId)))
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "admin@solutiontest.com")
+    public void forkingEnabledPublicApp_noPermission_ForkApplicationSuccess() {
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("Target Workspace");
+        targetWorkspace = workspaceService.create(targetWorkspace).block();
+        final String workspaceId = targetWorkspace.getId();
+
+        Application targetApplication = applicationForkingService
+                .forkApplicationToWorkspaceWithEnvironment(forkingEnabledAppId, workspaceId, sourceEnvironmentId)
+                .block();
+        final Mono<Application> resultMono = Mono.just(targetApplication);
+
+        StepVerifier.create(resultMono)
+                .assertNext(application -> {
+                    assertThat(application).isNotNull();
+                    assertThat(application.getName()).isEqualTo("2 - public app");
+                    assertThat(application.getPages()).hasSize(1);
+                })
+                .verifyComplete();
     }
 
     @Test

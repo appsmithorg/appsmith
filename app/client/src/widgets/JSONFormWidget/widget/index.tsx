@@ -32,7 +32,7 @@ import type {
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -145,8 +145,6 @@ class JSONFormWidget extends BaseWidget<
   };
 
   static type = "JSON_FORM_WIDGET";
-
-  static preloadConfig = true;
 
   static getConfig() {
     return {
@@ -321,6 +319,7 @@ class JSONFormWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

@@ -1,0 +1,132 @@
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverModalContent,
+  Button,
+} from "@design-system/headless";
+import { ControlledPopover } from "./ControlledPopover";
+import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
+
+<Meta title="Design-system/Headless/Popover" component={Popover} />
+
+export const Template = (args) => {
+  return (
+    <Popover {...args}>
+      <PopoverTrigger>
+        <Button>My trigger</Button>
+      </PopoverTrigger>
+      <PopoverContent>My popover</PopoverContent>
+    </Popover>
+  );
+};
+
+# Popover
+
+A popover is an interactive mini-dialog floating element that displays information related to an anchor element when the element is clicked.
+
+Based on the [headless Popover component](/?path=/docs/design-system-headless-popover--docs).
+
+<Canvas>
+  <Story name="Popover">{Template.bind({})}</Story>
+</Canvas>
+
+## Popover props
+
+<ArgsTable story="Popover" of={Popover} />
+
+## PopoverTrigger props
+
+<ArgsTable of={PopoverTrigger} />
+
+## PopoverContent props
+
+<ArgsTable of={PopoverContent} />
+
+# Modal
+
+A modal is a floating element that displays information that requires immediate attention, appearing over the page content and blocking interactions with the page until it is dismissed.
+
+## PopoverModalContent props
+
+<ArgsTable of={PopoverModalContent} />
+
+<Source
+  dark
+  code={`
+export const Modal = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef(null);
+
+    return (
+      <>
+        <Button onPress={() => setIsOpen(!isOpen)} ref={ref}>
+          Controlled popover
+        </Button>
+        <Popover isOpen={isOpen} setOpen={setIsOpen} triggerRef={ref}>
+          <PopoverContent>Controlled popover content</PopoverContent>
+        </Popover>
+      </>
+    );
+
+};
+`}
+/>
+
+# Placement
+
+The placement of the popover can be changed by passing the `placement` prop.
+
+<Canvas>
+  <Story name="Popover placement">
+    <Popover placement="left">
+      <PopoverTrigger>
+        <Button>Left</Button>
+      </PopoverTrigger>
+      <PopoverContent>My popover</PopoverContent>
+    </Popover>
+    <Popover placement="top">
+      <PopoverTrigger>
+        <Button>Top</Button>
+      </PopoverTrigger>
+      <PopoverContent>My popover</PopoverContent>
+    </Popover>
+    <Popover placement="bottom">
+      <PopoverTrigger>
+        <Button>Bottom</Button>
+      </PopoverTrigger>
+      <PopoverContent>My popover</PopoverContent>
+    </Popover>
+    <Popover placement="right">
+      <PopoverTrigger>
+        <Button>Right</Button>
+      </PopoverTrigger>
+      <PopoverContent>My popover</PopoverContent>
+    </Popover>
+  </Story>
+</Canvas>
+
+# Controlled popover
+
+<Canvas>
+  <Story name="Controlled popover">
+    <ControlledPopover />
+  </Story>
+</Canvas>
+
+<Source
+  dark
+  code={`
+export const ControlledPopover = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <Popover isOpen={isOpen} setOpen={setIsOpen}>
+      <PopoverTrigger>
+        <Button onPress={() => setIsOpen(!isOpen)}>Controlled popover</Button>
+      </PopoverTrigger>
+      <PopoverContent>Controlled popover content</PopoverContent>
+    </Popover>
+  );
+};
+`}
+/>

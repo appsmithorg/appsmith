@@ -9,6 +9,7 @@ import {
   COULDNT_FIND_TEMPLATE_DESCRIPTION,
   REQUEST_TEMPLATE,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   border: 1px solid var(--ads-v2-color-border);
@@ -51,6 +52,7 @@ const REQUEST_TEMPLATE_URL =
 
 function RequestTemplate() {
   const onClick = () => {
+    AnalyticsUtil.logEvent("REQUEST_NEW_TEMPLATE");
     window.open(REQUEST_TEMPLATE_URL);
   };
 

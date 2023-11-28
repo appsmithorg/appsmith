@@ -1,7 +1,6 @@
 import type {
   PropertyOverrideDependency,
   OverridingPropertyPaths,
-  ModuleInput,
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
@@ -13,7 +12,7 @@ import {
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-
+import type { Module } from "@appsmith/constants/ModuleConstants";
 interface SetOverridingPropertyParams {
   key: string;
   value: string;
@@ -68,7 +67,7 @@ export const setOverridingProperty = ({
 
 export const generateDataTreeModuleInputs = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  moduleInputs: Record<string, ModuleInput>,
+  moduleInputs: Module["inputsForm"],
 ) => {
   return {
     unEvalEntity: null,

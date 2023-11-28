@@ -14,6 +14,7 @@ import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "WidgetProvider/factory";
 import {
   CurlIconV2,
+  EntityIcon,
   GraphQLIconV2,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
@@ -25,6 +26,8 @@ import history from "utils/history";
 import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Icon } from "design-system";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -299,6 +302,52 @@ export const actionOperations: ActionOperation[] = [
     },
   },
 ];
+
+export const createQueryOption = {
+  desc: "",
+  title: "Create a query",
+  kind: SEARCH_ITEM_TYPES.sectionTitle,
+};
+
+export const generateCreateQueryForDSOption = (
+  ds: Datasource,
+  onClick: (id: string, from: EventLocation) => void,
+) => {
+  return {
+    title: `New ${ds.name} query`,
+    shortTitle: `${ds.name} query`,
+    desc: `Create a query in ${ds.name}`,
+    pluginId: ds.pluginId,
+    kind: SEARCH_ITEM_TYPES.actionOperation,
+    action: onClick,
+  };
+};
+
+export const generateCreateNewDSOption = (
+  filteredFileOperations: ActionOperation[],
+  onRedirect: (id: string) => void,
+) => {
+  return [
+    ...filteredFileOperations,
+    {
+      desc: "Create a new datasource in the workspace",
+      title: "New datasource",
+      icon: (
+        <EntityIcon>
+          <Icon name="plus" size="lg" />
+        </EntityIcon>
+      ),
+      kind: SEARCH_ITEM_TYPES.actionOperation,
+      redirect: (id: string, entryPoint: string) => {
+        onRedirect(id);
+        // Event for datasource creation click
+        AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+          entryPoint,
+        });
+      },
+    },
+  ];
+};
 
 export const isMatching = (text = "", query = "") => {
   if (typeof text === "string" && typeof query === "string") {

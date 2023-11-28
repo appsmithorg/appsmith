@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 set -e
-set -o xtrace
+
+echo "Running as: $(id)"
 
 stacks_path=/appsmith-stacks
 
@@ -69,7 +70,7 @@ init_env_file() {
   TEMPLATES_PATH="/opt/appsmith/templates"
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
 
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
@@ -100,7 +101,7 @@ init_env_file() {
   echo "Load environment configuration"
   set -o allexport
   . "$ENV_PATH"
-  . "$TEMPLATES_PATH/pre-define.env"
+  . "$TMP/pre-define.env"
   set +o allexport
 }
 
@@ -317,7 +318,8 @@ setup-custom-ca-certificates() (
 
   # Add the custom CA certificates to the store.
   find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
-    -exec keytool -import -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+    -print \
+    -exec keytool -import -alias '{}' -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
 
   {
     echo "-Djavax.net.ssl.trustStore=$store"
@@ -347,8 +349,6 @@ configure_supervisord() {
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
-      # Update hosts lookup to resolve to embedded postgres
-      echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
     fi
   fi
 

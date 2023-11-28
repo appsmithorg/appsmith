@@ -19,7 +19,7 @@ public interface AuthenticationServiceCE {
      * @return a url String to continue the authorization flow
      */
     Mono<String> getAuthorizationCodeURLForGenericOAuth2(
-            String datasourceId, String environmentId, String pageId, ServerHttpRequest httpRequest);
+            String datasourceId, String environmentId, String pageId, String branchName, ServerHttpRequest httpRequest);
 
     /**
      * This is the method that handles callback for generic OAuth2. We will be retrieving and storing token information here

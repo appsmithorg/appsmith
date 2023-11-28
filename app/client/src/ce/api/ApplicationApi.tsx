@@ -1,6 +1,6 @@
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
-import type { AxiosPromise } from "axios";
+import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { IconNames } from "design-system";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
@@ -179,7 +179,7 @@ export interface FetchUnconfiguredDatasourceListResponse extends ApiResponse {
 export interface ImportApplicationRequest {
   workspaceId: string;
   applicationFile?: File;
-  progress?: (progressEvent: ProgressEvent) => void;
+  progress?: (progressEvent: AxiosProgressEvent) => void;
   onSuccessCallback?: () => void;
   appId?: string;
 }
@@ -238,6 +238,24 @@ export interface DeleteNavigationLogoRequest {
 export interface snapShotApplicationRequest {
   applicationId: string;
 }
+
+export interface exportApplicationRequest {
+  actionList: string[];
+  actionCollectionList: string[];
+  customJsLib: string[];
+  datasourceList: string[];
+  widget: string;
+}
+
+export interface ImportPartialApplicationRequest {
+  workspaceId: string;
+  applicationFile: File;
+  progress?: (progressEvent: AxiosProgressEvent) => void;
+  onSuccessCallback?: () => void;
+  applicationId: string;
+  pageId: string;
+}
+
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -307,6 +325,11 @@ export class ApplicationApi extends Api {
         name: request.name,
         color: request.color,
         icon: request.icon,
+        applicationDetail: {
+          appPositioning: {
+            type: request.layoutSystemType,
+          },
+        },
       },
     );
   }
@@ -425,6 +448,38 @@ export class ApplicationApi extends Api {
 
   static async deleteApplicationSnapShot(request: snapShotApplicationRequest) {
     return Api.delete(getSnapShotAPIRoute(request.applicationId));
+  }
+
+  static async exportPartialApplication(
+    applicationId: string,
+    pageId: string,
+    requestBody: exportApplicationRequest,
+  ) {
+    return Api.post(
+      `${ApplicationApi.baseURL}/export/partial/${applicationId}/${pageId}`,
+      requestBody,
+      null,
+    );
+  }
+
+  static async importPartialApplication(
+    request: ImportPartialApplicationRequest,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const formData = new FormData();
+    if (request.applicationFile) {
+      formData.append("file", request.applicationFile);
+    }
+    return Api.post(
+      `${ApplicationApi.baseURL}/import/partial/${request.workspaceId}/${request.applicationId}?pageId=${request.pageId}`,
+      formData,
+      null,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: request.progress,
+      },
+    );
   }
 }
 

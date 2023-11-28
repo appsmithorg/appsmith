@@ -28,7 +28,7 @@ import BrandingBadge from "./BrandingBadge";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
-import { fetchPublishedPage } from "actions/pageActions";
+import { setupPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
@@ -41,7 +41,10 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
+import {
+  areEnvironmentsFetched,
+  getEnvironmentsWithPermission,
+} from "@appsmith/selectors/environmentSelectors";
 import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
@@ -122,10 +125,16 @@ function AppViewer(props: Props) {
   const isMultipleEnvEnabled = useFeatureFlag(
     FEATURE_FLAG.release_datasource_environments_enabled,
   );
+  const environmentList = useSelector(getEnvironmentsWithPermission);
+  // If there is only one environment and it is default, don't show the bottom bar
+  const isOnlyDefaultShown =
+    environmentList.length === 1 && environmentList[0]?.isDefault;
   const showBottomBar = useSelector((state: AppState) => {
     return (
       areEnvironmentsFetched(state, workspaceId) &&
-      (isMultipleEnvEnabled || canShowRamp)
+      (isMultipleEnvEnabled || canShowRamp) &&
+      environmentList.length > 0 &&
+      !isOnlyDefaultShown
     );
   });
 
@@ -167,7 +176,7 @@ function AppViewer(props: Props) {
        * when redirected to the default page
        */
       if (prevPageId && pageId && isPageIdUpdated) {
-        dispatch(fetchPublishedPage(pageId, true));
+        dispatch(setupPublishedPage(pageId, true));
       }
     }
   }, [branch, pageId, applicationId, pathname]);
@@ -230,7 +239,7 @@ function AppViewer(props: Props) {
               hasPages={pages.length > 1}
               headerHeight={headerHeight}
               ref={focusRef}
-              showBottomBar={showBottomBar}
+              showBottomBar={!!showBottomBar}
               showGuidedTourMessage={showGuidedTourMessage}
             >
               {isInitialized && <AppViewerPageContainer />}
