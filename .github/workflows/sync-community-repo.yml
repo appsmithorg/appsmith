@@ -15,7 +15,7 @@ on:
 
 jobs:
   repo-sync:
-    runs-on: ubuntu-latest
+    runs-on: appsmith-self-hosted-deployment-runner
 
     steps:
       - uses: actions/checkout@v3
