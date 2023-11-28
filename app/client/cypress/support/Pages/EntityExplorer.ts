@@ -403,6 +403,7 @@ export class EntityExplorer {
       .wait(500)
       .type("{enter}")
       .wait(300);
+    this.assertHelper.AssertReduxLoad("UPDATE_PAGE_SUCCESS");
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
     this.AssertEntityPresenceInExplorer(renameVal);
   }
