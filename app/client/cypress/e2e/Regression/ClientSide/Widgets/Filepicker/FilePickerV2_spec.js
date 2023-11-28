@@ -56,10 +56,6 @@ describe("File picker widget v2", () => {
     cy.wait(1000);
     cy.validateEvaluatedValue("testFile.mov");
 
-    cy.get("[data-testid='more-action-trigger']")
-      .first()
-      .click({ force: true });
-
     // Go back to widgets page
     PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.get(widgetsPage.filepickerwidgetv2).should(

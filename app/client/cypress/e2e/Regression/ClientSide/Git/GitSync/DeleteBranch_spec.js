@@ -1,10 +1,6 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
-import {
-  agHelper,
-  homePage,
-  gitSync,
-} from "../../../../../support/Objects/ObjectsCore";
+import { agHelper, gitSync } from "../../../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,
   PagePaneSegment,
@@ -25,8 +21,7 @@ describe("Delete branch flow", () => {
     DeleteBranchFromUI(1);
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
-      cy.get(homePage.toastMessage).should(
-        "contain",
+      agHelper.ValidateToastMessage(
         `Cannot delete checked out branch. Please check out other branch before deleting ${branchName}.`,
       );
       cy.get(gitSyncLocators.closeBranchList).click({ force: true });

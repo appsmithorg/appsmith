@@ -10,10 +10,6 @@ import { expandLoadMoreOptions, OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import EditorNavigation, {
   EntityType,
-  AppSidebarButton,
-  AppSidebar,
-  PageLeftPane,
-  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
@@ -37,13 +33,12 @@ describe("excludeForAirgap", "One click binding control", () => {
       oneClickBindingLocator.datasourceOtherActionsSelector,
     );
 
-    dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
+    dataSources.CreateMockDB("Users").then(() => {
       dataSources.CreateQueryAfterDSSaved();
     });
 
     cy.wait(500);
-    AppSidebar.navigate(AppSidebarButton.Pages);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    EditorNavigation.ShowCanvas();
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
     agHelper.AssertElementExist(
@@ -72,7 +67,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     agHelper.AssertElementExist(dataSources._newDatasourceContainer);
 
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    EditorNavigation.ShowCanvas();
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -122,7 +117,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     dataSources.SaveDatasource();
 
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    EditorNavigation.ShowCanvas();
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
