@@ -119,6 +119,7 @@ const SearchListContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 12px;
+  overflow-y: auto;
 `;
 
 const SearhListItem = styled.div`

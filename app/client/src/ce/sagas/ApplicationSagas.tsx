@@ -134,7 +134,7 @@ import type { DeletingMultipleApps } from "@appsmith/reducers/uiReducers/applica
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import SearchApi from "@appsmith/api/SearchApi.ts";
+// import SearchApi from "@appsmith/api/SearchApi.ts";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -1141,16 +1141,16 @@ export function* deleteNavigationLogoSaga(
     });
   }
 }
-export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
+export function* searchWorkspaceEntitiesSaga() {
   try {
     // const response = yield call(SearchApi.searchAllEntities, action.payload);
-    const response = SearchApi.searchAllEntities(action.payload);
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS,
-        payload: response.data,
-      });
-    }
+    // const response = SearchApi.searchAllEntities(action.payload);
+    // const isValidResponse: boolean = yield validateResponse(response);
+    // if (isValidResponse) {
+    //   yield put({
+    //     type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS,
+    //     payload: response.data,
+    //   });
+    // }
   } catch (error) {}
 }
