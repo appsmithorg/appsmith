@@ -2294,3 +2294,5 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubheading: () => "Import partial application from file",
   },
 };
+
+export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
