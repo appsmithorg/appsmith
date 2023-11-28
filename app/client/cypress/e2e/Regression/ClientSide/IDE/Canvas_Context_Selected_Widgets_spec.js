@@ -237,8 +237,8 @@ describe("Canvas context widget selection", function () {
     //switch to tab 2 and select widget a button inside tab 2 in page1
     cy.get(".t--tabid-tab2").click({ force: true });
     EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
-    _.entityExplorer.ExpandCollapseEntity("Tabs1", true);
-    _.entityExplorer.ExpandCollapseEntity("Tab 2", true);
+    PageLeftPane.expandCollapseItem("Tabs1", true);
+    PageLeftPane.expandCollapseItem("Tab 2", true);
     EditorNavigation.SelectEntityByName("Button4", EntityType.Widget);
 
     //verify the tab 2 is open and Button 4 is selected in page1
@@ -266,8 +266,8 @@ describe("Canvas context widget selection", function () {
     //switch to tab 2 and select widget a button inside tab 2 in page1
     cy.get(".t--tabid-tab2").click({ force: true });
     EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
-    _.entityExplorer.ExpandCollapseEntity("Tabs1", true);
-    _.entityExplorer.ExpandCollapseEntity("Tab 2", true);
+    PageLeftPane.expandCollapseItem("Tabs1", true);
+    PageLeftPane.expandCollapseItem("Tab 2", true);
     EditorNavigation.SelectEntityByName("Button4", EntityType.Widget);
 
     //verify the tab 2 is open and Button 4 is selected in page1

@@ -1,6 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 let guid: any;
@@ -67,7 +68,7 @@ describe("Issue 24486 - Issue with Export Application", () => {
     ws2Name = "Bug24486-w2" + guid;
     _.homePage.CreateNewWorkspace(ws2Name, true);
     _.homePage.ImportApp("app-b24486.json", ws2Name);
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    PageLeftPane.expandCollapseItem("Widgets");
     _.entityExplorer.AssertEntityPresenceInExplorer("MyText");
     EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
     _.propPane.ValidatePropertyFieldValue("Text", "Hello World");

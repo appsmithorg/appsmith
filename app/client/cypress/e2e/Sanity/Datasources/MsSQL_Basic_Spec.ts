@@ -16,6 +16,7 @@ import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
 import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spec_utility";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../support/Pages/EditorNavigation";
 import PageList from "../../../support/Pages/PageList";
 
@@ -304,7 +305,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page2",
       action: "Delete",

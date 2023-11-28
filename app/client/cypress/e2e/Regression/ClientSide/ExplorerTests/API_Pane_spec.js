@@ -1,5 +1,6 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -17,13 +18,13 @@ describe("Entity explorer API pane related testcases", function () {
   it("1. Empty Message validation for Widgets/API/Queries", function () {
     homePage.CreateNewWorkspace("EmptyMsgCheck", true);
     homePage.CreateAppInWorkspace("EmptyMsgCheck");
-    ee.ExpandCollapseEntity("Widgets");
+    PageLeftPane.expandCollapseItem("Widgets");
     agHelper.AssertElementVisibility(
       locator._visibleTextSpan("No widget to display"),
     );
     agHelper.AssertElementVisibility(locator._visibleTextSpan("New widget"));
 
-    ee.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     agHelper.AssertElementVisibility(
       locator._visibleTextSpan("No query/JS to display"),
     );
@@ -41,7 +42,7 @@ describe("Entity explorer API pane related testcases", function () {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    ee.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     ee.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "FirstAPI",
       action: "Show bindings",
@@ -58,7 +59,7 @@ describe("Entity explorer API pane related testcases", function () {
     cy.Createpage(pageid);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.Sleep(); //for the selected entity to settle loading!
-    ee.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     ee.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "FirstAPI",
       action: "Edit name",
@@ -76,7 +77,7 @@ describe("Entity explorer API pane related testcases", function () {
       toastToValidate: "action moved to page",
     });
     cy.wait(500);
-    ee.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     ee.AssertEntityPresenceInExplorer("SecondAPI");
     ee.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "SecondAPI",

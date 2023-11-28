@@ -5,6 +5,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -13,7 +14,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
   it("1. Validate JSObject creation & Run", () => {
     jsEditor.CreateJSObject('return "Hello World";');
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.AssertEntityPresenceInExplorer("JSObject1");
     jsEditor.ValidateDefaultJSObjProperties("JSObject1");
 
@@ -55,7 +56,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       toastToValidate: "moved to page",
     });
     EditorNavigation.SelectEntityByName(newPageId, EntityType.Page);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
   });

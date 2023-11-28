@@ -7,6 +7,7 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 let guid: any, dsName_1: any, dsName_2: any;
 
 describe("Test Postgres number of connections on page load + Bug 11572, Bug 11202", function () {
@@ -146,7 +147,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
     "Verify Verify Deletion of all created queries & Deletion of datasource",
     () => {
       //Verify Deletion of all created queries
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "create_user",
         action: "Delete",
@@ -174,7 +175,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       //Verify deletion of datasource
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName_1, 200);
       dataSources.DeleteDatasourceFromWithinDS(dsName_2, 200);
     },

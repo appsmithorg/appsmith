@@ -2,6 +2,7 @@ import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlag
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 let ws1Name: string;
@@ -50,7 +51,7 @@ describe("Git Connect V2", function () {
 
       _.gitSync.ImportAppFromGitV2(ws2Name, repoName);
       _.gitSync.SwitchGitBranch(branchName);
-      _.entityExplorer.ExpandCollapseEntity("Widgets");
+      PageLeftPane.expandCollapseItem("Widgets");
       _.entityExplorer.AssertEntityPresenceInExplorer("MyText");
       EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
       _.propPane.ValidatePropertyFieldValue("Text", "Hello World");

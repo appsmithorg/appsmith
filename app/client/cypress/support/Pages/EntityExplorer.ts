@@ -55,10 +55,6 @@ export class EntityExplorer {
     "//div[contains(@class, 't--entity-explorer')]//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
     "']";
-  private _expandCollapseArrow = (entityNameinLeftSidebar: string) =>
-    "//div[text()='" +
-    entityNameinLeftSidebar +
-    "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]";
 
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + "']";
@@ -90,59 +86,6 @@ export class EntityExplorer {
     this.agHelper.AssertElementAbsence(
       this._entityNameInExplorer(entityNameinLeftSidebar),
     );
-  }
-
-  public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    this.agHelper.AssertElementVisibility(
-      this._expandCollapseArrow(entityName),
-      true,
-      index,
-      30000,
-    );
-
-    cy.xpath(this._expandCollapseArrow(entityName))
-      .eq(index)
-      .wait(500)
-      .invoke("attr", "id")
-      .then((arrow) => {
-        if (expand && arrow == "arrow-right-s-line") {
-          cy.xpath(this._expandCollapseArrow(entityName))
-            .eq(index)
-            .trigger("click", { force: true })
-            .wait(500);
-          // this.agHelper
-          //   .GetElement(this._expandCollapseSection(entityName))
-          //   .then(($div: any) => {
-          //     cy.log("Checking style - expand");
-          //     while (!$div.attr("style").includes("overflow-y: visible;")) {
-          //       cy.log("Inside style check - expand");
-          //       cy.xpath(this._expandCollapseArrow(entityName))
-          //         .eq(index)
-          //         .trigger("click", { multiple: true })
-          //         .wait(500);
-          //     }
-          //   });
-        } else if (!expand && arrow == "arrow-down-s-line") {
-          cy.xpath(this._expandCollapseArrow(entityName))
-            .eq(index)
-            .trigger("click", { force: true })
-            .wait(500);
-          // this.agHelper
-          //   .GetElement(this._expandCollapseSection(entityName))
-          //   .then(($div: any) => {
-          //     cy.log("Checking style - collapse");
-          //     while ($div.attr("style").includes("overflow-y: visible;")) {
-          //       cy.log("Inside style check - collapse");
-          //       cy.xpath(this._expandCollapseArrow(entityName))
-          //         .eq(index)
-          //         .trigger("click", { multiple: true })
-          //         .wait(500);
-          //     }
-          //   });
-        } else this.agHelper.Sleep(200);
-      });
   }
 
   public ActionContextMenuByEntityName({

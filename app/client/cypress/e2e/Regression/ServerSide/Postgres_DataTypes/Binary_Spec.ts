@@ -4,7 +4,6 @@ import {
   assertHelper,
   dataSources,
   deployMode,
-  entityExplorer,
   entityItems,
   locators,
   table,
@@ -12,6 +11,7 @@ import {
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Binary Datatype tests", function () {
@@ -248,7 +248,7 @@ describe("Binary Datatype tests", function () {
   it("9. Validating Binary (bytea) - escape, hex, base64 functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyBinaryFunctions");
 
@@ -377,7 +377,7 @@ describe("Binary Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   //Since query delete & Postgress DS delete is covered in other specs, commenting below code

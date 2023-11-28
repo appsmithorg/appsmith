@@ -15,6 +15,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const successMessage = "Successful Trigger";
@@ -92,7 +93,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete Api and assert that lint error shows
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
@@ -155,7 +156,7 @@ describe("Linting", () => {
       },
     );
     clickButtonAndAssertLintError(false);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
@@ -216,7 +217,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
       action: "Delete",
@@ -265,7 +266,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete all
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",

@@ -12,6 +12,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const pagename = "ChildPage";
@@ -88,7 +89,7 @@ describe("Git sync Bug #10773", function () {
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", true);
+    PageLeftPane.expandCollapseItem("Queries/JS", true);
     // create JS Object and validate its data on Page1
     jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
@@ -166,7 +167,7 @@ describe("Git sync Bug #10773", function () {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       agHelper.AddDsl("JsObjecWithGitdsl");
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", true);
+    PageLeftPane.expandCollapseItem("Queries/JS", true);
     // create JS Object and validate its data on Page1
     jsEditor.CreateJSObject('return "Success";');
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);

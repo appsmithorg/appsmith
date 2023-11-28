@@ -77,17 +77,17 @@ describe("Git discard changes:", function () {
     cy.wait("@getPage");
     // discard changes
     gitSync.DiscardChanges();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     // verify query2 is not present
     entityExplorer.AssertEntityAbsenceInExplorer(query2);
   });
 
   it("3. Add new JSObject , discard changes verify JSObject is deleted", () => {
     jsEditor.CreateJSObject('return "Success";');
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.AssertEntityPresenceInExplorer(jsObject);
     gitSync.DiscardChanges();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     // verify jsObject2 is deleted after discarding changes
     entityExplorer.AssertEntityAbsenceInExplorer(jsObject);
   });
@@ -153,7 +153,7 @@ describe("Git discard changes:", function () {
     // discard changes
     gitSync.DiscardChanges();
     // verify page3 is removed
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.AssertEntityAbsenceInExplorer(page3);
   });
 

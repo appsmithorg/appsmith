@@ -52,9 +52,9 @@ class EditorNavigation {
   ) {
     AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    _.EntityExplorer.ExpandCollapseEntity("Widgets");
+    PageLeftPane.expandCollapseItem("Widgets");
     hierarchy.forEach((level) => {
-      _.EntityExplorer.ExpandCollapseEntity(level);
+      PageLeftPane.expandCollapseItem(level);
     });
     PageLeftPane.selectItem(name, clickOptions);
     _.AggregateHelper.Sleep(); //for selection to settle
@@ -63,7 +63,7 @@ class EditorNavigation {
   NavigateToQuery(name: string) {
     AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    _.EntityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
@@ -71,14 +71,14 @@ class EditorNavigation {
   NavigateToJSObject(name: string) {
     AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    _.EntityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   NavigateToPage(name: string) {
     AppSidebar.navigate(AppSidebarButton.Pages);
-    _.EntityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AggregateHelper.Sleep(); //for selection to settle
   }

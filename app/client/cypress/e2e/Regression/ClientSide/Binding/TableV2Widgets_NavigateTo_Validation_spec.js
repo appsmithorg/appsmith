@@ -1,5 +1,6 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -31,7 +32,7 @@ describe("Table Widget V2 and Navigate to functionality validation", function ()
     agHelper.AddDsl("displayWidgetDsl");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.AssertEntityPresenceInExplorer(pageid);
     //Table Widget V2 Functionality with multiple page
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);

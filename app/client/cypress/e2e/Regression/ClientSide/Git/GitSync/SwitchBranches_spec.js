@@ -125,7 +125,7 @@ describe("Git sync:", function () {
       true,
     );
     agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
     cy.switchGitBranch(parentBranchKey);

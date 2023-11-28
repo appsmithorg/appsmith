@@ -7,6 +7,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Rich Text Editor widget Tests", function () {
@@ -39,7 +40,7 @@ describe("Rich Text Editor widget Tests", function () {
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{c}`);
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
     agHelper.Sleep(1000);
-    entityExplorer.ExpandCollapseEntity("NewContainer");
+    PageLeftPane.expandCollapseItem("NewContainer");
     entityExplorer.AssertEntityPresenceInExplorer("NewContainerCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewContainerCopy");
 

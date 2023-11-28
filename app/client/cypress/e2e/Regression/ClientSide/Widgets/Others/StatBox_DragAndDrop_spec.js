@@ -23,7 +23,7 @@ describe("Statbox Widget Functionality", function () {
     );
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     entityExplorer.AssertEntityPresenceInExplorer("Statbox1");
-    entityExplorer.ExpandCollapseEntity("Container1");
+    PageLeftPane.expandCollapseItem("Container1");
     entityExplorer.AssertEntityPresenceInExplorer("Statbox2");
   });
 });

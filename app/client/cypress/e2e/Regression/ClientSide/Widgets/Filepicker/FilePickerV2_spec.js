@@ -75,7 +75,7 @@ describe("File picker widget v2", () => {
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
 
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     cy.get(".t--entity-item:contains(Api1)").click();
     cy.focusCodeInput("[class*='t--actionConfiguration']");
     cy.wait(1000);

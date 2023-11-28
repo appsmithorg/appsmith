@@ -6,6 +6,10 @@ export class LeftPane {
 
   locators = {
     segment: (name: string) => "//span[text()='" + name + "']/ancestor::div",
+    expandCollapseArrow: (name: string) =>
+      "//div[text()='" +
+      name +
+      "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
   };
 
   constructor(listItemSelector: (name: string) => string, segments?: string[]) {
@@ -59,6 +63,24 @@ export class LeftPane {
           ? { ctrlKey: true, force: true }
           : { multiple: true, force: true },
       );
+  }
+
+  public expandCollapseItem(itemName: string, expand = true) {
+    this.assertPresence(itemName);
+    ObjectsRegistry.AggregateHelper.AssertElementVisibility(
+      this.locators.expandCollapseArrow(itemName),
+    );
+    cy.xpath(this.locators.expandCollapseArrow(itemName))
+      .its("id")
+      .then((state) => {
+        const closed = state === "arrow-right-s-line";
+        const opened = state === "arrow-down-s-line";
+        if ((expand && closed) || (!expand && opened)) {
+          ObjectsRegistry.AggregateHelper.GetNClick(
+            this.locators.expandCollapseArrow(itemName),
+          );
+        }
+      });
   }
 
   public assertSelected(name: string) {
