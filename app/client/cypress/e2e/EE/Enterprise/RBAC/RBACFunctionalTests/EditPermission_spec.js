@@ -12,11 +12,11 @@ const omnibar = require("../../../../../locators/Omnibar.json");
 import {
   jsEditor,
   homePage,
-  dataSources,
   agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
@@ -214,7 +214,7 @@ describe.skip("Edit Permission flow ", function () {
     cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
     cy.wait(4000);
     // verify user is able edit widget name
     cy.openPropertyPane("tablewidget");
@@ -225,7 +225,7 @@ describe.skip("Edit Permission flow ", function () {
     );
     cy.wait(2000);
     // verify user is  able to edit datasource and queries
-    dataSources.navigateToDatasource(datasourceName2);
+    EditorNavigation.SelectEntityByName(datasourceName2, EntityType.Datasource);
     cy.get(datasource.createQuery).should("be.disabled");
     cy.get(datasource.editDatasource).click();
     cy.get(datasourceEditor.port)
@@ -285,7 +285,7 @@ describe.skip("Edit Permission flow ", function () {
     cy.get(`.t--entity-item:contains(${pageName})`).first().click();
     cy.wait("@getPage");
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
     cy.wait(4000);
     cy.openPropertyPane("tablewidget");
     cy.widgetText(
@@ -310,8 +310,7 @@ describe.skip("Edit Permission flow ", function () {
     EditorNavigation.ViaSidebar(SidebarButton.Data);
     cy.get(datasource.datasourceCard).should("not.exist");
     // datasoruce is not visible
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(".t--entity-name").contains("SelectQuery").click();
+    EditorNavigation.SelectEntityByName("SelectQuery", EntityType.Query);
     cy.wait(1000);
     agHelper.GetNClick(".rc-select-selector", 0, true);
     //verify it doesn't contain create new datasource option from dropdown

@@ -1,14 +1,17 @@
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
-  homePage,
-  agHelper,
   adminSettings,
-  entityExplorer,
-  locators,
+  agHelper,
   dataSources,
-  rbacHelper,
+  entityExplorer,
   fakerHelper,
+  homePage,
+  locators,
+  rbacHelper,
 } from "../../../../../support/ee/ObjectsCore_EE";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Create group, check if users in group has group roles accessess", function () {
   let workspaceName: string, appName: string, datasourceName;
@@ -104,15 +107,17 @@ describe("Create group, check if users in group has group roles accessess", func
     featureFlagIntercept({ license_gac_enabled: true });
     cy.wait(5000);
     homePage.SearchAndOpenApp(appName);
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementAbsence(locators._saveStatusError);
-    entityExplorer.SelectEntityByName(pageName, "Pages");
+    entityExplorer.NavigateToSwitcher("Widgets");
     entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementExist(locators._saveStatusError);
-    entityExplorer.SelectEntityByName(queryName, "Queries/JS");
-    agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
-    agHelper.AssertElementAbsence(locators._contextMenuItem("Copy to page"));
+    entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: queryName,
+      entityType: EntityType.Query,
+      action: "Copy to page",
+    });
   });
 
   /**
@@ -129,9 +134,9 @@ describe("Create group, check if users in group has group roles accessess", func
       "Developer",
     );
     homePage.SearchAndOpenApp(appName);
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragDropWidgetNVerify("checkboxwidget");
-    entityExplorer.SelectEntityByName(pageName, "Pages");
+    entityExplorer.NavigateToSwitcher("Widgets");
     entityExplorer.DragDropWidgetNVerify("checkboxwidget");
   });
 });

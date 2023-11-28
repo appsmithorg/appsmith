@@ -13,6 +13,7 @@ const AppNavigation = require("../../../../../locators/AppNavigation.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 let workspaceId, appid;
@@ -127,7 +128,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
       "contain",
       "Connect new datasource",
     );
-    dataSources.navigateToDatasource("Postgres");
+    EditorNavigation.SelectEntityByName("Postgres", EntityType.Datasource);
     cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
     agHelper.ClickButton("Share");
     agHelper.Sleep();
@@ -188,7 +189,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
       "not.contain",
       "Connect new datasource",
     );
-    dataSources.navigateToDatasource("Postgres");
+    EditorNavigation.SelectEntityByName("Postgres", EntityType.Datasource);
     cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
     agHelper.ClickButton("Share");
     agHelper.Sleep();
@@ -249,7 +250,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
       "not.contain",
       "Connect new datasource",
     );
-    dataSources.navigateToDatasource("Postgres");
+    EditorNavigation.SelectEntityByName("Postgres", EntityType.Datasource);
     cy.get(dataSources._createQuery).should("not.have.attr", "disabled");
     agHelper.Sleep(2000);
     deployMode.DeployApp();

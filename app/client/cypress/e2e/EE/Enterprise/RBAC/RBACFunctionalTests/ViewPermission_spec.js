@@ -13,6 +13,9 @@ import {
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 let currentUrl;
 
 describe("View Permission flow ", function () {
@@ -257,9 +260,10 @@ describe("View Permission flow ", function () {
     cy.get(homePageLocators.applicationCard).trigger("mouseover");
     cy.get(homePageLocators.appEditIcon).should("exist").click();
     cy.wait(3000);
+    EditorNavigation.SelectEntityByName("page2", EntityType.Page);
     cy.get(".t--entity-name:contains('page2')").click();
     cy.wait(3000);
-    cy.get(".t--entity-name:contains('Api123')").click();
+    EditorNavigation.SelectEntityByName("Api123", EntityType.Api);
     cy.RunAPI();
   });
 

@@ -1,18 +1,21 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import {
-  multipleEnv,
   agHelper,
+  assertHelper,
+  dataManager,
   dataSources,
   deployMode,
-  entityExplorer,
-  locators,
-  dataManager,
-  table,
-  assertHelper,
   draggableWidgets,
+  entityExplorer,
   entityItems,
+  locators,
+  multipleEnv,
+  table,
 } from "../../../../support/ee/ObjectsCore_EE";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let meDatasourceName: string,
   meQueryName: string,
@@ -89,7 +92,10 @@ describe(
       agHelper.Sleep(2000);
       entityExplorer.AddNewPage("New blank page");
       multipleEnv.SwitchEnv(stagingEnv);
-      dataSources.navigateToDatasource(meDSStagingOnlyName);
+      EditorNavigation.SelectEntityByName(
+        meDSStagingOnlyName,
+        EntityType.Datasource,
+      );
       dataSources.CreateQueryAfterDSSaved(query, meStagingOnlyQueryName);
       // Run and verify the response for the query
       dataSources.RunQueryNVerifyResponseViews(43);
@@ -126,7 +132,7 @@ describe(
         'The action "postgres_stageonly_select" has failed.',
       );
       agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
-      entityExplorer.SelectEntityByName("Page1", "Pages");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.GetNAssertContains(
         locators._tableRecordsContainer,
         "600 Records",
@@ -230,14 +236,14 @@ describe(
       deployMode.NavigateBacktoEditor();
       multipleEnv.SwitchEnv(prodEnv);
       // Clean up
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",
         entityType: entityItems.Widget,
       });
       dataSources.DeleteQuery(meQueryName);
-      entityExplorer.SelectEntityByName("Page2", "Pages");
+      EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
       dataSources.DeleteQuery(meStagingOnlyQueryName);
       // Won't be deleting the ds since it is being used by a query in deploy mode
     });

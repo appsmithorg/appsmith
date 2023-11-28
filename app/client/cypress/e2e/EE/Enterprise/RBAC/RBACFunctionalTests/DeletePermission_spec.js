@@ -14,6 +14,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
@@ -172,7 +173,7 @@ describe("Delete Permission flow ", function () {
     cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
     cy.wait(4000);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify deletion of query
@@ -189,7 +190,7 @@ describe("Delete Permission flow ", function () {
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Deletepage("page2");
     // verify page is deleted
-    cy.get(`.t--entity-name:contains(${page2})`).should("not.exist");
+    entityExplorer.AssertEntityAbsenceInExplorer(page2);
   });
 
   it("2. Delete permission : App level; verify user don't have create permissions", function () {
@@ -219,7 +220,7 @@ describe("Delete Permission flow ", function () {
     cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
     cy.wait(4000);
     // verify query deletion
     cy.CheckAndUnfoldEntityItem("Queries/JS");
@@ -266,7 +267,7 @@ describe("Delete Permission flow ", function () {
     cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
     cy.wait(4000);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({

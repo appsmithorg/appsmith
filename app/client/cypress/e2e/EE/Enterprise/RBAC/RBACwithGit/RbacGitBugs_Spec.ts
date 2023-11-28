@@ -1,19 +1,22 @@
 import template from "../../../../../locators/TemplatesLocators.json";
 import RBAC from "../../../../../locators/RBAClocators.json";
 import {
-  agHelper,
   adminSettings,
+  agHelper,
+  apiPage,
   assertHelper,
   dataManager,
   dataSources,
+  draggableWidgets,
   entityExplorer,
   gitSync,
   homePage,
   rbacHelper,
-  draggableWidgets,
-  apiPage,
 } from "../../../../../support/ee/ObjectsCore_EE";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "excludeForAirgap",
@@ -131,7 +134,7 @@ describe(
       apiPage.CreateAndFillApi(
         dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
       );
-      entityExplorer.SelectEntityByName("Button1", "Widgets");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
       // Validate if we are able to commit these changes to new branch
       gitSync.CommitAndPush();

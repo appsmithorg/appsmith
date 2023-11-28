@@ -1,16 +1,19 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
-  multipleEnv,
   agHelper,
+  dataManager,
   dataSources,
   deployMode,
   draggableWidgets,
   entityExplorer,
-  locators,
-  propPane,
-  dataManager,
   entityItems,
+  locators,
+  multipleEnv,
+  propPane,
 } from "../../../../support/ee/ObjectsCore_EE";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let oosDatasourceName: string,
   oosQueryName: string,
@@ -109,7 +112,7 @@ describe(
         `${oosQueryResponseLength} Records`,
       );
       //Navigate to the table widget
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       multipleEnv.SwitchEnv(prodEnv);
       //[Done]TODO: move to common locators
       cy.get(locators._tableRecordsContainer).should(
@@ -145,7 +148,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       multipleEnv.SwitchEnv(prodEnv);
       // Clean up
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",

@@ -16,6 +16,9 @@ import {
   dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe.skip("Create Permission flow ", function () {
   let datasourceName;
@@ -399,7 +402,7 @@ describe.skip("Create Permission flow ", function () {
     cy.wait(1000);
     cy.wait("@createNewApi").then((response) => {
       apiName = response.response.body.data.name;
-      entityExplorer.SelectEntityByName(apiName, "Queries/JS");
+      EditorNavigation.SelectEntityByName(apiName, EntityType.Api);
     });
     agHelper.RenameWithInPane(apiName);
 

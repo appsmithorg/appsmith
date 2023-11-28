@@ -1,14 +1,17 @@
 import {
-  homePage,
-  agHelper,
   adminSettings,
+  agHelper,
+  dataSources,
   entityExplorer,
   fakerHelper,
+  homePage,
   locators,
   rbacHelper,
-  dataSources,
 } from "../../../../../support/ee/ObjectsCore_EE";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("User performing actions on page with access and without access Tests", function () {
   let workspaceName: string, appName: string, datasourceName;
@@ -108,13 +111,13 @@ describe("User performing actions on page with access and without access Tests",
     featureFlagIntercept({ license_gac_enabled: true });
     cy.wait(5000);
     homePage.SearchAndOpenApp(appName);
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementAbsence(locators._saveStatusError);
-    entityExplorer.SelectEntityByName(pageName, "Pages");
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementExist(locators._saveStatusError);
-    entityExplorer.SelectEntityByName(queryName, "Queries/JS");
+    EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
     agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
     agHelper.AssertElementAbsence(locators._contextMenuItem("Copy to page"));
   });
@@ -139,9 +142,9 @@ describe("User performing actions on page with access and without access Tests",
       "Developer",
     );
     homePage.SearchAndOpenApp(appName);
-    entityExplorer.SelectEntityByName("Page1", "Pages");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragDropWidgetNVerify("checkboxwidget");
-    entityExplorer.SelectEntityByName(pageName, "Pages");
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     entityExplorer.DragDropWidgetNVerify("checkboxwidget");
   });
 
@@ -172,8 +175,8 @@ describe("User performing actions on page with access and without access Tests",
     featureFlagIntercept({ license_gac_enabled: true });
     cy.wait(5000);
     homePage.SearchAndOpenApp(appName);
-    entityExplorer.SelectEntityByName(pageName, "Pages");
-    entityExplorer.SelectEntityByName(queryName, "Queries/JS");
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
+    EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
     agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
     agHelper.AssertElementExist(locators._contextMenuItem("Copy to page"));
     agHelper.AssertElementAbsence(locators._contextMenuItem("Delete"));
@@ -203,8 +206,8 @@ describe("User performing actions on page with access and without access Tests",
       "App Viewer",
     );
     homePage.SearchAndOpenApp(appName);
-    entityExplorer.SelectEntityByName(pageName, "Pages");
-    entityExplorer.SelectEntityByName(queryName, "Queries/JS");
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
+    EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
     agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
     agHelper.AssertElementExist(locators._contextMenuItem("Delete"));
   });

@@ -5,6 +5,7 @@ const RBAC = require("../../../../../locators/RBAClocators.json");
 const Explorer = require("../../../../../locators/explorerlocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  EntityType,
   SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 let workspaceId, appid;
@@ -172,7 +173,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "not.contain",
       "Connect new datasource",
     );
-    _.dataSources.navigateToDatasource("Postgres");
+    EditorNavigation.SelectEntityByName("Postgres", EntityType.Datasource);
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");
     _.agHelper.ClickButton("Share");
     _.agHelper.Sleep();
@@ -275,7 +276,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       "not.contain",
       "Connect new datasource",
     );
-    _.dataSources.navigateToDatasource("Postgres");
+    EditorNavigation.SelectEntityByName("Postgres", EntityType.Datasource);
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");
     _.agHelper.Sleep(2000);
     _.deployMode.DeployApp();

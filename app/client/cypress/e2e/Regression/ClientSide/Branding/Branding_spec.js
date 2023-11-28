@@ -146,7 +146,7 @@ describe("Branding", () => {
 
       // branding favicon
       cy.get(locators.AdmingSettingsFaviconInput).selectFile(
-        "cypress/fixtures/appsmithlogo.png",
+        "cypress/fixtures/appsmithfavicon.png",
         { force: true },
       );
 
