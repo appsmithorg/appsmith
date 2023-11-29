@@ -1,5 +1,3 @@
-// TODO (workflows): remove eslint disable
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import {
   ACTION_OPERATION_DESCRIPTION,
@@ -20,8 +18,6 @@ import {
   GraphQLIconV2,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { createNewApiAction } from "actions/apiPaneActions";
-import { createNewJSCollection } from "actions/jsPaneActions";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
@@ -31,6 +27,10 @@ import { FocusEntity } from "navigation/FocusEntity";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon } from "design-system";
 import type { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import {
+  createNewAPIBasedOnParentEntity,
+  createNewJSCollectionBasedOnParentEntity,
+} from "@appsmith/actions/helpers";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -280,7 +280,13 @@ export const actionOperations: ActionOperation[] = [
       entityId: string,
       location: EventLocation,
       entityType?: ACTION_PARENT_ENTITY_TYPE,
-    ) => createNewApiAction(entityId, location),
+    ) =>
+      createNewAPIBasedOnParentEntity(
+        entityId,
+        location,
+        undefined,
+        entityType,
+      ),
   },
   {
     title: "New blank GraphQL API",
@@ -291,7 +297,13 @@ export const actionOperations: ActionOperation[] = [
       entityId: string,
       location: EventLocation,
       entityType?: ACTION_PARENT_ENTITY_TYPE,
-    ) => createNewApiAction(entityId, location, PluginPackageName.GRAPHQL),
+    ) =>
+      createNewAPIBasedOnParentEntity(
+        entityId,
+        location,
+        PluginPackageName.GRAPHQL,
+        entityType,
+      ),
   },
   {
     title: "New JS Object",
@@ -302,21 +314,17 @@ export const actionOperations: ActionOperation[] = [
       entityId: string,
       from: EventLocation,
       entityType?: ACTION_PARENT_ENTITY_TYPE,
-    ) => createNewJSCollection(entityId, from),
+    ) => createNewJSCollectionBasedOnParentEntity(entityId, from, entityType),
   },
   {
     title: "New cURL import",
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
-    redirect: (
-      entityId: string,
-      from: EventLocation,
-      entityType?: ACTION_PARENT_ENTITY_TYPE,
-    ) => {
+    redirect: (entityId: string, from: EventLocation) => {
       const queryParams = getQueryParams();
       const curlImportURL = curlImportPageURL({
-        pageId: entityId,
+        parentEntityId: entityId,
         params: {
           from,
           ...queryParams,

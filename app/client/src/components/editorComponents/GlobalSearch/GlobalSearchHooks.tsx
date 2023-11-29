@@ -37,10 +37,8 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
-import {
-  createNewQueryBasedOnParentEntity,
-  type ACTION_PARENT_ENTITY_TYPE,
-} from "@appsmith/entities/Engine/actionHelpers";
+import type { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { createNewQueryBasedOnParentEntity } from "@appsmith/actions/helpers";
 
 export const useFilteredFileOperations = (
   query = "",
