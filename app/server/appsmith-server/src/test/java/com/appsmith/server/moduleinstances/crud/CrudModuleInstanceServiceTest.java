@@ -6,11 +6,15 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.models.MustacheBindingToken;
-import com.appsmith.server.acl.AclPermission;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.modules.crud.CrudModuleService;
@@ -19,9 +23,13 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.packages.crud.CrudPackageService;
 import com.appsmith.server.packages.publish.PublishPackageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.ModuleInstanceRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -29,6 +37,7 @@ import com.appsmith.server.testhelpers.moduleinstances.ModuleInstanceTestHelper;
 import com.appsmith.server.testhelpers.moduleinstances.ModuleInstanceTestHelperDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +53,19 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Set;
 
+import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_MODULE_INSTANCES;
+import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
+import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
+import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -69,10 +90,7 @@ public class CrudModuleInstanceServiceTest {
     ObjectMapper objectMapper;
 
     @Autowired
-    CrudPackageService crudPackageService;
-
-    @Autowired
-    PublishPackageService publishPackageService;
+    ModuleInstanceRepository moduleInstanceRepository;
 
     @Autowired
     CrudModuleService crudModuleService;
@@ -87,7 +105,13 @@ public class CrudModuleInstanceServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    NewPageService newPageService;
+    PermissionGroupService permissionGroupService;
+
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -107,6 +131,15 @@ public class CrudModuleInstanceServiceTest {
     ModuleInstanceTestHelper moduleInstanceTestHelper;
 
     ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO;
+
+    @Autowired
+    CrudPackageService crudPackageService;
+
+    @Autowired
+    PublishPackageService publishPackageService;
+
+    @Autowired
+    NewPageService newPageService;
 
     @BeforeEach
     public void setup() {
@@ -175,13 +208,11 @@ public class CrudModuleInstanceServiceTest {
     }
 
     private Mono<List<NewAction>> getDBActions(CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO) {
-        Mono<List<NewAction>> fristActionsMono = newActionService
+        Mono<List<NewAction>> actionsMono = newActionService
                 .findAllUnpublishedComposedActionsByRootModuleInstanceId(
-                        createModuleInstanceResponseDTO.getModuleInstance().getId(),
-                        AclPermission.EXECUTE_ACTIONS,
-                        false)
+                        createModuleInstanceResponseDTO.getModuleInstance().getId(), EXECUTE_ACTIONS, false)
                 .collectList();
-        return fristActionsMono;
+        return actionsMono;
     }
 
     private void doAllAssertions(
@@ -233,13 +264,13 @@ public class CrudModuleInstanceServiceTest {
 
         NewAction modulePublicAction = moduleInstanceTestHelperDTO.getModulePublicAction();
         // Assert that module level settings should remain the same in the instantiated public entity
-        assertThat(modulePublicAction
+        assertThat(moduleInstancePublicActionViewDTO.getTimeoutInMillisecond())
+                .isEqualTo(modulePublicAction
                         .getPublishedAction()
                         .getActionConfiguration()
-                        .getTimeoutInMillisecond())
-                .isEqualTo(moduleInstancePublicActionViewDTO.getTimeoutInMillisecond());
-        assertThat(modulePublicAction.getPublishedAction().getConfirmBeforeExecute())
-                .isEqualTo(moduleInstancePublicActionViewDTO.getConfirmBeforeExecute());
+                        .getTimeoutInMillisecond());
+        assertThat(moduleInstancePublicActionViewDTO.getConfirmBeforeExecute())
+                .isEqualTo(modulePublicAction.getPublishedAction().getConfirmBeforeExecute());
         assertThat(modulePublicAction
                         .getPublishedAction()
                         .getActionConfiguration()
@@ -306,12 +337,12 @@ public class CrudModuleInstanceServiceTest {
                                 moduleInstanceTestHelperDTO.getPageDTO().getId(),
                                 CreatorContextType.PAGE,
                                 deletedModuleInstance.getId(),
-                                AclPermission.READ_MODULE_INSTANCES)
+                                READ_MODULE_INSTANCES)
                         .collectList());
 
         Mono<List<NewAction>> actionsMono = deletedModuleInstanceMono.flatMap(deletedModuleInstance -> newActionService
                 .findAllUnpublishedComposedActionsByRootModuleInstanceId(
-                        deletedModuleInstance.getId(), AclPermission.EXECUTE_ACTIONS, true)
+                        deletedModuleInstance.getId(), EXECUTE_ACTIONS, true)
                 .collectList());
 
         StepVerifier.create(Mono.zip(deletedModuleInstanceMono, moduleInstancesMono, actionsMono))
@@ -323,6 +354,121 @@ public class CrudModuleInstanceServiceTest {
 
                     assertThat(moduleInstances.size()).isEqualTo(0);
                     assertThat(actions.size()).isEqualTo(0);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testAddingNewModuleInstance_inPublicApp_grantsPublicPermissionToRelevantEntities() {
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceService
+                .getById(moduleInstanceTestHelperDTO.getWorkspaceId())
+                .flatMapMany(workspace -> {
+                    Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        Application publicApp = applicationService
+                .changeViewAccess(moduleInstanceTestHelperDTO.getPageDTO().getApplicationId(), applicationAccessDTO)
+                .block();
+
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+        ModuleInstanceDTO moduleInstanceDTO = createModuleInstanceResponseDTO.getModuleInstance();
+
+        Mono<List<NewAction>> actionsMono = getDBActions(createModuleInstanceResponseDTO);
+        Mono<ModuleInstance> moduleInstanceMono = moduleInstanceRepository.findById(moduleInstanceDTO.getId());
+
+        Mono<PermissionGroup> publicAppPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
+
+        User anonymousUser = userService.findByEmail("anonymousUser").block();
+
+        StepVerifier.create(Mono.zip(
+                        moduleInstanceMono, actionsMono, defaultPermissionGroupsMono, publicAppPermissionGroupMono))
+                .assertNext(tuple -> {
+                    ModuleInstance moduleInstanceFromDb = tuple.getT1();
+                    List<NewAction> actionsFromDb = tuple.getT2();
+                    List<PermissionGroup> permissionGroups = tuple.getT3();
+                    PermissionGroup publicAppPermissionGroup = tuple.getT4();
+
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst()
+                            .get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst()
+                            .get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst()
+                            .get();
+
+                    Policy manageModuleInstancePolicy = Policy.builder()
+                            .permission(MANAGE_MODULE_INSTANCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readModuleInstancePolicy = Policy.builder()
+                            .permission(READ_MODULE_INSTANCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy deleteModuleInstancePolicy = Policy.builder()
+                            .permission(DELETE_MODULE_INSTANCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeModuleInstancePolicy = Policy.builder()
+                            .permission(EXECUTE_MODULE_INSTANCES.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(),
+                                    publicAppPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageActionPolicy = Policy.builder()
+                            .permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readActionPolicy = Policy.builder()
+                            .permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy deleteActionPolicy = Policy.builder()
+                            .permission(DELETE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeActionPolicy = Policy.builder()
+                            .permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(
+                                    adminPermissionGroup.getId(),
+                                    developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(),
+                                    publicAppPermissionGroup.getId()))
+                            .build();
+
+                    // Check that the datasource used in the app contains public execute permission
+                    Assertions.assertThat(moduleInstanceFromDb.getPolicies())
+                            .containsAll(Set.of(
+                                    manageModuleInstancePolicy,
+                                    readModuleInstancePolicy,
+                                    deleteModuleInstancePolicy,
+                                    executeModuleInstancePolicy));
+
+                    // Check that the action used in the app contains public execute permission
+                    assertThat(actionsFromDb.size()).isEqualTo(1);
+                    Assertions.assertThat(actionsFromDb.get(0).getPolicies())
+                            .containsAll(Set.of(
+                                    manageActionPolicy, readActionPolicy, deleteActionPolicy, executeActionPolicy));
+
+                    // Assert that viewerPermissionGroup has been assigned to anonymous user.
+                    Assertions.assertThat(publicAppPermissionGroup.getAssignedToUserIds())
+                            .contains(anonymousUser.getId());
                 })
                 .verifyComplete();
     }

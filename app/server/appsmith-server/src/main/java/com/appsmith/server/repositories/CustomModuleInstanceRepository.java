@@ -6,6 +6,7 @@ import com.appsmith.server.domains.ModuleInstance;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CustomModuleInstanceRepository extends AppsmithRepository<ModuleInstance> {
@@ -18,4 +19,6 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
             String branchName, String defaultModuleInstanceId, AclPermission permission);
 
     Flux<ModuleInstance> findAllByRootModuleInstanceId(String rootModuleInstanceId, Optional<AclPermission> permission);
+
+    Flux<ModuleInstance> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields);
 }

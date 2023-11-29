@@ -11,6 +11,7 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -91,7 +92,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
     private final SessionUserService sessionUserService;
     private final EmailService emailService;
     private final ConfigService configService;
-
     private final ApplicationServiceHelper applicationServiceHelper;
 
     public ApplicationServiceImpl(
@@ -518,6 +518,10 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 policyGenerator.getAllChildPermissions(pagePermissions, Action.class).stream()
                         .toList();
 
+        List<AclPermission> moduleInstancePermissions =
+                policyGenerator.getAllChildPermissions(pagePermissions, ModuleInstance.class).stream()
+                        .toList();
+
         return Map.of(
                 Workspace.class.getSimpleName(),
                 workspacePermissions,
@@ -530,7 +534,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 NewPage.class.getSimpleName(),
                 pagePermissions,
                 NewAction.class.getSimpleName(),
-                actionPermissions);
+                actionPermissions,
+                ModuleInstance.class.getSimpleName(),
+                moduleInstancePermissions);
     }
 
     /**
@@ -995,6 +1001,38 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
         monos.add(environmentsMono);
 
         return monos;
+    }
+
+    @Override
+    protected List<Mono<Void>> updatePoliciesForInheritingDomains(
+            Application application, Map<String, Policy> applicationPolicyMap, Boolean addViewAccess) {
+        List<Mono<Void>> monoList =
+                super.updatePoliciesForInheritingDomains(application, applicationPolicyMap, addViewAccess);
+
+        Map<String, Policy> pagePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicyMap, Application.class, Page.class);
+
+        updateModuleInstancePolicies(application, addViewAccess, monoList, pagePolicyMap);
+
+        return monoList;
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    protected void updateModuleInstancePolicies(
+            Application application,
+            Boolean addViewAccess,
+            List<Mono<Void>> monoList,
+            Map<String, Policy> pagePolicyMap) {
+        Map<String, Policy> moduleInstancePolicyMap = policySolution.generateInheritedPoliciesFromSourcePolicies(
+                pagePolicyMap, Page.class, ModuleInstance.class);
+
+        final Mono<Void> updatedModuleInstancesMono = policySolution
+                .updateWithPagePermissionsToAllItsModuleInstances(
+                        application.getId(), moduleInstancePolicyMap, addViewAccess)
+                .then();
+
+        monoList.add(updatedModuleInstancesMono);
     }
 
     private void validateInviteToApplicationDTO(InviteUsersToApplicationDTO inviteToApplicationDTO) {

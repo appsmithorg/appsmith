@@ -1,5 +1,7 @@
 package com.appsmith.server.services.ce_compatible;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -26,6 +28,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
@@ -85,4 +88,10 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
     public Mono<List<PermissionGroupInfoDTO>> fetchAllDefaultRolesWithoutPermissions() {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
+
+    protected void updateModuleInstancePolicies(
+            Application application,
+            Boolean addViewAccess,
+            List<Mono<Void>> monoList,
+            Map<String, Policy> pagePolicyMap) {}
 }

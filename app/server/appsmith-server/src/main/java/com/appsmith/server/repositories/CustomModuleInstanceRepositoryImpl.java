@@ -69,4 +69,11 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
 
         return queryAll(List.of(rootModuleInstanceIdCriterion), permission);
     }
+
+    @Override
+    public Flux<ModuleInstance> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
+        Criteria applicationCriteria = Criteria.where(fieldName(QModuleInstance.moduleInstance.applicationId))
+                .in(applicationIds);
+        return queryAll(List.of(applicationCriteria), includedFields, null, null, NO_RECORD_LIMIT);
+    }
 }

@@ -10,10 +10,12 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GacEntityMetadata;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.QModuleInstance;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPermissionGroup;
@@ -29,6 +31,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
+import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -99,6 +102,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
     private final ThemeRepository themeRepository;
     private final NewActionRepository newActionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
+    private final ModuleInstanceRepository moduleInstanceRepository;
     private final AnalyticsService analyticsService;
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
@@ -116,6 +120,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             ThemeRepository themeRepository,
             NewActionRepository newActionRepository,
             ActionCollectionRepository actionCollectionRepository,
+            ModuleInstanceRepository moduleInstanceRepository,
             AnalyticsService analyticsService,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
@@ -132,6 +137,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         this.themeRepository = themeRepository;
         this.newActionRepository = newActionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
+        this.moduleInstanceRepository = moduleInstanceRepository;
         this.analyticsService = analyticsService;
         this.newPageRepository = newPageRepository;
         this.datasourceRepository = datasourceRepository;
@@ -437,10 +443,8 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         Flux<Mono<Boolean>> postAllUpdatesEffectsFlux = Flux.defer(() -> {
             if (!CollectionUtils.isEmpty(applicationsRevokedInApplicationResourcesTab)) {
                 // Permissions may have changed for applications. We want to remove read workspace permission from any
-                // workspace
-                // where the current permission group has no permissions at the workspace level or atleast one read
-                // permission
-                // at the application level.
+                // workspace where the current permission group has no permissions at the workspace level or at least
+                // one read permission at the application level.
                 postAllUpdatesSideEffects.add(
                         removeWorkspaceReadIfRequired(permissionGroupId, applicationsRevokedInApplicationResourcesTab));
             }
@@ -948,6 +952,8 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             gacEntityName = "Action";
         } else if (entityName.equals(NewPage.class.getSimpleName())) {
             gacEntityName = "Page";
+        } else if (entityName.equals(ModuleInstance.class.getSimpleName())) {
+            gacEntityName = "Module Instance";
         } else {
             gacEntityName = entityName;
         }
@@ -1009,6 +1015,7 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                         + fieldName(QNewAction.newAction.publishedAction.datasource) + "."
                         + fieldName(QNewAction.newAction.publishedAction.datasource.id));
         List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
+        List<String> includedFieldsForModuleInstance = List.of(fieldName(QModuleInstance.moduleInstance.id));
 
         Mono<List<NewPage>> allPagesInApplicationMono = newPageRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(applicationId), includeFieldsForPage)
@@ -1020,12 +1027,20 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
         Mono<List<ActionCollection>> allActionCollectionInApplicationMono = actionCollectionRepository
                 .findAllByApplicationIds(List.of(applicationId), includeFieldsForActionCollection)
                 .collectList();
+        Mono<List<ModuleInstance>> allModuleInstancesInApplicationMono = moduleInstanceRepository
+                .findAllByApplicationIds(List.of(applicationId), includedFieldsForModuleInstance)
+                .collectList();
 
-        return Mono.zip(allPagesInApplicationMono, allActionsInApplicationMono, allActionCollectionInApplicationMono)
+        return Mono.zip(
+                        allPagesInApplicationMono,
+                        allActionsInApplicationMono,
+                        allActionCollectionInApplicationMono,
+                        allModuleInstancesInApplicationMono)
                 .flatMap(tuple -> {
                     List<NewPage> newPages = tuple.getT1();
                     List<NewAction> newActions = tuple.getT2();
                     List<ActionCollection> actionCollections = tuple.getT3();
+                    List<ModuleInstance> moduleInstances = tuple.getT4();
                     Set<String> datasourceIds = getAllDatasourceIdsFromActions(newActions);
 
                     Map<String, Class> entityIdEntityClassMap = new HashMap<>();
@@ -1078,6 +1093,16 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
                         toBeRemovedPermissionsForEntities.put(
                                 actionCollection.getId(),
                                 toBeRemovedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
+                    });
+
+                    moduleInstances.forEach(moduleInstance -> {
+                        entityIdEntityClassMap.put(moduleInstance.getId(), ModuleInstance.class);
+                        toBeAddedPermissionsForEntities.put(
+                                moduleInstance.getId(),
+                                toBeAddedPermissions.getOrDefault(ModuleInstance.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                moduleInstance.getId(),
+                                toBeRemovedPermissions.getOrDefault(ModuleInstance.class.getSimpleName(), List.of()));
                     });
 
                     return bulkUpdateEntityPoliciesForApplicationRole(

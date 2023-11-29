@@ -11,7 +11,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
-import org.jetbrains.annotations.NotNull;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
@@ -37,6 +36,7 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
         moduleInstanceDTO.setContextType(moduleInstance.getContextType());
         if (moduleInstance.getContextType() == CreatorContextType.PAGE) {
             moduleInstanceDTO.setContextId(moduleInstance.getPageId());
+            moduleInstanceDTO.setApplicationId(moduleInstance.getApplicationId());
         } else if (moduleInstance.getContextType() == CreatorContextType.MODULE) {
             moduleInstanceDTO.setContextId(moduleInstance.getModuleId());
         }
@@ -92,7 +92,7 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
         return moduleInstance;
     }
 
-    @NotNull protected Set<String> getExtractedKeys(ModuleInstanceDTO moduleInstanceDTO) {
+    protected Set<String> getExtractedKeys(ModuleInstanceDTO moduleInstanceDTO) {
         if (moduleInstanceDTO == null) {
             return new HashSet<>();
         }

@@ -19,6 +19,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class ModuleInstance extends BranchAwareDomain {
 
+    // Fields in module instance that are not allowed to change between published and unpublished versions
     @JsonView(Views.Export.class)
     String moduleUUID; // this refers to the `moduleUUID` field of the Module domain
 
