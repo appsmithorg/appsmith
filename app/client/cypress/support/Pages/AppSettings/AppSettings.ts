@@ -72,7 +72,7 @@ export class AppSettings {
   }
 
   public ClosePane() {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   }
 
   public GoToThemeSettings() {

@@ -29,7 +29,7 @@ describe("UUID Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
     appSettings.OpenPaneAndChangeTheme("Earth");

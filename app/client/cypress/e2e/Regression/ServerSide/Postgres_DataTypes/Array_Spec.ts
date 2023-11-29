@@ -533,7 +533,7 @@ describe("Array Datatype tests", function () {
     () => {
       //Verify Deletion of all created queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
       //Ds Deletion
@@ -541,7 +541,7 @@ describe("Array Datatype tests", function () {
       deployMode.NavigateBacktoEditor();
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
     },
   );
 });

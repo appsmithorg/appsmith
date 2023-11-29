@@ -34,7 +34,7 @@ describe("MySQL Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Creating mysqlDTs table & queries", () => {
