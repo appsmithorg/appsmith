@@ -13,9 +13,3 @@ export const WDS_V2_WIDGET_MAP = {
   SWITCH_GROUP_WIDGET: "WDS_SWITCH_GROUP_WIDGET",
   RADIO_GROUP_WIDGET: "WDS_RADIO_GROUP_WIDGET",
 };
-
-export const BORDER_RADIUS_OPTIONS = [
-  { label: "Sharp", value: "0px" },
-  { label: "Rounded", value: "6px" },
-  { label: "Pill", value: "14px" },
-];

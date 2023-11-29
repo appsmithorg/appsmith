@@ -1,18 +1,21 @@
 import styled from "styled-components";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import SettingSection from "./SettingSection";
+import { SegmentedControl, Switch, Tooltip } from "design-system";
 import type { ThemeSetting } from "constants/AppConstants";
-import ThemeColorControl from "./controls/ThemeColorControl";
 import BetaCard from "components/editorComponents/BetaCard";
-import ThemeSizingControl from "./controls/ThemeSizingControl";
-import ThemeDensityControl from "./controls/ThemeDensityControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
+
+import {
+  THEME_SETTINGS_BORDER_RADIUS_OPTIONS,
+  THEME_SETTINGS_DENSITY_OPTIONS,
+  THEME_SETTINGS_SIZING_OPTIONS,
+} from "./constants";
+import SettingSection from "../ThemePropertyPane/SettingSection";
 
 const SubText = styled.p`
   font-size: var(--ads-v2-font-size-4);
@@ -21,12 +24,30 @@ const SubText = styled.p`
   color: var(--ads-v2-color-fg);
 `;
 
-function ThemePropetyPane() {
-  const dispatch = useDispatch();
-  const applicationId = useSelector(getCurrentApplicationId);
-  const themeSettings = useSelector(getAppThemeSettings);
+const buttonGroupOptions = THEME_SETTINGS_BORDER_RADIUS_OPTIONS.map(
+  (optionKey) => ({
+    label: (
+      <Tooltip content={optionKey.label} key={optionKey.label}>
+        <div
+          className="w-5 h-5 border-t-2 border-l-2 t--theme-appBorderRadius"
+          style={{
+            borderTopLeftRadius: optionKey.value,
+            borderColor: "var(--ads-v2-color-fg)",
+          }}
+        />
+      </Tooltip>
+    ),
+    value: optionKey.value,
+  }),
+);
 
-  const updateSelectedTheme = useCallback(
+function ThemePropertyPane() {
+  const dispatch = useDispatch();
+  const theme = useSelector(getAppThemeSettings);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const [isFullColorPicker, setFullColorPicker] = React.useState(false);
+
+  const updateTheme = useCallback(
     (theme: ThemeSetting) => {
       // (TODO): Add analytics to track theming updates
 
@@ -57,11 +78,33 @@ function ThemePropetyPane() {
         {/* COLORS */}
         <SettingSection className="px-4 py-3" isDefaultOpen title="Color">
           <section className="space-y-2">
-            <ThemeColorControl
-              theme={themeSettings}
-              updateTheme={updateSelectedTheme}
+            <SubText>Color</SubText>
+            <ColorPickerComponent
+              changeColor={(color: string) => {
+                updateTheme({
+                  ...theme,
+                  accentColor: color,
+                });
+              }}
+              color={theme.accentColor}
+              isFullColorPicker={isFullColorPicker}
+              portalContainer={
+                document.getElementById("app-settings-portal") || undefined
+              }
+              setFullColorPicker={setFullColorPicker}
             />
           </section>
+          <Switch
+            defaultSelected={theme.colorMode === "dark"}
+            onChange={(isSelected: boolean) => {
+              updateTheme({
+                ...theme,
+                colorMode: isSelected ? "dark" : "light",
+              });
+            }}
+          >
+            Dark Mode
+          </Switch>
         </SettingSection>
 
         {/* BORDER RADIUS */}
@@ -72,9 +115,16 @@ function ThemePropetyPane() {
         >
           <section className="space-y-2">
             <SubText>Border Radius</SubText>
-            <ThemeBorderRadiusControl
-              theme={themeSettings}
-              updateTheme={updateSelectedTheme}
+            <SegmentedControl
+              isFullWidth={false}
+              onChange={(value: string) => {
+                updateTheme({
+                  ...theme,
+                  borderRadius: value,
+                });
+              }}
+              options={buttonGroupOptions}
+              value={theme.borderRadius}
             />
           </section>
         </SettingSection>
@@ -87,16 +137,30 @@ function ThemePropetyPane() {
         >
           <section className="space-y-2">
             <SubText>Density</SubText>
-            <ThemeDensityControl
-              theme={themeSettings}
-              updateTheme={updateSelectedTheme}
+            <SegmentedControl
+              isFullWidth={false}
+              onChange={(value: string) => {
+                updateTheme({
+                  ...theme,
+                  density: Number(value),
+                });
+              }}
+              options={THEME_SETTINGS_DENSITY_OPTIONS}
+              value={theme.density.toString()}
             />
           </section>
           <section className="space-y-2">
             <SubText>Sizing</SubText>
-            <ThemeSizingControl
-              theme={themeSettings}
-              updateTheme={updateSelectedTheme}
+            <SegmentedControl
+              isFullWidth={false}
+              onChange={(value: string) => {
+                updateTheme({
+                  ...theme,
+                  sizing: Number(value),
+                });
+              }}
+              options={THEME_SETTINGS_SIZING_OPTIONS}
+              value={theme.sizing.toString()}
             />
           </section>
         </SettingSection>
@@ -105,4 +169,4 @@ function ThemePropetyPane() {
   );
 }
 
-export default ThemePropetyPane;
+export { ThemePropertyPane };
