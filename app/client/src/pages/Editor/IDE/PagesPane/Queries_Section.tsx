@@ -1,14 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useSelector } from "react-redux";
 import { Flex, Text } from "design-system";
 import styled from "styled-components";
 
-import {
-  getCurrentPageId,
-  selectFilesForExplorer,
-} from "@appsmith/selectors/entitiesSelector";
+import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
+import { FilesContext } from "pages/Editor/Explorer/Files/FilesContextProvider";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {
@@ -21,9 +19,12 @@ const QueriesContainer = styled(Flex)`
 `;
 
 const QueriesSection = () => {
+  // Import the context
+  const context = useContext(FilesContext);
+  const { parentEntityId } = context;
+
   const files = useSelector(selectFilesForExplorer());
   const activeActionId = useActiveAction();
-  const pageId = useSelector(getCurrentPageId);
 
   return (
     <QueriesContainer
@@ -49,7 +50,7 @@ const QueriesSection = () => {
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
-              parentEntityId={pageId}
+              parentEntityId={parentEntityId}
               searchKeyword={""}
               step={2}
               type={type}

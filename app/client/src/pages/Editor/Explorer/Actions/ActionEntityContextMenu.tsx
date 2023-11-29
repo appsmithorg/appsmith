@@ -5,7 +5,7 @@ import {
 } from "actions/pluginActionActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { noop } from "lodash";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
@@ -28,16 +28,25 @@ import { builderURL } from "@appsmith/RouteBuilder";
 
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import { FilesContext } from "../Files/FilesContextProvider";
+import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 
 interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
-  pageId: string;
   canManageAction?: boolean;
   canDeleteAction?: boolean;
 }
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
+  // Import the context
+  const context = useContext(FilesContext);
+  const { parentEntityId, parentEntityType } = context;
+
+  const showPageActions = !!parentEntityType
+    ? parentEntityType === ACTION_PARENT_ENTITY_TYPE.PAGE
+    : true;
+
   const { canDeleteAction = false, canManageAction = false } = props;
   const nextEntityName = useNewActionName();
   const guidedTourEnabled = useSelector(inGuidedTour);
@@ -60,11 +69,11 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         moveActionRequest({
           id: actionId,
           destinationPageId,
-          originalPageId: props.pageId,
+          originalPageId: parentEntityId,
           name: nextEntityName(actionName, destinationPageId),
         }),
       ),
-    [dispatch, nextEntityName, props.pageId],
+    [dispatch, nextEntityName, parentEntityId],
   );
   const deleteActionFromPage = useCallback(
     (actionId: string, actionName: string, onSuccess?: () => void) => {
@@ -103,50 +112,53 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   );
 
   const optionsTree = [
-    canManageAction && {
-      value: "rename",
-      onSelect: editActionName,
-      label: createMessage(CONTEXT_EDIT_NAME),
-    },
-    {
+    showPageActions &&
+      canManageAction && {
+        value: "rename",
+        onSelect: editActionName,
+        label: createMessage(CONTEXT_EDIT_NAME),
+      },
+    showPageActions && {
       value: "showBinding",
       onSelect: () => showBinding(props.id, props.name),
       label: createMessage(CONTEXT_SHOW_BINDING),
     },
-    canManageAction && {
-      value: "copy",
-      onSelect: noop,
-      label: createMessage(CONTEXT_COPY),
-      children: menuPages.map((page) => {
-        return {
-          ...page,
-          onSelect: () => copyActionToPage(props.id, props.name, page.id),
-        };
-      }),
-    },
-    canManageAction && {
-      value: "move",
-      onSelect: noop,
-      label: createMessage(CONTEXT_MOVE),
-      children:
-        menuPages.length > 1
-          ? menuPages
-              .filter((page) => page.id !== props.pageId) // Remove current page from the list
-              .map((page) => {
-                return {
-                  ...page,
-                  onSelect: () =>
-                    moveActionToPage(props.id, props.name, page.id),
-                };
-              })
-          : [
-              {
-                value: "No Pages",
-                onSelect: noop,
-                label: createMessage(CONTEXT_NO_PAGE),
-              },
-            ],
-    },
+    showPageActions &&
+      canManageAction && {
+        value: "copy",
+        onSelect: noop,
+        label: createMessage(CONTEXT_COPY),
+        children: menuPages.map((page) => {
+          return {
+            ...page,
+            onSelect: () => copyActionToPage(props.id, props.name, page.id),
+          };
+        }),
+      },
+    showPageActions &&
+      canManageAction && {
+        value: "move",
+        onSelect: noop,
+        label: createMessage(CONTEXT_MOVE),
+        children:
+          menuPages.length > 1
+            ? menuPages
+                .filter((page) => page.id !== parentEntityId) // Remove current page from the list
+                .map((page) => {
+                  return {
+                    ...page,
+                    onSelect: () =>
+                      moveActionToPage(props.id, props.name, page.id),
+                  };
+                })
+            : [
+                {
+                  value: "No Pages",
+                  onSelect: noop,
+                  label: createMessage(CONTEXT_NO_PAGE),
+                },
+              ],
+      },
     canDeleteAction && {
       confirmDelete: confirmDelete,
       className: "t--apiFormDeleteBtn single-select",
@@ -158,7 +170,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
       onSelect: () => {
         confirmDelete
           ? deleteActionFromPage(props.id, props.name, () => {
-              history.push(builderURL({ pageId: props.pageId }));
+              history.push(builderURL({ pageId: parentEntityId }));
               setConfirmDelete(false);
             })
           : setConfirmDelete(true);

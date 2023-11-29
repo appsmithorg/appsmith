@@ -98,7 +98,6 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       className={EntityClassNames.CONTEXT_MENU}
       id={action.id}
       name={action.name}
-      pageId={props.parentEntityId}
     />
   );
   return (

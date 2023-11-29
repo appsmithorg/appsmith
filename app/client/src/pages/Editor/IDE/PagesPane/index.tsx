@@ -21,6 +21,12 @@ import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import Pages from "pages/Editor/Explorer/Pages";
 import { JSSection } from "./JS_Section";
 import { QueriesSection } from "./Queries_Section";
+import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 enum TabsType {
   QUERIES = "queries",
@@ -35,6 +41,15 @@ const _pagesPane = () => {
   const dispatch = useDispatch();
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
+  );
+
+  const pagePermissions = useSelector(getPagePermissions);
+
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateActions = getHasCreateActionPermission(
+    isFeatureEnabled,
+    pagePermissions,
   );
 
   /**
@@ -131,25 +146,31 @@ const _pagesPane = () => {
           value={selected}
         />
       </Flex>
-      <Flex
-        className="ide-pages-pane__content"
-        flexDirection="column"
-        height="100%"
-        overflow="hidden"
-        width="100%"
+      <FilesContextProvider
+        canCreateActions={canCreateActions}
+        parentEntityId={pageId}
+        parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
       >
-        {selected === TabsType.QUERIES && <QueriesSection />}
+        <Flex
+          className="ide-pages-pane__content"
+          flexDirection="column"
+          height="100%"
+          overflow="hidden"
+          width="100%"
+        >
+          {selected === TabsType.QUERIES && <QueriesSection />}
 
-        {selected === TabsType.JS && <JSSection />}
+          {selected === TabsType.JS && <JSSection />}
 
-        {selected === TabsType.UI && (
-          <ExplorerWidgetGroup
-            addWidgetsFn={showWidgetsSidebar}
-            searchKeyword=""
-            step={0}
-          />
-        )}
-      </Flex>
+          {selected === TabsType.UI && (
+            <ExplorerWidgetGroup
+              addWidgetsFn={showWidgetsSidebar}
+              searchKeyword=""
+              step={0}
+            />
+          )}
+        </Flex>
+      </FilesContextProvider>
     </Flex>
   );
 };
