@@ -2,11 +2,11 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 import HomePage from "../../../../../locators/HomePage";
 const AppNavigation = require("../../../../../locators/AppNavigation.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
-const Explorer = require("../../../../../locators/explorerlocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
-  SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 let workspaceId, appid;
 
@@ -112,9 +112,9 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
     _.agHelper.Sleep(2000);
     _.onboarding.closeIntroModal();
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     _.agHelper.AssertElementExist(_.dataSources._addNewDataSource);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     _.entityExplorer.AddNewPage("New blank page");
     _.dataSources.CreateDataSource("Postgres");
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");

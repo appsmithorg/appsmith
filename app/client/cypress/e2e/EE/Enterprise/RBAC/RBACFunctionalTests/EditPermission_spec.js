@@ -16,8 +16,9 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
-  SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe.skip("Edit Permission flow ", function () {
@@ -307,7 +308,7 @@ describe.skip("Edit Permission flow ", function () {
     cy.get(jsEditorLocators.runButton).first().click({ force: true });
     cy.wait(3000);
     // verify user is not able to edit datasource but edit queries
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     cy.get(datasource.datasourceCard).should("not.exist");
     // datasoruce is not visible
     EditorNavigation.SelectEntityByName("SelectQuery", EntityType.Query);

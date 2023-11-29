@@ -13,8 +13,9 @@ const AppNavigation = require("../../../../../locators/AppNavigation.json");
 const RBAC = require("../../../../../locators/RBAClocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
-  SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 let workspaceId, appid;
 
@@ -119,9 +120,9 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.GetNClick(homePage._appHoverIcon("edit"));
     agHelper.Sleep(2000);
     onboarding.closeIntroModal();
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     agHelper.AssertElementExist(dataSources._addNewDataSource);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     entityExplorer.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
@@ -180,9 +181,9 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.GetNClick(homePage._appHoverIcon("edit"));
     agHelper.Sleep(2000);
     onboarding.closeIntroModal();
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     agHelper.AssertElementAbsence(dataSources._addNewDataSource);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     entityExplorer.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
@@ -241,9 +242,9 @@ describe("Create new workspace and invite group & validate all roles", () => {
     agHelper.GetNClick(homePage._appHoverIcon("edit"));
     agHelper.Sleep(2000);
     onboarding.closeIntroModal();
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     agHelper.AssertElementAbsence(dataSources._addNewDataSource);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     entityExplorer.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(

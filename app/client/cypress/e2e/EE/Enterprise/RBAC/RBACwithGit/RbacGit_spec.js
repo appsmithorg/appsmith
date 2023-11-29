@@ -8,6 +8,7 @@ import {
   homePage,
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import { PageLeftPane } from "../../../../../support/Pages/EditorNavigation";
 
 describe("RBAC for git connected apps tests", function () {
   let workspaceName;
@@ -77,7 +78,7 @@ describe("RBAC for git connected apps tests", function () {
     // verify user is able to create JSObject
     cy.createJSObject('return "Success";');
     // verify user is able to edit the page
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment("Widgets");
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     // verify user is able to create new page
     cy.CheckAndUnfoldEntityItem("Pages");

@@ -11,6 +11,7 @@ import {
 } from "../../../../../support/ee/ObjectsCore_EE";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Create group, check if users in group has group roles accessess", function () {
@@ -110,7 +111,7 @@ describe("Create group, check if users in group has group roles accessess", func
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementAbsence(locators._saveStatusError);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment("Widgets");
     entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementExist(locators._saveStatusError);
     entityExplorer.ActionContextMenuByEntityName({
@@ -136,7 +137,7 @@ describe("Create group, check if users in group has group roles accessess", func
     homePage.SearchAndOpenApp(appName);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragDropWidgetNVerify("checkboxwidget");
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment("Widgets");
     entityExplorer.DragDropWidgetNVerify("checkboxwidget");
   });
 });

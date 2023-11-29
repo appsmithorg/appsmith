@@ -16,6 +16,7 @@ import {
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -130,7 +131,6 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHART, 300, 300);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 150, 150);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.LIST_V2, 300, 700);
-      entityExplorer.NavigateToSwitcher("Explorer");
       apiPage.CreateAndFillApi(
         dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
       );

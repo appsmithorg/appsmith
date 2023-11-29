@@ -1,5 +1,4 @@
 import {
-  assertHelper,
   entityExplorer,
   entityItems,
   homePage,
@@ -14,8 +13,9 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
-  SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Delete Permission flow ", function () {
@@ -279,7 +279,7 @@ describe("Delete Permission flow ", function () {
 
     featureFlagIntercept({ license_gac_enabled: true });
     cy.wait(2000);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");
