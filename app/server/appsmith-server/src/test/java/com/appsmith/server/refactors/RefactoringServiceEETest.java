@@ -34,7 +34,6 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
-import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.modules.crud.entity.CrudModuleEntityService;
@@ -161,9 +160,6 @@ public class RefactoringServiceEETest {
 
     @SpyBean
     ModuleInstancePermissionChecker moduleInstancePermissionChecker;
-
-    @Autowired
-    LayoutModuleInstanceService supportingCrudModuleInstanceService;
 
     @Autowired
     UpdateLayoutService updateLayoutService;
