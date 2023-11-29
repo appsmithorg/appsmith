@@ -209,6 +209,11 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    public String getExecutableName() {
+        return this.getValidName();
+    }
+
+    @Override
     public EntityReferenceType getEntityReferenceType() {
         if (this.getPluginType() == null) {
             return null;
