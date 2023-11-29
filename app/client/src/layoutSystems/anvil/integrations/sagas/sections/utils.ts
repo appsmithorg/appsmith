@@ -17,12 +17,12 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { addNewChildToDSL } from "../AnvilDraggingSagas";
 import { sectionPreset } from "layoutSystems/anvil/layoutComponents/presets/sectionPreset";
 
-function getSectionLastColumnHighlight(sectionCanvas: FlattenedWidgetProps) {
-  const layoutId: string = sectionCanvas.layout[0].layoutId;
+function getSectionLastColumnHighlight(sectionWidget: FlattenedWidgetProps) {
+  const layoutId: string = sectionWidget.layout[0].layoutId;
   const layoutOrder = [layoutId];
-  const rowIndex = sectionCanvas.layout[0].layout.length;
+  const rowIndex = sectionWidget.layout[0].layout.length;
   return {
-    canvasId: sectionCanvas.widgetId,
+    canvasId: sectionWidget.widgetId,
     layoutOrder,
     rowIndex,
     posX: 0,
@@ -40,64 +40,51 @@ function* mergeZones(
   mergingIntoZoneId: string,
   mergingFromZoneId: string,
 ) {
-  const zone1 = allWidgets[mergingIntoZoneId];
-  const zone2 = allWidgets[mergingFromZoneId];
-  const sectionCanvas = allWidgets[zone1.parentId || ""];
+  const zone1: FlattenedWidgetProps = allWidgets[mergingIntoZoneId];
+  const zone2: FlattenedWidgetProps = allWidgets[mergingFromZoneId];
+  const sectionWidget: FlattenedWidgetProps = allWidgets[zone1.parentId || ""];
   let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-  if (
-    sectionCanvas &&
-    sectionCanvas.children &&
-    zone1 &&
-    zone2 &&
-    zone1.children &&
-    zone2.children
-  ) {
-    const zone1Canvas = allWidgets[zone1.children[0]];
-    const zone2Canvas = allWidgets[zone2.children[0]];
-    if (zone1Canvas.children && zone2Canvas.children) {
-      const mergedZoneLayout = [
-        ...zone1Canvas.layout[0].layout,
-        ...zone2Canvas.layout[0].layout,
-      ];
-      const mergedSectionLayout = sectionCanvas.layout[0].layout.filter(
-        (each: any) => {
-          return each.widgetId !== zone2.widgetId;
-        },
-      );
-      updatedWidgets = {
-        ...updatedWidgets,
-        [sectionCanvas.widgetId]: {
-          ...sectionCanvas,
-          layout: [
-            {
-              ...sectionCanvas.layout[0],
-              layout: mergedSectionLayout,
-            },
-          ],
-          children: sectionCanvas.children.filter(
-            (each) => each !== zone2.widgetId,
-          ),
-        },
-        [zone1Canvas.widgetId]: {
-          ...zone1Canvas,
-          layout: [
-            {
-              ...zone1Canvas.layout[0],
-              layout: mergedZoneLayout,
-            },
-          ],
-          children: [...zone1Canvas.children, ...zone2Canvas.children],
-        },
-      };
-      zone2Canvas.children.forEach((each) => {
-        updatedWidgets[each] = {
-          ...updatedWidgets[each],
-          parentId: zone1Canvas.widgetId,
-        };
+  if (sectionWidget && sectionWidget.children && zone1 && zone2) {
+    const mergedZoneLayout: LayoutProps[] = [
+      ...zone1.layout[0].layout,
+      ...zone2.layout[0].layout,
+    ];
+    const mergedSectionLayout: WidgetLayoutProps[] =
+      sectionWidget.layout[0].layout.filter((each: WidgetLayoutProps) => {
+        return each.widgetId !== zone2.widgetId;
       });
-      delete updatedWidgets[zone2.widgetId];
-      delete updatedWidgets[zone2Canvas.widgetId];
-    }
+    updatedWidgets = {
+      ...updatedWidgets,
+      [sectionWidget.widgetId]: {
+        ...sectionWidget,
+        layout: [
+          {
+            ...sectionWidget.layout[0],
+            layout: mergedSectionLayout,
+          },
+        ],
+        children: sectionWidget.children.filter(
+          (each) => each !== zone2.widgetId,
+        ),
+      },
+      [zone1.widgetId]: {
+        ...zone1,
+        layout: [
+          {
+            ...zone1.layout[0],
+            layout: mergedZoneLayout,
+          },
+        ],
+        children: [...(zone1.children || []), ...(zone2.children || [])],
+      },
+    };
+    (zone2.children || []).forEach((each: string) => {
+      updatedWidgets[each] = {
+        ...updatedWidgets[each],
+        parentId: zone1.widgetId,
+      };
+    });
+    delete updatedWidgets[zone2.widgetId];
   }
   return updatedWidgets;
 }
@@ -128,7 +115,7 @@ export function* mergeLastZonesOfSection(
 }
 
 export function* addNewZonesToSection(
-  sectionCanvasId: string,
+  sectionWidgetId: string,
   numberOfZonesToCreate: number,
 ) {
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -136,13 +123,13 @@ export function* addNewZonesToSection(
   let count = 0;
   const createdZoneIds: string[] = [];
   do {
-    const sectionCanvas = updatedWidgets[sectionCanvasId];
+    const sectionWidget: FlattenedWidgetProps = updatedWidgets[sectionWidgetId];
     const newWidget: any = {
       newWidgetId: generateReactKey(),
-      parentId: sectionCanvas.widgetId,
+      parentId: sectionWidget.widgetId,
       type: ZoneWidget.type,
     };
-    const highlight = getSectionLastColumnHighlight(sectionCanvas);
+    const highlight = getSectionLastColumnHighlight(sectionWidget);
     updatedWidgets = yield call(
       addNewChildToDSL,
       highlight,
@@ -171,7 +158,7 @@ export function* addWidgetToSection(
       (each: string) => each !== widgetId,
     ),
   };
-  const canvasPreset: LayoutProps[] = sectionWidget.layout
+  const preset: LayoutProps[] = sectionWidget.layout
     ? sectionWidget.layout
     : sectionPreset();
   const res: {
@@ -183,10 +170,10 @@ export function* addWidgetToSection(
     draggedWidgets,
     highlight,
     sectionWidget,
-    canvasPreset[0],
+    preset[0],
   );
   sectionWidget = res.canvasWidgets[highlight.canvasId];
-  console.log("#### section after addition", { sectionWidget });
+
   return {
     ...res.canvasWidgets,
     [sectionWidget.widgetId]: sectionWidget,
