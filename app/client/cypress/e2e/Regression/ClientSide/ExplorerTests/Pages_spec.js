@@ -2,6 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 const locators = {
   errorPageTitle: ".t--error-page-title",
 };
@@ -13,7 +14,7 @@ describe("Pages", function () {
   it("1. Clone page & check tooltip for long name", function () {
     _.apiPage.CreateApi(apiName);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    _.entityExplorer.ClonePage("Page1");
+    PageList.ClonePage("Page1");
     EditorNavigation.SelectEntityByName("Page1 Copy", EntityType.Page);
     EditorNavigation.SelectEntityByName(apiName, EntityType.Api); //Verify api also cloned along with PageClone
 

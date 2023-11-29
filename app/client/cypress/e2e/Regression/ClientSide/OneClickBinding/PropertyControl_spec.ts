@@ -9,9 +9,9 @@ import {
 import { expandLoadMoreOptions, OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import EditorNavigation, {
-  AppSidebar,
-  AppSidebarButton,
   EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();

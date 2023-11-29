@@ -2,14 +2,12 @@ import ApiEditor from "../../../../locators/ApiEditor";
 import DynamicInput from "../../../../locators/DynamicInput";
 import HomePage from "../../../../locators/HomePage";
 
-import {
-  entityExplorer,
-  apiPage,
-} from "../../../../support/Objects/ObjectsCore";
+import { apiPage } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate API Panel CSS Styles", function () {
@@ -85,7 +83,7 @@ describe("Validate API Panel CSS Styles", function () {
         cy.DeleteAPI();
         AppSidebar.navigate(AppSidebarButton.Editor);
         cy.wait(2000);
-        entityExplorer.AssertEntityAbsenceInExplorer("test_styles");
+        PageLeftPane.assertAbsence("test_styles");
         //Delete two datasources
         cy.deleteDatasource(appName1);
         cy.deleteDatasource(appName2);

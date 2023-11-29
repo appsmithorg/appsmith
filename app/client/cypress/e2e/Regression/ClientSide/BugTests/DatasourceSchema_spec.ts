@@ -1,7 +1,6 @@
 import {
   agHelper,
   dataSources,
-  entityExplorer,
   entityItems,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
@@ -9,6 +8,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -71,7 +71,7 @@ describe("Datasource form related tests", function () {
       dataSources.CreateMockDB("Users");
       dataSources.CreateQueryAfterDSSaved();
       dataSources.VerifyTableSchemaOnQueryEditor("public.users");
-      entityExplorer.ExpandCollapseEntity("public.users");
+      PageLeftPane.expandCollapseItem("public.users");
       dataSources.VerifyColumnSchemaOnQueryEditor("id");
       dataSources.FilterAndVerifyDatasourceSchemaBySearch(
         "public.us",
