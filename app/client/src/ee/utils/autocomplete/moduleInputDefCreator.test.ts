@@ -3,6 +3,7 @@ import {
   ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 
 describe("dataTreeTypeDefCreator for module input", () => {
   it("creates the correct def for module input entity", () => {
@@ -32,9 +33,9 @@ describe("dataTreeTypeDefCreator for module input", () => {
       inputs: entityConfig,
     };
     const { def, entityInfo } = dataTreeTypeDefCreator(
-      dataTree,
+      dataTree as DataTree,
       {},
-      configTree,
+      configTree as ConfigTree,
     );
 
     expect(def).toHaveProperty("inputs.username");

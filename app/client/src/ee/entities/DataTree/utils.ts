@@ -2,12 +2,17 @@ export * from "ce/entities/DataTree/utils";
 import type {
   ActionEntity,
   JSActionEntity,
+  ModuleInputsConfig,
   ModuleInputsEntity,
+  QueryModuleInstanceEntity,
   WidgetEntity,
 } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE_VALUE } from "@appsmith/entities/DataTree/types";
 import { isWidgetActionOrJsObject as CE_isWidgetActionOrJsObject } from "ce/entities/DataTree/utils";
-import { isModuleInput } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  isModuleInput,
+  isModuleInstance,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
@@ -16,7 +21,10 @@ import type { Module } from "@appsmith/constants/ModuleConstants";
 //overriding this entire funtion
 export const generateDataTreeModuleInputs = (
   inputsForm: Module["inputsForm"],
-) => {
+): {
+  unEvalEntity: ModuleInputsEntity;
+  configEntity: ModuleInputsConfig;
+} => {
   const unEvalEntity: Record<string, string> = {};
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
   const dynamicBindingPathList = [];
@@ -47,6 +55,15 @@ export const generateDataTreeModuleInputs = (
 
 export function isWidgetActionOrJsObject(
   entity: DataTreeEntity,
-): entity is ActionEntity | WidgetEntity | JSActionEntity | ModuleInputsEntity {
-  return CE_isWidgetActionOrJsObject(entity) || isModuleInput(entity);
+): entity is
+  | ActionEntity
+  | WidgetEntity
+  | JSActionEntity
+  | ModuleInputsEntity
+  | QueryModuleInstanceEntity {
+  return (
+    CE_isWidgetActionOrJsObject(entity) ||
+    isModuleInput(entity) ||
+    isModuleInstance(entity)
+  );
 }

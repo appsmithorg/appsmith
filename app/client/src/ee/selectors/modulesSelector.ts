@@ -41,3 +41,9 @@ export const getIsModuleSaving = (state: AppState) => {
 
 export const getModuleInputsEvalValues = (state: AppState) =>
   state.evaluations.tree?.inputs || DEFAULT_INPUT_EVAL_VALUES;
+
+export const getModuleInstanceActions = (state: AppState) =>
+  state.entities.moduleInstanceEntities.actions;
+
+export const getModuleInstanceJSCollections = (state: AppState) =>
+  state.entities.moduleInstanceEntities.jsCollections;

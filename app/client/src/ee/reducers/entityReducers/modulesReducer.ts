@@ -1,5 +1,4 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Module } from "@appsmith/constants/ModuleConstants";
