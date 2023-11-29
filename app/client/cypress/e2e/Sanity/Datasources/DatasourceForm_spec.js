@@ -1,3 +1,5 @@
+import { PageLeftPane } from "../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../fixtures/testdata.json");
 import {
   agHelper,
@@ -27,7 +29,7 @@ describe("Datasource form related tests", function () {
     dataSources.SaveDSFromDialog();
     //Check if saved api as a datasource does not fail on cloning", function () {
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Copy to page",

@@ -1,4 +1,5 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Page Settings", () => {
   it("1. Page name change updates URL", () => {
@@ -30,7 +31,7 @@ describe("Page Settings", () => {
     _.agHelper.Sleep();
 
     //Check SetAsHome page setting
-    _.entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
     _.pageSettings.ToggleHomePage();

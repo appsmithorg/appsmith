@@ -2,19 +2,15 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-const pages = require("../../../../locators/Pages.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
-
-const pageOne = "MyPage1";
-const pageTwo = "MyPage2";
 
 describe("Hide / Show page test functionality", function () {
   it("1. Hide/Show page test ", function () {
-    cy.Createpage(pageOne);
-    cy.Createpage(pageTwo);
+    cy.CreatePage(); // Page2
+    cy.CreatePage(); // Page3
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     _.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "MyPage2",
+      entityNameinLeftSidebar: "Page2",
       action: "Hide",
     });
     cy.ClearSearch();
@@ -23,7 +19,7 @@ describe("Hide / Show page test functionality", function () {
     //Show page test
     _.deployMode.NavigateBacktoEditor();
     _.entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "MyPage2",
+      entityNameinLeftSidebar: "Page2",
       action: "Show",
     });
     cy.ClearSearch();
