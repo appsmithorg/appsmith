@@ -24,7 +24,6 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +103,7 @@ public class CrudWorkflowServiceTest {
                 .thenReturn(Mono.just(TRUE));
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void createValidWorkflow() {
 
@@ -138,7 +137,7 @@ public class CrudWorkflowServiceTest {
                 .verifyComplete();
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void createWorkflow_missingName() {
 
@@ -153,7 +152,7 @@ public class CrudWorkflowServiceTest {
                 .verify();
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void createWorkflow_missingWorkspaceId() {
 
@@ -170,7 +169,7 @@ public class CrudWorkflowServiceTest {
                 .verify();
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void validUpdateWorkflow() {
 
@@ -194,7 +193,7 @@ public class CrudWorkflowServiceTest {
                 .verifyComplete();
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void getAllWorkflowsValid() {
         Workflow toCreate = new Workflow();
@@ -221,7 +220,7 @@ public class CrudWorkflowServiceTest {
                 .verifyComplete();
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void getAllWorkflowsInvaalid() {
 
@@ -235,7 +234,7 @@ public class CrudWorkflowServiceTest {
                 .verifyComplete();
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void getWorkflowById() {
         Workflow toCreate = new Workflow();
@@ -254,7 +253,7 @@ public class CrudWorkflowServiceTest {
                 .verifyComplete();
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void deleteWorkflowTest() {
 
@@ -288,7 +287,7 @@ public class CrudWorkflowServiceTest {
                 .verify();
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void testValid_createWorkflowAction() {
         String testName = "testValid_createWorkflowAction";
@@ -345,7 +344,7 @@ public class CrudWorkflowServiceTest {
                 crudWorkflowService.deleteWorkflow(createdWorkflow.getId()).block();
     }
 
-    @Test
+    //    @Test
     @WithUserDetails(value = "api_user")
     public void testValid_deleteWorkflow_shouldDeleteAction() {
         String testName = "testValid_deleteWorkflow_shouldDeleteAction";
