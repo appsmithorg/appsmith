@@ -1,8 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
-import EditorNavigation, { EntityType } from "./Pages/EditorNavigation";
-
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const commonlocators = require("../locators/commonlocators.json");
@@ -152,10 +150,10 @@ Cypress.Commands.add("createModal", (ModalName, property) => {
   // cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
   //   .first()
   //   .trigger("mouseover");
-
-  EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
-    "Modal1",
-  ]);
+  cy.get(widgetsPage.modalWidget)
+    .find(widgetsPage.textWidget)
+    .first()
+    .click({ force: true });
 
   //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
   cy.testCodeMirror(ModalName);

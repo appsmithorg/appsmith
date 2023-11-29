@@ -602,6 +602,7 @@ describe("Json & JsonB Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
