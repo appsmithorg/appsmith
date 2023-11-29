@@ -1,5 +1,4 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React, { useEffect } from "react";
 import Masonry from "react-masonry-css";
@@ -17,6 +16,7 @@ import {
   TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
   TEMPLATE_ALL_FILTER_FUNCTION_VALUE,
 } from "../constants";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const breakpointColumnsObject = {
   default: 4,
