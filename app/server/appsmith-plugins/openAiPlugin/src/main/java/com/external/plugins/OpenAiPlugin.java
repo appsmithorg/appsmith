@@ -111,8 +111,12 @@ public class OpenAiPlugin extends BasePlugin {
 
                         if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
                             actionExecutionResult.setIsExecutionSuccess(false);
+                            String errorMessage = "";
+                            if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
+                                errorMessage = new String(responseEntity.getBody());
+                            }
                             actionExecutionResult.setErrorInfo(new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR));
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR, errorMessage));
                             return Mono.just(actionExecutionResult);
                         }
 

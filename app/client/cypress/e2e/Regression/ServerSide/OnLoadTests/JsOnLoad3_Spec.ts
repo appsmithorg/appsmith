@@ -14,6 +14,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, jsName: any;
@@ -36,7 +37,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     });
     cy.fixture("datasources").then((datasourceFormData: any) => {
       AppSidebar.navigate(AppSidebarButton.Editor);
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       apiPage.CreateAndFillApi(
         "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
         "Quotes",
@@ -201,7 +202,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     // agHelper.AssertElementExist(jsEditor._dialogInDeployView);
     // jsEditor.ConfirmationClick("No");
     agHelper.AssertContains("cancelled");
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     cy.fixture("datasources").then((datasourceFormData) => {
       apiPage.CreateAndFillApi(datasourceFormData.randomCatfactUrl, "CatFacts");
     });
@@ -242,7 +243,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     homePage.ImportApp("JSObjOnLoadApp.json");
     homePage.AssertImportToast();
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     apiPage.CreateAndFillApi(
       "https://anapioficeandfire.com/api/books/{{this.params.id}}",
       "getBooks",
