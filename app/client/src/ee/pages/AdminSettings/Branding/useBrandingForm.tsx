@@ -75,6 +75,11 @@ export const useBrandingForm = (props: useBrandingFormProps) => {
       updateTenantConfig({
         tenantConfiguration: formData,
         isOnlyTenantSettings: true,
+        apiConfig: {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
       }),
     );
 
