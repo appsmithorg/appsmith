@@ -8,7 +8,7 @@ import React, {
 import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
 import MediaQuery from "react-responsive";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import type { AppState } from "@appsmith/reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
@@ -117,6 +117,7 @@ import {
   getApplicationsOfWorkspace,
   getIsFetchingApplications,
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -155,7 +156,7 @@ export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
   position: fixed;
   top: calc(
     ${(props) => props.theme.homePage.header}px +
-      ${(props) => (props.isBannerVisible ? 48 : 0)}px
+      ${(props) => (props.isBannerVisible ? 40 : 0)}px
   );
   border-right: 1px solid var(--ads-v2-color-border);
   padding: 0 12px;
@@ -426,12 +427,16 @@ export const NoSearchResultImg = styled.img`
   margin: 1em;
 `;
 
-export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
+export const ApplicationsWrapper = styled.div<{
+  isMobile: boolean;
+  isBannerVisible: boolean;
+}>`
   height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
   overflow: auto;
   margin-left: ${(props) => props.theme.homePage.leftPane.width}px;
   width: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   scroll-behavior: smooth;
+  ${({ isBannerVisible }) => (isBannerVisible ? "margin-top: 48px;" : "")}
   ${({ isMobile }) =>
     isMobile
       ? `padding: ${CONTAINER_WRAPPER_PADDING} 0;`
@@ -809,6 +814,11 @@ export const ApplictionsMainPage = (props: any) => {
   const fetchedApplications = useSelector(getApplicationsOfWorkspace);
   const fetchedPackages = useSelector(getPackagesList);
 
+  const showBanner = useSelector(shouldShowLicenseBanner);
+  const isHomePage = useRouteMatch("/applications")?.isExact;
+  const isLicensePage = useRouteMatch("/license")?.isExact;
+  const isBannerVisible = showBanner && (isHomePage || isLicensePage);
+
   let workspaces: any;
   if (!isFetchingWorkspaces) {
     workspaces = fetchedWorkspaces;
@@ -844,12 +854,16 @@ export const ApplictionsMainPage = (props: any) => {
     <PageWrapper displayName="Applications">
       <LeftPane
         activeWorkspaceId={activeWorkspaceId}
+        isBannerVisible={isBannerVisible}
         isFetchingWorkspaces={isFetchingWorkspaces}
         workspaces={workspaces}
       />
       <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
         {(matches: boolean) => (
-          <ApplicationsWrapper isMobile={matches}>
+          <ApplicationsWrapper
+            isBannerVisible={!!isBannerVisible}
+            isMobile={matches}
+          >
             {!isFetchingWorkspaces && matches && (
               <WorkspaceSelectorWrapper>
                 <Select
