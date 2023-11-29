@@ -22,8 +22,8 @@ describe("Statbox Widget Functionality", function () {
       draggableWidgets.CONTAINER,
     );
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    entityExplorer.AssertEntityPresenceInExplorer("Statbox1");
-    entityExplorer.ExpandCollapseEntity("Container1");
-    entityExplorer.AssertEntityPresenceInExplorer("Statbox2");
+    PageLeftPane.assertPresence("Statbox1");
+    PageLeftPane.expandCollapseItem("Container1");
+    PageLeftPane.assertPresence("Statbox2");
   });
 });
