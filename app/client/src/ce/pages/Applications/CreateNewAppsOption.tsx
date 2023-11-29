@@ -132,6 +132,8 @@ const CardContainer = styled.div`
 const WithDataWrapper = styled.div`
   background: var(--ads-v2-color-bg);
   padding: var(--ads-v2-spaces-13);
+  border: 1px solid var(--ads-v2-color-gray-300);
+  border-radius: 5px;
 `;
 
 const Header = ({ subtitle, title }: { subtitle: string; title: string }) => {

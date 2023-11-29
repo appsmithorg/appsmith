@@ -71,7 +71,6 @@ describe("JSObjects OnLoad Actions tests", function () {
   it("6. Tc #1910 - Verify the Number of confirmation models of JS Object on page load", () => {
     homePage.CreateAppInWorkspace("JSOnLoadTest");
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then((dsName) => {
       datasourceName = dsName;

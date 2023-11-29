@@ -20,6 +20,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
+import com.appsmith.server.validations.EntityValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -40,7 +41,7 @@ import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALU
 
 @Slf4j
 @RequiredArgsConstructor
-public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
+public class RefactoringServiceCEImpl implements RefactoringServiceCE {
     private final NewPageService newPageService;
     private final ResponseUtils responseUtils;
     private final UpdateLayoutService updateLayoutService;
@@ -49,6 +50,7 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
     private final TransactionalOperator transactionalOperator;
+    private final EntityValidationService entityValidationService;
 
     protected final EntityRefactoringService<Void> jsActionEntityRefactoringService;
     protected final EntityRefactoringService<NewAction> newActionEntityRefactoringService;
@@ -151,7 +153,8 @@ public class RefactoringSolutionCEImpl implements RefactoringSolutionCE {
         service.sanitizeRefactorEntityDTO(refactorEntityNameDTO);
 
         // Validate whether this name is allowed based on the type of entity
-        Mono<Boolean> isValidNameMono = service.validateName(refactorEntityNameDTO.getNewName())
+        Mono<Boolean> isValidNameMono = Mono.just(entityValidationService.validateName(
+                        refactorEntityNameDTO.getNewName(), refactorEntityNameDTO.getIsInternal()))
                 .flatMap(isValid -> {
                     if (!isValid) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));

@@ -25,7 +25,9 @@ export enum FocusEntity {
   DATASOURCE = "DATASOURCE",
   DEBUGGER = "DEBUGGER",
   QUERY = "QUERY",
+  QUERY_LIST = "QUERY_LIST",
   JS_OBJECT = "JS_OBJECT",
+  JS_OBJECT_LIST = "JS_OBJECT_LIST",
   PROPERTY_PANE = "PROPERTY_PANE",
   NONE = "NONE",
   APP_STATE = "APP_STATE",
@@ -36,6 +38,8 @@ export enum FocusEntity {
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
   [FocusEntity.PROPERTY_PANE]: FocusEntity.CANVAS,
   [FocusEntity.DATASOURCE]: FocusEntity.DATASOURCE_LIST,
+  [FocusEntity.JS_OBJECT]: FocusEntity.JS_OBJECT_LIST,
+  [FocusEntity.QUERY]: FocusEntity.QUERY_LIST,
 };
 
 export interface FocusEntityInfo {
@@ -109,7 +113,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       };
     }
     return {
-      entity: FocusEntity.API,
+      entity: FocusEntity.QUERY,
       id: match.params.apiId,
       pageId: match.params.pageId,
       appState: AppState.PAGES,
@@ -168,6 +172,22 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     return {
       entity: FocusEntity.PROPERTY_PANE,
       id: match.params.widgetIds,
+      pageId: match.params.pageId,
+      appState: AppState.PAGES,
+    };
+  }
+  if (match.params.entity === "queries") {
+    return {
+      entity: FocusEntity.QUERY_LIST,
+      id: "",
+      pageId: match.params.pageId,
+      appState: AppState.PAGES,
+    };
+  }
+  if (match.params.entity === "jsObjects") {
+    return {
+      entity: FocusEntity.JS_OBJECT_LIST,
+      id: "",
       pageId: match.params.pageId,
       appState: AppState.PAGES,
     };

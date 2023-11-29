@@ -10,7 +10,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate API request body panel", () => {
@@ -36,7 +37,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("2. Checks whether No body error message is shown when None API body content type is selected", function () {
@@ -48,7 +49,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("3. Checks whether header content type is being changed when FORM_URLENCODED API body content type is selected", function () {
@@ -69,7 +70,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("4. Checks whether header content type is being changed when MULTIPART_FORM_DATA API body content type is selected", function () {
@@ -90,7 +91,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("5. Checks whether content type 'FORM_URLENCODED' is preserved when user selects None API body content type", function () {
@@ -103,7 +104,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("6. Checks whether content type 'MULTIPART_FORM_DATA' is preserved when user selects None API body content type", function () {
@@ -116,7 +117,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {

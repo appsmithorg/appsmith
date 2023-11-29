@@ -12,6 +12,7 @@ import ActionSelector from "./ActionSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
 import classNames from "classnames";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 const CallbackBlockContainer = styled.div<{
   isSelected: boolean;
@@ -44,6 +45,7 @@ const EMPTY_ACTION_BLOCK: TActionBlock = {
 
 export default function ActionTree(props: {
   actionBlock: TActionBlock;
+  additionalAutoComplete?: AdditionalDynamicDataTree;
   onChange: (actionBlock: TActionBlock) => void;
   className?: string;
   id: string;
@@ -176,6 +178,7 @@ export default function ActionTree(props: {
     <div className={props.className}>
       <ActionSelector
         action={actionBlock}
+        additionalAutoComplete={props.additionalAutoComplete}
         dataTreePath={props.dataTreePath}
         id={id}
         level={props.level}
