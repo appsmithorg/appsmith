@@ -139,8 +139,8 @@ export const useFilteredAndSortedFileOperations = ({
     (dsId: string) =>
     (
       entityId: string,
-      entityType: ACTION_PARENT_ENTITY_TYPE,
       from: EventLocation,
+      entityType?: ACTION_PARENT_ENTITY_TYPE,
     ) =>
       createNewQueryBasedOnParentEntity(entityId, from, dsId, entityType);
 

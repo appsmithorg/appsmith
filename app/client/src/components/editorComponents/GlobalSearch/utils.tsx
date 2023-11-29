@@ -337,8 +337,8 @@ export const generateCreateQueryForDSOption = (
   ds: Datasource,
   onClick: (
     entityId: string,
-    entityType: ACTION_PARENT_ENTITY_TYPE,
     from: EventLocation,
+    entityType?: ACTION_PARENT_ENTITY_TYPE,
   ) => void,
 ) => {
   return {
