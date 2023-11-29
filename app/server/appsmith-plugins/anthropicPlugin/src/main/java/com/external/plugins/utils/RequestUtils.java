@@ -3,17 +3,22 @@ package com.external.plugins.utils;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ApiKeyAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.external.plugins.constants.AnthropicConstants;
+import com.external.plugins.constants.AnthropicErrorMessages;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.external.plugins.constants.AnthropicConstants.ANTHROPIC_API_ENDPOINT;
 import static com.external.plugins.constants.AnthropicConstants.COMPLETION_API;
@@ -59,5 +64,16 @@ public class RequestUtils {
                     headers.set(AnthropicConstants.ANTHROPIC_VERSION_HEADER, AnthropicConstants.ANTHROPIC_VERSION);
                 })
                 .exchangeToMono(clientResponse -> clientResponse.toEntity(byte[].class));
+    }
+
+    public static Set<String> validateApiKeyAuthDatasource(DatasourceConfiguration datasourceConfiguration) {
+        Set<String> invalids = new HashSet<>();
+        final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
+
+        if (apiKeyAuth == null || !StringUtils.hasText(apiKeyAuth.getValue())) {
+            invalids.add(AnthropicErrorMessages.EMPTY_API_KEY);
+        }
+
+        return invalids;
     }
 }

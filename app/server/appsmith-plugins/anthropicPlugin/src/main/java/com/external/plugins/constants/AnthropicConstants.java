@@ -21,6 +21,7 @@ public class AnthropicConstants {
     public static final String TEMPERATURE = "temperature";
     public static final String MAX_TOKENS = "maxTokens";
     public static final Integer DEFAULT_MAX_TOKEN = 256;
+    public static final Float DEFAULT_TEMPERATURE = 1.0f;
     public static final String LABEL = "label";
     public static final String VALUE = "value";
     public static final String ROLE_HUMAN = "Human";

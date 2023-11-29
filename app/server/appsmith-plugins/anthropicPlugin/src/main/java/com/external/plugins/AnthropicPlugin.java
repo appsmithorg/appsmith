@@ -39,6 +39,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,7 @@ import static com.external.plugins.constants.AnthropicConstants.LABEL;
 import static com.external.plugins.constants.AnthropicConstants.TEST_MODEL;
 import static com.external.plugins.constants.AnthropicConstants.TEST_PROMPT;
 import static com.external.plugins.constants.AnthropicConstants.VALUE;
+import static com.external.plugins.constants.AnthropicErrorMessages.INVALID_API_KEY;
 import static com.external.plugins.constants.AnthropicErrorMessages.QUERY_FAILED_TO_EXECUTE;
 
 @Slf4j
@@ -79,8 +81,7 @@ public class AnthropicPlugin extends BasePlugin {
                         HttpStatusCode statusCode = responseEntity.getStatusCode();
                         if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
                             // invalid credentials
-                            return new DatasourceTestResult(
-                                    "Invalid authentication credentials provided in datasource configurations");
+                            return new DatasourceTestResult(INVALID_API_KEY);
                         }
 
                         return new DatasourceTestResult();
@@ -246,6 +247,11 @@ public class AnthropicPlugin extends BasePlugin {
                         triggerResponseCache.put(requestType, triggerResult);
                         return triggerResult;
                     });
+        }
+
+        @Override
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return RequestUtils.validateApiKeyAuthDatasource(datasourceConfiguration);
         }
 
         private List<Map<String, String>> getDataToMap(List<String> data) {

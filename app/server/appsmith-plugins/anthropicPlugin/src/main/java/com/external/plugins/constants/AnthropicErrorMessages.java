@@ -14,4 +14,6 @@ public class AnthropicErrorMessages {
     public static final String INCORRECT_MESSAGE_FORMAT =
             "messages object is not correctly configured. Please provide a list of messages";
     public static final String EMPTY_API_KEY = "API Key should not be empty, Please add an API Key";
+    public static final String INVALID_API_KEY =
+            "Invalid authentication credentials provided in datasource configurations";
 }

@@ -24,6 +24,7 @@ import static com.external.plugins.constants.AnthropicConstants.COMPONENT_DATA;
 import static com.external.plugins.constants.AnthropicConstants.CONTENT;
 import static com.external.plugins.constants.AnthropicConstants.DATA;
 import static com.external.plugins.constants.AnthropicConstants.DEFAULT_MAX_TOKEN;
+import static com.external.plugins.constants.AnthropicConstants.DEFAULT_TEMPERATURE;
 import static com.external.plugins.constants.AnthropicConstants.MAX_TOKENS;
 import static com.external.plugins.constants.AnthropicConstants.MESSAGES;
 import static com.external.plugins.constants.AnthropicConstants.MODELS_API;
@@ -138,17 +139,16 @@ public class ChatCommand implements AnthropicCommand {
     }
 
     private Float getTemperatureFromFormData(Map<String, Object> formData) {
-        float defaultFloatValue = 1.0f;
         String temperatureString = RequestUtils.extractValueFromFormData(formData, TEMPERATURE);
 
         if (!StringUtils.hasText(temperatureString)) {
-            return defaultFloatValue;
+            return DEFAULT_TEMPERATURE;
         }
 
         try {
             return Float.parseFloat(temperatureString);
         } catch (IllegalArgumentException illegalArgumentException) {
-            return defaultFloatValue;
+            return DEFAULT_TEMPERATURE;
         } catch (Exception exception) {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
