@@ -93,12 +93,6 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
     }
 
     @NotNull protected Set<String> getExtractedKeys(ModuleInstanceDTO moduleInstanceDTO) {
-        return extractKeysFromModuleInstance(moduleInstanceDTO).stream()
-                .map(token -> token.getValue())
-                .collect(Collectors.toSet());
-    }
-
-    protected Set<MustacheBindingToken> extractKeysFromModuleInstance(ModuleInstanceDTO moduleInstanceDTO) {
         if (moduleInstanceDTO == null) {
             return new HashSet<>();
         }
@@ -110,6 +104,6 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
 
         Set<MustacheBindingToken> keys = MustacheHelper.extractMustacheKeysFromFields(moduleInstanceInputs);
 
-        return keys;
+        return keys.stream().map(MustacheBindingToken::getValue).collect(Collectors.toSet());
     }
 }

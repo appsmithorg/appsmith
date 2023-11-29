@@ -34,7 +34,7 @@ import java.util.Set;
 public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingService<JSActionType> {
     private final NewActionRepository newActionRepository;
     private final PolicyGenerator policyGenerator;
-    private final RefactoringService refactoringSolution;
+    private final RefactoringService refactoringService;
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
@@ -92,7 +92,7 @@ public class JSActionInstantiatingServiceImpl implements ModuleInstantiatingServ
 
         //  For each entity name, call refactor current entity
         Mono<NewAction> newActionMono = Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
-                .concatMap(refactorEntityNameDTO -> refactoringSolution.refactorCurrentEntity(
+                .concatMap(refactorEntityNameDTO -> refactoringService.refactorCurrentEntity(
                         toBeInstantiatedAction.getUnpublishedAction(),
                         EntityType.JS_ACTION,
                         refactorEntityNameDTO,

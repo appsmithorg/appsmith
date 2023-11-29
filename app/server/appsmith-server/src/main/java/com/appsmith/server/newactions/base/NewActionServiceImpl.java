@@ -335,7 +335,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     @Override
     public Flux<NewAction> findAllUnpublishedComposedActionsByRootModuleInstanceId(
             String rootModuleInstanceId, AclPermission permission, boolean includeJs) {
-        return repository.findAllByRootModuleInstanceId(rootModuleInstanceId, Optional.of(permission), includeJs);
+        return repository.findAllByRootModuleInstanceId(
+                rootModuleInstanceId, Optional.ofNullable(permission), includeJs);
     }
 
     @Override

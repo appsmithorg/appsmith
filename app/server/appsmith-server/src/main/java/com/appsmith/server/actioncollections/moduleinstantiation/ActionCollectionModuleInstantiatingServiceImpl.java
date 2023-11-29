@@ -38,7 +38,7 @@ public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleIns
     private final ModuleInstantiatingService<JSActionType> jsActionInstantiatingService;
     private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
-    private final RefactoringService refactoringSolution;
+    private final RefactoringService refactoringService;
 
     @Override
     public Mono<Void> instantiateEntities(ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO) {
@@ -158,7 +158,7 @@ public class ActionCollectionModuleInstantiatingServiceImpl implements ModuleIns
 
         // For each entity name in the map, refactor the current entity
         Mono<ActionCollection> actionCollectionMono = Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
-                .concatMap(refactorEntityNameDTO -> refactoringSolution.refactorCurrentEntity(
+                .concatMap(refactorEntityNameDTO -> refactoringService.refactorCurrentEntity(
                         unpublishedActionCollectionDTO,
                         EntityType.JS_OBJECT,
                         refactorEntityNameDTO,

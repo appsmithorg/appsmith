@@ -134,6 +134,7 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
             return Mono.empty();
         }
         moduleInstanceRefactorEntityNameDTO.setNewName(replacedName);
+        moduleInstanceRefactorEntityNameDTO.setIsInternal(true);
 
         return Mono.just(moduleInstanceRefactorEntityNameDTO);
     }
@@ -157,6 +158,7 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
             return Mono.empty();
         }
         actionCollectionRefactorEntityNameDTO.setNewName(replacedName);
+        actionCollectionRefactorEntityNameDTO.setIsInternal(true);
 
         return Mono.just(actionCollectionRefactorEntityNameDTO);
     }
@@ -186,6 +188,7 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
             return Mono.empty();
         }
         actionRefactorEntityNameDTO.setNewName(replacedName);
+        actionRefactorEntityNameDTO.setIsInternal(true);
 
         return Mono.just(actionRefactorEntityNameDTO);
     }

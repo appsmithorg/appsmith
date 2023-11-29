@@ -7,10 +7,14 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
+import com.appsmith.server.dtos.EntityType;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +40,15 @@ import java.util.List;
 public class ModuleInstanceController {
     private final CrudModuleInstanceService crudModuleInstanceService;
     private final LayoutModuleInstanceService layoutModuleInstanceService;
+    private final RefactoringService refactoringService;
 
     public ModuleInstanceController(
             CrudModuleInstanceService crudModuleInstanceService,
-            LayoutModuleInstanceService layoutModuleInstanceService) {
+            LayoutModuleInstanceService layoutModuleInstanceService,
+            RefactoringService refactoringService) {
         this.crudModuleInstanceService = crudModuleInstanceService;
         this.layoutModuleInstanceService = layoutModuleInstanceService;
+        this.refactoringService = refactoringService;
     }
 
     @JsonView(Views.Public.class)
@@ -112,5 +119,16 @@ public class ModuleInstanceController {
                 .getAllEntities(contextId, contextType, branchName)
                 .map(moduleInstanceEntitiesDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), moduleInstanceEntitiesDTO, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PutMapping("/refactor")
+    public Mono<ResponseDTO<LayoutDTO>> refactorModuleInstanceName(
+            @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        refactorEntityNameDTO.setEntityType(EntityType.MODULE_INSTANCE);
+        return refactoringService
+                .refactorCompositeEntityName(refactorEntityNameDTO, branchName)
+                .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 }

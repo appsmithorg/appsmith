@@ -75,7 +75,7 @@ public class CrudModuleInstanceServiceImpl extends BaseModuleInstanceServiceImpl
     private final ModuleRepository moduleRepository;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
-    private final RefactoringService refactoringSolution;
+    private final RefactoringService refactoringService;
 
     private final ApplicationService applicationService;
 
@@ -96,7 +96,7 @@ public class CrudModuleInstanceServiceImpl extends BaseModuleInstanceServiceImpl
             ModuleRepository moduleRepository,
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
-            RefactoringService refactoringSolution,
+            RefactoringService refactoringService,
             ApplicationService applicationService,
             UpdateLayoutService updateLayoutService) {
         super(repository);
@@ -114,7 +114,7 @@ public class CrudModuleInstanceServiceImpl extends BaseModuleInstanceServiceImpl
         this.moduleRepository = moduleRepository;
         this.newActionService = newActionService;
         this.actionCollectionService = actionCollectionService;
-        this.refactoringSolution = refactoringSolution;
+        this.refactoringService = refactoringService;
         this.applicationService = applicationService;
         this.updateLayoutService = updateLayoutService;
     }
@@ -135,7 +135,7 @@ public class CrudModuleInstanceServiceImpl extends BaseModuleInstanceServiceImpl
         final HashMap<String, RefactorEntityNameDTO> sourceToInstantiatedEntityRefactorDTOsMap = new HashMap<>();
 
         Mono<Set<RefactorEntityNameDTO>> refactorDTOsForAllExistingEntitiesMono =
-                refactoringSolution.getRefactorDTOsForAllExistingEntitiesMono(
+                refactoringService.getRefactorDTOsForAllExistingEntitiesMono(
                         moduleInstanceReqDTO.getSourceModuleId(), CreatorContextType.MODULE, null, false);
 
         Mono<Set<RefactorEntityNameDTO>> updateEntityNamesMapMono =
@@ -166,7 +166,7 @@ public class CrudModuleInstanceServiceImpl extends BaseModuleInstanceServiceImpl
             return getNewPageMono(moduleInstanceReqDTO.getContextId(), branchName)
                     .flatMap(page -> {
                         Layout layout = page.getUnpublishedPage().getLayouts().get(0);
-                        return refactoringSolution
+                        return refactoringService
                                 .isNameAllowed(
                                         page.getId(),
                                         CreatorContextType.PAGE,

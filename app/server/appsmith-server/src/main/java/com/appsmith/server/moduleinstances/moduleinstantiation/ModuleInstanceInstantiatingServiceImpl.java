@@ -31,18 +31,18 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
     private final ModuleInstanceRepository repository;
     private final ModuleInstancePermission moduleInstancePermission;
     private final PolicyGenerator policyGenerator;
-    private final RefactoringService refactoringSolution;
+    private final RefactoringService refactoringService;
 
     public ModuleInstanceInstantiatingServiceImpl(
             ModuleInstanceRepository repository,
             ModuleInstancePermission moduleInstancePermission,
             PolicyGenerator policyGenerator,
-            RefactoringService refactoringSolution) {
+            RefactoringService refactoringService) {
         super(repository);
         this.repository = repository;
         this.moduleInstancePermission = moduleInstancePermission;
         this.policyGenerator = policyGenerator;
-        this.refactoringSolution = refactoringSolution;
+        this.refactoringService = refactoringService;
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ModuleInstanceInstantiatingServiceImpl extends BaseModuleInstanceSe
 
         // For each entity name, call refactor current entity
         Mono<ModuleInstance> moduleInstanceMono = Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
-                .concatMap(refactorEntityNameDTO -> refactoringSolution.refactorCurrentEntity(
+                .concatMap(refactorEntityNameDTO -> refactoringService.refactorCurrentEntity(
                         unpublishedModuleInstance,
                         EntityType.MODULE_INSTANCE,
                         refactorEntityNameDTO,

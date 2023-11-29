@@ -33,7 +33,7 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
     private final NewActionRepository newActionRepository;
     private final ActionPermission actionPermission;
     private final PolicyGenerator policyGenerator;
-    private final RefactoringService refactoringSolution;
+    private final RefactoringService refactoringService;
     private final NewActionService newActionService;
 
     @Override
@@ -91,7 +91,7 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
 
         // For each entity name, call refactor current entity
         Mono<NewAction> newActionMono = Flux.fromIterable(oldToNewModuleEntityRefactorDTOsMap.values())
-                .concatMap(refactorEntityNameDTO -> refactoringSolution.refactorCurrentEntity(
+                .concatMap(refactorEntityNameDTO -> refactoringService.refactorCurrentEntity(
                         unpublishedAction,
                         EntityType.ACTION,
                         refactorEntityNameDTO,

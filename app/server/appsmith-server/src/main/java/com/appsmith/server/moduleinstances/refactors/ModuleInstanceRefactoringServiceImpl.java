@@ -62,11 +62,6 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
     }
 
     @Override
-    public void sanitizeRefactorEntityDTO(RefactorEntityNameDTO refactorEntityNameDTO) {
-        // Do nothing, module instance names will always be top level
-    }
-
-    @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
