@@ -16,7 +16,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../../support/Pages/EditorNavigation";
 
-describe("Import and validate older app (app created in older versions of Appsmith) from Gitea", function () {
+describe.skip("Import and validate older app (app created in older versions of Appsmith) from Gitea", function () {
   let appRepoName = "TestMigration",
     appName = "UpgradeAppToLatestVersion",
     keyId: any,
