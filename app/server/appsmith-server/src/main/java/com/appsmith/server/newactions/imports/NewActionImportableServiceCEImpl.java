@@ -20,7 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,12 +38,12 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 public class NewActionImportableServiceCEImpl implements ImportableServiceCE<NewAction> {
 
     private final NewActionService newActionService;
-    private final NewActionRepository repository;
+    private final NewActionRepositoryCake repository;
     private final ActionCollectionService actionCollectionService;
 
     public NewActionImportableServiceCEImpl(
             NewActionService newActionService,
-            NewActionRepository repository,
+            NewActionRepositoryCake repository,
             ActionCollectionService actionCollectionService) {
         this.newActionService = newActionService;
         this.repository = repository;

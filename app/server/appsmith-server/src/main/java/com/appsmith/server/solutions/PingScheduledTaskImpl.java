@@ -5,8 +5,8 @@ import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.repositories.WorkspaceRepositoryCake;
@@ -34,8 +34,8 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             WorkspaceRepositoryCake workspaceRepository,
             ApplicationRepositoryCake applicationRepository,
             NewPageRepositoryCake newPageRepository,
-            NewActionRepository newActionRepository,
-            DatasourceRepository datasourceRepository,
+            NewActionRepositoryCake newActionRepository,
+            DatasourceRepositoryCake datasourceRepository,
             UserRepositoryCake userRepository,
             ProjectProperties projectProperties,
             NetworkUtils networkUtils,

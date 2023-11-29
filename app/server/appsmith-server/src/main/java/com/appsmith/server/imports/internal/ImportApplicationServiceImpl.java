@@ -10,7 +10,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -47,7 +47,7 @@ public class ImportApplicationServiceImpl extends ImportApplicationServiceCEImpl
             ActionPermission actionPermission,
             Gson gson,
             TransactionalOperator transactionalOperator,
-            PermissionGroupRepository permissionGroupRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             ImportableService<Plugin> pluginImportableService,
             ImportableService<Theme> themeImportableService,
             ImportableService<NewPage> newPageImportableService,

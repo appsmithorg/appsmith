@@ -13,7 +13,7 @@ import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -61,7 +61,7 @@ public class ApplicationFetcherUnitTest {
     UserDataService userDataService;
 
     @MockBean
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @MockBean
     ReleaseNotesService releaseNotesService;

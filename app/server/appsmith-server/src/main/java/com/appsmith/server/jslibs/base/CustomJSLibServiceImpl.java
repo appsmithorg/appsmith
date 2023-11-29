@@ -1,6 +1,6 @@
 package com.appsmith.server.jslibs.base;
 
-import com.appsmith.server.repositories.CustomJSLibRepository;
+import com.appsmith.server.repositories.CustomJSLibRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import jakarta.validation.Validator;
@@ -19,7 +19,7 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            CustomJSLibRepository repository,
+            CustomJSLibRepositoryCake repository,
             ApplicationService applicationService,
             AnalyticsService analyticsService) {
         super(

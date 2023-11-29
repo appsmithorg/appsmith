@@ -17,11 +17,10 @@ import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,7 +44,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        return Flux.empty(); /*
+        return Collections.emptyList(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission);*/
@@ -59,7 +58,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
-        return Flux.empty(); /*
+        return Collections.emptyList(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
         // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would exist.
@@ -143,7 +142,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
-        return Flux.empty(); /*
+        return Collections.emptyList(); /*
         ArrayList<String> includedFields = new ArrayList<>(List.of(
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
@@ -192,7 +191,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                     }
                     // If the page hasn't been published, just send the unpublished page name
                     return p.getUnpublishedPage().getName();
-                });
+                })
+                .blockOptional();
     }
 
     @Override
@@ -208,7 +208,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
-        return Flux.empty(); /*
+        return Collections.emptyList(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").in(applicationIds);
         String unpublishedSlugFieldPath = String.format(
@@ -256,9 +256,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Criteria applicationIdCriteria = where("id").in(pageIds);
 
         Optional<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+                Optional.of(getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission)));
 
-        return permissionGroupsMono.flatMap(permissionGroups -> {
+        return permissionGroupsMono.map(permissionGroups -> {
             AggregationOperation matchAggregationWithPermission = null;
             if (permission == null) {
                 matchAggregationWithPermission = Aggregation.match(new Criteria().andOperator(notDeleted()));
@@ -276,13 +276,13 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                     matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
             AggregationResults<NewPage> updatedResults =
                     mongoTemplate.aggregate(combinedAggregation, NewPage.class, NewPage.class);
-            return bulkUpdate(updatedResults.getMappedResults());
+            return bulkUpdate(updatedResults.getMappedResults()).get();
         });
     }
 
     @Override
     public Optional<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages) {
-        return Mono.empty(); /*
+        return Optional.empty(); /*
         if (CollectionUtils.isEmpty(newPages)) {
             return Mono.just(Collections.emptyList());
         }

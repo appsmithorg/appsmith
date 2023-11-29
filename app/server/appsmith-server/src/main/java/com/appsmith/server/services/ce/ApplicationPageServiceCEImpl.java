@@ -41,8 +41,8 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -84,7 +84,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -117,9 +116,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private final PermissionGroupService permissionGroupService;
     private final ActionCollectionRepositoryCake actionCollectionRepository;
-    private final NewActionRepository newActionRepository;
+    private final NewActionRepositoryCake newActionRepository;
     private final NewPageRepositoryCake newPageRepository;
-    private final DatasourceRepository datasourceRepository;
+    private final DatasourceRepositoryCake datasourceRepository;
     private final DatasourcePermission datasourcePermission;
 
     public static final Integer EVALUATION_VERSION = 2;
@@ -339,8 +338,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(applicationService.findById(applicationId, applicationPermission.getEditPermission()))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .flatMap(application -> Mono.justOrEmpty(applicationRepository
-                        .setDefaultPage(applicationId, pageId))
+                .flatMap(application -> Mono.justOrEmpty(applicationRepository.setDefaultPage(applicationId, pageId))
                         .then(applicationService.getById(applicationId)));
     }
 
@@ -425,7 +423,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<Application> setApplicationPolicies(Mono<User> userMono, String workspaceId, Application application) {
         return userMono.flatMap(user -> {
             Mono<Workspace> workspaceMono = workspaceRepository
-                    .findById(workspaceId/*, workspacePermission.getApplicationCreatePermission()*/)
+                    .findById(workspaceId /*, workspacePermission.getApplicationCreatePermission()*/)
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
@@ -456,7 +454,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         log.debug("Archiving application with id: {}", id);
 
         Mono<Application> applicationMono = applicationRepository
-                .findById(id/*, applicationPermission.getDeletePermission()*/)
+                .findById(id /*, applicationPermission.getDeletePermission()*/)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .cache();
@@ -1458,13 +1456,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             Mono<Application> applicationMono, AppsmithError expectedError) {
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                .flatMap(newPageRepository::setUserPermissionsInObject));
+                .map(newPageRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                .flatMap(newActionRepository::setUserPermissionsInObject));
+                .map(newActionRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
                 .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
-                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+                .map(actionCollectionRepository::setUserPermissionsInObject));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
                 pageFlux,
@@ -1495,10 +1493,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private Mono<Boolean> validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
         Flux<BaseDomain> datasourceFlux = applicationMono
                 .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
-                        List.of(application.getId()),
-                        List.of(
-                                "id",
-                                "unpublishedAction.datasource.id")))
+                        List.of(application.getId()), List.of("id", "unpublishedAction.datasource.id")))
                 .collectList()
                 .map(actions -> {
                     return actions.stream()
@@ -1510,7 +1505,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
                         .findAllByIdsWithoutPermission(datasourceIds, List.of("id", "policies"))
-                        .flatMap(datasourceRepository::setUserPermissionsInObject));
+                        .map(datasourceRepository::setUserPermissionsInObject));
 
         return UserPermissionUtils.validateDomainObjectPermissionsOrError(
                         datasourceFlux,

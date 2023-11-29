@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -29,7 +29,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
-            NewActionRepository newActionRepository,
+            NewActionRepositoryCake newActionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,

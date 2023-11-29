@@ -41,7 +41,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
@@ -94,7 +94,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class NewActionServiceCEImpl extends BaseService<NewActionRepository, NewAction, String>
+public class NewActionServiceCEImpl extends BaseService<NewActionRepositoryCake, NewAction, String>
         implements NewActionServiceCE {
 
     public static final String DATA = "data";
@@ -106,7 +106,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
     public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
-    protected final NewActionRepository repository;
+    protected final NewActionRepositoryCake repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -133,7 +133,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            NewActionRepository repository,
+            NewActionRepositoryCake repository,
             AnalyticsService analyticsService,
             DatasourceService datasourceService,
             PluginService pluginService,
@@ -648,7 +648,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findByUnpublishedNameAndPageId(name, pageId, permission))
+        return repository
+                .findByUnpublishedNameAndPageId(name, pageId, permission)
                 .flatMap(action -> generateActionByViewMode(action, false));
     }
 
@@ -1438,14 +1439,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> archive(NewAction newAction) {
-        return Mono.justOrEmpty(repository.archive(newAction));
+        return repository.archive(newAction);
     }
 
     @Override
     public Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
         return repository
                 .findByApplicationId(applicationId, permission)
-                .flatMap((NewAction entity) -> Mono.justOrEmpty(repository.archive(entity)))
+                .flatMap((NewAction entity) -> repository.archive(entity))
                 .onErrorResume(throwable -> {
                     log.error(throwable.getMessage());
                     return Mono.empty();

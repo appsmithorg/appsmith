@@ -19,7 +19,7 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
@@ -100,7 +100,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final AnalyticsService analyticsService;
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
     private final EmailSender emailSender;
 
     private final CommonConfig commonConfig;
@@ -135,7 +135,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
             SessionUserService sessionUserService,
             UserService userService,
             AnalyticsService analyticsService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             EmailSender emailSender,
             CommonConfig commonConfig,
             EmailConfig emailConfig,

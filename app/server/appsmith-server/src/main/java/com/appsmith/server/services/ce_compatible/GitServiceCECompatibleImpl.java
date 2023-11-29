@@ -13,7 +13,7 @@ import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -48,7 +48,7 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
             ResponseUtils responseUtils,
             EmailConfig emailConfig,
             AnalyticsService analyticsService,
-            GitDeployKeysRepository gitDeployKeysRepository,
+            GitDeployKeysRepositoryCake gitDeployKeysRepository,
             DatasourceService datasourceService,
             PluginService pluginService,
             DatasourcePermission datasourcePermission,

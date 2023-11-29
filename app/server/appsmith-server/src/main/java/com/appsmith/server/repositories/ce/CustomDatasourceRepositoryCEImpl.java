@@ -7,7 +7,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Flux;
 
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +27,8 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
 
     // @Override
     @Deprecated
-    public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
-        return Flux.empty(); /*
+    public List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
+        return Collections.emptyList(); /*
         Criteria workspaceIdCriteria =
                 where("workspaceId").is(workspaceId);
         return queryAll(List.of(workspaceIdCriteria), permission, Sort.by("name"));*/

@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -117,6 +118,15 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 Query.query(getIdCriteria(applicationId)),
                 new Update().push("pages", applicationPage),
                 Application.class);*/
+    }
+
+    @Override
+    public Optional<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages) {
+        return Optional.empty(); /*
+        return mongoOperations.updateFirst(
+            Query.query(getIdCriteria(applicationId)),
+            new Update().set("pages", pages),
+            Application.class);*/
     }
 
     @Override

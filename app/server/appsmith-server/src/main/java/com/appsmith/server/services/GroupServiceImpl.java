@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.GroupRepository;
+import com.appsmith.server.repositories.GroupRepositoryCake;
 import com.appsmith.server.services.ce.GroupServiceCEImpl;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class GroupServiceImpl extends GroupServiceCEImpl implements GroupService
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            GroupRepository repository,
+            GroupRepositoryCake repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService) {
 

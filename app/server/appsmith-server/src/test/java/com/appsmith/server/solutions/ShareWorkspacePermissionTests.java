@@ -13,8 +13,8 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
@@ -74,7 +74,7 @@ public class ShareWorkspacePermissionTests {
     NewActionService newActionService;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     NewPageService newPageService;
@@ -92,7 +92,7 @@ public class ShareWorkspacePermissionTests {
     UserWorkspaceService userWorkspaceService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;

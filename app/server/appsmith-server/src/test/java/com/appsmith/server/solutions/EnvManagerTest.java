@@ -9,7 +9,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
@@ -56,7 +56,7 @@ public class EnvManagerTest {
     private AnalyticsService analyticsService;
 
     @MockBean
-    private UserRepository userRepository;
+    private UserRepositoryCake userRepository;
 
     @MockBean
     private EmailSender emailSender;

@@ -24,8 +24,8 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -69,14 +69,14 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
-    private final DatasourceRepository repository;
+    private final DatasourceRepositoryCake repository;
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     protected final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
-    private final NewActionRepository newActionRepository;
+    private final NewActionRepositoryCake newActionRepository;
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
@@ -95,7 +95,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Autowired
     public DatasourceServiceCEImpl(
-            DatasourceRepository repository,
+            DatasourceRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
@@ -103,7 +103,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             PluginExecutorHelper pluginExecutorHelper,
             PolicyGenerator policyGenerator,
             SequenceService sequenceService,
-            NewActionRepository newActionRepository,
+            NewActionRepositoryCake newActionRepository,
             DatasourceContextService datasourceContextService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
@@ -273,7 +273,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> updateDatasource(
-            Long id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
+            String id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -284,14 +284,14 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         // check method docstring for description
         datasource.nullifyStorageReplicaFields();
 
-        Optional<Datasource> datasourceOpt = repository.findById(id /*, datasourcePermission.getEditPermission()*/);
-        if (datasourceOpt.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id));
-        }
-        return Mono.justOrEmpty(datasourceOpt.get());
+        Mono<Datasource> datasourceMono = repository
+                .findById(id, datasourcePermission.getEditPermission())
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
+        return Mono.empty(); /*
 
-        /*/ This is meant to be an update for just the datasource - like a renamed
-        return datasourceOpt
+        // This is meant to be an update for just the datasource - like a renamed
+        return datasourceMono
                 .map(datasourceInDb -> {
                     copyNestedNonNullProperties(datasource, datasourceInDb);
                     return datasourceInDb;
@@ -331,8 +331,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         }
 
         // querying for each of the datasource
-        Mono<Datasource> datasourceMonoCached = findById(
-                        String.valueOf(datasourceId), datasourcePermission.getEditPermission())
+        Mono<Datasource> datasourceMonoCached = findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
 
@@ -364,18 +363,20 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             datasource.setGitSyncId(
                     datasource.getWorkspaceId() + "_" + Instant.now().toString());
         }
-        return Mono.justOrEmpty(repository.save(datasource));
+        return repository.save(datasource);
     }
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
 
-        return validateDatasource(datasource)
-                .map(unsavedDatasource -> {
-                    final Datasource savedDatasource = repository.save(unsavedDatasource);
-                    // datasource.pluginName is a transient field. It was set by validateDatasource method
-                    // object from db will have pluginName=null so set it manually from the unsaved datasource obj
-                    savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                    return savedDatasource;
+        return Mono.just(datasource)
+                .flatMap(this::validateDatasource)
+                .flatMap(unsavedDatasource -> {
+                    return repository.save(unsavedDatasource).map(savedDatasource -> {
+                        // datasource.pluginName is a transient field. It was set by validateDatasource method
+                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                        return savedDatasource;
+                    });
                 })
                 .map(repository::setUserPermissionsInObject);
     }
@@ -679,7 +680,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
-        return Mono.justOrEmpty(repository.findById(Long.valueOf(id) /*, aclPermission*/));
+        return repository.findById(id /*, aclPermission*/);
     }
 
     @Override
@@ -707,7 +708,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> findById(String id) {
-        return Mono.justOrEmpty(repository.findById(Long.valueOf(id)));
+        return repository.findById(id);
     }
 
     @Override
@@ -732,7 +733,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(Long workspaceId, Optional<AclPermission> permission) {
-        return Flux.fromIterable(repository.findAllByWorkspaceId(workspaceId /*, permission*/));
+        return repository.findAllByWorkspaceId(workspaceId /*, permission*/);
     }
 
     @Override

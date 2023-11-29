@@ -16,7 +16,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -64,7 +64,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     protected final ActionPermission actionPermission;
     private final PermissionGroupService permissionGroupService;
     private final ActionCollectionRepositoryCake actionCollectionRepository;
-    private final NewActionRepository newActionRepository;
+    private final NewActionRepositoryCake newActionRepository;
     private final WorkspaceRepositoryCake workspaceRepository;
 
     private final ForkableService<Datasource> datasourceForkableService;

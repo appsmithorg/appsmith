@@ -9,8 +9,8 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ce.ApplicationPageServiceCEImpl;
@@ -51,9 +51,9 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             TransactionalOperator transactionalOperator,
             PermissionGroupService permissionGroupService,
             ActionCollectionRepositoryCake actionCollectionRepository,
-            NewActionRepository newActionRepository,
+            NewActionRepositoryCake newActionRepository,
             NewPageRepositoryCake newPageRepository,
-            DatasourceRepository datasourceRepository,
+            DatasourceRepositoryCake datasourceRepository,
             DatasourcePermission datasourcePermission) {
         super(
                 workspaceService,

@@ -8,7 +8,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
@@ -40,7 +40,7 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             ActionPermission actionPermission,
             SessionUserService sessionUserService,
             TransactionalOperator transactionalOperator,
-            PermissionGroupRepository permissionGroupRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             ImportableService<Plugin> pluginImportableService,
             ImportableService<NewPage> newPageImportableService,
             ImportableService<CustomJSLib> customJSLibImportableService,

@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.PluginRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.WorkspaceService;
@@ -55,7 +55,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Slf4j
-public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
+public class PluginServiceCEImpl extends BaseService<PluginRepositoryCake, Plugin, String> implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
     protected final WorkspaceService workspaceService;
@@ -92,7 +92,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            PluginRepository repository,
+            PluginRepositoryCake repository,
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
             PluginManager pluginManager,
@@ -301,7 +301,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Mono<Plugin> findById(String id) {
-        return Mono.justOrEmpty(repository.findById(id));
+        return repository.findById(id);
     }
 
     @Override

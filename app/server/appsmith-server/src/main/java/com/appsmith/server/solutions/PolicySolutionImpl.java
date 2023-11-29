@@ -1,12 +1,12 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.acl.PolicyGenerator;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
+import com.appsmith.server.repositories.NewPageRepositoryCake;
+import com.appsmith.server.repositories.ThemeRepositoryCake;
 import com.appsmith.server.solutions.ce.PolicySolutionCEImpl;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 public class PolicySolutionImpl extends PolicySolutionCEImpl implements PolicySolution {
     public PolicySolutionImpl(
             PolicyGenerator policyGenerator,
-            ApplicationRepository applicationRepository,
-            DatasourceRepository datasourceRepository,
-            NewPageRepository newPageRepository,
-            NewActionRepository newActionRepository,
-            ActionCollectionRepository actionCollectionRepository,
-            ThemeRepository themeRepository,
+            ApplicationRepositoryCake applicationRepository,
+            DatasourceRepositoryCake datasourceRepository,
+            NewPageRepositoryCake newPageRepository,
+            NewActionRepositoryCake newActionRepository,
+            ActionCollectionRepositoryCake actionCollectionRepository,
+            ThemeRepositoryCake themeRepository,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission) {

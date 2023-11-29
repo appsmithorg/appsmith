@@ -6,8 +6,8 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Flux;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,8 +25,8 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
     }
 
     @Override
-    public Flux<Plugin> findDefaultPluginIcons() {
-        return Flux.empty(); /*
+    public List<Plugin> findDefaultPluginIcons() {
+        return Collections.emptyList(); /*
         Criteria criteria =
                 Criteria.where("defaultInstall").is(Boolean.TRUE);
         List<String> projections = List.of(
@@ -37,7 +37,7 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
     }
 
     @Override
-    public Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
+    public List<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
         Criteria idCriteria = where("id").in(ids);
         return queryAll(
                 List.of(idCriteria),

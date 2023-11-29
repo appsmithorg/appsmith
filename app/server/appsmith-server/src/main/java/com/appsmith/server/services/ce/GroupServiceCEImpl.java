@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.acl.AclConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Group;
-import com.appsmith.server.repositories.GroupRepository;
+import com.appsmith.server.repositories.GroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
@@ -23,9 +23,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class GroupServiceCEImpl extends BaseService<GroupRepository, Group, String> implements GroupServiceCE {
+public class GroupServiceCEImpl extends BaseService<GroupRepositoryCake, Group, String> implements GroupServiceCE {
 
-    private final GroupRepository repository;
+    private final GroupRepositoryCake repository;
     private final SessionUserService sessionUserService;
 
     @Autowired
@@ -34,7 +34,7 @@ public class GroupServiceCEImpl extends BaseService<GroupRepository, Group, Stri
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            GroupRepository repository,
+            GroupRepositoryCake repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);

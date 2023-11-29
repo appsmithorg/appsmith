@@ -8,7 +8,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.EmailVerificationTokenRepository;
+import com.appsmith.server.repositories.EmailVerificationTokenRepositoryCake;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.ce_compatible.UserServiceCECompatibleImpl;
@@ -48,7 +48,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             TenantService tenantService,
             PermissionGroupService permissionGroupService,
             UserUtils userUtils,
-            EmailVerificationTokenRepository emailVerificationTokenRepository,
+            EmailVerificationTokenRepositoryCake emailVerificationTokenRepository,
             EmailService emailService,
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,

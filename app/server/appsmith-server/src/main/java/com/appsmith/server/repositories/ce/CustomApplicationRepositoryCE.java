@@ -6,8 +6,6 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.mongodb.client.result.UpdateResult;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Map;

@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
-import com.appsmith.server.repositories.ApplicationSnapshotRepository;
+import com.appsmith.server.repositories.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.services.ce.ApplicationSnapshotServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
@@ -16,7 +16,7 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
         implements ApplicationSnapshotService {
 
     public ApplicationSnapshotServiceImpl(
-            ApplicationSnapshotRepository applicationSnapshotRepository,
+            ApplicationSnapshotRepositoryCake applicationSnapshotRepository,
             ApplicationService applicationService,
             ImportApplicationService importApplicationService,
             ExportApplicationService exportApplicationService,

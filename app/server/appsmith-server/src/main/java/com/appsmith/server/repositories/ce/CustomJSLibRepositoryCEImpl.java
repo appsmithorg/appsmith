@@ -6,10 +6,10 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -30,7 +30,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
        Custom JS library doesn't have any user or application specific data and carries no risk and hence no ACL check is made while fetching the data.
     */
     @Override
-    public Mono<CustomJSLib> findByUidString(String uidString) {
+    public Optional<CustomJSLib> findByUidString(String uidString) {
         Criteria uidStringMatchCriteria = where(UID_STRING_IDENTIFIER).is(uidString);
         ArrayList<Criteria> listOfCriteria = new ArrayList<>();
         listOfCriteria.add(uidStringMatchCriteria);

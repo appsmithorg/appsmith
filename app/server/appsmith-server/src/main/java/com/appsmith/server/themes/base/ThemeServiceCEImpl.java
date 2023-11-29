@@ -8,7 +8,8 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.ThemeRepositoryCake;
+import com.appsmith.server.repositories.ThemeRepositoryCake;
 import com.appsmith.server.repositories.ce.ThemeRepositoryCE;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
@@ -24,7 +25,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 @Slf4j
-public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, String> implements ThemeServiceCE {
+public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, String> implements ThemeServiceCE {
 
     private final ApplicationRepositoryCake applicationRepository;
     private final ApplicationService applicationService;
@@ -37,7 +38,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            ThemeRepository repository,
+            ThemeRepositoryCake repository,
             AnalyticsService analyticsService,
             ApplicationRepositoryCake applicationRepository,
             ApplicationService applicationService,

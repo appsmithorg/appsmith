@@ -6,10 +6,10 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ApplicationSnapshot>
         implements CustomApplicationSnapshotRepositoryCE {
@@ -22,7 +22,7 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
     }
 
     @Override
-    public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
+    public Optional<ApplicationSnapshot> findWithoutData(String applicationId) {
         List<Criteria> criteriaList = new ArrayList<>();
         criteriaList.add(Criteria.where("applicationId").is(applicationId));
         criteriaList.add(Criteria.where("chunkOrder").is(1));

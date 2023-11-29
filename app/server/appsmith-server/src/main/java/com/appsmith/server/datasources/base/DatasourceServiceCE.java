@@ -72,7 +72,7 @@ public interface DatasourceServiceCE {
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
 
     Mono<Datasource> updateDatasource(
-            Long id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate);
+            String id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate);
 
     Mono<Datasource> archiveById(String id);
 

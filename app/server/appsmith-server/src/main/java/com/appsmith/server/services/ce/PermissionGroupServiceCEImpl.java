@@ -8,7 +8,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.ConfigRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepository, PermissionGroup, String>
+public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepositoryCake, PermissionGroup, String>
         implements PermissionGroupServiceCE {
 
     private final SessionUserService sessionUserService;
@@ -46,7 +46,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            PermissionGroupRepository repository,
+            PermissionGroupRepositoryCake repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             TenantService tenantService,
@@ -83,17 +83,17 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Flux<PermissionGroup> findAllByIds(Set<String> ids) {
-        return Flux.fromIterable(repository.findAllById(ids));
+        return repository.findAllById(ids);
     }
 
     @Override
     public Mono<PermissionGroup> save(PermissionGroup permissionGroup) {
-        return Mono.justOrEmpty(repository.save(permissionGroup));
+        return repository.save(permissionGroup);
     }
 
     @Override
     public Mono<PermissionGroup> getById(String id, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(id, permission));
+        return repository.findById(id, permission);
     }
 
     @Override
@@ -138,7 +138,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> findById(String permissionGroupId) {
-        return Mono.justOrEmpty(repository.findById(permissionGroupId));
+        return repository.findById(permissionGroupId);
     }
 
     public Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user) {
@@ -421,6 +421,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Set<String>> getSessionUserPermissionGroupIds() {
-        return sessionUserService.getCurrentUser().flatMap(repository::getAllPermissionGroupsIdsForUser);
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap((User user) -> Mono.justOrEmpty(repository.getAllPermissionGroupsIdsForUser(user)));
     }
 }

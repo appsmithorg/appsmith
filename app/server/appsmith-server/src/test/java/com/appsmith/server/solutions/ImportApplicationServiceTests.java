@@ -56,11 +56,11 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.PluginRepositoryCake;
+import com.appsmith.server.repositories.ThemeRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
@@ -162,10 +162,10 @@ public class ImportApplicationServiceTests {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     DatasourceService datasourceService;
@@ -195,13 +195,13 @@ public class ImportApplicationServiceTests {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    ThemeRepository themeRepository;
+    ThemeRepositoryCake themeRepository;
 
     @Autowired
     ApplicationService applicationService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;

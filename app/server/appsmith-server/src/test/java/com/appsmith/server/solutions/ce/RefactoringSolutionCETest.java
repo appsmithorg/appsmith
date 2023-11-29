@@ -31,8 +31,8 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringSolution;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
+import com.appsmith.server.repositories.PluginRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
@@ -94,7 +94,7 @@ class RefactoringSolutionCETest {
     WorkspaceService workspaceService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -115,7 +115,7 @@ class RefactoringSolutionCETest {
     NewPageService newPageService;
 
     @Autowired
-    NewActionRepository actionRepository;
+    NewActionRepositoryCake actionRepository;
 
     @Autowired
     ActionCollectionService actionCollectionService;

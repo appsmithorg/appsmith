@@ -6,7 +6,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AuthenticationValidator;
@@ -24,7 +24,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             ActionPermission actionPermission,
             ObservationRegistry observationRegistry,
             ObjectMapper objectMapper,
-            NewActionRepository repository,
+            NewActionRepositoryCake repository,
             DatasourceService datasourceService,
             PluginService pluginService,
             DatasourceContextService datasourceContextService,

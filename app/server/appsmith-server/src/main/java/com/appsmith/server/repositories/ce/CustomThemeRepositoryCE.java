@@ -7,15 +7,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface CustomThemeRepositoryCE extends AppsmithRepository<Theme> {
-    Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission);
+    List<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission);
 
-    Flux<Theme> getSystemThemes();
+    List<Theme> getSystemThemes();
 
     Optional<Theme> getSystemThemeByName(String themeName);
 
-    Mono<Boolean> archiveByApplicationId(String applicationId);
+    Optional<Boolean> archiveByApplicationId(String applicationId);
 
-    Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId);
+    Optional<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId);
 }

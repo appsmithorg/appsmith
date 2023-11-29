@@ -21,7 +21,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringSolutionCEImpl;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
@@ -85,7 +85,7 @@ class RefactoringSolutionCEImplTest {
     private SessionUserService sessionUserService;
 
     @MockBean
-    ActionCollectionRepository actionCollectionRepository;
+    ActionCollectionRepositoryCake actionCollectionRepository;
 
     @SpyBean
     private EntityRefactoringService<Void> jsActionEntityRefactoringService;

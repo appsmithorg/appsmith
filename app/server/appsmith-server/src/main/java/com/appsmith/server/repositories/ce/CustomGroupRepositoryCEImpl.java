@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +24,7 @@ public class CustomGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Grou
     }
 
     @Override
-    public Flux<Group> getAllByWorkspaceId(String workspaceId) {
+    public List<Group> getAllByWorkspaceId(String workspaceId) {
         Criteria workspaceIdCriteria = where("workspaceId").is(workspaceId);
 
         return queryAll(List.of(workspaceIdCriteria), Optional.empty());

@@ -12,7 +12,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.repositories.ApplicationSnapshotRepository;
+import com.appsmith.server.repositories.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
@@ -41,14 +41,15 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
-public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, NewPage, String> implements NewPageServiceCE {
+public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, NewPage, String>
+        implements NewPageServiceCE {
 
     private final ApplicationService applicationService;
     private final UserDataService userDataService;
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
-    private final ApplicationSnapshotRepository applicationSnapshotRepository;
+    private final ApplicationSnapshotRepositoryCake applicationSnapshotRepository;
 
     @Autowired
     public NewPageServiceCEImpl(
@@ -63,7 +64,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
-            ApplicationSnapshotRepository applicationSnapshotRepository) {
+            ApplicationSnapshotRepositoryCake applicationSnapshotRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
@@ -189,14 +190,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
     @Override
     public Mono<PageDTO> findByIdAndLayoutsId(
             String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
-        return Mono.justOrEmpty(repository.findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view))
+        return repository
+                .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Mono<PageDTO> findByNameAndViewMode(String name, AclPermission permission, Boolean view) {
-        return Mono.justOrEmpty(repository.findByNameAndViewMode(name, permission, view))
-                .flatMap(page -> getPageByViewMode(page, view));
+        return repository.findByNameAndViewMode(name, permission, view).flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
@@ -462,7 +463,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
     @Override
     public Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view) {
-        return Mono.justOrEmpty(repository.findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view))
+        return repository
+                .findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
@@ -479,7 +481,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
     @Override
     public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
         return findNewPagesByApplicationId(applicationId, permission)
-                .flatMap((NewPage entity) -> Mono.justOrEmpty(repository.archive(entity)))
+                .flatMap((NewPage entity) -> repository.archive(entity))
                 .collectList();
     }
 
@@ -547,7 +549,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Mono<NewPage> archive(NewPage page) {
-        return Mono.justOrEmpty(repository.archive(page));
+        return repository.archive(page);
     }
 
     @Override
@@ -562,7 +564,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
 
     @Override
     public Mono<Boolean> archiveByIds(Collection<String> idList) {
-        return Mono.justOrEmpty(repository.archiveAllById(idList));
+        return repository.archiveAllById(idList);
     }
 
     public Mono<NewPage> archiveByIdEx(String id, Optional<AclPermission> permission) {
@@ -600,7 +602,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepositoryCake, New
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId)));
         }
-        return Mono.justOrEmpty(repository.findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission))
+        return repository
+                .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId + ", " + branchName)));
     }

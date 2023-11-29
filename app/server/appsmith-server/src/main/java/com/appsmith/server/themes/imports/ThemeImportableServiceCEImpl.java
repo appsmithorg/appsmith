@@ -7,7 +7,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
-import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.ThemeRepositoryCake;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.themes.base.ThemeService;
@@ -16,13 +16,13 @@ import reactor.core.publisher.Mono;
 public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> {
 
     private final ThemeService themeService;
-    private final ThemeRepository repository;
+    private final ThemeRepositoryCake repository;
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
 
     public ThemeImportableServiceCEImpl(
             ThemeService themeService,
-            ThemeRepository repository,
+            ThemeRepositoryCake repository,
             ApplicationService applicationService,
             ApplicationPermission applicationPermission) {
         this.themeService = themeService;

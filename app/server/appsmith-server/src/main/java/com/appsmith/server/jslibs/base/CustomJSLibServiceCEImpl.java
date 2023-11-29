@@ -3,7 +3,7 @@ package com.appsmith.server.jslibs.base;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
-import com.appsmith.server.repositories.CustomJSLibRepository;
+import com.appsmith.server.repositories.CustomJSLibRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
 
 @Slf4j
-public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String>
+public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepositoryCake, CustomJSLib, String>
         implements CustomJSLibServiceCE {
     ApplicationService applicationService;
 
@@ -36,7 +36,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            CustomJSLibRepository repository,
+            CustomJSLibRepositoryCake repository,
             ApplicationService applicationService,
             AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);

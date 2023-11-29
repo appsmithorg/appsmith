@@ -20,7 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
@@ -56,7 +56,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final ActionPermission actionPermission;
     private final SessionUserService sessionUserService;
     private final TransactionalOperator transactionalOperator;
-    private final PermissionGroupRepository permissionGroupRepository;
+    private final PermissionGroupRepositoryCake permissionGroupRepository;
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<NewPage> newPageImportableService;
     private final ImportableService<CustomJSLib> customJSLibImportableService;
@@ -181,21 +181,23 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     }
 
     private Mono<ImportApplicationPermissionProvider> getImportApplicationPermissions() {
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                    .permissionRequiredToCreateDatasource(true)
-                    .permissionRequiredToEditDatasource(true)
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-            return Mono.just(permissionProvider);
-        });
+        return Mono.justOrEmpty(permissionGroupRepository.getCurrentUserPermissionGroups())
+                .flatMap(userPermissionGroups -> {
+                    ImportApplicationPermissionProvider permissionProvider =
+                            ImportApplicationPermissionProvider.builder(
+                                            applicationPermission,
+                                            pagePermission,
+                                            actionPermission,
+                                            datasourcePermission,
+                                            workspacePermission)
+                                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                                    .permissionRequiredToCreateDatasource(true)
+                                    .permissionRequiredToEditDatasource(true)
+                                    .currentUserPermissionGroups(userPermissionGroups)
+                                    .build();
+                    return Mono.just(permissionProvider);
+                });
     }
 
     private Mono<Void> getApplicationImportableEntities(

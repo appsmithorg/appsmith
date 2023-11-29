@@ -262,13 +262,13 @@ public class Application extends BaseDomain {
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
 
-    public void exportApplicationPages(final Map<String, Integer> pageIdToNameMap) {
+    public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
         for (ApplicationPage applicationPage : this.getPages()) {
-            applicationPage.setId(pageIdToNameMap.get("" + applicationPage.getId() + EDIT));
+            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
             applicationPage.setDefaultPageId(null);
         }
         for (ApplicationPage applicationPage : this.getPublishedPages()) {
-            applicationPage.setId(pageIdToNameMap.get("" + applicationPage.getId() + VIEW));
+            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
             applicationPage.setDefaultPageId(null);
         }
     }

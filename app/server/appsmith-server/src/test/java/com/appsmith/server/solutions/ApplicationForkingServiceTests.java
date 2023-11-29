@@ -47,10 +47,10 @@ import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.NewPageRepositoryCake;
+import com.appsmith.server.repositories.PluginRepositoryCake;
+import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
@@ -151,7 +151,7 @@ public class ApplicationForkingServiceTests {
     private ActionCollectionService actionCollectionService;
 
     @Autowired
-    private PluginRepository pluginRepository;
+    private PluginRepositoryCake pluginRepository;
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
@@ -169,10 +169,10 @@ public class ApplicationForkingServiceTests {
     private SessionUserService sessionUserService;
 
     @Autowired
-    private NewPageRepository newPageRepository;
+    private NewPageRepositoryCake newPageRepository;
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     private LayoutCollectionService layoutCollectionService;
@@ -199,7 +199,7 @@ public class ApplicationForkingServiceTests {
     private WorkspacePermission workspacePermission;
 
     @Autowired
-    private WorkspaceRepository workspaceRepository;
+    private WorkspaceRepositoryCake workspaceRepository;
 
     private Plugin installedPlugin;
 

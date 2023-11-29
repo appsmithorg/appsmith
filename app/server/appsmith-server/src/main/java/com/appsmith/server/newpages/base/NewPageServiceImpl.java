@@ -1,7 +1,7 @@
 package com.appsmith.server.newpages.base;
 
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.repositories.ApplicationSnapshotRepository;
+import com.appsmith.server.repositories.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.repositories.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
@@ -31,7 +31,7 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
-            ApplicationSnapshotRepository applicationSnapshotRepository) {
+            ApplicationSnapshotRepositoryCake applicationSnapshotRepository) {
 
         super(
                 scheduler,

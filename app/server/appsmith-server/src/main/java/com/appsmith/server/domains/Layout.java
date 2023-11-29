@@ -25,6 +25,8 @@ import static java.lang.Boolean.TRUE;
 @NoArgsConstructor
 public class Layout /*extends BaseDomain*/ {
 
+    String id;
+
     @JsonView({Views.Public.class, Views.Export.class})
     ScreenType screen;
 

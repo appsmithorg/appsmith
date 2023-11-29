@@ -22,7 +22,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.ImportApplicationPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -71,7 +71,7 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
     private final ActionPermission actionPermission;
     private final Gson gson;
     private final TransactionalOperator transactionalOperator;
-    private final PermissionGroupRepository permissionGroupRepository;
+    private final PermissionGroupRepositoryCake permissionGroupRepository;
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<Theme> themeImportableService;
     private final ImportableService<NewPage> newPageImportableService;
@@ -138,20 +138,22 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
     }
 
     private Mono<ImportApplicationPermissionProvider> getPermissionProviderForUpdateNonGitConnectedAppFromJson() {
-        return permissionGroupRepository.getCurrentUserPermissionGroups().map(permissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                    .allPermissionsRequired()
-                    .currentUserPermissionGroups(permissionGroups)
-                    .build();
-            return permissionProvider;
-        });
+        return Mono.justOrEmpty(permissionGroupRepository.getCurrentUserPermissionGroups())
+                .map(permissionGroups -> {
+                    ImportApplicationPermissionProvider permissionProvider =
+                            ImportApplicationPermissionProvider.builder(
+                                            applicationPermission,
+                                            pagePermission,
+                                            actionPermission,
+                                            datasourcePermission,
+                                            workspacePermission)
+                                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                                    .allPermissionsRequired()
+                                    .currentUserPermissionGroups(permissionGroups)
+                                    .build();
+                    return permissionProvider;
+                });
     }
 
     /**
@@ -241,21 +243,25 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
 
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getApplicationCreatePermission())
-                    .permissionRequiredToCreateDatasource(true)
-                    .permissionRequiredToEditDatasource(true)
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
+        return Mono.justOrEmpty(permissionGroupRepository.getCurrentUserPermissionGroups())
+                .flatMap(userPermissionGroups -> {
+                    ImportApplicationPermissionProvider permissionProvider =
+                            ImportApplicationPermissionProvider.builder(
+                                            applicationPermission,
+                                            pagePermission,
+                                            actionPermission,
+                                            datasourcePermission,
+                                            workspacePermission)
+                                    .requiredPermissionOnTargetWorkspace(
+                                            workspacePermission.getApplicationCreatePermission())
+                                    .permissionRequiredToCreateDatasource(true)
+                                    .permissionRequiredToEditDatasource(true)
+                                    .currentUserPermissionGroups(userPermissionGroups)
+                                    .build();
 
-            return importApplicationInWorkspace(workspaceId, importedDoc, null, null, false, permissionProvider);
-        });
+                    return importApplicationInWorkspace(
+                            workspaceId, importedDoc, null, null, false, permissionProvider);
+                });
     }
 
     /**
@@ -270,27 +276,29 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
     @Override
     public Mono<Application> importApplicationInWorkspaceFromGit(
             String workspaceId, ApplicationJson importedDoc, String applicationId, String branchName) {
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            /**
-             * If the application is connected to git, then the user must have edit permission on the application.
-             * If user is importing application from Git, create application permission is already checked by the
-             * caller method, so it's not required here.
-             * Other permissions are not required because Git is the source of truth for the application and Git
-             * Sync is a system level operation to get the latest code from Git. If the user does not have some
-             * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
-             */
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-            return importApplicationInWorkspace(
-                    workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
-        });
+        return Mono.justOrEmpty(permissionGroupRepository.getCurrentUserPermissionGroups())
+                .flatMap(userPermissionGroups -> {
+                    /**
+                     * If the application is connected to git, then the user must have edit permission on the application.
+                     * If user is importing application from Git, create application permission is already checked by the
+                     * caller method, so it's not required here.
+                     * Other permissions are not required because Git is the source of truth for the application and Git
+                     * Sync is a system level operation to get the latest code from Git. If the user does not have some
+                     * permissions on the Application e.g. create page, that'll be checked when the user tries to create a page.
+                     */
+                    ImportApplicationPermissionProvider permissionProvider =
+                            ImportApplicationPermissionProvider.builder(
+                                            applicationPermission,
+                                            pagePermission,
+                                            actionPermission,
+                                            datasourcePermission,
+                                            workspacePermission)
+                                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                                    .currentUserPermissionGroups(userPermissionGroups)
+                                    .build();
+                    return importApplicationInWorkspace(
+                            workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
+                });
     }
 
     @Override
@@ -300,20 +308,22 @@ public class ImportApplicationServiceCEImpl implements ImportApplicationServiceC
          * Like Git, restore snapshot is a system level operation. So, we're not checking for any permissions here.
          * Only permission required is to edit the application.
          */
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportApplicationPermissionProvider permissionProvider = ImportApplicationPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-            return importApplicationInWorkspace(
-                    workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
-        });
+        return Mono.justOrEmpty(permissionGroupRepository.getCurrentUserPermissionGroups())
+                .flatMap(userPermissionGroups -> {
+                    ImportApplicationPermissionProvider permissionProvider =
+                            ImportApplicationPermissionProvider.builder(
+                                            applicationPermission,
+                                            pagePermission,
+                                            actionPermission,
+                                            datasourcePermission,
+                                            workspacePermission)
+                                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                                    .requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+                                    .currentUserPermissionGroups(userPermissionGroups)
+                                    .build();
+                    return importApplicationInWorkspace(
+                            workspaceId, importedDoc, applicationId, branchName, false, permissionProvider);
+                });
     }
 
     /**

@@ -1,22 +1,17 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -34,9 +29,9 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
+    public List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
-        return Flux.empty(); /*
+        return Collections.emptyList(); /*
         Criteria assignedToUserIdCriteria = where("assignedToUserIds")
                 .in(userId);
         Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
@@ -48,17 +43,18 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Mono<UpdateResult> updateById(String id, Update updateObj) {
+    public Optional<UpdateResult> updateById(String id, Update updateObj) {
+        return Optional.empty(); /*
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         Query query = new Query(Criteria.where("id").is(id));
-        return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
+        return mongoOperations.updateFirst(query, updateObj, this.genericDomain);*/
     }
 
     @Override
-    public Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
-        return Flux.empty(); /*
+    public List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
+        return Collections.emptyList(); /*
         Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
                 .is(workspaceId);
         Criteria defaultDomainTypeCriteria = where("defaultDomainType")
@@ -67,8 +63,8 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
-        return Flux.empty(); /*
+    public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
+        return Collections.emptyList(); /*
         Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
                 .in(workspaceIds);
         Criteria defaultDomainTypeCriteria = where("defaultDomainType")
@@ -77,27 +73,29 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
-        return cacheableRepositoryHelper.evictPermissionGroupsUser(email, tenantId);
+    public Optional<Void> evictPermissionGroupsUser(String email, String tenantId) {
+        return cacheableRepositoryHelper
+                .evictPermissionGroupsUser(email, tenantId)
+                .blockOptional();
     }
 
     @Override
-    public Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId) {
+    public Optional<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId) {
         return this.evictPermissionGroupsUser(email, tenantId);
     }
 
     @Override
-    public Mono<Set<String>> getCurrentUserPermissionGroups() {
+    public Set<String> getCurrentUserPermissionGroups() {
         return super.getCurrentUserPermissionGroups();
     }
 
     @Override
-    public Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user) {
+    public Set<String> getAllPermissionGroupsIdsForUser(User user) {
         return super.getAllPermissionGroupsForUser(user);
     }
 
     @Override
-    public Flux<PermissionGroup> findAllByAssignedToUserIn(
+    public List<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
         Criteria assignedToUserIdCriteria = where("assignedToUserIds").in(userIds);
         return queryAll(

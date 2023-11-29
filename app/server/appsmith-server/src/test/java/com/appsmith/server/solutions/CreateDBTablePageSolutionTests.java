@@ -34,7 +34,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.PluginRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceStructureService;
@@ -150,7 +150,7 @@ public class CreateDBTablePageSolutionTests {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @Autowired
     ImportApplicationService importApplicationService;

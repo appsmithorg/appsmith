@@ -2,13 +2,13 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.repositories.AppsmithRepository;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Set;
+import java.util.Optional;
 
 public interface CustomPluginRepositoryCE extends AppsmithRepository<Plugin> {
-    Flux<Plugin> findDefaultPluginIcons();
+    List<Plugin> findDefaultPluginIcons();
 
-    Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
+    List<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
 }

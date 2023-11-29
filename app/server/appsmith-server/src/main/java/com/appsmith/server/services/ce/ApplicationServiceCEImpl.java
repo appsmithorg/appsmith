@@ -20,7 +20,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -69,7 +69,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
     private final ConfigService configService;
     private final ResponseUtils responseUtils;
     private final PermissionGroupService permissionGroupService;
-    private final NewActionRepository newActionRepository;
+    private final NewActionRepositoryCake newActionRepository;
     private final AssetService assetService;
 
     private final DatasourcePermission datasourcePermission;
@@ -89,7 +89,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepositoryC
             ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
-            NewActionRepository newActionRepository,
+            NewActionRepositoryCake newActionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,

@@ -10,7 +10,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
-import com.appsmith.server.repositories.ApplicationSnapshotRepository;
+import com.appsmith.server.repositories.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
@@ -26,7 +26,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServiceCE {
-    private final ApplicationSnapshotRepository applicationSnapshotRepository;
+    private final ApplicationSnapshotRepositoryCake applicationSnapshotRepository;
     private final ApplicationService applicationService;
     private final ImportApplicationService importApplicationService;
     private final ExportApplicationService exportApplicationService;
@@ -62,7 +62,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
         // check the size of the exported json before storing to avoid mongodb document size limit
         byte[] utf8JsonString = json.getBytes(StandardCharsets.UTF_8);
         List<ApplicationSnapshot> applicationSnapshots = createSnapshotsObjects(utf8JsonString, applicationId);
-        return Flux.fromIterable(applicationSnapshotRepository.saveAll(applicationSnapshots));
+        return applicationSnapshotRepository.saveAll(applicationSnapshots);
     }
 
     @Override

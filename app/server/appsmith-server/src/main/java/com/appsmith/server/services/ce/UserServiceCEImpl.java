@@ -21,7 +21,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
-import com.appsmith.server.repositories.EmailVerificationTokenRepository;
+import com.appsmith.server.repositories.EmailVerificationTokenRepositoryCake;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -95,7 +95,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
             "%s/user/verify?token=%s&email=%s&redirectUrl=%s";
 
     private static final String EMAIL_VERIFICATION_ERROR_URL_FORMAT = "/user/verify-error?code=%s&message=%s&email=%s";
-    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final EmailVerificationTokenRepositoryCake emailVerificationTokenRepository;
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -117,7 +117,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
             UserDataService userDataService,
             TenantService tenantService,
             UserUtils userUtils,
-            EmailVerificationTokenRepository emailVerificationTokenRepository,
+            EmailVerificationTokenRepositoryCake emailVerificationTokenRepository,
             EmailService emailService,
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,

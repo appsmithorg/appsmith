@@ -49,7 +49,7 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
@@ -137,7 +137,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
     private final AnalyticsService analyticsService;
-    private final GitDeployKeysRepository gitDeployKeysRepository;
+    private final GitDeployKeysRepositoryCake gitDeployKeysRepository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final DatasourcePermission datasourcePermission;

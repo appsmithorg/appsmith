@@ -1,8 +1,10 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.GitDeployKeys;
-import reactor.core.publisher.Mono;
+
+import java.util.Optional;
+import java.util.List;
 
 public interface GitDeployKeysRepository extends BaseRepository<GitDeployKeys, String> {
-    Mono<GitDeployKeys> findByEmail(String email);
+    Optional<GitDeployKeys> findByEmail(String email);
 }

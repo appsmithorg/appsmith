@@ -2,12 +2,13 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.repositories.BaseRepository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface ApplicationSnapshotRepositoryCE
         extends CustomApplicationSnapshotRepositoryCE, BaseRepository<ApplicationSnapshot, String> {
-    Flux<ApplicationSnapshot> findByApplicationId(String applicationId);
+    List<ApplicationSnapshot> findByApplicationId(String applicationId);
 
-    Mono<Void> deleteAllByApplicationId(String applicationId);
+    Optional<Void> deleteAllByApplicationId(String applicationId);
 }

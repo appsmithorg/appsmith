@@ -12,7 +12,7 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.PluginRepositoryCake;
 import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
@@ -61,7 +61,7 @@ import static java.lang.Boolean.TRUE;
 public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake, Workspace, String>
         implements WorkspaceServiceCE {
 
-    private final PluginRepository pluginRepository;
+    private final PluginRepositoryCake pluginRepository;
     private final SessionUserService sessionUserService;
     private final AssetRepository assetRepository;
     private final AssetService assetService;
@@ -81,7 +81,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
             ReactiveMongoTemplate reactiveMongoTemplate,
             WorkspaceRepositoryCake repository,
             AnalyticsService analyticsService,
-            PluginRepository pluginRepository,
+            PluginRepositoryCake pluginRepository,
             SessionUserService sessionUserService,
             AssetRepository assetRepository,
             AssetService assetService,

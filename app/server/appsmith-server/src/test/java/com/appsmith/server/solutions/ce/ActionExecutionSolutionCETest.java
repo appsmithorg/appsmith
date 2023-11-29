@@ -37,9 +37,9 @@ import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.PluginRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AstService;
@@ -109,7 +109,7 @@ public class ActionExecutionSolutionCETest {
     WorkspaceService workspaceService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -148,7 +148,7 @@ public class ActionExecutionSolutionCETest {
     MockDataService mockDataService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -157,7 +157,7 @@ public class ActionExecutionSolutionCETest {
     AstService astService;
 
     @Autowired
-    DatasourceRepository datasourceRepository;
+    DatasourceRepositoryCake datasourceRepository;
 
     @SpyBean
     DatasourceStorageService datasourceStorageService;
