@@ -2,7 +2,7 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.controllers.ce.SearchEntityControllerCE;
-import com.appsmith.server.solutions.SearchEntitySolution;
+import com.appsmith.server.searchentities.SearchEntitySolution;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

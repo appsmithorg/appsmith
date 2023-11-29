@@ -1,8 +1,9 @@
-package com.appsmith.server.solutions;
+package com.appsmith.server.searchentities;
 
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ce.SearchEntitySolutionCEImpl;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.WorkspacePermission;
 import org.springframework.stereotype.Component;
 
 @Component

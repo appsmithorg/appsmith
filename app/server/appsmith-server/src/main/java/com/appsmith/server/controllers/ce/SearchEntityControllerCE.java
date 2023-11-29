@@ -4,7 +4,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.SearchEntityDTO;
-import com.appsmith.server.solutions.SearchEntitySolution;
+import com.appsmith.server.searchentities.SearchEntitySolution;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,10 +26,13 @@ public class SearchEntityControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("")
     public Mono<ResponseDTO<SearchEntityDTO>> getAllUnpublishedActionCollections(
-            @RequestParam(required = false) String searchString) {
-        log.debug("Going to search for entities with search string: {}", searchString);
+            @RequestParam(required = false) String[] entities,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size) {
+        log.debug("Going to search for entities with search string: {}", keyword);
         return searchEntitySolution
-                .searchEntity(searchString, 0, 10)
+                .searchEntity(entities, keyword, page, size)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }
