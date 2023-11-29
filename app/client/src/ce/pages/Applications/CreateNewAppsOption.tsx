@@ -18,13 +18,13 @@ import {
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { AppState } from "@appsmith/reducers";
+import { getCurrentPluginIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import {
   firstTimeUserOnboardingInit,
   resetCurrentApplicationIdForCreateNewApp,
   resetCurrentPluginIdForCreateNewApp,
 } from "actions/onboardingActions";
-import { getCurrentPluginIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import { fetchPlugins } from "actions/pluginActions";
 import {
   getAllTemplates,
