@@ -5,8 +5,14 @@ export enum AppState {
   LIBRARIES = "LIBRARIES",
 }
 
+export enum PackageState {
+  DATA = "DATA",
+  MODULES = "MODULES",
+  SETTINGS = "SETTINGS",
+}
+
 export interface SidebarButton {
-  state: AppState;
+  state: AppState | PackageState;
   icon: string;
   title?: string;
   urlSuffix: string;
@@ -27,7 +33,7 @@ export const TopButtons: SidebarButton[] = [
   },
 ];
 
-export const ButtonButtons: SidebarButton[] = [
+export const BottomButtons: SidebarButton[] = [
   {
     state: AppState.LIBRARIES,
     icon: "box-3-line",

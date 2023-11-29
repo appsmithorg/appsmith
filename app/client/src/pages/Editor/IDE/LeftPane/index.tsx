@@ -21,7 +21,7 @@ import { PagesPane } from "../PagesPane";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
-const LeftPaneContainer = styled.div`
+export const LeftPaneContainer = styled.div`
   height: 100%;
   min-width: 150px;
   border-right: 1px solid var(--ads-v2-color-border);
