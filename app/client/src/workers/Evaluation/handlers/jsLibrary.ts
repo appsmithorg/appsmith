@@ -225,6 +225,7 @@ export async function loadLibraries(
   const libStore: Record<string, unknown> = {};
 
   try {
+    libs.reverse();
     for (const lib of libs) {
       const url = lib.url as string;
       const accessors = lib.accessor;
