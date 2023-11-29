@@ -9,7 +9,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.CANVAS,
         id: "",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -18,7 +18,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.PROPERTY_PANE,
         id: "ryvc8i7oja",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -27,7 +27,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.QUERY_LIST,
         id: "",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -36,7 +36,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.QUERY,
         id: "myApiId",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -45,7 +45,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.QUERY,
         id: "myQueryId",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -54,7 +54,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.JS_OBJECT_LIST,
         id: "",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -63,7 +63,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.JS_OBJECT,
         id: "myJSId",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -92,7 +92,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.CANVAS,
         id: "",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -101,7 +101,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.PROPERTY_PANE,
         id: "ryvc8i7oja",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -110,7 +110,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.QUERY_LIST,
         id: "",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -119,7 +119,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.QUERY,
         id: "myApiId",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -128,7 +128,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.QUERY,
         id: "myQueryId",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -137,7 +137,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.JS_OBJECT_LIST,
         id: "",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -146,7 +146,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.JS_OBJECT,
         id: "myJSId",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -175,7 +175,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.CANVAS,
         id: "",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -184,7 +184,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.PROPERTY_PANE,
         id: "ryvc8i7oja",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -193,7 +193,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.QUERY_LIST,
         id: "",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -202,7 +202,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.QUERY,
         id: "myApiId",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -211,7 +211,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.QUERY,
         id: "myQueryId",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -220,7 +220,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.JS_OBJECT_LIST,
         id: "",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {
@@ -229,7 +229,7 @@ describe("identifyEntityFromPath", () => {
         entity: FocusEntity.JS_OBJECT,
         id: "myJSId",
         pageId: "myPageId",
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       },
     },
     {

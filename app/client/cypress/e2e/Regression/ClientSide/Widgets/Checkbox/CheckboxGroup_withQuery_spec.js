@@ -14,7 +14,7 @@ describe("Checkbox Group Widget Functionality", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Check checkbox group with dynamic query", function () {

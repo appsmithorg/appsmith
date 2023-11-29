@@ -87,7 +87,7 @@ describe(
     });
 
     afterEach(() => {
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       entityExplorer.ExpandCollapseEntity("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",

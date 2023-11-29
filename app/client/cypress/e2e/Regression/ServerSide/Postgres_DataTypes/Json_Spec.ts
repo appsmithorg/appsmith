@@ -28,7 +28,7 @@ describe("Json & JsonB Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     agHelper.AddDsl("Datatypes/JsonDTdsl");
 
     appSettings.OpenPaneAndChangeThemeColors(16, 20);
