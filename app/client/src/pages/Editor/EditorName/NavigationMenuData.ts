@@ -98,7 +98,7 @@ export const GetNavigationMenuData = ({
 
   return [
     {
-      text: "Home",
+      text: "All apps",
       onClick: () => history.replace(APPLICATIONS_URL),
       type: MenuTypes.MENU,
       isVisible: true,
