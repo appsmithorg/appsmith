@@ -11,6 +11,7 @@ public class AnthropicConstants {
     public static final String CHAT = "CHAT";
     public static final String COMMAND = "command";
     public static final String DATA = "data";
+    public static final String COMPONENT_DATA = "componentData";
     public static final String BODY = "body";
     public static final String ROLE = "role";
     public static final String CONTENT = "content";
@@ -29,6 +30,12 @@ public class AnthropicConstants {
     public static final String ANTHROPIC_VERSION = "2023-06-01";
     public static final List<String> ANTHROPIC_MODELS =
             List.of("claude-2.1", "claude-2", "claude-instant-1.2", "claude-instant-1");
+    public static final String CLOUD_SERVICES = "https://cs.appsmith.com";
+    public static final String MODELS_API = "/api/v1/ai/models";
+    public static final String PROVIDER = "provider";
+    public static final String ANTHROPIC = "anthropic";
+    public static final String TEST_MODEL = "claude-instant-1";
+    public static final String TEST_PROMPT = "Human:Hey Assistant:";
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();

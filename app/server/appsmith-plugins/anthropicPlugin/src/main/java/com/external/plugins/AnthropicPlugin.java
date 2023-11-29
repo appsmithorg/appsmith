@@ -10,12 +10,14 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.commands.AnthropicCommand;
+import com.external.plugins.constants.AnthropicConstants;
 import com.external.plugins.models.AnthropicRequestDTO;
 import com.external.plugins.utils.AnthropicMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
@@ -43,6 +45,8 @@ import java.util.stream.Collectors;
 import static com.external.plugins.constants.AnthropicConstants.ANTHROPIC_MODELS;
 import static com.external.plugins.constants.AnthropicConstants.BODY;
 import static com.external.plugins.constants.AnthropicConstants.LABEL;
+import static com.external.plugins.constants.AnthropicConstants.TEST_MODEL;
+import static com.external.plugins.constants.AnthropicConstants.TEST_PROMPT;
 import static com.external.plugins.constants.AnthropicConstants.VALUE;
 import static com.external.plugins.constants.AnthropicErrorMessages.QUERY_FAILED_TO_EXECUTE;
 
@@ -54,6 +58,37 @@ public class AnthropicPlugin extends BasePlugin {
 
     public static class AnthropicPluginExecutor extends BaseRestApiPluginExecutor {
         private static final Gson gson = new Gson();
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
+            assert apiKeyAuth.getValue() != null;
+
+            AnthropicCommand anthropicCommand = AnthropicMethodStrategy.getExecutionMethod(AnthropicConstants.CHAT);
+            URI uri = anthropicCommand.createExecutionUri();
+            HttpMethod httpMethod = anthropicCommand.getExecutionMethod();
+
+            AnthropicRequestDTO anthropicRequestDTO = new AnthropicRequestDTO();
+            anthropicRequestDTO.setPrompt(TEST_PROMPT);
+            anthropicRequestDTO.setModel(TEST_MODEL);
+            anthropicRequestDTO.setMaxTokensToSample(1);
+            anthropicRequestDTO.setTemperature(0f);
+
+            return RequestUtils.makeRequest(httpMethod, uri, apiKeyAuth, BodyInserters.fromValue(anthropicRequestDTO))
+                    .map(responseEntity -> {
+                        HttpStatusCode statusCode = responseEntity.getStatusCode();
+                        if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
+                            // invalid credentials
+                            return new DatasourceTestResult(
+                                    "Invalid authentication credentials provided in datasource configurations");
+                        }
+
+                        return new DatasourceTestResult();
+                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(
+                            "Error while trying to test the datasource configurations" + error.getMessage())));
+        }
+
         private static final Cache<String, TriggerResultDTO> triggerResponseCache =
                 CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
 
@@ -99,14 +134,6 @@ public class AnthropicPlugin extends BasePlugin {
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         actionExecutionResult.setStatusCode(statusCode.toString());
 
-                        /**
-                         * DownstreamErrorMessage
-                         * Caching
-                         * Test cases
-                         * Migrate to Use CS
-                         * Implement Test Configuration
-                         * Sort model order
-                         */
                         if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
                             actionExecutionResult.setIsExecutionSuccess(false);
                             String errorMessage = "";

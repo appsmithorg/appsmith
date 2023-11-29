@@ -34,6 +34,10 @@ public class AnthropicMethodStrategy {
 
         String command = extractDataFromFormData(formData, AnthropicConstants.COMMAND);
 
+        return getExecutionMethod(command);
+    }
+
+    public static AnthropicCommand getExecutionMethod(String command) {
         return switch (command) {
             case AnthropicConstants.CHAT -> new ChatCommand();
             default -> throw Exceptions.propagate(

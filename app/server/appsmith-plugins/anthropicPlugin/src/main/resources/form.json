@@ -39,5 +39,5 @@
       ]
     }
   ],
-  "formButton" : ["CANCEL", "SAVE"]
+  "formButton" : ["TEST", "CANCEL", "SAVE"]
 }
