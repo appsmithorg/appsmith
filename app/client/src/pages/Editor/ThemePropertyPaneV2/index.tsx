@@ -78,7 +78,7 @@ function ThemePropertyPane() {
         {/* COLORS */}
         <SettingSection className="px-4 py-3" isDefaultOpen title="Color">
           <section className="space-y-2">
-            <SubText>Color</SubText>
+            <SubText>Accent Color</SubText>
             <ColorPickerComponent
               changeColor={(color: string) => {
                 updateTheme({
