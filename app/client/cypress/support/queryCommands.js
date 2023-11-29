@@ -3,7 +3,7 @@
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
 } from "./Pages/EditorNavigation";
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");

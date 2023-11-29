@@ -258,6 +258,7 @@ const ActionCreator = React.forwardRef(
         <div className="flex flex-col gap-[2px]" ref={ref}>
           {Object.entries(actions).map(([id, value], index) => (
             <Action
+              additionalAutoComplete={props.additionalAutoComplete}
               code={value}
               dataTreePath={props.dataTreePath}
               id={id}

@@ -15,7 +15,8 @@ import {
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate Oracle DS", () => {
@@ -112,8 +113,8 @@ describe("Validate Oracle DS", () => {
     dataSources.AssertDataSourceInfo(["Host address", "Port", "Service Name"]);
     agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
     dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Data);
     dataSources.AssertDSInActiveList(dataSourceName);
   });
 

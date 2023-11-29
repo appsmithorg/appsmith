@@ -967,7 +967,7 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
       const pageId = xhr.response.body.data.id;
       const oldPageName = xhr.response.body.data.name;
       cy.wait(2000);
-      ee.RenameEntityFromExplorer(oldPageName, pageName);
+      ee.RenameEntityFromExplorer(oldPageName, pageName, true);
       cy.wrap(pageId).as("currentPageId");
     }
     cy.get("#loading").should("not.exist");
