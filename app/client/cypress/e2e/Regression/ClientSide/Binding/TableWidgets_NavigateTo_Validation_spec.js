@@ -1,5 +1,6 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -10,7 +11,6 @@ import {
   agHelper,
   propPane,
   deployMode,
-  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget and Navigate to functionality validation", function () {
@@ -29,7 +29,7 @@ describe("Table Widget and Navigate to functionality validation", function () {
   it("1. Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
     agHelper.AddDsl("displayWidgetDsl");
-    entityExplorer.AssertEntityPresenceInExplorer(pageid);
+    PageLeftPane.assertPresence(pageid);
     //Table Widget Functionality with multiple page
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [

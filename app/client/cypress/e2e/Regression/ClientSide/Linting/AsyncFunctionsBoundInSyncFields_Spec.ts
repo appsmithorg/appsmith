@@ -9,6 +9,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Linting async JSFunctions bound to data fields", () => {
@@ -112,7 +113,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
           JSObject1.myFun2()
       }}}`,
     );
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.AssertElementAbsence(locators._lintWarningElement);
   });

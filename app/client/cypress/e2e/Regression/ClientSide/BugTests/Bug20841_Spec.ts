@@ -2,6 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Evaluations causing error when page is cloned", function () {
   it("1. Bug: 20841: JSObjects | Sync methods | Not run consistently when Page is cloned", function () {
@@ -30,13 +31,13 @@ describe("Evaluations causing error when page is cloned", function () {
 
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
 
-    _.entityExplorer.ClonePage("Page1");
+    PageList.ClonePage("Page1");
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
 
-    _.entityExplorer.ClonePage("Page1");
+    PageList.ClonePage("Page1");
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
 
-    _.entityExplorer.ClonePage("Page1 Copy");
+    PageList.ClonePage("Page1 Copy");
     _.agHelper.AssertText(_.locators._inputWidget, "val", "Default text");
   });
 });

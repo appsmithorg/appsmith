@@ -259,7 +259,7 @@ export class JSEditor {
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
-    this.ee.AssertEntityPresenceInExplorer(renameVal);
+    PageLeftPane.assertPresence(renameVal);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 
