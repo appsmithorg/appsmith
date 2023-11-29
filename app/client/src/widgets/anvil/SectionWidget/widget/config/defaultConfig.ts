@@ -12,7 +12,7 @@ import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { sectionPreset } from "layoutSystems/anvil/layoutComponents/presets/sectionPreset";
 
 export const defaultConfig: WidgetDefaultProps = {
-  backgroundColor: "ghostwhite",
+  backgroundColor: "lightslategrey",
   children: [],
   columns: 0,
   detachFromLayout: false,
