@@ -32,6 +32,7 @@ import {
   createMessage,
   CREATE_NEW_DATASOURCE_DATABASE_HEADER,
   CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
+  SAMPLE_DATASOURCES,
 } from "@appsmith/constants/messages";
 import { Divider } from "design-system";
 
@@ -71,7 +72,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Get started with our sample datasources</Text>
+      <Text type={TextType.H2}>{createMessage(SAMPLE_DATASOURCES)}</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
