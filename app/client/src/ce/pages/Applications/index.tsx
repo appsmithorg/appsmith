@@ -8,7 +8,7 @@ import React, {
 import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
 import MediaQuery from "react-responsive";
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import type { AppState } from "@appsmith/reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
@@ -38,7 +38,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { Button, Icon, Text as NewText } from "design-system";
+import { Button, Icon, Text as NewText, Option, Select } from "design-system";
 import {
   fetchAllApplicationsOfWorkspace,
   updateApplication,
@@ -446,6 +446,10 @@ export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
   `}
 `;
 
+export const WorkspaceSelectorWrapper = styled.div`
+  padding: 24px 10px 0;
+`;
+
 export function ApplicationsSection(props: any) {
   const { activeWorkspaceId, applications, packages, workspaces } = props;
   const enableImportExport = true;
@@ -598,7 +602,9 @@ export function ApplicationsSection(props: any) {
   const activeWorkspace = workspaces.find(
     (workspace: Workspace) => workspace.id === activeWorkspaceId,
   );
-  if (!activeWorkspace) return <NoWorkspaceFound />;
+  if (!activeWorkspace && !isFetchingWorkspaces) return <NoWorkspaceFound />;
+
+  if (!activeWorkspace) return null;
 
   let workspacesListComponent;
   if (
@@ -797,6 +803,7 @@ export const ApplictionsMainPage = (props: any) => {
   const location = useLocation();
   const urlHash = location.hash.slice(1);
   const dispatch = useDispatch();
+  const history = useHistory();
   const isFetchingWorkspaces = useSelector(getIsFetchingWorkspaces);
   const fetchedWorkspaces = useSelector(getFetchedWorkspaces);
   const fetchedApplications = useSelector(getApplicationsOfWorkspace);
@@ -843,6 +850,20 @@ export const ApplictionsMainPage = (props: any) => {
       <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
         {(matches: boolean) => (
           <ApplicationsWrapper isMobile={matches}>
+            {!isFetchingWorkspaces && matches && (
+              <WorkspaceSelectorWrapper>
+                <Select
+                  onSelect={(val) => history.push(`/applications#${val}`)}
+                  value={activeWorkspaceId}
+                >
+                  {workspaces.map((workspace: Workspace) => (
+                    <Option key={workspace.id} value={workspace.id}>
+                      {workspace.name}
+                    </Option>
+                  ))}
+                </Select>
+              </WorkspaceSelectorWrapper>
+            )}
             <ApplicationsSubHeader
               search={{
                 placeholder: createMessage(SEARCH_APPS),
