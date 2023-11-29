@@ -12,7 +12,7 @@ import * as moduleFeatureSelectors from "@appsmith/selectors/moduleFeatureSelect
 import * as packageSelectors from "@appsmith/selectors/packageSelectors";
 import * as workspaceSelectors from "@appsmith/selectors/workspaceSelectors";
 import type { Package } from "@appsmith/constants/PackageConstants";
-import type { Workspaces } from "@appsmith/constants/workspaceConstants";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { PERMISSION_TYPE } from "@appsmith/utils/permissionHelpers";
 
 jest.mock("@appsmith/selectors/moduleFeatureSelectors");
@@ -46,11 +46,11 @@ const setIsFetchingPackagesSelector = (value: boolean) => {
   packageSelectorsFactory.getIsFetchingPackages.mockImplementation(() => value);
 };
 
-const setGetWorkspaces = (userWorkspaces: Workspaces[]) => {
+const setGetWorkspaces = (userWorkspaces: Workspace[]) => {
   const workspaceSelectorsFactory = workspaceSelectors as jest.Mocked<
     typeof workspaceSelectors
   >;
-  workspaceSelectorsFactory.getWorkspaces.mockImplementation(
+  workspaceSelectorsFactory.getFetchedWorkspaces.mockImplementation(
     () => userWorkspaces,
   );
 };
@@ -81,15 +81,11 @@ const DEFAULT_PACKAGE_LIST = [
 
 const DEFAULT_WORKSPACE_ID = "test-workspace";
 
-const DEFAULT_USER_WORKSPACES: Workspaces[] = [
+const DEFAULT_USER_WORKSPACES: Workspace[] = [
   {
-    workspace: {
-      id: DEFAULT_WORKSPACE_ID,
-      name: "Test Workspace",
-      userPermissions: [PERMISSION_TYPE.MANAGE_WORKSPACE_PACKAGES],
-    },
-    applications: [],
-    users: [],
+    id: DEFAULT_WORKSPACE_ID,
+    name: "Test Workspace",
+    userPermissions: [PERMISSION_TYPE.MANAGE_WORKSPACE_PACKAGES],
   },
 ];
 
@@ -106,7 +102,7 @@ describe("PackageCardList", () => {
           <PackageCardList
             isMobile={false}
             packages={DEFAULT_PACKAGE_LIST}
-            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -128,7 +124,7 @@ describe("PackageCardList", () => {
           <PackageCardList
             isMobile={false}
             packages={DEFAULT_PACKAGE_LIST}
-            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -140,7 +136,7 @@ describe("PackageCardList", () => {
 
   it("should not render anything manage package permission is missing", async () => {
     const userWorkspaces = klona(DEFAULT_USER_WORKSPACES);
-    userWorkspaces[0].workspace.userPermissions = [];
+    userWorkspaces[0].userPermissions = [];
 
     setGetWorkspaces(userWorkspaces);
     setQueryModuleFeatureFlag(true);
@@ -153,7 +149,7 @@ describe("PackageCardList", () => {
           <PackageCardList
             isMobile={false}
             packages={DEFAULT_PACKAGE_LIST}
-            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -175,7 +171,7 @@ describe("PackageCardList", () => {
           <PackageCardList
             isMobile={false}
             packages={DEFAULT_PACKAGE_LIST}
-            workspace={DEFAULT_USER_WORKSPACES[0].workspace}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
