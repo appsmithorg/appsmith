@@ -46,7 +46,7 @@ export class DeployMode {
     toValidateSavedState && this.agHelper.AssertAutoSave();
     // Stubbing window.open to open in the same tab
     //this.assertHelper.AssertDocumentReady();
-    this.assertHelper.AssertReduxLoad("EXECUTE_PAGE_LOAD_ACTIONS");
+    this.assertHelper.AssertReduxLoad("FOO-BAR");
     this.StubbingDeployPage(addDebugFlag);
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000); //to make sure we have started navigation from Edit page

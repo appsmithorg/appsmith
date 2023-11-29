@@ -31,7 +31,7 @@ export class AssertHelper extends ReusableHelper {
     //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
   }
 
-  public AssertReduxLoad(type: string) {
+  public AssertReduxLoad(actionType: string) {
     this.Sleep(500);
     const timeout = Cypress.config("pageLoadTimeout"); // Set your desired timeout value
     // const checkLoadingState = () => {
@@ -72,24 +72,123 @@ export class AssertHelper extends ReusableHelper {
     //   cy.get("@reduxCypressSpy").should("have.been.calledWith", type);
     // });
 
-    cy.waitUntil(
-      () => {
-        cy.window().then((window) => {
-          const result = window.cypressSpy(type);
-          expect(result).to.eq(type);
+    // cy.window().then((window: any) => {
+    //   console.log("Window Object:", window);
+    //   console.log("cypressSpy Object:", window.cypressSpy);
+    //   spy = cy.spy(window, "cypressSpy");
+    //   withArgs = spy.withArgs(actionType).as("reduxCypressSpy");
 
-          // return cy
-          //   .get("@reduxCypressSpy")
-          //   .should("have.been.calledWith", type)
-          //   .then(() => true) as Cypress.Chainable<boolean>;
-        });
-      },
-      {
-        errorMsg: "Redux was not completed within the timeout",
-        timeout,
-        interval: 500, // Polling interval in milliseconds (optional, defaults to 100)
-      },
-    );
+    //   // if (window.cypressSpy) {
+    //   //   cy.spy(window, "cypressSpy").as("reduxCypressSpy");
+    //   // }
+    // });
+    // cy.waitUntil(() => {
+    //   expect(spy).to.be.called;
+    //   //cy.get("@reduxCypressSpy").should("be.called");
+    //   //return cy.get("@reduxCypressSpy").should("be.calledWith", actionType);
+    // });
+    //
+
+    ///
+    //
+    //
+    //
+    //
+
+    //
+    //
+    //
+
+    //not able to check if cypressSpy is called with redux:actionType
+
+    cy.window().should("have.property", "cypressSpy");
+    cy.window()
+      .its("cypressSpy")
+      .should("be.a", "function")
+      .then((cypressSpy) => {
+        // // Log the cypressSpy function
+        // console.log("cypressSpy:", cypressSpy);
+        // const argument = actionType; // Replace with the actual argument
+        // const result = cypressSpy(argument);
+        // // Log the actual values
+        // console.log("Argument:", argument);
+        // console.log("Result:", result);
+      });
+    //cy.window().its("cypressSpy").should("be.calledWith", actionType);
+
+    // Verify that cypressSpy was called with a certain Redux action
+    cy.window().then((win: any) => {
+      //const spy =
+      cy.spy(win, "cypressSpy").as("reduxCypressSpy");
+      // Wait for the spy to be called
+      cy.get("@reduxCypressSpy").should("be.calledWith", actionType);
+    });
+    //
+    //
+    //
+    //
+    //
+    //
+
+    // //Latest try - not working
+    // cy.window()
+    //   .its("cypressSpy")
+    //   .should("be.a", "function")
+    //   .then((cypressSpy) => {
+    //     // Create a Sinon spy to observe calls to cypressSpy
+    //     const sinonSpy = cy.spy(cypressSpy);
+
+    //     // // Trigger an action in your application that should be intercepted by cypressSpyMiddleware
+    //     // // For example, if there's a button that triggers the action:
+    //     // cy.get("button").click();
+
+    //     // Wait for the spy call with the expected action to finish
+    //     cy.waitUntil(() => {
+    //       const matchingCalls = sinonSpy.getCalls().filter((call) => {
+    //         return call.args[0] === actionType;
+    //       });
+
+    //       return matchingCalls.length > 0;
+    //     }).then(() => {
+    //       // Additional assertions or logging after the spy call with the expected action has occurred
+    //       // For example, logging the arguments of the first matching call
+    //       const firstMatchingCallArgs = sinonSpy.getCalls()[0].args;
+    //       cy.log(
+    //         "Arguments of the first matching spy call:",
+    //         firstMatchingCallArgs,
+    //       );
+    //     });
+    //   });
+
+    //
+    //
+
+    ///
+    ///
+    //
+
+    // cy.waitUntil(
+    //   () => {
+    //     // return cy.window().then((window) => {
+    //     //   // const result = window.cypressSpy(type);
+    //     //   // expect(result).to.eq(type);
+
+    //     //   //return cy.get("@reduxCypressSpy").should("have.been.calledWith", type);
+    //     //   //expect("@reduxCypressSpy").to.be.called;
+    //     //   expect(window.cypressSpy).to.be.called;
+    //     //   //.then(() => true) as Cypress.Chainable<boolean>;
+    //     // });
+
+    //     return cy.window().then((window) => {
+    //       cy.get("@reduxCypressSpy").should("be.calledWith", actionType);
+    //     });
+    //   },
+    //   {
+    //     errorMsg: "Redux was not completed within the timeout",
+    //     timeout,
+    //     interval: 500, // Polling interval in milliseconds (optional, defaults to 100)
+    //   },
+    // );
 
     this.Sleep(500);
   }
