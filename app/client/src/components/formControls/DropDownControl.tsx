@@ -128,6 +128,7 @@ function renderDropdown(
         : "";
       if (props.setFirstOptionAsDefault && props.options.length > 0) {
         selectedValue = props.options[0].value as string;
+        props.input?.onChange(selectedValue);
       }
     }
   } else {
