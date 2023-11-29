@@ -29,7 +29,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
@@ -91,7 +91,7 @@ public class ActionCollectionServiceTest {
     LayoutActionService layoutActionService;
 
     @Autowired
-    RefactoringSolution refactoringSolution;
+    RefactoringService refactoringService;
 
     @Autowired
     NewPageService newPageService;
@@ -413,7 +413,7 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("testAction1");
         refactorActionNameDTO.setNewName("newTestAction1");
 
-        final LayoutDTO layoutDTO = refactoringSolution
+        final LayoutDTO layoutDTO = refactoringService
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 
@@ -507,7 +507,7 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("run");
         refactorActionNameDTO.setNewName("newRun");
 
-        final LayoutDTO layoutDTO = refactoringSolution
+        final LayoutDTO layoutDTO = refactoringService
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 

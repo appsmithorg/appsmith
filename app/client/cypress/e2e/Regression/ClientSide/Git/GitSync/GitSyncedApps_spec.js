@@ -1,5 +1,7 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const generatePage = require("../../../../../locators/GeneratePage.json");
@@ -31,7 +33,7 @@ const mainBranch = "master";
 let datasourceName;
 let repoName;
 
-describe.skip("Git sync apps", function () {
+describe("Git sync apps", function () {
   before(() => {
     // homePage.NavigateToHome();
     // cy.createWorkspace();
@@ -208,7 +210,6 @@ describe.skip("Git sync apps", function () {
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
     cy.wait(2000);
-    agHelper.RefreshPage("getPage");
     cy.get(".t--draggable-inputwidgetv2").should("be.visible");
     cy.get(".t--draggable-inputwidgetv2")
       .first()
@@ -231,21 +232,25 @@ describe.skip("Git sync apps", function () {
       .find(".bp3-input")
       .should("have.value", "This is a test");
 
-    cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
-    cy.wait("@getPage");
-    cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.equal("New Config");
-    });
     cy.get(`.t--entity-item:contains(${pageName})`).first().click();
     cy.wait("@getPage");
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
+
+    cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
+    cy.wait("@getPage");
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
     // commit and push the changes
-    cy.commitAndPush();
+    gitSync.CommitAndPush(true);
     cy.wait(2000);
     // verify data binding on all pages in deploy mode
     cy.latestDeployPreview();
+    cy.get(".t--page-switch-tab")
+      .contains(`${pageName}`)
+      .click({ force: true });
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
@@ -256,7 +261,7 @@ describe.skip("Git sync apps", function () {
       expect(cellData).to.be.equal("New Config");
     });
     cy.get(".t--page-switch-tab").contains(`${newPage}`).click({ force: true });
-    agHelper.RefreshPage();
+    agHelper.RefreshPage("viewPage");
     cy.get(".bp3-input")
       .first()
       .invoke("val")
@@ -319,7 +324,7 @@ describe.skip("Git sync apps", function () {
       toastToValidate: "moved to page",
     });
     cy.wait(2000);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });

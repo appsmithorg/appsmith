@@ -28,8 +28,6 @@ import java.util.Set;
 
 public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
-    Boolean validateActionName(String name);
-
     void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction);
 
     Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode);
@@ -74,6 +72,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
+
+    ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 

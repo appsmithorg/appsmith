@@ -1510,6 +1510,8 @@ export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
+export const JS_TOGGLE_SWITCH_JS_MESSAGE =
+  "Switch to JS mode to customize your data using javascript";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No properties found based on your search";
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
@@ -2272,6 +2274,10 @@ export const PAGES_PANE_TEXTS = {
   queries_tab: () => "Queries",
   js_tab: () => "JS",
   ui_tab: () => "UI",
+  query_blank_state: () => "Write your first query or API to access data",
+  js_blank_state: () => "Use JS to transform your data or write business logic",
+  query_blank_button: () => "New Query/API",
+  js_blank_button: () => "New JS Object",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
@@ -2292,3 +2298,5 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubheading: () => "Import partial application from file",
   },
 };
+
+export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";

@@ -54,11 +54,6 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     }
 
     @Override
-    public Mono<Boolean> validateName(String name) {
-        return Mono.just(Boolean.TRUE);
-    }
-
-    @Override
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
         Mono<PageDTO> pageMono = refactoringMetaDTO.getPageDTOMono();

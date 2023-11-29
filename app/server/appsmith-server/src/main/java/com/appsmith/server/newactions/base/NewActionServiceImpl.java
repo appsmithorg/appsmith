@@ -18,6 +18,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.validations.EntityValidationService;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -52,8 +53,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            ObservationRegistry observationRegistry,
-            NewActionHelper newActionHelper) {
+            NewActionHelper newActionHelper,
+            EntityValidationService entityValidationService,
+            ObservationRegistry observationRegistry) {
 
         super(
                 scheduler,
@@ -78,6 +80,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 applicationPermission,
                 pagePermission,
                 actionPermission,
+                entityValidationService,
                 observationRegistry);
     }
 }

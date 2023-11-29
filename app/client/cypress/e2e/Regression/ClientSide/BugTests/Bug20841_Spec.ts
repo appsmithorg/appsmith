@@ -15,7 +15,6 @@ describe("Evaluations causing error when page is cloned", function () {
       200,
       600,
     );
-    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,
