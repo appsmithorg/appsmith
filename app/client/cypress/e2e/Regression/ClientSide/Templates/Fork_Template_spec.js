@@ -79,7 +79,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
       .find(reconnectDatasourceLocators.ListItemIcon)
       .should("be.visible");
     cy.get(reconnectDatasourceLocators.DatasourceList)
-      .find(reconnectDatasourceLocators.ListItemIcon, {
+      .find(reconnectDatasourceLocators.DatasourceTitle, {
         withinSubject: null,
       })
       .first()

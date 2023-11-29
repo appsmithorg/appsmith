@@ -1,18 +1,24 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
-  deployMode,
   appSettings,
   autoLayout,
+  deployMode,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
+
 let currentUrl: string;
 
 describe("Page orientation and navigation related usecases ", function () {
   it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
@@ -30,7 +36,7 @@ describe("Page orientation and navigation related usecases ", function () {
       currentUrl = url;
     });
     for (let i = 0; i < 25; i++) {
-      entityExplorer.AddNewPage();
+      PageList.AddNewPage();
     }
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     propPane.NavigateToPage("Page1", "onClick");

@@ -13,7 +13,6 @@ import {
   CURL_IMPORT_PAGE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
   INTEGRATION_EDITOR_PATH,
-  JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -26,18 +25,15 @@ import { SaaSEditorRoutes } from "pages/Editor/SaaSEditor/routes";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import { DatasourceEditorRoutes } from "pages/routes";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
-import { useFeatureFlag } from "../../../utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "../../entities/FeatureFlag";
 import CreateNewDatasourceTab from "../../../pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 function EditorRoutes() {
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
-  const isAppSidebarEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_app_sidebar_enabled,
-  );
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   useEffect(() => {
     return () => {
@@ -71,11 +67,6 @@ function EditorRoutes() {
         component={QueryEditor}
         exact
         path={`${path}${QUERIES_EDITOR_ID_PATH}`}
-      />
-      <SentryRoute
-        component={JSEditor}
-        exact
-        path={`${path}${JS_COLLECTION_EDITOR_PATH}`}
       />
       <SentryRoute
         component={JSEditor}

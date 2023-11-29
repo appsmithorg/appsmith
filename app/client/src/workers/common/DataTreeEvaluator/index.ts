@@ -714,7 +714,7 @@ export default class DataTreeEvaluator {
       updateDependencyMapTime = "0",
     } = extraParams;
 
-    updateEvalTreeWithJSCollectionState(this.evalTree, this.oldUnEvalTree);
+    updateEvalTreeWithJSCollectionState(this.evalTree);
 
     const calculateSortOrderStartTime = performance.now();
     const subTreeSortOrder: string[] = this.calculateSubTreeSortOrder(

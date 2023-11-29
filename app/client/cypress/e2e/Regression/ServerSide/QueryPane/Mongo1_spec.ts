@@ -11,6 +11,11 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 let dsName: any;
 
 describe("Validate Mongo Query Pane Validations", () => {
@@ -28,7 +33,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("1. Create Mongo Datasource & verify it has collections", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     //agHelper.GetNClick(homePage._buildFromDataTableActionCard);//Commenting this since this is not always available in new app
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(
@@ -307,16 +312,19 @@ describe("Validate Mongo Query Pane Validations", () => {
         7,
       );
     });
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
-
-    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards");
   });
 
   it("3. Validate 'Find' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Find");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Find",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     dataSources.RunQueryNVerifyResponseViews(1, false);
     agHelper.ActionContextMenuWithInPane({
@@ -326,7 +334,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("4. Validate 'Find by ID' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       "AuthorNAwards",
       "Find by id",
     );
@@ -397,7 +406,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   ]
 }]`;
 
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Insert");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Insert",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
     agHelper.EnterValue(insertauthorNAwards, {
       propFieldName: "",
@@ -419,7 +432,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("6. Validate 'Update' record from new collection & verify query response - Record not present - All Matching Document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Update",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
     agHelper.EnterValue(`{"_id": 3}`, {
       propFieldName: "",
@@ -448,7 +465,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("7. Validate 'Update' record from new collection & verify query response - Record present - All Matching Document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Update",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
     agHelper.EnterValue(
       `{
@@ -487,7 +508,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("8. Validate 'Update' record from new collection & verify query response - Record present - Single document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Update",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
     agHelper.EnterValue(`{"_id": 4}`, {
       propFieldName: "",
@@ -521,7 +546,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("9. Validate 'Delete' record from new collection & verify query response - Record not present - Single document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Delete",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
     agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f43") }`, {
       propFieldName: "",
@@ -544,7 +573,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("10. Validate 'Delete' record from new collection & verify query response - Record present - Single document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Delete",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
     agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f41") }`, {
       propFieldName: "",
@@ -569,7 +602,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("11. Validate 'Delete' record from new collection & verify query response - Record present - All Matching Document", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Delete",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
     agHelper.EnterValue(`{ "awards.award": "Rosing Prize" }`, {
       propFieldName: "",
@@ -596,7 +633,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("12. Validate 'Count' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Count");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Count",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Count");
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
@@ -611,7 +652,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("13. Validate 'Distinct' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Distinct");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Distinct",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Distinct");
     agHelper.EnterValue(`{ "awards.award": "National Medal of Technology" }`, {
       propFieldName: "",
@@ -637,7 +682,11 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("14. Validate 'Aggregate' record from new collection & verify query response", () => {
-    entityExplorer.ActionTemplateMenuByEntityName("AuthorNAwards", "Aggregate");
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "AuthorNAwards",
+      "Aggregate",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Aggregate");
     dataSources.RunQueryNVerifyResponseViews(7, false);
     agHelper.ActionContextMenuWithInPane({
@@ -664,7 +713,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "AuthorNAwards",
       action: "Delete",
@@ -684,11 +733,12 @@ describe("Validate Mongo Query Pane Validations", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
+    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards", false);
+
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.AssertTableInVirtuosoList(dsName, "AuthorNAwards", false);
   });
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function () {
@@ -783,10 +833,14 @@ describe("Validate Mongo Query Pane Validations", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    //Execute a find query on this collection to see if dates are fetched properly
-    dataSources.AssertTableInVirtuosoList(dsName, "BirthNDeath");
+    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
 
-    entityExplorer.ActionTemplateMenuByEntityName("BirthNDeath", "Find");
+    //Execute a find query on this collection to see if dates are fetched properly
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "BirthNDeath",
+      "Find",
+    );
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     dataSources.RunQueryNVerifyResponseViews(4, false);
     agHelper.ActionContextMenuWithInPane({

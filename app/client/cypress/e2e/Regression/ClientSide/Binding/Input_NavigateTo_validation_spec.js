@@ -1,15 +1,16 @@
 /// <reference types="Cypress" />
 
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
-import {
-  agHelper,
-  propPane,
-  entityExplorer,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, propPane } from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {
@@ -30,14 +31,12 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
+    PageLeftPane.assertPresence(pageid);
   });
 
   it("2. Input widget test with default value from table widget", function () {
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
     propPane.SelectPlatformFunction("onTextChanged", "Navigate to");
     cy.get(".t--open-dropdown-Select-page").click();

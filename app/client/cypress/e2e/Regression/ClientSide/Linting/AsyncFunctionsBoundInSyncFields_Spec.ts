@@ -7,11 +7,14 @@ import {
   propPane,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Linting async JSFunctions bound to data fields", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Doesn't show lint warnings in debugger but shows on Hover only", () => {
@@ -32,7 +35,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun2()}}");
     agHelper.AssertElementVisibility(locators._evaluateMsg);
     agHelper.ContainsNClick("View source"); // should route to jsobject page
@@ -75,7 +78,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
       false,
     );
 
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun1()}}");
     agHelper.AssertElementVisibility(locators._evaluateMsg);
     agHelper.ContainsNClick("View source"); // should route to jsobject page
@@ -100,7 +103,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
         }
     }`);
     // Remove binding from label, and add to onClick. Expect no error
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", "Click here");
     propPane.EnterJSContext(
       "onClick",
@@ -110,8 +113,8 @@ describe("Linting async JSFunctions bound to data fields", () => {
           JSObject1.myFun2()
       }}}`,
     );
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.AssertElementAbsence(locators._lintWarningElement);
   });
 

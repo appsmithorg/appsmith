@@ -1,15 +1,20 @@
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
-  locators,
   assertHelper,
+  dataSources,
+  deployMode,
   draggableWidgets,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Validate Mongo URI CRUD with JSON Form", () => {
   let dsName: any;
@@ -23,7 +28,8 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       agHelper.RenameWithInPane(dsName, false);
       dataSources.FillMongoDatasourceFormWithURI();
       dataSources.TestSaveDatasource();
-      entityExplorer.AddNewPage("Generate page with data");
+      AppSidebar.navigate(AppSidebarButton.Pages);
+      PageList.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
@@ -41,14 +47,13 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       table.WaitUntilTableLoad();
       //Should not be able to delete ds until app is published again
       //coz if app is published & shared then deleting ds may cause issue, So!
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 409);
     });
   });
 
   it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
     //Update documents query to handle the int _id data
-    entityExplorer.NavigateToSwitcher("Explorer", 0, true);
-    entityExplorer.SelectEntityByName("UpdateQuery");
+    EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
     agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
       propFieldName: "",
       directInput: false,
@@ -182,7 +187,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
     dataSources.RunQuery({ toValidateResponse: false });

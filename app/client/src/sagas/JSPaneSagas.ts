@@ -72,7 +72,7 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";

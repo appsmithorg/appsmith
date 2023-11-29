@@ -302,6 +302,7 @@ class FormWidget extends ContainerWidget {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

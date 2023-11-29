@@ -10,6 +10,12 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let dsName: any;
 
@@ -18,8 +24,9 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      entityExplorer.AddNewPage();
-      entityExplorer.AddNewPage("Generate page with data");
+      AppSidebar.navigate(AppSidebarButton.Pages);
+      PageList.AddNewPage();
+      PageList.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
@@ -38,7 +45,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page2",
       action: "Delete",
@@ -49,7 +56,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     //coz if app is published & shared then deleting ds may cause issue, So!
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 409);
       agHelper.WaitUntilAllToastsDisappear();
     });
     deployMode.DeployApp(locators._emptyPageTxt);
@@ -57,14 +64,14 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 200);
     });
   });
 
   it("2. Create new app and Generate CRUD page using a new datasource", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     //agHelper.GetNClick(homePage._buildFromDataTableActionCard);
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(
@@ -105,7 +112,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Public.orders",
       action: "Delete",

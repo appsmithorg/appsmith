@@ -1,5 +1,6 @@
 import { Pool } from "pg";
-import AWS from "aws-sdk";
+import { S3 } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import fs from "fs";
 import { Octokit } from "@octokit/rest";
 import fetch from "node-fetch";
@@ -33,6 +34,9 @@ export default class util {
       thisRunner: this.getEnvValue("THIS_RUNNER", { required: true }),
       cypressSpecs: this.getEnvValue("CYPRESS_SPECS", { required: false }),
       cypressRerun: this.getEnvValue("CYPRESS_RERUN", { required: false }),
+      cypressSkipFlaky: this.getEnvValue("CYPRESS_SKIP_FLAKY", {
+        required: false,
+      }),
     };
   }
 
@@ -94,8 +98,8 @@ export default class util {
 
   // This is to setup the AWS client
   public configureS3() {
-    AWS.config.update({ region: "ap-south-1" });
-    const s3client = new AWS.S3({
+    const s3client = new S3({
+      region: "ap-south-1",
       credentials: {
         accessKeyId: this.getVars().cypressS3Access,
         secretAccessKey: this.getVars().cypressS3Secret,
@@ -105,14 +109,14 @@ export default class util {
   }
 
   // This is to upload files to s3 when required
-  public async uploadToS3(s3Client: AWS.S3, filePath: string, key: string) {
+  public async uploadToS3(s3Client: S3, filePath: string, key: string) {
     const fileContent = fs.readFileSync(filePath);
     const params = {
       Bucket: "appsmith-internal-cy-db",
       Key: key,
       Body: fileContent,
     };
-    return await s3Client.upload(params).promise();
+    return await new Upload({ client: s3Client, params }).done();
   }
 
   public async getActiveRunners() {

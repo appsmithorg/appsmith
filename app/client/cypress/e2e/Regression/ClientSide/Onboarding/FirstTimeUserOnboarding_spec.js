@@ -1,3 +1,9 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
 const OnboardingLocator = require("../../../../locators/FirstTimeUserOnboarding.json");
 import {
   agHelper,
@@ -23,9 +29,7 @@ describe("FirstTimeUserOnboarding", function () {
     cy.get(OnboardingLocator.introModal).should("be.visible");
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.introModal).should("not.exist");
-    cy.get(".t--entity-name:contains(Page1)")
-      .trigger("mouseover")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
   });
 
@@ -36,7 +40,7 @@ describe("FirstTimeUserOnboarding", function () {
       agHelper.GetNAssertContains(OnboardingLocator.checklistStatus, "0 of 5");
       agHelper.AssertElementExist(OnboardingLocator.checklistDatasourceBtn);
       agHelper.GetNClick(OnboardingLocator.checklistDatasourceBtn);
-      agHelper.AssertElementVisibility(OnboardingLocator.datasourcePage);
+      agHelper.AssertElementVisibility(dataSources._newDatasourceContainer);
 
       agHelper.GetNClick(OnboardingLocator.datasourceMock);
 
@@ -48,6 +52,7 @@ describe("FirstTimeUserOnboarding", function () {
         .realHover()
         .should("have.css", "cursor", "auto");
       agHelper.GetNClick(OnboardingLocator.checklistActionBtn);
+      EditorNavigation.SelectEntityByName("Movies", EntityType.Datasource);
       agHelper.GetNClick(OnboardingLocator.createQuery);
 
       agHelper.Sleep();
@@ -117,7 +122,7 @@ describe("FirstTimeUserOnboarding", function () {
         .should("have.css", "cursor", "pointer");
 
       cy.get(OnboardingLocator.checklistDatasourceBtn).click();
-      cy.get(OnboardingLocator.datasourcePage).should("be.visible");
+      cy.get(dataSources._newDatasourceContainer).should("be.visible");
       cy.get(datasource.MongoDB).click();
       dataSources.FillMongoDSForm();
       cy.generateUUID().then((uid) => {
@@ -189,7 +194,7 @@ describe("FirstTimeUserOnboarding", function () {
   it("3. onboarding flow - should check directly opening widget pane", function () {
     agHelper.AssertElementVisibility(OnboardingLocator.checklistDatasourceBtn);
     agHelper.GetNClick(OnboardingLocator.introModalCloseBtn);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     agHelper.AssertElementVisibility(OnboardingLocator.widgetSidebar);
     agHelper.AssertElementVisibility(OnboardingLocator.dropTarget);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);

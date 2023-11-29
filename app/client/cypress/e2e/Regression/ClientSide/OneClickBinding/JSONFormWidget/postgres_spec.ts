@@ -9,6 +9,10 @@ import {
   locators,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -17,15 +21,12 @@ describe("JSONForm widget one click binding feature", () => {
   it("1.Create flow: should check that queries are created and bound to table jsonform widget properly ", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 450, 200);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
       datasourceName = dsName as unknown as string;
-      entityExplorer.NavigateToSwitcher("Widgets");
 
-      entityExplorer.SelectEntityByName("JSONForm1", "Widgets");
+      EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(
         `${datasourceName}`,
@@ -56,14 +57,12 @@ describe("JSONForm widget one click binding feature", () => {
   });
 
   it("2.Update flow: should check that queries are created and bound to table jsonform widget properly ", () => {
-    entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 600, 400);
 
-    entityExplorer.NavigateToSwitcher("Widgets");
-
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     oneClickBinding.ChooseAndAssertForm(
       `${datasourceName}`,
@@ -80,9 +79,7 @@ describe("JSONForm widget one click binding feature", () => {
 
     agHelper.Sleep(2000);
 
-    entityExplorer.NavigateToSwitcher("Widgets");
-
-    entityExplorer.SelectEntityByName("JSONForm1", "Widgets");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
     oneClickBinding.ChooseAndAssertForm(
       `${datasourceName}`,
@@ -124,9 +121,7 @@ describe("JSONForm widget one click binding feature", () => {
     // reloading because we don't create select query with json form, so we need to reload the page to get the updated data
     cy.reload();
 
-    entityExplorer.NavigateToSwitcher("Widgets");
-
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
       expect(cellData).to.eq("Doe");

@@ -114,7 +114,7 @@ fi
   }
 
   location = /info {
-    add_header Content-Type application/json;
+    default_type application/json;
     alias /opt/appsmith/info.json;
   }
 

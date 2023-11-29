@@ -71,8 +71,8 @@ export interface SourceEntity {
   id: string;
   // property path of the child
   propertyPath?: string;
-  // plugin type of the action
-  pluginType?: PluginType;
+  // plugin type of the action or type of widget
+  pluginType?: PluginType | string;
   // http method of the api. (Only for api actions)
   httpMethod?: HTTP_METHOD;
 }

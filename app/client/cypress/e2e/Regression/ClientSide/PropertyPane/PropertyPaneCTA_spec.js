@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Property pane CTA to add an action", function () {
   before(() => {
@@ -12,8 +15,9 @@ describe("Property pane CTA to add an action", function () {
       .should("be.visible");
     //Check if CTA does not exist when there is an action
     _.apiPage.CreateApi("FirstAPI");
-    _.entityExplorer.NavigateToSwitcher("Widgets");
-    _.entityExplorer.SelectEntityByName("Table1", "Container3");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     cy.get(".t--propertypane-connect-cta").should("not.exist");
   });
 });

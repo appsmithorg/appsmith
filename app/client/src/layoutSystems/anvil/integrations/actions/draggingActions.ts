@@ -1,3 +1,4 @@
+import type { WidgetProps } from "widgets/BaseWidget";
 import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
 import { AnvilReduxActionTypes } from "./actionTypes";
 
@@ -34,6 +35,24 @@ export const moveAnvilWidgets = (
     payload: {
       highlight,
       movedWidgets,
+    },
+  };
+};
+
+/**
+ * Add suggested widget to Anvil canvas.
+ */
+export const addSuggestedWidgetAnvilAction = (newWidget: {
+  newWidgetId: string;
+  type?: string;
+  rows?: number;
+  columns?: number;
+  props?: WidgetProps;
+}) => {
+  return {
+    type: AnvilReduxActionTypes.ANVIL_ADD_SUGGESTED_WIDGET,
+    payload: {
+      newWidget,
     },
   };
 };

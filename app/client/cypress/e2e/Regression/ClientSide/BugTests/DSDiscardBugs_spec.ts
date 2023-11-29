@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any;
 
@@ -18,9 +21,9 @@ describe("datasource unsaved changes popup shows even without changes", function
       _.dataSources.SaveDatasource();
       _.agHelper.Sleep();
       _.dataSources.EditDatasource();
-      _.agHelper.GoBack();
+      _.dataSources.cancelDSEditAndAssertModalPopUp(false);
       _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -42,9 +45,9 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Even if headers, and query parameters are being initialized, we shouldnt see the popup
       // as those are not initialized by user
       _.dataSources.EditDatasource();
-      _.agHelper.GoBack();
+      _.dataSources.cancelDSEditAndAssertModalPopUp(false);
       _.agHelper.AssertElementVisibility(_.dataSources._activeDS);
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -68,7 +71,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Assert that popup is visible
       _.dataSources.SaveDSFromDialog(false);
 
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -92,7 +95,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Assert that popup is visible
       _.dataSources.cancelDSEditAndAssertModalPopUp(true, false);
 
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -115,7 +118,7 @@ describe("datasource unsaved changes popup shows even without changes", function
       // Assert that popup is visible
       _.dataSources.cancelDSEditAndAssertModalPopUp(false, false);
 
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 
@@ -148,8 +151,14 @@ describe("datasource unsaved changes popup shows even without changes", function
         _.dataSources._host(),
         _.dataManager.dsValues.Staging.mongo_host,
       );
+      _.agHelper.GetNClick(
+        _.dataSources._cancelEditDatasourceButton,
+        0,
+        true,
+        200,
+      );
 
-      _.dataSources.DeleteDatasouceFromActiveTab(dsName);
+      _.dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   });
 

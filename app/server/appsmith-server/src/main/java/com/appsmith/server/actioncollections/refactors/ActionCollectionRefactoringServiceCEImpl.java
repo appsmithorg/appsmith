@@ -2,8 +2,10 @@ package com.appsmith.server.actioncollections.refactors;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
@@ -15,6 +17,8 @@ import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -44,11 +48,6 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
     }
 
     @Override
-    public Mono<Boolean> validateName(String name) {
-        return Mono.just(Boolean.TRUE);
-    }
-
-    @Override
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
         Set<String> updatableCollectionIds = refactoringMetaDTO.getUpdatableCollectionIds();
@@ -64,21 +63,10 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
                 .flatMap(actionCollection -> {
                     final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 
-                    return astService
-                            .replaceValueInMustacheKeys(
-                                    new HashSet<>(Collections.singletonList(
-                                            new MustacheBindingToken(unpublishedCollection.getBody(), 0, true))),
-                                    oldName,
-                                    newName,
-                                    evalVersion,
-                                    oldNamePattern,
-                                    true)
-                            .flatMap(replacedMap -> {
-                                Optional<String> replacedValue =
-                                        replacedMap.values().stream().findFirst();
-                                // This value should always be there
-                                if (replacedValue.isPresent()) {
-                                    unpublishedCollection.setBody(replacedValue.get());
+                    return this.refactorNameInActionCollection(
+                                    unpublishedCollection, oldName, newName, evalVersion, oldNamePattern)
+                            .flatMap(isPresent -> {
+                                if (Boolean.TRUE.equals(isPresent)) {
                                     return actionCollectionService.save(actionCollection);
                                 }
                                 return Mono.just(actionCollection);
@@ -87,6 +75,32 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
                 .collectList());
 
         return actionCollectionsMono.then();
+    }
+
+    protected Mono<Boolean> refactorNameInActionCollection(
+            ActionCollectionDTO unpublishedCollection,
+            String oldName,
+            String newName,
+            int evalVersion,
+            Pattern oldNamePattern) {
+        return astService
+                .replaceValueInMustacheKeys(
+                        new HashSet<>(Collections.singletonList(
+                                new MustacheBindingToken(unpublishedCollection.getBody(), 0, true))),
+                        oldName,
+                        newName,
+                        evalVersion,
+                        oldNamePattern,
+                        true)
+                .map(replacedMap -> {
+                    Optional<String> replacedValue =
+                            replacedMap.values().stream().findFirst();
+                    // This value should always be there
+                    if (replacedValue.isPresent()) {
+                        unpublishedCollection.setBody(replacedValue.get());
+                    }
+                    return replacedValue.isPresent();
+                });
     }
 
     @Override
@@ -137,5 +151,19 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
                             actionCollectionService.update(branchedActionCollection.getId(), branchedActionCollection));
                 })
                 .then();
+    }
+
+    @Override
+    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+        return getExistingEntities(contextId, contextType, layoutId).map(ActionCollectionDTO::getName);
+    }
+
+    protected Flux<ActionCollectionDTO> getExistingEntities(
+            String contextId, CreatorContextType contextType, String layoutId) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        if (StringUtils.hasText(contextId)) {
+            params.add(FieldName.PAGE_ID, contextId);
+        }
+        return actionCollectionService.getActionCollectionsByViewMode(params, false);
     }
 }

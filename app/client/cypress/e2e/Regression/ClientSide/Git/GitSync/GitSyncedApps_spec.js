@@ -1,3 +1,9 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
@@ -17,6 +23,7 @@ import {
   gitSync,
   dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../../support/Pages/PageList";
 
 const newPage = "ApiCalls_1";
 const pageName = "crudpage_1";
@@ -40,7 +47,7 @@ describe("Git sync apps", function () {
     homePage.CreateNewApplication();
 
     // create New App and  generate Postgres CRUD page
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     //cy.get(generatePage.generateCRUDPageActionCard).click();
 
     cy.get(generatePage.selectDatasourceDropdown).click();
@@ -98,10 +105,8 @@ describe("Git sync apps", function () {
 
     cy.wait(3000);
     // rename page to crud_page
-    cy.renameEntity("Page1", pageName);
-    cy.get(`.t--entity-name:contains(${pageName})`)
-      .trigger("mouseover")
-      .click({ force: true });
+    entityExplorer.RenameEntityFromExplorer("Page1", pageName);
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     // create a clone of page
     cy.get(`.t--entity-item:contains(${pageName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
@@ -121,8 +126,6 @@ describe("Git sync apps", function () {
       cy.get(`.t--entity-item:contains(${newPage})`).click();
       cy.wait(1000);
       // create a get api call
-      cy.NavigateToAPI_Panel();
-      cy.wait(2000);
       cy.CreateAPI("get_data");
       // creating get request using echo
       cy.get(apiwidget.resourceUrl)
@@ -208,7 +211,6 @@ describe("Git sync apps", function () {
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
     cy.wait(2000);
-    agHelper.RefreshPage("getPage");
     cy.get(".t--draggable-inputwidgetv2").should("be.visible");
     cy.get(".t--draggable-inputwidgetv2")
       .first()
@@ -231,21 +233,25 @@ describe("Git sync apps", function () {
       .find(".bp3-input")
       .should("have.value", "This is a test");
 
-    cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
-    cy.wait("@getPage");
-    cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.equal("New Config");
-    });
     cy.get(`.t--entity-item:contains(${pageName})`).first().click();
     cy.wait("@getPage");
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
+
+    cy.get(`.t--entity-item:contains(${pageName} Copy)`).click();
+    cy.wait("@getPage");
+    cy.readTabledataPublish("0", "1").then((cellData) => {
+      expect(cellData).to.be.equal("New Config");
+    });
     // commit and push the changes
-    cy.commitAndPush();
+    gitSync.CommitAndPush(true);
     cy.wait(2000);
     // verify data binding on all pages in deploy mode
     cy.latestDeployPreview();
+    cy.get(".t--page-switch-tab")
+      .contains(`${pageName}`)
+      .click({ force: true });
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("New Config");
     });
@@ -256,7 +262,7 @@ describe("Git sync apps", function () {
       expect(cellData).to.be.equal("New Config");
     });
     cy.get(".t--page-switch-tab").contains(`${newPage}`).click({ force: true });
-    agHelper.RefreshPage();
+    agHelper.RefreshPage("viewPage");
     cy.get(".bp3-input")
       .first()
       .invoke("val")
@@ -299,11 +305,9 @@ describe("Git sync apps", function () {
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("Child_Page");
     cy.wait(1000);
-    cy.get(`.t--entity-name:contains(${newPage} Copy)`)
-      .trigger("mouseover")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName(`${newPage} Copy`, EntityType.Page);
     cy.wait(2000); // adding wait for query to load
-    entityExplorer.SelectEntityByName("get_users", "Queries/JS");
+    EditorNavigation.SelectEntityByName("get_users", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Move to page",
       subAction: "Child_Page",
@@ -311,11 +315,9 @@ describe("Git sync apps", function () {
     });
     cy.runQuery();
     cy.wait(2000);
-    cy.get(`.t--entity-name:contains(${newPage} Copy)`)
-      .trigger("mouseover")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName(`${newPage} Copy`, EntityType.Page);
     cy.wait(2000);
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Move to page",
@@ -323,7 +325,7 @@ describe("Git sync apps", function () {
       toastToValidate: "moved to page",
     });
     cy.wait(2000);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
@@ -459,16 +461,16 @@ describe("Git sync apps", function () {
     cy.wait(2000);
 
     //  clone the Child_Page
-    entityExplorer.SelectEntityByName("Child_Page", "Pages");
-    entityExplorer.ClonePage("Child_Page");
+    EditorNavigation.SelectEntityByName("Child_Page", EntityType.Page);
+    PageList.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
-    entityExplorer.SelectEntityByName("Child_Page Copy", "Pages");
+    EditorNavigation.SelectEntityByName("Child_Page Copy", EntityType.Page);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Child_Page",
       action: "Hide",
     });
 
-    entityExplorer.SelectEntityByName("Child_Page", "Pages");
+    EditorNavigation.SelectEntityByName("Child_Page", EntityType.Page);
     cy.wait("@getPage");
     cy.get(homePageLocators.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
@@ -508,12 +510,12 @@ describe("Git sync apps", function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify Child_Page is not on master
     cy.switchGitBranch(mainBranch);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence("Child_Page Copy");
     // create another branch and verify deleted page doesn't exist on it
     gitSync.CreateGitBranch(tempBranch0, true);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Child_Page Copy")`).should("not.exist");
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence("Child_Page Copy");
   });
 
   it("10. Import app from git and verify page order should not change", () => {

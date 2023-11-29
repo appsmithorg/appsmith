@@ -11,6 +11,8 @@ import {
   locators,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate Mongo CRUD with JSON Form", () => {
   let dsName: any;
@@ -25,11 +27,11 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     appSettings.OpenPaneAndChangeTheme("Water Lily");
 
-    dataSources.CreateDataSource("Mongo");
+    dataSources.CreateDataSource("Mongo", true, false);
     cy.get("@dsName").then(($dsName: any) => {
       dsName = $dsName;
-      entityExplorer.AddNewPage();
-      entityExplorer.AddNewPage("Generate page with data");
+      PageList.AddNewPage();
+      PageList.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
@@ -57,7 +59,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     //coz if app is published & shared then deleting ds may cause issue, So!
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      dataSources.DeleteDatasourceFromWithinDS(dsName as string, 409);
     });
 
     // deployMode.DeployApp();
@@ -72,7 +74,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(1, 0);
     //Delete the test data
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "CoffeeCafe",
       action: "Delete",
@@ -80,7 +82,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     });
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
+    dataSources.DeleteDatasourceFromWithinDS(dsName as string, 200);
   });
 
   //Update, delete, Add goes here

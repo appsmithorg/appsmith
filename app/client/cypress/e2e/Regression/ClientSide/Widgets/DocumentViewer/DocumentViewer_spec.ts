@@ -10,6 +10,9 @@ import {
   encodedXlsxDoc,
   encodedXlsDoc,
 } from "../../../../../fixtures/exampleEncodedDocs";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const ppt =
   "https://ssz.sgp1.digitaloceanspaces.com/3ZEO2582C29EA0KKK2/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx";
@@ -36,8 +39,7 @@ describe("DocumentViewer Widget Functionality", () => {
     deployMode.NavigateBacktoEditor();
   });
   it("1.  Modify visibility & Publish app & verify", () => {
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
     cy.get(locators._widgetInDeployed("documentviewerwidget")).should(
@@ -45,7 +47,7 @@ describe("DocumentViewer Widget Functionality", () => {
     );
     deployMode.NavigateBacktoEditor();
     //Change visibility & Publish app & verify again
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.TogglePropertyState("Visible", "On");
     deployMode.DeployApp();
     cy.get(locators._widgetInDeployed("documentviewerwidget")).should("exist");
@@ -63,7 +65,7 @@ describe("DocumentViewer Widget Functionality", () => {
       });
     agHelper.GetNClick(locators._uploadBtn);
 
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Document link",
       "{{FilePicker1.files[0].data}}",
@@ -71,7 +73,7 @@ describe("DocumentViewer Widget Functionality", () => {
     agHelper.AssertContains("This is an essay");
 
     // Verify by entering link
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Document link", encodedWordDoc);
     deployMode.DeployApp();
     //"Some doc content" is pressent in the encoded word doc
@@ -82,7 +84,7 @@ describe("DocumentViewer Widget Functionality", () => {
   });
 
   it("3. Should show an errored state when a malformed docx input is provided", () => {
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     const someGarbageString = "+dsds";
     // previously the document is set as "Some doc content"
     // give a corrupted docx string
@@ -103,7 +105,7 @@ describe("DocumentViewer Widget Functionality", () => {
   });
 
   it("4. Should show a xlsx/xls document correctly and should be able to render different documents without having to add the widget again", () => {
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Document link", encodedXlsxDoc);
     deployMode.DeployApp();
     //"456" is pressent in the encoded xlsx doc
@@ -119,7 +121,7 @@ describe("DocumentViewer Widget Functionality", () => {
       "SHEET 2r1a",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Document link", encodedXlsDoc);
     deployMode.DeployApp();
     //"456" is pressent in the encoded xlsx doc
@@ -130,7 +132,7 @@ describe("DocumentViewer Widget Functionality", () => {
   });
 
   it("5. Should show an errored state when a malformed xlsx input is provided", () => {
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     // previously the document contains the number "456"
     const someGarbageString = "+dsds";
     //give a corrupted xlsx doc string
@@ -162,7 +164,7 @@ describe("DocumentViewer Widget Functionality", () => {
       });
     agHelper.GetNClick(locators._uploadBtn);
 
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Document link",
       "{{FilePicker1.files[0].data}}",
@@ -190,7 +192,7 @@ describe("DocumentViewer Widget Functionality", () => {
       });
     agHelper.GetNClick(locators._uploadBtn);
 
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Document link",
       "{{FilePicker1.files[0].data}}",
@@ -205,7 +207,7 @@ describe("DocumentViewer Widget Functionality", () => {
     agHelper.AssertContains("Current file type is not supported", "not.exist");
     deployMode.NavigateBacktoEditor();
     //Should not show an jpg image file"
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Document link", jpgImage);
     deployMode.DeployApp();
     agHelper.AssertContains("Current file type is not supported");
@@ -223,7 +225,7 @@ describe("DocumentViewer Widget Functionality", () => {
       });
     agHelper.GetNClick(locators._uploadBtn);
 
-    entityExplorer.SelectEntityByName("DocumentViewer1", "Widgets");
+    EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Document link",
       "{{FilePicker1.files[0].data}}",

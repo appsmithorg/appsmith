@@ -1,5 +1,8 @@
 import { all, put, select, takeEvery } from "redux-saga/effects";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type {
+  ApplicationPayload,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import history from "utils/history";
 import {
@@ -21,13 +24,26 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
 import { initialize } from "redux-form";
 import { omit } from "lodash";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const application: ApplicationPayload | undefined = yield select(
+    getApplicationByIdFromWorkspaces,
+    currentApplicationIdForCreateNewApp || "",
+  );
+  const pageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultPageId
+    : yield select(getCurrentPageId);
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
-  const pageId: string = yield select(getCurrentPageId);
   // Only look at SAAS plugins
   if (!plugin) return;
   if (plugin.type !== PluginType.SAAS) return;
@@ -61,7 +77,7 @@ function* handleDatasourceCreatedSaga(
         },
       }),
     );
-  } else {
+  } else if (!currentApplicationIdForCreateNewApp) {
     history.push(
       saasEditorDatasourceIdURL({
         pageId,

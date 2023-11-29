@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const fieldPrefix = ".t--jsonformfield";
@@ -148,7 +152,7 @@ describe("JSON Form Widget Array Field", () => {
   it("4. can change the visibility of the field", () => {
     cy.get(education).should("exist");
     agHelper.AssertElementExist(education);
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openPropertyPane("jsonformwidget");
     cy.openFieldConfiguration("education");
 
@@ -159,7 +163,7 @@ describe("JSON Form Widget Array Field", () => {
     deployMode.NavigateBacktoEditor();
 
     // Visible -> true
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("education");
 
     propPane.TogglePropertyState("Visible", "On");
@@ -167,7 +171,7 @@ describe("JSON Form Widget Array Field", () => {
   });
 
   it("5. disables all underlying field when array field is disabled", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("education");
 
     // Disable -> true
@@ -182,7 +186,7 @@ describe("JSON Form Widget Array Field", () => {
       });
 
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("education");
     propPane.TogglePropertyState("Disabled", "Off");
     // cy.togglebarDisable(".t--property-control-disabled input");
@@ -202,7 +206,7 @@ describe("JSON Form Widget Array Field", () => {
   });
 
   it("6. disables add new and remove buttons when array field is disabled", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("education");
 
     let initialNoOfItems = 0;
@@ -229,7 +233,7 @@ describe("JSON Form Widget Array Field", () => {
     });
 
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("education");
     propPane.TogglePropertyState("Disabled", "Off");
 
@@ -253,7 +257,7 @@ describe("JSON Form Widget Array Field", () => {
   it("7. should not render field level default value if form level is present", () => {
     const collegeFieldDefaultValue = "College default value";
 
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
     cy.openFieldConfiguration("education")
       .openFieldConfiguration("__array_item__", false)
@@ -293,7 +297,7 @@ describe("JSON Form Widget Array Field", () => {
   });
 
   it("8. phone input dropdown should update the selected value", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("education");
     cy.openFieldConfiguration("__array_item__", false);
 
@@ -327,7 +331,7 @@ describe("JSON Form Widget Array Field", () => {
   });
 
   it("9. currency input dropdown should update the selected value", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("education");
     cy.openFieldConfiguration("__array_item__", false);
 

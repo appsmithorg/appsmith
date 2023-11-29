@@ -1,23 +1,25 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  jsEditor,
-  propPane,
   apiPage,
   draggableWidgets,
+  entityExplorer,
+  jsEditor,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("UI to Code", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
-    entityExplorer.NavigateToSwitcher("Explorer");
     apiPage.CreateApi();
     apiPage.CreateApi("Api2", "POST");
   });
 
   beforeEach(() => {
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "");
     propPane.ToggleJSMode("onClick", false);
   });

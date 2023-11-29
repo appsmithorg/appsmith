@@ -1,10 +1,10 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 import {
   hideByColumnType,
   removeBoxShadowColorProp,
 } from "../../propertyUtils";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 
 export default {
   sectionName: "Border and shadow",

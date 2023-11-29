@@ -15,6 +15,7 @@ import {
   put,
   select,
   take,
+  takeLatest,
 } from "redux-saga/effects";
 import type { TakeableChannel } from "@redux-saga/core";
 import type { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
@@ -98,7 +99,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
-  getIsGitProtectedFeatureEnabled,
+  getIsGitConnectV2Enabled,
   getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
@@ -221,6 +222,9 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
     response = yield GitSyncAPI.connect(action.payload, applicationId);
+    const isGitConnectV2Enabled: boolean = yield select(
+      getIsGitConnectV2Enabled,
+    );
 
     const isValidResponse: boolean = yield validateResponse(
       response,
@@ -233,10 +237,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       yield put(connectToGitSuccess(response?.data));
       const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
 
-      const isGitProtectedFeatureEnabled: boolean = yield select(
-        getIsGitProtectedFeatureEnabled,
-      );
-      if (isGitProtectedFeatureEnabled) {
+      if (isGitConnectV2Enabled) {
         yield put(
           updateGitProtectedBranchesInit({
             protectedBranches: defaultBranch ? [defaultBranch] : [],
@@ -1069,12 +1070,6 @@ function* discardChanges({
 }
 
 function* fetchGitProtectedBranchesSaga() {
-  const isGitProtectedFeatureEnabled: boolean = yield select(
-    getIsGitProtectedFeatureEnabled,
-  );
-  if (!isGitProtectedFeatureEnabled) {
-    return;
-  }
   let response: ApiResponse<string[]>;
   try {
     const appId: string = yield select(getCurrentApplicationId);
@@ -1111,12 +1106,6 @@ function* fetchGitProtectedBranchesSaga() {
 function* updateGitProtectedBranchesSaga({
   payload,
 }: ReduxAction<{ protectedBranches: string[] }>) {
-  const isGitProtectedFeatureEnabled: boolean = yield select(
-    getIsGitProtectedFeatureEnabled,
-  );
-  if (!isGitProtectedFeatureEnabled) {
-    return;
-  }
   const { protectedBranches } = payload;
   const applicationId: string = yield select(getCurrentApplicationId);
   let response: ApiResponse<string[]>;
@@ -1156,36 +1145,42 @@ function* updateGitProtectedBranchesSaga({
   }
 }
 
-const gitRequestActions: Record<
+const gitRequestBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
   (...args: any[]) => any
 > = {
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: commitToGitRepoSaga,
   [ReduxActionTypes.CONNECT_TO_GIT_INIT]: connectToGitSaga,
-  [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: fetchGlobalGitConfig,
   [ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT]: updateGlobalGitConfig,
-  [ReduxActionTypes.SWITCH_GIT_BRANCH_INIT]: switchBranch,
   [ReduxActionTypes.FETCH_BRANCHES_INIT]: fetchBranches,
+  [ReduxActionTypes.SWITCH_GIT_BRANCH_INIT]: switchBranch,
   [ReduxActionTypes.CREATE_NEW_BRANCH_INIT]: createNewBranch,
-  [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT]: fetchLocalGitConfig,
   [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT]: updateLocalGitConfig,
-  [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,
-  [ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT]: fetchGitRemoteStatusSaga,
   [ReduxActionTypes.MERGE_BRANCH_INIT]: mergeBranchSaga,
   [ReduxActionTypes.FETCH_MERGE_STATUS_INIT]: fetchMergeStatusSaga,
   [ReduxActionTypes.GIT_PULL_INIT]: gitPullSaga,
-  [ReduxActionTypes.SHOW_CONNECT_GIT_MODAL]: showConnectGitModal,
   [ReduxActionTypes.REVOKE_GIT]: disconnectGitSaga,
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_INIT]: importAppFromGitSaga,
   [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT]: generateSSHKeyPairSaga,
-  [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
   [ReduxActionTypes.DELETE_BRANCH_INIT]: deleteBranch,
   [ReduxActionTypes.GIT_DISCARD_CHANGES]: discardChanges,
   [ReduxActionTypes.GIT_UPDATE_DEFAULT_BRANCH_INIT]: updateGitDefaultBranchSaga,
-  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
-    fetchGitProtectedBranchesSaga,
   [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
     updateGitProtectedBranchesSaga,
+};
+
+const gitRequestNonBlockingActions: Record<
+  (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
+  (...args: any[]) => any
+> = {
+  [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: fetchGlobalGitConfig,
+  [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT]: fetchLocalGitConfig,
+  [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,
+  [ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT]: fetchGitRemoteStatusSaga,
+  [ReduxActionTypes.SHOW_CONNECT_GIT_MODAL]: showConnectGitModal,
+  [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
+  [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
+    fetchGitProtectedBranchesSaga,
 };
 
 /**
@@ -1197,18 +1192,26 @@ const gitRequestActions: Record<
  *
  * This will ensure that client is not running parallel requests to the server for git
  * */
-function* watchGitRequests() {
+function* watchGitBlockingRequests() {
   const gitActionChannel: TakeableChannel<unknown> = yield actionChannel(
-    Object.keys(gitRequestActions),
+    Object.keys(gitRequestBlockingActions),
   );
 
   while (true) {
     const { type, ...args }: ReduxAction<unknown> =
       yield take(gitActionChannel);
-    yield call(gitRequestActions[type], { type, ...args });
+    yield call(gitRequestBlockingActions[type], { type, ...args });
+  }
+}
+
+function* watchGitNonBlockingRequests() {
+  const keys = Object.keys(gitRequestNonBlockingActions);
+  for (const actionType of keys) {
+    yield takeLatest(actionType, gitRequestNonBlockingActions[actionType]);
   }
 }
 
 export default function* gitSyncSagas() {
-  yield fork(watchGitRequests);
+  yield fork(watchGitNonBlockingRequests);
+  yield fork(watchGitBlockingRequests);
 }

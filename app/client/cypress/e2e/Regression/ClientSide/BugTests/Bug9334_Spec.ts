@@ -1,12 +1,17 @@
 import {
-  assertHelper,
   agHelper,
+  appSettings,
+  assertHelper,
   dataSources,
   locators,
   table,
-  appSettings,
-  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let dsName: any;
 
@@ -17,12 +22,13 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("1. Create dummy pages for navigating", () => {
     //CRUD page 2
-    entityExplorer.AddNewPage();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage();
+    PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
@@ -39,8 +45,8 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     table.WaitUntilTableLoad();
 
     //CRUD page 3
-    entityExplorer.AddNewPage();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage();
+    PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
@@ -59,17 +65,17 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
 
   it("2. Navigate & Assert toast", () => {
     //Navigating between CRUD (Page3) & EmptyPage (Page2):
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.Sleep(2000);
-    entityExplorer.SelectEntityByName("Page2");
+    EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
     agHelper.AssertElementAbsence(
       locators._specificToast('The action "SelectQuery" has failed.'),
     );
 
     //Navigating between CRUD (Page3) & CRUD (Page4):
-    entityExplorer.SelectEntityByName("Page3");
+    EditorNavigation.SelectEntityByName("Page3", EntityType.Page);
     agHelper.Sleep(2000);
-    entityExplorer.SelectEntityByName("Page2");
+    EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
     agHelper.AssertElementAbsence(
       locators._specificToast('The action "SelectQuery" has failed.'),
     );
