@@ -5,10 +5,11 @@ import {
   agHelper,
   deployMode,
   locators,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Bug 25894 - Moustache brackets should be highlighted", () => {
-  it("1. should show {{ }} in bold", () => {
+describe("Reset widget action", () => {
+  it("Reset widget to default after setValue has been applied", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue("Default value", "John");
 
@@ -46,5 +47,37 @@ describe("Bug 25894 - Moustache brackets should be highlighted", () => {
       "val",
       "John",
     );
+  });
+  it("Reset value is accessible after 'awaiting'", () => {
+    deployMode.NavigateBacktoEditor();
+    agHelper.ClearNType(locators._input, "Meta Text");
+
+    const JS_OBJECT_BODY = `export default {
+      async resetInputWithoutAwait () {
+         resetWidget('Input1')
+         showAlert(Input1.text)	
+      },
+      async resetInputWithAwait () {
+      await resetWidget('Input1')
+      showAlert(Input1.text)	
+      }
+    }`;
+
+    // Create js object
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      prettify: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    jsEditor.SelectFunctionDropdown("resetInputWithoutAwait");
+    agHelper.ClickButton("Run");
+    agHelper.AssertContains("Meta Text");
+
+    jsEditor.SelectFunctionDropdown("resetInputWithAwait");
+    agHelper.ClickButton("Run");
+    agHelper.AssertContains("John");
   });
 });
