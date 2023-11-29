@@ -9,9 +9,12 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { sectionPreset } from "layoutSystems/anvil/layoutComponents/presets/sectionPreset";
+import { ButtonBoxShadowTypes } from "components/constants";
 
 export const defaultConfig: WidgetDefaultProps = {
-  backgroundColor: "ghostwhite",
+  backgroundColor: "lightslategrey",
+  borderRadius: "0.375rem",
+  boxShadow: ButtonBoxShadowTypes.NONE,
   children: [],
   columns: 0,
   detachFromLayout: false,
