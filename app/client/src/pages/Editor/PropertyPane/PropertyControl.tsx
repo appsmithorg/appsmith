@@ -833,7 +833,7 @@ const PropertyControl = memo((props: Props) => {
             </div>
             <div
               className={classNames(
-                "flex items-center gap-1 !h-[20px] [&>span]:!h-[20px]",
+                "flex items-center gap-1 !h-[18px] [&>span]:!h-[18px]",
                 config.controlType === "SWITCH" && !isDynamic && "mr-1",
               )}
             >
@@ -847,12 +847,13 @@ const PropertyControl = memo((props: Props) => {
                       className={classNames({
                         "t--js-toggle": true,
                         "is-active": isDynamic,
-                        "!h-[20px]": experimentalJSToggle,
+                        "!h-[18px]": experimentalJSToggle,
                       })}
-                      icon="js-toggle-v2"
+                      icon="js-toggle-exp"
                       id={`js-toggle-${propertyName}`}
                       isDisabled={isToggleDisabled}
                       isSelected={isDynamic}
+                      kind="combination"
                       onClick={() =>
                         toggleDynamicProperty(
                           propertyName,
