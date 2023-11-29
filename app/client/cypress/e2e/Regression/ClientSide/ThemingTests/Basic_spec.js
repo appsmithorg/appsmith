@@ -1,3 +1,9 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -5,7 +11,6 @@ import {
   agHelper,
   appSettings,
   deployMode,
-  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
 const containerShadowElement = `${widgetsPage.containerWidget}`;
@@ -59,7 +64,7 @@ describe("App Theming funtionality", function () {
     appSettings.ClosePane();
 
     // drop a button & container widget and click on body
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();
@@ -187,7 +192,7 @@ describe("App Theming funtionality", function () {
   });
 
   it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("iconbuttonwidget", { x: 200, y: 300 });
     cy.assertPageSave();
     cy.get("canvas").first(0).trigger("click", { force: true });
@@ -682,7 +687,7 @@ describe("App Theming funtionality", function () {
   });
 
   it("9. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.assertPageSave();
     cy.moveToStyleTab();
@@ -795,9 +800,7 @@ describe("App Theming funtionality", function () {
 
     deployMode.NavigateBacktoEditor();
     //Resetting back to theme
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.ExpandCollapseEntity("Widgets"); //to expand widgets
-    entityExplorer.SelectEntityByName("Button2");
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
     cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
@@ -893,9 +896,7 @@ describe("App Theming funtionality", function () {
       .wait(2000);
 
     //Change individual widget properties for Button1
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.ExpandCollapseEntity("Widgets"); //to expand widgets
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.moveToStyleTab();
 
     //Change Color & verify
@@ -1009,9 +1010,7 @@ describe("App Theming funtionality", function () {
 
     deployMode.NavigateBacktoEditor();
     //Resetting back to theme
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.ExpandCollapseEntity("Widgets"); //to expand widgets
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");

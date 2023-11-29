@@ -1,4 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Api execution results test cases", () => {
   it("1. Check to see if API execution results are preserved after it is renamed", () => {
@@ -14,7 +17,6 @@ describe("Api execution results test cases", () => {
     entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
     entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 400, 400);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
     // Create a new API
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
@@ -37,7 +39,7 @@ describe("Api execution results test cases", () => {
       },
     );
 
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     // Set the label to the button
     propPane.TypeTextIntoField(
@@ -55,13 +57,13 @@ describe("Api execution results test cases", () => {
 
     entityExplorer.RenameEntityFromExplorer("Api1", "Api123");
 
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
     agHelper.ClickButton("Success 1");
 
     agHelper.ValidateToastMessage("Successful");
 
-    entityExplorer.SelectEntityByName("Button2");
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
 
     // Set the label to the button
     propPane.TypeTextIntoField(
@@ -79,7 +81,7 @@ describe("Api execution results test cases", () => {
 
     entityExplorer.RenameEntityFromExplorer("JSObject1", "JSObject123");
 
-    entityExplorer.SelectEntityByName("Button2");
+    EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
 
     agHelper.ClickButton("Success 2");
 

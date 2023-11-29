@@ -1,15 +1,13 @@
 import ApiEditor from "../../../../locators/ApiEditor";
 import DynamicInput from "../../../../locators/DynamicInput";
 import HomePage from "../../../../locators/HomePage";
-import { apiPage } from "../../../../support/Objects/ObjectsCore";
-const commonLocators = require("../../../../locators/commonlocators.json");
 
-import {
-  entityExplorer,
-  apiPage,
-} from "../../../../support/Objects/ObjectsCore";
+import { apiPage } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate API Panel CSS Styles", function () {
@@ -66,9 +64,8 @@ describe("Validate API Panel CSS Styles", function () {
         //Create two datasource for testing binding prompt background-color
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
-        EditorNavigation.ViaSidebar(SidebarButton.Pages);
-        entityExplorer.ExpandCollapseEntity("Queries/JS");
-        cy.get(commonLocators.entityName).contains("test_styles").click();
+        AppSidebar.navigate(AppSidebarButton.Pages);
+        EditorNavigation.SelectEntityByName("test_styles", EntityType.Api);
         //Click on API search editor
         cy.get(ApiEditor.codeEditorWrapper).first().click();
         //First hint for search background-color test
@@ -84,11 +81,9 @@ describe("Validate API Panel CSS Styles", function () {
           .should("have.css", "background-color", hover);
         //Delete created test API
         cy.DeleteAPI();
-        EditorNavigation.ViaSidebar(SidebarButton.Pages);
+        AppSidebar.navigate(AppSidebarButton.Pages);
         cy.wait(2000);
-        cy.get(commonLocators.entityName)
-          .contains("test_styles")
-          .should("not.exist");
+        PageLeftPane.assertAbsence("test_styles");
         //Delete two datasources
         cy.deleteDatasource(appName1);
         cy.deleteDatasource(appName2);

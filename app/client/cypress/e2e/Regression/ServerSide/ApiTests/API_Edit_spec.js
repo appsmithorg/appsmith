@@ -1,5 +1,8 @@
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -32,14 +35,14 @@ describe("API Panel Test Functionality", function () {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    entityExplorer.SelectEntityByName("FirstAPI", "Queries/JS");
+    EditorNavigation.SelectEntityByName("FirstAPI", EntityType.Api);
     entityExplorer.RenameEntityFromExplorer("FirstAPI", "SecondAPI", true);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    entityExplorer.AssertEntityAbsenceInExplorer("SecondAPI");
+    AppSidebar.navigate(AppSidebarButton.Pages);
+    PageLeftPane.assertAbsence("SecondAPI");
   });
 
   it("2. Should update loading state after cancellation of confirmation for run query", function () {

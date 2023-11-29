@@ -3,14 +3,15 @@ import {
   apiPage,
   assertHelper,
   deployMode,
-  entityExplorer,
   entityItems,
   jsEditor,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate API request body panel", () => {
@@ -36,7 +37,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("2. Checks whether No body error message is shown when None API body content type is selected", function () {
@@ -48,7 +49,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("3. Checks whether header content type is being changed when FORM_URLENCODED API body content type is selected", function () {
@@ -69,7 +70,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("4. Checks whether header content type is being changed when MULTIPART_FORM_DATA API body content type is selected", function () {
@@ -90,7 +91,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("5. Checks whether content type 'FORM_URLENCODED' is preserved when user selects None API body content type", function () {
@@ -103,7 +104,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("6. Checks whether content type 'MULTIPART_FORM_DATA' is preserved when user selects None API body content type", function () {
@@ -116,7 +117,7 @@ describe("Validate API request body panel", () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
   });
 
   it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
@@ -153,19 +154,19 @@ describe("Validate API request body panel", () => {
       },
     );
 
-    entityExplorer.SelectEntityByName("FilePicker1", "Widgets");
+    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
     propPane.EnterJSContext("onFilesSelected", `{{JSObject1.upload()}}`);
 
-    entityExplorer.SelectEntityByName("Image1");
+    EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Image",
       "{{CloudinaryUploadApi.data.url}}",
     );
 
-    entityExplorer.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
+    EditorNavigation.SelectEntityByName("CloudinaryUploadApi", EntityType.Api);
 
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp(locators._buttonByText("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
@@ -184,7 +185,7 @@ describe("Validate API request body panel", () => {
 
   it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
     const imageNameToUpload = "AAAFlowerVase.jpeg";
-    entityExplorer.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
+    EditorNavigation.SelectEntityByName("CloudinaryUploadApi", EntityType.Api);
     apiPage.EnterBodyFormData(
       "MULTIPART_FORM_DATA",
       "file",
@@ -192,7 +193,7 @@ describe("Validate API request body panel", () => {
       "Array",
       true,
     );
-    entityExplorer.SelectEntityByName("FilePicker1", "Widgets");
+    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);

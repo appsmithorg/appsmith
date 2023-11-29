@@ -102,6 +102,7 @@ import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader"
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+// import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
 import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
@@ -783,6 +784,13 @@ export function ApplicationsSection(props: any) {
               workspaceId={activeWorkspace.id}
             />
           )}
+          {/* {!isLoadingResources && (
+            <WorkflowCardList
+              isMobile={isMobile}
+              workflows={workflows}
+              workspaceId={workspace.id}
+            />
+          )} */}
         </WorkspaceSection>
       </React.Fragment>
     );

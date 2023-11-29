@@ -47,6 +47,10 @@ import {
   StyledEntity,
 } from "../Common/components";
 import { EntityExplorerResizeHandler } from "../Common/EntityExplorerResizeHandler";
+import {
+  PERMISSION_TYPE,
+  isPermitted,
+} from "@appsmith/utils/permissionHelpers";
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -133,6 +137,10 @@ function Pages() {
     isFeatureEnabled,
     userAppPermissions,
   );
+  const hasExportPermission = isPermitted(
+    userAppPermissions ?? [],
+    PERMISSION_TYPE.EXPORT_APPLICATION,
+  );
 
   const pageElements = useMemo(
     () =>
@@ -144,10 +152,12 @@ function Pages() {
           isFeatureEnabled,
           pagePermissions,
         );
+
         const contextMenu = (
           <PageContextMenu
             applicationId={applicationId as string}
             className={EntityClassNames.CONTEXT_MENU}
+            hasExportPermission={hasExportPermission}
             isCurrentPage={isCurrentPage}
             isDefaultPage={page.isDefault}
             isHidden={!!page.isHidden}

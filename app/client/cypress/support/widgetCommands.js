@@ -3,7 +3,6 @@
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
@@ -12,7 +11,6 @@ const formWidgetsPage = require("../locators/FormWidgets.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
-const generatePage = require("../locators/GeneratePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
 
@@ -152,8 +150,10 @@ Cypress.Commands.add("createModal", (ModalName, property) => {
   // cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
   //   .first()
   //   .trigger("mouseover");
-
-  ee.SelectEntityInModal("Modal1", "Widgets");
+  cy.get(widgetsPage.modalWidget)
+    .find(widgetsPage.textWidget)
+    .first()
+    .click({ force: true });
 
   //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
   cy.testCodeMirror(ModalName);
@@ -161,37 +161,6 @@ Cypress.Commands.add("createModal", (ModalName, property) => {
   cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
   cy.assertPageSave();
   cy.get(".bp3-overlay-backdrop").last().click({ force: true });
-});
-
-Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
-  cy.get(widgetsPage.actionSelect).eq(index).click({ force: true });
-  cy.selectOnClickOption("Open modal");
-  cy.get(modalWidgetPage.selectModal).click();
-  cy.wait(2000);
-  cy.get(modalWidgetPage.createModalButton).click({ force: true });
-  cy.wait(3000);
-  cy.assertPageSave();
-  // changing the model name verify
-  // cy.widgetText(
-  //   ModalName,
-  //   modalWidgetPage.modalName,
-  //   modalWidgetPage.modalName,
-  // );
-
-  //cy.wait(20000);
-  //changing the Model label
-  // cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
-  //   .first()
-  //   .trigger("mouseover");
-
-  ee.SelectEntityInModal("Modal1", "Widgets");
-
-  //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
-  cy.testCodeMirror(ModalName);
-  cy.moveToStyleTab();
-  cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
-  cy.assertPageSave();
-  cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
 
 Cypress.Commands.add("selectOnClickOption", (option) => {
@@ -960,18 +929,14 @@ Cypress.Commands.add("DeleteModal", () => {
 });
 
 Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
-  let pageId;
   cy.CreatePage();
   cy.wait("@createPage").then((xhr) => {
     expect(xhr.response.body.responseMeta.status).to.equal(201);
     if (pageName) {
-      pageId = xhr.response.body.data.id;
+      const pageId = xhr.response.body.data.id;
+      const oldPageName = xhr.response.body.data.name;
       cy.wait(2000);
-      cy.get(`div[id=entity-${pageId}] .t--context-menu`).click({
-        force: true,
-      });
-      cy.get(pages.editName).click({ force: true });
-      cy.get(pages.editInput).type(pageName + "{enter}");
+      ee.RenameEntityFromExplorer(oldPageName, pageName, true);
       cy.wrap(pageId).as("currentPageId");
     }
     cy.get("#loading").should("not.exist");
@@ -1147,21 +1112,14 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
-  if (widgetType === "List1Copy") {
-    cy.SearchEntityandOpen(widgetType);
-  } else {
-    const selector = `.t--draggable-${widgetType}`;
-    cy.get(selector).last().trigger("mouseover", { force: true }).wait(500);
-    cy.get(`${selector}:first-of-type`)
-      .first()
-      .click({ force: true })
-      .wait(500);
-    cy.get(".t--widget-propertypane-toggle > .t--widget-name")
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-  }
+  const selector = `.t--draggable-${widgetType}`;
+  cy.get(selector).last().trigger("mouseover", { force: true }).wait(500);
+  cy.get(`${selector}:first-of-type`).first().click({ force: true }).wait(500);
+  cy.get(".t--widget-propertypane-toggle > .t--widget-name")
+    .first()
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
 });
 
 Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {

@@ -1,4 +1,4 @@
-import { get, isEmpty, merge, set } from "lodash";
+import { get, isEmpty, set } from "lodash";
 import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
@@ -297,22 +297,12 @@ export function getJSEntities(dataTree: DataTree) {
   return jsCollections;
 }
 
-export function updateEvalTreeWithJSCollectionState(
-  evalTree: DataTree,
-  oldUnEvalTree: DataTree,
-) {
+export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
   // loop through jsCollectionState and set all values to evalTree
   const jsCollections = JSObjectCollection.getVariableState();
   const jsCollectionEntries = Object.entries(jsCollections);
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
-    if (!evalTree[jsObjectName]) {
-      evalTree[jsObjectName] = merge(
-        {},
-        oldUnEvalTree[jsObjectName],
-        variableState,
-      );
-      continue;
-    }
+    if (!evalTree[jsObjectName]) continue;
     evalTree[jsObjectName] = Object.assign(
       evalTree[jsObjectName],
       variableState,

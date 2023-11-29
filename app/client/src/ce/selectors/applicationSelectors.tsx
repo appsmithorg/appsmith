@@ -8,6 +8,7 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import Fuse from "fuse.js";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
+import { getApplicationsOfWorkspace } from "./selectedWorkspaceSelectors";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name", "packages.name"],
@@ -31,7 +32,8 @@ const fuzzySearchOptions = {
  *    workspace: {},
  *    applications: [],
  *    users:[],
- *    packages: []
+ *    packages: [],
+ *    workflows: [],
  *  }
  */
 
@@ -207,3 +209,14 @@ export const getPartialImportExportLoadingState = (state: AppState) =>
 export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
   return state.ui.applications.currentPluginIdForCreateNewApp;
 };
+
+export const getApplicationByIdFromWorkspaces = createSelector(
+  getApplicationsOfWorkspace,
+  (_: AppState, applicationId: string) => applicationId,
+  (applications, applicationId) => {
+    const application: ApplicationPayload | undefined = applications.find(
+      (app) => app.id === applicationId,
+    );
+    return application;
+  },
+);

@@ -31,6 +31,8 @@ export interface AppsmithUIConfigs {
     applicationId: string;
     browserAgentlicenseKey: string;
     otlpLicenseKey: string;
+    otlpServiceName: string;
+    otlpEndpoint: string;
   };
   segment: {
     enabled: boolean;

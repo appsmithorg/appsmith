@@ -19,7 +19,7 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
@@ -52,7 +52,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
     private final UpdateLayoutService updateLayoutService;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringService refactoringService;
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
@@ -96,7 +96,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     CreatorContextType contextType =
                             collection.getContextType() == null ? CreatorContextType.PAGE : collection.getContextType();
                     // Check against widget names and action names
-                    return refactoringSolution.isNameAllowed(
+                    return refactoringService.isNameAllowed(
                             page.getId(), contextType, layout.getId(), collection.getName());
                 })
                 .flatMap(isNameAllowed -> {
@@ -231,7 +231,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                                         actionDTOList,
                                                         false));
                             })
-                            .flatMap(updatedCollection -> layoutActionService
+                            .flatMap(updatedCollection -> updateLayoutService
                                     .updatePageLayoutsByPageId(updatedCollection.getPageId())
                                     .thenReturn(updatedCollection));
                 });
@@ -578,7 +578,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject)
-                .flatMap(savedActionCollection -> layoutActionService
+                .flatMap(savedActionCollection -> updateLayoutService
                         .updatePageLayoutsByPageId(
                                 savedActionCollection.getUnpublishedCollection().getPageId())
                         .thenReturn(savedActionCollection))

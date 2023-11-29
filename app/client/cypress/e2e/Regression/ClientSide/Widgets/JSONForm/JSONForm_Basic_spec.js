@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -68,7 +72,7 @@ describe("JsonForm widget basis c usecases", function () {
   });
 
   it("Validate copy/paste/delete widget ", function () {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //copy and paste
     cy.openPropertyPane("jsonformwidget");

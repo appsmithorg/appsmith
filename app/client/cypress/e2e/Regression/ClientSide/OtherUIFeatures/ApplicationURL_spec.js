@@ -42,13 +42,7 @@ describe("Slug URLs", () => {
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
       });
     });
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Page1",
-      action: "Edit name",
-    });
-    cy.get(explorer.editEntity)
-      .last()
-      .type("Renamed" + "{enter}", { force: true });
+    entityExplorer.RenameEntityFromExplorer("Page1", "Renamed");
     agHelper.Sleep(2000); //for new name to settle & url to update
     assertHelper.AssertNetworkStatus("updatePage");
     // cy.location("pathname").then((pathname) => {

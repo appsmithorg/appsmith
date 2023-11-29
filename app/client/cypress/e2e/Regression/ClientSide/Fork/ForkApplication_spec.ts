@@ -5,16 +5,17 @@ import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import homepagelocators from "../../../../locators/HomePage";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
-  appSettings,
-  entityExplorer,
-  deployMode,
   agHelper,
-  fakerHelper,
-  inviteModal,
+  appSettings,
+  deployMode,
   embedSettings,
+  fakerHelper,
   homePage,
-  locators,
+  inviteModal,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
@@ -27,7 +28,7 @@ describe("Fork application across workspaces", function () {
 
   it("1. Check if the forked application has the same dsl as the original", function () {
     const appname = localStorage.getItem("workspaceName");
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
 
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
     cy.testJsontext("defaultvalue", "A");

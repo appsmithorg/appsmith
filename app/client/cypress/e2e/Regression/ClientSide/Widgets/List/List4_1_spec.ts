@@ -1,12 +1,16 @@
 import {
-  entityExplorer,
   agHelper,
-  locators,
-  propPane,
   deployMode,
   draggableWidgets,
+  locators,
+  propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const dsl = require("../../../../../fixtures/listdsl.json");
 
 describe("List Widget Functionality", function () {
@@ -18,7 +22,7 @@ describe("List Widget Functionality", function () {
 
   it("1. Validate Visibility via Toggle", function () {
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     //Uncheck the disabled checkbox and validate
     propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
@@ -28,7 +32,7 @@ describe("List Widget Functionality", function () {
     deployMode.NavigateBacktoEditor();
     // List-Check Visible field Validation
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     //Check the disableed checkbox and Validate
     propPane.TogglePropertyState("Visible", "On");
     deployMode.DeployApp();
@@ -40,7 +44,7 @@ describe("List Widget Functionality", function () {
 
   it("2. Validate Visibility via JS Mode", function () {
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     //Uncheck the disabled checkbox using JS and validate
     propPane.EnterJSContext("Visible", "false");
     deployMode.DeployApp();
@@ -50,7 +54,7 @@ describe("List Widget Functionality", function () {
     deployMode.NavigateBacktoEditor();
     //Toggle JS - List-Check Visible field Validation
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     //Check the disabled checkbox using JS and Validate
     propPane.EnterJSContext("Visible", "true");
     deployMode.DeployApp();
@@ -68,9 +72,12 @@ describe("List Widget Functionality", function () {
     );
     //checks currentItem binding
     // Open property pane
-    entityExplorer.ExpandCollapseEntity("List1");
-    entityExplorer.ExpandCollapseEntity("Container1");
-    entityExplorer.SelectEntityByName("Text1");
+    PageLeftPane.expandCollapseItem("List1");
+    PageLeftPane.expandCollapseItem("Container1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+      "List1",
+      "Container1",
+    ]);
     propPane.UpdatePropertyFieldValue("Text", `{{currentItem.first_name}}`);
     // Verify Current Item Bindings
     agHelper.GetNAssertElementText(
@@ -89,7 +96,7 @@ describe("List Widget Functionality", function () {
 
   it("4. doesn't alter the no of items present when invalid item spacing is entered", () => {
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.MoveToTab("Style");
     // Update an invalid value to item spacing
     propPane.UpdatePropertyFieldValue("Item Spacing (px)", "-");
@@ -105,7 +112,7 @@ describe("List Widget Functionality", function () {
 
   it("5. checks button action", function () {
     // Open property pane
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Label", `{{currentItem.last_name}}`);
     propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.EnterActionValue("Message", "{{currentItem.last_name}}");
@@ -124,7 +131,7 @@ describe("List Widget Functionality", function () {
   it("6. it checks onListItem click action", function () {
     // Verify Clicking on list item shows message of first name
     deployMode.NavigateBacktoEditor(); // Open property pane
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     // Verify Action type and Message of List Item
     // Click on the onListItemClick action dropdown.
@@ -178,7 +185,7 @@ describe("List Widget Functionality", function () {
 
   it("9. List widget background colour and deploy ", function () {
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.MoveToTab("Style");
     // Scroll down to Styles and Add background colour
     propPane.SelectColorFromColorPicker("backgroundcolor", -15);
@@ -203,7 +210,7 @@ describe("List Widget Functionality", function () {
 
   it("10. Toggle JS - List widget background colour and deploy ", function () {
     // Open Property pane
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.MoveToTab("Style");
     // Scroll down to Styles and Add background colour
     propPane.EnterJSContext("Background color", "#FFC13D");
