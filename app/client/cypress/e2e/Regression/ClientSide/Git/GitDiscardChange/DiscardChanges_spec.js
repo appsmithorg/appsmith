@@ -12,6 +12,8 @@ import {
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Git discard changes:", function () {
@@ -52,7 +54,7 @@ describe("Git discard changes:", function () {
       "Default value",
       `{{JSObject1.myFun1()}}`,
     );
-    entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     // connect app to git
     gitSync.CreateNConnectToGit();
     gitSync.CreateGitBranch();

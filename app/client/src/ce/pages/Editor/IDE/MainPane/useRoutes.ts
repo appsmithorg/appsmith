@@ -15,6 +15,7 @@ import {
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
+  QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
@@ -39,6 +40,8 @@ import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
 import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
+import { JSBlankState } from "../../../../../pages/Editor/JSEditor/JSBlankState";
+import { QueriesBlankState } from "../../../../../pages/Editor/QueryEditor/QueriesBlankState";
 
 export interface RouteReturnType extends RouteProps {
   key: string;
@@ -88,14 +91,20 @@ function useRoutes(path: string): RouteReturnType[] {
       path: `${path}${API_EDITOR_ID_PATH}`,
     },
     {
+      key: "QueryEditorList",
+      component: QueriesBlankState,
+      exact: true,
+      path: `${path}${QUERIES_EDITOR_BASE_PATH}`,
+    },
+    {
       key: "QueryEditor",
       component: QueryEditor,
       exact: true,
       path: `${path}${QUERIES_EDITOR_ID_PATH}`,
     },
     {
-      key: "JSEditor Collection",
-      component: JSEditor,
+      key: "JSEditorList",
+      component: JSBlankState,
       exact: true,
       path: `${path}${JS_COLLECTION_EDITOR_PATH}`,
     },

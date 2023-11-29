@@ -1,57 +1,63 @@
 import {
-  getTemplateFilters,
-  importTemplateIntoApplicationViaOnboardingFlow,
-} from "actions/templateActions";
-import type { Template } from "api/TemplatesApi";
-import type { AppState } from "@appsmith/reducers";
-import { TemplatesContent } from "pages/Templates";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  allTemplatesFiltersSelector,
-  getForkableWorkspaces,
-  getTemplatesSelector,
-  isImportingTemplateToAppSelector,
-} from "selectors/templatesSelectors";
-import styled from "styled-components";
-import { getAllTemplates } from "actions/templateActions";
-import { Flex, Link, Text } from "design-system";
-import {
   CREATE_NEW_APPS_STEP_SUBTITLE,
   CREATE_NEW_APPS_STEP_TITLE,
   GO_BACK,
+  SKIP_START_WITH_USE_CASE_TEMPLATES,
   START_FROM_SCRATCH_SUBTITLE,
   START_FROM_SCRATCH_TITLE,
   START_FROM_TEMPLATE_SUBTITLE,
   START_FROM_TEMPLATE_TITLE,
-  START_WITH_DATA_TITLE,
-  START_WITH_DATA_SUBTITLE,
-  createMessage,
   START_WITH_DATA_CONNECT_HEADING,
   START_WITH_DATA_CONNECT_SUBHEADING,
-  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
+  START_WITH_DATA_SUBTITLE,
+  START_WITH_DATA_TITLE,
   START_WITH_TEMPLATE_CONNECT_HEADING,
+  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
+  createMessage,
 } from "@appsmith/constants/messages";
-import Filters from "pages/Templates/Filters";
-import { isEmpty } from "lodash";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { TemplateView } from "pages/Templates/TemplateView";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import type { AppState } from "@appsmith/reducers";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentPluginIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import {
   firstTimeUserOnboardingInit,
   resetCurrentApplicationIdForCreateNewApp,
   resetCurrentPluginIdForCreateNewApp,
 } from "actions/onboardingActions";
-import {
-  getApplicationByIdFromWorkspaces,
-  getCurrentPluginIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { fetchPlugins } from "actions/pluginActions";
+import {
+  getAllTemplates,
+  getTemplateFilters,
+  importTemplateIntoApplicationViaOnboardingFlow,
+} from "actions/templateActions";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { Flex, Link, Text } from "design-system";
+import { isEmpty } from "lodash";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import { TemplateView } from "pages/Templates/TemplateView";
+import StartWithTemplates from "pages/Templates/StartWithTemplates";
+import { default as React, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  allTemplatesFiltersSelector,
+  getTemplatesSelector,
+  isImportingTemplateToAppSelector,
+} from "selectors/templatesSelectors";
+import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import history from "utils/history";
+import { builderURL } from "@appsmith/RouteBuilder";
+import localStorage from "utils/localStorage";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
+import type { Plugin } from "api/PluginApi";
+import { PluginType } from "entities/Action";
+import DataSourceEditor from "pages/Editor/DataSourceEditor";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -68,6 +74,8 @@ const SectionWrapper = styled.div`
 
 const BackWrapper = styled.div<{ hidden?: boolean }>`
   position: sticky;
+  display: flex;
+  justify-content: space-between;
   ${(props) => `
     top: ${props.theme.homePage.header}px;
     `}
@@ -78,27 +86,10 @@ const BackWrapper = styled.div<{ hidden?: boolean }>`
   ${(props) => `${props.hidden && "visibility: hidden; opacity: 0;"}`}
 `;
 
-const FiltersWrapper = styled.div`
-  width: ${(props) => props.theme.homePage.sidebar}px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--ads-v2-color-border);
-  flex-shrink: 0;
-  .filter-wrapper {
-    height: 100%;
-  }
-`;
-
 const TemplateWrapper = styled.div`
   display: flex;
   flex-grow: 1;
   overflow: hidden;
-`;
-
-const TemplateContentWrapper = styled.div`
-  flex-grow: 1;
-  overflow: auto;
 `;
 
 const OptionWrapper = styled.div`
@@ -139,6 +130,8 @@ const CardContainer = styled.div`
 const WithDataWrapper = styled.div`
   background: var(--ads-v2-color-bg);
   padding: var(--ads-v2-spaces-13);
+  border: 1px solid var(--ads-v2-color-gray-300);
+  border-radius: 5px;
 `;
 
 const Header = ({ subtitle, title }: { subtitle: string; title: string }) => {
@@ -191,10 +184,13 @@ const CreateNewAppsOption = ({
     (state: AppState) => state.ui.templates.templates.length,
   );
   const filters = useSelector(allTemplatesFiltersSelector);
-  const workspaceList = useSelector(getForkableWorkspaces);
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
+  const selectedPlugin: Plugin | undefined = useSelector((state) =>
+    getPlugin(state, createNewAppPluginId || ""),
+  );
+
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(
       state,
@@ -232,10 +228,26 @@ const CreateNewAppsOption = ({
   };
 
   const onClickStartWithData = () => {
-    // fetch plugins information to show list of all plugins
-    if (isEnabledForStartWithData) {
-      dispatch(fetchPlugins());
-      setUseType(START_WITH_TYPE.DATA);
+    const devEnabled = localStorage.getItem(
+      "ab_onboarding_flow_start_with_data_dev_only_enabled",
+    );
+    if (devEnabled) {
+      // fetch plugins information to show list of all plugins
+      if (isEnabledForStartWithData) {
+        dispatch(fetchPlugins());
+        setUseType(START_WITH_TYPE.DATA);
+      }
+    } else {
+      if (application) {
+        AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
+        dispatch(
+          firstTimeUserOnboardingInit(
+            application.id,
+            application.defaultPageId as string,
+            "datasources/NEW",
+          ),
+        );
+      }
     }
   };
 
@@ -246,18 +258,6 @@ const CreateNewAppsOption = ({
   const getTemplateById = (id: string) => {
     const template = allTemplates.find((template) => template.id === id);
     return template;
-  };
-
-  const onTemplateClick = (id: string) => {
-    const template = getTemplateById(id);
-    if (template) {
-      AnalyticsUtil.logEvent("CLICK_ON_TEMPLATE_CARD_WHEN_ONBOARDING", {
-        id,
-        title: template.title,
-      });
-      // When template is clicked to view the template details
-      if (!isImportingTemplate) setSelectedTemplate(id);
-    }
   };
 
   const resetCreateNewAppFlow = () => {
@@ -285,21 +285,30 @@ const CreateNewAppsOption = ({
     }
   };
 
-  const onForkTemplateClick = (template: Template) => {
-    const title = template.title;
-    AnalyticsUtil.logEvent("FORK_TEMPLATE_WHEN_ONBOARDING", { title });
-    // When fork template is clicked to add a new app using the template
-    if (!isImportingTemplate && application) {
-      dispatch(
-        importTemplateIntoApplicationViaOnboardingFlow(
-          template.id,
-          template.title,
-          template.pages.map((p) => p.name),
-          application.id,
-          application.workspaceId,
-        ),
+  const onClickSkipButton = () => {
+    if (application) {
+      urlBuilder.updateURLParams(
+        {
+          applicationSlug: application.slug,
+          applicationVersion: application.applicationVersion,
+          applicationId: application.id,
+        },
+        application.pages.map((page) => ({
+          pageSlug: page.slug,
+          customSlug: page.customSlug,
+          pageId: page.id,
+        })),
+      );
+      history.push(
+        builderURL({
+          pageId: application.pages[0].id,
+        }),
       );
     }
+
+    AnalyticsUtil.logEvent("START_FROM_TEMPLATES_CLICK_SKIP_BUTTON", {
+      startWithType: useType,
+    });
   };
 
   const onClickBackButton = () => {
@@ -406,6 +415,15 @@ const CreateNewAppsOption = ({
         >
           {createMessage(GO_BACK)}
         </Link>
+
+        <Link
+          className="t--create-new-app-option-skip"
+          data-testid="t--create-new-app-option-skip"
+          endIcon="arrow-right-line"
+          onClick={onClickSkipButton}
+        >
+          {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
+        </Link>
       </BackWrapper>
       {useType === START_WITH_TYPE.TEMPLATE ? (
         selectedTemplate ? (
@@ -422,41 +440,37 @@ const CreateNewAppsOption = ({
               title={createMessage(START_WITH_TEMPLATE_CONNECT_HEADING)}
             />
             <TemplateWrapper>
-              <FiltersWrapper>
-                <Filters />
-              </FiltersWrapper>
-              <TemplateContentWrapper>
-                <TemplatesContent
-                  isForkingEnabled={!!workspaceList.length}
-                  onForkTemplateClick={onForkTemplateClick}
-                  onTemplateClick={onTemplateClick}
-                />
-              </TemplateContentWrapper>
+              <StartWithTemplates
+                currentApplicationIdForCreateNewApp={
+                  currentApplicationIdForCreateNewApp
+                }
+                setSelectedTemplate={setSelectedTemplate}
+              />
             </TemplateWrapper>
           </Flex>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
-        createNewAppPluginId ? (
-          <div>{createNewAppPluginId}</div>
-        ) : (
-          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-            <Header
-              subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
-              title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
-            />
-            <WithDataWrapper>
-              <CreateNewDatasourceTab />
-            </WithDataWrapper>
-          </Flex>
-        )
-      ) : useType === START_WITH_TYPE.DATA ? (
-        createNewAppPluginId ? (
-          <div>{createNewAppPluginId}</div>
-        ) : (
+        <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+          <Header
+            subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+            title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+          />
           <WithDataWrapper>
-            <CreateNewDatasourceTab />
+            {createNewAppPluginId ? (
+              selectedPlugin?.type === PluginType.SAAS ? (
+                <div>Load Gsheets</div>
+              ) : (
+                <DataSourceEditor
+                  applicationId={currentApplicationIdForCreateNewApp}
+                  datasourceId={TEMP_DATASOURCE_ID}
+                  pageId={application?.defaultPageId}
+                />
+              )
+            ) : (
+              <CreateNewDatasourceTab />
+            )}
           </WithDataWrapper>
-        )
+        </Flex>
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">
