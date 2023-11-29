@@ -1,6 +1,7 @@
 import * as fs from "fs"
 import {dirname} from "path"
 import {spawnSync} from "child_process"
+import {X509Certificate} from "crypto"
 
 const APPSMITH_CUSTOM_DOMAIN = process.env.APPSMITH_CUSTOM_DOMAIN ?? null
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
@@ -16,7 +17,7 @@ if (APPSMITH_CUSTOM_DOMAIN != null) {
     const fullChainPath = letsEncryptCertLocation + `/fullchain.pem`
     try {
       fs.accessSync(fullChainPath, fs.constants.R_OK)
-      // cert file exists, now check if it's expired.
+      console.log("Old Let's Encrypt cert file exists, now checking if it's expired.")
       if (!isCertExpired(fullChainPath)) {
         certLocation = letsEncryptCertLocation
       }
@@ -126,7 +127,7 @@ spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
 spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
 
 function isCertExpired(path) {
-  const {X509Certificate} = require("crypto")
   const cert = new X509Certificate(fs.readFileSync(path, "utf-8"))
+  console.log(path, cert)
   return new Date(cert.validTo) < new Date()
 }
