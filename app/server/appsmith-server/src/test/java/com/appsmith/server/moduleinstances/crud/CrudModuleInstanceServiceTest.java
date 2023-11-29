@@ -71,10 +71,6 @@ public class CrudModuleInstanceServiceTest {
     @Autowired
     CrudPackageService crudPackageService;
 
-    ModuleInstanceTestHelper moduleInstanceTestHelper;
-
-    ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO;
-
     @Autowired
     PublishPackageService publishPackageService;
 
@@ -107,6 +103,10 @@ public class CrudModuleInstanceServiceTest {
 
     @SpyBean
     PluginService pluginService;
+
+    ModuleInstanceTestHelper moduleInstanceTestHelper;
+
+    ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO;
 
     @BeforeEach
     public void setup() {

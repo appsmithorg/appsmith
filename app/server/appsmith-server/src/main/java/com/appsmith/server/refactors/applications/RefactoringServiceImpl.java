@@ -100,8 +100,8 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
                 .getComposedModuleInstances(refactorEntityNameDTO)
                 .flatMap(moduleInstance -> getModuleInstanceRefactorEntityNameDTOMono(
                         refactorEntityNameDTO, regexPattern, moduleInstance));
-        // TODO: Leaving this for later when custom js libs is clearer
-        // Flux<CustomJSLib> composedCustomJSLibs = compositeEntityRefactoringService.getComposedCustomJSLibs();
+        // We do not need to refactor JS libs because they have been refactored with package name prefix,
+        // which is irrelevant for us
 
         // Call normal refactor for all children as well
         Flux<RefactorEntityNameDTO> entityNameDTOFlux = Flux.merge(

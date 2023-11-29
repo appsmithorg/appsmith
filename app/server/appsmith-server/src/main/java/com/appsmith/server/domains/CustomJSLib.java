@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.domains.ce.CustomJSLibCE;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,6 +18,12 @@ import java.util.Set;
 @NoArgsConstructor
 @Document
 public class CustomJSLib extends CustomJSLibCE {
+
+    /* Fields to be associated with libraries that have been instantiated in a context */
+    String contextId;
+    CreatorContextType contextType;
+    String sourcePackageId;
+    Boolean isHidden;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public CustomJSLib(

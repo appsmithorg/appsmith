@@ -9,7 +9,6 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.EntityType;
@@ -203,11 +202,6 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
                 CreatorContextType.PAGE, // Since refactor is only for pages for now
                 refactorEntityNameDTO.getModuleInstanceId(),
                 moduleInstancePermission.getEditPermission());
-    }
-
-    @Override
-    public Flux<CustomJSLib> getComposedCustomJSLibs(RefactorEntityNameDTO refactorEntityNameDTO) {
-        return Flux.empty();
     }
 
     @Override
