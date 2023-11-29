@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
@@ -153,14 +154,19 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
         service.sanitizeRefactorEntityDTO(refactorEntityNameDTO);
 
         // Validate whether this name is allowed based on the type of entity
-        Mono<Boolean> isValidNameMono = Mono.just(entityValidationService.validateName(
-                        refactorEntityNameDTO.getNewName(), refactorEntityNameDTO.getIsInternal()))
-                .flatMap(isValid -> {
-                    if (!isValid) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
-                    }
-                    return Mono.just(true);
-                });
+        Mono<Boolean> isValidNameMono;
+        if (EntityType.WIDGET.equals(refactorEntityNameDTO.getEntityType())) {
+            isValidNameMono = Mono.just(Boolean.TRUE);
+        } else {
+            isValidNameMono = Mono.just(entityValidationService.validateName(
+                            refactorEntityNameDTO.getNewName(), refactorEntityNameDTO.getIsInternal()))
+                    .flatMap(isValid -> {
+                        if (!isValid) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
+                        }
+                        return Mono.just(true);
+                    });
+        }
 
         Mono<String> pageIdMono = Mono.just(refactorEntityNameDTO.getPageId());
 
