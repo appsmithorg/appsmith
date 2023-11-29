@@ -433,7 +433,11 @@ function* endFirstTimeUserOnboardingSaga() {
 }
 
 function* firstTimeUserOnboardingInitSaga(
-  action: ReduxAction<{ applicationId: string; pageId: string }>,
+  action: ReduxAction<{
+    applicationId: string;
+    pageId: string;
+    suffix?: string;
+  }>,
 ) {
   yield call(setEnableStartSignposting, true);
   yield put({
@@ -443,6 +447,7 @@ function* firstTimeUserOnboardingInitSaga(
   history.replace(
     builderURL({
       pageId: action.payload.pageId,
+      suffix: action.payload.suffix || "",
     }),
   );
 

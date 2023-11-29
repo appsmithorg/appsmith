@@ -65,6 +65,11 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson-bom.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.0.1-jre</version>
+        </dependency>
 
         <!--
             Ideally this dependency should have been added with 'compile' scope here. But that is causing 'java.lang

@@ -10,7 +10,6 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.BasePlugin;
@@ -20,6 +19,8 @@ import com.external.plugins.commands.AnthropicCommand;
 import com.external.plugins.models.AnthropicRequestDTO;
 import com.external.plugins.utils.AnthropicMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -27,6 +28,7 @@ import org.json.JSONObject;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
@@ -35,6 +37,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.external.plugins.constants.AnthropicConstants.ANTHROPIC_MODELS;
@@ -51,14 +54,11 @@ public class AnthropicPlugin extends BasePlugin {
 
     public static class AnthropicPluginExecutor extends BaseRestApiPluginExecutor {
         private static final Gson gson = new Gson();
+        private static final Cache<String, TriggerResultDTO> triggerResponseCache =
+                CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
 
         protected AnthropicPluginExecutor(SharedConfig sharedConfig) {
             super(sharedConfig);
-        }
-
-        @Override
-        public Mono<DatasourceTestResult> testDatasource(APIConnection connection) {
-            return super.testDatasource(connection);
         }
 
         @Override
@@ -99,6 +99,14 @@ public class AnthropicPlugin extends BasePlugin {
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         actionExecutionResult.setStatusCode(statusCode.toString());
 
+                        /**
+                         * DownstreamErrorMessage
+                         * Caching
+                         * Test cases
+                         * Migrate to Use CS
+                         * Implement Test Configuration
+                         * Sort model order
+                         */
                         if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
                             actionExecutionResult.setIsExecutionSuccess(false);
                             String errorMessage = "";
@@ -163,10 +171,20 @@ public class AnthropicPlugin extends BasePlugin {
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
             assert apiKeyAuth.getValue() != null;
+            if (!StringUtils.hasText(request.getRequestType())) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "request type is missing");
+            }
+            String requestType = request.getRequestType();
 
             AnthropicCommand anthropicCommand = AnthropicMethodStrategy.selectTriggerMethod(request, gson);
             HttpMethod httpMethod = anthropicCommand.getTriggerHTTPMethod();
             URI uri = anthropicCommand.createTriggerUri();
+
+            TriggerResultDTO triggerResultDTO = triggerResponseCache.getIfPresent(requestType);
+            if (triggerResultDTO != null) {
+                return Mono.just(triggerResultDTO);
+            }
             return RequestUtils.makeRequest(httpMethod, uri, apiKeyAuth, BodyInserters.empty())
                     .flatMap(responseEntity -> {
                         if (responseEntity.getStatusCode().is4xxClientError()) {
@@ -195,11 +213,16 @@ public class AnthropicPlugin extends BasePlugin {
                         log.debug("Error while fetching Anthropic models list", error);
                         return Mono.just(getDataToMap(ANTHROPIC_MODELS));
                     })
-                    .map(TriggerResultDTO::new);
+                    .map(trigger -> {
+                        TriggerResultDTO triggerResult = new TriggerResultDTO(trigger);
+                        // saving response on request type
+                        triggerResponseCache.put(requestType, triggerResult);
+                        return triggerResult;
+                    });
         }
 
         private List<Map<String, String>> getDataToMap(List<String> data) {
-            return data.stream().map(x -> Map.of(LABEL, x, VALUE, x)).collect(Collectors.toList());
+            return data.stream().sorted().map(x -> Map.of(LABEL, x, VALUE, x)).collect(Collectors.toList());
         }
     }
 }
