@@ -1,14 +1,38 @@
 import { RenderModes } from "constants/WidgetConstants";
-import type { LayoutComponentProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { SectionSpaceDistributor } from "layoutSystems/anvil/sectionSpaceDistributor/SectionSpaceDistributor";
+import type {
+  LayoutComponentProps,
+  WidgetLayoutProps,
+} from "layoutSystems/anvil/utils/anvilTypes";
 import React from "react";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import WidgetRow from "./WidgetRow";
 
+class SectionWidgetRow extends WidgetRow {
+  renderSectionSpaceDistributor() {
+    return (
+      <SectionSpaceDistributor
+        sectionId={this.props.layoutId}
+        zones={this.props.layout as WidgetLayoutProps[]}
+      />
+    );
+  }
+  renderDraggingArena(): React.ReactNode {
+    return (
+      <>
+        {super.renderDraggingArena()}
+        {this.renderSectionSpaceDistributor()}
+      </>
+    );
+  }
+}
+
 export const SectionRow = (props: LayoutComponentProps) => {
   const isPreviewMode = useSelector(previewModeSelector);
+
   return (
-    <WidgetRow
+    <SectionWidgetRow
       {...props}
       layoutStyle={{
         ...(props.layoutStyle || {}),
