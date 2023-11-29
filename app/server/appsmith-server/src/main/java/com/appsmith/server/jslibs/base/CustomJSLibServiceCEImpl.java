@@ -1,6 +1,5 @@
 package com.appsmith.server.jslibs.base;
 
-import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
@@ -137,8 +136,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
             String applicationId, String branchName, boolean isViewMode) {
         return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, isViewMode)
                 .map(this::filterAndMapGlobalUidStrings)
-                .flatMapMany(uidStrings ->
-                        repository.findCustomJsLibsInContext(uidStrings, applicationId, CreatorContextType.APPLICATION))
+                .flatMapMany(uidStrings -> repository.findCustomJsLibsInContext(uidStrings, null, null))
                 .collectList()
                 .map(jsLibList -> {
                     Collections.sort(jsLibList, Comparator.comparing(CustomJSLib::getUidString));
