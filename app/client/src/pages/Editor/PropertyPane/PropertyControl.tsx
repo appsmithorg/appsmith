@@ -802,67 +802,86 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <div className="flex items-center gap-1">
-            <PropertyHelpLabel
-              label={label}
-              theme={props.theme}
-              tooltip={helpText}
-            />
-            {isConvertible && (
-              <Tooltip content={JSToggleTooltip} isDisabled={!JSToggleTooltip}>
-                <span>
-                  <ToggleButton
-                    className={classNames({
-                      "t--js-toggle": true,
-                      "is-active": isDynamic,
-                      "!h-[20px]": experimentalJSToggle,
-                    })}
-                    icon="js-toggle-v2"
-                    isDisabled={isToggleDisabled}
-                    isSelected={isDynamic}
-                    onClick={() =>
-                      toggleDynamicProperty(
-                        propertyName,
-                        isDynamic,
-                        controlMethods?.shouldValidateValueOnDynamicPropertyOff(
-                          config,
-                          propertyValue,
-                        ),
-                      )
-                    }
-                    size={experimentalJSToggle ? "md" : "sm"}
-                  />
-                </span>
-              </Tooltip>
+          <div
+            className={classNames(
+              "flex w-full flex-grow items-center",
+              isDynamic && "mb-[2px]",
             )}
-            {isPropertyDeviatedFromTheme && (
-              <>
-                <Tooltip content="Value deviated from theme">
-                  <StyledDeviated className="w-2 h-2 rounded-full" />
-                </Tooltip>
-                <button
-                  className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
-                  onClick={resetPropertyValueToTheme}
-                >
-                  <Tooltip content="Reset value" placement="topRight">
-                    <ResetIcon className="w-5 h-5" />
-                  </Tooltip>
-                </button>
-              </>
-            )}
-            {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
-              <Button
-                className={clsx(
-                  `${config.label}`,
-                  "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
-                  `t--add-action-${config.label}`,
-                )}
-                isIconButton
-                kind="tertiary"
-                onClick={() => setShowEmptyBlock(true)}
-                startIcon="plus"
+          >
+            <div className="flex items-center gap-1 flex-grow justify-start">
+              <PropertyHelpLabel
+                htmlFor={`js-toggle-${propertyName}`}
+                label={label}
+                theme={props.theme}
+                tooltip={helpText}
               />
-            )}
+              {isPropertyDeviatedFromTheme && (
+                <>
+                  <Tooltip content="Value deviated from theme">
+                    <StyledDeviated className="w-2 h-2 rounded-full" />
+                  </Tooltip>
+                  <button
+                    className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
+                    onClick={resetPropertyValueToTheme}
+                  >
+                    <Tooltip content="Reset value" placement="topRight">
+                      <ResetIcon className="w-5 h-5" />
+                    </Tooltip>
+                  </button>
+                </>
+              )}
+            </div>
+            <div
+              className={classNames(
+                "flex items-center gap-1 !h-[20px] [&>span]:!h-[20px]",
+                config.controlType === "SWITCH" && !isDynamic && "mr-1",
+              )}
+            >
+              {isConvertible && (
+                <Tooltip
+                  content={JSToggleTooltip}
+                  isDisabled={!JSToggleTooltip}
+                >
+                  <span>
+                    <ToggleButton
+                      className={classNames({
+                        "t--js-toggle": true,
+                        "is-active": isDynamic,
+                        "!h-[20px]": experimentalJSToggle,
+                      })}
+                      icon="js-toggle-v2"
+                      id={`js-toggle-${propertyName}`}
+                      isDisabled={isToggleDisabled}
+                      isSelected={isDynamic}
+                      onClick={() =>
+                        toggleDynamicProperty(
+                          propertyName,
+                          isDynamic,
+                          controlMethods?.shouldValidateValueOnDynamicPropertyOff(
+                            config,
+                            propertyValue,
+                          ),
+                        )
+                      }
+                      size={experimentalJSToggle ? "md" : "sm"}
+                    />
+                  </span>
+                </Tooltip>
+              )}
+              {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
+                <Button
+                  className={clsx(
+                    `${config.label}`,
+                    "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
+                    `t--add-action-${config.label}`,
+                  )}
+                  isIconButton
+                  kind="tertiary"
+                  onClick={() => setShowEmptyBlock(true)}
+                  startIcon="plus"
+                />
+              )}
+            </div>
           </div>
           {PropertyControlFactory.createControl(
             config,
