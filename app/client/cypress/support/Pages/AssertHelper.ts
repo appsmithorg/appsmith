@@ -74,7 +74,7 @@ export class AssertHelper extends ReusableHelper {
 
     cy.waitUntil(
       () => {
-        return cy.window().then((window) => {
+        cy.window().then((window) => {
           const result = window.cypressSpy(type);
           expect(result).to.eq(type);
 
