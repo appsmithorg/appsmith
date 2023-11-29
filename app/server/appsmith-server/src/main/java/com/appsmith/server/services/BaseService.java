@@ -12,6 +12,8 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -179,5 +181,17 @@ public abstract class BaseService<
     @Override
     public Map<String, Object> getAnalyticsProperties(T savedResource) {
         return null;
+    }
+
+    public Flux<T> filterByFields(
+            List<String> fields, String searchString, Pageable pageable, Sort sort, AclPermission permission) {
+        List<Criteria> criteriaList = fields.stream()
+                .map(fieldName -> Criteria.where(fieldName).regex(".*" + searchString + ".*", "i"))
+                .toList();
+        Criteria criteria = new Criteria().orOperator(criteriaList);
+        return repository
+                .queryAll(List.of(criteria), permission, sort)
+                .skip(pageable.getOffset())
+                .take(pageable.getPageSize());
     }
 }
