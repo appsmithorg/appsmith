@@ -12,7 +12,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -28,15 +29,13 @@ describe("UUID Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Pages);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
-    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeTheme("Earth");
   });
 
   it("1. Creating supporting api's for generating random UUID's", () => {
-    entityExplorer.NavigateToSwitcher("Explorer");
     cy.fixture("datasources").then((datasourceFormData) => {
       apiPage.CreateAndFillApi(datasourceFormData.uuid1Api, "version1");
       apiPage.CreateAndFillApi(datasourceFormData.uuid4Api, "version4");

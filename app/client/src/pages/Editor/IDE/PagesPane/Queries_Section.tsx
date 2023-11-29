@@ -3,10 +3,7 @@ import { useSelector } from "react-redux";
 import { Flex, Text } from "design-system";
 import styled from "styled-components";
 
-import {
-  getCurrentPageId,
-  selectFilesForExplorer,
-} from "@appsmith/selectors/entitiesSelector";
+import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
 
@@ -23,7 +20,6 @@ const QueriesContainer = styled(Flex)`
 const QueriesSection = () => {
   const files = useSelector(selectFilesForExplorer);
   const activeActionId = useActiveAction();
-  const pageId = useSelector(getCurrentPageId);
 
   return (
     <QueriesContainer
@@ -49,7 +45,6 @@ const QueriesSection = () => {
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
-              parentEntityId={pageId}
               searchKeyword={""}
               step={2}
               type={type}
