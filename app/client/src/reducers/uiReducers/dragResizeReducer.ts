@@ -1,6 +1,7 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
 
@@ -16,6 +17,9 @@ const initialState: WidgetDragResizeState = {
   selectedWidgetAncestry: [],
   entityExplorerAncestry: [],
   isAutoCanvasResizing: false,
+
+  //space distributor redux
+  isDistributingSpace: false,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -108,6 +112,18 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.entityExplorerAncestry = action.payload;
   },
+
+  //space distribution redux
+  [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START]: (
+    state: WidgetDragResizeState,
+  ) => {
+    state.isDistributingSpace = true;
+  },
+  [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP]: (
+    state: WidgetDragResizeState,
+  ) => {
+    state.isDistributingSpace = false;
+  },
 });
 
 export interface DraggingGroupCenter {
@@ -135,6 +151,9 @@ export interface WidgetDragResizeState {
   entityExplorerAncestry: string[];
   selectedWidgets: string[];
   isAutoCanvasResizing: boolean;
+
+  //space distribution redux
+  isDistributingSpace: boolean;
 }
 
 export default widgetDraggingReducer;

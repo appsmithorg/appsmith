@@ -76,6 +76,11 @@ function DraggableComponent(props: DraggableComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
 
+  // This state tells us whether a `ResizableComponent` is resizing
+  const isDistributingSpace = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDistributingSpace,
+  );
+
   // This state tells us whether a `DraggableComponent` is dragging
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
@@ -100,6 +105,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     focusWidget &&
       !isResizingOrDragging &&
       !isFocused &&
+      !isDistributingSpace &&
       !props.resizeDisabled &&
       !isPreviewMode &&
       focusWidget(props.widgetId);
