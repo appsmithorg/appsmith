@@ -1,22 +1,14 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import { Flex, Text } from "design-system";
 import styled from "styled-components";
 
-import { getPagePermissions } from "selectors/editorSelectors";
-import { selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
+import {
+  getCurrentPageId,
+  selectFilesForExplorer,
+} from "@appsmith/selectors/entitiesSelector";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
-import { EmptyComponent } from "pages/Editor/Explorer/common";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import {
-  createMessage,
-  EMPTY_QUERY_JS_BUTTON_TEXT,
-  EMPTY_QUERY_JS_MAIN_TEXT,
-} from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import ExplorerJSCollectionEntity from "pages/Editor/Explorer/JSActions/JSActionEntity";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {
@@ -28,25 +20,19 @@ const QueriesContainer = styled(Flex)`
   }
 `;
 
-const QueriesJS = ({ paneType }: { paneType: "queries" | "js" }) => {
+const QueriesSection = () => {
   const files = useSelector(selectFilesForExplorer);
   const activeActionId = useActiveAction();
-  const pagePermissions = useSelector(getPagePermissions);
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const pageId = useSelector(getCurrentPageId);
 
-  const canCreateActions = getHasCreateActionPermission(
-    isFeatureEnabled,
-    pagePermissions,
-  );
-
-  const fileEntities = useMemo(
-    () =>
-      files.map(({ entity, type }: any) => {
-        if (
-          paneType !== "js" &&
-          type === "group" &&
-          entity.name === "JS Objects"
-        ) {
+  return (
+    <QueriesContainer
+      className="ide-pages-pane__content-queries"
+      flexDirection="column"
+      paddingTop="spaces-3"
+    >
+      {files.map(({ entity, type }: any) => {
+        if (type === "group" && entity.name !== "JS Objects") {
           return (
             <Flex key={entity.name || "Queries"} px="spaces-3">
               <Text
@@ -57,52 +43,33 @@ const QueriesJS = ({ paneType }: { paneType: "queries" | "js" }) => {
               </Text>
             </Flex>
           );
-        } else if (type !== "JS" && paneType === "queries") {
+        } else if (type !== "JS" && entity.id) {
           return (
             <ExplorerActionEntity
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
-              searchKeyword={""}
-              step={2}
-              type={type}
-            />
-          );
-        } else if (type === "JS" && paneType === "js") {
-          return (
-            <ExplorerJSCollectionEntity
-              id={entity.id}
-              isActive={entity.id === activeActionId}
-              key={entity.id}
+              parentEntityId={pageId}
               searchKeyword={""}
               step={2}
               type={type}
             />
           );
         }
-      }),
-    [files, activeActionId],
-  );
+      })}
 
-  return (
-    <QueriesContainer
-      className="ide-pages-pane__content-queries"
-      flexDirection="column"
-      paddingTop="spaces-3"
-    >
-      {fileEntities.length ? (
-        fileEntities
-      ) : (
-        <EmptyComponent
-          mainText={createMessage(EMPTY_QUERY_JS_MAIN_TEXT)}
-          {...(canCreateActions && {
-            addBtnText: createMessage(EMPTY_QUERY_JS_BUTTON_TEXT),
-            // addFunction: onCreate,
-          })}
-        />
+      {files.length === 0 && (
+        <Flex px="spaces-3">
+          <Text
+            className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+            kind="heading-xs"
+          >
+            No Queries/APIs found
+          </Text>
+        </Flex>
       )}
     </QueriesContainer>
   );
 };
 
-export { QueriesJS };
+export { QueriesSection };

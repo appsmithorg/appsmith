@@ -115,6 +115,7 @@ function Files() {
               id={entity.id}
               isActive={entity.id === activeActionId}
               key={entity.id}
+              parentEntityId={parentEntityId}
               searchKeyword={""}
               step={2}
               type={type}
@@ -132,15 +133,15 @@ function Files() {
         dispatch(
           item.action(
             parentEntityId,
-            parentEntityType,
             DatasourceCreateEntryPoints.SUBMENU,
+            parentEntityType,
           ),
         );
       } else if (item.redirect) {
         item.redirect(
           parentEntityId,
-          parentEntityType,
           DatasourceCreateEntryPoints.SUBMENU,
+          parentEntityType,
         );
       }
     },
