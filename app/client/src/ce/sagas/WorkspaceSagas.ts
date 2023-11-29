@@ -29,12 +29,12 @@ import type {
 } from "@appsmith/api/WorkspaceApi";
 import WorkspaceApi from "@appsmith/api/WorkspaceApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
-import { getAllApplications } from "@appsmith/actions/applicationActions";
+import { fetchAllApplicationsOfWorkspace } from "@appsmith/actions/applicationActions";
 import log from "loglevel";
 import type { User } from "constants/userConstants";
 import {
@@ -44,42 +44,38 @@ import {
 import { toast } from "design-system";
 import { resetCurrentWorkspace } from "@appsmith/actions/workspaceActions";
 
-export function* getAllWorkspacesSaga() {
+export function* fetchAllWorkspacesSaga() {
   try {
     const response: FetchWorkspacesResponse = yield call(
       WorkspaceApi.fetchAllWorkspaces,
     );
-    // const isEnabledForStartWithData: boolean = yield select(
-    //   selectFeatureFlagCheck,
-    //   FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
-    // );
-    // const isEnabledForCreateNew: boolean = yield select(
-    //   selectFeatureFlagCheck,
-    //   FEATURE_FLAG.ab_create_new_apps_enabled,
-    // );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const workspaces: Workspace[] = response.data;
 
       yield put({
-        type: ReduxActionTypes.GET_ALL_WORKSPACES_SUCCESS,
+        type: ReduxActionTypes.FETCH_ALL_WORKSPACES_SUCCESS,
         payload: workspaces,
       });
-
-      // if (
-      //   isEnabledForStartWithData &&
-      //   isEnabledForCreateNew &&
-      //   workspaceApplication.length > 0
-      // ) {
-      //   yield put({
-      //     type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
-      //     payload: workspaceApplication[0]?.workspace,
-      //   });
-      // }
     }
-    // if (!isAirgappedInstance) {
-    //   yield call(fetchReleases);
-    // }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchAllWorkspacesAndAppsOfFirstWorkspaceSaga() {
+  try {
+    yield call(fetchAllWorkspacesSaga);
+    const workspaces: Workspace[] = yield select(getFetchedWorkspaces);
+    if (workspaces?.length) {
+      const activeWorkspace: Workspace = workspaces[0];
+      yield put(fetchAllApplicationsOfWorkspace(activeWorkspace.id));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
@@ -334,7 +330,7 @@ export function* createWorkspaceSaga(
         payload: response.data,
       });
 
-      yield put(getAllApplications());
+      yield put(fetchAllApplicationsOfWorkspace());
       yield call(resolve);
     }
 
@@ -364,7 +360,7 @@ export function* uploadWorkspaceLogoSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === request.id,
       );
@@ -396,7 +392,7 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === request.id,
       );

@@ -32,7 +32,7 @@ import {
   getSignpostingStepStateByStep,
   getTableWidget,
 } from "selectors/onboardingSelectors";
-import type { Workspaces } from "@appsmith/constants/workspaceConstants";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import {
   disableStartSignpostingAction,
   enableGuidedTour,
@@ -96,27 +96,27 @@ const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 function* createApplication() {
   // If we are starting onboarding from the editor wait for the editor to reset.
   const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
-  let userWorkspaces: Workspaces[] = yield select(getOnboardingWorkspaces);
+  let workspaces: Workspace[] = yield select(getOnboardingWorkspaces);
   if (isEditorInitialised) {
     yield take(ReduxActionTypes.RESET_EDITOR_SUCCESS);
 
     // If we haven't fetched the workspace list yet we wait for it to complete
     // as we need an workspace where we create an application
-    if (!userWorkspaces.length) {
-      yield take(ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS);
+    if (!workspaces.length) {
+      yield take(ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT);
     }
   }
 
-  userWorkspaces = yield select(getOnboardingWorkspaces);
+  workspaces = yield select(getOnboardingWorkspaces);
   const currentUser: User | undefined = yield select(getCurrentUser);
   // @ts-expect-error: currentUser can be undefined
   const currentWorkspaceId = currentUser.currentWorkspaceId;
   let workspace;
   if (!currentWorkspaceId) {
-    workspace = userWorkspaces[0];
+    workspace = workspaces[0];
   } else {
-    const filteredWorkspaces = userWorkspaces.filter(
-      (workspace: any) => workspace.workspace.id === currentWorkspaceId,
+    const filteredWorkspaces = workspaces.filter(
+      (workspace: any) => workspace.id === currentWorkspaceId,
     );
     workspace = filteredWorkspaces[0];
   }
@@ -131,7 +131,7 @@ function* createApplication() {
     yield put(enableGuidedTour(true));
     yield put(
       importApplication({
-        workspaceId: workspace.workspace.id,
+        workspaceId: workspace.id,
         applicationFile: appFileObject,
       }),
     );

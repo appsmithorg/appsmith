@@ -22,12 +22,14 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Button,
+  Icon,
   Menu,
   MenuContent,
   MenuItem,
   MenuSeparator,
   MenuTrigger,
   SearchInput,
+  Text,
 } from "design-system";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
@@ -35,7 +37,7 @@ import { get, noop } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Banner, ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
-import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 import {
   getAdminSettingsPath,
   getShowAdminSettings,
@@ -60,6 +62,8 @@ import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
+import { searchEntities } from "@appsmith/actions/applicationActions";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -98,6 +102,33 @@ const HeaderSection = styled.div`
 
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
   width: ${({ isMobile }) => (isMobile ? `100%` : `350px`)};
+  position: relative;
+`;
+const SearchListContainer = styled.div`
+  width: 350px;
+  height: 420px;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  border-radius: 4px;
+  box-shadow: 0 1px 20px 0 rgba(76, 86, 100, 0.11);
+  border: solid 1px var(--ads-v2-color-bg-muted);
+  background-color: var(--ads-v2-color-bg);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  overflow-y: auto;
+`;
+
+const SearhListItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--ads-v2-color-bg-muted);
+    border-radius: 4px;
+  }
 `;
 
 export const VersionData = styled.div`
@@ -130,13 +161,16 @@ const HomepageHeaderAction = ({
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const tenantPermissions = useSelector(getTenantPermissions);
-  const isHomePage = useRouteMatch("/applications")?.isExact;
   const onboardingWorkspaces = useSelector(getOnboardingWorkspaces);
+  const isCreateNewAppFlow = useSelector(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const isHomePage = useRouteMatch("/applications")?.isExact;
   const isAirgappedInstance = isAirgapped();
   const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
 
-  if (!isHomePage) return null;
+  if (!isHomePage || !!isCreateNewAppFlow) return null;
   return (
     <div className="flex items-center">
       {<ShowUpgradeMenuItem />}
@@ -233,9 +267,13 @@ export function PageHeader(props: PageHeaderProps) {
   const { user } = props;
   const location = useLocation();
   const dispatch = useDispatch();
+  const isCreateNewAppFlow = useSelector(
+    getCurrentApplicationIdForCreateNewApp,
+  );
   const queryParams = new URLSearchParams(location.search);
   const isMobile = useIsMobileDevice();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [showMobileSearchBar, setShowMobileSearchBar] = useState(false);
   const [isProductUpdatesModalOpen, setIsProductUpdatesModalOpen] =
     useState(false);
   const tenantConfig = useSelector(getTenantConfig);
@@ -264,9 +302,17 @@ export function PageHeader(props: PageHeaderProps) {
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
 
-  return (
-    <>
-      <Banner />
+  function MobileSearchBar() {
+    const MobileSearchInput = styled(SearchInput)`
+      span {
+        display: none;
+      }
+      input {
+        border: none !important;
+        padding: 0 0 0 4px !important;
+      }
+    `;
+    return (
       <StyledPageHeader
         data-testid="t--appsmith-page-header"
         hideShadow={props.hideShadow || false}
@@ -274,26 +320,200 @@ export function PageHeader(props: PageHeaderProps) {
         isMobile={isMobile}
         showSeparator={props.showSeparator || false}
       >
-        <HeaderSection>
-          {tenantConfig.brandLogoUrl && (
-            <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
-              <img
-                alt="Logo"
-                className="h-6"
-                src={getAssetUrl(tenantConfig.brandLogoUrl)}
-              />
-            </Link>
-          )}
-        </HeaderSection>
-        <SearchContainer isMobile={isMobile}>
-          <SearchInput
+        <div className="flex items-center pl-4 w-full">
+          <Icon className="!text-black !mr-2" name="search" size={"md"} />
+          <MobileSearchInput
             data-testid="t--application-search-input"
             defaultValue=""
             isDisabled={isFetchingApplications}
             onChange={noop}
             placeholder={""}
           />
-        </SearchContainer>
+          <Button
+            className="!mr-2"
+            isIconButton
+            kind="tertiary"
+            onClick={() => setShowMobileSearchBar(false)}
+            size="md"
+            startIcon="close-x"
+          />
+        </div>
+      </StyledPageHeader>
+    );
+  }
+
+  function MainSearchBar() {
+    const [searchInput, setSearchInput] = useState("");
+    function handleSearchInput(text: string) {
+      setSearchInput(text);
+      dispatch(searchEntities(text));
+    }
+    return (
+      <StyledPageHeader
+        data-testid="t--appsmith-page-header"
+        hideShadow={props.hideShadow || false}
+        isBannerVisible={showBanner && (isHomePage || isLicensePage)}
+        isMobile={isMobile}
+        showSeparator={props.showSeparator || false}
+      >
+        <div className="flex items-center">
+          {isMobile &&
+            (!isMobileSidebarOpen ? (
+              <Button
+                className="!mr-2"
+                isIconButton
+                kind="tertiary"
+                onClick={() => setIsMobileSidebarOpen(true)}
+                size={"md"}
+                startIcon="hamburger"
+              />
+            ) : (
+              <Button
+                className="!mr-2"
+                isIconButton
+                kind="tertiary"
+                onClick={() => setIsMobileSidebarOpen(false)}
+                size="md"
+                startIcon="close-x"
+              />
+            ))}
+
+          <HeaderSection>
+            {tenantConfig.brandLogoUrl && (
+              <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
+                <img
+                  alt="Logo"
+                  className="h-6"
+                  src={getAssetUrl(tenantConfig.brandLogoUrl)}
+                />
+              </Link>
+            )}
+          </HeaderSection>
+        </div>
+        {!isCreateNewAppFlow &&
+          (isMobile ? (
+            <Button
+              isIconButton
+              kind="tertiary"
+              onClick={() => setShowMobileSearchBar(true)}
+              size="md"
+              startIcon="search"
+            />
+          ) : (
+            false && (
+              <SearchContainer isMobile={isMobile}>
+                <SearchInput
+                  data-testid="t--application-search-input"
+                  isDisabled={isFetchingApplications}
+                  onChange={handleSearchInput}
+                  placeholder={""}
+                  value={searchInput}
+                />
+                <SearchListContainer>
+                  <Text className="!mb-2" kind="body-s">
+                    Workspaces
+                  </Text>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text className="truncate" kind="body-m">
+                      Unitiled Workspace 1 dbshjds sadusa dsdusa dhsaud
+                      hsuadhusa dus dsui
+                    </Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 2</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 3</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+                  <SearhListItem>
+                    <Icon
+                      className="!mr-2"
+                      color="var(--ads-v2-color-fg)"
+                      name="group-2-line"
+                      size="md"
+                    />
+                    <Text kind="body-m">Unitiled Workspace 4</Text>
+                  </SearhListItem>
+
+                  <Text className="!mb-2 !mt-2" kind="body-s">
+                    Applications
+                  </Text>
+                </SearchListContainer>
+              </SearchContainer>
+            )
+          ))}
 
         {user && !isMobile && (
           <div>
@@ -327,24 +547,6 @@ export function PageHeader(props: PageHeaderProps) {
             )}
           </div>
         )}
-        {isMobile && !isMobileSidebarOpen && (
-          <Button
-            isIconButton
-            kind="tertiary"
-            onClick={() => setIsMobileSidebarOpen(true)}
-            size={"md"}
-            startIcon="hamburger"
-          />
-        )}
-        {isMobile && isMobileSidebarOpen && (
-          <Button
-            isIconButton
-            kind="tertiary"
-            onClick={() => setIsMobileSidebarOpen(false)}
-            size="sm"
-            startIcon="close-x"
-          />
-        )}
         {isMobile && user && (
           <MobileSideBar
             isOpen={isMobileSidebarOpen}
@@ -353,6 +555,17 @@ export function PageHeader(props: PageHeaderProps) {
           />
         )}
       </StyledPageHeader>
+    );
+  }
+
+  return (
+    <>
+      <Banner />
+      {showMobileSearchBar && isMobile ? (
+        <MobileSearchBar />
+      ) : (
+        <MainSearchBar />
+      )}
     </>
   );
 }

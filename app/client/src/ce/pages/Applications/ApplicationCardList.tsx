@@ -4,10 +4,7 @@ import { useSelector } from "react-redux";
 
 import CardList from "pages/Applications/CardList";
 import { PaddingWrapper } from "pages/Applications/CommonElements";
-import {
-  getIsCreatingApplicationByWorkspaceId,
-  getIsFetchingApplications,
-} from "@appsmith/selectors/applicationSelectors";
+import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
 import { NoAppsFound } from "@appsmith/pages/Applications";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
@@ -17,6 +14,7 @@ import {
   NEW_APPLICATION,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 interface ApplicationCardListProps {
   applications: ApplicationPayload[];

@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplication,
   getIsChangingViewAccess,
-  getIsFetchingApplications,
 } from "@appsmith/selectors/applicationSelectors";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import styled from "styled-components";
@@ -24,6 +23,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getEmbedSnippetTab } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {

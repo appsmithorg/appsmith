@@ -4,7 +4,6 @@ import {
   getImportedApplication,
   getIsDatasourceConfigForImportFetched,
   getWorkspaceIdForImport,
-  getUserApplicationsWorkspacesList,
   getPageIdForImport,
 } from "@appsmith/selectors/applicationSelectors";
 
@@ -75,6 +74,8 @@ import {
   getCurrentEnvironmentDetails,
 } from "@appsmith/selectors/environmentSelectors";
 import type { AppState } from "@appsmith/reducers";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const Section = styled.div`
   display: flex;
@@ -269,7 +270,8 @@ function ReconnectDatasourceModal() {
     localStorage.getItem("importedAppPendingInfo") || "null",
   );
   // getting query from redirection url
-  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
+  const workspaces = useSelector(getFetchedWorkspaces);
+  const applications = useSelector(getApplicationsOfWorkspace);
   const currentEnvDetails = useSelector(getCurrentEnvironmentDetails);
   const queryParams = useQuery();
   const queryAppId =
@@ -340,37 +342,31 @@ function ReconnectDatasourceModal() {
 
   // should open reconnect datasource modal
   useEffect(() => {
-    if (userWorkspaces && queryIsImport && queryDatasourceId) {
+    if (applications && queryIsImport && queryDatasourceId) {
       if (queryAppId) {
-        for (const ws of userWorkspaces) {
-          const { applications, workspace } = ws;
-          const application = applications.find(
-            (app: any) => app.id === queryAppId,
-          );
-          if (application) {
-            dispatch(setWorkspaceIdForImport(workspace.id));
-            dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
-            const defaultPageId = getDefaultPageId(application.pages);
-            if (pageIdForImport) {
-              setPageId(pageIdForImport);
-            } else if (defaultPageId) {
-              setPageId(defaultPageId);
-            }
-            if (!datasources.length) {
-              dispatch({
-                type: ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
-                payload: {
-                  applicationId: appId,
-                  workspaceId: workspace.id,
-                },
-              });
-            }
-            break;
+        const app = applications.find((app: any) => app.id === queryAppId);
+        if (app) {
+          dispatch(setWorkspaceIdForImport(app.workspaceId));
+          dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+          const defaultPageId = getDefaultPageId(app.pages);
+          if (pageIdForImport) {
+            setPageId(pageIdForImport);
+          } else if (defaultPageId) {
+            setPageId(defaultPageId);
+          }
+          if (!datasources.length) {
+            dispatch({
+              type: ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
+              payload: {
+                applicationId: appId,
+                workspaceId: app.workspaceId,
+              },
+            });
           }
         }
       }
     }
-  }, [userWorkspaces, queryIsImport]);
+  }, [workspaces, queryIsImport, applications]);
 
   const isConfigFetched = useSelector(getIsDatasourceConfigForImportFetched);
 

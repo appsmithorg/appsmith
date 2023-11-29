@@ -7,11 +7,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type {
-  Workspace,
-  Workspaces,
-  WorkspaceUser,
-} from "@appsmith/constants/workspaceConstants";
+import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
@@ -33,22 +29,18 @@ import type { Package } from "@appsmith/constants/PackageConstants";
 import type { User } from "constants/userConstants";
 
 export const initialState: ApplicationsReduxState = {
-  isFetchingApplications: false,
   isSavingAppName: false,
   isErrorSavingAppName: false,
   isFetchingApplication: false,
-  workspaces: [],
-  applications: [],
   users: [],
   packages: [],
-  isFetchingWorkspaces: false,
   isChangingViewAccess: false,
   applicationList: [],
   creatingApplication: {},
   deletingApplication: false,
   forkingApplication: false,
-  userWorkspaces: [],
-  isSavingWorkspaceInfo: false,
+  searchEntities: [],
+  isFetchingEntities: false,
   importingApplication: false,
   importedApplication: null,
   isImportAppModalOpen: false,
@@ -80,15 +72,11 @@ export const handlers = {
   },
   [ReduxActionTypes.DELETE_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
+    // eslint-disable-next-line
     action: ReduxAction<ApplicationPayload>,
   ) => {
-    const applications = state.applications.filter(
-      (application: ApplicationPayload) => application.id !== action.payload.id,
-    );
-
     return {
       ...state,
-      applications: [...applications],
       deletingApplication: false,
     };
   },
@@ -129,16 +117,11 @@ export const handlers = {
   },
   [ReduxActionTypes.DELETE_MULTIPLE_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
+    // eslint-disable-next-line
     action: ReduxAction<ApplicationPayload[]>,
   ) => {
-    const deletedApplicationIds = action.payload.map((app) => app.id);
-    const applications = state.applications.filter(
-      (app) => !deletedApplicationIds.includes(app.id),
-    );
-
     return {
       ...state,
-      applications: [...applications],
       deletingMultipleApps: {
         list: [],
         isDeleting: false,
@@ -182,35 +165,6 @@ export const handlers = {
       },
     };
   },
-  [ReduxActionTypes.GET_ALL_APPLICATION_INIT]: (
-    state: ApplicationsReduxState,
-  ) => ({ ...state, isFetchingApplications: true }),
-  [ReduxActionTypes.GET_ALL_APPLICATIONS_OF_WORKSPACE_INIT]: (
-    state: ApplicationsReduxState,
-  ) => ({ ...state, isFetchingApplications: true }),
-  [ReduxActionTypes.GET_ALL_APPLICATIONS_OF_WORKSPACE_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<{ applicationList: any }>,
-  ) => {
-    return {
-      ...state,
-      isFetchingApplications: false,
-      applications: action.payload,
-    };
-  },
-  [ReduxActionTypes.GET_ALL_WORKSPACES_INIT]: (
-    state: ApplicationsReduxState,
-  ) => ({ ...state, isFetchingWorkspaces: true }),
-  [ReduxActionTypes.GET_ALL_WORKSPACES_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<{ applicationList: any }>,
-  ) => {
-    return {
-      ...state,
-      isFetchingWorkspaces: false,
-      workspaces: action.payload,
-    };
-  },
   [ReduxActionTypes.GET_ALL_USERS_OF_WORKSPACE_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<User[]>,
@@ -222,27 +176,6 @@ export const handlers = {
       isFetchingAllUsers: false,
     },
   }),
-  [ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<{ applicationList: any }>,
-  ) => {
-    return {
-      ...state,
-      isFetchingApplications: false,
-      userWorkspaces: action.payload,
-    };
-  },
-  [ReduxActionTypes.DELETE_WORKSPACE_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<string>,
-  ) => {
-    return {
-      ...state,
-      workspaces: state.workspaces.filter(
-        (workspace: Workspace) => workspace.id !== action.payload,
-      ),
-    };
-  },
   [ReduxActionTypes.FETCH_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, isFetchingApplication: true }),
@@ -321,37 +254,21 @@ export const handlers = {
       application: ApplicationPayload;
     }>,
   ) => {
-    const applications = state.applications;
-    applications.push(action.payload.application);
-
     const updatedCreatingApplication = { ...state.creatingApplication };
     updatedCreatingApplication[action.payload.workspaceId] = false;
-
     return {
       ...state,
       creatingApplication: updatedCreatingApplication,
       applicationList: [...state.applicationList, action.payload.application],
-      applications: [...applications],
     };
   },
   [ReduxActionTypes.INVITED_USERS_TO_WORKSPACE]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ workspaceId: string; users: WorkspaceUser[] }>,
   ) => {
-    const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
-      if (workspace.workspace.id === action.payload.workspaceId) {
-        const users = workspace.users;
-        workspace.users = [...users, ...action.payload.users];
-        return {
-          ...workspace,
-        };
-      }
-      return workspace;
-    });
-
     return {
       ...state,
-      userWorkspaces: _workspaces,
+      users: [...state.users, ...action.payload.users],
     };
   },
   [ReduxActionErrorTypes.CREATE_APPLICATION_ERROR]: (
@@ -381,7 +298,6 @@ export const handlers = {
       ...state,
       forkingApplication: false,
       applicationList: [...state.applicationList, action.payload.application],
-      applications: [...state.applications, action.payload.application],
     };
   },
   [ReduxActionErrorTypes.FORK_APPLICATION_ERROR]: (
@@ -445,48 +361,6 @@ export const handlers = {
       isImportDone: true,
     },
   }),
-  [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (state: ApplicationsReduxState) => {
-    return {
-      ...state,
-      isSavingWorkspaceInfo: true,
-    };
-  },
-  [ReduxActionTypes.SAVE_WORKSPACE_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<{
-      id: string;
-      name?: string;
-      website?: string;
-      email?: string;
-      logoUrl?: string;
-    }>,
-  ) => {
-    const workspaces = state.workspaces;
-    const workspaceIndex = state.workspaces.findIndex(
-      (workspace: Workspace) => workspace.id === action.payload.id,
-    );
-
-    if (workspaceIndex !== -1) {
-      workspaces[workspaceIndex] = {
-        ...workspaces[workspaceIndex],
-        ...action.payload,
-      };
-    }
-
-    return {
-      ...state,
-      workspaces: [...workspaces],
-      isSavingWorkspaceInfo: false,
-    };
-  },
-  [ReduxActionErrorTypes.SAVE_WORKSPACE_ERROR]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return {
-      ...state,
-      isSavingWorkspaceInfo: false,
-    };
-  },
   [ReduxActionTypes.SEARCH_APPLICATIONS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ keyword?: string }>,
@@ -529,23 +403,13 @@ export const handlers = {
   },
   [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
+    // eslint-disable-next-line
     action: ReduxAction<UpdateApplicationRequest>,
   ) => {
     // userWorkspaces data has to be saved to localStorage only if the action is successful
     // It introduces bug if we prematurely save it during init action.
-    const { id, ...rest } = action.payload;
-    const applications = state.applications;
-
-    const appIndex = state.applications.findIndex((app) => app.id === id);
-    if (appIndex !== -1) {
-      applications[appIndex] = {
-        ...applications[appIndex],
-        ...rest,
-      };
-    }
     return {
       ...state,
-      applications: [...applications],
       isSavingAppName: false,
       isErrorSavingAppName: false,
       isSavingNavigationSetting: false,
@@ -899,6 +763,24 @@ export const handlers = {
       currentPluginIdForCreateNewApp: undefined,
     };
   },
+  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isFetchingEntities: true,
+    };
+  },
+  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<any>,
+  ) => {
+    return {
+      ...state,
+      isFetchingEntities: false,
+      searchEntities: action.payload,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -913,26 +795,22 @@ export interface DeletingMultipleApps {
 export interface ApplicationsReduxState {
   applicationList: ApplicationPayload[];
   searchKeyword?: string;
-  isFetchingApplications: boolean;
+  searchEntities: any;
+  isFetchingEntities: boolean;
   isSavingAppName: boolean;
   isErrorSavingAppName: boolean;
   isFetchingApplication: boolean;
-  isFetchingWorkspaces: boolean;
   isChangingViewAccess: boolean;
   creatingApplication: creatingApplicationMap;
   createApplicationError?: string;
   deletingApplication: boolean;
   forkingApplication: boolean;
   currentApplication?: ApplicationPayload;
-  userWorkspaces: Workspaces[];
-  isSavingWorkspaceInfo: boolean;
   importingApplication: boolean;
   importedApplication: unknown;
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;
   pageIdForImport: string;
-  workspaces: Workspace[];
-  applications: ApplicationPayload[];
   packages: Package[];
   users: User[];
   isDatasourceConfigForImportFetched?: boolean;

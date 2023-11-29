@@ -1,7 +1,6 @@
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { getUserApplicationsWorkspaces } from "@appsmith/selectors/applicationSelectors";
 import { getWidgets } from "sagas/selectors";
 import {
   getActionResponses,
@@ -16,6 +15,7 @@ import { isBoolean, intersection } from "lodash";
 import { getEvaluationInverseDependencyMap } from "./dataTreeSelectors";
 import { getNestedValue } from "pages/Editor/utils";
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 
 // Signposting selectors
 
@@ -337,10 +337,10 @@ export const loading = (state: AppState) => state.ui.guidedTour.loading;
 // To find an workspace where the user has permission to create an
 // application
 export const getOnboardingWorkspaces = createSelector(
-  getUserApplicationsWorkspaces,
-  (userWorkspaces) => {
-    return userWorkspaces.filter((userWorkspace) =>
-      hasCreateNewAppPermission(userWorkspace.workspace.userPermissions ?? []),
+  getFetchedWorkspaces,
+  (workspaces) => {
+    return workspaces.filter((workspace) =>
+      hasCreateNewAppPermission(workspace.userPermissions ?? []),
     );
   },
 );

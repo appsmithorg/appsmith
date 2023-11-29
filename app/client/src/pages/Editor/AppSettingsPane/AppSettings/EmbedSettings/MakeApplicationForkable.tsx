@@ -15,9 +15,9 @@ import {
 } from "@appsmith/constants/messages";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
-import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 interface ConfirmEnableForkingModalProps {
   isOpen: boolean;

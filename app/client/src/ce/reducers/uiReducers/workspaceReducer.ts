@@ -11,13 +11,32 @@ import type {
   WorkspaceUserRoles,
 } from "@appsmith/constants/workspaceConstants";
 
+export interface WorkspaceReduxState {
+  list: Workspace[];
+  roles?: WorkspaceRole[];
+  loadingStates: {
+    fetchingRoles: boolean;
+    isFetchAllRoles: boolean;
+    isFetchAllUsers: boolean;
+    isFetchingCurrentWorkspace: boolean;
+    isSavingWorkspaceInfo: boolean;
+    isFetchingWorkspaces: boolean;
+  };
+  workspaceUsers: WorkspaceUser[];
+  workspaceRoles: any;
+  currentWorkspace: Workspace;
+}
+
 export const initialState: WorkspaceReduxState = {
   loadingStates: {
     fetchingRoles: false,
     isFetchAllRoles: false,
     isFetchAllUsers: false,
-    isFetchingWorkspace: false,
+    isFetchingCurrentWorkspace: false,
+    isSavingWorkspaceInfo: false,
+    isFetchingWorkspaces: false,
   },
+  list: [],
   workspaceUsers: [],
   workspaceRoles: [],
   currentWorkspace: {
@@ -25,20 +44,6 @@ export const initialState: WorkspaceReduxState = {
     name: "",
   },
 };
-
-export interface WorkspaceReduxState {
-  list?: Workspace[];
-  roles?: WorkspaceRole[];
-  loadingStates: {
-    fetchingRoles: boolean;
-    isFetchAllRoles: boolean;
-    isFetchAllUsers: boolean;
-    isFetchingWorkspace: boolean;
-  };
-  workspaceUsers: WorkspaceUser[];
-  workspaceRoles: any;
-  currentWorkspace: Workspace;
-}
 
 export const handlers = {
   [ReduxActionTypes.FETCH_WORKSPACE_ROLES_INIT]: (
@@ -165,19 +170,73 @@ export const handlers = {
   [ReduxActionTypes.FETCH_CURRENT_WORKSPACE]: (
     draftState: WorkspaceReduxState,
   ) => {
-    draftState.loadingStates.isFetchingWorkspace = true;
+    draftState.loadingStates.isFetchingCurrentWorkspace = true;
   },
   [ReduxActionTypes.FETCH_WORKSPACE_SUCCESS]: (
     draftState: WorkspaceReduxState,
     action: ReduxAction<Workspace>,
   ) => {
     draftState.currentWorkspace = action.payload;
-    draftState.loadingStates.isFetchingWorkspace = false;
+    draftState.loadingStates.isFetchingCurrentWorkspace = false;
   },
   [ReduxActionErrorTypes.FETCH_WORKSPACE_ERROR]: (
     draftState: WorkspaceReduxState,
   ) => {
-    draftState.loadingStates.isFetchingWorkspace = false;
+    draftState.loadingStates.isFetchingCurrentWorkspace = false;
+  },
+  [ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingWorkspaces = true;
+  },
+  [ReduxActionTypes.FETCH_ALL_WORKSPACES_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<Workspace[]>,
+  ) => {
+    draftState.loadingStates.isFetchingWorkspaces = false;
+    draftState.list = action.payload;
+  },
+  [ReduxActionTypes.DELETE_WORKSPACE_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    draftState.list = draftState.list.filter(
+      (workspace: Workspace) => workspace.id !== action.payload,
+    );
+  },
+  [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isSavingWorkspaceInfo = true;
+  },
+  [ReduxActionTypes.SAVE_WORKSPACE_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<{
+      id: string;
+      name?: string;
+      website?: string;
+      email?: string;
+      logoUrl?: string;
+    }>,
+  ) => {
+    const workspaces = draftState.list;
+    const workspaceIndex = draftState.list.findIndex(
+      (workspace: Workspace) => workspace.id === action.payload.id,
+    );
+
+    if (workspaceIndex !== -1) {
+      workspaces[workspaceIndex] = {
+        ...workspaces[workspaceIndex],
+        ...action.payload,
+      };
+    }
+    draftState.loadingStates.isSavingWorkspaceInfo = false;
+    draftState.list = [...workspaces];
+  },
+  [ReduxActionErrorTypes.SAVE_WORKSPACE_ERROR]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isSavingWorkspaceInfo = false;
   },
 };
 

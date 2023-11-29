@@ -178,15 +178,9 @@ export const importApplicationSuccess = (
   };
 };
 
-export const getAllApplications = () => {
+export const fetchAllApplicationsOfWorkspace = (payload?: string) => {
   return {
-    type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
-  };
-};
-
-export const getAllApplicationsOfWorkspace = (payload: string) => {
-  return {
-    type: ReduxActionTypes.GET_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
+    type: ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
     payload,
   };
 };
@@ -242,5 +236,10 @@ export const showReconnectDatasourceModal = (payload: {
 
 export const setIsAppSidebarPinned = (payload: boolean) => ({
   type: ReduxActionTypes.SET_APP_SIDEBAR_PINNED,
+  payload,
+});
+
+export const searchEntities = (payload: string) => ({
+  type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
   payload,
 });

@@ -77,7 +77,15 @@ export const initialState: any = {
         forkingEnabled: true,
         isPublic: true,
       },
-      userWorkspaces: [],
+      workspaces: [],
+    },
+    workspaces: {
+      list: [],
+    },
+    selectedWorkspace: {
+      loadingStates: {
+        isFetchingApplications: false,
+      },
     },
     theme: {
       theme: {
