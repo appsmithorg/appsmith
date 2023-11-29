@@ -21,7 +21,7 @@ const QueriesContainer = styled(Flex)`
 `;
 
 const QueriesSection = () => {
-  const files = useSelector(selectFilesForExplorer);
+  const files = useSelector(selectFilesForExplorer());
   const activeActionId = useActiveAction();
   const pageId = useSelector(getCurrentPageId);
 

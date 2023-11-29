@@ -18,7 +18,7 @@ const JSContainer = styled(Flex)`
 `;
 
 const JSSection = () => {
-  const files = useSelector(selectFilesForExplorer);
+  const files = useSelector(selectFilesForExplorer());
   const activeActionId = useActiveAction();
 
   return (
