@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-public interface RefactoringSolutionCE {
+public interface RefactoringServiceCE {
 
     Mono<LayoutDTO> refactorEntityName(RefactorEntityNameDTO refactorEntityNameDTO, String branchName);
 
