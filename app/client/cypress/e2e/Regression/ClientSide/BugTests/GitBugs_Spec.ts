@@ -4,6 +4,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let repoName: any;
 let tempBranch: any;
@@ -53,7 +54,7 @@ describe("Git Bugs", function () {
   });
 
   it("3. Bug 18376:  navigateTo fails to set queryParams if the app is connected to Git", () => {
-    _.entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON);

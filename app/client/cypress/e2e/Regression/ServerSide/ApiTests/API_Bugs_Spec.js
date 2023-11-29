@@ -7,9 +7,9 @@ const testdata = require("../../../../fixtures/testdata.json");
 import {
   agHelper,
   locators,
-  entityExplorer,
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Rest Bugs tests", function () {
   beforeEach(() => {
@@ -132,7 +132,7 @@ describe("Rest Bugs tests", function () {
 
   it("2. Bug 6863: Clicking on 'debug' crashes the appsmith application", function () {
     cy.startErrorRoutes();
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     //Api 1
     apiPage.CreateAndFillApi(
       "https://api.thecatapi.com/v1/images/search",

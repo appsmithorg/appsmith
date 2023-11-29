@@ -1,4 +1,5 @@
-const explorer = require("../../../../locators/explorerlocators.json");
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
+
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
@@ -10,7 +11,7 @@ describe("Entity Explorer showing tooltips on long names", function () {
   it("1. Expect tooltip on long names only", function () {
     // create an API with a short name
     cy.CreateAPI(shortName);
-    ee.ExpandCollapseEntity("Queries/JS", true);
+    PageLeftPane.expandCollapseItem("Queries/JS", true);
     // assert that a tooltip does not show up during hover
     cy.get(`.t--entity-item:contains(${shortName})`).realHover();
     cy.get(tooltTipQuery).should("not.exist");
