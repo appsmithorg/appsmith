@@ -22,9 +22,18 @@ describe("identifyEntityFromPath", () => {
       },
     },
     {
+      path: "/applications/myAppId/pages/myPageId/edit/queries",
+      expected: {
+        entity: FocusEntity.QUERY_LIST,
+        id: "",
+        pageId: "myPageId",
+        appState: AppState.PAGES,
+      },
+    },
+    {
       path: "/applications/myAppId/pages/myPageId/edit/api/myApiId",
       expected: {
-        entity: FocusEntity.API,
+        entity: FocusEntity.QUERY,
         id: "myApiId",
         pageId: "myPageId",
         appState: AppState.PAGES,
@@ -37,6 +46,42 @@ describe("identifyEntityFromPath", () => {
         id: "myQueryId",
         pageId: "myPageId",
         appState: AppState.PAGES,
+      },
+    },
+    {
+      path: "/applications/myAppId/pages/myPageId/edit/jsObjects",
+      expected: {
+        entity: FocusEntity.JS_OBJECT_LIST,
+        id: "",
+        pageId: "myPageId",
+        appState: AppState.PAGES,
+      },
+    },
+    {
+      path: "/applications/myAppId/pages/myPageId/edit/jsObjects/myJSId",
+      expected: {
+        entity: FocusEntity.JS_OBJECT,
+        id: "myJSId",
+        pageId: "myPageId",
+        appState: AppState.PAGES,
+      },
+    },
+    {
+      path: "/applications/myAppId/pages/myPageId/edit/datasource",
+      expected: {
+        entity: FocusEntity.DATASOURCE_LIST,
+        id: "",
+        pageId: "myPageId",
+        appState: AppState.DATA,
+      },
+    },
+    {
+      path: "/applications/myAppId/pages/myPageId/edit/datasources/myDatasourceId",
+      expected: {
+        entity: FocusEntity.DATASOURCE,
+        id: "myDatasourceId",
+        pageId: "myPageId",
+        appState: AppState.DATA,
       },
     },
   ];
@@ -60,9 +105,18 @@ describe("identifyEntityFromPath", () => {
       },
     },
     {
+      path: "/app/eval/page1-myPageId/edit/queries",
+      expected: {
+        entity: FocusEntity.QUERY_LIST,
+        id: "",
+        pageId: "myPageId",
+        appState: AppState.PAGES,
+      },
+    },
+    {
       path: "/app/eval/page1-myPageId/edit/api/myApiId",
       expected: {
-        entity: FocusEntity.API,
+        entity: FocusEntity.QUERY,
         id: "myApiId",
         pageId: "myPageId",
         appState: AppState.PAGES,
@@ -75,6 +129,42 @@ describe("identifyEntityFromPath", () => {
         id: "myQueryId",
         pageId: "myPageId",
         appState: AppState.PAGES,
+      },
+    },
+    {
+      path: "/app/eval/page1-myPageId/edit/jsObjects",
+      expected: {
+        entity: FocusEntity.JS_OBJECT_LIST,
+        id: "",
+        pageId: "myPageId",
+        appState: AppState.PAGES,
+      },
+    },
+    {
+      path: "/app/eval/page1-myPageId/edit/jsObjects/myJSId",
+      expected: {
+        entity: FocusEntity.JS_OBJECT,
+        id: "myJSId",
+        pageId: "myPageId",
+        appState: AppState.PAGES,
+      },
+    },
+    {
+      path: "/app/eval/page1-myPageId/edit/datasource",
+      expected: {
+        entity: FocusEntity.DATASOURCE_LIST,
+        id: "",
+        pageId: "myPageId",
+        appState: AppState.DATA,
+      },
+    },
+    {
+      path: "/app/eval/page1-myPageId/edit/datasources/myDatasourceId",
+      expected: {
+        entity: FocusEntity.DATASOURCE,
+        id: "myDatasourceId",
+        pageId: "myPageId",
+        appState: AppState.DATA,
       },
     },
   ];
@@ -98,9 +188,18 @@ describe("identifyEntityFromPath", () => {
       },
     },
     {
+      path: "/app/myCustomSlug-myPageId/edit/queries",
+      expected: {
+        entity: FocusEntity.QUERY_LIST,
+        id: "",
+        pageId: "myPageId",
+        appState: AppState.PAGES,
+      },
+    },
+    {
       path: "/app/myCustomSlug-myPageId/edit/api/myApiId",
       expected: {
-        entity: FocusEntity.API,
+        entity: FocusEntity.QUERY,
         id: "myApiId",
         pageId: "myPageId",
         appState: AppState.PAGES,
@@ -113,6 +212,42 @@ describe("identifyEntityFromPath", () => {
         id: "myQueryId",
         pageId: "myPageId",
         appState: AppState.PAGES,
+      },
+    },
+    {
+      path: "/app/myCustomSlug-myPageId/edit/jsObjects",
+      expected: {
+        entity: FocusEntity.JS_OBJECT_LIST,
+        id: "",
+        pageId: "myPageId",
+        appState: AppState.PAGES,
+      },
+    },
+    {
+      path: "/app/myCustomSlug-myPageId/edit/jsObjects/myJSId",
+      expected: {
+        entity: FocusEntity.JS_OBJECT,
+        id: "myJSId",
+        pageId: "myPageId",
+        appState: AppState.PAGES,
+      },
+    },
+    {
+      path: "/app/myCustomSlug-myPageId/edit/datasource",
+      expected: {
+        entity: FocusEntity.DATASOURCE_LIST,
+        id: "",
+        pageId: "myPageId",
+        appState: AppState.DATA,
+      },
+    },
+    {
+      path: "/app/myCustomSlug-myPageId/edit/datasources/myDatasourceId",
+      expected: {
+        entity: FocusEntity.DATASOURCE,
+        id: "myDatasourceId",
+        pageId: "myPageId",
+        appState: AppState.DATA,
       },
     },
   ];

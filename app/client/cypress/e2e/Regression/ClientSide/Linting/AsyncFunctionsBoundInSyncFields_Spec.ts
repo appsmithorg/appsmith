@@ -14,7 +14,6 @@ import EditorNavigation, {
 describe("Linting async JSFunctions bound to data fields", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Doesn't show lint warnings in debugger but shows on Hover only", () => {
