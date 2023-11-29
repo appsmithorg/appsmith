@@ -2,6 +2,7 @@
 
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -9,11 +10,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
-import {
-  agHelper,
-  propPane,
-  entityExplorer,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, propPane } from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {
@@ -34,7 +31,7 @@ describe("Binding the multiple Widgets and validating NavigateTo Page", function
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    entityExplorer.AssertEntityPresenceInExplorer(pageid);
+    PageLeftPane.assertPresence(pageid);
   });
 
   it("2. Input widget test with default value from table widget", function () {
