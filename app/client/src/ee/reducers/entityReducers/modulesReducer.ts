@@ -68,7 +68,7 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
     draftState: ModulesReducerState,
     action: ReduxAction<FetchPackagesInWorkspaceResponse>,
   ) => {
-    draftState = {};
+    draftState = INITIAL_STATE;
     const { modules } = action.payload;
     modules.map((module) => {
       draftState[module.id] = module;

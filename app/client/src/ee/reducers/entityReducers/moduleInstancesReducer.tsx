@@ -6,6 +6,7 @@ import type {
   ModuleInstanceId,
   QueryModuleInstance,
 } from "@appsmith/constants/ModuleInstanceConstants";
+import type { CreateModuleInstanceResponse } from "@appsmith/api/ModuleInstanceApi";
 
 export type ModuleInstanceReducerState = Record<
   ModuleInstanceId,
@@ -17,9 +18,10 @@ const initialState: ModuleInstanceReducerState = {};
 export const handlers = {
   [ReduxActionTypes.CREATE_MODULE_INSTANCE_SUCCESS]: (
     draftState: ModuleInstanceReducerState,
-    action: ReduxAction<ModuleInstance>,
+    action: ReduxAction<CreateModuleInstanceResponse>,
   ) => {
-    draftState[action.payload.id] = action.payload;
+    const { moduleInstance } = action.payload;
+    draftState[moduleInstance.id] = moduleInstance;
     return draftState;
   },
 

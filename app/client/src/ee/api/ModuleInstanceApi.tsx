@@ -1,6 +1,5 @@
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
-import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { ActionResponse } from "api/ActionAPI";
 import type { AxiosPromise } from "axios";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
@@ -10,27 +9,23 @@ import type {
   FetchModuleInstanceEntitiesPayload,
   FetchModuleInstancesPayload,
 } from "@appsmith/actions/moduleInstanceActions";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollection } from "entities/JSCollection";
+import type { Action } from "entities/Action";
 interface RunModuleInstancePayload {
   moduleInstanceId: string;
   actionId: string;
-}
-
-export interface FetchModuleInstancesResponse {
-  moduleInstances: ModuleInstance[];
-  modules: Module[];
 }
 
 export interface RunModuleInstanceResponse extends ActionResponse {}
 
 export interface CreateModuleInstanceResponse {
   moduleInstance: ModuleInstance;
+  entities: FetchModuleInstanceEntitiesResponse;
 }
 
 export interface FetchModuleInstanceEntitiesResponse {
-  actions: ActionData[];
-  jsCollections: JSCollectionData[];
+  actions: Action[];
+  jsCollections: JSCollection[];
 }
 
 export interface RefactorModuleInstancePayload {
@@ -46,14 +41,14 @@ class ModuleInstancesApi extends Api {
 
   static async fetchModuleInstances(
     payload: FetchModuleInstancesPayload,
-  ): Promise<AxiosPromise<ApiResponse<FetchModuleInstancesResponse>>> {
+  ): Promise<AxiosPromise<ApiResponse<ModuleInstance[]>>> {
     const url = ModuleInstancesApi.moduleInstancesUrl;
     return Api.get(url, payload);
   }
 
   static async fetchModuleInstancesForView(
     payload: FetchModuleInstancesPayload,
-  ): Promise<AxiosPromise<ApiResponse<FetchModuleInstancesResponse>>> {
+  ): Promise<AxiosPromise<ApiResponse<ModuleInstance[]>>> {
     const url = `${ModuleInstancesApi.moduleInstancesUrl}/view`;
     return Api.get(url, payload);
   }

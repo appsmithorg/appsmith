@@ -62,7 +62,11 @@ export const selectFilesForExplorer = createSelector(
   (CE_files, moduleInstances, modules, packages) => {
     const moduleInstanceFiles = Object.values(moduleInstances).reduce(
       (acc, file) => {
-        const group = getPackageNameForModule(modules, packages, file.moduleId);
+        const group = getPackageNameForModule(
+          modules,
+          packages,
+          file.sourceModuleId,
+        );
         acc = acc.concat({
           type: "moduleInstance",
           entity: file,

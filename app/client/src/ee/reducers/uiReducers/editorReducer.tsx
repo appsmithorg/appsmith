@@ -153,6 +153,40 @@ const handlers = {
     };
   },
 
+  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_INIT]: (state: EditorReduxState) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        savingEntity: true,
+      },
+    };
+  },
+
+  [ReduxActionTypes.UPDATE_MODULE_INSTANCE_SUCCESS]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        savingEntity: false,
+      },
+    };
+  },
+
+  [ReduxActionErrorTypes.UPDATE_MODULE_INSTANCE_ERROR]: (
+    state: EditorReduxState,
+  ) => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        savingEntity: false,
+      },
+    };
+  },
+
   [ReduxActionTypes.SET_CURRENT_MODULE]: (
     state: EditorReduxState,
     action: ReduxAction<{ id?: string | null }>,

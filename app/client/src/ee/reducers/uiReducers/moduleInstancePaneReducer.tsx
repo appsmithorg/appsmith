@@ -4,19 +4,24 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { UpdateModuleInstanceSettingsPayload } from "@appsmith/actions/moduleInstanceActions";
+import type {
+  RunQueryModuleInstancePayload,
+  UpdateModuleInstanceSettingsPayload,
+} from "@appsmith/actions/moduleInstanceActions";
 import type { Action } from "entities/Action";
 
 export interface ModuleInstancePaneState {
   nameSavingStatus: Record<string, { isSaving: boolean; error: boolean }>;
   settingsSavingStatus: Record<string, { isSaving: boolean; error: boolean }>;
   deletingStatus: Record<string, { isDeleting: boolean; error: boolean }>;
+  runningStatus: Record<string, { isRunning: boolean; error?: string }>;
 }
 
 export const initialState: ModuleInstancePaneState = {
   nameSavingStatus: {},
   settingsSavingStatus: {},
   deletingStatus: {},
+  runningStatus: {},
 };
 
 export const handlers = {
@@ -104,6 +109,35 @@ export const handlers = {
   ) => {
     draftState.settingsSavingStatus[action.payload.id].isSaving = false;
     draftState.settingsSavingStatus[action.payload.id].error = true;
+    return draftState;
+  },
+
+  [ReduxActionTypes.RUN_QUERY_MODULE_INSTANCE_INIT]: (
+    draftState: ModuleInstancePaneState,
+    action: ReduxAction<RunQueryModuleInstancePayload>,
+  ) => {
+    draftState.runningStatus[action.payload.id] = {
+      isRunning: true,
+    };
+    return draftState;
+  },
+
+  [ReduxActionTypes.RUN_QUERY_MODULE_INSTANCE_SUCCESS]: (
+    draftState: ModuleInstancePaneState,
+    action: ReduxAction<Action>,
+  ) => {
+    draftState.runningStatus[action.payload.id].isRunning = false;
+    draftState.runningStatus[action.payload.id].error = undefined;
+    return draftState;
+  },
+
+  [ReduxActionErrorTypes.RUN_QUERY_MODULE_INSTANCE_ERROR]: (
+    draftState: ModuleInstancePaneState,
+    action: ReduxAction<{ id: string; error: Error }>,
+  ) => {
+    draftState.runningStatus[action.payload.id].isRunning = false;
+    draftState.runningStatus[action.payload.id].error =
+      action.payload.error.message;
     return draftState;
   },
 

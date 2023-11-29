@@ -10,6 +10,10 @@ const DEFAULT_SAVING_STATUS = {
   error: false,
 };
 
+const DEFAULT_RUNNING_STATUS = {
+  isRunning: false,
+};
+
 export const getAllModuleInstances = (
   state: AppState,
 ): Record<ModuleInstanceId, ModuleInstance> => state.entities.moduleInstances;
@@ -30,11 +34,37 @@ export const getIsModuleInstanceNameSavingStatus = (
 };
 
 export const getModuleInstancePublicAction = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   state: AppState,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   moduleInstanceId: string,
 ): Action | undefined => {
-  // TODO: (Ashit) - When contextId and contextType comes
-  return undefined;
+  const action = state.entities.moduleInstanceEntities.actions.find(
+    (action) => {
+      return (
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        action.config.moduleInstanceId === moduleInstanceId &&
+        action.config.isPublic
+      );
+    },
+  );
+
+  return action?.config;
 };
+
+export const getModuleInstanceActionResponse = (
+  state: AppState,
+  actionId: string,
+) => {
+  const action = state.entities.moduleInstanceEntities.actions.find(
+    ({ config }) => config.id === actionId,
+  );
+
+  return action?.data;
+};
+
+export const getIsModuleInstanceRunningStatus = (
+  state: AppState,
+  moduleInstanceId: string,
+) =>
+  state.ui.moduleInstancePane.runningStatus[moduleInstanceId] ||
+  DEFAULT_RUNNING_STATUS;

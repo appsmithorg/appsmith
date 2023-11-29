@@ -7,9 +7,10 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 
 export interface CreateQueryModuleInstancePayload {
-  moduleId: string;
+  sourceModuleId: string;
   contextId: string;
   contextType: ModuleInstanceCreatorType;
+  name: string;
 }
 
 export interface UpdateModuleInstancePayload {
@@ -45,6 +46,10 @@ export interface SaveModuleInstanceNamePayload {
 }
 
 export interface DeleteModuleInstancePayload {
+  id: string;
+}
+
+export interface RunQueryModuleInstancePayload {
   id: string;
 }
 
@@ -114,5 +119,12 @@ export const saveModuleInstanceName = (
   payload: SaveModuleInstanceNamePayload,
 ) => ({
   type: ReduxActionTypes.SAVE_MODULE_INSTANCE_NAME_INIT,
+  payload,
+});
+
+export const runQueryModuleInstance = (
+  payload: RunQueryModuleInstancePayload,
+) => ({
+  type: ReduxActionTypes.RUN_QUERY_MODULE_INSTANCE_INIT,
   payload,
 });

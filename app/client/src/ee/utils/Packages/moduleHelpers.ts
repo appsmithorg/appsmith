@@ -7,7 +7,7 @@ import type { Package } from "@appsmith/constants/PackageConstants";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
-export const createNewQueryModuleName = (
+export const createNewModuleName = (
   allModules: ModulesReducerState,
   prefix: MODULE_PREFIX,
 ) => {

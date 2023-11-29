@@ -66,6 +66,7 @@ export enum EE_PERMISSION_TYPE {
   /** Module instance permissions */
   DELETE_MODULE_INSTANCES = "delete:moduleInstances",
   MANAGE_MODULE_INSTANCES = "manage:moduleInstances",
+  EXECUTE_MODULE_INSTANCES = "execute:moduleInstances",
   /** Workflow permissions */
   MANAGE_WORKSPACE_WORKFLOWS = "manage:workspaceWorkflows",
   READ_WORKSPACE_WORKFLOWS = "read:workspaceWorkflows",
@@ -186,6 +187,9 @@ export const hasDeleteModulePermission = (permissions?: string[]) =>
 
 export const hasCreateModuleActionsPermission = (permissions?: string[]) =>
   isPermitted(permissions, PERMISSION_TYPE.CREATE_MODULES_ACTIONS);
+
+export const hasExecuteModuleInstancePermission = (permissions?: string[]) =>
+  isPermitted(permissions, PERMISSION_TYPE.EXECUTE_MODULE_INSTANCES);
 
 export const hasCreateModuleDatasourceActionPermission = (
   permissions: string[] = [],

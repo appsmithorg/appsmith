@@ -62,12 +62,19 @@ function ModuleInputsForm({ defaultValues, moduleId }: ModuleInputsFormProps) {
       if (!moduleId) return;
 
       if (!equal(values.inputsForm, valuesRef.current)) {
-        valuesRef.current = klona(values.inputsForm);
+        const newValues = klona(values.inputsForm);
+        valuesRef.current = newValues;
+
+        newValues.forEach((section) => {
+          section.children.forEach((sectionProperties) => {
+            sectionProperties.propertyName = `inputs.${sectionProperties.label}`;
+          });
+        });
 
         dispatch(
           updateModuleInputs({
             id: moduleId,
-            inputsForm: values.inputsForm,
+            inputsForm: newValues,
           }),
         );
       }
