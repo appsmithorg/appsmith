@@ -25,8 +25,8 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   },
 });
 
-const cypressSpy = (actionType: any) => {
-  return actionType;
+const cypressSpy = (actionType: keyof typeof ReduxActionTypes) => {
+  return ReduxActionTypes[actionType];
 };
 
 const cypressSpyMiddleWare = () => (next: any) => (action: any) => {
