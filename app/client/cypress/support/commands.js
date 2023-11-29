@@ -6,6 +6,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
@@ -45,7 +46,6 @@ const locators = ObjectsRegistry.CommonLocators;
 const onboarding = ObjectsRegistry.Onboarding;
 const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
-const entityExplorer = ObjectsRegistry.EntityExplorer;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
 
@@ -1761,7 +1761,7 @@ Cypress.Commands.add("validateEvaluatedValue", (value) => {
 });
 
 Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
-  entityExplorer.ExpandCollapseEntity(item);
+  PageLeftPane.expandCollapseItem(item);
 });
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
