@@ -1,32 +1,28 @@
 import React, { useCallback } from "react";
 
-import type { AppTheme } from "entities/AppTheming";
 import { SegmentedControl, Tooltip } from "design-system";
+import type { ThemeSetting } from "constants/AppConstants";
 import { BORDER_RADIUS_OPTIONS } from "widgets/wds/constants";
-import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
 
 interface ThemeBorderRadiusControlProps {
-  selectedOption?: string;
-  theme: AppTheme;
-  updateTheme: (theme: AppTheme) => void;
+  theme: ThemeSetting;
+  updateTheme: (theme: ThemeSetting) => void;
 }
 
 function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
-  const { selectedOption, theme, updateTheme } = props;
+  const { theme, updateTheme } = props;
 
   /**
    * changes the border in theme
    */
   const onChangeBorder = useCallback(
     (value: string) => {
-      // logic for updating theme
+      updateTheme({ ...theme, borderRadius: value });
     },
     [updateTheme, theme],
   );
 
-  const selectedOptionKey = selectedOption
-    ? invertedBorderRadiusOptions[selectedOption]
-    : "";
+  const selectedOptionKey = theme.borderRadius;
 
   const buttonGroupOptions = BORDER_RADIUS_OPTIONS.map((optionKey) => ({
     label: (

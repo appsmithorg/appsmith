@@ -1,35 +1,17 @@
-import { startCase } from "lodash";
 import React, { useState } from "react";
-import styled from "styled-components";
 
-import type { AppTheme } from "entities/AppTheming";
-import { Switch, Tooltip } from "design-system";
+import { Switch } from "design-system";
 import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
-import { capitalizeFirstLetter } from "utils/helpers";
+import type { ThemeSetting } from "constants/AppConstants";
 
 interface ThemeColorControlProps {
-  theme: AppTheme;
-  updateTheme: (theme: AppTheme) => void;
+  theme: ThemeSetting;
+  updateTheme: (theme: ThemeSetting) => void;
 }
-
-const ColorBox = styled.div<{
-  background: string;
-}>`
-  background: ${({ background }) => background};
-  border: 2px solid var(--ads-v2-color-border);
-  width: 20px;
-  height: 20px;
-  border-radius: var(--ads-v2-border-radius-circle);
-  cursor: pointer;
-  &.selected {
-    border-color: var(--ads-v2-color-border-emphasis);
-  }
-`;
 
 function ThemeColorControl(props: ThemeColorControlProps) {
   const { theme, updateTheme } = props;
   const [autoFocus, setAutoFocus] = useState(false);
-  const userDefinedColors = theme.properties.colors;  
   const [isFullColorPicker, setFullColorPicker] = React.useState(false);
 
   return (
@@ -39,9 +21,9 @@ function ThemeColorControl(props: ThemeColorControlProps) {
         <ColorPickerComponent
           autoFocus={autoFocus}
           changeColor={(color: string) => {
-            setAutoFocus(false);
+            updateTheme({ ...theme, accentColor: color });
           }}
-          color="red"
+          color={theme.accentColor}
           isFullColorPicker={isFullColorPicker}
           isOpen={autoFocus}
           onPopupClosed={() => setAutoFocus(false)}
@@ -52,7 +34,14 @@ function ThemeColorControl(props: ThemeColorControlProps) {
         />
       </div>
       <div className="mt-2">
-        <Switch>DarkMode</Switch>
+        <Switch
+          defaultSelected={theme.colorMode === "dark"}
+          onChange={(isSelected: boolean) => {
+            updateTheme({ ...theme, colorMode: isSelected ? "dark" : "light" });
+          }}
+        >
+          DarkMode
+        </Switch>
       </div>
     </div>
   );

@@ -24,8 +24,11 @@ import type { CreateApplicationFormValues } from "pages/Applications/helpers";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
 import type { IconNames } from "design-system";
-import type { NavigationSetting } from "constants/AppConstants";
-import { defaultNavigationSetting, defaultThemeSetting } from "constants/AppConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
+import {
+  defaultNavigationSetting,
+  defaultThemeSetting,
+} from "constants/AppConstants";
 import produce from "immer";
 import { groupBy, isEmpty } from "lodash";
 
@@ -259,14 +262,6 @@ export const handlers = {
     ) {
       newState.currentApplication.applicationDetail.navigationSetting =
         defaultNavigationSetting;
-    }
-
-    if (
-      !newState.currentApplication.applicationDetail.themeSetting ||
-      isEmpty(newState.currentApplication.applicationDetail.navigationSetting)
-    ) {
-      newState.currentApplication.applicationDetail.themeSetting =
-        defaultThemeSetting;
     }
 
     return newState;
@@ -710,6 +705,24 @@ export const handlers = {
           ...state.currentApplication?.applicationDetail,
           navigationSetting: {
             ...defaultNavigationSetting,
+            ...action.payload,
+          },
+        },
+      },
+    };
+  },
+  [ReduxActionTypes.UPDATE_THEME_SETTING]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ThemeSetting>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        applicationDetail: {
+          ...state.currentApplication?.applicationDetail,
+          themeSetting: {
+            ...defaultThemeSetting,
             ...action.payload,
           },
         },

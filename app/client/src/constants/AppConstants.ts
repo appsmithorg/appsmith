@@ -92,8 +92,8 @@ export interface NavigationSetting {
 
 export interface ThemeSetting {
   accentColor: string;
-  mode: "light" | "dark";
-  borderRadius: number;
+  colorMode: "light" | "dark";
+  borderRadius: string;
   density: number;
   sizing: number;
 }
@@ -128,12 +128,12 @@ export const defaultNavigationSetting = {
     NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
 };
 
-export const defaultThemeSetting = {
-  accentColor: "red",
-  mode: "light",
-  borderRadius: 6,
-  density: 100,
-  sizing: 100,
+export const defaultThemeSetting: ThemeSetting = {
+  accentColor: "#553DE9",
+  colorMode: "light",
+  borderRadius: "6px",
+  density: 1,
+  sizing: 1,
 };
 
 export const SIDEBAR_WIDTH = {
