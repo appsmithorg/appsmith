@@ -7,7 +7,6 @@ import { saveActionName } from "actions/pluginActionActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getAction,
   getDatasource,
@@ -37,10 +36,10 @@ interface ExplorerActionEntityProps {
   id: string;
   type: PluginType;
   isActive: boolean;
+  parentEntityId: string;
 }
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
-  const pageId = useSelector(getCurrentPageId);
   const action = useSelector((state) => getAction(state, props.id)) as Action;
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
@@ -51,7 +50,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
 
   const config = getActionConfig(props.type);
   const url = config?.getURL(
-    pageId,
+    props.parentEntityId,
     action.id,
     action.pluginType,
     pluginGroups[action.pluginId],
@@ -99,7 +98,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       className={EntityClassNames.CONTEXT_MENU}
       id={action.id}
       name={action.name}
-      pageId={pageId}
+      pageId={props.parentEntityId}
     />
   );
   return (

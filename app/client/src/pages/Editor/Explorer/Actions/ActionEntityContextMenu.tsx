@@ -25,7 +25,6 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
 
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
@@ -44,7 +43,6 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const guidedTourEnabled = useSelector(inGuidedTour);
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const pageId = useSelector(getCurrentPageId);
   const copyActionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
       dispatch(
@@ -160,7 +158,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
       onSelect: () => {
         confirmDelete
           ? deleteActionFromPage(props.id, props.name, () => {
-              history.push(builderURL({ pageId }));
+              history.push(builderURL({ pageId: props.pageId }));
               setConfirmDelete(false);
             })
           : setConfirmDelete(true);
