@@ -1,14 +1,14 @@
 export const THEME_SETTINGS_DENSITY_OPTIONS = [
   {
-    label: "Loose",
+    label: "Tight",
     value: "0.8",
   },
   {
-    label: "normal",
+    label: "Regular",
     value: "1",
   },
   {
-    label: "Tight",
+    label: "Loose",
     value: "1.2",
   },
 ];
@@ -19,7 +19,7 @@ export const THEME_SETTINGS_SIZING_OPTIONS = [
     value: "0.8",
   },
   {
-    label: "Medium",
+    label: "Regular",
     value: "1",
   },
   {

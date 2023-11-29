@@ -3,7 +3,6 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SegmentedControl, Switch, Tooltip } from "design-system";
 import type { ThemeSetting } from "constants/AppConstants";
-import BetaCard from "components/editorComponents/BetaCard";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
@@ -65,107 +64,97 @@ function ThemePropertyPane() {
   );
 
   return (
-    <>
-      <header className="px-4 space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <SubText>Theme properties</SubText>
-            <BetaCard />
-          </div>
-        </div>
-      </header>
-      <main className="mt-1">
-        {/* COLORS */}
-        <SettingSection className="px-4 py-3" isDefaultOpen title="Color">
-          <section className="space-y-2">
-            <SubText>Accent Color</SubText>
-            <ColorPickerComponent
-              changeColor={(color: string) => {
-                updateTheme({
-                  ...theme,
-                  accentColor: color,
-                });
-              }}
-              color={theme.accentColor}
-              isFullColorPicker={isFullColorPicker}
-              portalContainer={
-                document.getElementById("app-settings-portal") || undefined
-              }
-              setFullColorPicker={setFullColorPicker}
-            />
-          </section>
-          <Switch
-            defaultSelected={theme.colorMode === "dark"}
-            onChange={(isSelected: boolean) => {
+    <main className="mt-1">
+      {/* COLORS */}
+      <SettingSection className="px-4 pb-3" isDefaultOpen title="Color">
+        <section className="space-y-2">
+          <SubText>Accent Color</SubText>
+          <ColorPickerComponent
+            changeColor={(color: string) => {
               updateTheme({
                 ...theme,
-                colorMode: isSelected ? "dark" : "light",
+                accentColor: color,
               });
             }}
-          >
-            Dark Mode
-          </Switch>
-        </SettingSection>
-
-        {/* BORDER RADIUS */}
-        <SettingSection
-          className="px-4 py-3 border-t "
-          isDefaultOpen
-          title="Border"
+            color={theme.accentColor}
+            isFullColorPicker={isFullColorPicker}
+            portalContainer={
+              document.getElementById("app-settings-portal") || undefined
+            }
+            setFullColorPicker={setFullColorPicker}
+          />
+        </section>
+        <Switch
+          defaultSelected={theme.colorMode === "dark"}
+          onChange={(isSelected: boolean) => {
+            updateTheme({
+              ...theme,
+              colorMode: isSelected ? "dark" : "light",
+            });
+          }}
         >
-          <section className="space-y-2">
-            <SubText>Border Radius</SubText>
-            <SegmentedControl
-              isFullWidth={false}
-              onChange={(value: string) => {
-                updateTheme({
-                  ...theme,
-                  borderRadius: value,
-                });
-              }}
-              options={buttonGroupOptions}
-              value={theme.borderRadius}
-            />
-          </section>
-        </SettingSection>
+          Dark Mode
+        </Switch>
+      </SettingSection>
 
-        {/* SPACING */}
-        <SettingSection
-          className="px-4 py-3 border-t"
-          isDefaultOpen
-          title="Spacing"
-        >
-          <section className="space-y-2">
-            <SubText>Density</SubText>
-            <SegmentedControl
-              isFullWidth={false}
-              onChange={(value: string) => {
-                updateTheme({
-                  ...theme,
-                  density: Number(value),
-                });
-              }}
-              options={THEME_SETTINGS_DENSITY_OPTIONS}
-              value={theme.density.toString()}
-            />
-          </section>
-          <section className="space-y-2">
-            <SubText>Sizing</SubText>
-            <SegmentedControl
-              isFullWidth={false}
-              onChange={(value: string) => {
-                updateTheme({
-                  ...theme,
-                  sizing: Number(value),
-                });
-              }}
-              options={THEME_SETTINGS_SIZING_OPTIONS}
-              value={theme.sizing.toString()}
-            />
-          </section>
-        </SettingSection>
-      </main>
-    </>
+      {/* BORDER RADIUS */}
+      <SettingSection
+        className="px-4 py-3 border-t "
+        isDefaultOpen
+        title="Border"
+      >
+        <section className="space-y-2">
+          <SubText>Border Radius</SubText>
+          <SegmentedControl
+            isFullWidth={false}
+            onChange={(value: string) => {
+              updateTheme({
+                ...theme,
+                borderRadius: value,
+              });
+            }}
+            options={buttonGroupOptions}
+            value={theme.borderRadius}
+          />
+        </section>
+      </SettingSection>
+
+      {/* SPACING */}
+      <SettingSection
+        className="px-4 py-3 border-t"
+        isDefaultOpen
+        title="Spacing"
+      >
+        <section className="space-y-2">
+          <SubText>Density</SubText>
+          <SegmentedControl
+            isFullWidth={false}
+            onChange={(value: string) => {
+              updateTheme({
+                ...theme,
+                density: Number(value),
+              });
+            }}
+            options={THEME_SETTINGS_DENSITY_OPTIONS}
+            value={theme.density.toString()}
+          />
+        </section>
+        <section className="space-y-2">
+          <SubText>Sizing</SubText>
+          <SegmentedControl
+            isFullWidth={false}
+            onChange={(value: string) => {
+              updateTheme({
+                ...theme,
+                sizing: Number(value),
+              });
+            }}
+            options={THEME_SETTINGS_SIZING_OPTIONS}
+            value={theme.sizing.toString()}
+          />
+        </section>
+      </SettingSection>
+    </main>
   );
 }
 

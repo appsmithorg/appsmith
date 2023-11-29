@@ -36,6 +36,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import BetaCard from "components/editorComponents/BetaCard";
 
 export enum AppSettingsTabs {
   General,
@@ -224,8 +225,9 @@ function AppSettings() {
               return (
                 <>
                   <div className="px-4">
-                    <SectionTitle>
+                    <SectionTitle className="flex items-center gap-2">
                       {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
+                      <BetaCard />
                     </SectionTitle>
                   </div>
                   <ThemeContentWrapper>
