@@ -27,6 +27,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
+    @Override
     public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
         Criteria criteria = where(fieldName(QCustomJSLib.customJSLib.uidString)).is(customJSLib.getUidString());
 
