@@ -11,6 +11,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
@@ -147,6 +149,7 @@ describe("DateTime Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
@@ -338,6 +341,7 @@ describe("DateTime Datatype tests", function () {
 
   it("12. Verify Deletion of the datasource after all created queries are deleted", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+    AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();

@@ -153,7 +153,9 @@ Cypress.Commands.add("createModal", (ModalName, property) => {
   //   .first()
   //   .trigger("mouseover");
 
-  EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
+  EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+    "Modal1",
+  ]);
 
   //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
   cy.testCodeMirror(ModalName);

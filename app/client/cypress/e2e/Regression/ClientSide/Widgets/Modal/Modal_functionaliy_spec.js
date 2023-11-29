@@ -1,6 +1,7 @@
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -101,6 +102,7 @@ describe("Modal Widget Functionality", function () {
       300,
       300,
     );
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     PageLeftPane.expandCollapseItem("Widgets", true);
 
     //select all widgets and copy
@@ -121,6 +123,7 @@ describe("Modal Widget Functionality", function () {
     //paste
     cy.get("body").type(`{${modifierKey}}v`);
 
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     PageLeftPane.expandCollapseItem("Widgets", true);
 
     //verify that the two modal widget should have pasted on the main canvas

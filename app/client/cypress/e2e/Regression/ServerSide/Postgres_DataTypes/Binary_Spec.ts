@@ -10,6 +10,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
@@ -377,6 +379,7 @@ describe("Binary Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 

@@ -266,6 +266,7 @@ describe("Json & JsonB Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
@@ -329,6 +330,7 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("13. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+    AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
@@ -668,6 +670,7 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("27. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+    AppSidebar.navigate(AppSidebarButton.Pages);
     PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
