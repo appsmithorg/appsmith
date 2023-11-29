@@ -55,7 +55,6 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
     private final ObjectMapper objectMapper;
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public AnalyticsEvents getRefactorAnalyticsEvent(EntityType entityType) {
         return REFACTOR_MODULE_INSTANCE;
     }
