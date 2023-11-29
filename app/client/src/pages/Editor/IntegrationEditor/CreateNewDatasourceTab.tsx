@@ -204,7 +204,6 @@ interface CreateNewDatasourceScreenProps {
   pageId: string;
   isAppSidebarEnabled: boolean;
   isEnabledForStartWithData: boolean;
-  currentApplicationIdForCreateNewApp?: string;
 }
 
 interface CreateNewDatasourceScreenState {
