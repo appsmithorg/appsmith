@@ -15,8 +15,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getAllUsers,
   getAllRoles,
-  getCurrentWorkspace,
   getWorkspaceLoadingStates,
+  getFetchedWorkspaces,
 } from "@appsmith/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
@@ -169,7 +169,7 @@ export default function MemberSettings(props: PageProps) {
   const allRoles = useSelector(getAllRoles);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  const currentWorkspace = useSelector(getCurrentWorkspace).find(
+  const currentWorkspace = useSelector(getFetchedWorkspaces).find(
     (el) => el.id === workspaceId,
   );
 
