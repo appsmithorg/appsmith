@@ -439,7 +439,7 @@ public class ApplicationServiceCETest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -705,7 +705,7 @@ public class ApplicationServiceCETest {
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();
@@ -987,7 +987,7 @@ public class ApplicationServiceCETest {
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();
@@ -1081,7 +1081,7 @@ public class ApplicationServiceCETest {
                 .findById(workspaceId, READ_WORKSPACES)
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();
@@ -1168,7 +1168,7 @@ public class ApplicationServiceCETest {
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();
@@ -1298,7 +1298,7 @@ public class ApplicationServiceCETest {
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();
@@ -1398,7 +1398,7 @@ public class ApplicationServiceCETest {
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();
@@ -1701,7 +1701,7 @@ public class ApplicationServiceCETest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -1877,7 +1877,7 @@ public class ApplicationServiceCETest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -2040,7 +2040,7 @@ public class ApplicationServiceCETest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -2394,7 +2394,7 @@ public class ApplicationServiceCETest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -3610,7 +3610,7 @@ public class ApplicationServiceCETest {
                 .findById(workspaceId, READ_WORKSPACES)
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();

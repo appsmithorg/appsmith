@@ -186,7 +186,7 @@ public class MockDataServiceTest {
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();
@@ -268,7 +268,7 @@ public class MockDataServiceTest {
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();
@@ -356,7 +356,7 @@ public class MockDataServiceTest {
         List<PermissionGroup> permissionGroups = Mono.just(workspace)
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList()
                 .block();

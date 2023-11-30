@@ -101,7 +101,7 @@ public class UserWorkspaceServiceTest {
         Set<String> permissionGroupIds = testWorkspace.getDefaultPermissionGroups();
 
         List<PermissionGroup> permissionGroups = permissionGroupRepository
-                .findAllById(permissionGroupIds)
+                .findAllByIdIn(permissionGroupIds)
                 .collectList()
                 .block();
 
@@ -143,7 +143,7 @@ public class UserWorkspaceServiceTest {
                 .flatMapMany(afterWorkspace -> {
                     Set<String> defaultPermissionGroups = afterWorkspace.getDefaultPermissionGroups();
 
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .flatMap(permissionGroup -> {
                     Set<String> userIds = permissionGroup.getAssignedToUserIds();
@@ -216,7 +216,7 @@ public class UserWorkspaceServiceTest {
         Set<String> permissionGroupIds = createdWorkspace.getDefaultPermissionGroups();
 
         List<PermissionGroup> permissionGroups = permissionGroupRepository
-                .findAllById(permissionGroupIds)
+                .findAllByIdIn(permissionGroupIds)
                 .collectList()
                 .block();
 
@@ -262,7 +262,7 @@ public class UserWorkspaceServiceTest {
         Set<String> permissionGroupIds = createdWorkspace.getDefaultPermissionGroups();
 
         List<PermissionGroup> permissionGroups = permissionGroupRepository
-                .findAllById(permissionGroupIds)
+                .findAllByIdIn(permissionGroupIds)
                 .collectList()
                 .block();
 

@@ -27,7 +27,7 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -137,7 +137,7 @@ public class WorkspaceServiceTest {
     private AssetRepository assetRepository;
 
     @Autowired
-    private PermissionGroupRepository permissionGroupRepository;
+    private PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
@@ -180,9 +180,7 @@ public class WorkspaceServiceTest {
                             .collect(Collectors.toSet());
                 });
 
-        Mono<Set<PermissionGroup>> userPermissionGroupsSetMono = userMono.flatMapMany(
-                        user -> permissionGroupRepository.findByAssignedToUserIdsIn(user.getId()))
-                .collect(Collectors.toSet());
+        Mono<Set<PermissionGroup>> userPermissionGroupsSetMono = userMono.map(User::getPermissionGroups);
 
         StepVerifier.create(Mono.zip(
                         Mono.just(workspace), userMono, defaultPermissionGroupMono, userPermissionGroupsSetMono))

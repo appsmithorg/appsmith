@@ -717,7 +717,7 @@ public class ThemeServiceTest {
                             .get();
 
                     return permissionGroupRepository
-                            .findAllById(readThemePolicy.getPermissionGroups())
+                            .findAllByIdIn(readThemePolicy.getPermissionGroups())
                             .filter(permissionGroup ->
                                     permissionGroup.getAssignedToUserIds().contains(anonymousUser.getId()))
                             .collectList();

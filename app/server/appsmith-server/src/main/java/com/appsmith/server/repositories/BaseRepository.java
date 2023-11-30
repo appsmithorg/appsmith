@@ -1,17 +1,17 @@
 package com.appsmith.server.repositories;
 
-import com.mongodb.client.result.UpdateResult;
+import com.appsmith.external.models.BaseDomain;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @NoRepositoryBean
-public interface BaseRepository<T, ID extends Serializable>
+public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
         extends CrudRepository<T, ID> /*, QuerydslPredicateExecutor<T>*/ {
 
     /**
@@ -20,6 +20,7 @@ public interface BaseRepository<T, ID extends Serializable>
      * @param id The identifier for this type
      * @return Optional<T>
      */
+    @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt is null and e.id = :id")
     Optional<T> retrieveById(ID id);
 
     /**
@@ -28,7 +29,9 @@ public interface BaseRepository<T, ID extends Serializable>
      * @param entity The entity which needs to be archived
      * @return Optional<T>
      */
-    Optional<T> archive(T entity);
+    default Optional<T> archive(T entity) {
+        return archiveById(entity.getId()) ? Optional.of(entity) : Optional.empty();
+    }
 
     /**
      * This function directly updates the document by setting the deleted flag to true for the entity with the given id
@@ -36,7 +39,9 @@ public interface BaseRepository<T, ID extends Serializable>
      * @param id The id of the document that needs to be archived
      * @return
      */
-    Optional<Boolean> archiveById(ID id);
+    @Modifying
+    @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.id = :id")
+    boolean archiveById(String id);
 
     /**
      * This function directly updates the DB by setting the deleted flag to true for all the documents in the collection
@@ -45,14 +50,7 @@ public interface BaseRepository<T, ID extends Serializable>
      * @param ids The list of ids of the document that needs to be archived.
      * @return
      */
+    @Modifying
+    @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.id IN :ids")
     Optional<Boolean> archiveAllById(Collection<ID> ids);
-
-    Optional<T> findByIdAndBranchName(ID id, String branchName);
-
-    /**
-     * When `fieldNames` is blank, this method will return the entire object. Otherwise, it will return only the values
-     * against the `fieldNames` property in the matching object.
-     */
-    Optional<T> findByIdAndFieldNames(ID id, List<String> fieldNames);
-
 }

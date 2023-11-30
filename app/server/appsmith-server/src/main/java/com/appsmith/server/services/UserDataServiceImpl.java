@@ -5,7 +5,6 @@ import com.appsmith.server.repositories.UserDataRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.ce.UserDataServiceCEImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -27,7 +26,6 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
-            UserChangedHandler userChangedHandler,
             ApplicationRepositoryCake applicationRepository,
             TenantService tenantService) {
 
@@ -43,7 +41,6 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
                 assetService,
                 releaseNotesService,
                 featureFlagService,
-                userChangedHandler,
                 applicationRepository,
                 tenantService);
     }

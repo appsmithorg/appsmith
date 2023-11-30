@@ -226,7 +226,7 @@ public class PageServiceTest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -319,7 +319,7 @@ public class PageServiceTest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -403,7 +403,7 @@ public class PageServiceTest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -487,7 +487,7 @@ public class PageServiceTest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -572,7 +572,7 @@ public class PageServiceTest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 
@@ -774,7 +774,7 @@ public class PageServiceTest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 

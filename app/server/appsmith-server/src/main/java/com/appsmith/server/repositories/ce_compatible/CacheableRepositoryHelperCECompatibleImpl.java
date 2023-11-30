@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce_compatible;
 
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
-import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.ce.CacheableRepositoryHelperCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;

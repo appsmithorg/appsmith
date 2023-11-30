@@ -287,7 +287,7 @@ public class ActionCollectionServiceTest {
         Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .collectList();
 

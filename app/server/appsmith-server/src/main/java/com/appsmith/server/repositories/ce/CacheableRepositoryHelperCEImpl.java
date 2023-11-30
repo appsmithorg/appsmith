@@ -9,7 +9,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
-import com.appsmith.server.repositories.TenantRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -177,8 +176,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(defaultTenantId);
         }
 
-        Criteria defaultTenantCriteria =
-            Criteria.where("slug").is(FieldName.DEFAULT);
+        Criteria defaultTenantCriteria = Criteria.where("slug").is(FieldName.DEFAULT);
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
 

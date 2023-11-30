@@ -12,11 +12,9 @@ import java.util.Set;
 public interface PermissionGroupRepositoryCE
         extends BaseRepository<PermissionGroup, String>, CustomPermissionGroupRepository {
 
-    List<PermissionGroup> findAllById(Set<String> ids);
+    List<PermissionGroup> findAllByIdIn(Set<String> ids);
 
     Optional<PermissionGroup> findById(String id, AclPermission permission);
-
-    List<PermissionGroup> findByAssignedToUserIdsIn(String userId);
 
     List<PermissionGroup> findByDefaultWorkspaceId(String defaultWorkspaceId);
 

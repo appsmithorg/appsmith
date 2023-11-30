@@ -5,8 +5,12 @@ import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.domains.Application;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,11 +19,18 @@ import org.hibernate.annotations.Type;
 @Getter
 @Setter
 @ToString
+@MappedSuperclass
 public class NewActionCE extends BranchAwareDomain {
 
     // Fields in action that are not allowed to change between published and unpublished versions
+
+    @JoinColumn(name = "application_id", referencedColumnName = "id")
     @JsonView(Views.Public.class)
-    String applicationId;
+    private Application application;
+
+    @Column(name = "application_id", insertable = false, updatable = false)
+    @JsonView(Views.Public.class)
+    private String applicationId;
 
     // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
@@ -43,14 +54,19 @@ public class NewActionCE extends BranchAwareDomain {
 
     @JsonView(Views.Public.class)
     @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     Documentation documentation; // Documentation for the template using which this action was created
 
     // Action specific fields that are allowed to change between published and unpublished versions
     @JsonView(Views.Public.class)
-    ActionDTO unpublishedAction;
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
+    private ActionDTO unpublishedAction;
 
     @JsonView(Views.Public.class)
-    ActionDTO publishedAction;
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
+    private ActionDTO publishedAction;
 
     @Override
     public void sanitiseToExportDBObject() {

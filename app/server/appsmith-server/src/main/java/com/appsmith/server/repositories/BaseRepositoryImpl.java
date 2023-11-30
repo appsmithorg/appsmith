@@ -4,9 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.blasphemy.DBConnection;
 import com.appsmith.server.constants.FieldName;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.persistence.EntityManager;
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -67,7 +65,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  */
 @Slf4j
 public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> extends SimpleJpaRepository<T, ID>
-        implements BaseRepository<T, ID> {
+/*implements BaseRepository<T, ID>*/ {
 
     protected final @NonNull JpaEntityInformation<T, ID> entityInformation;
     protected final @NonNull EntityManager entityManager;
@@ -100,12 +98,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                      return where(entityInformation.getIdAttribute()).is(id);*/
     }
 
-    /**
-     * When `fieldName` is blank, this method will return the entire object. Otherwise, it will return only the value
-     * against the `fieldName` property in the matching object.
-     */
     @Override
-    public Optional<T> findByIdAndFieldNames(ID id, List<String> fieldNames) {
+    public Optional<T> findById(ID id) {
         return Optional.empty(); /*
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
@@ -115,45 +109,12 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(notDeleted());
 
-                    if (fieldNames != null && fieldNames.size() > 0) {
-                        fieldNames.forEach(fieldName -> {
-                            if (!isBlank(fieldName)) {
-                                query.fields().include(fieldName);
-                            }
-                        });
-                    }
-
                     return entityManager
                             .query(entityInformation.getJavaType())
                             .inCollection(entityInformation.getCollectionName())
                             .matching(query)
                             .one();
                 });*/
-    }
-
-    @Override
-    public Optional<T> retrieveById(ID id) {
-        return Optional.empty(); /*
-        Query query = new Query(getIdCriteria(id));
-        query.addCriteria(notDeleted());
-
-        return entityManager
-                .query(entityInformation.getJavaType())
-                .inCollection(entityInformation.getCollectionName())
-                .matching(query)
-                .one();*/
-    }
-
-    @Override
-    public Optional<T> findById(ID id) {
-        return Optional.empty(); /*
-        return this.findByIdAndFieldNames(id, null);*/
-    }
-
-    @Override
-    public Optional<T> findByIdAndBranchName(ID id, String branchName) {
-        // branchName will be ignored and this method is overridden for the services which are shared across branches
-        return this.findById(id);
     }
 
     @Override
@@ -211,63 +172,11 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         return findAll(example, Sort.unsorted());
     }
 
-    @Override
-    public Optional<T> archive(T entity) {
-        return Optional.empty(); /*
-        Assert.notNull(entity, "The given entity must not be null!");
-        Assert.notNull(entity.getId(), "The given entity's id must not be null!");
-        // Entity is already deleted
-        if (entity.isDeleted()) {
-            return Mono.just(entity);
-        }
-
-        entity.setDeletedAt(Instant.now());
-        return entityManager.save(entity, entityInformation.getCollectionName());*/
-    }
-
-    @Override
-    public Optional<Boolean> archiveById(ID id) {
-        return Optional.empty(); /*
-        Assert.notNull(id, "The given id must not be null!");
-
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
-
-                    return entityManager
-                            .updateFirst(query, getForArchive(), entityInformation.getJavaType())
-                            .map(result -> result.getModifiedCount() > 0 ? true : false);
-                });*/
-    }
-
     public Update getForArchive() {
         Update update = new Update();
         update.set(FieldName.DELETED, true);
         update.set(FieldName.DELETED_AT, Instant.now());
         return update;
-    }
-
-    @Override
-    public Optional<Boolean> archiveAllById(Collection<ID> ids) {
-        return Optional.empty(); /*
-        Assert.notNull(ids, "The given ids must not be null!");
-        Assert.notEmpty(ids, "The given list of ids must not be empty!");
-
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query();
-                    query.addCriteria(new Criteria().where(FieldName.ID).in(ids));
-                    query.addCriteria(notDeleted());
-
-                    return entityManager
-                            .updateMulti(query, getForArchive(), entityInformation.getJavaType())
-                            .map(result -> result.getModifiedCount() > 0 ? true : false);
-                });*/
     }
 
     @Override

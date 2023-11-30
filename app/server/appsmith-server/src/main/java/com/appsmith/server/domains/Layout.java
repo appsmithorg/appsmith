@@ -23,7 +23,7 @@ import static java.lang.Boolean.TRUE;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Layout /*extends BaseDomain*/ {
+public class Layout {
 
     String id;
 

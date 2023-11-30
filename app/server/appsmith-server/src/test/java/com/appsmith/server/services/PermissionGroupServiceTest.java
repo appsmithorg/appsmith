@@ -57,7 +57,7 @@ public class PermissionGroupServiceTest {
 
         Set<String> defaultPermissionGroupIds = createdWorkspace.getDefaultPermissionGroups();
         List<PermissionGroup> defaultPermissionGroups = permissionGroupRepository
-                .findAllById(defaultPermissionGroupIds)
+                .findAllByIdIn(defaultPermissionGroupIds)
                 .collectList()
                 .block();
 

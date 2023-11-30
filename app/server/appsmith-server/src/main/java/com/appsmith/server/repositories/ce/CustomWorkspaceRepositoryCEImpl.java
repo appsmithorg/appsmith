@@ -52,17 +52,6 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Optional<Void> updateUserRoleNames(String userId, String userName) {
-        return Optional.empty(); /*
-        return mongoOperations
-                .updateMulti(
-                        Query.query(Criteria.where("userRoles.userId").is(userId)),
-                        Update.update("userRoles.$.name", userName),
-                        Workspace.class)
-                .then();*/
-    }
-
-    @Override
     public List<Workspace> findAllWorkspaces() {
         return Collections.emptyList(); /*
         return mongoOperations.find(new Query(), Workspace.class);*/

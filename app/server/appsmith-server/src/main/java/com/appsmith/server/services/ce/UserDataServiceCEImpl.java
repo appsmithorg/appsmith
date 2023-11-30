@@ -17,7 +17,6 @@ import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
@@ -52,8 +51,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
 
     private final FeatureFlagService featureFlagService;
 
-    private final UserChangedHandler userChangedHandler;
-
     private final ApplicationRepositoryCake applicationRepository;
 
     private final TenantService tenantService;
@@ -73,7 +70,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
-            UserChangedHandler userChangedHandler,
             ApplicationRepositoryCake applicationRepository,
             TenantService tenantService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
@@ -82,7 +78,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepositoryCake, U
         this.assetService = assetService;
         this.sessionUserService = sessionUserService;
         this.featureFlagService = featureFlagService;
-        this.userChangedHandler = userChangedHandler;
         this.applicationRepository = applicationRepository;
         this.tenantService = tenantService;
     }

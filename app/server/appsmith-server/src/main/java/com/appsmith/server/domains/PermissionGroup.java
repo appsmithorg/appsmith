@@ -35,7 +35,7 @@ public class PermissionGroup extends BaseDomain {
     @Deprecated
     private Set<Permission> permissions;
 
-    @OneToMany
+    @ManyToMany
     private Set<User> assignedToUsers;
 
     @OneToMany

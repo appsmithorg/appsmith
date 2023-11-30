@@ -5,7 +5,6 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomWorkspaceRepository;
 
 import java.util.Optional;
-import java.util.List;
 
 public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>, CustomWorkspaceRepository {
 
@@ -14,8 +13,6 @@ public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>
     Optional<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
 
     Optional<Workspace> findByName(String name);
-
-    Optional<Void> updateUserRoleNames(Long userId, String userName);
 
     Optional<Long> countByDeletedAtNull();
 }
