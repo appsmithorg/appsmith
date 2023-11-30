@@ -13,18 +13,22 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import jakarta.validation.Validator;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +55,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static java.lang.Boolean.TRUE;
+import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionRepository, ActionCollection, String>
@@ -63,6 +70,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
     private final ActionPermission actionPermission;
+    private final PagePermission pagePermission;
+
+    private final NewPageService newPageService;
 
     @Autowired
     public ActionCollectionServiceCEImpl(
@@ -73,19 +83,23 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             ActionCollectionRepository repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
+            NewPageService newPageService,
             PolicyGenerator policyGenerator,
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
             ActionPermission actionPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
+        this.newPageService = newPageService;
         this.policyGenerator = policyGenerator;
         this.applicationService = applicationService;
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
         this.actionPermission = actionPermission;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -148,6 +162,18 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(actionCollectionDTO -> this.populateActionCollectionByViewMode(actionCollectionDTO, viewMode));
     }
 
+    public Flux<ActionCollectionDTO> getAllUnpublishedActionCollectionsInApplication(
+        @NonNull String pageId, String branchName) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            return newPageService.findPageById(pageId, pagePermission.getReadPermission(), true)
+                .map(PageDTO::getApplicationId)
+                .flatMapMany(applicationId -> {
+                    params.put(APPLICATION_ID, singletonList(applicationId));
+                    return getPopulatedActionCollectionsByViewMode(params, false, branchName);
+                });
+    }
+
+
     @Override
     public Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
             MultiValueMap<String, String> params, Boolean viewMode, String branchName) {
@@ -208,10 +234,25 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         });
     }
 
+    public Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId,
+                                                                         String pageId, String branchName) {
+
+        if (!isBlank(applicationId)) {
+            return getActionCollectionsForViewMode(applicationId, branchName);
+        }
+        else if (!isBlank(pageId)) {
+            return newPageService.findPageById(pageId, pagePermission.getReadPermission(), true)
+                .map(PageDTO::getApplicationId)
+                .flatMapMany(appId ->  getActionCollectionsForViewMode(appId, branchName));
+        }
+
+        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "application id / page id"));
+    }
+
     @Override
     public Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId, String branchName) {
         if (applicationId == null || applicationId.isEmpty()) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, APPLICATION_ID));
         }
 
         return applicationService
@@ -281,13 +322,13 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         if (params == null || viewMode == null) {
             return Flux.empty();
         }
-        if (params.getFirst(FieldName.APPLICATION_ID) != null) {
+        if (params.getFirst(APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
             return applicationService
                     .findBranchedApplicationId(
                             params.getFirst(FieldName.BRANCH_NAME),
-                            params.getFirst(FieldName.APPLICATION_ID),
+                            params.getFirst(APPLICATION_ID),
                             applicationPermission.getReadPermission())
                     .flatMapMany(childApplicationId -> repository.findByApplicationIdAndViewMode(
                             childApplicationId, viewMode, actionPermission.getReadPermission()))

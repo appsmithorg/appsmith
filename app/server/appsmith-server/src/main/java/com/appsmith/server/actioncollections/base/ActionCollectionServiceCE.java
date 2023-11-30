@@ -33,6 +33,9 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
             MultiValueMap<String, String> params, Boolean viewMode, String branchName);
 
+    Flux<ActionCollectionDTO> getAllUnpublishedActionCollectionsInApplication(
+        String pageId, String branchName);
+
     Mono<ActionCollectionDTO> populateActionCollectionByViewMode(
             ActionCollectionDTO actionCollectionDTO1, Boolean viewMode);
 
@@ -57,6 +60,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
             String id, Boolean viewMode, AclPermission permission);
 
     Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId, String branchName);
+    Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId, String pageId,
+                                                                  String branchName);
 
     Flux<ActionCollection> findByPageId(String pageId);
 

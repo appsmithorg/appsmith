@@ -58,6 +58,7 @@ import com.appsmith.server.solutions.PolicySolution;
 import com.mongodb.bulk.BulkWriteResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
@@ -95,8 +96,10 @@ import static com.appsmith.external.constants.spans.ActionSpan.GET_VIEW_MODE_ACT
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
@@ -788,7 +791,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
 
         if (applicationId == null || applicationId.isEmpty()) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, APPLICATION_ID));
         }
 
         // fetch the published actions by applicationId
@@ -994,17 +997,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         Flux<NewAction> actionsFromRepository;
 
-        if (params.getFirst(FieldName.APPLICATION_ID) != null) {
+        if (params.getFirst(APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
 
             if (FALSE.equals(includeJsActions)) {
                 actionsFromRepository = repository.findNonJsActionsByApplicationIdAndViewMode(
-                        params.getFirst(FieldName.APPLICATION_ID), false, actionPermission.getReadPermission());
+                        params.getFirst(APPLICATION_ID), false, actionPermission.getReadPermission());
 
             } else {
                 actionsFromRepository = repository.findByApplicationIdAndViewMode(
-                        params.getFirst(FieldName.APPLICATION_ID), false, actionPermission.getReadPermission());
+                        params.getFirst(APPLICATION_ID), false, actionPermission.getReadPermission());
             }
 
         } else {
@@ -1025,7 +1028,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 // this generates four different tags, (ApplicationId, FieldId) *(True, False)
                 .tag(
                         "includeJsAction",
-                        (params.get(FieldName.APPLICATION_ID) == null ? FieldName.PAGE_ID : FieldName.APPLICATION_ID)
+                        (params.get(APPLICATION_ID) == null ? FieldName.PAGE_ID : APPLICATION_ID)
                                 + includeJsActions.toString())
                 .name(GET_ACTION_REPOSITORY_CALL)
                 .tap(Micrometer.observation(observationRegistry));
@@ -1041,11 +1044,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 ? Mono.just(new NewPage())
                 : newPageService.findByBranchNameAndDefaultPageId(
                         branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission());
-        Mono<Application> branchedApplicationMono = !StringUtils.hasLength(params.getFirst(FieldName.APPLICATION_ID))
+        Mono<Application> branchedApplicationMono = !StringUtils.hasLength(params.getFirst(APPLICATION_ID))
                 ? Mono.just(new Application())
                 : applicationService.findByBranchNameAndDefaultApplicationId(
                         branchName,
-                        params.getFirst(FieldName.APPLICATION_ID),
+                        params.getFirst(APPLICATION_ID),
                         applicationPermission.getReadPermission());
 
         return Mono.zip(branchedApplicationMono, branchedPageMono)
@@ -1055,9 +1058,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (!CollectionUtils.isEmpty(params.get(FieldName.PAGE_ID)) && StringUtils.hasLength(pageId)) {
                         updatedParams.set(FieldName.PAGE_ID, pageId);
                     }
-                    if (!CollectionUtils.isEmpty(params.get(FieldName.APPLICATION_ID))
+                    if (!CollectionUtils.isEmpty(params.get(APPLICATION_ID))
                             && StringUtils.hasLength(applicationId)) {
-                        updatedParams.set(FieldName.APPLICATION_ID, applicationId);
+                        updatedParams.set(APPLICATION_ID, applicationId);
                     }
                     return getUnpublishedActions(updatedParams, includeJsActions);
                 })
@@ -1072,6 +1075,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName) {
         return getUnpublishedActions(params, branchName, TRUE);
+    }
+
+    public Flux<ActionDTO> getAllUnpublishedActionsInAppExceptJsUsingPageId(@NonNull String pageId,
+                                                                     String branchName) {
+        return newPageService.findById(pageId, pagePermission.getReadPermission())
+            .map(NewPage::getApplicationId)
+            .flatMapMany(applicationId -> {
+                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                params.put(APPLICATION_ID, singletonList(applicationId));
+                return getUnpublishedActionsExceptJs(params, branchName);
+            });
     }
 
     @Override
