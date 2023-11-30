@@ -220,12 +220,16 @@ describe("Tree Select widget Tests", function () {
       "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
     );
     deployMode.DeployApp();
+    let oldUrl: string = "";
+    cy.url().then((url) => {
+      oldUrl = url;
+    });
     agHelper.GetNClick(
       `${locators._widgetInDeployed("singleselecttreewidget")}`,
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
     agHelper.AssertURL("yahoo.com");
-    agHelper.BrowserNavigation(-1);
+    cy.visit(oldUrl);
   });
 
   it("8. Verify onOptionChange with Alert", () => {
