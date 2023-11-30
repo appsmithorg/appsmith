@@ -97,6 +97,7 @@ describe("WorkflowCardList", () => {
           <WorkflowCardList
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -117,6 +118,7 @@ describe("WorkflowCardList", () => {
           <WorkflowCardList
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -143,6 +145,7 @@ describe("WorkflowCardList", () => {
           <WorkflowCardList
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>
@@ -163,6 +166,7 @@ describe("WorkflowCardList", () => {
           <WorkflowCardList
             isMobile={false}
             workflows={DEFAULT_WORKFLOWS_LIST}
+            workspace={DEFAULT_USER_WORKSPACES[0]}
             workspaceId={DEFAULT_WORKSPACE_ID}
           />
         </Provider>

@@ -35,10 +35,10 @@ import {
   getWorkflowById,
   getWorkflowsList,
 } from "@appsmith/selectors/workflowSelectors";
-import { getWorkspaces } from "ce/selectors/workspaceSelectors";
 import type { Workspaces } from "ce/constants/workspaceConstants";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { workflowEditorURL } from "@appsmith/RouteBuilder";
+import { getFetchedWorkspaces } from "ce/selectors/workspaceSelectors";
 
 interface CreateWorkflowSagaProps {
   workspaceId: string;
@@ -171,7 +171,7 @@ export function* fetchWorkflowSaga(payload: FetchWorkflowPayload) {
 export function* fetchAllWorkflowsSaga() {
   try {
     // TODO (Workflows): Remove and add call without workspaceId
-    const workspaces: Workspaces[] = yield select(getWorkspaces);
+    const workspaces: Workspaces[] = yield select(getFetchedWorkspaces);
 
     const workspaceIds = workspaces.map((w) => w.workspace.id);
 
@@ -270,7 +270,7 @@ export default function* workflowsSagas() {
     ),
     // TODO (Workflows):(Change once we get fetchAllWorkflows without dependance on workspaceId)
     takeLatest(
-      ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
+      ReduxActionTypes.FETCH_ALL_WORKSPACES_SUCCESS,
       fetchAllWorkflowsSaga,
     ),
     takeLatest(
