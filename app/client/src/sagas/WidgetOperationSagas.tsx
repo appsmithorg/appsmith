@@ -408,6 +408,7 @@ function getDynamicBindingPathListUpdate(
     };
   }
 
+  //test
   const isDynamic = isDynamicValue(stringProp);
   if (!isDynamic && isPathADynamicBinding(widget, propertyPath)) {
     return {
