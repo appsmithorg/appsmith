@@ -388,6 +388,14 @@ function getDynamicTriggerPathListUpdate(
   };
 }
 
+const DYNAMIC_BINDING_IGNORED_LIST = [
+  "primaryColumns",
+  "derivedColumns",
+  "srcDoc.html",
+  "srcDoc.css",
+  "srcDoc.js",
+];
+
 function getDynamicBindingPathListUpdate(
   widget: WidgetProps,
   propertyPath: string,
@@ -399,16 +407,14 @@ function getDynamicBindingPathListUpdate(
     stringProp = JSON.stringify(propertyValue);
   }
 
-  //TODO(abhinav): This is not appropriate from the platform's archtecture's point of view.
   // Figure out a holistic solutions where we donot have to stringify above.
-  if (propertyPath === "primaryColumns" || propertyPath === "derivedColumns") {
+  if (DYNAMIC_BINDING_IGNORED_LIST.includes(propertyPath)) {
     return {
       propertyPath,
       effect: DynamicPathUpdateEffectEnum.NOOP,
     };
   }
 
-  //test
   const isDynamic = isDynamicValue(stringProp);
   if (!isDynamic && isPathADynamicBinding(widget, propertyPath)) {
     return {
