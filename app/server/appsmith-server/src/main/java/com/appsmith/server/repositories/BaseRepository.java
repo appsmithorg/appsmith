@@ -6,7 +6,6 @@ import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 @NoRepositoryBean
 public interface BaseRepository<T, ID extends Serializable> extends ReactiveMongoRepository<T, ID> {
@@ -43,12 +42,4 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      * @return
      */
     Mono<Boolean> archiveAllById(Collection<ID> ids);
-
-    Mono<T> findByIdAndBranchName(ID id, String branchName);
-
-    /**
-     * When `fieldNames` is blank, this method will return the entire object. Otherwise, it will return only the values
-     * against the `fieldNames` property in the matching object.
-     */
-    Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames);
 }
