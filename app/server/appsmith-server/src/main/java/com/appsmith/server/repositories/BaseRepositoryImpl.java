@@ -2,8 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
-import com.mongodb.client.result.UpdateResult;
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -23,7 +21,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -142,27 +139,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     public Mono<T> findByIdAndBranchName(ID id, String branchName) {
         // branchName will be ignored and this method is overridden for the services which are shared across branches
         return this.findById(id);
-    }
-
-    /**
-     * This method is supposed to update the given list of field names with the associated values in an object as opposed to replacing the entire object.
-     */
-    @Override
-    public Mono<UpdateResult> updateByIdAndFieldNames(@NotNull ID id, @NotNull Map<String, Object> fieldNameValueMap) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
-
-                    Update update = new Update();
-                    fieldNameValueMap.forEach((fieldName, fieldValue) -> {
-                        update.set(fieldName, fieldValue);
-                    });
-
-                    return mongoOperations.updateFirst(query, update, entityInformation.getJavaType());
-                });
     }
 
     @Override
