@@ -43,7 +43,7 @@ export const generateQueryModuleInstance = (
   configEntity: QueryModuleInstanceEntityConfig;
 } => {
   const getPublicEntity = moduleInstanceEntities.actions.filter(
-    (action: any) =>
+    (action) =>
       action.config.isPublic &&
       action.config.moduleInstanceId === moduleInstance.id,
   );

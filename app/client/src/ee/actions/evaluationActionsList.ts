@@ -28,6 +28,7 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.CREATE_QUERY_MODULE_SUCCESS]: true,
   [ReduxActionTypes.FETCH_ALL_MODULE_ENTITY_COMPLETION]: true,
   [ReduxActionTypes.DELETE_QUERY_MODULE_SUCCESS]: true,
+  [ReduxActionTypes.UPDATE_MODULE_INPUTS_SUCCESS]: true,
   // Module instances
   [ReduxActionTypes.CREATE_MODULE_INSTANCE_SUCCESS]: true,
   [ReduxActionTypes.SETUP_MODULE_INSTANCE_SUCCESS]: true,
