@@ -14,7 +14,7 @@ describe(
     it("1. Create gsheet datasource, click on back button, discard popup should contain save and authorize", function () {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Google Sheets");
-      AppSidebar.navigate(AppSidebarButton.Pages, true);
+      AppSidebar.navigate(AppSidebarButton.Editor, true);
       agHelper.AssertContains(
         "Save & Authorize",
         "exist",
@@ -26,7 +26,7 @@ describe(
       dataSources.CreatePlugIn("PostgreSQL");
       // Need to add values since without that, going back won't show any popup
       dataSources.FillPostgresDSForm();
-      AppSidebar.navigate(AppSidebarButton.Pages, true);
+      AppSidebar.navigate(AppSidebarButton.Editor, true);
       agHelper.AssertContains(
         "Save",
         "exist",

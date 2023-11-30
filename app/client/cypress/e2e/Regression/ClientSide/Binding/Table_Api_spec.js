@@ -1,12 +1,12 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
 import apiLocators from "../../../../locators/ApiEditor";
 import {
   apiPage,
-  entityExplorer,
   agHelper,
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
@@ -65,7 +65,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
-    entityExplorer.ExpandCollapseEntity("Widgets");
+    PageLeftPane.expandCollapseItem("Widgets");
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
       "Container3",
     ]);
