@@ -4,6 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.helpers.PluginScheduledTaskUtils;
 import com.appsmith.server.services.ConfigService;
+import io.micrometer.observation.annotation.Observed;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,6 +30,7 @@ public class PluginScheduledTaskCEImpl implements PluginScheduledTaskCE {
 
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 30 * 1000 /* 30 seconds */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
+    @Observed(name = "updateRemotePlugins")
     public void updateRemotePlugins() {
         // Moving the fetch and update remote plugins to helper classes to have custom implementation for business
         // edition
