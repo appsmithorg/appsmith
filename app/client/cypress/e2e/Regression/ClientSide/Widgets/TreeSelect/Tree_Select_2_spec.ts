@@ -217,7 +217,7 @@ describe("Tree Select widget Tests", function () {
     propPane.ToggleJSMode("onOptionChange", true);
     propPane.UpdatePropertyFieldValue(
       "onOptionChange",
-      "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
+      "{{navigateTo('www.google.com', {}, 'SAME_WINDOW');}}",
     );
     deployMode.DeployApp();
     let oldUrl: string = "";
@@ -228,7 +228,7 @@ describe("Tree Select widget Tests", function () {
       `${locators._widgetInDeployed("singleselecttreewidget")}`,
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-    agHelper.AssertURL("yahoo.com");
+    agHelper.AssertURL("google.com");
     cy.visit(oldUrl);
   });
 
