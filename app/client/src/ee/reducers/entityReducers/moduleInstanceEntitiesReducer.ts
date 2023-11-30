@@ -8,7 +8,8 @@ import type { Action } from "entities/Action";
 import type { ActionData } from "./actionsReducer";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { ActionResponse } from "api/ActionAPI";
-import _ from "lodash";
+import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { assign, set } from "lodash";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import type {
   CreateModuleInstanceResponse,
@@ -128,7 +129,7 @@ export const handlers = {
     draftState.actions.forEach((a) => {
       if (a.config.id === actionId) {
         a.isLoading = false;
-        if (a.data) _.assign(a.data, action.payload[actionId]);
+        if (a.data) assign(a.data, action.payload[actionId]);
         else a.data = action.payload[actionId];
       }
     });
@@ -140,7 +141,7 @@ export const handlers = {
   ) => {
     draftState.actions.forEach((a) => {
       if (a.config.id === action.payload.id) {
-        return _.set(a, `data.${action.payload.field}`, action.payload.value);
+        return set(a, `data.${action.payload.field}`, action.payload.value);
       }
     });
   },
@@ -202,6 +203,83 @@ export const handlers = {
       });
     });
     return draftState;
+  },
+  [ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST]: (
+    draftMetaState: ModuleInstanceEntitiesReducerState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    draftMetaState.actions.forEach((a) => {
+      if (a.config.id === action.payload.id) {
+        a.isLoading = true;
+      }
+    });
+  },
+  [ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS]: (
+    draftMetaState: ModuleInstanceEntitiesReducerState,
+    action: ReduxAction<{ id: string; response: ActionResponse }>,
+  ) => {
+    const foundAction = draftMetaState.actions.find((stateAction) => {
+      return stateAction.config.id === action.payload.id;
+    });
+    if (foundAction) {
+      foundAction.isLoading = false;
+      foundAction.data = action.payload.response;
+    }
+  },
+  [ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR]: (
+    draftMetaState: ModuleInstanceEntitiesReducerState,
+    action: ReduxAction<ExecuteErrorPayload>,
+  ) => {
+    draftMetaState.actions.forEach((a) => {
+      if (a.config.id === action.payload.actionId) {
+        a.isLoading = false;
+        a.data = action.payload.data;
+      }
+    });
+  },
+
+  [ReduxActionTypes.RUN_ACTION_REQUEST]: (
+    draftMetaState: ModuleInstanceEntitiesReducerState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    draftMetaState.actions.forEach((a) => {
+      if (action.payload.id === a.config.id) {
+        a.isLoading = true;
+      }
+    });
+  },
+  [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
+    draftMetaState: ModuleInstanceEntitiesReducerState,
+    action: ReduxAction<{ [id: string]: ActionResponse }>,
+  ) => {
+    const actionId = Object.keys(action.payload)[0];
+    draftMetaState.actions.forEach((a) => {
+      if (a.config.id === actionId) {
+        a.isLoading = false;
+        if (a.data) assign(a.data, action.payload[actionId]);
+        else a.data = action.payload[actionId];
+      }
+    });
+  },
+  [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
+    draftMetaState: ModuleInstanceEntitiesReducerState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    draftMetaState.actions.forEach((a) => {
+      if (a.config.id === action.payload.id) {
+        a.isLoading = false;
+      }
+    });
+  },
+  [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
+    draftMetaState: ModuleInstanceEntitiesReducerState,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    draftMetaState.actions.forEach((a) => {
+      if (a.config.id === action.payload.id) {
+        a.isLoading = false;
+      }
+    });
   },
 };
 

@@ -42,22 +42,27 @@ export const generateQueryModuleInstance = (
   unEvalEntity: QueryModuleInstanceEntity;
   configEntity: QueryModuleInstanceEntityConfig;
 } => {
-  const getPublicEntity = moduleInstanceEntities.actions.filter(
+  // moduleInstanceEntities.actions will have a single public action.
+  const publicActions = moduleInstanceEntities.actions.filter(
     (action) =>
       action.config.isPublic &&
       action.config.moduleInstanceId === moduleInstance.id,
   );
+  const publicAction = publicActions[0];
   const dynamicBindingPathList: DynamicPath[] = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
 
   const dependencyMap: DependencyMap = {};
   dependencyMap[moduleInstance.name] = [];
-  dependencyMap[moduleInstance.name].push(getPublicEntity[0].config.name);
+  dependencyMap[moduleInstance.name].push(publicAction.config.name);
 
   const moduleInputs = moduleInstance.inputs;
 
   Object.keys(moduleInputs).forEach((moduleInput) => {
     bindingPaths[`inputs.${moduleInput}`] = EvaluationSubstitutionType.TEMPLATE;
+    bindingPaths["data"] = EvaluationSubstitutionType.TEMPLATE;
+
+    dynamicBindingPathList.push({ key: "data" });
     if (isDynamicValue(moduleInputs[moduleInput])) {
       dynamicBindingPathList.push({ key: `inputs.${moduleInput}` });
     }
@@ -65,9 +70,9 @@ export const generateQueryModuleInstance = (
 
   return {
     unEvalEntity: {
-      actionId: getPublicEntity[0].config.id,
+      actionId: publicAction.config.id,
       clear: {},
-      data: undefined,
+      data: `{{${publicAction.config.name}.data}}`,
       ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
       inputs: moduleInstance.inputs,
       isLoading: false,
@@ -77,7 +82,7 @@ export const generateQueryModuleInstance = (
       type: MODULE_TYPE.QUERY,
     },
     configEntity: {
-      actionId: getPublicEntity[0].config.id,
+      actionId: publicAction.config.id,
       ENTITY_TYPE: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
       moduleId: moduleInstance.sourceModuleId,
       moduleInstanceId: moduleInstance.id,
