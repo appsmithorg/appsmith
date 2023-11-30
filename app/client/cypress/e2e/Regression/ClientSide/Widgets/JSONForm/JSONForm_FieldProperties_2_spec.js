@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -54,13 +58,13 @@ describe("Text Field Property Control", () => {
   });
 
   it("3. hides field when visible switched off", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("switch");
     propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();
     cy.get(`${fieldPrefix}-switch`).should("not.exist");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("switch");
     propPane.TogglePropertyState("Visible", "On");
     deployMode.DeployApp();
@@ -69,7 +73,7 @@ describe("Text Field Property Control", () => {
   });
 
   it("4. disables field when disabled switched on", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("switch");
     propPane.TogglePropertyState("Disabled", "On");
     deployMode.DeployApp();
@@ -78,7 +82,7 @@ describe("Text Field Property Control", () => {
     });
 
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("switch");
     propPane.TogglePropertyState("Disabled", "Off");
   });
@@ -143,7 +147,7 @@ describe("Text Field Property Control", () => {
   });
 
   it("9. Invalid options should not crash the widget", () => {
-    entityExplorer.SelectEntityByName("JSONForm1");
+    EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     cy.openFieldConfiguration("hobbies");
     // clear Options
     cy.testJsonTextClearMultiline("options");

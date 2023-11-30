@@ -1,12 +1,16 @@
 import {
   agHelper,
   debuggerHelper,
-  entityExplorer,
   homePage,
   jsEditor,
   apiPage,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("JSEditor Indendation - Visual tests", () => {
   it("6. TC 1933 - jSEditor prettify verification on cloned application", () => {
@@ -65,8 +69,8 @@ myFun2: async () => {
     homePage.NavigateToHome();
     homePage.FilterApplication(workspaceName);
     homePage.ForkApplication(appName);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });
 
@@ -121,9 +125,9 @@ myFun2: async () => {
     agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
-    entityExplorer.ClonePage("Page1");
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    PageList.ClonePage("Page1");
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.Sleep(3000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
   });

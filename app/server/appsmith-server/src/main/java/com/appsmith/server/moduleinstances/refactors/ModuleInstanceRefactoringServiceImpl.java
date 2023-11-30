@@ -9,7 +9,6 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.EntityType;
@@ -17,7 +16,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.DslUtils;
-import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
+import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.refactors.entities.CompositeEntityRefactoringService;
@@ -46,7 +45,7 @@ import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_MODULE_IN
 @Service
 public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactoringServiceCECompatibleImpl
         implements EntityRefactoringService<ModuleInstance>, CompositeEntityRefactoringService<ModuleInstance> {
-    private final CrudModuleInstanceService moduleInstanceService;
+    private final LayoutModuleInstanceService moduleInstanceService;
     private final ModuleInstancePermission moduleInstancePermission;
     private final NewActionService newActionService;
     private final ActionPermission actionPermission;
@@ -56,20 +55,8 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
     private final ObjectMapper objectMapper;
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public AnalyticsEvents getRefactorAnalyticsEvent(EntityType entityType) {
         return REFACTOR_MODULE_INSTANCE;
-    }
-
-    @Override
-    public void sanitizeRefactorEntityDTO(RefactorEntityNameDTO refactorEntityNameDTO) {
-        // Do nothing, module instance names will always be top level
-    }
-
-    @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<Boolean> validateName(String name) {
-        return Mono.just(newActionService.validateActionName(name));
     }
 
     @Override
@@ -85,7 +72,7 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
         String newName = refactorEntityNameDTO.getNewFullyQualifiedName();
         return moduleInstanceService
                 .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
-                        pageId, CreatorContextType.PAGE, ResourceModes.EDIT)
+                        pageId, CreatorContextType.PAGE, ResourceModes.EDIT, null)
                 .flatMapMany(Flux::fromIterable)
                 .zipWith(evalVersionMono)
                 .flatMap(tuple -> {
@@ -100,7 +87,7 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
                                 }
                                 updatedBindingPaths.addAll(updates);
                                 return moduleInstanceService.updateUnpublishedModuleInstance(
-                                        moduleInstanceDTO, moduleInstanceDTO.getId());
+                                        moduleInstanceDTO, moduleInstanceDTO.getId(), null, true);
                             });
                 })
                 .map(ModuleInstanceDTO::getName)
@@ -125,7 +112,7 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
                 .flatMap(moduleInstanceDTO -> {
                     moduleInstanceDTO.setName(refactorEntityNameDTO.getNewName());
                     return moduleInstanceService.updateUnpublishedModuleInstance(
-                            moduleInstanceDTO, moduleInstanceDTO.getId());
+                            moduleInstanceDTO, moduleInstanceDTO.getId(), null, true);
                 })
                 .then();
     }
@@ -197,26 +184,19 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
 
     @Override
     public Flux<NewAction> getComposedNewActions(RefactorEntityNameDTO refactorEntityNameDTO) {
-        return newActionService.findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
-                refactorEntityNameDTO.getPageId(),
-                CreatorContextType.PAGE, // Since refactor is only for pages for now
-                refactorEntityNameDTO.getModuleInstanceId(),
-                actionPermission.getEditPermission(),
-                true);
+        return newActionService.findAllUnpublishedComposedActionsByRootModuleInstanceId(
+                refactorEntityNameDTO.getModuleInstanceId(), actionPermission.getEditPermission(), true);
     }
 
     @Override
     public Flux<ActionCollection> getComposedActionCollections(RefactorEntityNameDTO refactorEntityNameDTO) {
-        return actionCollectionService.findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
-                refactorEntityNameDTO.getPageId(),
-                CreatorContextType.PAGE, // Since refactor is only for pages for now
-                refactorEntityNameDTO.getModuleInstanceId(),
-                actionPermission.getEditPermission());
+        return actionCollectionService.findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(
+                refactorEntityNameDTO.getModuleInstanceId(), actionPermission.getEditPermission());
     }
 
     @Override
     public Flux<ModuleInstance> getComposedModuleInstances(RefactorEntityNameDTO refactorEntityNameDTO) {
-        return moduleInstanceService.findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
+        return moduleInstanceService.findAllUnpublishedComposedModuleInstancesByRootModuleInstanceId(
                 refactorEntityNameDTO.getPageId(),
                 CreatorContextType.PAGE, // Since refactor is only for pages for now
                 refactorEntityNameDTO.getModuleInstanceId(),
@@ -224,15 +204,42 @@ public class ModuleInstanceRefactoringServiceImpl extends ModuleInstanceRefactor
     }
 
     @Override
-    public Flux<CustomJSLib> getComposedCustomJSLibs(RefactorEntityNameDTO refactorEntityNameDTO) {
-        return Flux.empty();
+    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+        return moduleInstanceService
+                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
+                        contextId, contextType, ResourceModes.EDIT, null)
+                .flatMapMany(Flux::fromIterable)
+                .map(ModuleInstanceDTO::getName);
     }
 
     @Override
-    public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
-        return moduleInstanceService
-                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(contextId, contextType, ResourceModes.EDIT)
-                .flatMapMany(Flux::fromIterable)
-                .map(ModuleInstanceDTO::getName);
+    public Mono<Object> refactorCurrentEntity(
+            Object currentEntity,
+            RefactorEntityNameDTO refactorEntityNameDTO,
+            Pattern oldNamePattern,
+            Mono<Integer> evalVersionMono) {
+        return evalVersionMono.flatMap(evalVersion -> this.refactorNameInModuleInstance(
+                        (ModuleInstanceDTO) currentEntity,
+                        refactorEntityNameDTO.getOldFullyQualifiedName(),
+                        refactorEntityNameDTO.getNewFullyQualifiedName(),
+                        evalVersion,
+                        oldNamePattern)
+                .thenReturn(currentEntity));
+    }
+
+    @Override
+    public Flux<RefactorEntityNameDTO> getRefactorDTOsForExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId) {
+        return this.getExistingEntityNames(contextId, contextType, layoutId)
+                .map(moduleInstanceName -> {
+                    RefactorEntityNameDTO dto = new RefactorEntityNameDTO();
+                    dto.setOldName(moduleInstanceName);
+                    dto.setEntityType(EntityType.MODULE_INSTANCE);
+                    return dto;
+                })
+                .map(refactorEntityNameDTO -> {
+                    this.sanitizeRefactorEntityDTO(refactorEntityNameDTO);
+                    return refactorEntityNameDTO;
+                });
     }
 }

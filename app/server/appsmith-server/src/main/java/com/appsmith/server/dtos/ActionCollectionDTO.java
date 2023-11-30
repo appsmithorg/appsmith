@@ -17,16 +17,4 @@ import lombok.ToString;
 public class ActionCollectionDTO extends ActionCollectionCE_DTO {
     @JsonView(Views.Public.class)
     String moduleId;
-
-    @JsonView(Views.Public.class)
-    String moduleInstanceId;
-
-    @JsonView(Views.Public.class)
-    Boolean isPublic;
-
-    @JsonView(Views.Public.class)
-    String rootModuleInstanceId;
-
-    @JsonView(Views.Public.class)
-    String owningModuleInstanceId;
 }

@@ -209,6 +209,7 @@ export class AggregateHelper extends ReusableHelper {
       .blur();
     this.PressEnter(); //allow lil more time for new name to settle
     this.AssertElementVisibility(this.locator._editIcon);
+    this.Sleep(); // wait for url update
   }
 
   public CheckForPageSaveError() {

@@ -15,6 +15,7 @@ import type { PackagesReducerState } from "./entityReducers/packagesReducer";
 import type { ModulesReducerState } from "./entityReducers/modulesReducer";
 import type { ModuleInstanceReducerState } from "./entityReducers/moduleInstancesReducer";
 import type { ModuleInstancePaneState } from "./uiReducers/moduleInstancePaneReducer";
+import type { WorkflowsReducerState } from "./entityReducers/workflowsReducer";
 import type { ModuleInstanceEntitiesReducerState } from "./entityReducers/moduleInstanceEntitiesReducer";
 
 const appReducer = combineReducers({
@@ -36,6 +37,7 @@ export interface AppState extends CE_AppState {
     packages: PackagesReducerState;
     modules: ModulesReducerState;
     moduleInstances: ModuleInstanceReducerState;
+    workflows: WorkflowsReducerState;
     moduleInstanceEntities: ModuleInstanceEntitiesReducerState;
   };
   ui: CE_AppState["ui"] & {

@@ -230,6 +230,8 @@ public enum AclPermission {
     EXPORT_WORKFLOWS("export:workflows", Workflow.class),
     EXECUTE_WORKFLOWS("execute:workflows", Workflow.class),
     RESOLVE_WORKFLOWS("resolve:workflows", Workflow.class),
+    WORKFLOW_CREATE_ACTIONS("create:workflowActions", Workflow.class),
+    READ_HISTORY_WORKFLOWS("readHistory:workflows", Workflow.class),
 
     // Approval Request Permissions
     RESOLVE_APPROVAL_REQUESTS("resolve:approvalRequests", ApprovalRequest.class),

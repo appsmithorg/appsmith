@@ -34,8 +34,8 @@ const DEFAULT_MODULE_INSTANCE = {
   type: MODULE_TYPE.QUERY,
   moduleId: "test-module",
   name: "QueryModule1",
-  creatorId: "652519c44b7c8d700a102643",
-  creatorType: "PAGE",
+  contextId: "652519c44b7c8d700a102643",
+  contextType: "PAGE",
   // Inputs
   inputs: {
     userId: "testUser",

@@ -1,7 +1,6 @@
 package com.appsmith.server.refactors.entities;
 
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
@@ -14,6 +13,4 @@ public interface CompositeEntityRefactoringService<T> {
     Flux<ActionCollection> getComposedActionCollections(RefactorEntityNameDTO refactorEntityNameDTO);
 
     Flux<ModuleInstance> getComposedModuleInstances(RefactorEntityNameDTO refactorEntityNameDTO);
-
-    Flux<CustomJSLib> getComposedCustomJSLibs(RefactorEntityNameDTO refactorEntityNameDTO);
 }

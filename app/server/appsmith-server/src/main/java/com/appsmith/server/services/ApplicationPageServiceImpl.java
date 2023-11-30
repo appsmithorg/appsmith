@@ -3,12 +3,15 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.publish.publishable.ApplicationPublishableService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -27,7 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -35,6 +40,7 @@ import java.util.Optional;
 public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl implements ApplicationPageService {
 
     private final PermissionGroupService permissionGroupService;
+    private final ApplicationPublishableService<ModuleInstance> moduleInstanceApplicationPublishableService;
 
     public ApplicationPageServiceImpl(
             WorkspaceService workspaceService,
@@ -62,7 +68,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             NewActionRepository newActionRepository,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
-            DatasourcePermission datasourcePermission) {
+            DatasourcePermission datasourcePermission,
+            ApplicationPublishableService<ModuleInstance> moduleInstanceApplicationPublishableService) {
         super(
                 workspaceService,
                 applicationService,
@@ -91,6 +98,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 datasourceRepository,
                 datasourcePermission);
         this.permissionGroupService = permissionGroupService;
+        this.moduleInstanceApplicationPublishableService = moduleInstanceApplicationPublishableService;
     }
 
     /**
@@ -107,5 +115,29 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
         return defaultApplicationRoles
                 .flatMap(role -> permissionGroupService.deleteWithoutPermission(role.getId()))
                 .then(deletedApplicationMono);
+    }
+
+    @Override
+    protected Mono<Tuple2<Mono<Application>, ApplicationPublishingMetaDTO>> publishAndGetMetadata(
+            String applicationId, boolean isPublishedManually) {
+        // Execute publish operation and extract the Application Mono
+        // TODO: Move existing entities to this new structure and we can parallelize the publish process for each of
+        // this
+        Mono<Tuple2<Mono<Application>, ApplicationPublishingMetaDTO>> applicationPublishMetadataMono =
+                super.publishAndGetMetadata(applicationId, isPublishedManually);
+
+        // Create the ApplicationPublishingMetaDTO
+        ApplicationPublishingMetaDTO applicationPublishingMetaDTO = ApplicationPublishingMetaDTO.builder()
+                .applicationId(applicationId)
+                .isPublishedManually(isPublishedManually)
+                .build();
+
+        // Publish module instances
+        Mono<List<ModuleInstance>> moduleInstancePublishMono =
+                moduleInstanceApplicationPublishableService.publishEntities(applicationPublishingMetaDTO);
+
+        // To reduce the time taken to publish an app, we parallelize the operations
+        return Mono.zip(applicationPublishMetadataMono, moduleInstancePublishMono)
+                .map(Tuple2::getT1);
     }
 }

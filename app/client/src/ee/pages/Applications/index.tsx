@@ -7,12 +7,16 @@ import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { fetchAllPackages } from "@appsmith/actions/packageActions";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
+import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
+import { fetchAllWorkflows } from "@appsmith/actions/workflowActions";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 
 export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
   fetchAllPackages: () => void;
+  fetchAllWorkflows: () => void;
   showWarningBanner: boolean;
   showQueryModule: boolean;
+  showWorkflowFeature: boolean;
 }
 
 export type EE_ApplicationState = CE_Applications.ApplicationState;
@@ -29,6 +33,10 @@ export class Applications extends CE_AppClass<
     super.componentDidMount();
     if (this.props.showQueryModule) {
       this.props.fetchAllPackages();
+    }
+
+    if (this.props.showWorkflowFeature) {
+      this.props.fetchAllWorkflows();
     }
   }
 
@@ -59,6 +67,7 @@ const mapStateToProps = (state: AppState) => {
     ...CE_mapStateToProps,
     showWarningBanner: shouldShowLicenseBanner(state),
     showQueryModule: getShowQueryModule(state),
+    showWorkflowFeature: getShowWorkflowFeature(state),
   };
 };
 
@@ -67,6 +76,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     ...CE_mapDispatchToProps,
     fetchAllPackages: () => dispatch(fetchAllPackages()),
+    fetchAllWorkflows: () => dispatch(fetchAllWorkflows()),
   };
 };
 

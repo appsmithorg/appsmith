@@ -30,6 +30,7 @@ import com.appsmith.server.packages.permissions.PackagePermission;
 import com.appsmith.server.packages.permissions.PackagePermissionChecker;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ModuleRepository;
+import com.appsmith.server.validations.EntityValidationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     private final ModulePermission modulePermission;
     private final PolicyGenerator policyGenerator;
     private final NewActionService newActionService;
+    private final EntityValidationService entityValidationService;
     private final ActionCollectionService actionCollectionService;
     private final PackagePermissionChecker packagePermissionChecker;
     private final PackagePermission packagePermission;
@@ -70,6 +72,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             ModulePermission modulePermission,
             PolicyGenerator policyGenerator,
             NewActionService newActionService,
+            EntityValidationService entityValidationService,
             ActionCollectionService actionCollectionService,
             PackagePermissionChecker packagePermissionChecker,
             PackagePermission packagePermission,
@@ -81,6 +84,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         this.modulePermission = modulePermission;
         this.policyGenerator = policyGenerator;
         this.newActionService = newActionService;
+        this.entityValidationService = entityValidationService;
         this.actionCollectionService = actionCollectionService;
         this.packagePermissionChecker = packagePermissionChecker;
         this.packagePermission = packagePermission;
@@ -106,7 +110,8 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     }
 
     private Mono<ModuleDTO> setModuleSettingsForCreator(ModuleDTO moduleDTO) {
-        Mono<NewAction> publicActionMono = newActionService.findPublicActionByModuleId(moduleDTO.getId());
+        Mono<NewAction> publicActionMono =
+                newActionService.findPublicActionByModuleId(moduleDTO.getId(), ResourceModes.EDIT);
         return getSettingsFormForModuleInstance().zipWith(publicActionMono).flatMap(tuple2 -> pluginService
                 .getFormConfig(tuple2.getT2().getPluginId())
                 .flatMap(pluginConfigMap -> {
@@ -207,7 +212,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        if (!newActionService.validateActionName(moduleDTO.getName())) {
+        if (!entityValidationService.validateName(moduleDTO.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
         }
 
@@ -272,7 +277,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
         ModuleActionDTO unpublishedAction = (ModuleActionDTO) moduleDTO.getEntity();
 
-        unpublishedAction.setIsPublic(isPublic);
+        moduleAction.setIsPublic(isPublic);
         unpublishedAction.setName(moduleDTO.getName());
         unpublishedAction.setModuleId(moduleDTO.getId());
         unpublishedAction.setDefaultResources(new DefaultResources());
@@ -311,7 +316,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        if (!newActionService.validateActionName(moduleDTO.getName())) {
+        if (!entityValidationService.validateName(moduleDTO.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_ACTION_NAME));
         }
 
@@ -334,7 +339,7 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                             }
 
                             return newActionService
-                                    .findPublicActionByModuleId(moduleId)
+                                    .findPublicActionByModuleId(moduleId, ResourceModes.EDIT)
                                     .flatMap(newAction -> {
                                         ActionDTO updateActionDTO = new ActionDTO();
                                         updateActionDTO.setContextType(CreatorContextType.MODULE);

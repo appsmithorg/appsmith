@@ -20,13 +20,20 @@ import { getIsCreatingPackage } from "@appsmith/selectors/packageSelectors";
 import {
   NEW_APP,
   NEW_PACKAGE,
+  NEW_WORKFLOW,
   WORKSPACE_ACTION_BUTTON,
   createMessage,
 } from "@appsmith/constants/messages";
 import {
   hasCreateNewAppPermission,
   hasCreatePackagePermission,
+  hasCreateWorkflowPermission,
 } from "@appsmith/utils/permissionHelpers";
+import { createWorkflowFromWorkspace } from "@appsmith/actions/workflowActions";
+import {
+  getIsCreatingWorkflow,
+  getShowWorkflowFeature,
+} from "@appsmith/selectors/workflowSelectors";
 
 const StyledCreateNewButton = styled(Button)`
   margin-left: var(--ads-spaces-3);
@@ -38,11 +45,15 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const showQueryModule = useSelector(getShowQueryModule);
+  const showWorkflowFeature = useSelector(getShowWorkflowFeature);
   const isCreatingApplication = Boolean(
     useSelector(getIsCreatingApplicationByWorkspaceId(workspaceId)),
   );
   const isCreatingPackage = useSelector((state) =>
     getIsCreatingPackage(state, workspaceId),
+  );
+  const isCreatingWorkflow = useSelector((state) =>
+    getIsCreatingWorkflow(state, workspaceId),
   );
 
   const openActionMenu = useCallback(() => {
@@ -57,23 +68,32 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
     dispatch(createPackageFromWorkspace({ workspaceId }));
   }, [dispatch, createPackageFromWorkspace, workspaceId]);
 
+  const onCreateNewWorkflow = useCallback(() => {
+    dispatch(createWorkflowFromWorkspace({ workspaceId }));
+  }, [dispatch, createWorkflowFromWorkspace, workspaceId]);
+
   if (!workspace) return null;
 
   const hasCreateNewApplicationPermission =
     hasCreateNewAppPermission(workspace?.userPermissions) && !isMobile;
   const hasCreateNewPackagePermission =
     hasCreatePackagePermission(workspace?.userPermissions) && !isMobile;
+  const hasCreateNewWorkflowPermission =
+    hasCreateWorkflowPermission(workspace?.userPermissions) && !isMobile;
 
-  const isCreating = isCreatingApplication || isCreatingPackage;
+  const isCreating =
+    isCreatingApplication || isCreatingPackage || isCreatingWorkflow;
 
-  if (!showQueryModule) {
+  if (!showQueryModule && !showWorkflowFeature) {
     return <CE_WorkspaceAction {...props} />;
   }
 
   // Returns null when in mobile mode and neither create package or app permissions are present
   if (
     isMobile ||
-    (!hasCreateNewApplicationPermission && !hasCreateNewPackagePermission)
+    (!hasCreateNewApplicationPermission &&
+      !hasCreateNewPackagePermission &&
+      !hasCreateNewWorkflowPermission)
   )
     return null;
 
@@ -108,14 +128,27 @@ function WorkspaceAction(props: CE_WorkspaceActionProps) {
         >
           {createMessage(NEW_APP)}
         </MenuItem>
-        <MenuItem
-          data-testid="t--workspace-action-create-package"
-          disabled={!hasCreateNewPackagePermission}
-          onSelect={onCreateNewPackage}
-          startIcon="package"
-        >
-          {createMessage(NEW_PACKAGE)}
-        </MenuItem>
+        {showQueryModule && (
+          <MenuItem
+            data-testid="t--workspace-action-create-package"
+            disabled={!hasCreateNewPackagePermission}
+            onSelect={onCreateNewPackage}
+            startIcon="package"
+          >
+            {createMessage(NEW_PACKAGE)}
+          </MenuItem>
+        )}
+        {showWorkflowFeature && (
+          <MenuItem
+            data-testid="t--workspace-action-create-workflow"
+            disabled={!hasCreateNewWorkflowPermission}
+            onSelect={onCreateNewWorkflow}
+            // TODO (Workflows): Change icon to workflow
+            startIcon="package"
+          >
+            {createMessage(NEW_WORKFLOW)}
+          </MenuItem>
+        )}
       </MenuContent>
     </Menu>
   );

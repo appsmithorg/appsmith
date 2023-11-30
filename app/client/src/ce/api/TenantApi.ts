@@ -1,4 +1,5 @@
-import type { AxiosPromise } from "axios";
+import type { AxiosPromise, AxiosRequestConfig } from "axios";
+
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 
@@ -16,6 +17,7 @@ export interface UpdateTenantConfigRequest {
   tenantConfiguration: Record<string, string>;
   needsRefresh?: boolean;
   isOnlyTenantSettings?: boolean;
+  apiConfig?: AxiosRequestConfig;
 }
 
 export class TenantApi extends Api {
@@ -30,7 +32,14 @@ export class TenantApi extends Api {
   static async updateTenantConfig(
     request: UpdateTenantConfigRequest,
   ): Promise<AxiosPromise<UpdateTenantConfigResponse>> {
-    return Api.put(`${TenantApi.tenantsUrl}`, request.tenantConfiguration);
+    return Api.put(
+      `${TenantApi.tenantsUrl}`,
+      request.tenantConfiguration,
+      null,
+      {
+        ...(request.apiConfig || {}),
+      },
+    );
   }
 }
 

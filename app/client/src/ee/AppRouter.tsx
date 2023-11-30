@@ -35,6 +35,9 @@ import PackageEditorLoader from "./pages/Editor/PackageEditor/PackageEditorLoade
 import { PACKAGE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
 import { Migrations } from "./pages/Billing/Migrations";
+import { WORKFLOW_EDITOR_URL } from "./constants/routes/workflowRoutes";
+import WorkflowEditorLoader from "./pages/Editor/WorkflowEditor/WorkflowEditorLoader";
+import { getShowWorkflowFeature } from "./selectors/workflowSelectors";
 
 const loadingIndicator = <PageLoadingBar />;
 
@@ -62,6 +65,7 @@ function AppRouter(props: {
   const tenantIsLoading = useSelector(isTenantLoading);
   const currentUserIsLoading = useSelector(getCurrentUserLoading);
   const showQueryModule = useSelector(getShowQueryModule);
+  const showWorkflows = useSelector(getShowWorkflowFeature);
   const featuresIsLoading = useSelector(getFeatureFlagsFetching);
 
   useEffect(() => {
@@ -115,6 +119,14 @@ function AppRouter(props: {
                     path={LICENSE_CHECK_PATH}
                   />
                 )}
+
+                {showWorkflows && (
+                  <SentryRoute
+                    component={WorkflowEditorLoader}
+                    path={WORKFLOW_EDITOR_URL}
+                  />
+                )}
+
                 {showQueryModule && (
                   <SentryRoute
                     component={PackageEditorLoader}

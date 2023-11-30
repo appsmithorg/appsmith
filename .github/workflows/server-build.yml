@@ -145,7 +145,8 @@ jobs:
           mvn --batch-mode versions:set \
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
-            -DprocessAllModules=true
+            -DprocessAllModules=true \
+            -Dsurefire.rerunFailingTestsCount=3 -Dsurefire.outputFile="./junit-report.xml" 
           ./build.sh $args
 
       # Restore the previous built bundle if present. If not push the newly built into the cache

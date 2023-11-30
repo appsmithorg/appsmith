@@ -21,6 +21,7 @@ import { FilePickerV2, FileType, Text, TextType } from "design-system-old";
 import { Classes } from "@blueprintjs/core";
 import { useMediaQuery } from "react-responsive";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { AxiosProgressEvent } from "axios";
 
 // This wrapper ensures that the scroll behaviour is consistent with the other tabs
 const ScrollWrapper = styled.div`
@@ -147,14 +148,16 @@ export function GeneralSettings() {
     setProgress: SetProgress,
     onUpload: UploadCallback,
   ) => {
-    const progress = (progressEvent: ProgressEvent) => {
-      const uploadPercentage = Math.round(
-        (progressEvent.loaded / progressEvent.total) * 100,
-      );
-      if (uploadPercentage === 100) {
-        onUpload(currentWorkspace.logoUrl || "");
+    const progress = (progressEvent: AxiosProgressEvent) => {
+      if (progressEvent.total) {
+        const uploadPercentage = Math.round(
+          (progressEvent.loaded / progressEvent.total) * 100,
+        );
+        if (uploadPercentage === 100) {
+          onUpload(currentWorkspace.logoUrl || "");
+        }
+        setProgress(uploadPercentage);
       }
-      setProgress(uploadPercentage);
     };
 
     dispatch(

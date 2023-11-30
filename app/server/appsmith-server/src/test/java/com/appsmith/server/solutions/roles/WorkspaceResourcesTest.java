@@ -205,6 +205,9 @@ public class WorkspaceResourcesTest {
         Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.license_custom_environments_enabled)))
                 .thenReturn(Mono.just(TRUE));
 
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_query_module_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
         if (api_user == null) {
             api_user = userRepository.findByEmail("api_user").block();
         }

@@ -40,7 +40,7 @@ import {
 } from "@appsmith/constants/ModuleConstants";
 import type { ModulesReducerState } from "@appsmith/reducers/entityReducers/modulesReducer";
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
-import { createNewQueryModuleName } from "@appsmith/utils/Packages/moduleHelpers";
+import { createNewModuleName } from "@appsmith/utils/Packages/moduleHelpers";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { generateDefaultInputSection } from "@appsmith/components/InputsForm/Fields/helper";
@@ -190,10 +190,7 @@ export function* createQueryModuleSaga(
       packageId,
     } = action.payload;
     const allModules: ModulesReducerState = yield select(getAllModules);
-    const newActionName = createNewQueryModuleName(
-      allModules,
-      MODULE_PREFIX.QUERY,
-    );
+    const newActionName = createNewModuleName(allModules, MODULE_PREFIX.QUERY);
 
     const defaultAction: Partial<Action> = datasourceId
       ? yield call(createDefaultActionPayloadWithPluginDefaults, {

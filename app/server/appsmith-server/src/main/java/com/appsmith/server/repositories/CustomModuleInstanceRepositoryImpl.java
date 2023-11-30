@@ -5,12 +5,15 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.QModuleInstance;
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,33 +66,44 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Flux<ModuleInstance> findAllUnpublishedComposedModuleInstancesByContextIdAndContextTypeAndModuleInstanceId(
-            String contextId, CreatorContextType contextType, String moduleInstanceId, AclPermission permission) {
-        List<Criteria> criteriaList = new ArrayList<>();
+    public Flux<ModuleInstance> findAllByRootModuleInstanceId(
+            String rootModuleInstanceId, Optional<AclPermission> permission) {
+        Criteria rootModuleInstanceIdCriterion = where(fieldName(QModuleInstance.moduleInstance.rootModuleInstanceId))
+                .is(rootModuleInstanceId);
 
-        String contextIdPath;
-        if (CreatorContextType.PAGE.equals(contextType)) {
+        return queryAll(List.of(rootModuleInstanceIdCriterion), permission);
+    }
 
-            contextIdPath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
-                    + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.pageId);
-        } else {
-            contextIdPath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
-                    + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.moduleId);
-        }
+    @Override
+    public Flux<ModuleInstance> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
+        Criteria applicationCriteria = Criteria.where(fieldName(QModuleInstance.moduleInstance.applicationId))
+                .in(applicationIds);
+        return queryAll(List.of(applicationCriteria), includedFields, null, null, NO_RECORD_LIMIT);
+    }
 
-        String contextTypePath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
-                + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.contextType);
-        String moduleInstanceIdPath = fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance) + "."
-                + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.rootModuleInstanceId);
-        Criteria contextIdAndContextTypeAndModuleInstanceIdCriteria = where(contextIdPath)
-                .is(contextId)
-                .and(contextTypePath)
-                .is(contextType)
-                .and(moduleInstanceIdPath)
-                .is(moduleInstanceId);
+    @Override
+    public Flux<ModuleInstance> findAllByApplicationId(String applicationId, Optional<AclPermission> permission) {
+        Criteria applicationIdCriterion =
+                where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
+        List<Criteria> criteria = new ArrayList<>();
+        criteria.add(applicationIdCriterion);
+        return queryAll(criteria, permission);
+    }
 
-        criteriaList.add(contextIdAndContextTypeAndModuleInstanceIdCriteria);
+    @Override
+    public Mono<UpdateResult> archiveDeletedUnpublishedModuleInstances(String applicationId, AclPermission permission) {
+        Criteria applicationIdCriterion =
+                where(fieldName(QModuleInstance.moduleInstance.applicationId)).is(applicationId);
+        String unpublishedDeletedAtFieldName = String.format(
+                "%s.%s",
+                fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance),
+                fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt));
+        Criteria deletedFromUnpublishedCriteria =
+                where(unpublishedDeletedAtFieldName).ne(null);
 
-        return queryAll(criteriaList, Optional.of(permission));
+        Update update = new Update();
+        update.set(FieldName.DELETED, true);
+        update.set(FieldName.DELETED_AT, Instant.now());
+        return updateByCriteria(List.of(applicationIdCriterion, deletedFromUnpublishedCriteria), update, permission);
     }
 }

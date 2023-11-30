@@ -24,4 +24,9 @@ public class WorkflowPermissionImpl implements WorkflowPermission {
     public AclPermission getDeletePermission() {
         return AclPermission.DELETE_WORKFLOWS;
     }
+
+    @Override
+    public AclPermission getActionCreationPermission() {
+        return AclPermission.WORKFLOW_CREATE_ACTIONS;
+    }
 }

@@ -1,5 +1,4 @@
 import {
-  assertHelper,
   entityExplorer,
   entityItems,
   homePage,
@@ -14,7 +13,10 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebar,
+  AppSidebarButton,
+  EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Delete Permission flow ", function () {
@@ -172,7 +174,7 @@ describe("Delete Permission flow ", function () {
     cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
     cy.wait(4000);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify deletion of query
@@ -189,7 +191,7 @@ describe("Delete Permission flow ", function () {
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Deletepage("page2");
     // verify page is deleted
-    cy.get(`.t--entity-name:contains(${page2})`).should("not.exist");
+    PageLeftPane.assertAbsence(page2);
   });
 
   it("2. Delete permission : App level; verify user don't have create permissions", function () {
@@ -219,7 +221,7 @@ describe("Delete Permission flow ", function () {
     cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
     cy.wait(4000);
     // verify query deletion
     cy.CheckAndUnfoldEntityItem("Queries/JS");
@@ -266,7 +268,7 @@ describe("Delete Permission flow ", function () {
     cy.get(homePageLocators.appEditIcon).click();
     cy.wait(2000);
     cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(`.t--entity-name:contains("Public.users")`).click();
+    EditorNavigation.SelectEntityByName("Public.users", EntityType.Page);
     cy.wait(4000);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
@@ -278,7 +280,7 @@ describe("Delete Permission flow ", function () {
 
     featureFlagIntercept({ license_gac_enabled: true });
     cy.wait(2000);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");

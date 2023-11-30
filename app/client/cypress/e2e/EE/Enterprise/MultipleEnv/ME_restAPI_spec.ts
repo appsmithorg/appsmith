@@ -1,17 +1,20 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import {
-  multipleEnv,
   agHelper,
+  apiPage,
+  dataManager,
   dataSources,
   deployMode,
-  entityExplorer,
-  locators,
-  dataManager,
-  apiPage,
   draggableWidgets,
+  entityExplorer,
   entityItems,
+  locators,
+  multipleEnv,
 } from "../../../../support/ee/ObjectsCore_EE";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let meDatasourceName: string,
   meQueryName: string,
@@ -76,7 +79,7 @@ describe(
     it("3. Check table response for both environments", function () {
       // Check the records on the table
       cy.get(locators._tableRecordsContainer).should("contain", "2 Records");
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       multipleEnv.SwitchEnv(prodEnv);
       cy.get(locators._tableRecordsContainer).should("contain", "1 Record");
     });
@@ -102,7 +105,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       multipleEnv.SwitchEnv(prodEnv);
       // Clean up
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",

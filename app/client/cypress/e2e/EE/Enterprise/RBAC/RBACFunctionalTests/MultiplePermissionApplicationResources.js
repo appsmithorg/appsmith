@@ -12,6 +12,9 @@ import {
   onboarding,
   dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Multiple Permission flow ", function () {
   let datasourceName;
@@ -220,8 +223,7 @@ describe("Multiple Permission flow ", function () {
     cy.wait("@getWorkspace");
     onboarding.closeIntroModal();
     // verify user is able to edit exisitng api
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.get(`.t--entity-name:contains(${APIName})`).click();
+    EditorNavigation.SelectEntityByName(APIName, EntityType.Api);
     cy.get(apiwidget.headerKey).type("info");
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");

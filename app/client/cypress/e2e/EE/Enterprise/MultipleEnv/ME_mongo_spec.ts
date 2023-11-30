@@ -1,18 +1,22 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import {
-  multipleEnv,
   agHelper,
+  assertHelper,
+  dataManager,
   dataSources,
   deployMode,
-  entityExplorer,
-  locators,
-  dataManager,
-  assertHelper,
-  table,
   draggableWidgets,
+  entityExplorer,
   entityItems,
+  locators,
+  multipleEnv,
+  table,
 } from "../../../../support/ee/ObjectsCore_EE";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let meDatasourceName: string,
   meDSStagingOnlyName: string,
@@ -83,7 +87,7 @@ describe(
       dataSources.AddSuggestedWidget(Widgets.Table);
       // Create query on staging only DS
       agHelper.Sleep(2000);
-      entityExplorer.AddNewPage("New blank page");
+      PageList.AddNewPage("New blank page");
       dataSources.CreateQueryFromActiveTab(meDSStagingOnlyName);
       agHelper.RenameWithInPane(meStagingOnlyQueryName, true);
       dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
@@ -127,7 +131,7 @@ describe(
         'The action "mongo_stageonly_select" has failed.',
       );
       agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
-      entityExplorer.SelectEntityByName("Page1", "Pages");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.GetNAssertContains(
         locators._tableRecordsContainer,
         "23 Records",
@@ -154,7 +158,10 @@ describe(
       agHelper.Sleep(2000);
       // verify genertae crud option is not present on prod
       multipleEnv.SwitchEnv(prodEnv);
-      dataSources.navigateToDatasource(meDSStagingOnlyName);
+      EditorNavigation.SelectEntityByName(
+        meDSStagingOnlyName,
+        EntityType.Datasource,
+      );
       cy.get(dataSources._datasourceCardGeneratePageBtn).should("not.exist");
     });
 
@@ -245,7 +252,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       multipleEnv.SwitchEnv(prodEnv);
       // Clean up
-      entityExplorer.SelectEntityByName("Table1", "Widgets");
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Table1",
         action: "Delete",

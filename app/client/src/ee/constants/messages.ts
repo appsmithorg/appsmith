@@ -388,6 +388,8 @@ export const RESET_LOGO_TOOLTIP = () => "Reset logo";
 // Provisioning end
 
 // Modules start
+export const SEARCH_APPS_PACKAGES_AND_WORKFLOWS = () =>
+  "Search for apps, packages or workflows";
 export const SEARCH_APPS_AND_PACKAGES = () => "Search for apps or packages";
 export const WORKSPACE_ACTION_BUTTON = () => "Create new";
 export const NEW_PACKAGE = () => "New package";
@@ -410,7 +412,19 @@ export const INVALID_INPUT_NAME = () =>
   "Input names can only contain alphanumeric and should start with an alphabet";
 export const MODULE_INSTANCE_EMPTY_INPUT = () =>
   "No inputs parameters defined for this query.";
+export const MODULE_INSTANCE_RENAME_ERROR = (name: string) =>
+  `Unable to update module instance name to ${name}`;
 // Modules end
+
+//Worflows start
+export const SEARCH_APPS_AND_WORKFLOWS = () => "Search for apps or workflows";
+export const NEW_WORKFLOW = () => "New workflow";
+export const FETCH_WORKFLOW_ERROR = () => "Failed to fetch Workflow";
+export const CREATE_WORKFLOW_ERROR = () => "Failed to create workflow";
+export const EMPTY_WORKFLOW_LIST = () =>
+  "There are no workflows in this workspace.";
+export const RENAME_WORKFLOW_TOOLTIP = () => "Rename workflow";
+// Workflows end
 
 // AI begin
 export const AI_RESPONSE_LOADING = () =>

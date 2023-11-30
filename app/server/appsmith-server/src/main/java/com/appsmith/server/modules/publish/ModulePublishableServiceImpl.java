@@ -76,7 +76,11 @@ public class ModulePublishableServiceImpl implements PackagePublishableService<M
             // The published version of a module should only be readable and executable
             Set<Policy> updatedPolicies = module.getPolicies().stream()
                     .filter(policy -> policy.getPermission()
-                            .equals(modulePermission.getReadPermission().getValue()))
+                                    .equals(modulePermission.getReadPermission().getValue())
+                            || policy.getPermission()
+                                    .equals(modulePermission
+                                            .getCreateModuleInstancePermission()
+                                            .getValue()))
                     .collect(Collectors.toSet());
 
             module.setPolicies(updatedPolicies);

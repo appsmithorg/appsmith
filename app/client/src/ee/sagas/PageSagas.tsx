@@ -56,8 +56,8 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
     if (featureFlags.showQueryModule) {
       yield put(
         setupModuleInstances({
-          creatorId: id,
-          creatorType: ModuleInstanceCreatorType.PAGE,
+          contextId: id,
+          contextType: ModuleInstanceCreatorType.PAGE,
         }),
       );
     }
@@ -94,8 +94,8 @@ export function* setupPublishedPageSaga(
     if (featureFlags.showQueryModule) {
       yield put(
         setupModuleInstancesForView({
-          creatorId: pageId,
-          creatorType: ModuleInstanceCreatorType.PAGE,
+          contextId: pageId,
+          contextType: ModuleInstanceCreatorType.PAGE,
         }),
       );
     }

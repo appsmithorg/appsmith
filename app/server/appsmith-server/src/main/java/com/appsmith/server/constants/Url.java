@@ -15,6 +15,7 @@ public class Url extends UrlCE {
     public static final String LICENSE_URL = BASE_URL + VERSION + "/tenants/license";
     public static final String PACKAGE_URL = BASE_URL + VERSION + "/packages";
     public static final String MODULE_URL = BASE_URL + VERSION + "/modules";
+    public static final String MODULE_INSTANCE_URL = BASE_URL + VERSION + "/moduleInstances";
     // For sending special FE only events for Audit Logs
     public static final String ANALYTICS_URL = BASE_URL + VERSION + "/analytics";
 

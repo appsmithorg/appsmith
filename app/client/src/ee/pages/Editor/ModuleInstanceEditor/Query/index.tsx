@@ -14,10 +14,13 @@ import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import SettingsForm from "./SettingsForm";
 import type { Action } from "entities/Action";
 import {
+  runQueryModuleInstance,
   updateModuleInstanceOnPageLoadSettings,
   updateModuleInstanceSettings,
 } from "@appsmith/actions/moduleInstanceActions";
 import Loader from "../../ModuleEditor/Loader";
+import ResponseView from "./ResponseView";
+import { hasExecuteModuleInstancePermission } from "@appsmith/utils/permissionHelpers";
 
 interface QueryModuleInstanceRouteParams {
   moduleInstanceId: string;
@@ -42,10 +45,14 @@ function QueryModuleInstanceEditor(props: QueryModuleInstanceEditorProps) {
     getModuleInstanceById(state, moduleInstanceId),
   );
   const module = useSelector((state) =>
-    getModuleById(state, moduleInstance?.moduleId || ""),
+    getModuleById(state, moduleInstance?.sourceModuleId || ""),
   );
   const publicAction = useSelector((state) =>
     getModuleInstancePublicAction(state, moduleInstanceId),
+  );
+
+  const isExecutePermitted = hasExecuteModuleInstancePermission(
+    moduleInstance?.userPermissions,
   );
 
   const onSettingsFormChange = useCallback(
@@ -67,13 +74,21 @@ function QueryModuleInstanceEditor(props: QueryModuleInstanceEditorProps) {
     [publicAction?.executeOnLoad, publicAction?.id],
   );
 
+  const onRunClick = useCallback(() => {
+    dispatch(runQueryModuleInstance({ id: moduleInstance?.id || "" }));
+  }, [moduleInstance?.id]);
+
   if (!moduleInstance || !module || !publicAction) {
     return <Loader />;
   }
 
   return (
     <Container>
-      <Header moduleInstance={moduleInstance} />
+      <Header
+        isExecutePermitted={isExecutePermitted}
+        moduleInstance={moduleInstance}
+        onRunClick={onRunClick}
+      />
       <Body>
         <StyledInputsFormWrapper>
           <InputsForm
@@ -89,6 +104,12 @@ function QueryModuleInstanceEditor(props: QueryModuleInstanceEditorProps) {
           settings={module.settingsForm}
         />
       </Body>
+      <ResponseView
+        action={publicAction}
+        isExecutePermitted={isExecutePermitted}
+        moduleInstance={moduleInstance}
+        onRunClick={onRunClick}
+      />
     </Container>
   );
 }

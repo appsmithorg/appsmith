@@ -1,15 +1,20 @@
 import {
-  entityExplorer,
-  propPane,
   agHelper,
-  draggableWidgets,
-  table,
-  locators,
   dataSources,
+  draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import { expandLoadMoreOptions } from "../../OneClickBinding/spec_utility";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const ALERT_SUCCESS_MSG = "Table data filtered";
 
@@ -39,7 +44,7 @@ describe("Table widget v2: test server side filtering", function () {
       dataSources.CreateQueryAfterDSSaved();
       cy.wait(500);
 
-      entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
       expandLoadMoreOptions();
@@ -124,7 +129,7 @@ describe("Table v2: Server side filtering hidden behind feature flag", () => {
       propPane._propertyControl("serversidefiltering"),
     );
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 700);
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.TypeTextIntoField("Text", "{{Table1.filters");
     agHelper.AssertElementAbsence(locators._hints);
   });

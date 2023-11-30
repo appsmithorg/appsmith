@@ -422,7 +422,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     Tenant tenant = tuple.getT1().getT1();
                     boolean isActivateInstance = tuple.getT1().getT2();
                     License existingLicense = tuple.getT2();
-
                     // Update/save license only in case of a valid license key
                     if (!Boolean.TRUE.equals(
                             tenant.getTenantConfiguration().getLicense().getActive())) {

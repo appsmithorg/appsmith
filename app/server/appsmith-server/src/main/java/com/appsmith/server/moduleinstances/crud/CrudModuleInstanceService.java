@@ -2,32 +2,20 @@ package com.appsmith.server.moduleinstances.crud;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleInstanceDTO;
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ModuleInstance;
+import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
+import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
 import com.appsmith.server.moduleinstances.base.BaseModuleInstanceService;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface CrudModuleInstanceService extends BaseModuleInstanceService {
-    Mono<ModuleInstanceDTO> createModuleInstance(ModuleInstanceDTO moduleInstanceDTO);
-
-    Mono<List<ModuleInstanceDTO>> getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
-            String contextId, CreatorContextType contextType, ResourceModes resourceMode);
-
-    Mono<ModuleInstanceDTO> updateUnpublishedModuleInstance(
-            ModuleInstanceDTO moduleInstanceDTO, String moduleInstanceId);
+    Mono<CreateModuleInstanceResponseDTO> createModuleInstance(ModuleInstanceDTO moduleInstanceDTO, String branchName);
 
     Mono<ModuleInstanceDTO> deleteUnpublishedModuleInstance(String defaultModuleInstanceId, String branchName);
 
-    Mono<ModuleInstance> findByBranchNameAndDefaultModuleInstanceId(
-            String branchName, String defaultModuleInstanceId, AclPermission permission);
+    Mono<ModuleInstanceEntitiesDTO> getAllEntities(String contextId, CreatorContextType contextType, String branchName);
 
-    Flux<ModuleInstance> findAllUnpublishedComposedActionsByContextIdAndContextTypeAndModuleInstanceId(
-            String pageId,
-            CreatorContextType creatorContextType,
-            String moduleInstanceId,
-            AclPermission editPermission);
+    Mono<List<ModuleInstance>> archiveModuleInstancesByRootModuleInstanceId(String rootModuleInstanceId);
 }

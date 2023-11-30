@@ -43,7 +43,6 @@
   "rolesTabinGroup": "[data-testid='t--tab-permissions']",
   "rolesinGroups": "[data-testid='t--all-group-row']",
   "newPage": ".t--entity-item:contains(page3)",
-  "usersDatasource": ".t--entity-name:contains(users)",
   "JsObject1": ".t--entity-name:contains(JSObject1)",
   "groupsRow": "[data-testid='t--usergroup-cell']",
   "generalTab": "[data-testid='t--tab-general']",

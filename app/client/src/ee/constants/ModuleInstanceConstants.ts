@@ -1,33 +1,18 @@
 export * from "ce/constants/ModuleInstanceConstants";
-
+import type {
+  ModuleInstance as CE_ModuleInstance,
+  ModuleInstanceCreatorType,
+} from "ce/constants/ModuleInstanceConstants";
 import type { MODULE_TYPE } from "./ModuleConstants";
-
-export type ModuleId = string;
-export type ModuleInstanceId = string;
-
-export enum ModuleInstanceCreatorType {
-  MODULE = "MODULE",
-  PAGE = "PAGE",
-}
-export interface ModuleInstance {
-  id: ModuleInstanceId;
-  type: MODULE_TYPE;
-  moduleId: ModuleId;
-  name: string;
-  creatorId: string;
-  creatorType: ModuleInstanceCreatorType;
-  inputs: {
-    [key: string]: string;
-  };
-  jsonPathKeys: {
-    [key: string]: any;
-  };
+export interface ModuleInstance
+  extends Omit<CE_ModuleInstance, "moduleId" | "creatorId" | "creatorType"> {
+  sourceModuleId: string;
+  contextId: string;
+  contextType: ModuleInstanceCreatorType;
   userPermissions?: string[];
 }
 export interface QueryModuleInstance extends ModuleInstance {
   type: MODULE_TYPE.QUERY;
   jsonPathKeys: string[];
   dynamicBindingPathList: Record<string, true>;
-  data: string;
-  run: string;
 }
