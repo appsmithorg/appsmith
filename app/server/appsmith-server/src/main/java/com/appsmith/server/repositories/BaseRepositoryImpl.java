@@ -2,8 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
-import com.mongodb.client.result.UpdateResult;
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -23,7 +21,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
