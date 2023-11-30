@@ -10,12 +10,10 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import StartWithTemplateFilters from "./StartWithTemplateFilter";
 import { StartWithTemplateContent } from "./StartWithTemplateContent";
-import {
-  getApplicationByIdFromWorkspaces,
-  getIsFetchingApplications,
-} from "@appsmith/selectors/applicationSelectors";
+import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
 import { importTemplateIntoApplicationViaOnboardingFlow } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const FiltersWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;

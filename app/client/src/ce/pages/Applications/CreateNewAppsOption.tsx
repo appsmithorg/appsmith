@@ -187,11 +187,11 @@ const CreateNewAppsOption = ({
   const allTemplates = useSelector(getTemplatesSelector);
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
   const applications = useSelector(getApplicationsOfWorkspace);
-  const application = applications.find(
-    (app) => app.id === currentApplicationIdForCreateNewApp,
-  );
   const selectedPlugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, createNewAppPluginId || ""),
+  );
+  const application = applications.find(
+    (app) => app.id === currentApplicationIdForCreateNewApp,
   );
   const isEnabledForStartWithData = useFeatureFlag(
     FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
