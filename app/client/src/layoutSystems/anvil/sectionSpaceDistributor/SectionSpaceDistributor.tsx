@@ -78,7 +78,6 @@ const SectionSpaceDistributorHandles = (
             spaceBetweenZones={each.spaceBetweenZones}
             spaceDistributed={spaceDistributed}
             spaceToWorkWith={spaceToWorkWith}
-            zoneCount={zones.length}
           />
         );
       })}

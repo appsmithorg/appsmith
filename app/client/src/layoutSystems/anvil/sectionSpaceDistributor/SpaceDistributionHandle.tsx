@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { AnvilReduxActionTypes } from "../integrations/actions/actionTypes";
 import { SpaceDistributorHandleDimensions } from "./constants";
-import { SectionColumns } from "../utils/constants";
 
 interface SpaceDistributionNodeProps {
   index: number;
@@ -17,7 +16,6 @@ interface SpaceDistributionNodeProps {
   spaceToWorkWith: number;
   spaceBetweenZones: number;
   spaceDistributed: { [key: string]: number };
-  zoneCount: number;
 }
 const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   display: inline;
@@ -47,7 +45,6 @@ export const SpaceDistributionHandle = ({
   spaceBetweenZones,
   spaceDistributed,
   spaceToWorkWith,
-  zoneCount,
 }: SpaceDistributionNodeProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
@@ -84,15 +81,14 @@ export const SpaceDistributionHandle = ({
       // The current position of mouse
       let x = 0;
       let lastValidHandlePosition = 0;
-      const currentFlexBasis = {
+      const currentFlexGrow = {
         leftZone: spaceDistributed[leftZone],
         rightZone: spaceDistributed[rightZone],
       };
       const currentGrowthFactor = {
-        leftZone: currentFlexBasis.leftZone,
-        rightZone: currentFlexBasis.rightZone,
+        leftZone: currentFlexGrow.leftZone,
+        rightZone: currentFlexGrow.rightZone,
       };
-      const spaceOffset = spaceBetweenZones * (zoneCount + 1);
       const addMouseMoveHandlers = () => {
         if (ref.current) {
           ref.current.classList.add("active");
@@ -100,11 +96,12 @@ export const SpaceDistributionHandle = ({
         Object.entries(spaceDistributed).forEach(([zoneId, flexGrow]) => {
           const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
           if (zoneDom) {
-            const flexRatio = flexGrow / SectionColumns;
-            const flexBasis = flexRatio * 100;
-            zoneDom.style.flex = `1 1 calc(${flexBasis}% - ${
-              spaceOffset * flexRatio
-            }px)`;
+            zoneDom.style.flexGrow = flexGrow.toString();
+            // const flexRatio = flexGrow / SectionColumns;
+            // const flexBasis = flexRatio * 100;
+            // zoneDom.style.flex = `1 1 calc(${flexBasis}% - ${
+            //   spaceOffset * flexRatio
+            // }px)`;
           }
         });
         document.addEventListener("mouseup", onMouseUp);
@@ -118,7 +115,7 @@ export const SpaceDistributionHandle = ({
         Object.keys(spaceDistributed).forEach((zoneId) => {
           const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
           if (zoneDom) {
-            zoneDom.style.flex = "";
+            zoneDom.style.flexGrow = "";
             zoneDom.style.transition = "all 0.3s ease";
             setTimeout(() => {
               zoneDom.style.transition = "";
@@ -186,25 +183,32 @@ export const SpaceDistributionHandle = ({
               // const spaceBetweenZones =
               //   rightZoneDom.offsetLeft -
               //   (leftZoneDom.offsetLeft + leftZoneDom.clientWidth);
-              // const updatedLeft =
-              //   rightZoneDom.offsetLeft -
-              //   spaceBetweenZones * 0.5 -
-              //   SpaceDistributorHandleDimensions.width * 0.5 -
-              //   SpaceDistributorHandleDimensions.border;
-              // lastValidHandlePosition = updatedLeft;
-              // ref.current.style.left = updatedLeft + "px";
-              leftZoneDom.style.flexBasis = `calc(${
-                (currentFlexBasis.leftZone * 100) / SectionColumns
-              }% + ${columnChange * columnWidth}px)`;
-              rightZoneDom.style.flexBasis = `calc(${
-                (currentFlexBasis.rightZone * 100) / SectionColumns
-              }% - ${columnChange * columnWidth}px)`;
+
+              // leftZoneDom.style.flexBasis = `calc(${
+              //   (currentFlexBasis.leftZone * 100) / SectionColumns
+              // }% + ${columnChange * columnWidth}px)`;
+              // rightZoneDom.style.flexBasis = `calc(${
+              //   (currentFlexBasis.rightZone * 100) / SectionColumns
+              // }% - ${columnChange * columnWidth}px)`;
+              // lastValidHandlePosition = recomputeLeftStyle;
+              // ref.current.style.left = recomputeLeftStyle + "px";
+              leftZoneDom.style.flexGrow = (
+                currentFlexGrow.leftZone + columnChange
+              ).toString();
+              rightZoneDom.style.flexGrow = (
+                currentFlexGrow.rightZone - columnChange
+              ).toString();
+              const updatedLeft =
+                rightZoneDom.offsetLeft -
+                spaceBetweenZones * 0.5 -
+                SpaceDistributorHandleDimensions.width * 0.5 -
+                SpaceDistributorHandleDimensions.border;
+              lastValidHandlePosition = updatedLeft;
+              ref.current.style.left = updatedLeft + "px";
               currentGrowthFactor.leftZone =
-                currentFlexBasis.leftZone + Math.round(columnChange);
+                currentFlexGrow.leftZone + Math.round(columnChange);
               currentGrowthFactor.rightZone =
-                currentFlexBasis.rightZone - Math.round(columnChange);
-              lastValidHandlePosition = recomputeLeftStyle;
-              ref.current.style.left = recomputeLeftStyle + "px";
+                currentFlexGrow.rightZone - Math.round(columnChange);
             }
           } else {
             ref.current.style.left = lastValidHandlePosition + "px";
