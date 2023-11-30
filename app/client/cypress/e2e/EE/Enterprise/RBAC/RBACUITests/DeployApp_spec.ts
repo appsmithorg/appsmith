@@ -11,6 +11,7 @@ import {
 
 import homepagelocators from "../../../../../locators/HomePage";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("User deploying an app with and without edit permission for a page", function () {
   let workspaceName: string, appName: string;
@@ -39,7 +40,7 @@ describe("User deploying an app with and without edit permission for a page", fu
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
+      PageList.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       adminSettings.NavigateToAdminSettings();

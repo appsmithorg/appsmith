@@ -11,6 +11,7 @@ import { builderURL } from "@appsmith/RouteBuilder";
 import type { AppsmithLocationState } from "utils/history";
 import EditorContextMenu from "./EditorContextMenu";
 import { noop } from "lodash";
+import { getIsModuleInstanceRunningStatus } from "@appsmith/selectors/moduleInstanceSelectors";
 
 const StyledContainer = styled.div`
   display: flex;
@@ -38,11 +39,20 @@ const StyledBackLink = styled(Link)`
 
 interface HeaderProps {
   moduleInstance: ModuleInstance;
+  onRunClick: () => void;
+  isExecutePermitted: boolean;
 }
 
-function Header({ moduleInstance }: HeaderProps) {
+function Header({
+  isExecutePermitted,
+  moduleInstance,
+  onRunClick,
+}: HeaderProps) {
   const history = useHistory<AppsmithLocationState>();
   const pageId = useSelector(getCurrentPageId);
+  const { isRunning } = useSelector((state) =>
+    getIsModuleInstanceRunningStatus(state, moduleInstance.id),
+  );
   const onBack = () => {
     history.push(builderURL({ pageId }));
   };
@@ -65,10 +75,10 @@ function Header({ moduleInstance }: HeaderProps) {
           <EditorContextMenu isDeletePermitted onDelete={noop} />
           <Button
             className="t--run-module-instance"
-            data-guided-tour-iid="run-module-instance"
-            // isDisabled={blockExecution}
-            // isLoading={isRunning}
-            // onClick={onRunClick}
+            data-guided-tour-id="run-module-instance"
+            isDisabled={!isExecutePermitted}
+            isLoading={isRunning}
+            onClick={onRunClick}
             size="md"
           >
             Run

@@ -9,6 +9,8 @@ import {
   createMessage,
   SEARCH_APPS,
   SEARCH_APPS_AND_PACKAGES,
+  SEARCH_APPS_AND_WORKFLOWS,
+  SEARCH_APPS_PACKAGES_AND_WORKFLOWS,
 } from "@appsmith/constants/messages";
 import type { AppState } from "@appsmith/reducers";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
@@ -17,12 +19,16 @@ import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededE
 import PageWrapper from "pages/common/PageWrapper";
 import { fetchAllPackages } from "@appsmith/actions/packageActions";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
+import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
+import { fetchAllWorkflows } from "@appsmith/actions/workflowActions";
 import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
 
 export interface EE_ApplicationProps extends CE_Applications.ApplicationProps {
   fetchAllPackages: () => void;
+  fetchAllWorkflows: () => void;
   showWarningBanner: boolean;
   showQueryModule: boolean;
+  showWorkflowFeature: boolean;
 }
 
 export type EE_ApplicationState = CE_Applications.ApplicationState;
@@ -40,6 +46,10 @@ export class Applications extends CE_AppClass<
     if (this.props.showQueryModule) {
       this.props.fetchAllPackages();
     }
+
+    if (this.props.showWorkflowFeature) {
+      this.props.fetchAllWorkflows();
+    }
   }
 
   componentWillUnmount() {
@@ -47,9 +57,14 @@ export class Applications extends CE_AppClass<
   }
 
   public render() {
-    const searchPlaceholder = this.props.showQueryModule
-      ? SEARCH_APPS_AND_PACKAGES
-      : SEARCH_APPS;
+    let searchPlaceholder = SEARCH_APPS;
+    if (this.props.showQueryModule && this.props.showWorkflowFeature) {
+      searchPlaceholder = SEARCH_APPS_PACKAGES_AND_WORKFLOWS;
+    } else if (this.props.showQueryModule) {
+      searchPlaceholder = SEARCH_APPS_AND_PACKAGES;
+    } else if (this.props.showWorkflowFeature) {
+      searchPlaceholder = SEARCH_APPS_AND_WORKFLOWS;
+    }
 
     return this.props.currentApplicationIdForCreateNewApp ? (
       <CreateNewAppsOption
@@ -92,6 +107,7 @@ const mapStateToProps = (state: AppState) => {
     ...CE_mapStateToProps,
     showWarningBanner: shouldShowLicenseBanner(state),
     showQueryModule: getShowQueryModule(state),
+    showWorkflowFeature: getShowWorkflowFeature(state),
   };
 };
 
@@ -100,6 +116,7 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     ...CE_mapDispatchToProps,
     fetchAllPackages: () => dispatch(fetchAllPackages()),
+    fetchAllWorkflows: () => dispatch(fetchAllWorkflows()),
   };
 };
 

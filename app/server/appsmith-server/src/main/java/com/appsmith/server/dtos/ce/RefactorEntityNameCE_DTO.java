@@ -4,11 +4,15 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RefactorEntityNameCE_DTO {
     String pageId;
     String layoutId;
@@ -28,4 +32,7 @@ public class RefactorEntityNameCE_DTO {
 
     @JsonView(Views.Internal.class)
     String newFullyQualifiedName;
+
+    @JsonView(Views.Internal.class)
+    Boolean isInternal;
 }

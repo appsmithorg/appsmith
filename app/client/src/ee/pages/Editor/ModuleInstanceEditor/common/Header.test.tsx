@@ -17,8 +17,8 @@ const DEFAULT_MODULE_INSTANCE = {
   type: MODULE_TYPE.QUERY,
   moduleId: "test-module",
   name: "QueryModule1",
-  creatorId: "652519c44b7c8d700a102643",
-  creatorType: "PAGE",
+  contextId: "652519c44b7c8d700a102643",
+  contextType: "PAGE",
   // Inputs
   inputs: {
     userId: "testUser",
@@ -68,7 +68,11 @@ describe("Header", () => {
     render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
-          <Header moduleInstance={DEFAULT_MODULE_INSTANCE} />
+          <Header
+            isExecutePermitted={false}
+            moduleInstance={DEFAULT_MODULE_INSTANCE}
+            onRunClick={jest.fn()}
+          />
         </ThemeProvider>
       </Provider>,
     );
@@ -77,7 +81,11 @@ describe("Header", () => {
   it("shows module instance name editor", () => {
     render(
       <Provider store={store}>
-        <Header moduleInstance={DEFAULT_MODULE_INSTANCE} />
+        <Header
+          isExecutePermitted={false}
+          moduleInstance={DEFAULT_MODULE_INSTANCE}
+          onRunClick={jest.fn()}
+        />
       </Provider>,
     );
 
@@ -87,7 +95,11 @@ describe("Header", () => {
   it("calls history.push when the Back button is clicked", () => {
     const { getByText } = render(
       <Provider store={store}>
-        <Header moduleInstance={DEFAULT_MODULE_INSTANCE} />
+        <Header
+          isExecutePermitted={false}
+          moduleInstance={DEFAULT_MODULE_INSTANCE}
+          onRunClick={jest.fn()}
+        />
       </Provider>,
     );
     const backButton = getByText("Back");
@@ -100,5 +112,45 @@ describe("Header", () => {
         pageId: DEFAULT_PAGE_ID,
       }),
     );
+  });
+
+  it("calls onRunClick when run button is clicked", () => {
+    const onRunClick = jest.fn();
+
+    const { getByText } = render(
+      <Provider store={store}>
+        <Header
+          isExecutePermitted
+          moduleInstance={DEFAULT_MODULE_INSTANCE}
+          onRunClick={onRunClick}
+        />
+      </Provider>,
+    );
+    const runButton = getByText("Run");
+
+    fireEvent.click(runButton);
+
+    // Ensure that history.push is called with the correct arguments
+    expect(onRunClick).toBeCalledTimes(1);
+  });
+
+  it("shouldn't call onRunClick when execute permission is false", () => {
+    const onRunClick = jest.fn();
+
+    const { getByText } = render(
+      <Provider store={store}>
+        <Header
+          isExecutePermitted={false}
+          moduleInstance={DEFAULT_MODULE_INSTANCE}
+          onRunClick={onRunClick}
+        />
+      </Provider>,
+    );
+    const runButton = getByText("Run");
+
+    fireEvent.click(runButton);
+
+    // Ensure that history.push is called with the correct arguments
+    expect(onRunClick).toBeCalledTimes(0);
   });
 });

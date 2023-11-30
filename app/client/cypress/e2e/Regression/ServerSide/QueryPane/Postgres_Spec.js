@@ -1,8 +1,11 @@
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
-const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
@@ -30,8 +33,8 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   });
 
   it("2. Create & runs existing table data with dynamic binding and deletes the query", () => {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 100, y: 100 });
     cy.NavigateToActiveDSQueryPane(datasourceName);
     agHelper.TypeDynamicInputValueNValidate(
@@ -281,7 +284,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
       action: "Delete",
       entityType: entityItems.Page,
     });
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
   });
 
   it("10. Validate Drop of the Newly Created Table from Postgress datasource", () => {

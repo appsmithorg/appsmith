@@ -1,4 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Table Widget property pane deafult feature validation", function () {
   before(() => {
@@ -9,7 +12,7 @@ describe("Table Widget property pane deafult feature validation", function () {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     cy.wait(2000);
-    _.entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     cy.wait(2000);
     cy.readTabledataFromSpecificIndex("2", "0", 1).then((tabData) => {

@@ -1,5 +1,7 @@
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
@@ -25,7 +27,7 @@ describe("List widget v2 - Basic server side data tests", () => {
         );
         _.dataSources.RunQuery();
       });
-      _.entityExplorer.SelectEntityByName("Page1");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     } else {
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");
@@ -37,7 +39,7 @@ describe("List widget v2 - Basic server side data tests", () => {
         );
         _.dataSources.RunQuery();
       });
-      _.entityExplorer.SelectEntityByName("Page1");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     }
   });
 
@@ -332,7 +334,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       // Click on sample(mock) user database.
       cy.get(datasource.mockUserDatabase).click();
 
-      EditorNavigation.ViaSidebar(SidebarButton.Data);
+      AppSidebar.navigate(AppSidebarButton.Data);
 
       // Choose the first data source which consists of users keyword & Click on the "New query +"" button
       _.dataSources.CreateQueryFromActiveTab("Users");
@@ -358,9 +360,7 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({
-        force: true,
-      });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 
@@ -401,9 +401,7 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({
-        force: true,
-      });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 

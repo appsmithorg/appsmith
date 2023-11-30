@@ -691,14 +691,10 @@ public class PackageServiceTest {
                                 .isNull();
                         assertThat(publishedAction.getPublishedAction().getContextType())
                                 .isEqualTo(CreatorContextType.MODULE);
-                        assertThat(publishedAction.getPublishedAction().getOwningModuleInstanceId())
-                                .isNull();
                         assertThat(publishedAction.getPublishedAction().getModuleId())
                                 .isNotNull();
-                        assertThat(publishedAction.getPublishedAction().getRootModuleInstanceId())
-                                .isNull();
-                        assertThat(publishedAction.getPublishedAction().getModuleInstanceId())
-                                .isNull();
+                        assertThat(publishedAction.getRootModuleInstanceId()).isNull();
+                        assertThat(publishedAction.getModuleInstanceId()).isNull();
                     });
                 })
                 .verifyComplete();

@@ -108,6 +108,7 @@ import {
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
+import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -147,6 +148,7 @@ interface ReduxStateProps {
   isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
   isAppSidebarEnabled: boolean;
+  currentApplicationIdForCreateNewApp: string | undefined;
 }
 
 const Form = styled.div`
@@ -320,7 +322,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
-      this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
+      this.props?.match?.params?.datasourceId === TEMP_DATASOURCE_ID
     ) {
       this.props.createTempDatasource({
         pluginId,
@@ -897,6 +899,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       canCreateDatasourceActions,
       canDeleteDatasource,
       canManageDatasource,
+      currentApplicationIdForCreateNewApp,
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
@@ -959,7 +962,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        {isAppSidebarEnabled ? null : <CloseEditor />}
+        {isAppSidebarEnabled || !!currentApplicationIdForCreateNewApp ? null : (
+          <CloseEditor />
+        )}
         {!isInsideReconnectModal && (
           <DSFormHeader
             canCreateDatasourceActions={canCreateDatasourceActions}
@@ -1156,6 +1161,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
 
+  // This is only present during onboarding flow
+  const currentApplicationIdForCreateNewApp =
+    getCurrentApplicationIdForCreateNewApp(state);
+
   return {
     canCreateDatasourceActions,
     canDeleteDatasource,
@@ -1193,6 +1202,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     initialValue,
     showDebugger,
     isAppSidebarEnabled,
+    currentApplicationIdForCreateNewApp,
   };
 };
 

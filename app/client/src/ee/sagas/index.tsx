@@ -11,8 +11,10 @@ import AISagas from "./aiSagas";
 import ProvisioningSagas from "./ProvisioningSagas";
 import PackagesSagas from "./packagesSagas";
 import PackageInitSagas from "./packageInitSagas";
+import WorkflowInitSagas from "./workflowInitSagas";
 import ModuleInstanceSaga from "./moduleInstanceSagas";
 import ModuleSagas from "./moduleSagas";
+import WorkflowsSagas from "./workflowsSagas";
 
 const sagasArr = [
   ...CE_Sagas,
@@ -22,7 +24,9 @@ const sagasArr = [
   AISagas,
   ProvisioningSagas,
   PackagesSagas,
+  WorkflowsSagas,
   PackageInitSagas,
+  WorkflowInitSagas,
   ModuleInstanceSaga,
   ModuleSagas,
 ];

@@ -1,11 +1,13 @@
 import {
-  dataSources,
   agHelper,
+  dataSources,
+  draggableWidgets,
   entityExplorer,
   propPane,
-  debuggerHelper,
-  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any;
 let queryName: string;
@@ -29,14 +31,14 @@ describe("Bug 28287: Binding query to widget, check query response in query edit
       );
       dataSources.ToggleUsePreparedStatement(false);
 
-      entityExplorer.SelectEntityByName("Text1");
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.TypeTextIntoField("Text", `{{${queryName}.data}}`);
 
       agHelper.RefreshPage();
 
       agHelper.Sleep(1000);
 
-      entityExplorer.SelectEntityByName(queryName, "Queries/JS");
+      EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
 
       agHelper.AssertElementVisibility(dataSources._queryResponse("TABLE"));
     });

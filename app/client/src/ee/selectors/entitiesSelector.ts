@@ -3,14 +3,16 @@ import { createSelector } from "reselect";
 import {
   getActions,
   getJSCollections,
-  getCurrentPageId,
   selectFilesForExplorer as CE_selectFilesForExplorer,
 } from "ce/selectors/entitiesSelector";
+import type { Module } from "@appsmith/constants/ModuleConstants";
 import {
   getAllModules,
   getCurrentModuleId,
+  getModuleInstanceActions,
+  getModuleInstanceJSCollections,
 } from "@appsmith/selectors/modulesSelector";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { ModuleInstanceReducerState } from "@appsmith/reducers/entityReducers/moduleInstancesReducer";
 import type { AppState } from "@appsmith/reducers";
 import { sortBy } from "lodash";
 import { getAllModuleInstances } from "./moduleInstanceSelectors";
@@ -32,27 +34,32 @@ export const getInputsForModule = (state: AppState): Module["inputsForm"] => {
   return module?.inputsForm || [];
 };
 
-export const getCurrentActions = createSelector(
-  getCurrentPageId,
+export const getCurrentModuleActions = createSelector(
   getCurrentModuleId,
   getActions,
-  (pageId, moduleId, actions) => {
+  getModuleInstanceActions,
+  (moduleId, actions, moduleInstanceActions) => {
     if (!!moduleId.length) return actions;
-    if (!pageId) return [];
-    return actions.filter((a) => a.config.pageId === pageId);
+    return moduleInstanceActions || [];
   },
 );
 
-export const getCurrentJSCollections = createSelector(
-  getCurrentPageId,
+export const getCurrentModuleJSCollections = createSelector(
   getCurrentModuleId,
   getJSCollections,
-  (pageId, moduleId, actions) => {
-    if (!!moduleId) return actions;
-    if (!pageId) return [];
-    return actions.filter((a) => a.config.pageId === pageId);
+  getModuleInstanceJSCollections,
+  (moduleId, moduleJSCollections, moduleInstanceJSCollections) => {
+    if (!!moduleId) return moduleJSCollections;
+    return moduleInstanceJSCollections || [];
   },
 );
+
+export const getModuleInstances = (
+  state: AppState,
+): ModuleInstanceReducerState => state.entities.moduleInstances;
+
+export const getModuleInstanceEntities = (state: AppState) =>
+  state.entities.moduleInstanceEntities;
 
 export const selectFilesForExplorer = createSelector(
   CE_selectFilesForExplorer,
@@ -62,7 +69,11 @@ export const selectFilesForExplorer = createSelector(
   (CE_files, moduleInstances, modules, packages) => {
     const moduleInstanceFiles = Object.values(moduleInstances).reduce(
       (acc, file) => {
-        const group = getPackageNameForModule(modules, packages, file.moduleId);
+        const group = getPackageNameForModule(
+          modules,
+          packages,
+          file.sourceModuleId,
+        );
         acc = acc.concat({
           type: "moduleInstance",
           entity: file,

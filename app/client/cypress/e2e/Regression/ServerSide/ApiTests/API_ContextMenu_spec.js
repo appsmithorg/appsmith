@@ -1,3 +1,8 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
@@ -13,7 +18,7 @@ describe("API Panel Test Functionality ", function () {
     cy.enterDatasourceAndPath(testdata.baseUrl, "{{ '/random' }}");
     cy.assertPageSave();
     cy.get("body").click(0, 0);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "FirstAPI",
       action: "Copy to page",
@@ -30,8 +35,7 @@ describe("API Panel Test Functionality ", function () {
       toastToValidate: "action moved to page",
     });
     cy.wait(2000);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    cy.get(".t--entity-name").contains("FirstAPICopy").click({ force: true });
+    EditorNavigation.SelectEntityByName("FirstAPICopy", EntityType.Api);
     cy.get(apiwidget.resourceUrl).should("contain.text", "{{ '/random' }}");
   });
 });

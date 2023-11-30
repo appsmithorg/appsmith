@@ -1,15 +1,19 @@
 import {
   agHelper,
-  entityExplorer,
-  propPane,
   deployMode,
   draggableWidgets,
+  entityExplorer,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Navigate To feature", () => {
   it("3. Navigates to url entered from the url tab of navigate to", () => {
-    entityExplorer.AddNewPage(); // page 2
-    entityExplorer.SelectEntityByName("Page1");
+    PageList.AddNewPage(); // page 2
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     agHelper.GetNClick(propPane._navigateToType("URL"));

@@ -111,8 +111,7 @@ public enum AppsmithRole {
                     WORKSPACE_READ_APPLICATIONS,
                     WORKSPACE_READ_PACKAGES,
                     WORKSPACE_INVITE_USERS,
-                    WORKSPACE_EXECUTE_DATASOURCES,
-                    WORKSPACE_RESOLVE_WORKFLOWS)),
+                    WORKSPACE_EXECUTE_DATASOURCES)),
 
     // This is a role to create tenant admin policies. Since this is an internal construct, we wouldn't expose name and
     // description

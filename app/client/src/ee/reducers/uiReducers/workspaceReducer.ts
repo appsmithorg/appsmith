@@ -23,6 +23,11 @@ import type {
   CreatePackageFromWorkspacePayload,
   DeletePackagePayload,
 } from "@appsmith/actions/packageActions";
+import type {
+  Workflow,
+  WorkflowMetadata,
+} from "@appsmith/constants/WorkflowConstants";
+import type { DeleteWorkflowPayload } from "@appsmith/actions/workflowActions";
 
 export const initialState: WorkspaceReduxState = {
   ...CE_initialState,
@@ -31,18 +36,25 @@ export const initialState: WorkspaceReduxState = {
   loadingStates: {
     ...CE_initialState.loadingStates,
     isFetchingPackagesList: false,
+    isFetchingWorkflowsList: false,
     packageCreationRequestMap: {},
+    workflowCreationRequestMap: {},
   },
   packagesList: [],
+  workflowsList: [],
   isSavingPkgName: false,
+  isSavingWorkflowName: false,
   isErrorSavingPkgName: false,
+  isErrorSavingWorkflowName: false,
 };
 
 type ID = string;
 
 type LoadingStates = CE_WorkspaceReduxState["loadingStates"] & {
   isFetchingPackagesList: boolean;
+  isFetchingWorkflowsList: boolean;
   packageCreationRequestMap: Record<ID, boolean>;
+  workflowCreationRequestMap: Record<ID, boolean>;
 };
 
 type FilteredCE_WorkspaceRedux = Omit<CE_WorkspaceReduxState, "loadingStates">;
@@ -55,8 +67,11 @@ export interface WorkspaceReduxState extends FilteredCE_WorkspaceRedux {
   groupSuggestions: GroupSuggestions[];
   loadingStates: LoadingStates;
   packagesList: PackageMetadata[];
+  workflowsList: WorkflowMetadata[];
   isSavingPkgName: boolean;
+  isSavingWorkflowName: boolean;
   isErrorSavingPkgName: boolean;
+  isErrorSavingWorkflowName: boolean;
 }
 
 const handlers = {
@@ -350,6 +365,90 @@ const handlers = {
       ...draftState,
       isSavingPkgName: false,
       isErrorSavingPkgName: true,
+    };
+  },
+  [ReduxActionTypes.CREATE_WORKFLOW_FROM_WORKSPACE_INIT]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<CreatePackageFromWorkspacePayload>,
+  ) => {
+    const { workspaceId } = action.payload;
+    draftState.loadingStates.workflowCreationRequestMap[workspaceId] = true;
+
+    return draftState;
+  },
+  [ReduxActionTypes.CREATE_WORKFLOW_FROM_WORKSPACE_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<Package>,
+  ) => {
+    const { workspaceId } = action.payload;
+    draftState.loadingStates.workflowCreationRequestMap[workspaceId] = false;
+
+    return draftState;
+  },
+  [ReduxActionErrorTypes.CREATE_WORKFLOW_FROM_WORKSPACE_ERROR]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<{ workspaceId: string }>,
+  ) => {
+    const { workspaceId } = action.payload;
+    draftState.loadingStates.workflowCreationRequestMap[workspaceId] = false;
+
+    return draftState;
+  },
+  [ReduxActionTypes.FETCH_ALL_WORKFLOWS_INIT]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingWorkflowsList = true;
+
+    return draftState;
+  },
+  [ReduxActionErrorTypes.FETCH_ALL_WORKFLOWS_ERROR]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    draftState.loadingStates.isFetchingWorkflowsList = false;
+
+    return draftState;
+  },
+  [ReduxActionTypes.FETCH_ALL_WORKFLOWS_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<WorkflowMetadata[]>,
+  ) => {
+    draftState.loadingStates.isFetchingWorkflowsList = false;
+
+    draftState.workflowsList = action.payload || [];
+
+    return draftState;
+  },
+  [ReduxActionTypes.DELETE_WORKFLOW_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<DeleteWorkflowPayload>,
+  ) => {
+    const { id } = action.payload;
+    const index = draftState.workflowsList.findIndex((p) => p.id === id);
+    if (index !== -1) draftState.workflowsList.splice(index, 1);
+
+    return draftState;
+  },
+  [ReduxActionTypes.UPDATE_WORKFLOW_NAME_SUCCESS]: (
+    draftState: WorkspaceReduxState,
+    action: ReduxAction<Workflow>,
+  ) => {
+    const workflow = action.payload;
+    const index = draftState.workflowsList.findIndex(
+      (w) => w.id === workflow.id,
+    );
+    if (index !== -1) draftState.workflowsList[index] = workflow;
+    draftState.isSavingWorkflowName = false;
+    draftState.isErrorSavingWorkflowName = false;
+
+    return draftState;
+  },
+  [ReduxActionErrorTypes.UPDATE_WORKFLOW_NAME_ERROR]: (
+    draftState: WorkspaceReduxState,
+  ) => {
+    return {
+      ...draftState,
+      isSavingWorkflowName: false,
+      isErrorSavingWorkflowName: true,
     };
   },
 };

@@ -4,6 +4,7 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ModuleInputForm;
 import com.appsmith.external.models.ModuleType;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.domains.Layout;
 import com.appsmith.server.helpers.ModuleConsumable;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.constraints.NotNull;
@@ -47,6 +48,9 @@ public class ModuleDTO implements Identifiable {
 
     @JsonView(Views.Public.class)
     List<ModuleInputForm> inputsForm;
+
+    @JsonView(Views.Public.class)
+    List<Layout> layouts;
 
     // Public entity is created along with the creation of module. Variants of publicEntity { Query module : ActionDTO,
     // JS module: ActionCollectionDTO,

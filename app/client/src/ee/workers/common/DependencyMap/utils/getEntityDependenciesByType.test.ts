@@ -1,8 +1,10 @@
+import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 import { getModuleInputsDependencies } from "@appsmith/workers/common/DependencyMap/utils/getEntityDependenciesByType";
 import {
   ENTITY_TYPE_VALUE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
 describe("get dependencies for module inputs", () => {
   it("getModuleInputsDependencies", () => {
@@ -30,7 +32,10 @@ describe("get dependencies for module inputs", () => {
       "inputs.email": ["appsmith.user.email"],
     };
 
-    const dependencies = getModuleInputsDependencies(entity, entityConfig);
+    const dependencies = getModuleInputsDependencies(
+      entity as DataTreeEntity,
+      entityConfig as DataTreeEntityConfig,
+    );
     expect(resultData).toStrictEqual(dependencies);
   });
 });

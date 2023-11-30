@@ -7,12 +7,11 @@ import {
   agHelper,
   assertHelper,
   table,
-  entityExplorer,
   deployMode,
   locators,
   draggableWidgets,
-  appSettings,
 } from "../../support/Objects/ObjectsCore";
+import PageList from "../../support/Pages/PageList";
 
 const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet";
@@ -159,7 +158,7 @@ describe("GSheet Miscellaneous Tests", function () {
 
   it("5. Generate CRUD page from entity explorer and verify", () => {
     // Adding pafe with data from entity explorer
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
 
     // Select the datasource, spreadsheet and sheet name
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);

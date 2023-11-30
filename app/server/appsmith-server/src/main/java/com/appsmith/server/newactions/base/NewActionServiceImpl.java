@@ -10,9 +10,11 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -33,6 +35,8 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.validations.EntityValidationService;
+import com.appsmith.server.workflows.helpers.WorkflowUtils;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +54,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -84,6 +89,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             PagePermission pagePermission,
             ActionPermission actionPermission,
             ObservationRegistry observationRegistry,
+            EntityValidationService entityValidationService,
             PermissionGroupRepository permissionGroupRepository) {
 
         super(
@@ -108,6 +114,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 applicationPermission,
                 pagePermission,
                 actionPermission,
+                entityValidationService,
                 observationRegistry);
 
         this.permissionGroupRepository = permissionGroupRepository;
@@ -173,7 +180,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             // Or the Datasource doesn't exist.
             if (actionDTO.getPluginType() == PluginType.JS
                     || StringUtils.isEmpty(actionDTO.getDatasource().getId())
-                    || ModuleUtils.isModuleContext(actionDTO)) {
+                    || ModuleUtils.isModuleContext(actionDTO)
+                    || WorkflowUtils.isWorkflowContext(actionDTO)) {
                 return Mono.just(actionDTO);
             }
             return newPageService
@@ -270,6 +278,10 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             if (action.getModuleId() == null || action.getModuleId().isBlank()) {
                 throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.MODULE_ID);
             }
+        } else if (WorkflowUtils.isWorkflowContext(action)) {
+            if (action.getWorkflowId() == null || action.getWorkflowId().isBlank()) {
+                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKFLOW_ID);
+            }
         } else {
             super.validateCreatorId(action);
         }
@@ -299,8 +311,54 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public Mono<NewAction> findPublicActionByModuleId(String moduleId) {
-        return repository.findPublicActionByModuleId(moduleId);
+    public Mono<List<ActionDTO>> archiveActionsByRootModuleInstanceId(String rootModuleInstanceId) {
+        return repository
+                .findAllByRootModuleInstanceId(
+                        rootModuleInstanceId, Optional.of(actionPermission.getDeletePermission()), false)
+                .flatMap(newAction -> deleteUnpublishedAction(newAction.getId()))
+                .collectList();
+    }
+
+    @Override
+    public Mono<NewAction> findPublicActionByModuleId(String moduleId, ResourceModes resourceMode) {
+        return repository.findPublicActionByModuleId(moduleId, resourceMode);
+    }
+
+    @Override
+    public Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInModule(String moduleId) {
+        return repository
+                .findUnpublishedActionsByModuleIdAndExecuteOnLoadSetByUserTrue(
+                        moduleId, actionPermission.getEditPermission())
+                .flatMap(this::sanitizeAction);
+    }
+
+    @Override
+    public Flux<NewAction> findAllUnpublishedComposedActionsByRootModuleInstanceId(
+            String rootModuleInstanceId, AclPermission permission, boolean includeJs) {
+        return repository.findAllByRootModuleInstanceId(
+                rootModuleInstanceId, Optional.ofNullable(permission), includeJs);
+    }
+
+    @Override
+    public Flux<NewAction> findAllJSActionsByCollectionIds(List<String> collectionIds, List<String> projectionFields) {
+        return repository.findAllByActionCollectionIdWithoutPermissions(collectionIds, projectionFields);
+    }
+
+    @Override
+    public Mono<List<NewAction>> archiveActionsByWorkflowId(String workflowId, Optional<AclPermission> permission) {
+        return repository
+                .findByWorkflowId(workflowId, permission)
+                .filter(newAction -> {
+                    boolean unpublishedActionNotFromCollection = Objects.isNull(newAction.getUnpublishedAction())
+                            || StringUtils.isEmpty(
+                                    newAction.getUnpublishedAction().getCollectionId());
+                    boolean publishedActionNotFromCollection = Objects.isNull(newAction.getPublishedAction())
+                            || StringUtils.isEmpty(
+                                    newAction.getPublishedAction().getCollectionId());
+                    return unpublishedActionNotFromCollection && publishedActionNotFromCollection;
+                })
+                .flatMap(repository::archive)
+                .collectList();
     }
 
     @Override
@@ -322,5 +380,31 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 .flatMap(repository::setUserPermissionsInObject)
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
+    }
+
+    @Override
+    public Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode) {
+        return super.generateActionByViewMode(newAction, viewMode).flatMap(actionDTO -> {
+            actionDTO.setIsPublic(newAction.getIsPublic());
+            actionDTO.setModuleInstanceId(newAction.getModuleInstanceId());
+            return Mono.just(actionDTO);
+        });
+    }
+
+    @Override
+    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO) {
+        ActionViewDTO actionViewDTO = super.generateActionViewDTO(action, actionDTO);
+
+        if (action.getModuleInstanceId() != null) {
+            actionViewDTO.setPluginId(action.getPluginId());
+            actionViewDTO.setIsPublic(action.getIsPublic());
+            actionViewDTO.setModuleInstanceId(action.getModuleInstanceId());
+            actionViewDTO.setExecuteOnLoad(actionDTO.getUserSetOnLoad());
+            if (!actionDTO.getUserSetOnLoad()) {
+                actionViewDTO.setExecuteOnLoad(actionDTO.getExecuteOnLoad() != null && actionDTO.getExecuteOnLoad());
+            }
+        }
+
+        return actionViewDTO;
     }
 }

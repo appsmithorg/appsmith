@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -8,7 +12,7 @@ describe("Binding the input Widget with tab Widget", function () {
   });
 
   it("1. Input widget test with default value from tab widget", function () {
-    _.entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
 
     cy.testJsontext("defaultvalue", testdata.tabBinding + "}}");
 

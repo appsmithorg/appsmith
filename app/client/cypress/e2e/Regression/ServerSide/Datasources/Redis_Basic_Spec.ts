@@ -99,7 +99,7 @@ describe("Validate Redis DS", () => {
     });
     dataSources.DeleteDatasourceFromWithinDS(dsName);
     //commenting below since after query delete, we run into risk of not seeing the datasource in EntityExplorer
-    // entityExplorer.SelectEntityByName(dsName, "Datasources");
+    // EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
     // entityExplorer.ActionContextMenuByEntityName({
     //   entityNameinLeftSidebar: dsName,
     //   action: "Delete",

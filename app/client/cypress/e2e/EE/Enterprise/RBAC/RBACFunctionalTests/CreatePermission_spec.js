@@ -16,6 +16,10 @@ import {
   dataManager,
 } from "../../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe.skip("Create Permission flow ", function () {
   let datasourceName;
@@ -198,9 +202,9 @@ describe.skip("Create Permission flow ", function () {
     //entityExplorer.ExpandCollapseEntity("Pages");
     //cy.CheckAndUnfoldEntityItem("Pages");
     //cy.Createpage("page3");
-    entityExplorer.AddNewPage("New blank page").then(($newPage) => {
+    PageList.AddNewPage("New blank page").then(($newPage) => {
       entityExplorer.RenameEntityFromExplorer($newPage, "page3", true);
-      entityExplorer.ClonePage("page3");
+      PageList.ClonePage("page3");
     });
 
     // Wait till the cloned page is the active page
@@ -399,7 +403,7 @@ describe.skip("Create Permission flow ", function () {
     cy.wait(1000);
     cy.wait("@createNewApi").then((response) => {
       apiName = response.response.body.data.name;
-      entityExplorer.SelectEntityByName(apiName, "Queries/JS");
+      EditorNavigation.SelectEntityByName(apiName, EntityType.Api);
     });
     agHelper.RenameWithInPane(apiName);
 

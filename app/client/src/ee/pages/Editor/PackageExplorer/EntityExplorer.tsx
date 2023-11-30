@@ -14,6 +14,7 @@ import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
 import history from "utils/history";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 
+// ankita: update this component to not use datasources anymore and add private entities
 function PackageEntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
   PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);

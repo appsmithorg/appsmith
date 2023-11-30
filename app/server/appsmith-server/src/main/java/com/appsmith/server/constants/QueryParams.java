@@ -8,6 +8,7 @@ public class QueryParams {
     public static String GROUP_USERID_FILTER = "userId";
     public static String FILTER_DELIMITER = ",";
     public static String PROVISIONED_FILTER = "provisioned";
+    public static final String WORKFLOW_ID = "workflowId";
     public static String STATUS = "status";
     public static String RESOLUTION = "resolution";
     public static String RESOLVED_BY = "resolvedBy";

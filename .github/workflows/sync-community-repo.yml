@@ -15,7 +15,7 @@ on:
 
 jobs:
   repo-sync:
-    runs-on: ubuntu-latest
+    runs-on: appsmith-self-hosted-deployment-runner
 
     steps:
       - uses: actions/checkout@v3
@@ -174,8 +174,8 @@ jobs:
             '$ARGS.named'
           )"
 
+          curl --version
           curl -v https://slack.com/api/chat.postMessage \
-            --fail-with-body \
             --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
             --header 'Content-Type: application/json; charset=utf-8' \
             --data-raw "$body"

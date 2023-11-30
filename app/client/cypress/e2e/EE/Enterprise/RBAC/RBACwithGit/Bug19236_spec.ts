@@ -1,4 +1,5 @@
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import PageList from "../../../../../support/Pages/PageList";
 import {
   agHelper,
   adminSettings,
@@ -9,6 +10,7 @@ import {
   rbacHelper,
   draggableWidgets,
 } from "../../../../../support/ee/ObjectsCore_EE";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("Validate RBAC with GIT bug #19236", function () {
   let workspaceName: any,
@@ -71,7 +73,7 @@ describe("Validate RBAC with GIT bug #19236", function () {
       gitSync.CreateGitBranch();
 
       // Add new page & widgets in the new branch
-      entityExplorer.AddNewPage();
+      PageList.AddNewPage();
       entityExplorer.RenameEntityFromExplorer("Page2", pageName, true);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHART, 300, 300);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 150, 150);

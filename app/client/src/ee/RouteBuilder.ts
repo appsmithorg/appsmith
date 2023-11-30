@@ -17,3 +17,22 @@ export const moduleEditorURL = ({ moduleId }: URLBuilderParams): string =>
 
 export const currentPackageEditorURL = (): string =>
   urlBuilder.build({ generateEditorPath: true });
+
+// URL builder for workflow editor
+export const workflowEditorURL = ({ workflowId }: URLBuilderParams): string =>
+  urlBuilder.build({ workflowId });
+
+// URL builder for js collection in workflows editor (NOT IMPLEMENTED YET, requires pageID dissociation from js collection)
+export const jsCollectionIdURL = (
+  props: URLBuilderParams & {
+    collectionId: string;
+    // Pass a function name to set the cursor directly on the function
+    functionName?: string;
+  },
+): string => {
+  return urlBuilder.build({
+    ...props,
+    suffix: `jsObjects/${props.collectionId}`,
+    hash: props.functionName,
+  });
+};

@@ -1,7 +1,9 @@
 package com.appsmith.server.actioncollections.base;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -20,12 +22,14 @@ import reactor.core.scheduler.Scheduler;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
 @Slf4j
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
     private final NewActionService newActionService;
+    private final ActionPermission actionPermission;
 
     public ActionCollectionServiceImpl(
             Scheduler scheduler,
@@ -54,12 +58,13 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 applicationPermission,
                 actionPermission);
         this.newActionService = newActionService;
+        this.actionPermission = actionPermission;
     }
 
     @Override
     public Mono<List<ActionCollection>> archiveActionCollectionsByModuleId(String moduleId) {
         return repository
-                .findAllByModuleIds(List.of(moduleId), null)
+                .findAllByModuleIds(List.of(moduleId), Optional.of(actionPermission.getDeletePermission()))
                 .flatMap(actionCollection -> {
                     Set<String> actionIds = new HashSet<>();
                     actionIds.addAll(actionCollection
@@ -75,5 +80,19 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                             .then(repository.archive(actionCollection));
                 })
                 .collectList();
+    }
+
+    @Override
+    public Mono<List<ActionCollectionDTO>> archiveActionCollectionsByRootModuleInstanceId(String rootModuleInstanceId) {
+        return repository
+                .findAllByRootModuleInstanceIds(List.of(rootModuleInstanceId), Optional.empty())
+                .flatMap(actionCollection -> deleteUnpublishedActionCollection(actionCollection.getId()))
+                .collectList();
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllUnpublishedComposedActionCollectionsByRootModuleInstanceId(
+            String rootModuleInstanceId, AclPermission permission) {
+        return repository.findAllByRootModuleInstanceIds(List.of(rootModuleInstanceId), Optional.of(permission));
     }
 }

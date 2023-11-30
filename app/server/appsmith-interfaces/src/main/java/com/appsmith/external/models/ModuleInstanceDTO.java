@@ -26,6 +26,7 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonView(Views.Public.class)
     private String id;
 
+    @Transient
     @JsonView(Views.Public.class)
     ModuleType type;
 
@@ -43,6 +44,14 @@ public class ModuleInstanceDTO implements Identifiable {
     @Transient
     @JsonView(Views.Public.class)
     CreatorContextType contextType;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    String contextId;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    String applicationId;
 
     @Transient
     @JsonView(Views.Public.class)
@@ -70,4 +79,7 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     @JsonView(Views.Public.class)
     Instant deletedAt = null;
+
+    @JsonView(Views.Internal.class)
+    DefaultResources defaultResources;
 }

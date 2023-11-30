@@ -1,21 +1,24 @@
 import {
-  entityExplorer,
-  jsEditor,
   agHelper,
-  locators,
-  propPane,
-  draggableWidgets,
-  deployMode,
-  debuggerHelper,
   apiPage,
   dataManager,
+  debuggerHelper,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
+  jsEditor,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 300);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 300, 200);
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "{{Select1.options}}");
   });
 
@@ -32,7 +35,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
       },
     );
     jsEditor.RunJSObj();
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -51,7 +54,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     );
 
     //SetOptions to not acceptable value - Numeric
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         myFun1 () {
@@ -61,7 +64,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
       false,
     );
     jsEditor.RunJSObj();
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -80,7 +83,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     );
 
     //SetOptions to not acceptable value - String
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         myFun1 () {
@@ -90,7 +93,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
       false,
     );
     jsEditor.RunJSObj();
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -109,7 +112,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     );
 
     //SetOptions to not acceptable value - undefined
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         myFun1 () {
@@ -119,7 +122,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
       false,
     );
     jsEditor.RunJSObj();
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -138,7 +141,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     );
 
     //SetOptions to not acceptable value - null
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(
       `export default {
         myFun1 () {
@@ -148,7 +151,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
       false,
     );
     jsEditor.RunJSObj();
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -174,16 +177,16 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
   });
 
   it("2.  Update 'setOptions' property By JS function & By action selector", () => {
-    entityExplorer.SelectEntityByName("Select1");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.EnterJSContext("Source Data", ""); // By JS function
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(`export default {
       myFun1 () {
         Select1.setOptions([{label: 'monday', value: 'weekday'}])
         }
     }`);
     jsEditor.RunJSObj();
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper
       .GetText(
         locators._widgetInDeployed(draggableWidgets.INPUT_V2) +
@@ -196,7 +199,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
       });
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
     propPane.EnterJSContext("onClick", "{{JSObject1.myFun1()}}"); // By action selector
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(`export default {
       myFun1 () {
         Select1.setOptions([{label: 'monday', value: 'weekday', code: '1'}])
@@ -231,7 +234,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
   });
 
   it("3. Update 'setOptions' property - during onPage load", () => {
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, false); //for on page load execution
     deployMode.DeployApp();
     agHelper
@@ -251,7 +254,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
   });
 
   it("4. Update 'setOptions' property - during onPage load - via Promise", () => {
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(`export default {
       myFun1 () {
         return	new Promise((resolve,reject)=>{
@@ -280,7 +283,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     apiPage.CreateAndFillApi(
       dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
     );
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(`export default {
       async myFunc1 () {
         await Api1.run(() => {Select1.setOptions([
@@ -308,7 +311,7 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
   });
 
   it("6. Update 'setOptions' property - during onPage load - via contcat", () => {
-    entityExplorer.SelectEntityByName("Select1");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.EnterJSContext(
       "Source Data",
       `[
@@ -320,14 +323,14 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
     ); // By JS function
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 300, 400);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 300, 500);
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(`export default {
       myFunc1 () {
         Select3.setOptions(Select1.options.concat(Select2.options));
       }
     }`);
     jsEditor.EnableDisableAsyncFuncSettings("myFunc1", true, false); //for on page load execution, since sync function is updated to async
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "{{Select3.options}}");
     deployMode.DeployApp();
     agHelper
@@ -348,9 +351,9 @@ describe("Widget Property Setters - Part III - Tc #2409 - Validates SetOptions",
   });
 
   it("7. Update 'setOptions' property - via SetTimeout framework function", () => {
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Default value", "{{Select1.options}}");
-    entityExplorer.SelectEntityByName("JSObject1");
+    EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     jsEditor.EditJSObj(`export default {
       myFun1() {
         let localValue = {"label": 'local label', "value": 'local value'};

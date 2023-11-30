@@ -6,6 +6,7 @@ import com.appsmith.server.domains.QApprovalRequest;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ApprovalRequestResolutionDTO;
+import com.appsmith.server.dtos.ApprovalRequestResolutionProxyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -15,7 +16,9 @@ import com.appsmith.server.repositories.ApprovalRequestRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.workflows.helper.WorkflowProxyHelper;
 import jakarta.validation.Validator;
+import org.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
@@ -24,7 +27,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.appsmith.server.acl.AclPermission.RESOLVE_APPROVAL_REQUESTS;
@@ -38,6 +40,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestServiceCECompatibleImpl
         implements InteractApprovalRequestService {
     private final SessionUserService sessionUserService;
+    private final WorkflowProxyHelper workflowProxyHelper;
     private final WorkflowRepository workflowRepository;
 
     protected InteractApprovalRequestServiceImpl(
@@ -48,15 +51,17 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
             ApprovalRequestRepository repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
+            WorkflowProxyHelper workflowProxyHelper,
             WorkflowRepository workflowRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
+        this.workflowProxyHelper = workflowProxyHelper;
         this.workflowRepository = workflowRepository;
     }
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<Boolean> resolveApprovalRequest(ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
+    public Mono<JSONObject> resolveApprovalRequest(ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         Mono<Workflow> workflowMono = workflowRepository
@@ -69,12 +74,18 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, REQUEST, approvalRequestResolutionDTO.getRequestId())));
 
-        Mono<Boolean> resolveApprovalRequestMono = workflowMono
+        Mono<JSONObject> resolveApprovalRequestMono = workflowMono
                 .flatMap(workflow -> approvalRequestMono)
                 .zipWith(currentUserMono)
                 .flatMap(pair -> {
                     ApprovalRequest approvalRequest = pair.getT1();
                     User currentUser = pair.getT2();
+
+                    ApprovalRequestResolutionProxyDTO approvalRequestResolutionProxyDTO =
+                            this.getApprovalRequestResolutionProxyDTO(approvalRequestResolutionDTO, approvalRequest);
+                    Mono<JSONObject> approvalRequestResolutionOnProxyMono = workflowProxyHelper
+                            .updateApprovalRequestResolutionOnProxy(approvalRequestResolutionProxyDTO)
+                            .cache();
 
                     Update approvalResolutionUpdate =
                             createApprovalRequestResolutionUpdate(approvalRequestResolutionDTO, currentUser);
@@ -83,10 +94,8 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
 
                     return validateApprovalRequestResolutionAgainstActualData(
                                     approvalRequestResolutionDTO, approvalRequest)
-                            .then(updateApprovalRequestMono);
-                })
-                .map(resolvedApprovedRequest -> Objects.nonNull(resolvedApprovedRequest.getResolvedAt())
-                        && resolvedApprovedRequest.getResolvedAt().isBefore(Instant.now()));
+                            .then(approvalRequestResolutionOnProxyMono.flatMap(updateApprovalRequestMono::thenReturn));
+                });
 
         return validateApprovalResolutionRequest(approvalRequestResolutionDTO).then(resolveApprovalRequestMono);
     }
@@ -147,5 +156,24 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
 
     private Boolean isResolutionAllowed(ApprovalRequest approvalRequest, String resolution) {
         return approvalRequest.getAllowedResolutions().contains(resolution);
+    }
+
+    private ApprovalRequestResolutionProxyDTO getApprovalRequestResolutionProxyDTO(ApprovalRequest approvalRequest) {
+        ApprovalRequestResolutionProxyDTO approvalRequestResolutionProxyDTO = new ApprovalRequestResolutionProxyDTO();
+        approvalRequestResolutionProxyDTO.setRequestId(approvalRequest.getId());
+        approvalRequestResolutionProxyDTO.setRunId(approvalRequest.getRunId());
+        approvalRequestResolutionProxyDTO.setWorkflowId(approvalRequest.getWorkflowId());
+        approvalRequestResolutionProxyDTO.setResolution(approvalRequest.getResolution());
+        return approvalRequestResolutionProxyDTO;
+    }
+
+    private ApprovalRequestResolutionProxyDTO getApprovalRequestResolutionProxyDTO(
+            ApprovalRequestResolutionDTO approvalRequestResolutionDTO, ApprovalRequest approvalRequest) {
+        ApprovalRequestResolutionProxyDTO approvalRequestResolutionProxyDTO = new ApprovalRequestResolutionProxyDTO();
+        approvalRequestResolutionProxyDTO.setRequestId(approvalRequest.getId());
+        approvalRequestResolutionProxyDTO.setRunId(approvalRequest.getRunId());
+        approvalRequestResolutionProxyDTO.setWorkflowId(approvalRequest.getWorkflowId());
+        approvalRequestResolutionProxyDTO.setResolution(approvalRequestResolutionDTO.getResolution());
+        return approvalRequestResolutionProxyDTO;
     }
 }

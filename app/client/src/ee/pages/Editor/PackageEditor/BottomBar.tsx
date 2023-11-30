@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Wrapper } from "components/BottomBar/components";
+import { DebuggerTrigger } from "components/editorComponents/Debugger";
 
 export default function BottomBar() {
   return (
@@ -8,7 +9,7 @@ export default function BottomBar() {
         <div data-testid="t--switch-env" />
       </Wrapper>
       <Wrapper>
-        <div data-testid="t--debugger" />
+        <DebuggerTrigger />
         <div data-testid="t--help-button" />
       </Wrapper>
     </Container>

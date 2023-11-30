@@ -1,7 +1,4 @@
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  SidebarButton,
-} from "../../../support/Pages/EditorNavigation";
 
 let dsName;
 describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {

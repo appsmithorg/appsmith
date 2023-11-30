@@ -4,7 +4,6 @@ import { ThemeProvider } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
-import PackageMainContainer from "./PackageMainContainer";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { ThemeMode, getTheme } from "selectors/themeSelectors";
 import {
@@ -14,6 +13,7 @@ import {
 import { Spinner } from "design-system";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "actions/widgetActions";
+import PackageIDE from "./PackageIDE";
 
 const theme = getTheme(ThemeMode.LIGHT);
 
@@ -49,7 +49,7 @@ function PackageEditor() {
           <title>{`${currentPackage?.name} | Editor | Appsmith`}</title>
         </Helmet>
         <GlobalHotKeys>
-          <PackageMainContainer />
+          <PackageIDE />
         </GlobalHotKeys>
       </div>
     </ThemeProvider>

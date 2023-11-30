@@ -147,4 +147,61 @@ describe("Your Reducer", () => {
 
     expect(state.isModuleUpdating).toBe(false);
   });
+
+  it("should handle UPDATE_MODULE_INSTANCE_INIT", () => {
+    const action = {
+      type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_INIT,
+      payload: undefined,
+    };
+
+    const initState = {
+      ...initialState,
+      loadingStates: {
+        ...initialState.loadingStates,
+        savingEntity: false,
+      },
+    };
+
+    const state = reducer(initState, action);
+
+    expect(state.loadingStates.savingEntity).toBe(true);
+  });
+
+  it("should handle UPDATE_MODULE_INSTANCE_SUCCESS", () => {
+    const action = {
+      type: ReduxActionTypes.UPDATE_MODULE_INSTANCE_SUCCESS,
+      payload: undefined,
+    };
+
+    const initState = {
+      ...initialState,
+      loadingStates: {
+        ...initialState.loadingStates,
+        savingEntity: true,
+      },
+    };
+
+    const state = reducer(initState, action);
+
+    expect(state.loadingStates.savingEntity).toBe(false);
+  });
+
+  it("should handle UPDATE_MODULE_INSTANCE_ERROR", () => {
+    const action = {
+      type: ReduxActionErrorTypes.UPDATE_MODULE_INSTANCE_ERROR,
+      payload: undefined,
+    };
+
+    const initState = {
+      ...initialState,
+      loadingStates: {
+        ...initialState.loadingStates,
+        savingEntity: true,
+      },
+    };
+
+    const state = reducer(initState, action);
+
+    expect(state.loadingStates.savingEntity).toBe(false);
+  });
 });

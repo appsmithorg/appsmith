@@ -1,5 +1,5 @@
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const queryLocators = require("../../../../locators/QueryEditor.json");
@@ -286,7 +286,7 @@ describe("Validate Mongo query commands", function () {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
   });
 
   it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
@@ -296,7 +296,7 @@ describe("Validate Mongo query commands", function () {
       "listingAndReviews",
       "Find",
     );
-    entityExplorer.SelectEntityByName("Query1");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
 
     cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
       .then(($field) => {

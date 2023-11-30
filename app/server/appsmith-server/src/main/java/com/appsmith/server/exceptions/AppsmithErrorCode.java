@@ -156,7 +156,7 @@ public enum AppsmithErrorCode {
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
     INVALID_APPROVAL_REQUEST_RESOLUTION("AE-APP-4029", "Invalid approval request resolution"),
     INVALID_APPROVAL_REQUEST_CREATION("AE-APP-4030", "Invalid approval request creation"),
-    ;
+    WORKFLOW_PROXY_REQUEST_FAILED("AE-APP-5016", "Workflow Proxy request failed");
     private final String code;
     private final String description;
 

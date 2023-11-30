@@ -1,38 +1,31 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.dtos.ce.CustomJSLibApplicationCE_DTO;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CustomJSLibApplicationDTO {
-    /**
-     * This string is used to uniquely identify a given library. We expect this to be universally unique for a given
-     * JS library
-     */
-    String uidString;
+public class CustomJSLibApplicationDTO extends CustomJSLibApplicationCE_DTO {
 
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof CustomJSLibApplicationDTO)) {
-            return false;
-        }
+    Boolean isHidden;
 
-        /**
-         * We check the equality using the uidString since this is supposed to be unique for a given library.
-         */
-        return ((CustomJSLibApplicationDTO) o).getUidString().equals(this.uidString);
-    }
+    @JsonView(Views.Internal.class)
+    String contextId;
 
-    @Override
-    public int hashCode() {
-        return this.uidString.hashCode();
-    }
+    @JsonView(Views.Internal.class)
+    CreatorContextType contextType;
 
     public static CustomJSLibApplicationDTO getDTOFromCustomJSLib(CustomJSLib jsLib) {
         CustomJSLibApplicationDTO customJSLibApplicationDTO = new CustomJSLibApplicationDTO();
         customJSLibApplicationDTO.setUidString(jsLib.getUidString());
+        customJSLibApplicationDTO.setIsHidden(jsLib.getIsHidden());
+        customJSLibApplicationDTO.setContextId(jsLib.getContextId());
+        customJSLibApplicationDTO.setContextType(jsLib.getContextType());
 
         return customJSLibApplicationDTO;
     }

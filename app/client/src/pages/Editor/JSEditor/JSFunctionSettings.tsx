@@ -1,4 +1,3 @@
-import { updateFunctionProperty } from "actions/jsPaneActions";
 import {
   FUNCTION_SETTINGS_HEADING,
   NO_JS_FUNCTIONS,
@@ -6,7 +5,6 @@ import {
 } from "@appsmith/constants/messages";
 import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -19,14 +17,22 @@ interface SettingsHeadingProps {
   grow: boolean;
 }
 
+export interface OnUpdateSettingsProps {
+  value: boolean | number;
+  propertyName: string;
+  action: JSAction;
+}
+
 interface SettingsItemProps {
   action: JSAction;
   disabled?: boolean;
+  onUpdateSettings?: (props: OnUpdateSettingsProps) => void;
 }
 
-interface JSFunctionSettingsProps {
+export interface JSFunctionSettingsProps {
   actions: JSAction[];
   disabled?: boolean;
+  onUpdateSettings: SettingsItemProps["onUpdateSettings"];
 }
 
 const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
@@ -115,8 +121,11 @@ function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
   );
 }
 
-function SettingsItem({ action, disabled }: SettingsItemProps) {
-  const dispatch = useDispatch();
+function SettingsItem({
+  action,
+  disabled,
+  onUpdateSettings,
+}: SettingsItemProps) {
   const [executeOnPageLoad, setExecuteOnPageLoad] = useState(
     String(!!action.executeOnLoad),
   );
@@ -124,18 +133,13 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
     String(!!action.confirmBeforeExecute),
   );
 
-  const updateProperty = (value: boolean | number, propertyName: string) => {
-    dispatch(
-      updateFunctionProperty({
-        action: action,
-        propertyName: propertyName,
-        value: value,
-      }),
-    );
-  };
   const onChangeExecuteOnPageLoad = (value: string) => {
     setExecuteOnPageLoad(value);
-    updateProperty(value === "true", "executeOnLoad");
+    onUpdateSettings?.({
+      value: value === "true",
+      propertyName: "executeOnLoad",
+      action,
+    });
 
     AnalyticsUtil.logEvent("JS_OBJECT_SETTINGS_CHANGED", {
       toggleSetting: "ON_PAGE_LOAD",
@@ -144,7 +148,11 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
   };
   const onChangeConfirmBeforeExecute = (value: string) => {
     setConfirmBeforeExecute(value);
-    updateProperty(value === "true", "confirmBeforeExecute");
+    onUpdateSettings?.({
+      value: value === "true",
+      propertyName: "confirmBeforeExecute",
+      action,
+    });
 
     AnalyticsUtil.logEvent("JS_OBJECT_SETTINGS_CHANGED", {
       toggleSetting: "CONFIRM_BEFORE_RUN",
@@ -203,6 +211,7 @@ function SettingsItem({ action, disabled }: SettingsItemProps) {
 function JSFunctionSettingsView({
   actions,
   disabled = false,
+  onUpdateSettings,
 }: JSFunctionSettingsProps) {
   return (
     <JSFunctionSettingsWrapper>
@@ -229,6 +238,7 @@ function JSFunctionSettingsView({
                   action={action}
                   disabled={disabled}
                   key={action.id}
+                  onUpdateSettings={onUpdateSettings}
                 />
               ))
             ) : (

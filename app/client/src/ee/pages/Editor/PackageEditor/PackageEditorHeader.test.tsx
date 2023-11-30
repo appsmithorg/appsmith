@@ -64,26 +64,6 @@ const store = configureStore()({
 
 jest.spyOn(selectors, "getCurrentPackage").mockReturnValue(currentPackage);
 
-jest.mock("components/editorComponents/GlobalSearch", () => {
-  return {
-    __esModule: true,
-    default: () => {
-      // if you exporting component as default
-      return <div />;
-    },
-  };
-});
-
-jest.mock("components/editorComponents/GlobalSearch/HelpBar", () => {
-  return {
-    __esModule: true,
-    default: () => {
-      // if you exporting component as default
-      return <div data-testid="global-search-modal-trigger" />;
-    },
-  };
-});
-
 const renderComponent = () => {
   return render(
     <Provider store={store}>
@@ -102,9 +82,6 @@ describe("PackageEditorHeader", () => {
     expect(
       screen.getByTestId("t--appsmith-package-editor-header"),
     ).toBeInTheDocument();
-    expect(
-      screen.getByTestId("global-search-modal-trigger"),
-    ).toBeInTheDocument();
     expect(screen.getByTestId("t--package-publish-btn")).toBeInTheDocument();
   });
 
@@ -117,7 +94,7 @@ describe("PackageEditorHeader", () => {
     // Simulate editing the package name
     const packageName = screen.getByTestId("t--editor-menu-cta");
     fireEvent.click(packageName);
-    const editNameMenuItem = screen.getByTestId("t--editor-menu-edit-name");
+    const editNameMenuItem = screen.getByTestId("t--editor-menu-rename");
     fireEvent.click(editNameMenuItem);
     const packageNameInput = document.getElementsByClassName(
       "bp3-editable-text-input",

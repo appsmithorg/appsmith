@@ -40,6 +40,14 @@ describe("URLAssembly", () => {
     expect(editorType).toBe(EDITOR_TYPE.PKG);
   });
 
+  it("should return the default editor type as workflow for workflows route", () => {
+    mockPathname("/workflow/workflow-id");
+
+    const editorType = urlBuilder.getDefaultEditorType();
+
+    expect(editorType).toBe(EDITOR_TYPE.WORKFLOW);
+  });
+
   it("should return the default editor type as app for app route", () => {
     mockPathname("/app/app-id/app-id");
     const editorType = urlBuilder.getDefaultEditorType();

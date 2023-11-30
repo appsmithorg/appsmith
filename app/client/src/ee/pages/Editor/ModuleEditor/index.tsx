@@ -9,6 +9,7 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   INTEGRATION_EDITOR_PATH,
   MODULE_API_EDITOR_PATH,
+  MODULE_JS_COLLECTION_EDITOR_PATH,
   MODULE_QUERY_EDITOR_PATH,
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
@@ -24,6 +25,7 @@ import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import Loader from "./Loader";
+import ModuleJSEditor from "./ModuleJSEditor";
 
 interface RouteProps {
   moduleId: string;
@@ -84,6 +86,11 @@ function ModuleEditor({ match }: ModuleEditorProps) {
         component={DatasourceForm}
         exact
         path={`${match.path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`}
+      />
+      <SentryRoute
+        component={ModuleJSEditor}
+        exact
+        path={`${match.path}${MODULE_JS_COLLECTION_EDITOR_PATH}`}
       />
       {/* Redirect to default url */}
       <ModuleEditorDefaultRedirect module={module} />

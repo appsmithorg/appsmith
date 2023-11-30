@@ -1190,7 +1190,16 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Invalid approval request creation",
             ErrorType.BAD_REQUEST,
-            null);
+            null),
+    WORKFLOW_PROXY_REQUEST_FAILED(
+            500,
+            AppsmithErrorCode.WORKFLOW_PROXY_REQUEST_FAILED.getCode(),
+            "Workflow proxy request {0} failed. Error: {1}.",
+            AppsmithErrorAction.DEFAULT,
+            "Workflow proxy request failed.",
+            ErrorType.INTERNAL_ERROR,
+            null),
+    ;
 
     private final Integer httpErrorCode;
     private final String appErrorCode;

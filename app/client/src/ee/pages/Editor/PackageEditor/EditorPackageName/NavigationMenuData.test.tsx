@@ -76,8 +76,10 @@ describe("GetNavigationMenuData", () => {
     });
 
     // Verify that the expected navigation items are rendered
-    const homeMenuItem = container.find((arr) => arr.text === "Home");
-    const editNameMenuItem = container.find((arr) => arr.text === "Edit name");
+    const homeMenuItem = container.find(
+      (arr) => arr.text === "Back to all apps",
+    );
+    const editNameMenuItem = container.find((arr) => arr.text === "Rename");
     const helpMenuItem = container.find((arr) => arr.text === "Help");
     const deletePackageMenuItem = container.find(
       (arr) => arr.text === "Delete package",

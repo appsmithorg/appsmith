@@ -1,5 +1,6 @@
 package com.appsmith.server.workflows.crud;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.workflows.base.BaseWorkflowServiceCECompatible;
 import reactor.core.publisher.Flux;
@@ -16,4 +17,6 @@ public interface CrudWorkflowServiceCECompatible extends BaseWorkflowServiceCECo
     Mono<Workflow> getWorkflowById(String workflowId);
 
     Mono<Workflow> deleteWorkflow(String workflowId);
+
+    Mono<ActionDTO> createWorkflowAction(String workflowId, ActionDTO actionDTO);
 }

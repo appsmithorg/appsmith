@@ -3,25 +3,39 @@ package com.appsmith.server.solutions.ee;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
+import com.appsmith.external.models.ModuleInput;
+import com.appsmith.external.models.ModuleInputForm;
+import com.appsmith.external.models.ModuleInstanceDTO;
+import com.appsmith.external.models.ModuleType;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ConsumablePackagesAndModulesDTO;
+import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.ModuleActionDTO;
+import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -33,10 +47,15 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
+import com.appsmith.server.modules.crud.CrudModuleService;
+import com.appsmith.server.packages.crud.CrudPackageService;
+import com.appsmith.server.packages.publish.PublishPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
+import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -62,6 +81,7 @@ import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.themes.base.ThemeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,6 +98,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,6 +106,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -94,16 +116,19 @@ import static com.appsmith.server.acl.AclPermission.CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.DELETE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
@@ -112,6 +137,7 @@ import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.READ_MODULE_INSTANCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
@@ -158,7 +184,7 @@ public class ApplicationShareTest {
     @Autowired
     LayoutCollectionService layoutCollectionService;
 
-    @Autowired
+    @SpyBean
     PluginService pluginService;
 
     @Autowired
@@ -227,6 +253,21 @@ public class ApplicationShareTest {
     @Autowired
     ApplicationPermission applicationPermission;
 
+    @Autowired
+    CrudPackageService crudPackageService;
+
+    @Autowired
+    PublishPackageService publishPackageService;
+
+    @Autowired
+    CrudModuleService crudModuleService;
+
+    @Autowired
+    CrudModuleInstanceService crudModuleInstanceService;
+
+    @Autowired
+    ModuleInstanceRepository moduleInstanceRepository;
+
     Workspace workspace;
 
     List<PermissionGroup> defaultWorkspaceRoles;
@@ -237,6 +278,17 @@ public class ApplicationShareTest {
     User testUser = null;
 
     String originHeader = "http://localhost:8080";
+    ModuleDTO sourceModuleDTO = null;
+    Optional<ModuleDTO> consumableModuleOptional;
+    String workspaceId = null;
+
+    final Set<String> moduleInstancePermissions = Set.of(
+            EXECUTE_MODULE_INSTANCES.getValue(),
+            READ_MODULE_INSTANCES.getValue(),
+            MANAGE_MODULE_INSTANCES.getValue(),
+            DELETE_MODULE_INSTANCES.getValue());
+    final Set<String> newActionPermissions = Set.of(
+            MANAGE_ACTIONS.getValue(), DELETE_ACTIONS.getValue(), READ_ACTIONS.getValue(), EXECUTE_ACTIONS.getValue());
 
     @BeforeEach
     public void setup() {
@@ -254,11 +306,21 @@ public class ApplicationShareTest {
 
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.license_gac_enabled.name(), TRUE));
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_query_module_enabled.name(), TRUE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        Mockito.when(featureFlagService.check(eq(FeatureFlagEnum.release_query_module_enabled)))
+                .thenReturn(Mono.just(TRUE));
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.doReturn(Mono.just(Map.of())).when(pluginService).getFormConfig(Mockito.anyString());
 
         Workspace workspace1 = new Workspace();
         workspace1.setName("ApplicationShareTest");
         workspace = workspaceService.create(workspace1, currentUser, TRUE).block();
+
+        workspaceId = workspace.getId();
+
         defaultWorkspaceRoles = permissionGroupService
                 .findAllByIds(workspace.getDefaultPermissionGroups())
                 .collectList()
@@ -275,21 +337,108 @@ public class ApplicationShareTest {
                 .filter(role -> role.getName().startsWith(VIEWER))
                 .findFirst()
                 .get();
+
+        createAndPublishPackage();
+
+        fetchConsumableModule();
+    }
+
+    private void createAndPublishPackage() {
+
+        PackageDTO aPackage = getPackageRequestDTO();
+
+        PackageDTO packageDTO = createPackage(aPackage);
+
+        ModuleDTO moduleReqDTO = createModuleRequestDTO(packageDTO);
+
+        sourceModuleDTO = createModule(moduleReqDTO);
+
+        publishPackageService.publishPackage(packageDTO.getId()).block();
+    }
+
+    private PackageDTO getPackageRequestDTO() {
+        PackageDTO aPackage = new PackageDTO();
+        aPackage.setName("Package Publish Test");
+        aPackage.setColor("#C2DAF0");
+        aPackage.setIcon("rupee");
+
+        return aPackage;
+    }
+
+    private ModuleDTO createModule(ModuleDTO moduleReqDTO) {
+        return crudModuleService.createModule(moduleReqDTO).block();
+    }
+
+    private PackageDTO createPackage(PackageDTO aPackage) {
+        return crudPackageService.createPackage(aPackage, workspaceId).block();
+    }
+
+    private ModuleDTO createModuleRequestDTO(PackageDTO packageDTO) {
+        ModuleDTO moduleReqDTO = new ModuleDTO();
+        moduleReqDTO.setName("GetUsers");
+        moduleReqDTO.setPackageId(packageDTO.getId());
+        moduleReqDTO.setType(ModuleType.QUERY_MODULE);
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("Select * from users where gender = {{inputs.genderInput}}");
+
+        moduleActionDTO.setDynamicBindingPathList(List.of(new Property("body", null)));
+
+        // configure inputs
+        List<ModuleInputForm> moduleInputsForm = new ArrayList<>();
+        ModuleInputForm genderInputForm = new ModuleInputForm();
+        genderInputForm.setId(UUID.randomUUID().toString());
+        genderInputForm.setSectionName("");
+        List<ModuleInput> inputChildren = new ArrayList<>();
+        ModuleInput genderInput = new ModuleInput();
+        genderInput.setLabel("genderInput");
+        genderInput.setPropertyName("inputs.genderInput");
+        genderInput.setDefaultValue("{{\"female\"}}");
+        genderInput.setControlType("INPUT_TEXT");
+        inputChildren.add(genderInput);
+        genderInputForm.setChildren(inputChildren);
+
+        moduleInputsForm.add(genderInputForm);
+        moduleReqDTO.setInputsForm(moduleInputsForm);
+
+        Datasource datasource = new Datasource();
+        datasource.setName("Default Database");
+        datasource.setWorkspaceId(workspaceId);
+        Plugin installed_plugin =
+                pluginService.findByPackageName("restapi-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+        datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null, TRUE)));
+        moduleActionDTO.setActionConfiguration(actionConfiguration);
+        moduleActionDTO.setDatasource(datasource);
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+
+        moduleReqDTO.setEntity(moduleActionDTO);
+        return moduleReqDTO;
+    }
+
+    private void fetchConsumableModule() {
+        ConsumablePackagesAndModulesDTO allConsumablePackages =
+                crudPackageService.getAllPackagesForConsumer(workspaceId).block();
+
+        consumableModuleOptional = allConsumablePackages.getModules().stream().findFirst();
+        AssertionsForClassTypes.assertThat(consumableModuleOptional).isPresent();
     }
 
     @AfterEach
     public void cleanup() {
         User currentUser = sessionUserService.getCurrentUser().block();
-        Boolean updateWorkspaceAdminRole = permissionGroupService
+        permissionGroupService
                 .bulkAssignToUsersWithoutPermission(workspaceAdminRole, List.of(currentUser))
                 .block();
-        List<Application> deletedApplications = applicationService
+        applicationService
                 .findByWorkspaceId(workspace.getId(), applicationPermission.getDeletePermission())
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
-        Workspace deletedWorkspace =
-                workspaceService.archiveById(workspace.getId()).block();
+        workspaceService.archiveById(workspace.getId()).block();
     }
 
     @Test
@@ -373,6 +522,19 @@ public class ApplicationShareTest {
         ActionCollectionDTO createdActionCollectionDTO =
                 layoutCollectionService.createCollection(actionCollectionDTO).block();
 
+        ModuleDTO consumableModule = consumableModuleOptional.get();
+
+        ModuleInstanceDTO moduleInstanceReqDTO = new ModuleInstanceDTO();
+        moduleInstanceReqDTO.setContextId(
+                createdApplication.getPages().stream().findAny().get().getDefaultPageId());
+        moduleInstanceReqDTO.setContextType(CreatorContextType.PAGE);
+        moduleInstanceReqDTO.setName("GetUsers1");
+        moduleInstanceReqDTO.setSourceModuleId(consumableModule.getId());
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO = crudModuleInstanceService
+                .createModuleInstance(moduleInstanceReqDTO, null)
+                .block();
+        ModuleInstanceDTO moduleInstanceDTO = createModuleInstanceResponseDTO.getModuleInstance();
+
         PermissionGroup devApplicationRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_DEVELOPER)
                 .block();
@@ -426,6 +588,18 @@ public class ApplicationShareTest {
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
         Set<Policy> actionCollectionPolicies = actionCollectionRepository
                 .findById(createdActionCollectionDTO.getId())
+                .block()
+                .getPolicies();
+        Set<Policy> moduleInstancePolicies = moduleInstanceRepository
+                .findById(moduleInstanceDTO.getId())
+                .block()
+                .getPolicies();
+        Set<Policy> composedActionPolicies = newActionRepository
+                .findById(createModuleInstanceResponseDTO
+                        .getEntities()
+                        .getActions()
+                        .get(0)
+                        .getId())
                 .block()
                 .getPolicies();
         Set<Policy> systemThemePolicies =
@@ -537,6 +711,15 @@ public class ApplicationShareTest {
             }
         });
 
+        assertThat(moduleInstancePolicies)
+                .allMatch(policy -> moduleInstancePermissions.contains(policy.getPermission()));
+        moduleInstancePolicies.forEach(
+                policy -> assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId()));
+
+        assertThat(composedActionPolicies).allMatch(policy -> newActionPermissions.contains(policy.getPermission()));
+        composedActionPolicies.forEach(
+                policy -> assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId()));
+
         systemThemePolicies.forEach(policy -> {
             if (policy.getPermission().equals(READ_THEMES.getValue())) {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
@@ -618,6 +801,19 @@ public class ApplicationShareTest {
 
         ActionDTO createdActionBlock =
                 layoutActionService.createSingleAction(action, FALSE).block();
+
+        ModuleDTO consumableModule = consumableModuleOptional.get();
+
+        ModuleInstanceDTO moduleInstanceReqDTO = new ModuleInstanceDTO();
+        moduleInstanceReqDTO.setContextId(
+                createdApplication.getPages().stream().findAny().get().getDefaultPageId());
+        moduleInstanceReqDTO.setContextType(CreatorContextType.PAGE);
+        moduleInstanceReqDTO.setName("GetUsers1");
+        moduleInstanceReqDTO.setSourceModuleId(consumableModule.getId());
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO = crudModuleInstanceService
+                .createModuleInstance(moduleInstanceReqDTO, null)
+                .block();
+        ModuleInstanceDTO moduleInstanceDTO = createModuleInstanceResponseDTO.getModuleInstance();
 
         System.out.println("Create Viewer Role");
         PermissionGroup viewApplicationRole = applicationService
@@ -719,6 +915,17 @@ public class ApplicationShareTest {
                 .getPolicies();
         Set<Policy> newActionPolicies =
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
+        ModuleInstance moduleInstance =
+                moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
+        Set<Policy> moduleInstancePolicies = moduleInstance.getPolicies();
+        Set<Policy> composedActionPolicies = newActionRepository
+                .findById(createModuleInstanceResponseDTO
+                        .getEntities()
+                        .getActions()
+                        .get(0)
+                        .getId())
+                .block()
+                .getPolicies();
         Set<Policy> systemThemePolicies =
                 themeRepository.findById(systemTheme.getId()).block().getPolicies();
         Set<Policy> applicationThemePolicies =
@@ -822,6 +1029,39 @@ public class ApplicationShareTest {
             }
         });
 
+        moduleInstancePolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, ModuleInstance.class);
+            assertThat(permissionByValue).isNotNull();
+            switch (permissionByValue) {
+                case MANAGE_MODULE_INSTANCES, DELETE_MODULE_INSTANCES, READ_MODULE_INSTANCES -> {
+                    assertThat(permissionGroups).contains(devApplicationRole.getId());
+                    assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
+                }
+                case EXECUTE_MODULE_INSTANCES -> assertThat(permissionGroups)
+                        .contains(devApplicationRole.getId(), viewApplicationRole.getId());
+            }
+        });
+
+        assertThat(composedActionPolicies).allMatch(policy -> newActionPermissions.contains(policy.getPermission()));
+        composedActionPolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Action.class);
+            assertThat(permissionByValue).isNotNull();
+            switch (permissionByValue) {
+                case MANAGE_ACTIONS, DELETE_ACTIONS, READ_ACTIONS -> {
+                    assertThat(permissionGroups).contains(devApplicationRole.getId());
+                    assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
+                }
+                case EXECUTE_ACTIONS -> assertThat(permissionGroups)
+                        .contains(devApplicationRole.getId(), viewApplicationRole.getId());
+            }
+        });
+
         systemThemePolicies.forEach(policy -> {
             if (policy.getPermission().equals(READ_THEMES.getValue())) {
                 assertThat(policy.getPermissionGroups())
@@ -918,6 +1158,19 @@ public class ApplicationShareTest {
         ActionDTO createdActionBlock =
                 layoutActionService.createSingleAction(action, FALSE).block();
 
+        ModuleDTO consumableModule = consumableModuleOptional.get();
+
+        ModuleInstanceDTO moduleInstanceReqDTO = new ModuleInstanceDTO();
+        moduleInstanceReqDTO.setContextId(
+                createdApplication.getPages().stream().findAny().get().getDefaultPageId());
+        moduleInstanceReqDTO.setContextType(CreatorContextType.PAGE);
+        moduleInstanceReqDTO.setName("GetUsers1");
+        moduleInstanceReqDTO.setSourceModuleId(consumableModule.getId());
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO = crudModuleInstanceService
+                .createModuleInstance(moduleInstanceReqDTO, null)
+                .block();
+        ModuleInstanceDTO moduleInstanceDTO = createModuleInstanceResponseDTO.getModuleInstance();
+
         PermissionGroup viewApplicationRole = applicationService
                 .createDefaultRole(createdApplication, APPLICATION_VIEWER)
                 .block();
@@ -971,6 +1224,19 @@ public class ApplicationShareTest {
                 .getPolicies();
         Set<Policy> newActionPolicies =
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
+        Set<Policy> moduleInstancePolicies = moduleInstanceRepository
+                .findById(moduleInstanceDTO.getId())
+                .block()
+                .getPolicies();
+        Set<Policy> composedActionPolicies = newActionRepository
+                .findById(createModuleInstanceResponseDTO
+                        .getEntities()
+                        .getActions()
+                        .get(0)
+                        .getId())
+                .block()
+                .getPolicies();
+
         Set<Policy> workspacePolicies =
                 workspaceRepository.findById(workspace.getId()).block().getPolicies();
 
@@ -1069,6 +1335,37 @@ public class ApplicationShareTest {
             }
         });
 
+        assertThat(moduleInstancePolicies)
+                .allMatch(policy -> moduleInstancePermissions.contains(policy.getPermission()));
+        moduleInstancePolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, ModuleInstance.class);
+            assertThat(permissionByValue).isNotNull();
+            switch (permissionByValue) {
+                case MANAGE_MODULE_INSTANCES, DELETE_MODULE_INSTANCES, READ_MODULE_INSTANCES -> {
+                    assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
+                }
+                case EXECUTE_MODULE_INSTANCES -> assertThat(permissionGroups).contains(viewApplicationRole.getId());
+            }
+        });
+
+        assertThat(composedActionPolicies).allMatch(policy -> newActionPermissions.contains(policy.getPermission()));
+        composedActionPolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Action.class);
+            assertThat(permissionByValue).isNotNull();
+            switch (permissionByValue) {
+                case MANAGE_ACTIONS, DELETE_ACTIONS, READ_ACTIONS -> {
+                    assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
+                }
+                case EXECUTE_ACTIONS -> assertThat(permissionGroups).contains(viewApplicationRole.getId());
+            }
+        });
+
         workspacePolicies.forEach(policy -> {
             if (policy.getPermission().equals(READ_WORKSPACES.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
@@ -1127,6 +1424,19 @@ public class ApplicationShareTest {
 
         ActionDTO createdActionBlock =
                 layoutActionService.createSingleAction(action, FALSE).block();
+
+        ModuleDTO consumableModule = consumableModuleOptional.get();
+
+        ModuleInstanceDTO moduleInstanceReqDTO = new ModuleInstanceDTO();
+        moduleInstanceReqDTO.setContextId(
+                createdApplication.getPages().stream().findAny().get().getDefaultPageId());
+        moduleInstanceReqDTO.setContextType(CreatorContextType.PAGE);
+        moduleInstanceReqDTO.setName("GetUsers1");
+        moduleInstanceReqDTO.setSourceModuleId(consumableModule.getId());
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO = crudModuleInstanceService
+                .createModuleInstance(moduleInstanceReqDTO, null)
+                .block();
+        ModuleInstanceDTO moduleInstanceDTO = createModuleInstanceResponseDTO.getModuleInstance();
 
         System.out.println("Create Dev Role");
         PermissionGroup devApplicationRole = applicationService
@@ -1194,6 +1504,19 @@ public class ApplicationShareTest {
                 .getPolicies();
         Set<Policy> newActionPolicies =
                 newActionRepository.findById(createdActionBlock.getId()).block().getPolicies();
+        Set<Policy> moduleInstancePolicies = moduleInstanceRepository
+                .findById(moduleInstanceDTO.getId())
+                .block()
+                .getPolicies();
+        Set<Policy> composedActionPolicies = newActionRepository
+                .findById(createModuleInstanceResponseDTO
+                        .getEntities()
+                        .getActions()
+                        .get(0)
+                        .getId())
+                .block()
+                .getPolicies();
+
         Set<Policy> workspacePolicies =
                 workspaceRepository.findById(workspace.getId()).block().getPolicies();
 
@@ -1289,6 +1612,41 @@ public class ApplicationShareTest {
             }
             if (policy.getPermission().equals(EXECUTE_ACTIONS.getValue())) {
                 assertThat(policy.getPermissionGroups())
+                        .contains(devApplicationRole.getId(), viewApplicationRole.getId());
+            }
+        });
+
+        assertThat(moduleInstancePolicies)
+                .allMatch(policy -> moduleInstancePermissions.contains(policy.getPermission()));
+        moduleInstancePolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, ModuleInstance.class);
+            assertThat(permissionByValue).isNotNull();
+            switch (permissionByValue) {
+                case MANAGE_MODULE_INSTANCES, DELETE_MODULE_INSTANCES, READ_MODULE_INSTANCES -> {
+                    assertThat(permissionGroups).contains(devApplicationRole.getId());
+                    assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
+                }
+                case EXECUTE_MODULE_INSTANCES -> assertThat(permissionGroups)
+                        .contains(devApplicationRole.getId(), viewApplicationRole.getId());
+            }
+        });
+
+        assertThat(composedActionPolicies).allMatch(policy -> newActionPermissions.contains(policy.getPermission()));
+        composedActionPolicies.forEach(policy -> {
+            String permission = policy.getPermission();
+            Set<String> permissionGroups = policy.getPermissionGroups();
+
+            AclPermission permissionByValue = AclPermission.getPermissionByValue(permission, Action.class);
+            assertThat(permissionByValue).isNotNull();
+            switch (permissionByValue) {
+                case MANAGE_ACTIONS, DELETE_ACTIONS, READ_ACTIONS -> {
+                    assertThat(permissionGroups).contains(devApplicationRole.getId());
+                    assertThat(permissionGroups).doesNotContain(viewApplicationRole.getId());
+                }
+                case EXECUTE_ACTIONS -> assertThat(permissionGroups)
                         .contains(devApplicationRole.getId(), viewApplicationRole.getId());
             }
         });

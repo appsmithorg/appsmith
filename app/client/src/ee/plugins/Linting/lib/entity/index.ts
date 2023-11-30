@@ -16,10 +16,12 @@ export default class EntityFactory extends CE_EntityFactory {
     T extends DataTreeEntity,
     K extends DataTreeEntityConfig | undefined,
   >(entity: T, config: K, classLoader: EntityClassLoader): IEntity {
+    const { DiffGenerator } = classLoader.load(entity as DataTreeEntity);
     if (isModuleInput(entity)) {
       return new ModuleInputsEntity(
         entity as TModuleInputsEntity,
         config as ModuleInputsConfig,
+        new DiffGenerator(),
       );
     }
     return super.getEntity(entity, config, classLoader);

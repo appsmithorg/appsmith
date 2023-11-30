@@ -14,7 +14,7 @@ export const getEntityPayloadInfo: Record<
   (entityConfig: EntityConfig) => {
     iconId: string;
     id: string;
-    pluginType?: PluginType;
+    pluginType?: PluginType | string;
   }
 > = {
   [ENTITY_TYPE_VALUE.WIDGET]: (entityConfig) => {
@@ -22,6 +22,7 @@ export const getEntityPayloadInfo: Record<
     return {
       iconId: config.widgetId,
       id: config.widgetId,
+      pluginType: config.type,
     };
   },
   [ENTITY_TYPE_VALUE.JSACTION]: (entityConfig) => {
