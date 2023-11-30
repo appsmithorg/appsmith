@@ -19,7 +19,7 @@ describe("API Panel Test Functionality", function () {
       action: "Delete",
       entityType: entityItems.Api,
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. PUT Action test API feature", function () {

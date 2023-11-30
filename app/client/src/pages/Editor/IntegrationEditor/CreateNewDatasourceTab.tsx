@@ -32,6 +32,7 @@ import {
   createMessage,
   CREATE_NEW_DATASOURCE_DATABASE_HEADER,
   CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
+  SAMPLE_DATASOURCES,
 } from "@appsmith/constants/messages";
 import { Divider } from "design-system";
 
@@ -71,7 +72,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text kind="heading-m">Get started with our sample datasources</Text>
+      <Text kind="heading-m">{createMessage(SAMPLE_DATASOURCES)}</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -300,11 +301,11 @@ class CreateNewDatasourceTab extends React.Component<
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
         {dataSources.length > 0 && this.props.mockDatasources.length > 0 && (
-          <StyledDivider />
+          <>
+            <StyledDivider />
+            {mockDataSection}
+          </>
         )}
-        {dataSources.length > 0 &&
-          this.props.mockDatasources.length > 0 &&
-          mockDataSection}
       </NewIntegrationsContainer>
     );
   }

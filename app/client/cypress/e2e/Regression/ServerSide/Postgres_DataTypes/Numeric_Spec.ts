@@ -315,7 +315,7 @@ describe("Numeric Datatype tests", function () {
 
   it("15. Verify Deletion of the datasource after all created queries are deleted", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();
