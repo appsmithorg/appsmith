@@ -13,6 +13,7 @@ interface SpaceDistributionNodeProps {
   parentZones: string[];
   sectionId: string;
   layoutElementPositions: LayoutElementPositions;
+  spaceToWorkWith: number;
   zoneCount: number;
 }
 const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
@@ -29,7 +30,7 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   top: calc(50% - ${SpaceDistributorHandleDimensions.height * 0.5}%);
   left: ${({ left }) => left}px;
   &:hover,
-  .active {
+  &.active {
     cursor: col-resize;
     opacity: 100%;
   }
@@ -41,6 +42,7 @@ export const SpaceDistributionHandle = ({
   parentZones,
   sectionId,
   layoutElementPositions,
+  spaceToWorkWith,
   zoneCount,
 }: SpaceDistributionNodeProps) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -57,13 +59,12 @@ export const SpaceDistributionHandle = ({
   const leftZonePosition = layoutElementPositions[leftZone];
   const rightZonePosition = layoutElementPositions[rightZone];
   const sectionPositions = layoutElementPositions[sectionId];
-  const columnWidth = sectionPositions.width / 12;
+  const columnWidth = spaceToWorkWith / 12;
   const minWidthOfAZone = 2 * columnWidth;
   const minLeft = (index + 1) * minWidthOfAZone;
   const leftZoneColumns = leftZonePosition.width / columnWidth;
   const rightZoneColumns = rightZonePosition.width / columnWidth;
-  const maxLeft =
-    sectionPositions.width - (zoneCount - 1 - index) * minWidthOfAZone;
+  const maxLeft = spaceToWorkWith - (zoneCount - 1 - index) * minWidthOfAZone;
   useEffect(() => {
     if (ref.current) {
       if (isDistributingSpace) {
@@ -79,6 +80,11 @@ export const SpaceDistributionHandle = ({
     if (ref.current) {
       // The current position of mouse
       let x = 0;
+      let lastValidHandlePosition = 0;
+      let actualFlexBasis = {
+        left: `${100 / zoneCount}%`,
+        right: `${100 / zoneCount}%`,
+      };
       const addMouseMoveHandlers = () => {
         if (ref.current) {
           ref.current.classList.add("active");
@@ -126,15 +132,33 @@ export const SpaceDistributionHandle = ({
             const rightZoneDom = document.getElementById(
               getAnvilWidgetDOMId(rightZone),
             );
-            ref.current.style.left = recomputeLeftStyle + "px";
+            const columnChange = dx / columnWidth;
             if (leftZoneDom && rightZoneDom) {
-              leftZoneDom.style.flex = `1 1 ${
-                ((leftZonePosition.width + dx) / sectionPositions.width) * 100
-              }%`;
-              rightZoneDom.style.flex = `1 1 ${
-                ((rightZonePosition.width - dx) / sectionPositions.width) * 100
-              }%`;
+              // leftZoneDom.style.flexGrow = `${leftZoneColumns + columnChange}`;
+              // rightZoneDom.style.flexGrow = `${
+              //   rightZoneColumns - columnChange
+              // }`;
+              // const spaceBetweenZones =
+              //   rightZoneDom.offsetLeft -
+              //   (leftZoneDom.offsetLeft + leftZoneDom.clientWidth);
+              // const updatedLeft =
+              //   rightZoneDom.offsetLeft -
+              //   spaceBetweenZones * 0.5 -
+              //   SpaceDistributorHandleDimensions.width * 0.5 -
+              //   SpaceDistributorHandleDimensions.border;
+              // lastValidHandlePosition = updatedLeft;
+              // ref.current.style.left = updatedLeft + "px";
+              leftZoneDom.style.flexBasis = `calc(${actualFlexBasis.left} + ${
+                columnChange * columnWidth
+              }px)`;
+              rightZoneDom.style.flexBasis = `calc(${actualFlexBasis.right} - ${
+                columnChange * columnWidth
+              }px)`;
+              lastValidHandlePosition = recomputeLeftStyle;
+              ref.current.style.left = recomputeLeftStyle + "px";
             }
+          } else {
+            ref.current.style.left = lastValidHandlePosition + "px";
           }
         }
       };
