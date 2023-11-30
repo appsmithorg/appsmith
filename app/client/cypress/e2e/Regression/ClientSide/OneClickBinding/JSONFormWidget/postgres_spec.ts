@@ -12,6 +12,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -56,7 +57,7 @@ describe("JSONForm widget one click binding feature", () => {
   });
 
   it("2.Update flow: should check that queries are created and bound to table jsonform widget properly ", () => {
-    entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 600, 400);

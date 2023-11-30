@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions.ce;
+package com.appsmith.server.refactors.ce;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
@@ -30,7 +30,7 @@ import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.NewActionRepositoryCake;
 import com.appsmith.server.repositories.PluginRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
@@ -79,7 +79,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-class RefactoringSolutionCETest {
+class RefactoringServiceCETest {
 
     @SpyBean
     NewActionService newActionService;
@@ -106,7 +106,7 @@ class RefactoringSolutionCETest {
     UpdateLayoutService updateLayoutService;
 
     @Autowired
-    RefactoringSolution refactoringSolution;
+    RefactoringService refactoringService;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -307,7 +307,7 @@ class RefactoringSolutionCETest {
         refactorActionNameDTO.setNewName("PostNameChange");
         refactorActionNameDTO.setActionId(createdAction.getId());
 
-        LayoutDTO postNameChangeLayout = refactoringSolution
+        LayoutDTO postNameChangeLayout = refactoringService
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 
@@ -383,7 +383,7 @@ class RefactoringSolutionCETest {
         refactorActionNameDTO.setNewName("PostNameChange");
         refactorActionNameDTO.setActionId(createdAction.getId());
 
-        LayoutDTO postNameChangeLayout = refactoringSolution
+        LayoutDTO postNameChangeLayout = refactoringService
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 
@@ -460,7 +460,7 @@ class RefactoringSolutionCETest {
         refactorActionNameDTO.setNewName("NewActionName");
         refactorActionNameDTO.setActionId(firstAction.getId());
 
-        refactoringSolution.refactorEntityName(refactorActionNameDTO, null).block();
+        refactoringService.refactorEntityName(refactorActionNameDTO, null).block();
 
         Mono<NewAction> postNameChangeActionMono = newActionService.findById(secondAction.getId(), READ_ACTIONS);
 
@@ -513,7 +513,7 @@ class RefactoringSolutionCETest {
         assert createdAction != null;
         refactorActionNameDTO.setActionId(createdAction.getId());
 
-        final Mono<LayoutDTO> layoutDTOMono = refactoringSolution.refactorEntityName(refactorActionNameDTO, null);
+        final Mono<LayoutDTO> layoutDTOMono = refactoringService.refactorEntityName(refactorActionNameDTO, null);
 
         StepVerifier.create(layoutDTOMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -585,7 +585,7 @@ class RefactoringSolutionCETest {
         refactorActionNameDTO.setNewName("newName");
         refactorActionNameDTO.setActionId(firstAction.getId());
 
-        LayoutDTO postNameChangeLayout = refactoringSolution
+        LayoutDTO postNameChangeLayout = refactoringService
                 .refactorEntityName(refactorActionNameDTO, null)
                 .block();
 
@@ -638,7 +638,7 @@ class RefactoringSolutionCETest {
         refactorNameDTO.setNewName("NewNameTable1");
 
         Mono<LayoutDTO> widgetRenameMono =
-                refactoringSolution.refactorEntityName(refactorNameDTO, null).cache();
+                refactoringService.refactorEntityName(refactorNameDTO, null).cache();
 
         Mono<PageDTO> pageFromRepoMono =
                 widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
@@ -688,7 +688,7 @@ class RefactoringSolutionCETest {
         refactorNameDTO.setNewName("NewNameTable1");
 
         Mono<LayoutDTO> widgetRenameMono =
-                refactoringSolution.refactorEntityName(refactorNameDTO, null).cache();
+                refactoringService.refactorEntityName(refactorNameDTO, null).cache();
 
         Mono<PageDTO> pageFromRepoMono =
                 widgetRenameMono.then(newPageService.findPageById(testPage.getId(), READ_PAGES, false));
@@ -740,7 +740,7 @@ class RefactoringSolutionCETest {
         refactorNameDTO.setOldName("oldWidgetName");
         refactorNameDTO.setNewName("newWidgetName");
 
-        Mono<LayoutDTO> widgetRenameMono = refactoringSolution.refactorEntityName(refactorNameDTO, null);
+        Mono<LayoutDTO> widgetRenameMono = refactoringService.refactorEntityName(refactorNameDTO, null);
 
         StepVerifier.create(widgetRenameMono)
                 .assertNext(updatedLayout -> {
@@ -801,7 +801,7 @@ class RefactoringSolutionCETest {
         refactorNameDTO.setNewName("NewNameTable1");
 
         LayoutDTO updatedLayout =
-                refactoringSolution.refactorEntityName(refactorNameDTO, null).block();
+                refactoringService.refactorEntityName(refactorNameDTO, null).block();
 
         assert createdActionCollectionDTO1 != null;
         final Mono<ActionCollection> actionCollectionMono =
@@ -873,7 +873,7 @@ class RefactoringSolutionCETest {
         refactorActionNameInCollectionDTO.setNewName("newTestAction");
         refactorActionNameInCollectionDTO.setCollectionName("originalName");
 
-        final Mono<Tuple2<ActionCollection, NewAction>> tuple2Mono = refactoringSolution
+        final Mono<Tuple2<ActionCollection, NewAction>> tuple2Mono = refactoringService
                 .refactorEntityName(refactorActionNameInCollectionDTO, null)
                 .then(actionCollectionService
                         .getById(dto.getId())

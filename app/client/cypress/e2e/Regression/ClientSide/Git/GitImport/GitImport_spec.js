@@ -10,7 +10,6 @@ import {
   agHelper,
   dataSources,
   deployMode,
-  entityExplorer,
   gitSync,
   homePage,
   table,
@@ -20,6 +19,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("Git import flow ", function () {
   before(() => {
@@ -170,7 +170,7 @@ describe("Git import flow ", function () {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
 
-    entityExplorer.ClonePage();
+    PageList.ClonePage();
 
     // verify jsObject is not duplicated
     agHelper.Sleep(2000); //for cloning of table data to finish

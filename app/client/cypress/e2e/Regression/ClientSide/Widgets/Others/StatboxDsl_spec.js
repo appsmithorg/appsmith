@@ -5,7 +5,6 @@ import EditorNavigation, {
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
-  entityExplorer,
   propPane,
   apiPage,
   dataManager,
@@ -57,6 +56,7 @@ describe("Statbox Widget", function () {
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
       "Statbox1",
     ]);
+    propPane.MoveToTab("Content");
     propPane.UpdatePropertyFieldValue("Text", "{{MockApi.data[0].id}}");
     agHelper.AssertText(propPane._widgetToVerifyText("Text1"), "text", "10"); //it will always be 10 due to pagination url setting
   });

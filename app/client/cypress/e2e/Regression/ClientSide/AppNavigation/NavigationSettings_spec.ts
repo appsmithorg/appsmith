@@ -1,7 +1,6 @@
 import {
   agHelper,
   locators,
-  entityExplorer,
   deployMode,
   appSettings,
 } from "../../../../support/Objects/ObjectsCore";
@@ -9,6 +8,7 @@ import {
   AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Test app's navigation settings", function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
@@ -63,7 +63,7 @@ describe("Test app's navigation settings", function () {
   });
 
   it("4. Change 'Orientation' back to 'Top', and 'Nav style' to 'Inline', page navigation items should appear inline", () => {
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(

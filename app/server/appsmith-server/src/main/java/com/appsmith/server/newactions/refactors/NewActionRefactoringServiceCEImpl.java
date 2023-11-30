@@ -56,11 +56,6 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
     }
 
     @Override
-    public Mono<Boolean> validateName(String name) {
-        return Mono.just(newActionService.validateActionName(name));
-    }
-
-    @Override
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
         Set<String> updatableCollectionIds = refactoringMetaDTO.getUpdatableCollectionIds();
