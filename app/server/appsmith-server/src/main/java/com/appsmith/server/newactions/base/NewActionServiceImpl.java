@@ -65,6 +65,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     private final PermissionGroupService permissionGroupService;
     private final PolicySolution policySolution;
     private final NewPageService newPageService;
+    private final EntityValidationService entityValidationService;
 
     public NewActionServiceImpl(
             Scheduler scheduler,
@@ -122,6 +123,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
         this.permissionGroupService = permissionGroupService;
         this.policySolution = policySolution;
         this.newPageService = newPageService;
+        this.entityValidationService = entityValidationService;
     }
 
     /**
@@ -200,6 +202,15 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 });
                     });
         });
+    }
+
+    @Override
+    protected boolean isValidActionName(ActionDTO action) {
+        boolean isInternal = false;
+        if (action.getModuleInstanceId() != null) {
+            isInternal = true;
+        }
+        return entityValidationService.validateName(action.getName(), isInternal);
     }
 
     /**
