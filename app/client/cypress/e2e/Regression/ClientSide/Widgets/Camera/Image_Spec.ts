@@ -11,6 +11,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("Camera widget - Image test", () => {
   before(() => {
@@ -26,7 +27,7 @@ describe("Camera widget - Image test", () => {
     agHelper.AssertElementVisibility(widgetLocators.cameraVideo);
 
     // Check camera resource is properly released on navigating away
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     EditorNavigation.SelectEntityByName("Page2", EntityType.Widget);
     agHelper.AssertElementAbsence(widgetLocators.cameraVideo);
 

@@ -7,6 +7,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Phone Input widget Tests", function () {
@@ -132,7 +133,7 @@ describe("Phone Input widget Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.CopyPasteWidget("NewPhoneInput");
-    entityExplorer.AssertEntityPresenceInExplorer("NewPhoneInputCopy");
+    PageLeftPane.assertPresence("NewPhoneInputCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewPhoneInputCopy");
 
     // Copy paste from property pane and delete from property pane

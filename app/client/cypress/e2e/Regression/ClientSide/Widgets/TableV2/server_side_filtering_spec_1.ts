@@ -12,6 +12,8 @@ import { expandLoadMoreOptions } from "../../OneClickBinding/spec_utility";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const ALERT_SUCCESS_MSG = "Table data filtered";
@@ -42,7 +44,7 @@ describe("Table widget v2: test server side filtering", function () {
       dataSources.CreateQueryAfterDSSaved();
       cy.wait(500);
 
-      entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
       expandLoadMoreOptions();

@@ -375,6 +375,7 @@ export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
 export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
 export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
+export const SAMPLE_DATASOURCES = () => "Sample datasources";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -2274,6 +2275,10 @@ export const PAGES_PANE_TEXTS = {
   queries_tab: () => "Queries",
   js_tab: () => "JS",
   ui_tab: () => "UI",
+  query_blank_state: () => "Write your first query or API to access data",
+  js_blank_state: () => "Use JS to transform your data or write business logic",
+  query_blank_button: () => "New Query/API",
+  js_blank_button: () => "New JS Object",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
@@ -2294,3 +2299,5 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalSubheading: () => "Import partial application from file",
   },
 };
+
+export const DATASOURCE_SECURELY_TITLE = () => "Secure & fast connection";
