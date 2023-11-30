@@ -53,9 +53,4 @@ public interface BaseRepository<T, ID extends Serializable> extends ReactiveMong
      * against the `fieldNames` property in the matching object.
      */
     Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames);
-
-    /**
-     * This method is supposed to update the given list of fields in an object as opposed to replacing the entire object.
-     */
-    Mono<UpdateResult> updateByIdAndFieldNames(ID id, Map<String, Object> fieldNameValueMap);
 }

@@ -144,27 +144,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
         return this.findById(id);
     }
 
-    /**
-     * This method is supposed to update the given list of field names with the associated values in an object as opposed to replacing the entire object.
-     */
-    @Override
-    public Mono<UpdateResult> updateByIdAndFieldNames(@NotNull ID id, @NotNull Map<String, Object> fieldNameValueMap) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
-
-                    Update update = new Update();
-                    fieldNameValueMap.forEach((fieldName, fieldValue) -> {
-                        update.set(fieldName, fieldValue);
-                    });
-
-                    return mongoOperations.updateFirst(query, update, entityInformation.getJavaType());
-                });
-    }
-
     @Override
     public Flux<T> findAll() {
         return ReactiveSecurityContextHolder.getContext()
