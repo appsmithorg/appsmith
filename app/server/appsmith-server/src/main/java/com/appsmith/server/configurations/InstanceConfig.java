@@ -22,7 +22,7 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@Observed(name = "License Verification")
+@Observed(name = "Server startup")
 public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     private final ConfigService configService;
