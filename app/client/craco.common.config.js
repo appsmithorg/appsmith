@@ -68,6 +68,8 @@ module.exports = {
       },
       optimization: {
         splitChunks: {
+          chunks: 'all',
+          name: false,
           cacheGroups: {
             icons: {
               // This determines which modules are considered icons
@@ -106,6 +108,12 @@ module.exports = {
               // This makes webpack ignore the minimum chunk size requirement
               enforce: true,
             },
+            styles: {
+              name: false,
+              test: /\.css$/,
+              chunks: 'all',
+              enforce: true,
+            }
           },
         },
       },
