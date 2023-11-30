@@ -4,6 +4,8 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 public interface ApplicationPublishableService<T extends BaseDomain> {
-    Mono<Void> publishEntities(ApplicationPublishingMetaDTO applicationPublishingMetaDTO);
+    Mono<List<T>> publishEntities(ApplicationPublishingMetaDTO applicationPublishingMetaDTO);
 }
