@@ -1,22 +1,17 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.Property;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.Transient;
 
-import java.util.List;
 import java.util.Set;
 
 @Getter
