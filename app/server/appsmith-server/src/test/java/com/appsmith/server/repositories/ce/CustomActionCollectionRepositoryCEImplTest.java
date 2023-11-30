@@ -129,7 +129,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         // check whether action collection is found when branch and default page id matches
         Mono<List<ActionCollection>> actionCollectionListMono = createActionCollectionMono
-                .thenMany(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+                .thenMany(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         null, List.of(defaultPageId), isViewMode, branchName, null, null))
                 .collectList();
 
@@ -141,7 +141,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         // check whether action collection is not found when branch name does not match
         Mono<List<ActionCollection>> actionCollectionListMono2 = createActionCollectionMono
-                .thenMany(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+                .thenMany(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         null, List.of(defaultPageId), isViewMode, "feature", null, null))
                 .collectList();
 
@@ -153,7 +153,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         // check whether action collection is not found when default page id does not match
         Mono<List<ActionCollection>> actionCollectionListMono3 = createActionCollectionMono
-                .thenMany(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+                .thenMany(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         null, List.of(childPageId), isViewMode, branchName, null, null))
                 .collectList();
 
