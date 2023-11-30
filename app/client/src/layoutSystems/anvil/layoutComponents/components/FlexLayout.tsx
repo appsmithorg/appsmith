@@ -1,3 +1,4 @@
+import "./styles.css";
 import { Flex } from "@design-system/widgets";
 import type {
   AlignSelf,
@@ -29,6 +30,7 @@ export interface FlexLayoutProps
     FlexWrap {
   canvasId: string;
   children: ReactNode;
+  isContainer?: boolean;
   isDropTarget?: boolean;
   layoutId: string;
   layoutType: LayoutComponentTypes;
@@ -38,6 +40,7 @@ export interface FlexLayoutProps
 
   border?: string;
   columnGap?: Responsive<SpacingDimension>;
+  containerType?: string;
   flexBasis?: Responsive<SizingDimension>;
   flexGrow?: Responsive<number>;
   flexShrink?: Responsive<number>;
@@ -66,6 +69,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     flexGrow,
     flexShrink,
     height,
+    isContainer,
     isDropTarget,
     justifyContent,
     layoutId,
@@ -142,8 +146,8 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     wrap,
   ]);
 
-  // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {
+    // The following properties aren't included in type FlexProps but can be passed as style.
     return {
       border:
         border ||
@@ -155,8 +159,10 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
   }, [border, isDropTarget, position, renderMode]);
 
   const className = useMemo(() => {
-    return `layout-${layoutId} layout-index-${layoutIndex}`;
-  }, [layoutId, layoutIndex]);
+    return `layout-${layoutId} layout-index-${layoutIndex} ${
+      isContainer ? "make-container" : ""
+    }`;
+  }, [isContainer, layoutId, layoutIndex]);
 
   return (
     <Flex

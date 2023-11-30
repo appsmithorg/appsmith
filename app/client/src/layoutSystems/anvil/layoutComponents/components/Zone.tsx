@@ -53,6 +53,7 @@ class Zone extends AlignedLayoutColumn {
   render() {
     const {
       canvasId,
+      isContainer,
       isDropTarget,
       layoutId,
       layoutIndex,
@@ -69,6 +70,7 @@ class Zone extends AlignedLayoutColumn {
         direction="column"
         flexGrow={1}
         flexShrink={1}
+        isContainer={!!isContainer}
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
         layoutIndex={layoutIndex}

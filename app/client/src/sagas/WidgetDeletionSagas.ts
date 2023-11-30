@@ -2,7 +2,6 @@ import type {
   MultipleWidgetDeletePayload,
   WidgetDelete,
 } from "actions/pageActions";
-import { updateAndSaveLayout } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type {
