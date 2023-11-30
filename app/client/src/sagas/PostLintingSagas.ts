@@ -33,7 +33,8 @@ export function* logLatestLintPropertyErrors({
       lineNumber: error.line,
       character: error.ch,
     }));
-    const debuggerKey = entity.actionId + propertyPath + "-lint";
+    const uniqueId = entityName;
+    const debuggerKey = uniqueId + propertyPath + "-lint";
 
     if (isEmpty(lintErrorsInPath)) {
       errorsToRemove.push({ id: debuggerKey });
@@ -47,7 +48,7 @@ export function* logLatestLintPropertyErrors({
         text: "LINT ERROR",
         messages: lintErrorMessagesInPath,
         source: {
-          id: entity.actionId,
+          id: uniqueId,
           name: entityName,
           type: ENTITY_TYPE.JSACTION,
           propertyPath,
