@@ -30,7 +30,7 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
       appSettings.locators._navigationSettings._orientationOptions._side,
     );
     agHelper.AssertElementExist(appSettings.locators._sideNavbar);
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"));
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"), 1);
     agHelper.AssertElementExist(locators._fixedLayout);
