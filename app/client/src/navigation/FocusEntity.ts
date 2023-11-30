@@ -25,7 +25,9 @@ export enum FocusEntity {
   DATASOURCE = "DATASOURCE",
   DEBUGGER = "DEBUGGER",
   QUERY = "QUERY",
+  QUERY_LIST = "QUERY_LIST",
   JS_OBJECT = "JS_OBJECT",
+  JS_OBJECT_LIST = "JS_OBJECT_LIST",
   PROPERTY_PANE = "PROPERTY_PANE",
   NONE = "NONE",
   APP_STATE = "APP_STATE",
@@ -36,6 +38,8 @@ export enum FocusEntity {
 export const FocusStoreHierarchy: Partial<Record<FocusEntity, FocusEntity>> = {
   [FocusEntity.PROPERTY_PANE]: FocusEntity.CANVAS,
   [FocusEntity.DATASOURCE]: FocusEntity.DATASOURCE_LIST,
+  [FocusEntity.JS_OBJECT]: FocusEntity.JS_OBJECT_LIST,
+  [FocusEntity.QUERY]: FocusEntity.QUERY_LIST,
 };
 
 export interface FocusEntityInfo {
@@ -96,7 +100,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       entity: FocusEntity.NONE,
       id: "",
       pageId: "",
-      appState: AppState.PAGES,
+      appState: AppState.EDITOR,
     };
   }
   if (match.params.apiId) {
@@ -105,14 +109,14 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         entity: FocusEntity.QUERY,
         id: match.params.apiId,
         pageId: match.params.pageId,
-        appState: AppState.PAGES,
+        appState: AppState.EDITOR,
       };
     }
     return {
-      entity: FocusEntity.API,
+      entity: FocusEntity.QUERY,
       id: match.params.apiId,
       pageId: match.params.pageId,
-      appState: AppState.PAGES,
+      appState: AppState.EDITOR,
     };
   }
   if (match.params.datasourceId) {
@@ -153,7 +157,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       entity: FocusEntity.QUERY,
       id: match.params.queryId,
       pageId: match.params.pageId,
-      appState: AppState.PAGES,
+      appState: AppState.EDITOR,
     };
   }
   if (match.params.collectionId) {
@@ -161,7 +165,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       entity: FocusEntity.JS_OBJECT,
       id: match.params.collectionId,
       pageId: match.params.pageId,
-      appState: AppState.PAGES,
+      appState: AppState.EDITOR,
     };
   }
   if (match.params.widgetIds) {
@@ -169,7 +173,23 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       entity: FocusEntity.PROPERTY_PANE,
       id: match.params.widgetIds,
       pageId: match.params.pageId,
-      appState: AppState.PAGES,
+      appState: AppState.EDITOR,
+    };
+  }
+  if (match.params.entity === "queries") {
+    return {
+      entity: FocusEntity.QUERY_LIST,
+      id: "",
+      pageId: match.params.pageId,
+      appState: AppState.EDITOR,
+    };
+  }
+  if (match.params.entity === "jsObjects") {
+    return {
+      entity: FocusEntity.JS_OBJECT_LIST,
+      id: "",
+      pageId: match.params.pageId,
+      appState: AppState.EDITOR,
     };
   }
   if (match.params.entity) {
@@ -194,6 +214,6 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     entity: FocusEntity.CANVAS,
     id: "",
     pageId: match.params.pageId,
-    appState: AppState.PAGES,
+    appState: AppState.EDITOR,
   };
 }

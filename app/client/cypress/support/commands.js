@@ -6,6 +6,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
@@ -45,7 +46,6 @@ const locators = ObjectsRegistry.CommonLocators;
 const onboarding = ObjectsRegistry.Onboarding;
 const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
-const entityExplorer = ObjectsRegistry.EntityExplorer;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
 
@@ -363,6 +363,15 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
   cy.getCookie("SESSION").then((cookie) => {
     expect(cookie).to.not.be.null;
     cy.log("cookie.value is: " + cookie.value);
+
+    if (CURRENT_REPO === REPO.EE) {
+      cy.wait(2000);
+      cy.url().then((url) => {
+        if (url.indexOf("/license") > -1) {
+          cy.validateLicense();
+        }
+      });
+    }
 
     cy.location().should((loc) => {
       expect(loc.href).to.eq(loc.origin + "/applications");
@@ -1751,7 +1760,7 @@ Cypress.Commands.add("validateEvaluatedValue", (value) => {
 });
 
 Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
-  entityExplorer.ExpandCollapseEntity(item);
+  PageLeftPane.expandCollapseItem(item);
 });
 
 // Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
@@ -1999,7 +2008,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreatePage", () => {
-  AppSidebar.navigate(AppSidebarButton.Pages);
+  AppSidebar.navigate(AppSidebarButton.Editor);
   cy.get(pages.AddPage).first().click();
   cy.xpath("//span[text()='New blank page']/parent::div").click();
 });

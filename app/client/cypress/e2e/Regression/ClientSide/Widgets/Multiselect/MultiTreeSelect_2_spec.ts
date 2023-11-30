@@ -4,10 +4,10 @@ import {
   deployMode,
   entityExplorer,
   propPane,
-  dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Multi Select widget Tests", function () {
@@ -159,7 +159,7 @@ describe("Multi Select widget Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.CopyPasteWidget("NewMultiTreeSelect");
-    entityExplorer.AssertEntityPresenceInExplorer("NewMultiTreeSelectCopy");
+    PageLeftPane.assertPresence("NewMultiTreeSelectCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewMultiTreeSelectCopy");
 
     // Copy paste from property pane and delete from property pane

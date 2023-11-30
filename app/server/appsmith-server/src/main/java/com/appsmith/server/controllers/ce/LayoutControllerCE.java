@@ -10,7 +10,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.refactors.applications.RefactoringSolution;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -33,16 +33,16 @@ public class LayoutControllerCE {
 
     private final LayoutService service;
     private final UpdateLayoutService updateLayoutService;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringService refactoringService;
 
     @Autowired
     public LayoutControllerCE(
             LayoutService layoutService,
             UpdateLayoutService updateLayoutService,
-            RefactoringSolution refactoringSolution) {
+            RefactoringService refactoringService) {
         this.service = layoutService;
         this.updateLayoutService = updateLayoutService;
-        this.refactoringSolution = refactoringSolution;
+        this.refactoringService = refactoringService;
     }
 
     @JsonView(Views.Public.class)
@@ -107,7 +107,7 @@ public class LayoutControllerCE {
             @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         refactorEntityNameDTO.setEntityType(EntityType.WIDGET);
-        return refactoringSolution
+        return refactoringService
                 .refactorEntityName(refactorEntityNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }

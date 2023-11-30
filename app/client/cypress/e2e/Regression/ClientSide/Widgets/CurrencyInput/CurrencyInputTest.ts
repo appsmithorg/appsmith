@@ -7,6 +7,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("CUrrency Input widget Tests", function () {
@@ -133,7 +134,7 @@ describe("CUrrency Input widget Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.CopyPasteWidget("NewCurrencyInput");
-    entityExplorer.AssertEntityPresenceInExplorer("NewCurrencyInputCopy");
+    PageLeftPane.assertPresence("NewCurrencyInputCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewCurrencyInputCopy");
 
     // Copy paste from property pane and delete from property pane

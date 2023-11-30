@@ -13,7 +13,6 @@ import {
   CURL_IMPORT_PAGE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
   INTEGRATION_EDITOR_PATH,
-  JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -68,11 +67,6 @@ function EditorRoutes() {
         component={QueryEditor}
         exact
         path={`${path}${QUERIES_EDITOR_ID_PATH}`}
-      />
-      <SentryRoute
-        component={JSEditor}
-        exact
-        path={`${path}${JS_COLLECTION_EDITOR_PATH}`}
       />
       <SentryRoute
         component={JSEditor}

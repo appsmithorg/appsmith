@@ -32,9 +32,9 @@ import {
   createMessage,
   CREATE_NEW_DATASOURCE_DATABASE_HEADER,
   CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
+  SAMPLE_DATASOURCES,
 } from "@appsmith/constants/messages";
 import { Divider } from "design-system";
-import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -72,7 +72,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Get started with our sample datasources</Text>
+      <Text type={TextType.H2}>{createMessage(SAMPLE_DATASOURCES)}</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -181,7 +181,7 @@ function CreateNewSaasIntegration({
   }, [active]);
   return !isAirgappedInstance ? (
     <div id="new-saas-api" ref={newSaasAPIRef}>
-      <Text type={TextType.H2}>Saas Integrations</Text>
+      <Text type={TextType.H2}>SaaS Integrations</Text>
       <NewApiScreen
         history={history}
         isCreating={isCreating}
@@ -204,7 +204,6 @@ interface CreateNewDatasourceScreenProps {
   pageId: string;
   isAppSidebarEnabled: boolean;
   isEnabledForStartWithData: boolean;
-  currentApplicationIdForCreateNewApp?: string;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -254,10 +253,7 @@ class CreateNewDatasourceTab extends React.Component<
         })}
         id="new-integrations-wrapper"
       >
-        {dataSources.length === 0 &&
-          !this.props.currentApplicationIdForCreateNewApp && (
-            <AddDatasourceSecurely />
-          )}
+        {dataSources.length === 0 && <AddDatasourceSecurely />}
         {dataSources.length === 0 && this.props.mockDatasources.length > 0 && (
           <>
             {mockDataSection}
@@ -305,11 +301,11 @@ class CreateNewDatasourceTab extends React.Component<
           showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
         />
         {dataSources.length > 0 && this.props.mockDatasources.length > 0 && (
-          <StyledDivider />
+          <>
+            <StyledDivider />
+            {mockDataSection}
+          </>
         )}
-        {dataSources.length > 0 &&
-          this.props.mockDatasources.length > 0 &&
-          mockDataSection}
       </NewIntegrationsContainer>
     );
   }
@@ -334,8 +330,6 @@ const mapStateToProps = (state: AppState) => {
       FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled
     ];
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
-  const currentApplicationIdForCreateNewApp =
-    getCurrentApplicationIdForCreateNewApp(state);
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
@@ -346,7 +340,6 @@ const mapStateToProps = (state: AppState) => {
     pageId,
     isAppSidebarEnabled,
     isEnabledForStartWithData,
-    currentApplicationIdForCreateNewApp,
   };
 };
 

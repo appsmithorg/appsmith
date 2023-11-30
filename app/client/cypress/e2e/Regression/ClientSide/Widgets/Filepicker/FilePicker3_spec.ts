@@ -7,6 +7,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Verify file picker widget", () => {
@@ -55,7 +56,7 @@ describe("Verify file picker widget", () => {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.CopyPasteWidget("NewFilePicker");
-    entityExplorer.AssertEntityPresenceInExplorer("NewFilePickerCopy");
+    PageLeftPane.assertPresence("NewFilePickerCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewFilePickerCopy");
 
     // Copy paste from property pane and delete from property pane

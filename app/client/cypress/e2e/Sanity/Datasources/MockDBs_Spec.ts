@@ -10,6 +10,7 @@ import formControls from "../../../locators/FormControl.json";
 import {
   AppSidebar,
   AppSidebarButton,
+  PageLeftPane,
 } from "../../../support/Pages/EditorNavigation";
 
 describe(
@@ -87,8 +88,8 @@ describe(
     });
 
     afterEach(() => {
-      AppSidebar.navigate(AppSidebarButton.Pages);
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Delete",
