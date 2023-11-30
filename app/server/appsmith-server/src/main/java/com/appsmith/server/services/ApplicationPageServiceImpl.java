@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
+import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -69,7 +70,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
             DatasourcePermission datasourcePermission,
-            ApplicationPublishableService<ModuleInstance> moduleInstanceApplicationPublishableService) {
+            ApplicationPublishableService<ModuleInstance> moduleInstanceApplicationPublishableService,
+            DSLMigrationUtils dslMigrationUtils) {
         super(
                 workspaceService,
                 applicationService,
@@ -96,7 +98,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 newActionRepository,
                 newPageRepository,
                 datasourceRepository,
-                datasourcePermission);
+                datasourcePermission,
+                dslMigrationUtils);
         this.permissionGroupService = permissionGroupService;
         this.moduleInstanceApplicationPublishableService = moduleInstanceApplicationPublishableService;
     }
