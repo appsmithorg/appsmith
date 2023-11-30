@@ -42,9 +42,9 @@ describe("Import, Export and Fork application and validate data binding", functi
       cy.get("@guid").then((uid) => {
         appName = `app${uid}`;
         cy.get(homePageLocatores.applicationName).click({ force: true });
-        cy.get(homePageLocatores.applicationEditMenu).eq(1).click({
-          force: true,
-        });
+        cy.get(homePageLocatores.portalMenuItem)
+          .contains("Rename", { matchCase: false })
+          .click({ force: true });
         cy.wait(2000);
         cy.get(homePageLocatores.applicationName + " input").type(appName, {
           force: true,

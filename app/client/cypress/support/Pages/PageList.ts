@@ -19,7 +19,7 @@ class PageList {
       | "Generate page with data"
       | "Add page from template" = "New blank page",
   ) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     ObjectsRegistry.AggregateHelper.GetNClick(this.locators.newButton);
     ObjectsRegistry.AggregateHelper.GetNClick(
       this.locators.newPageOption(option),
@@ -39,7 +39,7 @@ class PageList {
   }
 
   public ClonePage(pageName = "Page1") {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     ObjectsRegistry.EntityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: pageName,

@@ -56,6 +56,7 @@ import type { Plugin } from "api/PluginApi";
 import { PluginType } from "entities/Action";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { fetchMockDatasources } from "actions/datasourceActions";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -230,6 +231,7 @@ const CreateNewAppsOption = ({
       // fetch plugins information to show list of all plugins
       if (isEnabledForStartWithData) {
         dispatch(fetchPlugins());
+        dispatch(fetchMockDatasources());
         setUseType(START_WITH_TYPE.DATA);
       }
     } else {

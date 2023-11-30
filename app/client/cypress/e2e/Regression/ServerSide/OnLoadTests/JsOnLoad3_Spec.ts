@@ -36,7 +36,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       dsName = $dsName;
     });
     cy.fixture("datasources").then((datasourceFormData: any) => {
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       PageLeftPane.expandCollapseItem("Queries/JS");
       apiPage.CreateAndFillApi(
         "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
