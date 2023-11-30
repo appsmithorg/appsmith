@@ -220,16 +220,12 @@ describe("Tree Select widget Tests", function () {
       "{{navigateTo('www.google.com', {}, 'SAME_WINDOW');}}",
     );
     deployMode.DeployApp();
-    let oldUrl: string = "";
-    cy.url().then((url) => {
-      oldUrl = url;
-    });
     agHelper.GetNClick(
       `${locators._widgetInDeployed("singleselecttreewidget")}`,
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
     agHelper.AssertURL("google.com");
-    cy.visit(oldUrl);
+    agHelper.BrowserNavigation(-1);
   });
 
   it("8. Verify onOptionChange with Alert", () => {
