@@ -143,6 +143,16 @@ export const VersionData = styled.div`
   }
 `;
 
+const MobileSearchInput = styled(SearchInput)`
+  span {
+    display: none;
+  }
+  input {
+    border: none !important;
+    padding: 0 0 0 4px !important;
+  }
+`;
+
 interface PageHeaderProps {
   user?: User;
   hideShadow?: boolean;
@@ -303,15 +313,6 @@ export function PageHeader(props: PageHeaderProps) {
   const isLicensePage = useRouteMatch("/license")?.isExact;
 
   function MobileSearchBar() {
-    const MobileSearchInput = styled(SearchInput)`
-      span {
-        display: none;
-      }
-      input {
-        border: none !important;
-        padding: 0 0 0 4px !important;
-      }
-    `;
     return (
       <StyledPageHeader
         data-testid="t--appsmith-page-header"
