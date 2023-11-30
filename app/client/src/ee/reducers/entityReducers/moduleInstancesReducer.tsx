@@ -69,13 +69,14 @@ export const handlers = {
 
   [ReduxActionTypes.SAVE_MODULE_INSTANCE_NAME_SUCCESS]: (
     draftState: ModuleInstanceReducerState,
-    action: ReduxAction<QueryModuleInstance[]>,
+    action: ReduxAction<{
+      id: ModuleInstanceId;
+      newName: string;
+    }>,
   ) => {
-    const moduleInstances = action.payload;
+    const { id, newName } = action.payload;
 
-    moduleInstances.forEach((moduleInstance: QueryModuleInstance) => {
-      draftState[moduleInstance.id] = moduleInstance;
-    });
+    draftState[id].name = newName;
 
     return draftState;
   },

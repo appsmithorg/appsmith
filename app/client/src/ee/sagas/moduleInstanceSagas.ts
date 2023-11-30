@@ -403,7 +403,8 @@ export function* refactorModuleInstanceName({
     yield put({
       type: ReduxActionTypes.SAVE_MODULE_INSTANCE_NAME_SUCCESS,
       payload: {
-        moduleInstanceId: id,
+        id,
+        newName,
       },
     });
     if (currentPageId === pageId) {
