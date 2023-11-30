@@ -6,7 +6,7 @@ on:
 
   # trigger for pushes to release and master
   push:
-    branches: [master]
+    branches: [release]
     paths:
       - "app/client/**"
       - "app/server/**"
