@@ -1,6 +1,7 @@
 package com.appsmith.server.moduleinstances.share.application;
 
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -20,8 +21,13 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
+import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
+import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.packages.crud.CrudPackageService;
+import com.appsmith.server.packages.publish.PublishPackageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
@@ -46,6 +52,7 @@ import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.testhelpers.moduleinstances.ModuleInstanceTestHelper;
 import com.appsmith.server.testhelpers.moduleinstances.ModuleInstanceTestHelperDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,7 +114,7 @@ public class ModuleInstanceApplicationShareTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @Autowired
+    @SpyBean
     PluginService pluginService;
 
     @Autowired
@@ -168,9 +175,29 @@ public class ModuleInstanceApplicationShareTest {
     ApplicationPermission applicationPermission;
 
     @Autowired
+    CrudModuleInstanceService crudModuleInstanceService;
+
+    @Autowired
+    LayoutModuleInstanceService layoutModuleInstanceService;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
+    CrudModuleService crudModuleService;
+
+    @SpyBean
+    CommonConfig commonConfig;
+
     ModuleInstanceTestHelper moduleInstanceTestHelper;
 
     ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO;
+
+    @Autowired
+    CrudPackageService crudPackageService;
+
+    @Autowired
+    PublishPackageService publishPackageService;
 
     String workspaceId;
 
@@ -179,6 +206,22 @@ public class ModuleInstanceApplicationShareTest {
 
     @BeforeEach
     public void setup() {
+        moduleInstanceTestHelper = new ModuleInstanceTestHelper(
+                crudPackageService,
+                publishPackageService,
+                crudModuleService,
+                userService,
+                workspaceService,
+                applicationPageService,
+                newPageService,
+                newActionService,
+                pluginExecutorHelper,
+                environmentPermission,
+                featureFlagService,
+                commonConfig,
+                pluginService,
+                crudModuleInstanceService,
+                objectMapper);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
