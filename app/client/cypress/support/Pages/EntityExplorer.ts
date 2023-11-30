@@ -81,7 +81,7 @@ export class EntityExplorer {
     toAssertAction,
     toastToValidate = "",
   }: EntityActionParams) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.Sleep();
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
       .scrollIntoView()
@@ -102,7 +102,7 @@ export class EntityExplorer {
   }
 
   public DeleteWidgetFromEntityExplorer(widgetNameinLeftSidebar: string) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     cy.xpath(this._contextMenu(widgetNameinLeftSidebar))
       .last()
       .click({ force: true });
@@ -117,7 +117,7 @@ export class EntityExplorer {
   }
 
   public DeleteAllQueriesForDB(dsName: string) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el: any) => {
       cy.wrap($el)
         .invoke("text")
@@ -190,7 +190,7 @@ export class EntityExplorer {
     dropTargetId = "",
     skipWidgetSearch = false,
   ) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     this.DragNDropWidget(
       widgetType,
@@ -220,7 +220,7 @@ export class EntityExplorer {
   }
 
   public CreateNewDsQuery(dsName: string, isQuery = true) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
     cy.get(this.locator._createNew).last().click();
     const searchText = isQuery ? dsName + " query" : dsName;
@@ -245,7 +245,7 @@ export class EntityExplorer {
     renameVal: string,
     viaMenu = false,
   ) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,
