@@ -1,12 +1,16 @@
 package com.appsmith.server.workflows.helper;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.dtos.ApprovalRequestResolutionProxyDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.util.WebClientUtils;
 import org.json.JSONObject;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
@@ -15,11 +19,13 @@ import reactor.core.publisher.Mono;
 public class WorkflowProxyHelperImpl implements WorkflowProxyHelper {
 
     private final String WORKFLOW_HISTORY_URI = "/workflowHistory";
+
+    private final String APPROVAL_REQUEST_RESOLUTION_URI = "/approvalInbox";
     private final WebClient webClient;
     private final CommonConfig commonConfig;
 
     public WorkflowProxyHelperImpl(CommonConfig commonConfig) {
-        webClient = WebClient.builder().build();
+        webClient = WebClientUtils.builder().build();
         this.commonConfig = commonConfig;
     }
 
@@ -55,5 +61,20 @@ public class WorkflowProxyHelperImpl implements WorkflowProxyHelper {
                     }
                     return Mono.just(responseEntity.getBody());
                 });
+    }
+
+    @Override
+    public Mono<JSONObject> updateApprovalRequestResolutionOnProxy(
+            ApprovalRequestResolutionProxyDTO approvalRequestResolutionProxyDTO) {
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(APPROVAL_REQUEST_RESOLUTION_URI);
+        Mono<ResponseEntity<JSONObject>> responseEntityMono = webClient
+                .put()
+                .uri(uriBuilder.build().toUri())
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(BodyInserters.fromValue(approvalRequestResolutionProxyDTO))
+                .retrieve()
+                .toEntity(JSONObject.class);
+
+        return checkWorkflowResponseForError(responseEntityMono, "Resolve approval request");
     }
 }

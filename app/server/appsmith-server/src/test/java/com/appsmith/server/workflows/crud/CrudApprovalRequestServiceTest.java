@@ -25,8 +25,10 @@ import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.appsmith.server.workflows.helper.WorkflowProxyHelper;
 import com.appsmith.server.workflows.interact.InteractApprovalRequestService;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,6 +66,7 @@ import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
 import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
@@ -106,6 +109,9 @@ class CrudApprovalRequestServiceTest {
 
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
+
+    @SpyBean
+    private WorkflowProxyHelper workflowProxyHelper;
 
     Workspace workspace = null;
     Workflow workflow = null;
@@ -405,6 +411,9 @@ class CrudApprovalRequestServiceTest {
     @WithUserDetails("api_user")
     public void testGetAllApprovalRequests() {
         String testName = "testGetAllApprovalRequests";
+        Mockito.doReturn(Mono.just(new JSONObject()))
+                .when(workflowProxyHelper)
+                .updateApprovalRequestResolutionOnProxy(any());
 
         User user1 = new User();
         user1.setEmail(testName + 1);
@@ -765,7 +774,7 @@ class CrudApprovalRequestServiceTest {
                 .block();
     }
 
-    private Mono<Boolean> resolveApprovalRequestInviteUser(
+    private Mono<JSONObject> resolveApprovalRequestInviteUser(
             ApprovalRequest approvalRequest,
             String approvalRequestResolutionReason,
             String resolution,

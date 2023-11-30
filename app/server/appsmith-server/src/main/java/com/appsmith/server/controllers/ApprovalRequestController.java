@@ -11,6 +11,7 @@ import com.appsmith.server.workflows.crud.CrudApprovalRequestService;
 import com.appsmith.server.workflows.interact.InteractApprovalRequestService;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -71,7 +72,8 @@ public class ApprovalRequestController {
     @JsonView(Views.Public.class)
     @PutMapping("/resolve")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<Boolean>> resolve(@RequestBody ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
+    public Mono<ResponseDTO<JSONObject>> resolve(
+            @RequestBody ApprovalRequestResolutionDTO approvalRequestResolutionDTO) {
         return interactApprovalRequestService
                 .resolveApprovalRequest(approvalRequestResolutionDTO)
                 .map(resolved -> new ResponseDTO<>(HttpStatus.OK.value(), resolved, null));
