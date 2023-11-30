@@ -119,6 +119,8 @@ import {
   getIsFetchingApplications,
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
+import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
+import WorkflowCardList from "./WorkflowCardList";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -457,7 +459,8 @@ export const WorkspaceSelectorWrapper = styled.div`
 `;
 
 export function ApplicationsSection(props: any) {
-  const { activeWorkspaceId, applications, packages, workspaces } = props;
+  const { activeWorkspaceId, applications, packages, workflows, workspaces } =
+    props;
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
@@ -784,13 +787,14 @@ export function ApplicationsSection(props: any) {
               workspaceId={activeWorkspace.id}
             />
           )}
-          {/* {!isLoadingResources && (
+          {!isLoadingResources && (
             <WorkflowCardList
               isMobile={isMobile}
               workflows={workflows}
-              workspaceId={workspace.id}
+              workspace={activeWorkspace}
+              workspaceId={activeWorkspace.id}
             />
-          )} */}
+          )}
         </WorkspaceSection>
       </React.Fragment>
     );
@@ -821,6 +825,7 @@ export const ApplictionsMainPage = (props: any) => {
   const fetchedWorkspaces = useSelector(getFetchedWorkspaces);
   const fetchedApplications = useSelector(getApplicationsOfWorkspace);
   const fetchedPackages = useSelector(getPackagesList);
+  const fetchedWorkflows = useSelector(getWorkflowsList);
 
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
@@ -898,6 +903,7 @@ export const ApplictionsMainPage = (props: any) => {
               applications={fetchedApplications}
               packages={fetchedPackages}
               searchKeyword={searchKeyword}
+              workflows={fetchedWorkflows}
               workspaces={workspaces}
             />
             <RepoLimitExceededErrorModal />
