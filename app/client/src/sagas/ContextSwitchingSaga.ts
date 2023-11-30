@@ -212,7 +212,7 @@ function* getEntitiesForStore(previousPath: string, currentPath: string) {
         entityInfo: {
           entity: FocusEntity.PAGE,
           id: prevFocusEntityInfo.pageId,
-          appState: AppState.PAGES,
+          appState: AppState.EDITOR,
         },
       });
     }
@@ -282,7 +282,7 @@ function* getEntitiesForSet(
         entityInfo: {
           entity: FocusEntity.PAGE,
           id: currentEntityInfo.pageId,
-          appState: AppState.PAGES,
+          appState: AppState.EDITOR,
         },
       });
       const focusHistory: FocusState = yield select(getCurrentFocusInfo, key);
