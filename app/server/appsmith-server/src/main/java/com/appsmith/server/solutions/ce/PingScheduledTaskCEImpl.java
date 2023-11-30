@@ -14,7 +14,6 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.util.WebClientUtils;
-import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +58,6 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
      */
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
-    @Observed(name = "pingSchedule")
     public void pingSchedule() {
         if (commonConfig.isTelemetryDisabled()) {
             return;
@@ -109,7 +107,6 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 24 * 60 * 60 * 1000 /* a day */)
-    @Observed(name = "pingStats")
     public void pingStats() {
         if (commonConfig.isTelemetryDisabled()) {
             return;

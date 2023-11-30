@@ -1,6 +1,5 @@
 package com.appsmith.server.cron;
 
-import io.micrometer.observation.annotation.Observed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,7 +17,6 @@ public class CleanUpOldLogs {
     private static final int CUTOFF_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
 
     @Scheduled(cron = "0 0 0 * * SAT")
-    @Observed(name = "cleanUpOldLogs")
     public void cleanUpOldLogs() throws IOException {
         log.info("Cleaning up old logs");
 

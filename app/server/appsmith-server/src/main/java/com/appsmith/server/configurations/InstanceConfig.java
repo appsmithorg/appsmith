@@ -4,7 +4,6 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.helpers.InstanceConfigHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
-import io.micrometer.observation.annotation.Observed;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@Observed(name = "Server startup")
 public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     private final ConfigService configService;
