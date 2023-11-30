@@ -16,8 +16,8 @@ import {
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "excludeForAirgap",
@@ -48,7 +48,7 @@ describe(
         entityExplorer.RenameEntityFromExplorer("Page1", "Crud_page", true);
 
         // Add marketing dashboard template
-        entityExplorer.AddNewPage("Add page from template");
+        PageList.AddNewPage("Add page from template");
         agHelper.AssertElementVisibility(template.templateDialogBox);
         agHelper.GetNClick(template.marketingDashboard);
         agHelper.Sleep(5000); // for templates page to load fully
@@ -56,7 +56,7 @@ describe(
         agHelper.ValidateToastMessage("template added successfully");
 
         // Add application tracker template
-        entityExplorer.AddNewPage("Add page from template");
+        PageList.AddNewPage("Add page from template");
         agHelper.AssertElementVisibility(template.templateDialogBox);
         agHelper.GetNClick(template.applicationTrackerDashboard);
         agHelper.Sleep(5000); // for templates page to load fully
@@ -127,7 +127,7 @@ describe(
 
     it("2. Bug:19148: The commit and push Gets struck when the user tries to commit and push new changes.", function () {
       // Add new page, widgets, api in the new branch
-      entityExplorer.AddNewPage();
+      PageList.AddNewPage();
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHART, 300, 300);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 150, 150);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.LIST_V2, 300, 700);

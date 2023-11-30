@@ -8,6 +8,7 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 let workspaceId, appid;
 
 describe("Create new workspace and invite user & validate all roles", () => {
@@ -115,7 +116,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     AppSidebar.navigate(AppSidebarButton.Data);
     _.agHelper.AssertElementExist(_.dataSources._addNewDataSource);
     AppSidebar.navigate(AppSidebarButton.Pages);
-    _.entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
     _.dataSources.CreateDataSource("Postgres");
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");
     _.agHelper.ClickButton("Share");
@@ -167,7 +168,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.Sleep(2000);
     _.agHelper.AssertElementAbsence(_.dataSources._addNewDataSource);
     _.onboarding.closeIntroModal();
-    _.entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
     cy.get(_.dataSources._dropdownOption).should(
       "not.contain",
@@ -270,7 +271,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.Sleep(2000);
     _.agHelper.AssertElementAbsence(_.dataSources._addNewDataSource);
     _.onboarding.closeIntroModal();
-    _.entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     _.agHelper.GetNClick(_.dataSources._selectDatasourceDropdown);
     cy.get(_.dataSources._dropdownOption).should(
       "not.contain",

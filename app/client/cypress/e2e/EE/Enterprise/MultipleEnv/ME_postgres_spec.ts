@@ -16,6 +16,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let meDatasourceName: string,
   meQueryName: string,
@@ -90,7 +91,7 @@ describe(
       dataSources.AddSuggestedWidget(Widgets.Table);
       // Create query on staging only DS
       agHelper.Sleep(2000);
-      entityExplorer.AddNewPage("New blank page");
+      PageList.AddNewPage("New blank page");
       multipleEnv.SwitchEnv(stagingEnv);
       EditorNavigation.SelectEntityByName(
         meDSStagingOnlyName,

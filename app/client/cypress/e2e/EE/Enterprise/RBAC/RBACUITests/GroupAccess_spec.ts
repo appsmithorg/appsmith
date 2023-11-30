@@ -13,6 +13,7 @@ import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("Create group, check if users in group has group roles accessess", function () {
   let workspaceName: string, appName: string, datasourceName;
@@ -49,7 +50,7 @@ describe("Create group, check if users in group has group roles accessess", func
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
+      PageList.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       dataSources.CreateDataSource("Postgres");

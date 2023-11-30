@@ -1841,7 +1841,7 @@ export class DataSources {
   }
 
   public GeneratePostgresCRUDPage(dbName: string) {
-    this.entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this._dropdownOption,

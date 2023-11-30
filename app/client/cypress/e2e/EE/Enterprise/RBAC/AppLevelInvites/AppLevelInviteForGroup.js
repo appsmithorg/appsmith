@@ -17,6 +17,7 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 let workspaceId, appid;
 
 describe("Create new workspace and invite group & validate all roles", () => {
@@ -123,7 +124,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     AppSidebar.navigate(AppSidebarButton.Data);
     agHelper.AssertElementExist(dataSources._addNewDataSource);
     AppSidebar.navigate(AppSidebarButton.Pages);
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
       "contain",
@@ -184,7 +185,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     AppSidebar.navigate(AppSidebarButton.Data);
     agHelper.AssertElementAbsence(dataSources._addNewDataSource);
     AppSidebar.navigate(AppSidebarButton.Pages);
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
       "not.contain",
@@ -245,7 +246,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     AppSidebar.navigate(AppSidebarButton.Data);
     agHelper.AssertElementAbsence(dataSources._addNewDataSource);
     AppSidebar.navigate(AppSidebarButton.Pages);
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
       "not.contain",

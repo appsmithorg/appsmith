@@ -16,6 +16,7 @@ import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Delete Permission flow ", function () {
@@ -190,7 +191,7 @@ describe("Delete Permission flow ", function () {
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.Deletepage("page2");
     // verify page is deleted
-    entityExplorer.AssertEntityAbsenceInExplorer(page2);
+    PageLeftPane.assertAbsence(page2);
   });
 
   it("2. Delete permission : App level; verify user don't have create permissions", function () {

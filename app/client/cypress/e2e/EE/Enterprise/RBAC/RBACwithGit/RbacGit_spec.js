@@ -101,7 +101,7 @@ describe("RBAC for git connected apps tests", function () {
     cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify new page is deleted after discarding changes
-    entityExplorer.AssertEntityAbsenceInExplorer("page4");
+    PageLeftPane.assertAbsence("page4");
   });
 
   it("3. Switch to new branch from test branch and verify permissions ", function () {

@@ -11,6 +11,7 @@ import {
 
 import auditlogloc from "../../../../../locators/AuditLogsLocators";
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("Checking audit logs permission", function () {
   let workspaceName: string, appName: string, datasourceName: any;
@@ -47,7 +48,7 @@ describe("Checking audit logs permission", function () {
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
+      PageList.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       dataSources.CreateDataSource("Postgres");

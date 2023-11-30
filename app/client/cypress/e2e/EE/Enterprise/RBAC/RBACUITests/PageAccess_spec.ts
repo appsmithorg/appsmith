@@ -12,6 +12,7 @@ import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlag
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("User performing actions on page with access and without access Tests", function () {
   let workspaceName: string, appName: string, datasourceName;
@@ -46,7 +47,7 @@ describe("User performing actions on page with access and without access Tests",
       appName = "app" + guid;
       homePage.CreateNewWorkspace(workspaceName, true);
       homePage.CreateAppInWorkspace(workspaceName, appName);
-      entityExplorer.AddNewPage("New blank page")?.then((newPage) => {
+      PageList.AddNewPage("New blank page")?.then((newPage) => {
         entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
       });
       dataSources.CreateDataSource("Postgres");
