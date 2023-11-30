@@ -23,7 +23,7 @@ function AddDatasourceSecurely() {
         src={getAssetUrl(`${ASSETS_CDN_URL}/secure-lock.svg`)}
       />
       <Flex flexDirection="column" ml="spaces-4">
-        <Text color="var(--ads-v2-color-gray-700)" kind="heading-m">
+        <Text color="var(--ads-v2-color-gray-700)" kind="heading-s">
           {createMessage(DATASOURCE_SECURELY_TITLE)}
         </Text>
         <Text color="var(--ads-v2-color-gray-600)" kind="body-m">
