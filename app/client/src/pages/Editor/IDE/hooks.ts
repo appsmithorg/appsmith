@@ -4,7 +4,7 @@ import { useLocation } from "react-router";
 import { getCurrentAppState } from "entities/IDE/utils";
 
 const useCurrentAppState = () => {
-  const [appState, setAppState] = useState(AppState.PAGES);
+  const [appState, setAppState] = useState(AppState.EDITOR);
   const { pathname } = useLocation();
   useEffect(() => {
     setAppState(getCurrentAppState(pathname));

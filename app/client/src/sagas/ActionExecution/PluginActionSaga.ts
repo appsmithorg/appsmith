@@ -1427,7 +1427,7 @@ function* executePluginActionSaga(
           {
             entityName: pluginAction.name,
             dataPath: "data",
-            data: isError ? undefined : payload.body,
+            data: payload.body,
           },
         ],
         parentSpan,

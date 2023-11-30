@@ -13,6 +13,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -34,7 +35,7 @@ describe("MySQL Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Creating mysqlDTs table & queries", () => {
@@ -143,7 +144,7 @@ describe("MySQL Datatype tests", function () {
 
       //DS deletion
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
         (type) => {
           entityExplorer.ActionContextMenuByEntityName({
@@ -155,7 +156,7 @@ describe("MySQL Datatype tests", function () {
       );
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );

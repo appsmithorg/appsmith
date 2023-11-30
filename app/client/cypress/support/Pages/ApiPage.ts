@@ -94,7 +94,7 @@ export class ApiPage {
   ) {
     if (aftDSSaved) this.agHelper.GetNClick(this._createQuery);
     else {
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       this.agHelper.RemoveUIElement("EvaluatedPopUp");
       PageLeftPane.switchSegment(PagePaneSegment.Explorer);
       this.agHelper.GetHoverNClick(this.locator._createNew);

@@ -1,11 +1,11 @@
 import { fetchMockDatasources } from "actions/datasourceActions";
 import {
   fetchGitRemoteStatusInit,
-  fetchBranchesInit,
   fetchGitProtectedBranchesInit,
   fetchGitStatusInit,
   remoteUrlInputValue,
   resetPullMergeStatus,
+  fetchBranchesInit,
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
@@ -26,7 +26,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
-import { call, put, select, spawn, take } from "redux-saga/effects";
+import { call, fork, put, select, spawn } from "redux-saga/effects";
 import {
   failFastApiCalls,
   reportSWStatus,
@@ -263,9 +263,6 @@ export default class AppEditorEngine extends AppEngine {
 
   public *loadGit(applicationId: string) {
     const branchInStore: string = yield select(getCurrentGitBranch);
-    const isGitStatusLiteEnabled: boolean = yield select(
-      getIsGitStatusLiteEnabled,
-    );
     yield put(
       restoreRecentEntitiesRequest({
         applicationId,
@@ -277,17 +274,23 @@ export default class AppEditorEngine extends AppEngine {
     // add branch query to path and fetch status
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
+      yield fork(this.loadGitInBackground);
+    }
+  }
 
-      if (isGitStatusLiteEnabled) {
-        yield put(fetchGitRemoteStatusInit());
-        yield put(fetchGitStatusInit({ compareRemote: false }));
-      } else {
-        yield put(fetchGitStatusInit({ compareRemote: true }));
-      }
+  private *loadGitInBackground() {
+    const isGitStatusLiteEnabled: boolean = yield select(
+      getIsGitStatusLiteEnabled,
+    );
 
-      yield put(fetchBranchesInit());
-      yield take(ReduxActionTypes.FETCH_BRANCHES_SUCCESS);
-      yield put(fetchGitProtectedBranchesInit());
+    yield put(fetchBranchesInit());
+    yield put(fetchGitProtectedBranchesInit());
+
+    if (isGitStatusLiteEnabled) {
+      yield put(fetchGitRemoteStatusInit());
+      yield put(fetchGitStatusInit({ compareRemote: false }));
+    } else {
+      yield put(fetchGitStatusInit({ compareRemote: true }));
     }
     yield put(resetPullMergeStatus());
   }

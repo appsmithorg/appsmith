@@ -10,6 +10,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Tabs widget Tests", function () {
@@ -86,8 +87,8 @@ describe("Tabs widget Tests", function () {
     agHelper.Sleep(500);
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
     agHelper.Sleep(1000);
-    entityExplorer.ExpandCollapseEntity("Tab 1");
-    entityExplorer.AssertEntityPresenceInExplorer("NewTabsCopy");
+    PageLeftPane.expandCollapseItem("Tab 1");
+    PageLeftPane.assertPresence("NewTabsCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewTabsCopy");
 
     // Copy paste from property pane and delete from property pane

@@ -9,6 +9,7 @@ import {
 import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Menu Button widget Tests", function () {
@@ -97,7 +98,7 @@ describe("Menu Button widget Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.CopyPasteWidget("NewMenuButton");
-    entityExplorer.AssertEntityPresenceInExplorer("NewMenuButtonCopy");
+    PageLeftPane.assertPresence("NewMenuButtonCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewMenuButtonCopy");
 
     // Copy paste from property pane and delete from property pane
