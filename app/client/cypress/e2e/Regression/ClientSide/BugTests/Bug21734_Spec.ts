@@ -4,10 +4,10 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const dataSources = ObjectsRegistry.DataSources,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer;
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Bug 21734: On exiting from the Datasources page without saving changes, an error is thrown and the app becomes unresponsive.", function () {
   it("1. Navigating from intermediary datasource to new page", function () {
@@ -25,7 +25,7 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
     );
     cy.get(dataSources._datasourceModalDoNotSave).click({ force: true });
 
-    ee.AddNewPage();
+    PageList.AddNewPage();
 
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.AssertURL("page1");
@@ -39,7 +39,7 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
     // Have to fill form since modal won't show for empty ds
     dataSources.FillPostgresDSForm();
 
-    AppSidebar.navigate(AppSidebarButton.Pages, true);
+    AppSidebar.navigate(AppSidebarButton.Editor, true);
     agHelper.AssertContains(
       "Don't save",
       "exist",

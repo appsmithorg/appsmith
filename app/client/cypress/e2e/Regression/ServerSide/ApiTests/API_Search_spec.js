@@ -7,6 +7,7 @@ import {
 import {
   AppSidebar,
   AppSidebarButton,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 let APIName;
@@ -21,15 +22,15 @@ describe("API Panel Test Functionality ", function () {
   it("1. Test Search API fetaure", function () {
     cy.log("Login Successful");
     cy.generateUUID().then((uid) => {
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       cy.CreateAPI(`FirstAPI_${uid}`);
       cy.log("Creation of FirstAPI Action successful");
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       cy.CreateAPI(`SecondAPI_${uid}`);
       cy.CheckAndUnfoldEntityItem("Queries/JS");
       cy.log("Creation of SecondAPI Action successful");
-      entityExplorer.AssertEntityPresenceInExplorer(`FirstAPI_${uid}`);
-      entityExplorer.AssertEntityPresenceInExplorer(`SecondAPI_${uid}`);
+      PageLeftPane.assertPresence(`FirstAPI_${uid}`);
+      PageLeftPane.assertPresence(`SecondAPI_${uid}`);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: `FirstAPI_${uid}`,
         action: "Delete",

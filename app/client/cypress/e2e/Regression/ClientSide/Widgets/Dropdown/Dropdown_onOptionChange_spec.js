@@ -11,7 +11,6 @@ const datasource = require("../../../../../locators/DatasourcesEditor.json");
 import {
   agHelper,
   locators,
-  entityExplorer,
   propPane,
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -61,7 +60,7 @@ describe("Dropdown Widget", function () {
     cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
       force: true,
     });
-    entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    PageLeftPane.expandCollapseItem("Container3", "Widgets");
     EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget);
     cy.reload();
 

@@ -37,8 +37,8 @@ export function getCurrentAppState(currentUrl: string): AppState {
     } else if (appState === "libraries") {
       return AppState.LIBRARIES;
     } else {
-      return AppState.PAGES;
+      return AppState.EDITOR;
     }
   }
-  return AppState.PAGES;
+  return AppState.EDITOR;
 }

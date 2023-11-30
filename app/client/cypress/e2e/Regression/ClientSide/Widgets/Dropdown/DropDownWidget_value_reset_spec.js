@@ -22,7 +22,7 @@ describe("Dropdown Widget Check value does not reset on navigation", function ()
 
     //Navigate
     AppSidebar.navigate(AppSidebarButton.Data);
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
 
     //Again navigate back to the widget
     EditorNavigation.SelectEntityByName("Select3", EntityType.Widget);
