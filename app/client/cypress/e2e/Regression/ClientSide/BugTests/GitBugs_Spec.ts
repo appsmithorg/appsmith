@@ -91,7 +91,7 @@ describe("Git Bugs", function () {
       _.agHelper.GetNClick(_.locators._appThemeSettings);
       _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
       _.agHelper.GetNClick(_.locators._appThemeCard, 2);
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
@@ -103,7 +103,7 @@ describe("Git Bugs", function () {
       AppSidebar.navigate(AppSidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.AssertContains(
@@ -123,7 +123,7 @@ describe("Git Bugs", function () {
       AppSidebar.navigate(AppSidebarButton.Settings);
       _.agHelper.GetNClick(_.locators._appNavigationSettings);
       _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       _.agHelper.GetNClick(_.locators._publishButton);
       _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
       _.agHelper.GetNClick(_.gitSync._discardChanges);

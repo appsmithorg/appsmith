@@ -27,6 +27,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -70,6 +71,8 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1103,6 +1106,21 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
+        return publishAndGetMetadata(applicationId, isPublishedManually)
+                .flatMap(tuple2 -> {
+                    ApplicationPublishingMetaDTO metaDTO = tuple2.getT2();
+                    return sendApplicationPublishedEvent(metaDTO);
+                })
+                .elapsed()
+                .map(objects -> {
+                    log.debug(
+                            "Published application {} in {} ms", objects.getT2().getId(), objects.getT1());
+                    return objects.getT2();
+                });
+    }
+
+    protected Mono<Tuple2<Mono<Application>, ApplicationPublishingMetaDTO>> publishAndGetMetadata(
+            String applicationId, boolean isPublishedManually) {
         /*
          * Please note that it is a cached Mono, hence please be careful with using this Mono to update / read data
          * when latest updated application object is desired.
@@ -1206,21 +1224,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .collectList()
                 .cache(); // caching because it's needed to send analytics attributes after publishing the app
 
+        ApplicationPublishingMetaDTO applicationPublishingMetaDTO = ApplicationPublishingMetaDTO.builder()
+                .applicationId(applicationId)
+                .isPublishedManually(isPublishedManually)
+                .applicationPagesMono(publishApplicationAndPages)
+                .updatedPublishedJSLibDTOsMono(Mono.just(updatedPublishedJSLibDTOs))
+                .actionCountByPluginTypeMapMono(actionCountByPluginTypeMapMono)
+                .publishedActionCollectionsListMono(publishedActionCollectionsListMono)
+                .build();
+
         return publishApplicationAndPages
                 .flatMap(newPages -> Mono.zip(publishActionsMono, publishedActionCollectionsListMono, publishThemeMono))
-                .then(sendApplicationPublishedEvent(
-                        publishApplicationAndPages,
-                        actionCountByPluginTypeMapMono,
-                        publishedActionCollectionsListMono,
-                        Mono.just(updatedPublishedJSLibDTOs),
-                        applicationId,
-                        isPublishedManually))
-                .elapsed()
-                .map(objects -> {
-                    log.debug(
-                            "Published application {} in {} ms", objects.getT2().getId(), objects.getT1());
-                    return objects.getT2();
-                });
+                .then(Mono.just(Tuples.of(applicationMono, applicationPublishingMetaDTO)));
     }
 
     private int getActionCount(Map<PluginType, Integer> pluginTypeCollectionMap, PluginType pluginType) {
@@ -1230,13 +1245,16 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return 0;
     }
 
-    private Mono<Application> sendApplicationPublishedEvent(
-            Mono<List<ApplicationPage>> publishApplicationAndPages,
-            Mono<Map<PluginType, Integer>> publishedActionsFlux,
-            Mono<List<ActionCollection>> publishedActionsCollectionFlux,
-            Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono,
-            String applicationId,
-            boolean isPublishedManually) {
+    private Mono<Application> sendApplicationPublishedEvent(ApplicationPublishingMetaDTO publishingMetaDTO) {
+
+        Mono<List<ApplicationPage>> publishApplicationAndPages = publishingMetaDTO.getApplicationPagesMono();
+        Mono<Map<PluginType, Integer>> publishedActionsFlux = publishingMetaDTO.getActionCountByPluginTypeMapMono();
+        Mono<List<ActionCollection>> publishedActionsCollectionFlux =
+                publishingMetaDTO.getPublishedActionCollectionsListMono();
+        Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono =
+                publishingMetaDTO.getUpdatedPublishedJSLibDTOsMono();
+        String applicationId = publishingMetaDTO.getApplicationId();
+        boolean isPublishedManually = publishingMetaDTO.isPublishedManually();
 
         Mono<String> publicPermissionGroupIdMono =
                 permissionGroupService.getPublicPermissionGroupId().cache();

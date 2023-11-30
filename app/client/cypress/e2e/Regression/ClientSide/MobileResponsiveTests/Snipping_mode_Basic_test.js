@@ -13,7 +13,7 @@ describe("Add widget - Postgress DataSource", function () {
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Validate Snipping with query and table widget on canvas", () => {
