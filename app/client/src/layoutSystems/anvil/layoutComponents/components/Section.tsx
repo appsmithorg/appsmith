@@ -9,7 +9,6 @@ import {
 import React from "react";
 import WidgetRow from "./WidgetRow";
 import { SectionRow } from "./SectionRow";
-
 class Section extends WidgetRow {
   constructor(props: LayoutComponentProps) {
     super(props);

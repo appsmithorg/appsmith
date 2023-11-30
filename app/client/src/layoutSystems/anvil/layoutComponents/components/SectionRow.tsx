@@ -13,7 +13,8 @@ class SectionWidgetRow extends WidgetRow {
   renderSectionSpaceDistributor() {
     return (
       <SectionSpaceDistributor
-        sectionId={this.props.layoutId}
+        sectionWidgetId={this.props.canvasId}
+        sectionLayoutId={this.props.layoutId}
         zones={this.props.layout as WidgetLayoutProps[]}
       />
     );

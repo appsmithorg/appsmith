@@ -1,18 +1,16 @@
-import type { AppState } from "@appsmith/reducers";
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
-import type {
-  LayoutElementPosition,
-  LayoutElementPositions,
-} from "layoutSystems/common/types";
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import React, { useEffect } from "react";
+import type { LayoutElementPosition } from "layoutSystems/common/types";
+import React from "react";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
+import { SectionColumns } from "../utils/constants";
+import { getWidgetByID } from "sagas/selectors";
 
 interface SectionSpaceDistributorProps {
-  sectionId: string;
+  sectionWidgetId: string;
+  sectionLayoutId: string;
   zones: WidgetLayoutProps[];
 }
 
@@ -24,51 +22,48 @@ const SectionSpaceDistributorHandles = (
 ) => {
   const layoutElementPositions = useSelector(getLayoutElementPositions);
   const { zones } = props;
-  const isDistributingSpace = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDistributingSpace,
+  const sectionWidget = useSelector(getWidgetByID(props.sectionWidgetId));
+  const defaultSpaceDistributed = zones.reduce(
+    (distributedSpace, each) => {
+      distributedSpace[each.widgetId] = SectionColumns / zones.length;
+      return distributedSpace;
+    },
+    {} as { [key: string]: number },
   );
-  useEffect(() => {
-    if (isDistributingSpace) {
-      zones.forEach((each) => {
-        const zoneDom = document.getElementById(
-          getAnvilWidgetDOMId(each.widgetId),
-        );
-        const zonePosition = layoutElementPositions[each.widgetId];
-        if (zoneDom && zonePosition) {
-          // zoneDom.style.flexGrow = `${12 / zones.length}`;
-          zoneDom.style.flex = `1 1 ${100 / zones.length}%`;
-        }
-      });
-    }
-  }, [isDistributingSpace]);
-  const SectionSpaceDistributorNodes: {
-    position: {
-      left: number;
-    };
-    parentZones: string[];
-  }[] = [];
+  const { spaceDistributed = defaultSpaceDistributed } = sectionWidget;
   let previousZonePosition: LayoutElementPosition;
   let spaceToWorkWith = 0;
-  zones.forEach((each, index) => {
-    const widgetPosition = layoutElementPositions[each.widgetId];
-    spaceToWorkWith = spaceToWorkWith + widgetPosition.width;
-    if (index === 0) {
-      previousZonePosition = widgetPosition;
-      return;
-    }
-    if (widgetPosition && previousZonePosition) {
-      const spaceBetweenZones =
-        widgetPosition.offsetLeft -
-        (previousZonePosition.offsetLeft + previousZonePosition.width);
-      SectionSpaceDistributorNodes.push({
-        parentZones: [zones[index - 1].widgetId, each.widgetId],
-        position: {
-          left: widgetPosition.offsetLeft - spaceBetweenZones * 0.5,
-        },
-      });
-      previousZonePosition = widgetPosition;
-    }
-  });
+  const SectionSpaceDistributorNodes = zones.reduce(
+    (nodesArray, each, index) => {
+      const widgetPosition = layoutElementPositions[each.widgetId];
+      spaceToWorkWith = spaceToWorkWith + widgetPosition.width;
+      if (index === 0) {
+        previousZonePosition = widgetPosition;
+        return nodesArray;
+      }
+      if (widgetPosition && previousZonePosition) {
+        const spaceBetweenZones =
+          widgetPosition.offsetLeft -
+          (previousZonePosition.offsetLeft + previousZonePosition.width);
+        nodesArray.push({
+          parentZones: [zones[index - 1].widgetId, each.widgetId],
+          spaceBetweenZones,
+          position: {
+            left: widgetPosition.offsetLeft - spaceBetweenZones * 0.5,
+          },
+        });
+        previousZonePosition = widgetPosition;
+      }
+      return nodesArray;
+    },
+    [] as {
+      position: {
+        left: number;
+      };
+      parentZones: string[];
+      spaceBetweenZones: number;
+    }[],
+  );
   return (
     <>
       {SectionSpaceDistributorNodes.map((each, index) => {
@@ -76,11 +71,13 @@ const SectionSpaceDistributorHandles = (
           <SpaceDistributionHandle
             index={index}
             key={index}
+            layoutElementPositions={layoutElementPositions}
             left={each.position.left}
             parentZones={each.parentZones}
-            sectionId={props.sectionId}
+            sectionLayoutId={props.sectionLayoutId}
+            spaceBetweenZones={each.spaceBetweenZones}
+            spaceDistributed={spaceDistributed}
             spaceToWorkWith={spaceToWorkWith}
-            layoutElementPositions={layoutElementPositions}
             zoneCount={zones.length}
           />
         );

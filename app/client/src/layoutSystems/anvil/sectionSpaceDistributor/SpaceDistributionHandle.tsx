@@ -6,14 +6,17 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { AnvilReduxActionTypes } from "../integrations/actions/actionTypes";
 import { SpaceDistributorHandleDimensions } from "./constants";
+import { SectionColumns } from "../utils/constants";
 
 interface SpaceDistributionNodeProps {
   index: number;
   left: number;
   parentZones: string[];
-  sectionId: string;
+  sectionLayoutId: string;
   layoutElementPositions: LayoutElementPositions;
   spaceToWorkWith: number;
+  spaceBetweenZones: number;
+  spaceDistributed: { [key: string]: number };
   zoneCount: number;
 }
 const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
@@ -40,8 +43,10 @@ export const SpaceDistributionHandle = ({
   index,
   left,
   parentZones,
-  sectionId,
-  layoutElementPositions,
+  sectionLayoutId,
+  // layoutElementPositions,
+  spaceBetweenZones,
+  spaceDistributed,
   spaceToWorkWith,
   zoneCount,
 }: SpaceDistributionNodeProps) => {
@@ -52,18 +57,16 @@ export const SpaceDistributionHandle = ({
   );
   const isCurrentHandleDistributingSpace = useRef(false);
   const leftPositionOfHandle =
-    left -
-    SpaceDistributorHandleDimensions.width * 0.5 -
-    SpaceDistributorHandleDimensions.border;
+    left - SpaceDistributorHandleDimensions.width * 0.5;
   const [leftZone, rightZone] = parentZones;
-  const leftZonePosition = layoutElementPositions[leftZone];
-  const rightZonePosition = layoutElementPositions[rightZone];
-  const sectionPositions = layoutElementPositions[sectionId];
+  // const leftZonePosition = layoutElementPositions[leftZone];
+  // const rightZonePosition = layoutElementPositions[rightZone];
+  // const sectionPositions = layoutElementPositions[sectionLayoutId];
   const columnWidth = spaceToWorkWith / 12;
   const minWidthOfAZone = 2 * columnWidth;
   const minLeft = (index + 1) * minWidthOfAZone;
-  const leftZoneColumns = leftZonePosition.width / columnWidth;
-  const rightZoneColumns = rightZonePosition.width / columnWidth;
+  // const leftZoneColumns = leftZonePosition.width / columnWidth;
+  // const rightZoneColumns = rightZonePosition.width / columnWidth;
   const maxLeft = spaceToWorkWith - (zoneCount - 1 - index) * minWidthOfAZone;
   useEffect(() => {
     if (ref.current) {
@@ -81,21 +84,56 @@ export const SpaceDistributionHandle = ({
       // The current position of mouse
       let x = 0;
       let lastValidHandlePosition = 0;
-      let actualFlexBasis = {
-        left: `${100 / zoneCount}%`,
-        right: `${100 / zoneCount}%`,
+      const currentFlexBasis = {
+        leftZone: spaceDistributed[leftZone],
+        rightZone: spaceDistributed[rightZone],
       };
+      const currentGrowthFactor = {
+        leftZone: currentFlexBasis.leftZone,
+        rightZone: currentFlexBasis.rightZone,
+      };
+      const spaceOffset = spaceBetweenZones * (zoneCount + 1);
       const addMouseMoveHandlers = () => {
         if (ref.current) {
           ref.current.classList.add("active");
         }
+        Object.entries(spaceDistributed).forEach(([zoneId, flexGrow]) => {
+          const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
+          if (zoneDom) {
+            const flexRatio = flexGrow / SectionColumns;
+            const flexBasis = flexRatio * 100;
+            zoneDom.style.flex = `1 1 calc(${flexBasis}% - ${
+              spaceOffset * flexRatio
+            }px)`;
+          }
+        });
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);
       };
       const removeMouseMoveHandlers = () => {
         if (ref.current) {
           ref.current.classList.remove("active");
+          ref.current.style.left = "";
         }
+        Object.keys(spaceDistributed).forEach((zoneId) => {
+          const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
+          if (zoneDom) {
+            zoneDom.style.flex = "";
+            zoneDom.style.transition = "all 0.3s ease";
+            setTimeout(() => {
+              zoneDom.style.transition = "";
+            }, 500);
+            // if ([leftZone, rightZone].includes(zoneId)) {
+            //   zoneDom.style.flexGrow = `${
+            //     zoneId === leftZone
+            //       ? currentGrowthFactor.leftZone
+            //       : currentGrowthFactor.rightZone
+            //   }`;
+            // } else {
+            //   zoneDom.style.flexGrow = "";
+            // }
+          }
+        });
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
       };
@@ -117,6 +155,13 @@ export const SpaceDistributionHandle = ({
           isCurrentHandleDistributingSpace.current = false;
           dispatch({
             type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
+            payload: {
+              zonesDistributed: {
+                [leftZone]: currentGrowthFactor.leftZone,
+                [rightZone]: currentGrowthFactor.rightZone,
+              },
+              sectionLayoutId,
+            },
           });
           removeMouseMoveHandlers();
         }
@@ -148,12 +193,16 @@ export const SpaceDistributionHandle = ({
               //   SpaceDistributorHandleDimensions.border;
               // lastValidHandlePosition = updatedLeft;
               // ref.current.style.left = updatedLeft + "px";
-              leftZoneDom.style.flexBasis = `calc(${actualFlexBasis.left} + ${
-                columnChange * columnWidth
-              }px)`;
-              rightZoneDom.style.flexBasis = `calc(${actualFlexBasis.right} - ${
-                columnChange * columnWidth
-              }px)`;
+              leftZoneDom.style.flexBasis = `calc(${
+                (currentFlexBasis.leftZone * 100) / SectionColumns
+              }% + ${columnChange * columnWidth}px)`;
+              rightZoneDom.style.flexBasis = `calc(${
+                (currentFlexBasis.rightZone * 100) / SectionColumns
+              }% - ${columnChange * columnWidth}px)`;
+              currentGrowthFactor.leftZone =
+                currentFlexBasis.leftZone + Math.round(columnChange);
+              currentGrowthFactor.rightZone =
+                currentFlexBasis.rightZone - Math.round(columnChange);
               lastValidHandlePosition = recomputeLeftStyle;
               ref.current.style.left = recomputeLeftStyle + "px";
             }
@@ -172,7 +221,7 @@ export const SpaceDistributionHandle = ({
         }
       };
     }
-  }, []);
+  }, [leftPositionOfHandle, spaceDistributed]);
   return (
     <StyledSpaceDistributionHandle left={leftPositionOfHandle} ref={ref} />
   );

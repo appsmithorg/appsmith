@@ -6,6 +6,7 @@ export interface AnvilFlexComponentProps {
   children: ReactNode;
   isResizeDisabled?: boolean;
   layoutId: string;
+  flexGrow?: number;
   focused?: boolean;
   parentId?: string;
   rowIndex: number;

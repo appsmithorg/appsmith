@@ -13,6 +13,7 @@ export const AlignmentIndexMap: { [key: string]: number } = {
   [FlexLayerAlignment.Center]: 1,
   [FlexLayerAlignment.End]: 2,
 };
+export const SectionColumns = 12;
 
 export const defaultHighlightPayload: HighlightPayload = {
   highlights: [],

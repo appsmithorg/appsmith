@@ -12,6 +12,7 @@ import { addNewZonesToSection, mergeLastZonesOfSection } from "./utils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
 import { batchUpdateWidgetProperty } from "actions/controlActions";
+import { SectionColumns } from "layoutSystems/anvil/utils/constants";
 
 function* updateZonesCountOfSectionSaga(
   actionPayload: ReduxAction<{
@@ -47,6 +48,23 @@ function* updateZonesCountOfSectionSaga(
         );
         updatedWidgets = updatedObj.updatedWidgets;
       }
+      // remove distribution if zone count is changed
+      const childrenToUpdate = updatedWidgets[sectionWidgetId].children || [];
+      const spaceToApply = SectionColumns / zoneCount;
+      childrenToUpdate.forEach((each) => {
+        updatedWidgets[each] = {
+          ...updatedWidgets[each],
+          flexGrow: spaceToApply,
+        };
+        updatedWidgets[sectionWidgetId] = {
+          ...updatedWidgets[sectionWidgetId],
+          spaceDistributed: {
+            ...updatedWidgets[sectionWidgetId].spaceDistributed,
+            [each]: spaceToApply,
+          },
+          zoneCount,
+        };
+      });
       updatedWidgets[sectionWidgetId] = {
         ...updatedWidgets[sectionWidgetId],
         zoneCount,
