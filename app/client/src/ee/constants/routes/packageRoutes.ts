@@ -15,3 +15,5 @@ export const INTEGRATION_EDITOR_PATH = "/datasources/:selectedTab";
 export const SAAS_EDITOR_DATASOURCE_ID_PATH =
   "/saas/:pluginPackageName/datasources/:datasourceId";
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
+
+export const MODULE_JS_COLLECTION_EDITOR_PATH = `/jsObjects/:collectionId`;
