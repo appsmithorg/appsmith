@@ -40,11 +40,10 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
 `;
 
 export const SpaceDistributionHandle = ({
-  index,
+  layoutElementPositions,
   left,
   parentZones,
   sectionLayoutId,
-  // layoutElementPositions,
   spaceBetweenZones,
   spaceDistributed,
   spaceToWorkWith,
@@ -59,15 +58,16 @@ export const SpaceDistributionHandle = ({
   const leftPositionOfHandle =
     left - SpaceDistributorHandleDimensions.width * 0.5;
   const [leftZone, rightZone] = parentZones;
-  // const leftZonePosition = layoutElementPositions[leftZone];
-  // const rightZonePosition = layoutElementPositions[rightZone];
+  const leftZonePosition = layoutElementPositions[leftZone];
+  const rightZonePosition = layoutElementPositions[rightZone];
   // const sectionPositions = layoutElementPositions[sectionLayoutId];
   const columnWidth = spaceToWorkWith / 12;
   const minWidthOfAZone = 2 * columnWidth;
-  const minLeft = (index + 1) * minWidthOfAZone;
+  const minLeft = leftZonePosition.offsetLeft + minWidthOfAZone;
   // const leftZoneColumns = leftZonePosition.width / columnWidth;
   // const rightZoneColumns = rightZonePosition.width / columnWidth;
-  const maxLeft = spaceToWorkWith - (zoneCount - 1 - index) * minWidthOfAZone;
+  const maxLeft =
+    rightZonePosition.offsetLeft + rightZonePosition.width - minWidthOfAZone;
   useEffect(() => {
     if (ref.current) {
       if (isDistributingSpace) {
@@ -221,7 +221,7 @@ export const SpaceDistributionHandle = ({
         }
       };
     }
-  }, [leftPositionOfHandle, spaceDistributed]);
+  }, [leftPositionOfHandle, spaceDistributed, minLeft, maxLeft]);
   return (
     <StyledSpaceDistributionHandle left={leftPositionOfHandle} ref={ref} />
   );
