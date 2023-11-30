@@ -4,6 +4,7 @@ import {
   entityExplorer,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 describe("Tab widget test", function () {
   const tabname = "UpdatedTab";
@@ -12,14 +13,14 @@ describe("Tab widget test", function () {
   });
 
   it("1. Tab Widget Functionality To rename Tabs from entity explorer", function () {
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Tabs1");
+    PageLeftPane.expandCollapseItem("Widgets");
+    PageLeftPane.expandCollapseItem("Tabs1");
     entityExplorer.RenameEntityFromExplorer("Tab1", tabname, true);
   });
 
   it("2. Tab Widget Functionality To delete Tabs from entity explorer", function () {
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Tabs1");
+    PageLeftPane.expandCollapseItem("Widgets");
+    PageLeftPane.expandCollapseItem("Tabs1");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Tab2",
       action: "Edit name",

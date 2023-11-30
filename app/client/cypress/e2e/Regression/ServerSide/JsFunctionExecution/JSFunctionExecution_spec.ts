@@ -13,6 +13,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 interface IFunctionSettingData {
   name: string;
@@ -456,7 +457,7 @@ describe("JS Function Execution", function () {
     ];
 
     // clone page and assert order of functions
-    entityExplorer.ClonePage();
+    PageList.ClonePage();
     agHelper.Sleep();
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.Sleep();
@@ -466,7 +467,6 @@ describe("JS Function Execution", function () {
       jsEditor.ConfirmationClick("Yes");
       agHelper.Sleep(2000); //for current pop up to close & next to appear!
     }
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
     EditorNavigation.SelectEntityByName(jsObj, EntityType.JSObject);
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);

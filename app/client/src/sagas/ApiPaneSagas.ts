@@ -657,7 +657,11 @@ function* handleDatasourceCreatedSaga(
         apiId: actionRouteInfo.apiId ?? "",
       }),
     );
-  } else if (!currentApplicationIdForCreateNewApp) {
+  } else if (
+    !currentApplicationIdForCreateNewApp ||
+    (!!currentApplicationIdForCreateNewApp &&
+      actionPayload.payload.id !== TEMP_DATASOURCE_ID)
+  ) {
     history.push(
       datasourcesEditorIdURL({
         pageId,

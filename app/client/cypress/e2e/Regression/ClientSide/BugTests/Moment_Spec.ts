@@ -12,6 +12,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, query: string;
@@ -114,7 +115,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
     "Verify Deletion of the datasource after all created queries are deleted",
     () => {
       deployMode.NavigateBacktoEditor("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "JSObject1",
         action: "Delete",
