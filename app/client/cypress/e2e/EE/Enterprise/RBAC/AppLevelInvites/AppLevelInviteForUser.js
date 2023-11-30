@@ -115,7 +115,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.onboarding.closeIntroModal();
     AppSidebar.navigate(AppSidebarButton.Data);
     _.agHelper.AssertElementExist(_.dataSources._addNewDataSource);
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageList.AddNewPage("New blank page");
     _.dataSources.CreateDataSource("Postgres");
     cy.get(_.dataSources._createQuery).should("not.have.attr", "disabled");

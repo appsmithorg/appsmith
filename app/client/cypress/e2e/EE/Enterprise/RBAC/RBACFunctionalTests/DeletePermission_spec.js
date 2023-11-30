@@ -280,7 +280,7 @@ describe("Delete Permission flow ", function () {
 
     featureFlagIntercept({ license_gac_enabled: true });
     cy.wait(2000);
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     // verify create button does not exist
     cy.get(explorer.AddPage).should("not.exist");
     cy.get(explorer.addDBQueryEntity).should("not.exist");

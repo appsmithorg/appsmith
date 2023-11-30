@@ -123,7 +123,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     onboarding.closeIntroModal();
     AppSidebar.navigate(AppSidebarButton.Data);
     agHelper.AssertElementExist(dataSources._addNewDataSource);
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
@@ -184,7 +184,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     onboarding.closeIntroModal();
     AppSidebar.navigate(AppSidebarButton.Data);
     agHelper.AssertElementAbsence(dataSources._addNewDataSource);
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
@@ -245,7 +245,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
     onboarding.closeIntroModal();
     AppSidebar.navigate(AppSidebarButton.Data);
     agHelper.AssertElementAbsence(dataSources._addNewDataSource);
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     cy.get(dataSources._dropdownOption).should(
