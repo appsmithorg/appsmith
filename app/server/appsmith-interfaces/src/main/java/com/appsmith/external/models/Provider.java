@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
@@ -32,16 +33,19 @@ public class Provider extends BaseDomain {
 
     String credentialSteps; // How to generate/get the credentials to run the APIs which belong to this provider
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     List<String> categories; // Category names here
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     Statistics statistics; // Cumulative statistics for all the APIs for this provider
 
     @OneToOne
     DatasourceConfiguration datasourceConfiguration;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     List<PricingPlan> pricingPlans;
 
     String planSubscribed;

@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Provider;
-import com.appsmith.server.repositories.ProviderRepository;
+import com.appsmith.server.repositories.ProviderRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class ProviderServiceCEImpl extends BaseService<ProviderRepository, Provider, String>
+public class ProviderServiceCEImpl extends BaseService<ProviderRepositoryCake, Provider, String>
         implements ProviderServiceCE {
 
     private static final List<String> CATEGORIES = Arrays.asList(
@@ -69,7 +69,7 @@ public class ProviderServiceCEImpl extends BaseService<ProviderRepository, Provi
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            ProviderRepository repository,
+            ProviderRepositoryCake repository,
             AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
     }

@@ -9,8 +9,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.ThemeRepositoryCake;
-import com.appsmith.server.repositories.ThemeRepositoryCake;
-import com.appsmith.server.repositories.ce.ThemeRepositoryCE;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
@@ -53,7 +51,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> create(Theme resource) {
-        return Mono.justOrEmpty(repository.save(resource)).flatMap(analyticsService::sendCreateEvent);
+        return repository.save(resource).flatMap(analyticsService::sendCreateEvent);
     }
 
     @Override
@@ -419,17 +417,17 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
 
     @Override
     public Mono<Theme> getSystemTheme(String themeName) {
-        return Mono.justOrEmpty(repository.getSystemThemeByName(themeName));
+        return repository.getSystemThemeByName(themeName);
     }
 
     @Override
     public Mono<Theme> getThemeById(String themeId, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(themeId, permission));
+        return repository.findById(themeId, permission);
     }
 
     @Override
     public Mono<Theme> save(Theme theme) {
-        return Mono.justOrEmpty(repository.save(theme));
+        return repository.save(theme);
     }
 
     @Override
@@ -453,11 +451,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
     @Override
     public Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication) {
         if (theme == null) { // this application was exported without theme, assign the legacy theme to it
-            return Mono.justOrEmpty(
-                    repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME)); // return the default theme
+            return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
         } else if (theme.isSystemTheme()) {
-            return Mono.justOrEmpty(repository.getSystemThemeByName(theme.getName()))
-                    .switchIfEmpty(Mono.justOrEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME)));
+            return repository
+                    .getSystemThemeByName(theme.getName())
+                    .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
         } else {
             // create a new theme
             Theme newTheme = new Theme();
@@ -469,7 +467,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCake, Theme, 
             newTheme.setName(theme.getName());
             newTheme.setDisplayName(theme.getDisplayName());
             newTheme.setSystemTheme(false);
-            return Mono.justOrEmpty(repository.save(newTheme));
+            return repository.save(newTheme);
         }
     }
 

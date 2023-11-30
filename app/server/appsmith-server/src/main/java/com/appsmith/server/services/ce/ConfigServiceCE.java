@@ -6,7 +6,6 @@ import com.appsmith.server.domains.User;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.Optional;
 
 public interface ConfigServiceCE {
 
@@ -22,7 +21,7 @@ public interface ConfigServiceCE {
 
     Mono<Void> delete(String name);
 
-    Optional<Config> getByName(String name, AclPermission permission);
+    Mono<Config> getByName(String name, AclPermission permission);
 
-    Optional<Config> getByNameAsUser(String name, User user, AclPermission permission);
+    Mono<Config> getByNameAsUser(String name, User user, AclPermission permission);
 }

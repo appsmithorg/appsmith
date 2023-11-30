@@ -7,7 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.ConfigRepositoryCake;
 import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -36,7 +36,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     private final UserRepositoryCake userRepository;
     private final PolicySolution policySolution;
 
-    private final ConfigRepository configRepository;
+    private final ConfigRepositoryCake configRepository;
     private final PermissionGroupPermission permissionGroupPermission;
 
     private PermissionGroup publicPermissionGroup = null;
@@ -52,7 +52,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
             TenantService tenantService,
             UserRepositoryCake userRepository,
             PolicySolution policySolution,
-            ConfigRepository configRepository,
+            ConfigRepositoryCake configRepository,
             PermissionGroupPermission permissionGroupPermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);

@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.ConfigRepositoryCake;
 import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.ce_compatible.PermissionGroupServiceCECompatibleImpl;
@@ -27,7 +27,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
             TenantService tenantService,
             UserRepositoryCake userRepository,
             PolicySolution policySolution,
-            ConfigRepository configRepository,
+            ConfigRepositoryCake configRepository,
             PermissionGroupPermission permissionGroupPermission) {
 
         super(

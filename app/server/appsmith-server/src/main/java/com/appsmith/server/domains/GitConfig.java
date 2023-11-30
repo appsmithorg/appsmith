@@ -16,6 +16,10 @@ import lombok.ToString;
 @Entity
 public class GitConfig implements AppsmithDomain {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+
     String authorName;
 
     String authorEmail;

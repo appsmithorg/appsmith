@@ -9,7 +9,7 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.EmailVerificationTokenRepositoryCake;
-import com.appsmith.server.repositories.PasswordResetTokenRepository;
+import com.appsmith.server.repositories.PasswordResetTokenRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.ce_compatible.UserServiceCECompatibleImpl;
 import com.appsmith.server.solutions.PolicySolution;
@@ -35,7 +35,7 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            PasswordResetTokenRepository passwordResetTokenRepository,
+            PasswordResetTokenRepositoryCake passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             EmailSender emailSender,
             ApplicationRepositoryCake applicationRepository,

@@ -4,11 +4,13 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -66,9 +68,13 @@ public class UserData extends BaseDomain {
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
     @JsonView(Views.Internal.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     Map<String, GitProfile> gitProfiles;
 
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     Map<String, Object> userClaims;
 
     // list of template ids that were recently forked by the user

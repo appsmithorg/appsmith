@@ -2,7 +2,8 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,7 +27,8 @@ public class PEMCertificate implements AppsmithDomain {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     UploadedFile file;
 
     @Encrypted @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

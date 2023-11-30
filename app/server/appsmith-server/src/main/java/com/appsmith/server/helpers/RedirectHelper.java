@@ -4,7 +4,7 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.ApplicationRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -39,7 +38,7 @@ public class RedirectHelper {
     private static final String FORK_APP_ID_QUERY_PARAM = "appId";
     public static final String FIRST_TIME_USER_EXPERIENCE_PARAM = "enableFirstTimeUserExperience";
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     private final ApplicationPermission applicationPermission;
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -62,8 +61,8 @@ public class RedirectHelper {
         } else if (queryParams.getFirst(FORK_APP_ID_QUERY_PARAM) != null) {
             final String forkAppId = queryParams.getFirst(FORK_APP_ID_QUERY_PARAM);
             final String defaultRedirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
-            return Flux.fromIterable(applicationRepository.findByClonedFromApplicationId(
-                            forkAppId, applicationPermission.getReadPermission()))
+            return applicationRepository
+                    .findByClonedFromApplicationId(forkAppId, applicationPermission.getReadPermission())
                     .map(application -> {
                         // Get the default page in the application, or if there's no default page, get the first page
                         // in the application and redirect to edit that page.

@@ -1,6 +1,8 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
 import lombok.Getter;
@@ -8,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.checkerframework.common.aliasing.qual.Unique;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Setter
@@ -25,6 +28,8 @@ public class Tenant extends BaseDomain {
 
     PricingPlan pricingPlan;
 
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     TenantConfiguration tenantConfiguration;
 
     // TODO add SSO and other configurations here after migrating from environment variables to database configuration

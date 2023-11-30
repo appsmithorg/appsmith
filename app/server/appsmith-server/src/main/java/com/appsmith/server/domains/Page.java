@@ -21,5 +21,5 @@ public class Page extends BaseDomain {
 
     @NotNull String applicationId;
 
-    List<Layout> layouts;
+    // List<Layout> layouts;
 }

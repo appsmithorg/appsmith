@@ -1,10 +1,12 @@
 package com.appsmith.external.models;
 
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,17 +70,21 @@ public class SSLDetails implements AppsmithDomain {
 
     CACertificateType caCertificateType;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     UploadedFile keyFile;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     UploadedFile certificateFile;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     UploadedFile caCertificateFile;
 
     Boolean usePemCertificate;
 
-    @Type(JsonType.class)
+    @OneToOne
+    @Type(JsonBinaryType.class)
     PEMCertificate pemCertificate;
 }

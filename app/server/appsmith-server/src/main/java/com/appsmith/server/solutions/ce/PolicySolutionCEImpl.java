@@ -61,10 +61,9 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
         final Map<String, Policy> policyMap1 = new HashMap<>();
         for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
             Policy entryValue = entry.getValue();
-            Policy policy = Policy.builder()
-                    .permission(entryValue.getPermission())
-                    .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
-                    .build();
+            Policy policy = new Policy();
+            policy.setPermission(entryValue.getPermission());
+            policy.setPermissionGroups(new HashSet<>(entryValue.getPermissionGroups()));
             policyMap1.put(entry.getKey(), policy);
         }
 
@@ -133,10 +132,9 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
-                    Policy policyWithCurrentPermission = Policy.builder()
-                            .permission(perm.getValue())
-                            .users(Set.of(username))
-                            .build();
+                    Policy policyWithCurrentPermission = new Policy();
+                    policyWithCurrentPermission.setPermission(perm.getValue());
+                    policyWithCurrentPermission.setUsers(Set.of(username));
                     // Generate any and all lateral policies that might come with the current permission
                     Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(username), null);
                     policiesForUser.add(policyWithCurrentPermission);
@@ -153,10 +151,10 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
         return permissions.stream()
                 .filter(perm -> perm.getDocumentId().equals(objectId))
                 .map(perm -> {
-                    Policy policyWithCurrentPermission = Policy.builder()
-                            .permission(perm.getAclPermission().getValue())
-                            .permissionGroups(Set.of(String.valueOf(permissionGroup.getId())))
-                            .build();
+                    Policy policyWithCurrentPermission = new Policy();
+                    policyWithCurrentPermission.setPermission(
+                            perm.getAclPermission().getValue());
+                    policyWithCurrentPermission.setPermissionGroups(Set.of(String.valueOf(permissionGroup.getId())));
                     // Generate any and all lateral policies that might come with the current permission
                     Set<Policy> policiesForPermissionGroup = policyGenerator.getLateralPolicies(
                             perm.getAclPermission(), Set.of(String.valueOf(permissionGroup.getId())), null);
@@ -171,10 +169,9 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(
             AclPermission permission, String permissionGroupId) {
 
-        Policy policyWithCurrentPermission = Policy.builder()
-                .permission(permission.getValue())
-                .permissionGroups(Set.of(permissionGroupId))
-                .build();
+        Policy policyWithCurrentPermission = new Policy();
+        policyWithCurrentPermission.setPermission(permission.getValue());
+        policyWithCurrentPermission.setPermissionGroups(Set.of(permissionGroupId));
         // Generate any and all lateral policies that might come with the current permission
         Set<Policy> policiesForPermission =
                 policyGenerator.getLateralPolicies(permission, Set.of(permissionGroupId), null);
@@ -189,10 +186,9 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
         return permissions.stream()
                 .map(perm -> {
                     // Create a policy for the invited user using the permission as per the role
-                    Policy policyWithCurrentPermission = Policy.builder()
-                            .permission(perm.getValue())
-                            .users(usernames)
-                            .build();
+                    Policy policyWithCurrentPermission = new Policy();
+                    policyWithCurrentPermission.setPermission(perm.getValue());
+                    policyWithCurrentPermission.setUsers(usernames);
                     // Generate any and all lateral policies that might come with the current permission
                     Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, usernames, null);
                     policiesForUser.add(policyWithCurrentPermission);

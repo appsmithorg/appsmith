@@ -4,7 +4,7 @@ import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.PageDTO;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,11 +24,13 @@ public class NewPage extends BranchAwareDomain {
     @Column(name = "application_id", insertable = false, updatable = false)
     private String applicationId;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     private PageDTO unpublishedPage;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     private PageDTO publishedPage;
 

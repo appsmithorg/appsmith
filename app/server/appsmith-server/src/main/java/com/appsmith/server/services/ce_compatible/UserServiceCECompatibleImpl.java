@@ -6,7 +6,7 @@ import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.EmailVerificationTokenRepositoryCake;
-import com.appsmith.server.repositories.PasswordResetTokenRepository;
+import com.appsmith.server.repositories.PasswordResetTokenRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.EmailService;
@@ -35,7 +35,7 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            PasswordResetTokenRepository passwordResetTokenRepository,
+            PasswordResetTokenRepositoryCake passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
             UserChangedHandler userChangedHandler,

@@ -3,9 +3,10 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomConfigRepository;
-import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 public interface ConfigRepositoryCE extends BaseRepository<Config, String>, CustomConfigRepository {
 
-    Mono<Config> findByName(String name);
+    Optional<Config> findByName(String name);
 }

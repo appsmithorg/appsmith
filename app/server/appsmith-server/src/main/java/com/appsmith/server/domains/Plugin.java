@@ -4,7 +4,8 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
@@ -102,12 +103,14 @@ public class Plugin extends BaseDomain {
     boolean isRemotePlugin = false;
 
     // Stores the equivalent of editor.json for remote plugins
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     Map actionUiConfig;
 
     // Stores the equivalent of form.json for remote plugins
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     Map datasourceUiConfig;
 

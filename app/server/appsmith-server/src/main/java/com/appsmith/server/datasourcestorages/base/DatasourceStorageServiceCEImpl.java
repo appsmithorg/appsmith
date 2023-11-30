@@ -13,7 +13,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.DatasourceStorageRepository;
+import com.appsmith.server.repositories.DatasourceStorageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +30,14 @@ import java.util.Set;
 @Slf4j
 public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceCE {
 
-    protected final DatasourceStorageRepository repository;
+    protected final DatasourceStorageRepositoryCake repository;
     private final DatasourcePermission datasourcePermission;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final AnalyticsService analyticsService;
 
     public DatasourceStorageServiceCEImpl(
-            DatasourceStorageRepository repository,
+            DatasourceStorageRepositoryCake repository,
             DatasourcePermission datasourcePermission,
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
@@ -66,7 +66,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Mono<DatasourceStorage> archive(DatasourceStorage datasourceStorage) {
-        return Mono.justOrEmpty(repository.archive(datasourceStorage));
+        return repository.archive(datasourceStorage);
     }
 
     @Override

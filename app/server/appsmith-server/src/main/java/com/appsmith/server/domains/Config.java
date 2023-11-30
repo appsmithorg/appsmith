@@ -1,7 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,10 +18,9 @@ import org.hibernate.annotations.Type;
 @AllArgsConstructor
 @Entity
 public class Config extends BaseDomain {
-    @Type(JsonType.class)
-    @Column
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     private JSONObject config;
 
-    @Column
     String name;
 }

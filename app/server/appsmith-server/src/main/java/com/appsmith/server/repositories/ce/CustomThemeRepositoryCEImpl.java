@@ -73,7 +73,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                     return updateByCriteria(List.of(criteria, permissionCriteria), update, null);
                 })
                 .map(updateResult -> updateResult.getModifiedCount() > 0)
-            .blockOptional();
+                .blockOptional();
     }
 
     @Override

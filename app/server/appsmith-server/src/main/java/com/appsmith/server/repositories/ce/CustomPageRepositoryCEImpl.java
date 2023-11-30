@@ -7,8 +7,8 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Flux;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,8 +41,8 @@ public class CustomPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Page>
     }
 
     @Override
-    public Flux<Page> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        return Flux.empty(); /*
+    public List<Page> findByApplicationId(String applicationId, AclPermission aclPermission) {
+        return Collections.emptyList(); /*
         Criteria applicationIdCriteria =
                 where("applicationId").is(applicationId);
         return queryAll(List.of(applicationIdCriteria), aclPermission);*/

@@ -1,10 +1,12 @@
 package com.appsmith.external.models;
 
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Setter
@@ -23,6 +25,7 @@ public class Property {
 
     String key;
 
+    @Type(JsonBinaryType.class)
     Object value;
 
     Boolean editable;

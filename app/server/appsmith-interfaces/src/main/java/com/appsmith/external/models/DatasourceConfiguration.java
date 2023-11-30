@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,30 +22,37 @@ import java.util.List;
 @Entity
 public class DatasourceConfiguration extends BaseDomain {
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     Connection connection;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     List<Endpoint> endpoints;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     AuthenticationDTO authentication;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     SSHConnection sshProxy;
 
     Boolean sshProxyEnabled;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     List<Property> properties;
 
     // For REST API.
     String url;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     List<Property> headers;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     List<Property> queryParameters;
 
     public boolean isSshProxyEnabled() {

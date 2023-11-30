@@ -1,18 +1,16 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
-import com.appsmith.external.models.*;
+import com.mongodb.client.result.UpdateResult;
+import com.querydsl.core.types.dsl.StringPath;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.*;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.springframework.data.mongodb.core.query.*;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.InsertManyResult;
-import com.querydsl.core.types.dsl.StringPath;
-import com.mongodb.client.result.UpdateResult;
 
 import java.util.*;
 
@@ -25,60 +23,57 @@ public class UserRepositoryCake {
     public Mono<User> save(User entity) {
         return Mono.justOrEmpty(repository.save(entity));
     }
+
     public Flux<User> saveAll(Iterable<User> entities) {
         return Flux.fromIterable(repository.saveAll(entities));
     }
+
     public Mono<User> findById(String id) {
         return Mono.justOrEmpty(repository.findById(id));
     }
     // End from CrudRepository
 
-    public User setUserPermissionsInObject(User obj) {
-        return repository.setUserPermissionsInObject(obj);
+    public Mono<UpdateResult> updateByIdAndFieldNames(String id, Map<String, Object> fieldNameValueMap) {
+        return Mono.justOrEmpty(repository.updateByIdAndFieldNames(id, fieldNameValueMap));
     }
 
-    public Mono<User> retrieveById(String id) {
-        return Mono.justOrEmpty(repository.retrieveById(id));
+    public Flux<User> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
     }
 
-    public Mono<Boolean> isUsersEmpty() {
-        return Mono.justOrEmpty(repository.isUsersEmpty());
+    public Mono<User> findByEmail(String email, AclPermission aclPermission) {
+        return Mono.justOrEmpty(repository.findByEmail(email, aclPermission));
     }
 
-    public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
-        return Mono.justOrEmpty(repository.findByEmailAndTenantId(email, tenantId));
+    public Flux<User> getAllByEmails(
+            Set<String> emails,
+            Optional<AclPermission> aclPermission,
+            int limit,
+            int skip,
+            StringPath sortKey,
+            Sort.Direction sortDirection) {
+        return Flux.fromIterable(repository.getAllByEmails(emails, aclPermission, limit, skip, sortKey, sortDirection));
     }
 
-    public User updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return repository.updateAndReturn(id, updateObj, permission);
-    }
-
-    public Flux<User> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+    public Flux<User> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
     }
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
-    }
-
-    public Flux<User> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission));
-    }
-
-    public Mono<User> findByIdAndBranchName(String id, String branchName) {
-        return Mono.justOrEmpty(repository.findByIdAndBranchName(id, branchName));
+    public User setUserPermissionsInObject(User obj) {
+        return repository.setUserPermissionsInObject(obj);
     }
 
     public Mono<User> findByCaseInsensitiveEmail(String email) {
         return Mono.justOrEmpty(repository.findByCaseInsensitiveEmail(email));
     }
 
-    public Mono<UpdateResult> updateByIdAndFieldNames(String id, Map<String, Object> fieldNameValueMap) {
-        return Mono.justOrEmpty(repository.updateByIdAndFieldNames(id, fieldNameValueMap));
+    public Mono<User> findByIdAndBranchName(String id, String branchName) {
+        return Mono.justOrEmpty(repository.findByIdAndBranchName(id, branchName));
     }
 
-    public Mono<Long> countByDeletedAtNull() {
-        return Mono.justOrEmpty(repository.countByDeletedAtNull());
+    public Mono<Boolean> isUsersEmpty() {
+        return Mono.justOrEmpty(repository.isUsersEmpty());
     }
 
     public Mono<User> findByIdAndFieldNames(String id, List<String> fieldNames) {
@@ -89,36 +84,47 @@ public class UserRepositoryCake {
         return repository.setUserPermissionsInObject(obj, permissionGroups);
     }
 
-    public Flux<User> findAllByEmails(Set<String> emails) {
-        return Flux.fromIterable(repository.findAllByEmails(emails));
-    }
-
-    public Flux<User> getAllByEmails(Set<String> emails, Optional<AclPermission> aclPermission, int limit, int skip, StringPath sortKey, Sort.Direction sortDirection) {
-        return Flux.fromIterable(repository.getAllByEmails(emails, aclPermission, limit, skip, sortKey, sortDirection));
-    }
-
-    public Mono<User> findByEmail(String email, AclPermission aclPermission) {
-        return Mono.justOrEmpty(repository.findByEmail(email, aclPermission));
-    }
-
-    public Mono<User> archive(User entity) {
-        return Mono.justOrEmpty(repository.archive(entity));
-    }
-
-    public Mono<Boolean> archiveById(String id) {
-        return Mono.justOrEmpty(repository.archiveById(id));
+    public Mono<Long> countByDeletedAtNull() {
+        return Mono.justOrEmpty(repository.countByDeletedAtNull());
     }
 
     public Mono<User> findById(String id, AclPermission permission) {
         return Mono.justOrEmpty(repository.findById(id, permission));
     }
 
+    public Mono<User> retrieveById(String id) {
+        return Mono.justOrEmpty(repository.retrieveById(id));
+    }
+
+    public Mono<User> archive(User entity) {
+        return Mono.justOrEmpty(repository.archive(entity));
+    }
+
     public Mono<User> findByEmail(String email) {
         return Mono.justOrEmpty(repository.findByEmail(email));
     }
 
-    public Flux<User> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
+    public Mono<Boolean> archiveById(String id) {
+        return Mono.justOrEmpty(repository.archiveById(id));
     }
 
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    }
+
+    public User updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return repository.updateAndReturn(id, updateObj, permission);
+    }
+
+    public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
+        return Mono.justOrEmpty(repository.findByEmailAndTenantId(email, tenantId));
+    }
+
+    public Flux<User> findAllByEmails(Set<String> emails) {
+        return Flux.fromIterable(repository.findAllByEmails(emails));
+    }
+
+    public Flux<User> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission));
+    }
 }

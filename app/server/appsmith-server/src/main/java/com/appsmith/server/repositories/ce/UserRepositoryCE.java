@@ -5,7 +5,6 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserRepository;
 
 import java.util.Optional;
-import java.util.List;
 
 public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUserRepository {
 

@@ -6,9 +6,11 @@ import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Setter
@@ -40,6 +42,7 @@ public class NewActionCE extends BranchAwareDomain {
     String providerId; // If action is created via a template, store the template's provider id here.
 
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
     Documentation documentation; // Documentation for the template using which this action was created
 
     // Action specific fields that are allowed to change between published and unpublished versions

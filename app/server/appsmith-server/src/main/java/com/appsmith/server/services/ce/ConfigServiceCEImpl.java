@@ -6,22 +6,21 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ConfigRepository;
+import com.appsmith.server.repositories.ConfigRepositoryCake;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 public class ConfigServiceCEImpl implements ConfigServiceCE {
-    private final ConfigRepository repository;
+    private final ConfigRepositoryCake repository;
 
     // This is permanently cached through the life of the JVM process as this is not intended to change at runtime ever.
     private String instanceId = null;
 
-    public ConfigServiceCEImpl(ConfigRepository repository) {
+    public ConfigServiceCEImpl(ConfigRepositoryCake repository) {
         this.repository = repository;
     }
 
@@ -88,12 +87,12 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
     }
 
     @Override
-    public Optional<Config> getByName(String name, AclPermission permission) {
+    public Mono<Config> getByName(String name, AclPermission permission) {
         return repository.findByName(name, permission);
     }
 
     @Override
-    public Optional<Config> getByNameAsUser(String name, User user, AclPermission permission) {
+    public Mono<Config> getByNameAsUser(String name, User user, AclPermission permission) {
         return repository.findByNameAsUser(name, user, permission);
     }
 }

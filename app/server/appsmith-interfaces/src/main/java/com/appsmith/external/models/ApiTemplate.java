@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
 import lombok.Getter;
@@ -23,7 +24,8 @@ public class ApiTemplate extends BaseDomain {
     String packageName; // Plugin package name used to execute the final action created by this template
     String versionId;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     ApiTemplateConfiguration apiTemplateConfiguration;
 
     @OneToOne

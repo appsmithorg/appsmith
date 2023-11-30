@@ -4,12 +4,14 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.util.Map;
 
@@ -36,12 +38,16 @@ public class Theme extends BaseDomain {
     String workspaceId;
 
     @JsonView(Views.Public.class)
+    @Column(columnDefinition = "jsonb")
     private Object config;
 
     @JsonView(Views.Public.class)
+    @Column(columnDefinition = "jsonb")
     private Object properties;
 
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     private Map<String, Object> stylesheet;
 
     @JsonProperty("isSystemTheme") // manually setting property name to make sure it's compatible with Gson

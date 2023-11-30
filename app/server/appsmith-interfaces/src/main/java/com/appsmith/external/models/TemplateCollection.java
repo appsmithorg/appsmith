@@ -2,7 +2,8 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -72,7 +73,8 @@ public class TemplateCollection implements Persistable<String> {
     String name;
 
     @JsonView(Views.Internal.class)
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     List<String> apiTemplateIds;
 
     @Transient

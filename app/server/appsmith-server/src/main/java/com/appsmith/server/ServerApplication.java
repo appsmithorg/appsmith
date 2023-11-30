@@ -5,6 +5,7 @@ import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -13,6 +14,7 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_NEW_RELIC_ACCO
 
 @SpringBootApplication
 @EnableScheduling
+@EntityScan({"com.appsmith.external.models", "com.appsmith.server.domains", "com.appsmith.server.dtos"})
 public class ServerApplication {
 
     public static void main(String[] args) {

@@ -6,7 +6,7 @@ import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
-import com.vladmihalcea.hibernate.type.json.JsonType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -46,7 +46,7 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     private Workspace workspace;
 
-    @Column(name = "workspace_id")
+    @Column(name = "workspace_id", insertable = false, updatable = false)
     private String workspaceId;
 
     @OneToMany
@@ -97,15 +97,18 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     AppLayout publishedAppLayout;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     private Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     private Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     private GitApplicationMetadata gitApplicationMetadata;
 
@@ -135,7 +138,8 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
-    @Type(JsonType.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     private EmbedSetting embedSetting;
 

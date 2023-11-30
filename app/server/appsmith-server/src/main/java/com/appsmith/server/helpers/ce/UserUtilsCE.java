@@ -6,8 +6,8 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.ConfigRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.ConfigRepositoryCake;
+import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import net.minidev.json.JSONObject;
 import reactor.core.publisher.Mono;
@@ -21,15 +21,15 @@ import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
 
 public class UserUtilsCE {
 
-    private final ConfigRepository configRepository;
+    private final ConfigRepositoryCake configRepository;
 
-    private final PermissionGroupRepository permissionGroupRepository;
+    private final PermissionGroupRepositoryCake permissionGroupRepository;
 
     private final PermissionGroupPermission permissionGroupPermission;
 
     public UserUtilsCE(
-            ConfigRepository configRepository,
-            PermissionGroupRepository permissionGroupRepository,
+            ConfigRepositoryCake configRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             PermissionGroupPermission permissionGroupPermission) {
         this.configRepository = configRepository;
@@ -194,7 +194,7 @@ public class UserUtilsCE {
                 .flatMap(instanceConfig -> {
                     JSONObject config = instanceConfig.getConfig();
                     String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
-                    return Mono.justOrEmpty(permissionGroupRepository.retrieveById(defaultPermissionGroup));
+                    return permissionGroupRepository.retrieveById(defaultPermissionGroup);
                 });
     }
 }

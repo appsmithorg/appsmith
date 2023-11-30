@@ -22,7 +22,7 @@ import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.EmailVerificationTokenRepositoryCake;
-import com.appsmith.server.repositories.PasswordResetTokenRepository;
+import com.appsmith.server.repositories.PasswordResetTokenRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -71,7 +71,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final PasswordResetTokenRepositoryCake passwordResetTokenRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -109,7 +109,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            PasswordResetTokenRepository passwordResetTokenRepository,
+            PasswordResetTokenRepositoryCake passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
             UserChangedHandler userChangedHandler,
