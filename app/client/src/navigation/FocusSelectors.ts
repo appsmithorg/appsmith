@@ -65,9 +65,8 @@ export const getSelectedQueryId = (path: string): QueryListState => {
   ]);
   if (!match) return undefined;
   const { apiId, pluginPackageName, queryId } = match.params;
-  if (!queryId || !apiId) {
-    return undefined;
-  }
+  const id = apiId ? apiId : queryId;
+  if (!id) return undefined;
   let type: PluginType = PluginType.API;
   if (pluginPackageName) {
     type = PluginType.SAAS;
@@ -76,7 +75,7 @@ export const getSelectedQueryId = (path: string): QueryListState => {
   }
   return {
     type,
-    id: apiId || queryId,
+    id,
     pluginPackageName,
   };
 };
