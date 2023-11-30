@@ -6,6 +6,7 @@ import omit from "lodash/omit";
 import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -93,7 +94,10 @@ import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -591,11 +595,20 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const application: ApplicationPayload | undefined = yield select(
+    getApplicationByIdFromWorkspaces,
+    currentApplicationIdForCreateNewApp || "",
+  );
+  const pageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultPageId
+    : yield select(getCurrentPageId);
   const plugin: Plugin | undefined = yield select(
     getPlugin,
     actionPayload.payload.pluginId,
   );
-  const pageId: string = yield select(getCurrentPageId);
   // Only look at API plugins
   if (plugin && plugin.type !== PluginType.API) return;
 
@@ -636,10 +649,6 @@ function* handleDatasourceCreatedSaga(
 
   const { redirect } = actionPayload;
 
-  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
-    getCurrentApplicationIdForCreateNewApp,
-  );
-
   // redirect back to api page
   if (actionRouteInfo && redirect) {
     history.push(
@@ -648,7 +657,11 @@ function* handleDatasourceCreatedSaga(
         apiId: actionRouteInfo.apiId ?? "",
       }),
     );
-  } else if (!currentApplicationIdForCreateNewApp) {
+  } else if (
+    !currentApplicationIdForCreateNewApp ||
+    (!!currentApplicationIdForCreateNewApp &&
+      actionPayload.payload.id !== TEMP_DATASOURCE_ID)
+  ) {
     history.push(
       datasourcesEditorIdURL({
         pageId,

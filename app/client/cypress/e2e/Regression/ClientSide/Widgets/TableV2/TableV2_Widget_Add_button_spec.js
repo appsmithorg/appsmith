@@ -1,10 +1,13 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
 import {
   agHelper,
-  entityExplorer,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -15,7 +18,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("1. Table widget V2 with Add button test and validation", function () {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     // Open column details of "id".
     cy.get(widgetsPage.tableV2Btn).should("not.exist");
     // Changing column data type to "Button"

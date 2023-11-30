@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -44,7 +48,7 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
       cy.runQuery();
 
       //Step8:
-      cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 
@@ -117,7 +121,7 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
 
       cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 

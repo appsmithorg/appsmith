@@ -7,6 +7,8 @@ let branchName = "test/template";
 const jsObject = "Utils";
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "Fork a template to the current app", () => {
   before(() => {
@@ -60,8 +62,8 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     _.gitSync.CreateGitBranch(branchName, true);
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
-      _.entityExplorer.AddNewPage();
-      _.entityExplorer.AddNewPage("Add page from template");
+      PageList.AddNewPage();
+      PageList.AddNewPage("Add page from template");
       cy.get(template.templateDialogBox).should("be.visible");
       cy.xpath("//h1[text()='Marketing Dashboard']").click();
       cy.wait(10000); // for templates page to load fully
@@ -77,7 +79,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       );
       // [Bug]: On forking a template the JS Objects are not cloned #17425
       cy.CheckAndUnfoldEntityItem("Queries/JS");
-      cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
+      PageLeftPane.assertPresence(jsObject);
       _.homePage.NavigateToHome();
       cy.get(homePage.searchInput).clear().type(newWorkspaceName);
       cy.wait(2000);

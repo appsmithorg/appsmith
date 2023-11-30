@@ -848,7 +848,7 @@ public class ActionServiceCE_Test {
             actionUpdate.getActionConfiguration().setBody("New Body");
             return layoutActionService
                     .updateSingleAction(preUpdateAction.getId(), actionUpdate)
-                    .flatMap(updatedAction -> layoutActionService
+                    .flatMap(updatedAction -> updateLayoutService
                             .updatePageLayoutsByPageId(updatedAction.getPageId())
                             .thenReturn(updatedAction));
         });
@@ -1069,7 +1069,7 @@ public class ActionServiceCE_Test {
             actionUpdate.getActionConfiguration().setBody("New Body");
             return layoutActionService
                     .updateSingleAction(preUpdateAction.getId(), actionUpdate)
-                    .flatMap(updatedAction -> layoutActionService
+                    .flatMap(updatedAction -> updateLayoutService
                             .updatePageLayoutsByPageId(updatedAction.getPageId())
                             .thenReturn(updatedAction));
         });
@@ -1105,7 +1105,7 @@ public class ActionServiceCE_Test {
             action.getActionConfiguration().setBody("New Body");
             return layoutActionService
                     .updateSingleAction(preUpdateAction.getId(), action)
-                    .flatMap(updatedAction -> layoutActionService
+                    .flatMap(updatedAction -> updateLayoutService
                             .updatePageLayoutsByPageId(updatedAction.getPageId())
                             .thenReturn(updatedAction));
         });

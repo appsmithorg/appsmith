@@ -162,6 +162,7 @@ import {
   getCurrentEnvironmentName,
 } from "@appsmith/selectors/environmentSelectors";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { getIsActionCreatedInApp } from "@appsmith/utils/getIsActionCreatedInApp";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import {
   endSpan,
@@ -572,7 +573,7 @@ export default function* executePluginActionTriggerSaga(
   });
   const executePluginActionResponse: ExecutePluginActionResponse = yield call(
     executePluginActionSaga,
-    action.id,
+    action,
     pagination,
     params,
     undefined,
@@ -747,11 +748,12 @@ interface RunActionError {
   clientDefinedError?: boolean;
 }
 
-function* runActionSaga(
+export function* runActionSaga(
   reduxAction: ReduxAction<{
     id: string;
-    paginationField: PaginationField;
+    paginationField?: PaginationField;
     skipOpeningDebugger: boolean;
+    action?: Action;
   }>,
 ) {
   const span = startRootSpan("runActionSaga");
@@ -769,10 +771,12 @@ function* runActionSaga(
   const currentEnvDetails: { id: string; name: string } = yield select(
     getCurrentEnvironmentDetails,
   );
-  const actionObject = shouldBeDefined<Action>(
-    yield select(getAction, actionId),
-    `action not found for id - ${actionId}`,
-  );
+  const actionObject =
+    reduxAction.payload.action ||
+    shouldBeDefined<Action>(
+      yield select(getAction, actionId),
+      `action not found for id - ${actionId}`,
+    );
   const plugin: Plugin = yield select(getPlugin, actionObject?.pluginId);
   const datasource: Datasource = yield select(
     getDatasource,
@@ -802,7 +806,7 @@ function* runActionSaga(
     },
   });
 
-  const { id, paginationField } = reduxAction.payload;
+  const { paginationField } = reduxAction.payload;
   // open response tab in debugger on exection of action.
   if (!reduxAction.payload.skipOpeningDebugger) {
     yield call(openDebugger);
@@ -817,7 +821,7 @@ function* runActionSaga(
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
-      id,
+      actionObject,
       paginationField,
       {},
       true,
@@ -1137,7 +1141,7 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
       const executePluginActionResponse: ExecutePluginActionResponse =
         yield call(
           executePluginActionSaga,
-          pageAction,
+          action,
           undefined,
           undefined,
           undefined,
@@ -1320,26 +1324,13 @@ interface ExecutePluginActionResponse {
  * PluginActionExecutionError which needs to be handled by any saga that calls this.
  * */
 function* executePluginActionSaga(
-  actionOrActionId: PageAction | string,
+  pluginAction: Action,
   paginationField?: PaginationField,
   params?: Record<string, unknown>,
   isUserInitiated?: boolean,
   parentSpan?: OtlpSpan,
 ) {
-  let pluginAction;
-  let actionId;
-  if (isString(actionOrActionId)) {
-    // @ts-expect-error: plugin Action can take many types
-    pluginAction = yield select(getAction, actionOrActionId);
-    actionId = actionOrActionId;
-  } else {
-    pluginAction = shouldBeDefined<Action>(
-      yield select(getAction, actionOrActionId.id),
-      `Action not found for id -> ${actionOrActionId.id}`,
-    );
-    actionId = actionOrActionId.id;
-  }
-
+  const actionId = pluginAction.id;
   parentSpan &&
     setAttributesToSpan(parentSpan, {
       actionId,
@@ -1426,6 +1417,7 @@ function* executePluginActionSaga(
       executePluginActionSuccess({
         id: actionId,
         response: payload,
+        isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
       }),
     );
 
@@ -1435,7 +1427,7 @@ function* executePluginActionSaga(
           {
             entityName: pluginAction.name,
             dataPath: "data",
-            data: isError ? undefined : payload.body,
+            data: payload.body,
           },
         ],
         parentSpan,
@@ -1491,6 +1483,7 @@ function* executePluginActionSaga(
       executePluginActionSuccess({
         id: actionId,
         response: EMPTY_RESPONSE,
+        isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
       }),
     );
     yield put(

@@ -7,6 +7,10 @@ import {
   table,
 } from "../../../../../support/Objects/ObjectsCore";
 import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Menu Button widget Tests", function () {
   before(() => {
@@ -27,7 +31,7 @@ describe("Menu Button widget Tests", function () {
     const colorProperties = ["buttoncolor"];
     const styleBorderProperties = ["borderradius", "boxshadow"];
 
-    entityExplorer.SelectEntityByName("MenuButton1", "Widgets");
+    EditorNavigation.SelectEntityByName("MenuButton1", EntityType.Widget);
 
     basicProperties.forEach((basicSectionProperty) => {
       agHelper.AssertElementVisibility(
@@ -94,13 +98,13 @@ describe("Menu Button widget Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.CopyPasteWidget("NewMenuButton");
-    entityExplorer.AssertEntityPresenceInExplorer("NewMenuButtonCopy");
+    PageLeftPane.assertPresence("NewMenuButtonCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewMenuButtonCopy");
 
     // Copy paste from property pane and delete from property pane
     propPane.CopyPasteWidgetFromPropertyPane("NewMenuButton");
     propPane.DeleteWidgetFromPropertyPane("NewMenuButtonCopy");
-    entityExplorer.SelectEntityByName("NewMenuButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMenuButton", EntityType.Widget);
     propPane.MoveToTab("Content");
   });
 
@@ -164,7 +168,7 @@ describe("Menu Button widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMenuButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMenuButton", EntityType.Widget);
     propPane.TogglePropertyState("visible", "On");
 
     // Preview mode
@@ -182,7 +186,7 @@ describe("Menu Button widget Tests", function () {
     deployMode.NavigateBacktoEditor();
 
     // Visible JS mode
-    entityExplorer.SelectEntityByName("NewMenuButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMenuButton", EntityType.Widget);
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "false");
 
@@ -192,13 +196,13 @@ describe("Menu Button widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMenuButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMenuButton", EntityType.Widget);
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "true");
     propPane.ToggleJSMode("Visible", false);
 
     // Disabled
-    entityExplorer.SelectEntityByName("NewMenuButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMenuButton", EntityType.Widget);
     propPane.TogglePropertyState("disabled", "On");
     agHelper.AssertAttribute(
       locators._widgetInDeployed("menubuttonwidget"),
@@ -224,7 +228,7 @@ describe("Menu Button widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewMenuButton", "Widgets");
+    EditorNavigation.SelectEntityByName("NewMenuButton", EntityType.Widget);
     propPane.TogglePropertyState("disabled", "Off");
   });
 

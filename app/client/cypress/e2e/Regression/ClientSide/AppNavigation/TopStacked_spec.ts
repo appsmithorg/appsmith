@@ -6,8 +6,9 @@ import {
   appSettings,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebar,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Test Top + Stacked navigation style", function () {
@@ -127,7 +128,7 @@ describe("Test Top + Stacked navigation style", function () {
     );
     // Changing color style to theme should change navigation's background color
     deployMode.NavigateBacktoEditor();
-    EditorNavigation.ViaSidebar(SidebarButton.Settings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(appSettings.locators._colorStyleOptions._theme, 0, true);
     deployMode.DeployApp();

@@ -122,11 +122,11 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Flux<Executable> allExecutablesByCreatorIdFlux = getAllExecutablesByCreatorIdFlux(creatorId, creatorType);
 
         Mono<Map<String, Executable>> executableNameToExecutableMapMono = allExecutablesByCreatorIdFlux
-                .collectMap(Executable::getValidName, executable -> executable)
+                .collectMap(Executable::getExecutableName, executable -> executable)
                 .cache();
 
         Mono<Set<String>> executablesInCreatorContextMono = allExecutablesByCreatorIdFlux
-                .map(Executable::getValidName)
+                .map(Executable::getExecutableName)
                 .collect(Collectors.toSet())
                 .cache();
 
@@ -289,11 +289,11 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                     // Extract names of existing page load actions and new page load actions for quick lookup.
                     Set<String> existingOnLoadExecutableNames = existingOnLoadExecutables.stream()
-                            .map(Executable::getValidName)
+                            .map(Executable::getExecutableName)
                             .collect(Collectors.toSet());
 
                     Set<String> newOnLoadExecutableNames = onLoadExecutables.stream()
-                            .map(Executable::getValidName)
+                            .map(Executable::getExecutableName)
                             .collect(Collectors.toSet());
 
                     // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
@@ -308,7 +308,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                     for (Executable executable : creatorContextExecutables) {
 
-                        String executableName = executable.getValidName();
+                        String executableName = executable.getExecutableName();
                         // If a user has ever set execute on load, this field can not be changed automatically. It has
                         // to be explicitly changed by the user again. Add the executable to update only if this
                         // condition is false.
@@ -376,7 +376,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             List<Executable> executables, Set<String> updatedExecutableNames) {
 
         return executables.stream()
-                .filter(executable -> updatedExecutableNames.contains(executable.getValidName()))
+                .filter(executable -> updatedExecutableNames.contains(executable.getExecutableName()))
                 .map(Executable::createLayoutExecutableUpdateDTO)
                 .collect(Collectors.toList());
     }
@@ -936,8 +936,12 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 // Add the vertices and edges to the graph for these executables
                 .flatMap(executable -> {
                     EntityDependencyNode entityDependencyNode = new EntityDependencyNode(
-                            executable.getEntityReferenceType(), executable.getValidName(), null, null, executable);
-                    explicitUserSetOnLoadExecutables.add(executable.getValidName());
+                            executable.getEntityReferenceType(),
+                            executable.getExecutableName(),
+                            null,
+                            null,
+                            executable);
+                    explicitUserSetOnLoadExecutables.add(executable.getExecutableName());
                     return extractAndSetExecutableBindingsInGraphEdges(
                                     entityDependencyNode,
                                     edges,

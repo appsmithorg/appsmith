@@ -56,11 +56,6 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
     }
 
     @Override
-    public Mono<Boolean> validateName(String name) {
-        return Mono.just(newActionService.validateActionName(name));
-    }
-
-    @Override
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
         Set<String> updatableCollectionIds = refactoringMetaDTO.getUpdatableCollectionIds();
@@ -133,12 +128,16 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
 
     @Override
     public Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+        return this.getExistingEntities(contextId, contextType, layoutId).map(ActionDTO::getValidName);
+    }
+
+    protected Flux<ActionDTO> getExistingEntities(String contextId, CreatorContextType contextType, String layoutId) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         if (contextId != null) {
             params.add(FieldName.PAGE_ID, contextId);
         }
 
-        return newActionService
+        Flux<ActionDTO> actionDTOFlux = newActionService
                 .getUnpublishedActions(params)
                 .flatMap(actionDTO -> {
                     /*
@@ -158,11 +157,11 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                     } else {
                         return Mono.just(actionDTO);
                     }
-                })
-                .map(ActionDTO::getValidName);
+                });
+        return actionDTOFlux;
     }
 
-    private Mono<Set<String>> refactorNameInAction(
+    protected Mono<Set<String>> refactorNameInAction(
             ActionDTO actionDTO, String oldName, String newName, int evalVersion, Pattern oldNamePattern) {
         // If we're going the fallback route (without AST), we can first filter actions to be refactored
         // By performing a check on whether json path keys had a reference

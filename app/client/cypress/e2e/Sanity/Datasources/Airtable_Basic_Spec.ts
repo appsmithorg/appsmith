@@ -4,13 +4,15 @@ import {
   entityItems,
   dataSources,
   dataManager,
-  assertHelper,
   draggableWidgets,
   propPane,
   deployMode,
   locators,
   table,
 } from "../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
 describe("excludeForAirgap", "Validate Airtable Ds", () => {
@@ -274,7 +276,7 @@ describe("excludeForAirgap", "Validate Airtable Ds", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Api1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
   });
 
   it("3. Create/Retrieve/Update/Delete records", () => {

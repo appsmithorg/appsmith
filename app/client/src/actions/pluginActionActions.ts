@@ -229,11 +229,16 @@ export const executePluginActionRequest = (payload: { id: string }) => ({
   payload: payload,
 });
 
-export const executePluginActionSuccess = (payload: {
+export interface ExecutePluginActionSuccessPayload {
   id: string;
   response: ActionResponse;
   isPageLoad?: boolean;
-}) => ({
+  isActionCreatedInApp: boolean;
+}
+
+export const executePluginActionSuccess = (
+  payload: ExecutePluginActionSuccessPayload,
+) => ({
   type: ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
   payload: payload,
 });

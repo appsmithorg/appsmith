@@ -13,7 +13,7 @@ if [[ "${GITHUB_REF-}" =~ ^refs/tags/v ]]; then
 else
   latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
   echo "latest_released_version = $latest_released_version" >&2
-  next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+  next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $3++; print }')"
   echo "next_version = $next_version" >&2
   version="$next_version-SNAPSHOT"
 fi

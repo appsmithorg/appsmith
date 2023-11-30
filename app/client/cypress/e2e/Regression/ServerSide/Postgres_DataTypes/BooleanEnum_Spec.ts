@@ -1,15 +1,19 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
-  entityItems,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Boolean & Enum Datatype tests", function () {
   let dsName: any, query: string;
@@ -70,11 +74,11 @@ describe("Boolean & Enum Datatype tests", function () {
     query = `drop type weekdays`;
     dataSources.CreateQueryFromOverlay(dsName, query, "dropEnum");
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("2. Inserting record - boolenumtypes", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
@@ -154,7 +158,7 @@ describe("Boolean & Enum Datatype tests", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     query = `SELECT * FROM boolenumtypes WHERE workingday > 'Tuesday';`;
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("verifyEnumOrdering");
     dataSources.EnterQuery(query);
@@ -176,11 +180,10 @@ describe("Boolean & Enum Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("7. Deleting records - boolenumtypes", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
@@ -226,23 +229,22 @@ describe("Boolean & Enum Datatype tests", function () {
       //Drop table:
 
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
-      entityExplorer.SelectEntityByName("dropTable");
+      EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
       dataSources.RunQuery();
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0"); //Success response for dropped table!
       });
-      entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+      PageLeftPane.expandCollapseItem("Queries/JS", false);
 
       //Delete queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
 
       //Delete ds
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );

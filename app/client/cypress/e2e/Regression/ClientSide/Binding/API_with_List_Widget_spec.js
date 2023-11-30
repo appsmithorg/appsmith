@@ -8,6 +8,9 @@ import {
   deployMode,
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Test Create Api and Bind to List widget", function () {
   let valueToTest;
@@ -34,7 +37,7 @@ describe("Test Create Api and Bind to List widget", function () {
   });
 
   it("2. Test_Validate the Api data is updated on List widget", function () {
-    entityExplorer.SelectEntityByName("List1");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
 
     cy.testJsontext("items", "{{Api1.data}}");
     cy.get(".t--draggable-textwidget span").should("have.length", 8);
@@ -75,7 +78,7 @@ describe("Test Create Api and Bind to List widget", function () {
         interception.response.body.data.body[0].name,
       ).replace(/['"]+/g, "");
     });
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     cy.moveToStyleTab();
     cy.testJsontext("itemspacing\\(px\\)", "50");
     cy.get(".t--draggable-textwidget span").should("have.length", 6);

@@ -8,6 +8,10 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe("Camera widget - Image test", () => {
   before(() => {
@@ -23,11 +27,11 @@ describe("Camera widget - Image test", () => {
     agHelper.AssertElementVisibility(widgetLocators.cameraVideo);
 
     // Check camera resource is properly released on navigating away
-    entityExplorer.AddNewPage();
-    entityExplorer.SelectEntityByName("Page2");
+    PageList.AddNewPage();
+    EditorNavigation.SelectEntityByName("Page2", EntityType.Widget);
     agHelper.AssertElementAbsence(widgetLocators.cameraVideo);
 
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Widget);
     agHelper.AssertElementVisibility(widgetLocators.cameraVideo);
   });
 
@@ -39,7 +43,7 @@ describe("Camera widget - Image test", () => {
       locators._widgetInDeployed(draggableWidgets.CAMERA),
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
@@ -51,7 +55,7 @@ describe("Camera widget - Image test", () => {
 
   it("3. Verify Disabled property of image mode in camera widget", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Disabled", "false");
     propPane.EnterJSContext("Disabled", "{{(45>55)?false:true}}", true, true);
     deployMode.DeployApp();
@@ -59,7 +63,7 @@ describe("Camera widget - Image test", () => {
       .GetElement(widgetLocators.cameraWidgetScreen)
       .should("have.attr", "disabled");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     propPane.EnterJSContext("Disabled", "", false);
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
@@ -71,7 +75,7 @@ describe("Camera widget - Image test", () => {
 
   it("4. Verify Mirrored property of image mode in camera widget", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Mirrored", "true");
     propPane.EnterJSContext("Mirrored", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
@@ -83,7 +87,7 @@ describe("Camera widget - Image test", () => {
         customDiffConfig: { threshold: 0.15 },
       });
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     propPane.EnterJSContext("Mirrored", "", false);
     propPane.ToggleJSMode("Mirrored", false);
     propPane.TogglePropertyState("Mirrored", "On");
@@ -148,7 +152,7 @@ describe("Camera widget - Image test", () => {
 
   it("7. Capture multiple images & check it does not overwrite previous captures", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Camera1");
+    EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
     propPane.SelectPlatformFunction("onImageCapture", "Download");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Data to download"),
@@ -171,7 +175,7 @@ describe("Camera widget - Image test", () => {
       "b)Should be able to change the default mobile camera option & Camera settings persist after switching cameras.",
     () => {
       deployMode.NavigateBacktoEditor();
-      entityExplorer.SelectEntityByName("Camera1");
+      EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
       propPane.TogglePropertyState("Mirrored", "Off");
       propPane.TogglePropertyState("Visible", "Off");
       agHelper.AssertElementExist(

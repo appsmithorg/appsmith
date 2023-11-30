@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
@@ -6,7 +10,6 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -17,8 +20,9 @@ describe("Button Widget Functionality", function () {
   });
 
   beforeEach(() => {
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.SelectEntityByName("Button1", "Container3");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
   });
 
   it("1. Button-Modal Validation", function () {
@@ -46,8 +50,9 @@ describe("Button Widget Functionality", function () {
     );
     cy.SaveAndRunAPI();
 
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.SelectEntityByName("Button1", "Container3");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
 
     // Adding the api in the onClickAction of the button widget.
     cy.executeDbQuery("buttonApi", "onClick");
@@ -69,8 +74,9 @@ describe("Button Widget Functionality", function () {
     // Creating a mock query
     dataSources.CreateDataSource("Postgres");
     dataSources.CreateQueryAfterDSSaved();
-    entityExplorer.ExpandCollapseEntity("Container3");
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
 
     // Delete the buttonApi action
     agHelper.GetNClick(propPane._actionCardByTitle("Execute a query"));
