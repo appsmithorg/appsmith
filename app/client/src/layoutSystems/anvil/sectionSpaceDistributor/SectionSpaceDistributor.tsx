@@ -35,6 +35,7 @@ const SectionSpaceDistributorHandles = (
         );
         const zonePosition = layoutElementPositions[each.widgetId];
         if (zoneDom && zonePosition) {
+          // zoneDom.style.flexGrow = `${12 / zones.length}`;
           zoneDom.style.flex = `1 1 ${100 / zones.length}%`;
         }
       });
@@ -47,12 +48,14 @@ const SectionSpaceDistributorHandles = (
     parentZones: string[];
   }[] = [];
   let previousZonePosition: LayoutElementPosition;
+  let spaceToWorkWith = 0;
   zones.forEach((each, index) => {
+    const widgetPosition = layoutElementPositions[each.widgetId];
+    spaceToWorkWith = spaceToWorkWith + widgetPosition.width;
     if (index === 0) {
-      previousZonePosition = layoutElementPositions[each.widgetId];
+      previousZonePosition = widgetPosition;
       return;
     }
-    const widgetPosition = layoutElementPositions[each.widgetId];
     if (widgetPosition && previousZonePosition) {
       const spaceBetweenZones =
         widgetPosition.offsetLeft -
@@ -76,6 +79,7 @@ const SectionSpaceDistributorHandles = (
             left={each.position.left}
             parentZones={each.parentZones}
             sectionId={props.sectionId}
+            spaceToWorkWith={spaceToWorkWith}
             layoutElementPositions={layoutElementPositions}
             zoneCount={zones.length}
           />

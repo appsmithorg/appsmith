@@ -73,7 +73,10 @@ function* readAndUpdateLayoutElementPositions() {
   const isCanvasResizing: boolean = yield select(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
-  if (isCanvasResizing) {
+  const isDistributingSpace: boolean = yield select(
+    (state: AppState) => state.ui.widgetDragResize.isDistributingSpace,
+  );
+  if (isCanvasResizing || isDistributingSpace) {
     return;
   }
 

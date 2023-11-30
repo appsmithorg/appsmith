@@ -1,5 +1,5 @@
 export const SpaceDistributorHandleDimensions = {
-  width: 5,
+  width: 4,
   height: 80,
   border: 1,
 };
