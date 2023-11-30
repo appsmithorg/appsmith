@@ -9,7 +9,7 @@
   justify-content: space-between;
   padding-left: 1rem;
   padding-right: 0.5rem;
-  flex-basis: 250px;
+  flex-basis: 300px;
   flex-grow: 0;
   border-left: 1px solid #cdd5df;
   height: 48px;
@@ -22,7 +22,7 @@
   justify-content: space-between;
   padding-left: 0.5rem;
   padding-right: 1rem;
-  flex-basis: calc(100% - 250px);
+  flex-basis: calc(100% - 300px);
   flex-grow: 0;
   gap: 1rem;
 }

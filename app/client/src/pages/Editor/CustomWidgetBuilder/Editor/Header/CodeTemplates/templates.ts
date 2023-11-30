@@ -13,18 +13,11 @@ export default [
       html: `<div id="root"></div>`,
       css: `#root {
   font-family: monospace;
-  animation: color-change 1s infinite;
   width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-@keyframes color-change {
-  0% { color: red; }
-  50% { color: blue; }
-  100% { color: red; }
 }`,
       js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm'
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm'
@@ -56,18 +49,11 @@ appsmith.onReady(() => {
 </script>`,
       css: `#hello-world-app {
   font-family: monospace;
-  animation: color-change 1s infinite;
   width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-@keyframes color-change {
-  0% { color: red; }
-  50% { color: blue; }
-  100% { color: red; }
 }`,
       js: `new Vue({
   el: "#hello-world-app",

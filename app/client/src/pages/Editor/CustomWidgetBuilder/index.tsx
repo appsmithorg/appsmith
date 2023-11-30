@@ -6,6 +6,7 @@ import Editor from "./Editor";
 import { CUSTOM_WIDGET_BUILDER_EVENTS } from "./contants";
 import { Spinner } from "design-system";
 import history from "utils/history";
+import useLocalStorageState from "utils/hooks/useLocalStorageState";
 
 interface CustomWidgetBuilderContextValueType {
   name: string;
@@ -43,14 +44,28 @@ export const CustomWidgetBuilderContext = React.createContext<
 
 let connectionTimeout: number;
 
+const LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN =
+  "custom-widget-builder-context-state-is-reference-open";
+
+const LOCAL_STORAGE_KEYS_SELECTED_LAYOUT =
+  "custom-widget-builder-context-state-selected-layout";
+
 export default function CustomWidgetBuilder() {
   const [loading, setLoading] = useState(true);
+
+  const [isReferenceOpen, setIsReferenceOpen] = useLocalStorageState<boolean>(
+    LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN,
+    true,
+  );
+
+  const [selectedLayout, setSelectedLayout] = useLocalStorageState<string>(
+    LOCAL_STORAGE_KEYS_SELECTED_LAYOUT,
+    "tabs",
+  );
 
   const [contextValue, setContextValue] =
     useState<CustomWidgetBuilderContextValueType>({
       name: "",
-      isReferenceOpen: true,
-      selectedLayout: "tabs",
       srcDoc: {
         html: "<div>Hello World</div>",
         js: "function () {console.log('Hello World');}",
@@ -59,6 +74,8 @@ export default function CustomWidgetBuilder() {
       model: {},
       events: {},
       key: Math.random(),
+      isReferenceOpen,
+      selectedLayout,
     });
 
   useEffect(() => {
@@ -85,20 +102,10 @@ export default function CustomWidgetBuilder() {
   const contextFunctions: CustomWidgetBuilderContextFunctionType = useMemo(
     () => ({
       toggleReference: () => {
-        setContextValue((prev) => {
-          return {
-            ...prev,
-            isReferenceOpen: !prev.isReferenceOpen,
-          };
-        });
+        setIsReferenceOpen(!isReferenceOpen);
       },
       selectLayout: (layout) => {
-        setContextValue((prev) => {
-          return {
-            ...prev,
-            selectedLayout: layout,
-          };
-        });
+        setSelectedLayout(layout);
       },
       save: () => {
         setContextValue((prev) => {
@@ -145,15 +152,23 @@ export default function CustomWidgetBuilder() {
         });
       },
     }),
-    [contextValue.srcDoc],
+    [
+      contextValue.srcDoc,
+      setIsReferenceOpen,
+      isReferenceOpen,
+      setSelectedLayout,
+      selectedLayout,
+    ],
   );
 
   const context = useMemo(
     () => ({
       ...contextValue,
+      isReferenceOpen,
+      selectedLayout,
       ...contextFunctions,
     }),
-    [contextValue, contextFunctions],
+    [contextValue, contextFunctions, isReferenceOpen, selectedLayout],
   );
 
   useEffect(replay, [contextValue.srcDoc]);

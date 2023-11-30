@@ -19,13 +19,22 @@ export function CodeTemplates() {
     <div className={styles.templateMenu}>
       <Menu>
         <MenuTrigger>
-          <Button isIconButton kind="tertiary" size="md" startIcon="wand" />
+          <Button
+            kind="secondary"
+            size="sm"
+            startIcon="code"
+            style={{
+              height: "32px",
+            }}
+          >
+            Templates
+          </Button>
         </MenuTrigger>
         <MenuContent>
           {initialSrcDoc && lastSaved && (
             <>
               <MenuItem onClick={() => bulkUpdate?.(initialSrcDoc)}>
-                Reset to initial version
+                Revert to Original
               </MenuItem>
               <MenuSeparator />
             </>

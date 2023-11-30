@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./styles.module.css";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import type { ContentProps } from "../../CodeEditors/types";
+import useLocalStorageState from "utils/hooks/useLocalStorageState";
 
 interface Props {
   tabs: Array<{
@@ -10,10 +11,15 @@ interface Props {
   }>;
 }
 
+const LOCAL_STORAGE_KEYS = "custom-widget-layout-tabs-state";
+
 export default function TabLayout(props: Props) {
   const { tabs } = props;
 
-  const [selectedTab, setSelectedTab] = React.useState(tabs[0].title);
+  const [selectedTab, setSelectedTab] = useLocalStorageState<string>(
+    LOCAL_STORAGE_KEYS,
+    tabs[0].title,
+  );
 
   const containerRef = useRef<HTMLDivElement>(null);
 

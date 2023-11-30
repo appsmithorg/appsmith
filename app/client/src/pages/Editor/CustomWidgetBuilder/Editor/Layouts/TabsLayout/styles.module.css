@@ -1,4 +1,5 @@
 .wrapper {
+  border-top: 1px solid #cdd5df;
 }
 
 .tabPanel.tabPanel {
