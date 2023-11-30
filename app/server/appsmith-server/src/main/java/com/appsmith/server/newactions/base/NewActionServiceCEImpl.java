@@ -286,7 +286,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         this.validateCreatorId(action);
 
-        if (!entityValidationService.validateName(action.getName())) {
+        if (!isValidActionName(action)) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
         }
@@ -413,6 +413,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(repository::setUserPermissionsInObject)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
+    }
+
+    protected boolean isValidActionName(ActionDTO action) {
+        return entityValidationService.validateName(action.getName());
     }
 
     protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
