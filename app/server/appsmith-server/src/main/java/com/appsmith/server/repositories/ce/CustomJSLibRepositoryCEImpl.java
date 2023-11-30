@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.QCustomJSLib;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -26,18 +25,17 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
     }
 
     @Override
-    public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
-        Criteria criteria = where(fieldName(QCustomJSLib.customJSLib.uidString)).is(customJSLib.getUidString());
+    public Optional<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
+        Criteria criteria = where("uidString").is(customJSLib.getUidString());
 
         return this.queryOne(List.of(criteria));
     }
 
     @Override
-    public Flux<CustomJSLib> findCustomJsLibsInContext(
+    public List<CustomJSLib> findCustomJsLibsInContext(
             Set<String> uidStrings, String contextId, CreatorContextType contextType) {
 
-        Criteria criteria =
-                Criteria.where(fieldName(QCustomJSLib.customJSLib.uidString)).in(uidStrings);
+        Criteria criteria = Criteria.where("uidString").in(uidStrings);
 
         return this.queryAll(List.of(criteria), Optional.empty());
     }

@@ -33,15 +33,11 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
     private final Map<String, User> tenantAnonymousUserMap = new HashMap<>();
 
-    protected final TenantRepository tenantRepository;
-
     public CacheableRepositoryHelperCEImpl(
             ReactiveMongoOperations mongoOperations,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
-            TenantRepository tenantRepository) {
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
         this.mongoOperations = mongoOperations;
         this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
-        this.tenantRepository = tenantRepository;
     }
 
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
@@ -175,17 +171,22 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     }
 
     @Override
-    public Mono<Long> getDefaultTenantId() {
-        Long defaultTenantId = inMemoryCacheableRepositoryHelper.getDefaultTenantId();
-        if (defaultTenantId != null) {
+    public Mono<String> getDefaultTenantId() {
+        String defaultTenantId = inMemoryCacheableRepositoryHelper.getDefaultTenantId();
+        if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
             return Mono.just(defaultTenantId);
         }
 
-        final Tenant defaultTenant = tenantRepository.findBySlug(FieldName.DEFAULT);
+        Criteria defaultTenantCriteria =
+            Criteria.where("slug").is(FieldName.DEFAULT);
+        Query query = new Query();
+        query.addCriteria(defaultTenantCriteria);
 
-        defaultTenantId = Long.valueOf(defaultTenant.getId());
-        inMemoryCacheableRepositoryHelper.setDefaultTenantId(defaultTenantId);
-        return Mono.just(defaultTenantId);
+        return mongoOperations.findOne(query, Tenant.class).map(defaultTenant -> {
+            String newDefaultTenantId = defaultTenant.getId();
+            inMemoryCacheableRepositoryHelper.setDefaultTenantId(newDefaultTenantId);
+            return newDefaultTenantId;
+        });
     }
 
     @Override

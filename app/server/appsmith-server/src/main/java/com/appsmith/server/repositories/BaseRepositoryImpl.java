@@ -156,29 +156,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         return this.findById(id);
     }
 
-    /**
-     * This method is supposed to update the given list of field names with the associated values in an object as opposed to replacing the entire object.
-     */
-    @Override
-    public Optional<UpdateResult> updateByIdAndFieldNames(
-            @NotNull ID id, @NotNull Map<String, Object> fieldNameValueMap) {
-        return Optional.empty(); /*
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
-
-                    Update update = new Update();
-                    fieldNameValueMap.forEach((fieldName, fieldValue) -> {
-                        update.set(fieldName, fieldValue);
-                    });
-
-                    return entityManager.updateFirst(query, update, entityInformation.getJavaType());
-                });*/
-    }
-
     @Override
     public List<T> findAll() {
         return Collections.emptyList(); /*

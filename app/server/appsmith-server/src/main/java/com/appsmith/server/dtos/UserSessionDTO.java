@@ -128,7 +128,7 @@ public class UserSessionDTO {
         user.setIsEnabled(isEnabled);
         user.setCurrentWorkspaceId(currentWorkspaceId);
         // user.setWorkspaceIds(workspaceIds);
-        user.setTenantId(Long.valueOf(tenantId));
+        user.setTenantId(tenantId);
         user.setEmailVerified(Boolean.TRUE.equals(emailVerified));
         user.setEmailVerificationRequired(Boolean.TRUE.equals(emailVerificationRequired));
 

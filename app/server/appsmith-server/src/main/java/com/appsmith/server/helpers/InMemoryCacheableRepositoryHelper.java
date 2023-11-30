@@ -12,7 +12,7 @@ import java.util.Set;
 public class InMemoryCacheableRepositoryHelper {
     private Set<String> anonymousUserPermissionGroupIds = null;
 
-    private Long defaultTenantId = null;
+    private String defaultTenantId = null;
 
     private String instanceAdminPermissionGroupId = null;
 }

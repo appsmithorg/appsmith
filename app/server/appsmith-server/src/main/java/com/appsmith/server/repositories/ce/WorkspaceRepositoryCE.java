@@ -5,6 +5,7 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomWorkspaceRepository;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>, CustomWorkspaceRepository {
 

@@ -6,6 +6,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.AppsmithRepository;
 
 import java.util.Optional;
+import java.util.List;
 
 public interface CustomConfigRepositoryCE extends AppsmithRepository<Config> {
     Optional<Config> findByName(String name, AclPermission permission);

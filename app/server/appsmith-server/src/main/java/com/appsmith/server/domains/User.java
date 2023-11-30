@@ -102,7 +102,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     @Column(name = "tenant_id", insertable = false, updatable = false)
     @JsonView(Views.Public.class)
-    private Long tenantId;
+    private String tenantId;
 
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override

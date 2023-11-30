@@ -19,7 +19,7 @@ public interface CacheableRepositoryHelperCE {
 
     Mono<User> getAnonymousUser();
 
-    Mono<Long> getDefaultTenantId();
+    Mono<String> getDefaultTenantId();
 
     Mono<String> getInstanceAdminPermissionGroupId();
 }

@@ -11,8 +11,7 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
 
     public CacheableRepositoryHelperImpl(
             ReactiveMongoOperations mongoOperations,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
-            TenantRepository tenantRepository) {
-        super(mongoOperations, inMemoryCacheableRepositoryHelper, tenantRepository);
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
+        super(mongoOperations, inMemoryCacheableRepositoryHelper);
     }
 }

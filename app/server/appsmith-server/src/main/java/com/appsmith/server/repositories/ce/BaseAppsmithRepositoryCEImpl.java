@@ -662,8 +662,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     Db query methods
      */
 
-    public Mono<T> queryOne(List<Criteria> criteria) {
-        return mongoOperations.findOne(getQuery(criteria), genericDomain);
+    public Optional<T> queryOne(List<Criteria> criteria) {
+        return mongoOperations.findOne(getQuery(criteria), genericDomain).blockOptional();
     }
 
     public Flux<T> queryMany(List<Criteria> criteria) {
