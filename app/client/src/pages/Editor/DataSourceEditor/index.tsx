@@ -907,7 +907,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isDeleting,
       isInsideReconnectModal,
       isNewDatasource,
-      isOnboardingFlow: isOnboradingFlow,
+      isOnboardingFlow,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -961,7 +961,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        {isAppSidebarEnabled || !!isOnboradingFlow ? null : <CloseEditor />}
+        {isAppSidebarEnabled || !!isOnboardingFlow ? null : <CloseEditor />}
         {!isInsideReconnectModal && (
           <DSFormHeader
             canCreateDatasourceActions={canCreateDatasourceActions}
@@ -1016,7 +1016,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                         isFormDirty={this.props.isFormDirty}
                         isInsideReconnectModal={isInsideReconnectModal}
                         isInvalid={this.validateForm()}
-                        isOnboardingFlow={isOnboradingFlow}
+                        isOnboardingFlow={isOnboardingFlow}
                         isSaving={isSaving}
                         isTesting={isTesting}
                         onCancel={() => this.onCancel()}
@@ -1196,7 +1196,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     initialValue,
     showDebugger,
     isAppSidebarEnabled,
-    isOnboardingFlow: props.isOnboardingFlow,
   };
 };
 

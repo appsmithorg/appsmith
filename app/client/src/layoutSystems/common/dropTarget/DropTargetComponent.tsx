@@ -50,7 +50,7 @@ import StarterBuildingBlocks from "./starterBuildingBlocks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import useCurrentAppState from "pages/Editor/IDE/hooks";
-import { AppState as IDEAppState } from "entities/IDE/constants";
+import { EditorState as IDEAppState } from "entities/IDE/constants";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
