@@ -4,7 +4,6 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getWidgets } from "sagas/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateAndSaveLayout } from "actions/pageActions";
-import { SectionColumns } from "layoutSystems/anvil/utils/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 function* reDistributeZoneSpaces(
@@ -23,18 +22,6 @@ function* reDistributeZoneSpaces(
     updatedWidgets[allocatedZoneIds[0]].parentId || MAIN_CONTAINER_WIDGET_ID;
   const sectionParent = updatedWidgets[sectionWidgetId];
   const allZoneIds = sectionParent.children || [];
-  const unAllocatedZoneIds = allZoneIds.filter(
-    (eachZoneId) => !zonesDistributed[eachZoneId],
-  );
-  const spacesAllocatedRightNow = Object.values(zonesDistributed).reduce(
-    (acc, curr) => acc + curr,
-    0,
-  );
-  const remainingSpaces = SectionColumns - spacesAllocatedRightNow;
-  const remainingSpacesEqualDistribution =
-    unAllocatedZoneIds.length > 0
-      ? remainingSpaces / unAllocatedZoneIds.length
-      : 0;
   updatedWidgets = {
     ...updatedWidgets,
     [sectionWidgetId]: {
@@ -50,11 +37,6 @@ function* reDistributeZoneSpaces(
         zoneWidget = {
           ...zoneWidget,
           flexGrow: spaces,
-        };
-      } else {
-        zoneWidget = {
-          ...zoneWidget,
-          flexGrow: remainingSpacesEqualDistribution,
         };
       }
     }

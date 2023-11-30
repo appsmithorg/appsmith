@@ -23,8 +23,9 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   width: ${SpaceDistributorHandleDimensions.width}px;
   height: ${SpaceDistributorHandleDimensions.height}%;
   border-radius: ${SpaceDistributorHandleDimensions.height * 0.5}px;
+  padding: 0px ${SpaceDistributorHandleDimensions.padding}px;
+  border: ${SpaceDistributorHandleDimensions.border}px solid;
   border-color: white;
-  border: ${SpaceDistributorHandleDimensions.border}px;
   background: #f86a2b;
   opacity: 0%;
   z-index: 1000;
@@ -60,11 +61,14 @@ export const SpaceDistributionHandle = ({
   // const sectionPositions = layoutElementPositions[sectionLayoutId];
   const columnWidth = spaceToWorkWith / 12;
   const minWidthOfAZone = 2 * columnWidth;
-  const minLeft = leftZonePosition.offsetLeft + minWidthOfAZone;
+  const minLeft = leftZonePosition.offsetLeft + minWidthOfAZone + 1;
   // const leftZoneColumns = leftZonePosition.width / columnWidth;
   // const rightZoneColumns = rightZonePosition.width / columnWidth;
   const maxLeft =
-    rightZonePosition.offsetLeft + rightZonePosition.width - minWidthOfAZone;
+    rightZonePosition.offsetLeft +
+    rightZonePosition.width -
+    minWidthOfAZone +
+    1;
   useEffect(() => {
     if (ref.current) {
       if (isDistributingSpace) {
@@ -97,11 +101,6 @@ export const SpaceDistributionHandle = ({
           const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
           if (zoneDom) {
             zoneDom.style.flexGrow = flexGrow.toString();
-            // const flexRatio = flexGrow / SectionColumns;
-            // const flexBasis = flexRatio * 100;
-            // zoneDom.style.flex = `1 1 calc(${flexBasis}% - ${
-            //   spaceOffset * flexRatio
-            // }px)`;
           }
         });
         document.addEventListener("mouseup", onMouseUp);
@@ -120,15 +119,6 @@ export const SpaceDistributionHandle = ({
             setTimeout(() => {
               zoneDom.style.transition = "";
             }, 500);
-            // if ([leftZone, rightZone].includes(zoneId)) {
-            //   zoneDom.style.flexGrow = `${
-            //     zoneId === leftZone
-            //       ? currentGrowthFactor.leftZone
-            //       : currentGrowthFactor.rightZone
-            //   }`;
-            // } else {
-            //   zoneDom.style.flexGrow = "";
-            // }
           }
         });
         document.removeEventListener("mouseup", onMouseUp);
@@ -166,52 +156,76 @@ export const SpaceDistributionHandle = ({
       const onMouseMove = (e: MouseEvent) => {
         if (ref.current && isCurrentHandleDistributingSpace.current) {
           const dx = e.clientX - x;
-          const recomputeLeftStyle = leftPositionOfHandle + dx;
-          if (minLeft <= recomputeLeftStyle && maxLeft >= recomputeLeftStyle) {
-            const leftZoneDom = document.getElementById(
-              getAnvilWidgetDOMId(leftZone),
-            );
-            const rightZoneDom = document.getElementById(
-              getAnvilWidgetDOMId(rightZone),
-            );
-            const columnChange = dx / columnWidth;
-            if (leftZoneDom && rightZoneDom) {
-              // leftZoneDom.style.flexGrow = `${leftZoneColumns + columnChange}`;
-              // rightZoneDom.style.flexGrow = `${
-              //   rightZoneColumns - columnChange
-              // }`;
-              // const spaceBetweenZones =
-              //   rightZoneDom.offsetLeft -
-              //   (leftZoneDom.offsetLeft + leftZoneDom.clientWidth);
-
-              // leftZoneDom.style.flexBasis = `calc(${
-              //   (currentFlexBasis.leftZone * 100) / SectionColumns
-              // }% + ${columnChange * columnWidth}px)`;
-              // rightZoneDom.style.flexBasis = `calc(${
-              //   (currentFlexBasis.rightZone * 100) / SectionColumns
-              // }% - ${columnChange * columnWidth}px)`;
-              // lastValidHandlePosition = recomputeLeftStyle;
-              // ref.current.style.left = recomputeLeftStyle + "px";
-              leftZoneDom.style.flexGrow = (
-                currentFlexGrow.leftZone + columnChange
+          const leftZoneDom = document.getElementById(
+            getAnvilWidgetDOMId(leftZone),
+          );
+          const rightZoneDom = document.getElementById(
+            getAnvilWidgetDOMId(rightZone),
+          );
+          const columnChange = dx / columnWidth;
+          const leftZoneComputedColumns =
+            currentFlexGrow.leftZone + columnChange;
+          const rightZoneComputedColumns =
+            currentFlexGrow.rightZone - columnChange;
+          const leftZoneComputedColumnsRoundOff = Math.round(
+            leftZoneComputedColumns,
+          );
+          const rightZoneComputedColumnsRoundOff = Math.round(
+            rightZoneComputedColumns,
+          );
+          if (leftZoneDom && rightZoneDom) {
+            if (leftZoneComputedColumns >= 2 && rightZoneComputedColumns >= 2) {
+              leftZoneDom.style.flexGrow = Math.max(
+                leftZoneComputedColumns,
+                2,
               ).toString();
-              rightZoneDom.style.flexGrow = (
-                currentFlexGrow.rightZone - columnChange
+              rightZoneDom.style.flexGrow = Math.max(
+                rightZoneComputedColumns,
               ).toString();
               const updatedLeft =
                 rightZoneDom.offsetLeft -
                 spaceBetweenZones * 0.5 -
-                SpaceDistributorHandleDimensions.width * 0.5 -
-                SpaceDistributorHandleDimensions.border;
+                SpaceDistributorHandleDimensions.width * 0.5;
               lastValidHandlePosition = updatedLeft;
               ref.current.style.left = updatedLeft + "px";
-              currentGrowthFactor.leftZone =
-                currentFlexGrow.leftZone + Math.round(columnChange);
-              currentGrowthFactor.rightZone =
-                currentFlexGrow.rightZone - Math.round(columnChange);
+              currentGrowthFactor.leftZone = leftZoneComputedColumnsRoundOff;
+              currentGrowthFactor.rightZone = rightZoneComputedColumnsRoundOff;
+            } else {
+              if (leftZoneComputedColumns < 2) {
+                leftZoneDom.style.flexGrow = "2";
+                rightZoneDom.style.flexGrow = (
+                  currentFlexGrow.rightZone +
+                  currentFlexGrow.leftZone -
+                  2
+                ).toString();
+                const updatedLeft =
+                  rightZoneDom.offsetLeft -
+                  spaceBetweenZones * 0.5 -
+                  SpaceDistributorHandleDimensions.width * 0.5;
+                lastValidHandlePosition = updatedLeft;
+                ref.current.style.left = updatedLeft + "px";
+                currentGrowthFactor.leftZone = 2;
+                currentGrowthFactor.rightZone =
+                  currentFlexGrow.rightZone + currentFlexGrow.leftZone - 2;
+              } else if (rightZoneComputedColumns < 2) {
+                rightZoneDom.style.flexGrow = "2";
+                leftZoneDom.style.flexGrow = (
+                  currentFlexGrow.rightZone +
+                  currentFlexGrow.leftZone -
+                  2
+                ).toString();
+                const updatedLeft =
+                  rightZoneDom.offsetLeft -
+                  spaceBetweenZones * 0.5 -
+                  SpaceDistributorHandleDimensions.width * 0.5;
+                lastValidHandlePosition = updatedLeft;
+                ref.current.style.left = updatedLeft + "px";
+                currentGrowthFactor.leftZone =
+                  currentFlexGrow.rightZone + currentFlexGrow.leftZone - 2;
+                currentGrowthFactor.rightZone = 2;
+              }
+              ref.current.style.left = lastValidHandlePosition + "px";
             }
-          } else {
-            ref.current.style.left = lastValidHandlePosition + "px";
           }
         }
       };
