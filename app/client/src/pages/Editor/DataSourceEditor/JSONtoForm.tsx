@@ -40,6 +40,7 @@ export interface JSONtoFormProps {
   featureFlags?: FeatureFlags;
   setupConfig: (config: ControlProps) => void;
   currentEnvironment: string;
+  isOnboardingFlow?: boolean;
 }
 
 export class JSONtoForm<
@@ -55,7 +56,9 @@ export class JSONtoForm<
     return (
       // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
-        {isSidebarEnabled ? null : <CloseEditor />}
+        {isSidebarEnabled || !!this.props.isOnboardingFlow ? null : (
+          <CloseEditor />
+        )}
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>

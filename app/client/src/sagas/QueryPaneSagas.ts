@@ -377,16 +377,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
-  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
-    getCurrentApplicationIdForCreateNewApp,
-  );
-  const application: ApplicationPayload | undefined = yield select(
-    getApplicationByIdFromWorkspaces,
-    currentApplicationIdForCreateNewApp || "",
-  );
-  const pageId: string = !!currentApplicationIdForCreateNewApp
-    ? application?.defaultPageId
-    : yield select(getCurrentPageId);
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
   // Only look at db plugins
@@ -397,6 +387,17 @@ function* handleDatasourceCreatedSaga(
     plugin.type !== PluginType.AI
   )
     return;
+
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const application: ApplicationPayload | undefined = yield select(
+    getApplicationByIdFromWorkspaces,
+    currentApplicationIdForCreateNewApp || "",
+  );
+  const pageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultPageId
+    : yield select(getCurrentPageId);
 
   yield put(initialize(DATASOURCE_DB_FORM, omit(payload, "name")));
 
