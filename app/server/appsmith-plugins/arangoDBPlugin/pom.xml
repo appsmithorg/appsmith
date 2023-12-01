@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.arangodb</groupId>
             <artifactId>arangodb-java-driver</artifactId>
-            <version>6.12.3</version>
+            <version>6.25.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
