@@ -73,7 +73,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     }
 
     @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+    public Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
