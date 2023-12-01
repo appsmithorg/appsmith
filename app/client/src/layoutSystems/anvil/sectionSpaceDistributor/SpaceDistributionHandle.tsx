@@ -6,8 +6,10 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { AnvilReduxActionTypes } from "../integrations/actions/actionTypes";
 import { SpaceDistributorHandleDimensions } from "./constants";
+import { SectionColumns } from "../utils/constants";
 
 interface SpaceDistributionNodeProps {
+  columnPosition: number;
   index: number;
   left: number;
   parentZones: string[];
@@ -39,6 +41,7 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
 `;
 
 export const SpaceDistributionHandle = ({
+  columnPosition,
   layoutElementPositions,
   left,
   parentZones,
@@ -58,12 +61,9 @@ export const SpaceDistributionHandle = ({
   const [leftZone, rightZone] = parentZones;
   const leftZonePosition = layoutElementPositions[leftZone];
   const rightZonePosition = layoutElementPositions[rightZone];
-  // const sectionPositions = layoutElementPositions[sectionLayoutId];
   const columnWidth = spaceToWorkWith / 12;
   const minWidthOfAZone = 2 * columnWidth;
   const minLeft = leftZonePosition.offsetLeft + minWidthOfAZone + 1;
-  // const leftZoneColumns = leftZonePosition.width / columnWidth;
-  // const rightZoneColumns = rightZonePosition.width / columnWidth;
   const maxLeft =
     rightZonePosition.offsetLeft +
     rightZonePosition.width -
@@ -93,8 +93,10 @@ export const SpaceDistributionHandle = ({
         leftZone: currentFlexGrow.leftZone,
         rightZone: currentFlexGrow.rightZone,
       };
+      let columnIndicatorDiv: HTMLDivElement | null = null;
+      const sectionLayoutDom = ref.current.parentElement;
       const addMouseMoveHandlers = () => {
-        if (ref.current) {
+        if (ref.current && sectionLayoutDom) {
           ref.current.classList.add("active");
         }
         Object.entries(spaceDistributed).forEach(([zoneId, flexGrow]) => {
@@ -107,14 +109,19 @@ export const SpaceDistributionHandle = ({
         document.addEventListener("mousemove", onMouseMove);
       };
       const removeMouseMoveHandlers = () => {
-        if (ref.current) {
+        if (ref.current && sectionLayoutDom) {
           ref.current.classList.remove("active");
           ref.current.style.left = "";
+          setTimeout(() => {
+            // sectionLayoutDom.style.backgroundImage = "";
+          }, 500);
         }
         Object.keys(spaceDistributed).forEach((zoneId) => {
           const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
           if (zoneDom) {
             zoneDom.style.flexGrow = "";
+            zoneDom.style.background = "";
+            zoneDom.style.borderRadius = "";
             zoneDom.style.transition = "all 0.3s ease";
             setTimeout(() => {
               zoneDom.style.transition = "";
@@ -123,6 +130,33 @@ export const SpaceDistributionHandle = ({
         });
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
+      };
+
+      const createColumnIndicator = () => {
+        columnIndicatorDiv = document.createElement("div");
+        columnIndicatorDiv.innerHTML = `${columnPosition} / ${SectionColumns}`;
+        columnIndicatorDiv.style.position = "absolute";
+        columnIndicatorDiv.style.background = "white";
+        columnIndicatorDiv.style.color = "black";
+        columnIndicatorDiv.style.padding = "2px";
+        columnIndicatorDiv.style.borderRadius = "2px";
+        columnIndicatorDiv.style.boxShadow = "0px 0px 2px 2px black";
+        columnIndicatorDiv.style.zIndex = "1000";
+        columnIndicatorDiv.style.fontSize = "10px";
+        columnIndicatorDiv.style.fontWeight = "bold";
+        document.body.appendChild(columnIndicatorDiv);
+      };
+      const removeColumnIndicator = () => {
+        if (columnIndicatorDiv) {
+          columnIndicatorDiv.remove();
+          columnIndicatorDiv = null;
+        }
+      };
+      const repositionColumnIndicator = (e: MouseEvent) => {
+        if (columnIndicatorDiv) {
+          columnIndicatorDiv.style.left = e.clientX + 10 + "px";
+          columnIndicatorDiv.style.top = e.clientY + "px";
+        }
       };
       const onMouseDown = (e: MouseEvent) => {
         e.stopPropagation();
@@ -134,6 +168,8 @@ export const SpaceDistributionHandle = ({
           type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START,
         });
         addMouseMoveHandlers();
+        createColumnIndicator();
+        repositionColumnIndicator(e);
       };
       const onMouseUp = (e: MouseEvent) => {
         e.stopPropagation();
@@ -151,6 +187,7 @@ export const SpaceDistributionHandle = ({
             },
           });
           removeMouseMoveHandlers();
+          removeColumnIndicator();
         }
       };
       const onMouseMove = (e: MouseEvent) => {
@@ -175,6 +212,8 @@ export const SpaceDistributionHandle = ({
           );
           if (leftZoneDom && rightZoneDom) {
             if (leftZoneComputedColumns >= 2 && rightZoneComputedColumns >= 2) {
+              leftZoneDom.style.background = "";
+              rightZoneDom.style.background = "";
               leftZoneDom.style.flexGrow = Math.max(
                 leftZoneComputedColumns,
                 2,
@@ -190,9 +229,18 @@ export const SpaceDistributionHandle = ({
               ref.current.style.left = updatedLeft + "px";
               currentGrowthFactor.leftZone = leftZoneComputedColumnsRoundOff;
               currentGrowthFactor.rightZone = rightZoneComputedColumnsRoundOff;
+              if (columnIndicatorDiv) {
+                columnIndicatorDiv.innerHTML = `${
+                  columnPosition -
+                  currentFlexGrow.leftZone +
+                  leftZoneComputedColumnsRoundOff
+                } / ${SectionColumns}`;
+              }
             } else {
               if (leftZoneComputedColumns < 2) {
                 leftZoneDom.style.flexGrow = "2";
+                leftZoneDom.style.borderRadius = "4px";
+                leftZoneDom.style.background = "red";
                 rightZoneDom.style.flexGrow = (
                   currentFlexGrow.rightZone +
                   currentFlexGrow.leftZone -
@@ -209,6 +257,7 @@ export const SpaceDistributionHandle = ({
                   currentFlexGrow.rightZone + currentFlexGrow.leftZone - 2;
               } else if (rightZoneComputedColumns < 2) {
                 rightZoneDom.style.flexGrow = "2";
+                rightZoneDom.style.background = "red";
                 leftZoneDom.style.flexGrow = (
                   currentFlexGrow.rightZone +
                   currentFlexGrow.leftZone -
@@ -228,6 +277,7 @@ export const SpaceDistributionHandle = ({
             }
           }
         }
+        repositionColumnIndicator(e);
       };
       ref.current.addEventListener("mousedown", onMouseDown);
       ref.current.addEventListener("mouseup", onMouseUp);
@@ -239,7 +289,13 @@ export const SpaceDistributionHandle = ({
         }
       };
     }
-  }, [leftPositionOfHandle, spaceDistributed, minLeft, maxLeft]);
+  }, [
+    leftPositionOfHandle,
+    spaceDistributed,
+    minLeft,
+    maxLeft,
+    columnPosition,
+  ]);
   return (
     <StyledSpaceDistributionHandle left={leftPositionOfHandle} ref={ref} />
   );

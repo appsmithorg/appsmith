@@ -32,12 +32,14 @@ const SectionSpaceDistributorHandles = (
   );
   const { spaceDistributed = defaultSpaceDistributed } = sectionWidget;
   let previousZonePosition: LayoutElementPosition;
+  let previousZoneColumn = 0;
   let spaceToWorkWith = 0;
   const SectionSpaceDistributorNodes = zones.reduce(
     (nodesArray, each, index) => {
       const widgetPosition = layoutElementPositions[each.widgetId];
       spaceToWorkWith = spaceToWorkWith + widgetPosition.width;
       if (index === 0) {
+        previousZoneColumn += spaceDistributed[each.widgetId];
         previousZonePosition = widgetPosition;
         return nodesArray;
       }
@@ -48,10 +50,12 @@ const SectionSpaceDistributorHandles = (
         nodesArray.push({
           parentZones: [zones[index - 1].widgetId, each.widgetId],
           spaceBetweenZones,
+          columnPosition: previousZoneColumn,
           position: {
             left: widgetPosition.offsetLeft - spaceBetweenZones * 0.5,
           },
         });
+        previousZoneColumn += spaceDistributed[each.widgetId];
         previousZonePosition = widgetPosition;
       }
       return nodesArray;
@@ -62,6 +66,7 @@ const SectionSpaceDistributorHandles = (
       };
       parentZones: string[];
       spaceBetweenZones: number;
+      columnPosition: number;
     }[],
   );
   return (
@@ -69,6 +74,7 @@ const SectionSpaceDistributorHandles = (
       {SectionSpaceDistributorNodes.map((each, index) => {
         return (
           <SpaceDistributionHandle
+            columnPosition={each.columnPosition}
             index={index}
             key={index}
             layoutElementPositions={layoutElementPositions}
