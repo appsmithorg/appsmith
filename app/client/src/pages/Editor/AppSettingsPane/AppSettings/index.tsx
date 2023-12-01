@@ -1,6 +1,6 @@
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
-import { ThemePropertyPane as ThemePropertyPaneV2 } from "pages/Editor/ThemePropertyPaneV2";
+import { WDSThemePropertyPane } from "pages/Editor/WDSThemePropertyPane";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
@@ -232,7 +232,7 @@ function AppSettings() {
                   </div>
                   <ThemeContentWrapper>
                     {isWDSEnabled ? (
-                      <ThemePropertyPaneV2 />
+                      <WDSThemePropertyPane />
                     ) : (
                       <ThemePropertyPane />
                     )}

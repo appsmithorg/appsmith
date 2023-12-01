@@ -55,7 +55,7 @@ const buttonGroupOptions = THEME_SETTINGS_BORDER_RADIUS_OPTIONS.map(
   }),
 );
 
-function ThemePropertyPane() {
+function WDSThemePropertyPane() {
   const dispatch = useDispatch();
   const theme = useSelector(getAppThemeSettings);
   const applicationId = useSelector(getCurrentApplicationId);
@@ -209,4 +209,4 @@ function ThemePropertyPane() {
   );
 }
 
-export { ThemePropertyPane };
+export { WDSThemePropertyPane };

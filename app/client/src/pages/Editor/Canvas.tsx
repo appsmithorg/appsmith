@@ -50,20 +50,20 @@ const Canvas = (props: CanvasProps) => {
   const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
 
   const themeSetting = useSelector(getAppThemeSettings);
-  const { theme } = useTheme({
-    borderRadius: isWDSEnabled
-      ? themeSetting.borderRadius
-      : selectedTheme.properties.borderRadius.appBorderRadius,
-    seedColor: isWDSEnabled
-      ? themeSetting.accentColor
-      : selectedTheme.properties.colors.primaryColor,
-    colorMode: isWDSEnabled ? themeSetting.colorMode : undefined,
-    fontFamily: isWDSEnabled
-      ? (themeSetting.fontFamily as FontFamily)
-      : (selectedTheme.properties.fontFamily.appFont as FontFamily),
-    userSizing: isWDSEnabled ? themeSetting.sizing : undefined,
-    userDensity: isWDSEnabled ? themeSetting.density : undefined,
-  });
+  const themeProps = {
+    borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
+    seedColor: selectedTheme.properties.colors.primaryColor,
+    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
+  };
+  const wdsThemeProps = {
+    borderRadius: themeSetting.borderRadius,
+    seedColor: themeSetting.accentColor,
+    colorMode: themeSetting.colorMode,
+    fontFamily: themeSetting.fontFamily as FontFamily,
+    userSizing: themeSetting.sizing,
+    userDensity: themeSetting.density,
+  };
+  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
 
   /**
    * background for canvas
