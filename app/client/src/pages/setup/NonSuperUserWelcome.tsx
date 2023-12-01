@@ -83,22 +83,12 @@ const LayerImage = styled.div`
   }
 `;
 
-const ElementImage1 = styled.img`
+const ElementImage = styled.img`
   position: absolute;
   width: 300px;
-  height: 300px;
   top: 50%;
-  right: -80px;
+  right: 0;
   transform: translateY(-50%);
-`;
-
-const ElementImage2 = styled.img`
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  top: 50%;
-  right: 125px;
-  transform: translateY(-100%);
 `;
 
 interface LandingPageProps {
@@ -124,12 +114,7 @@ export default memo(function NonSuperUserWelcome(props: LandingPageProps) {
         <StyledImageBanner>
           <LayerImage id="layer3" />
           <LayerImage id="layer2" />
-          <ElementImage1
-            src={getAssetUrl(`${ASSETS_CDN_URL}/send-message-1.svg`)}
-          />
-          <ElementImage2
-            src={getAssetUrl(`${ASSETS_CDN_URL}/send-message-2.svg`)}
-          />
+          <ElementImage src={getAssetUrl(`${ASSETS_CDN_URL}/profiling.png`)} />
           <LayerImage id="layer1" />
         </StyledImageBanner>
       </LandingPageContent>
