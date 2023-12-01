@@ -73,7 +73,7 @@ parts.push(`
   }
 
   handle {
-    root * {$NGINX_WWW_PATH}
+    root * {$WWW_PATH}
     try_files /loading.html /index.html
     import file_server
   }

@@ -9,7 +9,7 @@ stacks_path=/appsmith-stacks
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
-mkdir -pv "$SUPERVISORD_CONF_TARGET" "$NGINX_WWW_PATH"
+mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
@@ -438,10 +438,10 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
-  export XDG_DATA_HOME=/appsmith-stacks/data
+  export XDG_DATA_HOME=/appsmith-stacks/data  # so that caddy saves tls certs and other data under stacks/data/caddy
   export XDG_CONFIG_HOME=/appsmith-stacks/configuration
   mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
-  cp templates/loading.html "$NGINX_WWW_PATH"
+  cp templates/loading.html "$WWW_PATH"
   if [[ -z "${APPSMITH_ALLOWED_FRAME_ANCESTORS-}" ]]; then
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
     export APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
@@ -485,7 +485,7 @@ safe_init_postgres
 configure_supervisord
 
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
-mkdir -p /appsmith-stacks/data/{backup,restore}
+mkdir -p /appsmith-stacks/data/{backup,restore,caddy}
 
 # Create sub-directory to store services log in the container mounting folder
 mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}

@@ -25,7 +25,7 @@ apply-env-vars() {
   popd
 }
 
-apply-env-vars /opt/appsmith/editor/index.html "$NGINX_WWW_PATH/index.html"
+apply-env-vars /opt/appsmith/editor/index.html "$WWW_PATH/index.html"
 
 node caddy-reconfigure.mjs
 
