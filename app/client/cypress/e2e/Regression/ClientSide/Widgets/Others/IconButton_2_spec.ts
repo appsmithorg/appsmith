@@ -114,7 +114,7 @@ describe("Icon Button widget Tests", function () {
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
     agHelper.AssertURL("yahoo.com");
     // agHelper.BrowserNavigation(-1);
-    agHelper.BrowserNavigation(1);
+    cy.go('back')
     // cy.window({ timeout: 60000 }).then((win) => {
     //   win.history.back();
     // });
