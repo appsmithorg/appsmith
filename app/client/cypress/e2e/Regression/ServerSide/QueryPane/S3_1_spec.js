@@ -477,8 +477,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
           ".t--widget-textwidget span:contains('" + fileName + "')",
         )
         .should("have.length", 1);
-      // cy.get(".t--widget-textwidget span:contains('" + fileName + "')")
-      // .scrollIntoView();
 
       //Verifying CopyFile URL icon from UI - Browser pop up appearing
       // cy.xpath(queryLocators.copyURLicon).click()
