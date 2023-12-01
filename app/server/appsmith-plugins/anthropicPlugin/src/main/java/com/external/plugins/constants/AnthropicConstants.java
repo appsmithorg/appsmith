@@ -11,6 +11,7 @@ public class AnthropicConstants {
     public static final String CHAT = "CHAT";
     public static final String COMMAND = "command";
     public static final String DATA = "data";
+    public static final String VIEW_TYPE = "viewType";
     public static final String COMPONENT_DATA = "componentData";
     public static final String BODY = "body";
     public static final String ROLE = "role";
