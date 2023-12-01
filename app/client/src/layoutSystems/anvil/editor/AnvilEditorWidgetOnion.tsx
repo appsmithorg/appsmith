@@ -8,6 +8,9 @@ import { AnvilResizableLayer } from "../common/resizer/AnvilResizableLayer";
 import { generateDragStateForAnvilLayout } from "../utils/widgetUtils";
 import type { SizeConfig } from "WidgetProvider/constants";
 import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
+import { previewModeSelector } from "selectors/editorSelectors";
+import { useSelector } from "react-redux";
+import { RenderModes } from "constants/WidgetConstants";
 
 /**
  * AnvilEditorWidgetOnion
@@ -33,9 +36,14 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
       layoutId,
     });
   }, [layoutId]);
+  const isPreviewMode = useSelector(previewModeSelector);
   const widgetSize: SizeConfig = useMemo(
-    () => getWidgetSizeConfiguration(props.type, props),
-    [props.type],
+    () =>
+      getWidgetSizeConfiguration(props.type, {
+        ...props,
+        renderMode: isPreviewMode ? RenderModes.PAGE : props.renderMode,
+      }),
+    [props.type, isPreviewMode],
   );
 
   return (
