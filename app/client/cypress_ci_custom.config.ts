@@ -29,6 +29,10 @@ export default defineConfig({
   },
   e2e: {
     baseUrl: "http://localhost/",
+    env: {
+      grepFilterSpecs: true,
+      grepOmitFiltered: true,
+    },
     setupNodeEvents(on, config) {
       require("cypress-mochawesome-reporter/plugin")(on);
       on(
@@ -46,6 +50,7 @@ export default defineConfig({
           }
         },
       );
+      require("@cypress/grep/src/plugin")(on, config);
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",

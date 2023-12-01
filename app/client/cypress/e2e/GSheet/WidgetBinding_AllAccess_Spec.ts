@@ -12,16 +12,12 @@ import {
 } from "../../support/Objects/ObjectsCore";
 import { Widgets } from "../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../locators/OneClickBindingLocator";
-import {
-  PageLeftPane,
-  PagePaneSegment,
-} from "../../support/Pages/EditorNavigation";
 
 const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
-describe("GSheet-widget binding", function () {
+describe("GSheet-widget binding", { tags: ["@tag.Datasource"] }, function () {
   before("Setup app and spreadsheet", function () {
     //Setting up the app name
     const uuid = Cypress._.random(0, 10000);
@@ -79,7 +75,7 @@ describe("GSheet-widget binding", function () {
 
   after("Delete app", function () {
     // Delete spreadsheet and app
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    entityExplorer.NavigateToSwitcher("Explorer");
     gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
