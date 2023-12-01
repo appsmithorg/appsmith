@@ -136,10 +136,12 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionRepository,
                 analyticsService,
                 newActionService,
+                newPageService,
                 policyGenerator,
                 applicationService,
                 responseUtils,
                 applicationPermission,
+                pagePermission,
                 actionPermission);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(

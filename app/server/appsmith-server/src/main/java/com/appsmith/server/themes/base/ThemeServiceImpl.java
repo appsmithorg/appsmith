@@ -1,11 +1,13 @@
 package com.appsmith.server.themes.base;
 
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -25,8 +27,10 @@ public class ThemeServiceImpl extends ThemeServiceCEImpl implements ThemeService
             AnalyticsService analyticsService,
             ApplicationRepository applicationRepository,
             ApplicationService applicationService,
+            NewPageService newPageService,
             PolicyGenerator policyGenerator,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission) {
         super(
                 scheduler,
                 validator,
@@ -36,7 +40,9 @@ public class ThemeServiceImpl extends ThemeServiceCEImpl implements ThemeService
                 analyticsService,
                 applicationRepository,
                 applicationService,
+                newPageService,
                 policyGenerator,
-                applicationPermission);
+                applicationPermission,
+                pagePermission);
     }
 }
