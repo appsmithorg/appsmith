@@ -941,7 +941,16 @@ export class DataSources {
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
     if (cancelEditDs) {
-      this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+      cy.get("body").then(($body) => {
+        if ($body.find(this._cancelEditDatasourceButton).length > 0) {
+          this.agHelper.GetNClick(
+            this._cancelEditDatasourceButton,
+            0,
+            true,
+            200,
+          );
+        }
+      });
     }
     this.CreateQueryAfterDSSaved(query, queryName);
   }
