@@ -36,7 +36,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction);
 
-    NewAction extractAndSetJsonPathKeys(NewAction newAction);
+    Mono<NewAction> extractAndSetJsonPathKeys(NewAction newAction);
 
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 

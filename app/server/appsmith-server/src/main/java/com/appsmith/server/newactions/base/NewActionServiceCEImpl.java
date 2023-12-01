@@ -385,7 +385,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return newAction;
                 })
                 .flatMap(this::sanitizeAction)
-                .map(this::extractAndSetJsonPathKeys)
+                .flatMap(this::extractAndSetJsonPathKeys)
                 .map(updatedAction -> {
                     // In case of external datasource (not embedded) instead of storing the entire datasource
                     // again inside the action, instead replace it with just the datasource ID. This is so that
@@ -472,23 +472,29 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @return
      */
     @Override
-    public NewAction extractAndSetJsonPathKeys(NewAction newAction) {
+    public Mono<NewAction> extractAndSetJsonPathKeys(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
-        Set<String> actionKeys = extractKeysFromAction(action).stream()
-                .map(token -> token.getValue())
-                .collect(Collectors.toSet());
-        Set<String> datasourceKeys = datasourceService.extractKeysFromDatasource(action.getDatasource()).stream()
-                .map(token -> token.getValue())
-                .collect(Collectors.toSet());
-        Set<String> keys = new HashSet<>() {
-            {
-                addAll(actionKeys);
-                addAll(datasourceKeys);
-            }
-        };
-        action.setJsonPathKeys(keys);
 
-        return newAction;
+        return datasourceService
+                .extractKeysFromDatasource(action.getDatasource())
+                .map(datasourceBindings -> {
+                    Set<String> actionKeys = extractKeysFromAction(action).stream()
+                            .map(token -> token.getValue())
+                            .collect(Collectors.toSet());
+
+                    Set<String> datasourceKeys = datasourceBindings.stream()
+                            .map(token -> token.getValue())
+                            .collect(Collectors.toSet());
+                    Set<String> keys = new HashSet<>() {
+                        {
+                            addAll(actionKeys);
+                            addAll(datasourceKeys);
+                        }
+                    };
+
+                    action.setJsonPathKeys(keys);
+                    return newAction;
+                });
     }
 
     private Mono<ActionDTO> setTransientFieldsInUnpublishedAction(NewAction newAction) {

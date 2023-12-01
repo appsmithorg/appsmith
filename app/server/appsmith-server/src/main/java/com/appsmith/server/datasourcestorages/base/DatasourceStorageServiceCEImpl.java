@@ -1,10 +1,12 @@
 package com.appsmith.server.datasourcestorages.base;
 
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
@@ -391,5 +393,18 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             Datasource datasource, String environmentId) {
         return Mono.error(
                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasource.getName()));
+    }
+
+    @Override
+    public Flux<Set<MustacheBindingToken>> getBindingTokensForDatasourceStorages(Datasource datasource) {
+        return findByDatasource(datasource).map(datasourceStorage -> {
+            // We are only enabling this for headers of RESTAPI type plugins.
+            DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+            if (datasourceConfiguration == null || CollectionUtils.isEmpty(datasourceConfiguration.getHeaders())) {
+                return new HashSet<>();
+            }
+
+            return MustacheHelper.extractMustacheKeysFromFields(datasourceConfiguration.getHeaders());
+        });
     }
 }
