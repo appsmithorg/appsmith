@@ -13,8 +13,10 @@ import static com.appsmith.server.acl.AclPermission.CREATE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
@@ -150,7 +152,17 @@ public enum AppsmithRole {
     APPLICATION_VIEWER(
             FieldName.APPLICATION_VIEWER,
             FieldName.APPLICATION_VIEWER_DESCRIPTION,
-            Set.of(READ_APPLICATIONS, EXECUTE_DATASOURCES, INVITE_USERS_APPLICATIONS, EXECUTE_ENVIRONMENTS));
+            Set.of(READ_APPLICATIONS, EXECUTE_DATASOURCES, INVITE_USERS_APPLICATIONS, EXECUTE_ENVIRONMENTS)),
+    /*
+     * This is a Bot Workflow Role.
+     * This role will have access to execute Workflow's queries and js objects, and will also give execute permission
+     * on related datasources and environments.
+     */
+    WORKFLOW_EXECUTOR(
+            FieldName.WORKFLOW_EXECUTOR,
+            FieldName.WORKFLOW_EXECUTOR_DESCRIPTION,
+            Set.of(EXECUTE_WORKFLOWS, EXECUTE_DATASOURCES, EXECUTE_ENVIRONMENTS, EXECUTE_ACTIONS)),
+    ;
 
     private Set<AclPermission> permissions;
     private String name;

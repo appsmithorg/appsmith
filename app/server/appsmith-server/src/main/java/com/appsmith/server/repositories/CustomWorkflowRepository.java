@@ -22,4 +22,7 @@ public interface CustomWorkflowRepository extends AppsmithRepository<Workflow> {
 
     Flux<Workflow> findAll(
             Optional<AclPermission> permission, Optional<List<String>> includeFields, Optional<Sort> sortBy);
+
+    Mono<UpdateResult> updateGeneratedTokenForWorkflow(
+            String workflowId, boolean tokenGenerated, Optional<AclPermission> aclPermission);
 }

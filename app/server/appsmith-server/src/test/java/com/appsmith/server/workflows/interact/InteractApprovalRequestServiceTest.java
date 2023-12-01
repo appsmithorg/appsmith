@@ -25,7 +25,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.workflows.crud.CrudApprovalRequestService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
-import com.appsmith.server.workflows.helper.WorkflowProxyHelper;
+import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;

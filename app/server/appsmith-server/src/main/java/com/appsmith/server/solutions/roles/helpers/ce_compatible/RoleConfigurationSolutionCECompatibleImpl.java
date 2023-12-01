@@ -50,4 +50,14 @@ public class RoleConfigurationSolutionCECompatibleImpl implements RoleConfigurat
             Map<String, List<AclPermission>> toBeRemovedPermissions) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
+
+    @Override
+    public Mono<Long> updateWorkflowAndRelatedResourcesWithPermissionForRole(
+            String workflowId,
+            String workspaceId,
+            String roleId,
+            Map<String, List<AclPermission>> toBeAddedPermissions,
+            Map<String, List<AclPermission>> toBeRemovedPermissions) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
 }

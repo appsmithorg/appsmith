@@ -16,7 +16,7 @@ import com.appsmith.server.repositories.ApprovalRequestRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.workflows.helper.WorkflowProxyHelper;
+import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import jakarta.validation.Validator;
 import org.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;

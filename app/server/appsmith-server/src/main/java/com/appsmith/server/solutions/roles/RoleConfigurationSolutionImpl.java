@@ -20,6 +20,7 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -1275,5 +1276,122 @@ public class RoleConfigurationSolutionImpl extends RoleConfigurationSolutionCECo
             return bulkUpdateEntityPoliciesForApplicationRole(
                     entityIdEntityClassMap, roleId, toBeAddedPermissionsForEntities, toBeRemovedPermissionsForEntities);
         });
+    }
+
+    /**
+     * Updates the workflow and related resources with specified permissions for a given role.
+     * <br>
+     * <ol>
+     *     Related Resources:
+     *     <li>JS Objects</li>
+     *     <li>Datasource queries</li>
+     *     <li>Datasources (only those DS whose queries are included in workflows)</li>
+     *     <li>Workspace environments (Default)</li>
+     * </ol>
+     * <ol>
+     *     This method performs the following actions:
+     *     <li>Retrieves all actions in the specified workflow along with specific fields (ID and Datasource IDs).</li>
+     *     <li>Retrieves all environments in the specified workspace (ID and isDefault).</li>
+     *     <li>Collects datasource IDs from the retrieved actions.</li>
+     *     <li>Prepares maps for entity IDs to entity classes, to-be-added permissions, and to-be-removed permissions.</li>
+     *     <li>Invokes bulkUpdateEntityPoliciesForApplicationRole to update permissions for all entities.</li>
+     * </ol>
+     *
+     * Note: Permissions for ActionCollections are not yet implemented (TODO).
+     *
+     * @param workflowId The ID of the workflow to be updated.
+     * @param workspaceId The ID of the workspace containing the workflow.
+     * @param roleId The ID of the role for which permissions are to be updated.
+     * @param toBeAddedPermissions A map containing entity class names and the corresponding permissions to be added.
+     * @param toBeRemovedPermissions A map containing entity class names and the corresponding permissions to be removed.
+     */
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.license_gac_enabled)
+    public Mono<Long> updateWorkflowAndRelatedResourcesWithPermissionForRole(
+            String workflowId,
+            String workspaceId,
+            String roleId,
+            Map<String, List<AclPermission>> toBeAddedPermissions,
+            Map<String, List<AclPermission>> toBeRemovedPermissions) {
+        List<String> includeFieldsForAction = List.of(
+                fieldName(QNewAction.newAction.id),
+                fieldName(QNewAction.newAction.unpublishedAction) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
+                        + fieldName(QNewAction.newAction.unpublishedAction.datasource.id),
+                fieldName(QNewAction.newAction.publishedAction) + "."
+                        + fieldName(QNewAction.newAction.publishedAction.datasource) + "."
+                        + fieldName(QNewAction.newAction.publishedAction.datasource.id));
+        List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
+
+        Mono<List<NewAction>> allActionsInWorkflowMono = newActionRepository
+                .findByWorkflowIds(List.of(workflowId), Optional.empty(), Optional.of(includeFieldsForAction))
+                .collectList()
+                .cache();
+
+        // TODO: Add permissions for ActionCollections as well.
+
+        List<String> includedEnvironmentFields =
+                List.of(fieldName(QEnvironment.environment.id), fieldName(QEnvironment.environment.isDefault));
+        Mono<List<Environment>> allEnvironmentsInWorkspaceMono = environmentRepository
+                .findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includedEnvironmentFields)
+                .collectList();
+
+        return Mono.zip(allActionsInWorkflowMono, allEnvironmentsInWorkspaceMono)
+                .flatMap(tuple -> {
+                    List<NewAction> actionList = tuple.getT1();
+                    List<Environment> environmentList = tuple.getT2();
+
+                    Set<String> datasourceIds = getAllDatasourceIdsFromActions(actionList);
+
+                    Map<String, Class> entityIdEntityClassMap = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeAddedPermissionsForEntities = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeRemovedPermissionsForEntities = new HashMap<>();
+
+                    entityIdEntityClassMap.put(workflowId, Workflow.class);
+                    toBeAddedPermissionsForEntities.put(
+                            workflowId, toBeAddedPermissions.getOrDefault(Workflow.class.getSimpleName(), List.of()));
+                    toBeRemovedPermissionsForEntities.put(
+                            workflowId, toBeRemovedPermissions.getOrDefault(Workflow.class.getSimpleName(), List.of()));
+
+                    datasourceIds.forEach(datasourceId -> {
+                        entityIdEntityClassMap.put(datasourceId, Datasource.class);
+                        toBeAddedPermissionsForEntities.put(
+                                datasourceId,
+                                toBeAddedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                datasourceId,
+                                toBeRemovedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                    });
+
+                    actionList.forEach(newAction -> {
+                        entityIdEntityClassMap.put(newAction.getId(), NewAction.class);
+                        toBeAddedPermissionsForEntities.put(
+                                newAction.getId(),
+                                toBeAddedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                newAction.getId(),
+                                toBeRemovedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
+                    });
+
+                    environmentList.forEach(environment -> {
+                        if (!Boolean.TRUE.equals(environment.getIsDefault())) {
+                            // Don't make changes to anything other than default environment
+                            return;
+                        }
+                        entityIdEntityClassMap.put(environment.getId(), Environment.class);
+                        toBeAddedPermissionsForEntities.put(
+                                environment.getId(),
+                                toBeAddedPermissions.getOrDefault(Environment.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(
+                                environment.getId(),
+                                toBeRemovedPermissions.getOrDefault(Environment.class.getSimpleName(), List.of()));
+                    });
+
+                    return bulkUpdateEntityPoliciesForApplicationRole(
+                            entityIdEntityClassMap,
+                            roleId,
+                            toBeAddedPermissionsForEntities,
+                            toBeRemovedPermissionsForEntities);
+                });
     }
 }

@@ -1,4 +1,4 @@
-package com.appsmith.server.workflows.helper;
+package com.appsmith.server.workflows.helpers;
 
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.dtos.ApprovalRequestResolutionProxyDTO;

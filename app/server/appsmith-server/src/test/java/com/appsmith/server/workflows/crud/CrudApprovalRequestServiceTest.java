@@ -25,7 +25,7 @@ import com.appsmith.server.services.UserGroupService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
-import com.appsmith.server.workflows.helper.WorkflowProxyHelper;
+import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import com.appsmith.server.workflows.interact.InteractApprovalRequestService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
