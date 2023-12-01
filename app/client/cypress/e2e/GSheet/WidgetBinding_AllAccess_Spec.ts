@@ -12,6 +12,10 @@ import {
 } from "../../support/Objects/ObjectsCore";
 import { Widgets } from "../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../locators/OneClickBindingLocator";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../support/Pages/EditorNavigation";
 
 const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet";
@@ -75,7 +79,7 @@ describe("GSheet-widget binding", { tags: ["@tag.Datasource"] }, function () {
 
   after("Delete app", function () {
     // Delete spreadsheet and app
-    entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
     cy.get("@postExecute").then((interception: any) => {
       expect(interception.response.body.data.body.message).to.deep.equal(
