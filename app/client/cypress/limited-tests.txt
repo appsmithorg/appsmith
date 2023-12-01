@@ -3,6 +3,8 @@
 cypress/e2e/Regression/ServerSide/MySQL_Datatypes/Basic_Spec.ts
 cypress/e2e/Regression/ServerSide/Postgres_DataTypes/Array_Spec.ts
 cypress/e2e/Regression/ServerSide/Postgres_DataTypes/BooleanEnum_Spec.ts
+cypress/e2e/Regression/ServerSide/QueryPane/S3_1_spec.js
+
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*

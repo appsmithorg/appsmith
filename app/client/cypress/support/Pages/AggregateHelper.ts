@@ -1490,7 +1490,7 @@ export class AggregateHelper extends ReusableHelper {
     selector: ElementType,
     visibility = true,
     index = 0,
-    timeout = 20000,
+    timeout = Cypress.config("defaultCommandTimeout"),
   ) {
     return this.GetElement(selector, timeout)
       .eq(index)
