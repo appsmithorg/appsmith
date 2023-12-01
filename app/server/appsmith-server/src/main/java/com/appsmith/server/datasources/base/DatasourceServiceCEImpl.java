@@ -67,6 +67,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
@@ -748,6 +749,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     public Flux<Datasource> getAllDatasourcesWithStorageUsingPageId(String pageId) {
+        if (isBlank(pageId)) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
+        }
+
         return newPageService.findById(pageId, pagePermission.getReadPermission())
             .map(NewPage::getApplicationId)
             .flatMap(applicationService::getById)

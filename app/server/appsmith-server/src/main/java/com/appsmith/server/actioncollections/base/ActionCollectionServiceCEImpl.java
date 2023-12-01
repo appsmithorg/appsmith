@@ -28,7 +28,6 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import jakarta.validation.Validator;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,6 +55,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_ID;
 import static java.lang.Boolean.TRUE;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -163,7 +163,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     public Flux<ActionCollectionDTO> getAllUnpublishedActionCollectionsInApplication(
-        @NonNull String pageId, String branchName) {
+        String pageId, String branchName) {
+        if (isBlank(pageId)) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
+        }
+
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
             return newPageService.findPageById(pageId, pagePermission.getReadPermission(), true)
                 .map(PageDTO::getApplicationId)
@@ -350,8 +354,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             branch = params.getFirst(FieldName.BRANCH_NAME);
         }
 
-        if (params.getFirst(FieldName.PAGE_ID) != null) {
-            pageIds.add(params.getFirst(FieldName.PAGE_ID));
+        if (params.getFirst(PAGE_ID) != null) {
+            pageIds.add(params.getFirst(PAGE_ID));
         }
         return repository
                 .findAllActionCollectionsByNamePageIdsViewModeAndBranch(

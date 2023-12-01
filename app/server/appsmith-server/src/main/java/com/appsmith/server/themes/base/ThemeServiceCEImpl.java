@@ -33,6 +33,8 @@ import reactor.util.function.Tuples;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
+import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_ID;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, String> implements ThemeServiceCE {
@@ -92,6 +94,10 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     public Mono<Theme> getApplicationThemeUsingPageId(@NonNull String pageId, ApplicationMode applicationMode,
                                                       String branchName) {
+        if (isBlank(pageId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
+        }
+
         return newPageService.findById(pageId, pagePermission.getReadPermission())
             .map(NewPage::getApplicationId)
             .flatMap(applicationId -> getApplicationTheme(applicationId, applicationMode, branchName));
@@ -119,10 +125,14 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 });
     }
 
-    public Flux<Theme> getApplicationThemesUsingPageId(@NonNull String pageId, String branchName) {
-            return newPageService.findById(pageId, pagePermission.getReadPermission())
-                .map(NewPage::getApplicationId)
-                .flatMapMany(applicationId -> getApplicationThemes(applicationId, branchName));
+    public Flux<Theme> getApplicationThemesUsingPageId(String pageId, String branchName) {
+        if (isBlank(pageId)) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
+        }
+
+        return newPageService.findById(pageId, pagePermission.getReadPermission())
+            .map(NewPage::getApplicationId)
+            .flatMapMany(applicationId -> getApplicationThemes(applicationId, branchName));
     }
 
     @Override

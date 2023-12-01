@@ -65,8 +65,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
@@ -195,6 +197,10 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     public Flux<Plugin> getAllPluginsUsingPageId(String pageId) {
+        if (isBlank(pageId)) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
+        }
+
         return newPageService.findById(pageId, pagePermission.getReadPermission())
             .map(NewPage::getApplicationId)
             .flatMap(applicationService::getById)

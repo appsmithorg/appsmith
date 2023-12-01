@@ -58,7 +58,6 @@ import com.appsmith.server.solutions.PolicySolution;
 import com.mongodb.bulk.BulkWriteResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
@@ -97,6 +96,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_ID;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Collections.singletonList;
@@ -1077,8 +1077,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return getUnpublishedActions(params, branchName, TRUE);
     }
 
-    public Flux<ActionDTO> getAllUnpublishedActionsInAppExceptJsUsingPageId(@NonNull String pageId,
+    public Flux<ActionDTO> getAllUnpublishedActionsInAppExceptJsUsingPageId(String pageId,
                                                                      String branchName) {
+        if (isBlank(pageId)) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
+        }
+
         return newPageService.findById(pageId, pagePermission.getReadPermission())
             .map(NewPage::getApplicationId)
             .flatMapMany(applicationId -> {

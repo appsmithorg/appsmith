@@ -4,6 +4,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -27,7 +29,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_ID;
 import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String>
@@ -127,7 +131,11 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     }
 
     public Mono<List<CustomJSLib>> getAllJSLibsInApplicationUsingPageId(
-        @NotNull String pageId, String branchName, Boolean isViewMode) {
+        String pageId, String branchName, Boolean isViewMode) {
+        if (isBlank(pageId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
+        }
+
         return newPageService.findById(pageId, pagePermission.getReadPermission())
             .map(NewPage::getApplicationId)
             .flatMap(applicationId -> getAllJSLibsInApplication(applicationId, branchName, isViewMode));
