@@ -54,12 +54,22 @@ public class LayoutModuleInstanceServiceImpl extends LayoutModuleInstanceCECompa
 
         Mono<String> branchedContextIdMono = findBranchedContextId(contextType, contextId, branchName);
 
-        return branchedContextIdMono.flatMap(branchedContextId -> repository
-                .findAllByContextIdAndContextType(
-                        branchedContextId, contextType, moduleInstancePermission.getReadPermission())
-                .flatMap(repository::setUserPermissionsInObject)
-                .flatMap(moduleInstance -> generateModuleInstanceByViewMode(moduleInstance, resourceMode))
-                .collectList());
+        return branchedContextIdMono.flatMap(branchedContextId -> {
+            Flux<ModuleInstance> moduleInstanceFlux;
+
+            if (ResourceModes.EDIT.equals(resourceMode)) {
+                moduleInstanceFlux = repository.findAllUnpublishedByContextIdAndContextType(
+                        branchedContextId, contextType, moduleInstancePermission.getEditPermission());
+            } else {
+                moduleInstanceFlux = repository.findAllByContextIdAndContextType(
+                        branchedContextId, contextType, moduleInstancePermission.getReadPermission());
+            }
+
+            return moduleInstanceFlux
+                    .flatMap(repository::setUserPermissionsInObject)
+                    .flatMap(moduleInstance -> generateModuleInstanceByViewMode(moduleInstance, resourceMode))
+                    .collectList();
+        });
     }
 
     private Mono<String> findBranchedContextId(CreatorContextType contextType, String contextId, String branchName) {

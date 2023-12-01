@@ -29,7 +29,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.moduleinstances.base.BaseModuleInstanceServiceImpl;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
 import com.appsmith.server.modules.permissions.ModulePermission;
@@ -59,7 +58,8 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
 @Service
-public class CrudModuleInstanceServiceImpl extends BaseModuleInstanceServiceImpl implements CrudModuleInstanceService {
+public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECompatibleImpl
+        implements CrudModuleInstanceService {
 
     private final ModuleInstanceRepository repository;
     private final ModuleInstancePermission moduleInstancePermission;
@@ -376,13 +376,17 @@ public class CrudModuleInstanceServiceImpl extends BaseModuleInstanceServiceImpl
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleInstanceEntitiesDTO> getAllEntities(
-            String contextId, CreatorContextType contextType, String branchName) {
+            String contextId, CreatorContextType contextType, String branchName, ResourceModes resourceMode) {
+
+        AclPermission permission = resourceMode == ResourceModes.VIEW
+                ? actionPermission.getExecutePermission()
+                : actionPermission.getEditPermission();
         Flux<NewAction> actionFlux = newActionService.findAllActionsByContextIdAndContextTypeAndViewMode(
-                contextId, contextType, AclPermission.EXECUTE_ACTIONS, false, false);
+                contextId, contextType, permission, false, false);
 
         Flux<ActionCollection> actionCollectionFlux =
                 actionCollectionService.findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
-                        contextId, contextType, AclPermission.EXECUTE_ACTIONS, false);
+                        contextId, contextType, permission, false);
 
         return getModuleInstanceEntitiesDTOMono(actionFlux, actionCollectionFlux);
     }
