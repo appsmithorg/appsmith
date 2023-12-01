@@ -23,7 +23,7 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     Flux<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission);
 
-    Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+    Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
