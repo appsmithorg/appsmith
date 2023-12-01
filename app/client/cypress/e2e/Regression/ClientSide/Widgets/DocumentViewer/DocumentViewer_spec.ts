@@ -39,7 +39,6 @@ describe("DocumentViewer Widget Functionality", () => {
     deployMode.NavigateBacktoEditor();
   });
   it("1.  Modify visibility & Publish app & verify", () => {
-    entityExplorer.NavigateToSwitcher("Explorer");
     EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);
     propPane.TogglePropertyState("Visible", "Off");
     deployMode.DeployApp();

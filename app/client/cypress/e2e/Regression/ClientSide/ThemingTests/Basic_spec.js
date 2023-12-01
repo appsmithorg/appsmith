@@ -1,5 +1,7 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -9,7 +11,6 @@ import {
   agHelper,
   appSettings,
   deployMode,
-  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 
 const containerShadowElement = `${widgetsPage.containerWidget}`;
@@ -63,7 +64,7 @@ describe("App Theming funtionality", function () {
     appSettings.ClosePane();
 
     // drop a button & container widget and click on body
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();
@@ -191,7 +192,7 @@ describe("App Theming funtionality", function () {
   });
 
   it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("iconbuttonwidget", { x: 200, y: 300 });
     cy.assertPageSave();
     cy.get("canvas").first(0).trigger("click", { force: true });
@@ -686,7 +687,7 @@ describe("App Theming funtionality", function () {
   });
 
   it("9. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.assertPageSave();
     cy.moveToStyleTab();

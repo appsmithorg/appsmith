@@ -53,6 +53,14 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
 import localStorage from "utils/localStorage";
+import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
+import type { Plugin } from "api/PluginApi";
+import { PluginPackageName, PluginType } from "entities/Action";
+import DataSourceEditor from "pages/Editor/DataSourceEditor";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { fetchMockDatasources } from "actions/datasourceActions";
+import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
+import type { Datasource } from "entities/Datasource";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -125,6 +133,8 @@ const CardContainer = styled.div`
 const WithDataWrapper = styled.div`
   background: var(--ads-v2-color-bg);
   padding: var(--ads-v2-spaces-13);
+  border: 1px solid var(--ads-v2-color-gray-300);
+  border-radius: 5px;
 `;
 
 const Header = ({ subtitle, title }: { subtitle: string; title: string }) => {
@@ -180,6 +190,13 @@ const CreateNewAppsOption = ({
   const isImportingTemplate = useSelector(isImportingTemplateToAppSelector);
   const allTemplates = useSelector(getTemplatesSelector);
   const createNewAppPluginId = useSelector(getCurrentPluginIdForCreateNewApp);
+  const selectedPlugin: Plugin | undefined = useSelector((state) =>
+    getPlugin(state, createNewAppPluginId || ""),
+  );
+  const selectedDatasource: Datasource | undefined = useSelector((state) =>
+    getDatasource(state, TEMP_DATASOURCE_ID || ""),
+  );
+
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(
       state,
@@ -224,6 +241,7 @@ const CreateNewAppsOption = ({
       // fetch plugins information to show list of all plugins
       if (isEnabledForStartWithData) {
         dispatch(fetchPlugins());
+        dispatch(fetchMockDatasources());
         setUseType(START_WITH_TYPE.DATA);
       }
     } else {
@@ -439,27 +457,33 @@ const CreateNewAppsOption = ({
           </Flex>
         )
       ) : useType === START_WITH_TYPE.DATA ? (
-        createNewAppPluginId ? (
-          <div>{createNewAppPluginId}</div>
-        ) : (
-          <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-            <Header
-              subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
-              title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
-            />
-            <WithDataWrapper>
-              <CreateNewDatasourceTab />
-            </WithDataWrapper>
-          </Flex>
-        )
-      ) : useType === START_WITH_TYPE.DATA ? (
-        createNewAppPluginId ? (
-          <div>{createNewAppPluginId}</div>
-        ) : (
+        <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+          <Header
+            subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+            title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+          />
           <WithDataWrapper>
-            <CreateNewDatasourceTab />
+            {createNewAppPluginId && !!selectedDatasource ? (
+              selectedPlugin?.type === PluginType.SAAS ? (
+                <DatasourceForm
+                  datasourceId={TEMP_DATASOURCE_ID}
+                  isOnboardingFlow
+                  pageId={application?.defaultPageId || ""}
+                  pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
+                />
+              ) : (
+                <DataSourceEditor
+                  applicationId={currentApplicationIdForCreateNewApp}
+                  datasourceId={TEMP_DATASOURCE_ID}
+                  isOnboardingFlow
+                  pageId={application?.defaultPageId}
+                />
+              )
+            ) : (
+              <CreateNewDatasourceTab />
+            )}
           </WithDataWrapper>
-        )
+        </Flex>
       ) : (
         <OptionWrapper>
           <Text kind="heading-xl">

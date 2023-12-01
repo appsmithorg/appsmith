@@ -209,6 +209,11 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    public String getExecutableName() {
+        return this.getValidName();
+    }
+
+    @Override
     public EntityReferenceType getEntityReferenceType() {
         if (this.getPluginType() == null) {
             return null;
@@ -220,6 +225,8 @@ public class ActionCE_DTO implements Identifiable, Executable {
         this.setEventData(null);
         this.setDefaultResources(null);
         this.setCacheResponse(null);
+        this.setCreatedAt(null);
+        this.setUpdatedAt(null);
         if (this.getDatasource() != null) {
             this.getDatasource().setCreatedAt(null);
             this.getDatasource().setDatasourceStorages(null);

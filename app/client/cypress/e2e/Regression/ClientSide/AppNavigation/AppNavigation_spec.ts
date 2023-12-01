@@ -1,12 +1,12 @@
 import {
   agHelper,
-  entityExplorer,
   deployMode,
   homePage,
   appSettings,
   assertHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("General checks for app navigation", function () {
   it("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
@@ -15,7 +15,7 @@ describe("General checks for app navigation", function () {
     agHelper.AssertElementVisibility(appSettings.locators._header);
     deployMode.NavigateBacktoEditor();
     // Navigation should appear alongside app header when there are two pages
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     deployMode.DeployApp();
     agHelper.AssertElementVisibility(appSettings.locators._topStacked);
     //Application name, share button, edit button, and user dropdown should be available in the app header
