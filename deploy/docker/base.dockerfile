@@ -49,6 +49,13 @@ RUN set -o xtrace \
   && file="$(curl -sS 'https://nodejs.org/dist/latest-v18.x/' | awk -F\" '$2 ~ /linux-'"$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"'.tar.gz/ {print $2}')" \
   && curl "https://nodejs.org/dist/latest-v18.x/$file" | tar -xz -C /opt/node --strip-components 1
 
+# Install Caddy
+RUN set -o xtrace \
+  && mkdir -p /opt/caddy \
+  && version="$(curl --write-out '%{redirect_url}' 'https://github.com/caddyserver/caddy/releases/latest' | sed 's,.*/v,,')" \
+  && curl --location "https://github.com/caddyserver/caddy/releases/download/v$version/caddy_${version}_linux_$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/').tar.gz" \
+  | tar -xz -C /opt/caddy
+
 # Clean up cache file - Service layer
 RUN rm -rf \
   /root/.cache \
