@@ -477,6 +477,7 @@ describe("Array Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
