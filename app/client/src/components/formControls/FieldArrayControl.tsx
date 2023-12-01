@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
@@ -50,9 +50,8 @@ const SecondaryBox = styled.div`
 `;
 
 const AddMoreAction = styled.div`
-  width: fit-content;
   cursor: pointer;
-  display: flex;
+  width: max-content;
 `;
 
 function NestedComponents(props: any) {
@@ -67,12 +66,6 @@ function NestedComponents(props: any) {
     props.fields.push(newObject);
   }, [props.fields]);
 
-  useEffect(() => {
-    if (props.fields.length < 1) {
-      addMore();
-    }
-  }, [props.fields.length, addMore]);
-
   return (
     <PrimaryBox>
       {props.fields &&
@@ -86,7 +79,7 @@ function NestedComponents(props: any) {
                   configProperty: `${field}.${sch.key}`,
                   customStyles: {
                     width: "20vw",
-                    ...props.customStyles,
+                    ...(props.customStyles ?? {}),
                   },
                 };
                 return (
@@ -131,6 +124,7 @@ export default function FieldArrayControl(props: FieldArrayControlProps) {
   const {
     addMoreButtonLabel = "+ Add Condition (And)",
     configProperty,
+    customStyles = {},
     formName,
     schema,
   } = props;
@@ -138,7 +132,13 @@ export default function FieldArrayControl(props: FieldArrayControlProps) {
     <FieldArray
       component={NestedComponents}
       name={configProperty}
-      props={{ formName, schema, addMoreButtonLabel }}
+      props={{
+        formName,
+        schema,
+        addMoreButtonLabel,
+        configProperty,
+        customStyles,
+      }}
       rerenderOnEveryChange={false}
     />
   );
