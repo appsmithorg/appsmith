@@ -19,6 +19,9 @@ export interface JSCollection {
   variables: Array<Variable>;
   userPermissions?: string[];
   errorReports?: Array<LayoutOnLoadActionErrors>;
+  isPublic?: boolean;
+  moduleId?: string;
+  moduleInstanceId?: string;
 }
 
 export interface JSActionConfig {
