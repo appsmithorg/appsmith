@@ -60,9 +60,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
    INSERT INTO Stores(store_id,name,store_status,store_address,store_secret_code) VALUES (2183,'Liquor and Food Center','I','501 Lynn Street Tipton, IA 527720000 (41.770090148000065, -91.12981387599996)',NULL);
    INSERT INTO Stores(store_id,name,store_status,store_address,store_secret_code) VALUES (2188,'Kind''s Jack and Jill Food Center','I','110 S Main Sigourney, IA 525910000 (41.333550830000036, -92.20522134099997)',NULL);
    INSERT INTO Stores(store_id,name,store_status,store_address,store_secret_code) VALUES (2190,'Central City Liquor, Inc.','A','1460 2nd Ave Des Moines, IA 503140000 (41.60557033500004, -93.61982683699995)',NULL);`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("CreateStores");
-    dataSources.EnterQuery(tableCreateQuery);
+    dataSources.CreateQueryForDS(dsName, tableCreateQuery, "CreateStores");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
@@ -76,9 +74,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("2. Validate Select record from Postgress datasource & verify query response", () => {
-    //entityExplorer.ActionTemplateMenuByEntityName("Stores", "Select");
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery("SELECT * FROM Stores LIMIT 10");
+    dataSources.CreateQueryForDS(dsName, "SELECT * FROM Stores LIMIT 10");
     dataSources.RunQueryNVerifyResponseViews(10);
     dataSources.AssertQueryTableResponse(5, "2112");
     dataSources.AssertQueryTableResponse(6, "Mike's Liquors");
@@ -89,7 +85,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "Stores");
     GenerateCRUDNValidateDeployPage(
@@ -355,9 +351,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("11. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
     let deleteTblQuery = "DROP TABLE Stores;";
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("DropStores");
-    dataSources.EnterQuery(deleteTblQuery);
+    dataSources.CreateQueryForDS(dsName, deleteTblQuery, "DropStores");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 

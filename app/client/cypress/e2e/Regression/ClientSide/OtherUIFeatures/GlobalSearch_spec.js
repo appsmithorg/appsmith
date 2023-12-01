@@ -85,8 +85,7 @@ describe("GlobalSearch", function () {
     cy.createPostgresDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {
       const expectedDatasource = httpResponse.response.body.data;
-
-      cy.NavigateToActiveDSQueryPane(expectedDatasource.name);
+      _.dataSources.CreateQueryAfterDSSaved();
       cy.get(commonlocators.globalSearchTrigger).click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000); // modal open transition should be deterministic

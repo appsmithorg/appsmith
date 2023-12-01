@@ -1,21 +1,22 @@
 import { INTERCEPT } from "../../../../fixtures/variables";
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  homePage,
-  dataSources,
-  table,
-  entityItems,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  homePage,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
+
 let dsName: any;
 
 describe("Validate Mongo Query Pane Validations", () => {
@@ -281,7 +282,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       ]
   }]`;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
 
     assertHelper.AssertNetworkStatus("@trigger");
 
@@ -696,7 +697,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "AuthorNAwards");
     GenerateCRUDNValidateDeployPage(
@@ -723,7 +724,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("17. Validate Drop of the Newly Created - AuthorNAwards - collection from datasource", () => {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
 
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
     agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
@@ -743,7 +744,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function () {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
@@ -798,7 +799,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     }
   ]`;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
 
     assertHelper.AssertNetworkStatus("@trigger");
 
@@ -850,7 +851,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     //Drop the collection `BirthNDeath`
     const dropCollection = `{ "drop": "BirthNDeath" }`;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropBirthNDeath");

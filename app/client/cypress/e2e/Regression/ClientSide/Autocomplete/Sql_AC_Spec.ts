@@ -12,8 +12,7 @@ describe("SQL Autocompletion", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       //Shows autocompletion hints in SQL", () => {
-      dataSources.NavigateFromActiveDS(dsName, true);
-      dataSources.EnterQuery("");
+      dataSources.CreateQueryForDS(dsName, "");
       agHelper.TypeText(locators._codeMirrorTextArea, "select");
       // Hints should exist
       agHelper.AssertElementExist(locators._hints);

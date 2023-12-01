@@ -29,7 +29,7 @@ describe("MySQL noise test", function () {
         .blur();
       cy.fillMySQLDatasourceForm();
       cy.testSaveDatasource();
-      cy.NavigateToActiveDSQueryPane(datasourceName);
+      dataSources.CreateQueryAfterDSSaved(datasourceName);
     });
     cy.get(queryLocators.queryNameField).type("NoiseTestQuery");
     // mySQL query to fetch data

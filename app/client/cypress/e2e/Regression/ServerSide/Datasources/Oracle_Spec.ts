@@ -163,7 +163,6 @@ describe("Validate Oracle DS", () => {
       1,
       true,
     );
-    dataSources.NavigateFromActiveDS(dataSourceName, true);
     query = `CREATE TABLE ${guid} (
       aircraft_id NUMBER(5) PRIMARY KEY,
       aircraft_type VARCHAR2(50) NOT NULL,
@@ -176,8 +175,7 @@ describe("Validate Oracle DS", () => {
       maintenance_last_date DATE,
       notes CLOB
   );`;
-    agHelper.RenameWithInPane("CreateAircraft");
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dataSourceName, query, "CreateAircraft");
     dataSources.RunQuery();
 
     query = `INSERT INTO ${guid} (

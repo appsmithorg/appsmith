@@ -192,6 +192,10 @@ export class DataSources {
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
 
+  private _pageSelectionMenu = "[data-testId='t--page-selection']";
+
+  private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
+
   private _suggestedWidget = (widgetType: string, parentClass: string) =>
     "//div[contains(@class, '" +
     parentClass +
@@ -888,43 +892,23 @@ export class DataSources {
       });
   }
 
-  public NavigateFromActiveDS(
-    datasourceName: string,
-    createQuery: boolean,
-    validateTableDropdown = true,
-  ) {
-    const btnLocator =
-      createQuery == true
-        ? this._createQuery
-        : this._datasourceCardGeneratePageBtn;
-
-    this.AssertDSInActiveList(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
-    this.agHelper.GetNClick(btnLocator, 0, true);
-    this.agHelper.Sleep(3000); //for the CreateQuery/GeneratePage page to load
-    createQuery && this.AssertRunButtonVisibility();
-    validateTableDropdown &&
-      !createQuery &&
-      this.assertHelper.AssertNetworkStatus("@getDatasourceStructure", 200); //Making sure table dropdown is populated
-  }
-
   public AssertDSInActiveList(dsName: string | RegExp) {
     AppSidebar.navigate(AppSidebarButton.Data);
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
-  public CreateQueryFromActiveTab(datasourceName: string) {
-    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
-    this.agHelper.GetNClick(this._createQuery, 0, true);
-    this.agHelper.Sleep(2000); //for the CreateQuery
-    //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);//throwing 404 in CI sometimes
-    this.AssertRunButtonVisibility();
-  }
-
   CreateQueryAfterDSSaved(query = "", queryName = "") {
     this.agHelper.GetNClick(this._createQuery);
+    // Check if page selection is open (when multiple pages in app)
+    cy.get("body").then(($body) => {
+      if ($body.find(this._pageSelectionMenu).length > 0) {
+        // Select the current page
+        cy.get(this._pageSelectionMenu)
+          .find(this._pageSelectMenuItem)
+          .first()
+          .click();
+      }
+    });
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
     this.AssertRunButtonVisibility();
     if (queryName) this.agHelper.RenameWithInPane(queryName);
@@ -1012,19 +996,6 @@ export class DataSources {
     this.TestSaveDatasource(true, true);
     this.assertHelper.AssertNetworkStatus("@getPage", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
-  }
-
-  public AssertReconnectDS(datasourceName: string) {
-    cy.get(this._datasourceCard, { withinSubject: null })
-      .find(this._activeDS)
-      .contains(datasourceName)
-      .scrollIntoView()
-      .should("be.visible")
-      .closest(this._datasourceCard)
-      .scrollIntoView()
-      .within(() => {
-        this.agHelper.AssertElementVisibility(this._reconnect, true, 0, 20000);
-      });
   }
   public ReconnectModalValidation(
     dbName: string,
@@ -1415,7 +1386,7 @@ export class DataSources {
     tableName: string,
     templateName: string,
   ) {
-    this.CreateQueryFromActiveTab(datasourceName);
+    this.CreateQueryForDS(datasourceName);
     this.AssertTableInVirtuosoList(datasourceName, tableName);
     cy.get(this._dsVirtuosoElementTable(tableName)).click();
     this.agHelper.GetNClick(
@@ -1829,7 +1800,7 @@ export class DataSources {
       new RegExp("^" + datasourceName + "$"),
     );
     this.agHelper.WaitUntilEleAppear(this._createQuery);
-    this.agHelper.GetNClick(this._createQuery);
+    this.CreateQueryAfterDSSaved(datasourceName);
   }
 
   public AssertDataSourceInfo(info: string[]) {

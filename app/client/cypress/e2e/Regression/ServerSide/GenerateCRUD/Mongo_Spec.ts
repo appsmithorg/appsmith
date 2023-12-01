@@ -2,17 +2,20 @@ import { INTERCEPT } from "../../../../fixtures/variables";
 
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
   appSettings,
-  entityItems,
-  dataSources,
-  table,
-  locators,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate Mongo CRUD with JSON Form", () => {
   let dsName: any;
@@ -67,7 +70,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   });
 
   it("2. Generate CRUD page from datasource present in ACTIVE section", function () {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
     GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);

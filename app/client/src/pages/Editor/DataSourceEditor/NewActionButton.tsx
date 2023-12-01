@@ -120,7 +120,11 @@ function NewActionButton(props: NewActionButtonProps) {
             : createMessage(NEW_API_BUTTON_TEXT)}
         </Button>
       </MenuTrigger>
-      <MenuContent align={"end"} side={"bottom"}>
+      <MenuContent
+        align={"end"}
+        data-testId={"t--page-selection"}
+        side={"bottom"}
+      >
         <Text className="pl-2" kind="heading-xs">{`Create a ${
           pluginType === PluginType.DB || pluginType === PluginType.SAAS
             ? "query"

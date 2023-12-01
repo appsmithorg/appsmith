@@ -56,7 +56,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("1. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function () {
-    dataSources.NavigateFromActiveDS(datasourceName, false);
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     cy.wait(3000);
     //Verifying List of Files from UI
     cy.get(generatePage.selectTableDropdown).click();
@@ -417,7 +417,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("5. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    dataSources.NavigateFromActiveDS(datasourceName, true);
+    dataSources.CreateQueryForDS(datasourceName);
 
     agHelper.GetObjectName().then(($queryName) => {
       dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
@@ -443,7 +443,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   it("6. Verify Adding Suggested widget with already present widget - S3 ", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
     agHelper.Sleep(2500); //allowing sometime for widget to settle down
-    dataSources.NavigateFromActiveDS(datasourceName, true);
+    dataSources.CreateQueryForDS(datasourceName);
     agHelper.GetObjectName().then(($queryName) => {
       EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
       dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
