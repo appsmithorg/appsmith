@@ -1,7 +1,13 @@
+import {
+  SegmentedControl,
+  Switch,
+  Tooltip,
+  Select,
+  Option,
+} from "design-system";
 import styled from "styled-components";
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SegmentedControl, Switch, Tooltip } from "design-system";
 import type { ThemeSetting } from "constants/AppConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
@@ -15,12 +21,21 @@ import {
   THEME_SETTINGS_SIZING_OPTIONS,
 } from "./constants";
 import SettingSection from "../ThemePropertyPane/SettingSection";
+import { FONT_METRICS } from "@design-system/theming";
 
 const SubText = styled.p`
   font-size: var(--ads-v2-font-size-4);
   line-height: 1rem;
   font-weight: var(--ads-v2-font-weight-normal);
   color: var(--ads-v2-color-fg);
+`;
+
+const FontText = styled.div`
+  border-radius: var(--ads-v2-border-radius);
+  border: 1px solid var(--ads-v2-color-border);
+  font-size: 11px;
+  height: 18px;
+  width: 18px;
 `;
 
 const buttonGroupOptions = THEME_SETTINGS_BORDER_RADIUS_OPTIONS.map(
@@ -68,7 +83,6 @@ function ThemePropertyPane() {
       {/* COLORS */}
       <SettingSection className="px-4 pb-3" isDefaultOpen title="Color">
         <section className="space-y-2">
-          <SubText>Accent Color</SubText>
           <ColorPickerComponent
             changeColor={(color: string) => {
               updateTheme({
@@ -97,33 +111,49 @@ function ThemePropertyPane() {
         </Switch>
       </SettingSection>
 
-      {/* BORDER RADIUS */}
       <SettingSection
         className="px-4 py-3 border-t "
         isDefaultOpen
-        title="Border"
+        title="Typography"
       >
         <section className="space-y-2">
-          <SubText>Border Radius</SubText>
-          <SegmentedControl
-            isFullWidth={false}
-            onChange={(value: string) => {
+          <Select
+            dropdownClassName="t--theme-font-dropdown"
+            onSelect={(value: string) => {
               updateTheme({
                 ...theme,
-                borderRadius: value,
+                fontFamily: value,
               });
             }}
-            options={buttonGroupOptions}
-            value={theme.borderRadius}
-          />
+            value={theme.fontFamily}
+          >
+            {Object.keys(FONT_METRICS)
+              .filter((item) => {
+                return (
+                  ["-apple-system", "BlinkMacSystemFont", "Segoe UI"].includes(
+                    item,
+                  ) === false
+                );
+              })
+              .map((option, index) => (
+                <Option key={index} value={option}>
+                  <div className="flex items-center w-full space-x-2 cursor-pointer">
+                    <FontText className="flex items-center justify-center">
+                      Aa
+                    </FontText>
+                    <div className="leading-normal">{option}</div>
+                  </div>
+                </Option>
+              ))}
+          </Select>
         </section>
       </SettingSection>
 
-      {/* SPACING */}
+      {/* Dimensions */}
       <SettingSection
         className="px-4 py-3 border-t"
         isDefaultOpen
-        title="Spacing"
+        title="Dimensions"
       >
         <section className="space-y-2">
           <SubText>Density</SubText>
@@ -151,6 +181,27 @@ function ThemePropertyPane() {
             }}
             options={THEME_SETTINGS_SIZING_OPTIONS}
             value={theme.sizing.toString()}
+          />
+        </section>
+      </SettingSection>
+
+      {/* BORDER RADIUS */}
+      <SettingSection
+        className="px-4 py-3 border-t "
+        isDefaultOpen
+        title="Corners"
+      >
+        <section className="space-y-2">
+          <SegmentedControl
+            isFullWidth={false}
+            onChange={(value: string) => {
+              updateTheme({
+                ...theme,
+                borderRadius: value,
+              });
+            }}
+            options={buttonGroupOptions}
+            value={theme.borderRadius}
           />
         </section>
       </SettingSection>

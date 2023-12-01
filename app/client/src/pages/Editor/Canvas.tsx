@@ -58,7 +58,9 @@ const Canvas = (props: CanvasProps) => {
       ? themeSetting.accentColor
       : selectedTheme.properties.colors.primaryColor,
     colorMode: isWDSEnabled ? themeSetting.colorMode : undefined,
-    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
+    fontFamily: isWDSEnabled
+      ? (themeSetting.fontFamily as FontFamily)
+      : (selectedTheme.properties.fontFamily.appFont as FontFamily),
     userSizing: isWDSEnabled ? themeSetting.sizing : undefined,
     userDensity: isWDSEnabled ? themeSetting.density : undefined,
   });

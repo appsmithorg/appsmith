@@ -96,6 +96,7 @@ export interface ThemeSetting {
   borderRadius: string;
   density: number;
   sizing: number;
+  fontFamily: string;
 }
 
 export type StringsFromNavigationSetting = Omit<
@@ -129,6 +130,7 @@ export const defaultNavigationSetting = {
 };
 
 export const defaultThemeSetting: ThemeSetting = {
+  fontFamily: "System Default",
   accentColor: "#553DE9",
   colorMode: "light",
   borderRadius: "6px",
