@@ -97,6 +97,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   const { datasources, description, functions, id, screenshotUrls, title } =
     props.template;
   const [showForkModal, setShowForkModal] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>();
   const isImportingTemplateToApp = useSelector(
     isImportingTemplateToAppSelector,
   );
@@ -113,6 +114,8 @@ export function TemplateLayout(props: TemplateLayoutProps) {
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
     if (props.onForkTemplateClick) {
+      if (isImportingTemplateToApp) return;
+      setSelectedTemplateId(id);
       e.preventDefault();
       e.stopPropagation();
       props.onForkTemplateClick(props.template);
@@ -172,7 +175,9 @@ export function TemplateLayout(props: TemplateLayoutProps) {
                   className="t--fork-template fork-button"
                   isIconButton
                   isLoading={
-                    props.onForkTemplateClick && isImportingTemplateToApp
+                    props.onForkTemplateClick &&
+                    isImportingTemplateToApp &&
+                    selectedTemplateId === id
                   }
                   onClick={onForkButtonTrigger}
                   size="sm"
