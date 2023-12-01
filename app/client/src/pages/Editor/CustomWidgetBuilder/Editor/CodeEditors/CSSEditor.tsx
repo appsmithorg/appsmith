@@ -30,7 +30,7 @@ export default function CSSEditor(props: ContentProps) {
           className={"js-editor"}
           focusElementName="custom-widget-css-editor"
           folding
-          height={height - 38}
+          height={height - 39}
           hideEvaluatedValue
           input={{
             value: srcDoc?.css,

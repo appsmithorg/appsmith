@@ -1,5 +1,5 @@
 .wrapper {
-  border-top: 1px solid #cdd5df;
+  border-top: 1px solid var(--ads-v2-color-gray-300);
 }
 
 .tabPanel.tabPanel {

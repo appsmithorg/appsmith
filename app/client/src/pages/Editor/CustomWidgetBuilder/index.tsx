@@ -1,12 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  lazy,
+  Suspense,
+} from "react";
 import Header from "./header";
 import styles from "./styles.module.css";
 import Preview from "./Preview";
-import Editor from "./Editor";
 import { CUSTOM_WIDGET_BUILDER_EVENTS } from "./contants";
 import { Spinner } from "design-system";
 import history from "utils/history";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "components/utils/Skeleton";
 
 interface CustomWidgetBuilderContextValueType {
   name: string;
@@ -49,6 +57,10 @@ const LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN =
 
 const LOCAL_STORAGE_KEYS_SELECTED_LAYOUT =
   "custom-widget-builder-context-state-selected-layout";
+
+const LazyEditorComponent = lazy(async () =>
+  retryPromise(async () => import("./Editor")),
+);
 
 export default function CustomWidgetBuilder() {
   const [loading, setLoading] = useState(true);
@@ -243,7 +255,9 @@ export default function CustomWidgetBuilder() {
       ) : (
         <div className={styles.content}>
           <Preview />
-          <Editor />
+          <Suspense fallback={<Skeleton />}>
+            <LazyEditorComponent />
+          </Suspense>
         </div>
       )}
     </CustomWidgetBuilderContext.Provider>

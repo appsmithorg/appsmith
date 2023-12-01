@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useState } from "react";
 import styles from "./styles.module.css";
-import { Icon } from "design-system";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { Icon, Text } from "design-system";
 import {
   EditorModes,
   EditorSize,
@@ -9,6 +8,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CustomWidgetBuilderContext } from "../..";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 export default function Events() {
   const { events } = useContext(CustomWidgetBuilderContext);
@@ -52,7 +52,9 @@ export default function Events() {
               {openState[event] && (
                 <div className={styles.eventValue}>
                   <LazyCodeEditor
+                    disabled
                     evaluatedValue={events[event]}
+                    hideEvaluatedValue
                     input={{
                       value: events[event],
                     }}
@@ -60,6 +62,8 @@ export default function Events() {
                     mode={EditorModes.TEXT_WITH_BINDING}
                     placeholder="No action"
                     positionCursorInsideBinding
+                    showCustomToolTipForHighlightedText={false}
+                    showLightningMenu={false}
                     size={EditorSize.EXTENDED}
                     tabBehaviour={TabBehaviour.INDENT}
                     theme={EditorTheme.LIGHT}
@@ -69,6 +73,12 @@ export default function Events() {
             </div>
           );
         })}
+      {events && Object.keys(events).length === 0 && (
+        <Text color="#6A7585" renderAs="p">
+          You haven’t created any events. Return to the app editor to add events
+          to this custom widget.
+        </Text>
+      )}
     </div>
   );
 }

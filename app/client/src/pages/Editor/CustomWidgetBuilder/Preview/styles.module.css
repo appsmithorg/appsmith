@@ -1,0 +1,5 @@
+.contentLeft {
+  flex-basis: 50%;
+  border: none;
+  position: relative;
+}

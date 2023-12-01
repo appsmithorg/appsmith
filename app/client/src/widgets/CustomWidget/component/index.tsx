@@ -7,6 +7,10 @@ import script from "!!raw-loader!./script.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
+import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
 import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
 
@@ -37,28 +41,37 @@ function CustomComponent(props: CustomComponentProps) {
       if (event.source === iframeWindow) {
         const message = event.data;
 
-        if (message.type === "UPDATE") {
-          props.update(message.data);
-        } else if (message.type === "EVENT") {
-          props.execute(message.data.eventName, message.data.contextObj);
-        } else if (message.type === "READY") {
-          iframe.current?.contentWindow?.postMessage(
-            {
-              type: "READY_ACK",
-              model: props.model,
-              dimensions: {
-                width: props.width,
-                height: props.height,
+        switch (message.type) {
+          case "READY":
+            iframe.current?.contentWindow?.postMessage(
+              {
+                type: "READY_ACK",
+                model: props.model,
+                dimensions: {
+                  width: props.width,
+                  height: props.height,
+                },
               },
-            },
-            "*",
-          );
-        } else if (message.type === "UPDATE_HEIGHT") {
-          const height = message.data.height;
+              "*",
+            );
+            break;
+          case "UPDATE":
+            props.update(message.data);
+            break;
+          case "EVENT":
+            props.execute(message.data.eventName, message.data.contextObj);
+            break;
+          case "UPDATE_HEIGHT":
+            const height = message.data.height;
 
-          if (height) {
-            iframe.current!.style.height = `${height}px`;
-          }
+            if (height) {
+              iframe.current!.style.height = `${height}px`;
+            }
+            break;
+          case "CUSTOM_WIDGET_CONSOLE":
+            props.onConsole &&
+              props.onConsole(message.data.type, message.data.args);
+            break;
         }
       }
     };
@@ -102,6 +115,9 @@ function CustomComponent(props: CustomComponentProps) {
         <style>${css}</style>
       </head>
       <body>
+        <script type="text/javascript">${
+          props.onConsole ? appsmithConsole : ""
+        }</script>
         <script type="text/javascript">${script}</script>
         ${props.srcDoc.html}
         <script type="text/babel"  data-presets="react" data-type="module">
@@ -129,7 +145,7 @@ function CustomComponent(props: CustomComponentProps) {
           setLoading(false);
         }}
         ref={iframe}
-        sandbox="allow-scripts"
+        sandbox="allow-scripts allow-downloads"
         srcDoc={srcDoc}
         width={props.width}
       />
@@ -150,6 +166,7 @@ export interface CustomComponentProps {
   height: number;
   onLoadingStateChange?: (state: string) => void;
   needsOverlay?: boolean;
+  onConsole?: (type: string, message: string) => void;
 }
 
 export default CustomComponent;

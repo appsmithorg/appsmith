@@ -1,18 +1,20 @@
 .references {
   flex-basis: 288px;
-  border-left: #cdd5df 1px solid;
+  border-left: var(--ads-v2-color-gray-300) 1px solid;
   overflow: auto;
   height: calc(100vh - 90px);
 }
 
 .collapsible {
-  border-bottom: 1px solid #cdd5df;
+  border-bottom: 1px solid var(--ads-v2-color-gray-300);
 }
 
 .collapsibleHeader {
   display: flex;
   padding: 0.5rem 1rem;
   justify-content: space-between;
+  align-items: center;
+  height: 38px;
 }
 
 .collapsibleBody {
@@ -34,27 +36,26 @@
 }
 
 .marginTop {
-  margin-top: 1rem;
+  margin: 1rem 0 6px;
 }
 
 .events {
   width: 100%;
 }
 
-.event {
+.event:not(:last-child) {
   margin-bottom: 12px;
 }
 
 .eventName {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
 }
 
 .eventLabel {
   font-size: 14px;
-  font-weight: 500;
-  margin-right: 8px;
+  font-weight: 400;
+  margin-right: 2px;
   cursor: pointer;
 }
 
@@ -63,6 +64,7 @@
 }
 
 .eventValue {
+  margin-top: 8px;
   width: 100%;
 }
 
@@ -72,4 +74,8 @@
 
 .switchTransientMode {
   margin-bottom: 10px;
+}
+
+.noMargin.noMargin {
+  margin: 0px;
 }

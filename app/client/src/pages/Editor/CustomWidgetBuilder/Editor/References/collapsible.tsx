@@ -23,7 +23,7 @@ export default function Collapsible(props: Props) {
         <div className={styles.collapsibleIcon}>
           <Icon
             name={open ? "arrow-down-s-line" : "arrow-up-s-line"}
-            size="lg"
+            size="md"
           />
         </div>
       </div>

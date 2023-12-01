@@ -1,0 +1,70 @@
+.wrapper {
+  bottom: 0;
+  position: absolute;
+  width: 100%;
+  border-top: 1px solid var(--ads-v2-color-gray-300);
+  background: #fff;
+}
+
+.consoleTab {
+  padding-left: 12px !important;
+  cursor: pointer;
+}
+
+.consoleBody.consoleBody {
+  margin-top: 0;
+  height: 300px;
+}
+
+.consoleItem {
+  padding: 0 12px;
+  border-bottom: 1px solid var(--ads-v2-color-gray-300);
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  min-height: 34px;
+}
+
+.consoleItemMessage {
+  width: calc(100% - 48px);
+}
+
+.consoleItemMessage span {
+  font-weight: 600;
+}
+
+.consoleItemHelp {
+  width: 24px;
+}
+
+.consoleItemIcon {
+  width: 24px;
+  margin-right: 5px;
+}
+
+.consoleItemHelpContent.consoleItemHelpContent {
+  padding: 0;
+}
+
+.consoleActions {
+  display: flex;
+  gap: 20px;
+  position: absolute;
+  right: 0;
+  top: 7px;
+  right: 10px;
+  cursor: pointer;
+}
+
+.consoleCounter {
+  display: flex;
+  gap: 8px;
+  top: 12px;
+  font-size: 12px;
+}
+
+.consoleCounterItem {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}

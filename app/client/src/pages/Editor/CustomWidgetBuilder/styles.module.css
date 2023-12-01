@@ -24,11 +24,6 @@
   height: calc(100vh - 40px);
 }
 
-.contentLeft {
-  flex-basis: 50%;
-  border: none;
-}
-
 .loader {
   display: flex;
   width: 100vw;

@@ -31,7 +31,7 @@ export default function HTMLEditor(props: ContentProps) {
           className={"js-editor"}
           focusElementName="custom-widget-html-editor"
           folding
-          height={height - 38}
+          height={height - 39}
           hideEvaluatedValue
           input={{
             value: srcDoc?.html,

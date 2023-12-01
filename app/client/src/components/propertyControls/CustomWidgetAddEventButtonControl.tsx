@@ -2,8 +2,9 @@ import React from "react";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Button, Input } from "design-system";
+import { Button, Input, Icon } from "design-system";
 import type { WidgetProps } from "widgets/BaseWidget";
+import styled from "styled-components";
 
 interface ButtonControlState {
   showInput: boolean;
@@ -14,6 +15,12 @@ interface ButtonControlState {
 interface ButtonControlProps extends ControlProps {
   onAdd: (widget: WidgetProps, name: string) => Record<string, unknown>;
 }
+
+const StyledErrorMessage = styled.div`
+  display: flex;
+  gap: 5px;
+  align-items: center;
+`;
 
 const RESTRICTED_NAMES = ["onReset"];
 
@@ -55,18 +62,27 @@ class ButtonControl extends BaseControl<
   };
 
   getErrorMessages = () => {
+    let errorMessage = "";
+
     if (this.state.pristine) {
       return "";
-    } else if (this.state.eventName.trim() === "") {
-      return "Event name cannot be empty";
     } else if (
       this.props.widgetProperties.hasOwnProperty(this.state.eventName.trim()) ||
       this.props.widgetProperties.events.includes(this.state.eventName.trim())
     ) {
-      return "Event name already exists";
+      errorMessage = "Event name already exists";
     } else if (RESTRICTED_NAMES.includes(this.state.eventName.trim())) {
-      return "Event name is restricted";
+      errorMessage = "Event name is restricted";
     }
+
+    return (
+      errorMessage && (
+        <StyledErrorMessage>
+          <Icon name="alert-line" size="sm" />
+          {errorMessage}
+        </StyledErrorMessage>
+      )
+    );
   };
 
   render() {
