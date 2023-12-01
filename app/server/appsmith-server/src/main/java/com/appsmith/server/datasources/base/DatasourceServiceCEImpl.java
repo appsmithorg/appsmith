@@ -16,6 +16,8 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -23,11 +25,13 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SequenceService;
@@ -35,12 +39,14 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -61,12 +67,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -77,6 +85,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     protected final PluginService pluginService;
+    protected final NewPageService newPageService;
+    protected final ApplicationService applicationService;
+    protected final PagePermission pagePermission;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
@@ -104,6 +115,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             PluginService pluginService,
+            ApplicationService applicationService,
+            NewPageService newPageService,
+            PagePermission pagePermission,
             PluginExecutorHelper pluginExecutorHelper,
             PolicyGenerator policyGenerator,
             SequenceService sequenceService,
@@ -119,6 +133,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.pluginService = pluginService;
+        this.applicationService = applicationService;
+        this.newPageService = newPageService;
+        this.pagePermission = pagePermission;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
@@ -149,7 +166,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         // Validate incoming request
         String workspaceId = datasource.getWorkspaceId();
         if (!hasText(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, WORKSPACE_ID));
         }
         if (!hasText(datasource.getPluginId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PLUGIN_ID));
@@ -449,7 +466,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
                     if (!hasText(datasourceStorage.getWorkspaceId())) {
                         return Mono.error(
-                                new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+                                new AppsmithException(AppsmithError.INVALID_PARAMETER, WORKSPACE_ID));
                     }
 
                     datasourceStorageMono = getTrueEnvironmentId(
@@ -730,6 +747,18 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return MustacheHelper.extractMustacheKeysFromFields(datasource.getDatasourceConfiguration());
     }
 
+    public Flux<Datasource> getAllDatasourcesWithStorageUsingPageId(String pageId) {
+        return newPageService.findById(pageId, pagePermission.getReadPermission())
+            .map(NewPage::getApplicationId)
+            .flatMap(applicationService::getById)
+            .map(Application::getWorkspaceId)
+            .flatMapMany(workspaceId -> {
+                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                params.put(WORKSPACE_ID, singletonList(workspaceId));
+                return getAllWithStorages(params);
+            });
+    }
+
     @Override
     public Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params) {
         String workspaceId = params.getFirst(fieldName(QDatasource.datasource.workspaceId));
@@ -738,7 +767,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     workspaceId, Optional.of(datasourcePermission.getReadPermission()));
         }
 
-        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, WORKSPACE_ID));
     }
 
     @Override
@@ -809,7 +838,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .thenReturn(toDelete);
                 })
                 .flatMap(datasource -> {
-                    Map<String, String> eventData = Map.of(FieldName.WORKSPACE_ID, datasource.getWorkspaceId());
+                    Map<String, String> eventData = Map.of(WORKSPACE_ID, datasource.getWorkspaceId());
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(datasource);
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendDeleteEvent(datasource, analyticsProperties);

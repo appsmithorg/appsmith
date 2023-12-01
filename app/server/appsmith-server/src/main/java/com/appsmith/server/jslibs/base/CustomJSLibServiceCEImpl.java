@@ -2,11 +2,14 @@ package com.appsmith.server.jslibs.base;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.solutions.PagePermission;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,8 @@ import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCusto
 public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String>
         implements CustomJSLibServiceCE {
     ApplicationService applicationService;
+    NewPageService newPageService;
+    PagePermission pagePermission;
 
     public CustomJSLibServiceCEImpl(
             Scheduler scheduler,
@@ -38,10 +43,14 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
             ReactiveMongoTemplate reactiveMongoTemplate,
             CustomJSLibRepository repository,
             ApplicationService applicationService,
+            NewPageService newPageService,
+            PagePermission pagePermission,
             AnalyticsService analyticsService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
 
         this.applicationService = applicationService;
+        this.newPageService = newPageService;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -115,6 +124,13 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     return applicationService.update(applicationId, fieldNameValueMap, branchName);
                 })
                 .map(updateResult -> updateResult.getModifiedCount() > 0);
+    }
+
+    public Mono<List<CustomJSLib>> getAllJSLibsInApplicationUsingPageId(
+        @NotNull String pageId, String branchName, Boolean isViewMode) {
+        return newPageService.findById(pageId, pagePermission.getReadPermission())
+            .map(NewPage::getApplicationId)
+            .flatMap(applicationId -> getAllJSLibsInApplication(applicationId, branchName, isViewMode));
     }
 
     @Override

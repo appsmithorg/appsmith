@@ -6,9 +6,11 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.ce.ThemeRepositoryCE;
@@ -16,7 +18,9 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import jakarta.validation.Validator;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -35,8 +39,10 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     private final ApplicationRepository applicationRepository;
     private final ApplicationService applicationService;
+    private final NewPageService newPageService;
     private final PolicyGenerator policyGenerator;
     private final ApplicationPermission applicationPermission;
+    private final PagePermission pagePermission;
     private String defaultThemeId; // acts as a simple cache so that we don't need to fetch from DB always
 
     public ThemeServiceCEImpl(
@@ -48,13 +54,17 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             AnalyticsService analyticsService,
             ApplicationRepository applicationRepository,
             ApplicationService applicationService,
+            NewPageService newPageService,
             PolicyGenerator policyGenerator,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            PagePermission pagePermission) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.applicationRepository = applicationRepository;
         this.applicationService = applicationService;
+        this.newPageService = newPageService;
         this.policyGenerator = policyGenerator;
         this.applicationPermission = applicationPermission;
+        this.pagePermission = pagePermission;
     }
 
     @Override
@@ -80,6 +90,13 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         return repository.getSystemThemes();
     }
 
+    public Mono<Theme> getApplicationThemeUsingPageId(@NonNull String pageId, ApplicationMode applicationMode,
+                                                      String branchName) {
+        return newPageService.findById(pageId, pagePermission.getReadPermission())
+            .map(NewPage::getApplicationId)
+            .flatMap(applicationId -> getApplicationTheme(applicationId, applicationMode, branchName));
+    }
+
     @Override
     public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName) {
         return applicationService
@@ -100,6 +117,12 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
                     }
                 });
+    }
+
+    public Flux<Theme> getApplicationThemesUsingPageId(@NonNull String pageId, String branchName) {
+            return newPageService.findById(pageId, pagePermission.getReadPermission())
+                .map(NewPage::getApplicationId)
+                .flatMapMany(applicationId -> getApplicationThemes(applicationId, branchName));
     }
 
     @Override

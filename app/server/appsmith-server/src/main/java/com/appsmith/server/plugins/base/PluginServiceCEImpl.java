@@ -3,6 +3,8 @@ package com.appsmith.server.plugins.base;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -11,10 +13,13 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,6 +40,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
@@ -59,11 +65,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
+import static java.util.Collections.singletonList;
+
 @Slf4j
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
     protected final WorkspaceService workspaceService;
+    protected final ApplicationService applicationService;
+    protected final NewPageService newPageService;
+    protected final PagePermission pagePermission;
     private final PluginManager pluginManager;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
@@ -100,12 +112,18 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             PluginRepository repository,
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
+            ApplicationService applicationService,
+            NewPageService newPageService,
+            PagePermission pagePermission,
             PluginManager pluginManager,
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
             ObjectMapper objectMapper) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
+        this.applicationService = applicationService;
+        this.newPageService = newPageService;
+        this.pagePermission = pagePermission;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
@@ -117,9 +135,9 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
         // Remove branch name as plugins are not shared across branches
         params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        String workspaceId = params.getFirst(FieldName.WORKSPACE_ID);
+        String workspaceId = params.getFirst(WORKSPACE_ID);
         if (workspaceId == null) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, WORKSPACE_ID));
         }
 
         // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
@@ -176,13 +194,27 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return repository.findDefaultPluginIcons();
     }
 
+    public Flux<Plugin> getAllPluginsUsingPageId(String pageId) {
+        return newPageService.findById(pageId, pagePermission.getReadPermission())
+            .map(NewPage::getApplicationId)
+            .flatMap(applicationService::getById)
+            .map(Application::getWorkspaceId)
+            .flatMap(workspaceService::getById)
+            .map(Workspace::getId)
+            .flatMapMany(workspaceId -> {
+                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                params.put(WORKSPACE_ID, singletonList(workspaceId));
+                return get(params);
+            });
+    }
+
     @Override
     public Mono<Workspace> installPlugin(PluginWorkspaceDTO pluginOrgDTO) {
         if (pluginOrgDTO.getPluginId() == null) {
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
         if (pluginOrgDTO.getWorkspaceId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, WORKSPACE_ID));
         }
 
         return storeWorkspacePlugin(pluginOrgDTO, pluginOrgDTO.getStatus()).switchIfEmpty(Mono.empty());
@@ -218,7 +250,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Mono.error(new AppsmithException(AppsmithError.PLUGIN_ID_NOT_GIVEN));
         }
         if (pluginDTO.getWorkspaceId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, WORKSPACE_ID));
         }
 
         // Find the workspace using id and plugin id -> This is to find if the workspace has the plugin installed

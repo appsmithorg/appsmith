@@ -19,6 +19,8 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
 
     Flux<Plugin> getDefaultPluginIcons();
 
+    Flux<Plugin> getAllPluginsUsingPageId(String pageId);
+
     Mono<Workspace> installPlugin(PluginWorkspaceDTO plugin);
 
     Flux<Workspace> installDefaultPlugins(List<Plugin> plugins);

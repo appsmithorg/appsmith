@@ -10,8 +10,11 @@ import reactor.core.publisher.Mono;
 
 public interface ThemeServiceCE extends CrudService<Theme, String> {
     Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName);
+    Mono<Theme> getApplicationThemeUsingPageId(String pageId, ApplicationMode applicationMode,
+                                               String branchName);
 
     Flux<Theme> getApplicationThemes(String applicationId, String branchName);
+    Flux<Theme> getApplicationThemesUsingPageId(String pageId, String branchName);
 
     Flux<Theme> getSystemThemes();
 
