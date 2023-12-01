@@ -57,7 +57,7 @@ public class ModuleInstanceController {
     public Mono<ResponseDTO<CreateModuleInstanceResponseDTO>> createModuleInstance(
             @Valid @RequestBody ModuleInstanceDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to create module instance under module {}", resource.getModuleId());
+        log.debug("Going to create module instance under module {}", resource.getSourceModuleId());
 
         return crudModuleInstanceService
                 .createModuleInstance(resource, branchName)
@@ -70,12 +70,14 @@ public class ModuleInstanceController {
     public Mono<ResponseDTO<List<ModuleInstanceDTO>>> getModuleInstances(
             @RequestParam String contextId,
             @RequestParam CreatorContextType contextType,
+            @RequestParam(required = false, defaultValue = "false") boolean viewMode,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to fetch module instances by contextType: {} and contextId: {}", contextType, contextId);
 
+        ResourceModes accessMode = viewMode ? ResourceModes.VIEW : ResourceModes.EDIT;
         return layoutModuleInstanceService
                 .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
-                        contextId, contextType, ResourceModes.EDIT, branchName)
+                        contextId, contextType, accessMode, branchName)
                 .map(moduleInstanceDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), moduleInstanceDTOS, null));
     }
 
@@ -111,12 +113,14 @@ public class ModuleInstanceController {
     public Mono<ResponseDTO<ModuleInstanceEntitiesDTO>> getModuleInstanceEntities(
             @RequestParam String contextId,
             @RequestParam CreatorContextType contextType,
+            @RequestParam(required = false, defaultValue = "false") boolean viewMode,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
                 "Going to fetch module instance entities by contextType: {} and contextId: {}", contextType, contextId);
 
+        ResourceModes accessMode = viewMode ? ResourceModes.VIEW : ResourceModes.EDIT;
         return crudModuleInstanceService
-                .getAllEntities(contextId, contextType, branchName)
+                .getAllEntities(contextId, contextType, branchName, accessMode)
                 .map(moduleInstanceEntitiesDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), moduleInstanceEntitiesDTO, null));
     }

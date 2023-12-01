@@ -156,16 +156,8 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     @Override
     public Flux<NewAction> findByWorkflowIds(
             List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
-        String unpublishedAction = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.workflowId);
-        String publishedAction = fieldName(QNewAction.newAction.publishedAction) + "."
-                + fieldName(QNewAction.newAction.publishedAction.workflowId);
-
-        Criteria workflowCriteria = new Criteria()
-                .orOperator(
-                        where(unpublishedAction).in(workflowIds),
-                        where(publishedAction).in(workflowIds));
-
+        Criteria workflowCriteria =
+                Criteria.where(fieldName(QNewAction.newAction.workflowId)).in(workflowIds);
         return queryAll(List.of(workflowCriteria), includeFields, aclPermission, Optional.empty());
     }
 

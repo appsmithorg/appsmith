@@ -55,6 +55,21 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
+    public Flux<ModuleInstance> findAllUnpublishedByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission) {
+        Criteria contextIdAndContextTypeCriteria = where(contextTypeToContextIdPathMap.get(contextType))
+                .is(contextId)
+                .and(fieldName(QModuleInstance.moduleInstance.contextType))
+                .is(contextType);
+
+        Criteria deletedAtNullCriterion = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance)
+                        + "." + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
+                .isNull();
+
+        return queryAll(List.of(contextIdAndContextTypeCriteria, deletedAtNullCriterion), Optional.of(permission));
+    }
+
+    @Override
     public Mono<ModuleInstance> findByBranchNameAndDefaultModuleInstanceId(
             String branchName, String defaultModuleInstanceId, AclPermission permission) {
         final String defaultResources = fieldName(QModuleInstance.moduleInstance.defaultResources);

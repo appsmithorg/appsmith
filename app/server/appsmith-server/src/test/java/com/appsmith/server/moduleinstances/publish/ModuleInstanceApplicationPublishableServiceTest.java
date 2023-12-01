@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
@@ -39,6 +40,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -249,6 +252,25 @@ public class ModuleInstanceApplicationPublishableServiceTest {
         ModuleInstance deletedInEditModeModuleInstance =
                 moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
 
+        // Ensure that the module instance exists in view mode but not in edit mode
+        List<ModuleInstanceDTO> moduleInstancesInViewMode = layoutModuleInstanceService
+                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
+                        moduleInstanceTestHelperDTO.getPageDTO().getId(),
+                        CreatorContextType.PAGE,
+                        ResourceModes.VIEW,
+                        null)
+                .block();
+        List<ModuleInstanceDTO> moduleInstancesInEditMode = layoutModuleInstanceService
+                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
+                        moduleInstanceTestHelperDTO.getPageDTO().getId(),
+                        CreatorContextType.PAGE,
+                        ResourceModes.EDIT,
+                        null)
+                .block();
+
+        assertThat(moduleInstancesInViewMode.size()).isEqualTo(1);
+        assertThat(moduleInstancesInEditMode.size()).isEqualTo(0);
+
         // Assertions for deletion in edit mode
         assertThat(deletedInEditModeModuleInstance
                         .getUnpublishedModuleInstance()
@@ -266,5 +288,24 @@ public class ModuleInstanceApplicationPublishableServiceTest {
         ModuleInstance deletedInModuleInstance =
                 moduleInstanceRepository.findById(moduleInstanceDTO.getId()).block();
         assertThat(deletedInModuleInstance).isNull();
+
+        // Ensure that the module instance does not exist in either view mode or edit mode
+        moduleInstancesInViewMode = layoutModuleInstanceService
+                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
+                        moduleInstanceTestHelperDTO.getPageDTO().getId(),
+                        CreatorContextType.PAGE,
+                        ResourceModes.VIEW,
+                        null)
+                .block();
+        moduleInstancesInEditMode = layoutModuleInstanceService
+                .getAllModuleInstancesByContextIdAndContextTypeAndViewMode(
+                        moduleInstanceTestHelperDTO.getPageDTO().getId(),
+                        CreatorContextType.PAGE,
+                        ResourceModes.EDIT,
+                        null)
+                .block();
+
+        assertThat(moduleInstancesInViewMode.size()).isEqualTo(0);
+        assertThat(moduleInstancesInEditMode.size()).isEqualTo(0);
     }
 }

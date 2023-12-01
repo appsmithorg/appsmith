@@ -360,14 +360,14 @@ const CreateNewAppsOption = ({
   const selectionOptions: CardProps[] = [
     {
       onClick: onClickStartFromScratch,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-scratch.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-from-scratch.svg`),
       subTitle: createMessage(START_FROM_SCRATCH_SUBTITLE),
       testid: "t--start-from-scratch",
       title: createMessage(START_FROM_SCRATCH_TITLE),
     },
     {
       onClick: onClickStartFromTemplate,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-usecase.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-from-templates.svg`),
       subTitle: createMessage(START_FROM_TEMPLATE_SUBTITLE),
       testid: "t--start-from-template",
       title: createMessage(START_FROM_TEMPLATE_TITLE),
@@ -377,7 +377,7 @@ const CreateNewAppsOption = ({
   if (isEnabledForStartWithData) {
     selectionOptions.unshift({
       onClick: onClickStartWithData,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-data.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-with-data.svg`),
       subTitle: createMessage(START_WITH_DATA_SUBTITLE),
       testid: "t--start-from-data",
       title: createMessage(START_WITH_DATA_TITLE),

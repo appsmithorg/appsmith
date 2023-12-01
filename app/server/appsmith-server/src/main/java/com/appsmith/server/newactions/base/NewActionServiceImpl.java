@@ -344,6 +344,15 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
+    protected boolean isValidActionName(ActionDTO action) {
+        boolean isInternal = false;
+        if (action.getModuleInstanceId() != null) {
+            isInternal = true;
+        }
+        return entityValidationService.validateName(action.getName(), isInternal);
+    }
+
+    @Override
     protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
         if (ModuleUtils.isModuleContext(action)) {
             if (action.getModuleId() == null || action.getModuleId().isBlank()) {

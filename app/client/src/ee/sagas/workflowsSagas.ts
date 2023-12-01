@@ -32,6 +32,7 @@ import type {
 import WorkflowApi from "@appsmith/api/WorkflowApi";
 import {
   getIsFetchingWorkflows,
+  getShowWorkflowFeature,
   getWorkflowById,
   getWorkflowsList,
 } from "@appsmith/selectors/workflowSelectors";
@@ -172,7 +173,8 @@ export function* fetchAllWorkflowsSaga() {
   try {
     // TODO (Workflows): Remove and add call without workspaceId
     const workspaces: Workspaces[] = yield select(getFetchedWorkspaces);
-
+    const showWorkflowFeature: boolean = yield select(getShowWorkflowFeature);
+    if (!showWorkflowFeature) return;
     const workspaceIds = workspaces.map((w) => w.workspace.id);
 
     const responses: FetchWorkflowResponse[] = yield all(

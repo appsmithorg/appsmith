@@ -7,7 +7,11 @@ import type {
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import Fuse from "fuse.js";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
-import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
+import {
+  NAVIGATION_SETTINGS,
+  SIDEBAR_WIDTH,
+  defaultThemeSetting,
+} from "constants/AppConstants";
 import { getApplicationsOfWorkspace } from "./selectedWorkspaceSelectors";
 
 const fuzzySearchOptions = {
@@ -220,3 +224,9 @@ export const getApplicationByIdFromWorkspaces = createSelector(
     return application;
   },
 );
+export const getAppThemeSettings = (state: AppState) => {
+  return (
+    state.ui.applications.currentApplication?.applicationDetail?.themeSetting ||
+    defaultThemeSetting
+  );
+};
