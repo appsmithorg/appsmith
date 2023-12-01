@@ -114,9 +114,10 @@ describe("Icon Button widget Tests", function () {
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
     agHelper.AssertURL("yahoo.com");
     // agHelper.BrowserNavigation(-1);
-    cy.window({ timeout: 60000 }).then((win) => {
-      win.history.back();
-    });
+    agHelper.BrowserNavigation(1);
+    // cy.window({ timeout: 60000 }).then((win) => {
+    //   win.history.back();
+    // });
     assertHelper.AssertNetworkResponseData("@viewPage");
     assertHelper.AssertDocumentReady();
     agHelper.Sleep(3000); //for view page to complete loading & then navigate back
