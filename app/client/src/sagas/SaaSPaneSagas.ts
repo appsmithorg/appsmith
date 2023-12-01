@@ -94,9 +94,8 @@ function* handleDatasourceCreatedSaga(
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
-  const { id, pluginId } = actionPayload.payload;
+  const { id, pageId, pluginId } = actionPayload.payload;
   const plugin: Plugin | undefined = yield select(getPlugin, pluginId);
-  const pageId: string = yield select(getCurrentPageId);
 
   if (!plugin) return;
   if (plugin.type !== "SAAS") return;
