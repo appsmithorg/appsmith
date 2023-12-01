@@ -6,11 +6,14 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.constants.AnthropicConstants;
 import com.external.plugins.models.AnthropicRequestDTO;
 import com.external.plugins.utils.RequestUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +35,7 @@ import static com.external.plugins.constants.AnthropicConstants.PROVIDER;
 import static com.external.plugins.constants.AnthropicConstants.ROLE;
 import static com.external.plugins.constants.AnthropicConstants.ROLE_ASSISTANT;
 import static com.external.plugins.constants.AnthropicConstants.TEMPERATURE;
+import static com.external.plugins.constants.AnthropicConstants.VIEW_TYPE;
 import static com.external.plugins.constants.AnthropicErrorMessages.BAD_MAX_TOKEN_CONFIGURATION;
 import static com.external.plugins.constants.AnthropicErrorMessages.BAD_TEMPERATURE_CONFIGURATION;
 import static com.external.plugins.constants.AnthropicErrorMessages.EXECUTION_FAILURE;
@@ -40,6 +44,8 @@ import static com.external.plugins.constants.AnthropicErrorMessages.QUERY_NOT_CO
 import static com.external.plugins.constants.AnthropicErrorMessages.STRING_APPENDER;
 
 public class ChatCommand implements AnthropicCommand {
+    private final Gson gson = new Gson();
+
     @Override
     public HttpMethod getTriggerHTTPMethod() {
         return HttpMethod.GET;
@@ -99,12 +105,14 @@ public class ChatCommand implements AnthropicCommand {
     private String createPrompt(Map<String, Object> formData) {
         StringBuilder stringBuilder = new StringBuilder();
         if (formData.containsKey(MESSAGES)) {
-            boolean isComponentData = ((Map) formData.get(MESSAGES)).containsKey(COMPONENT_DATA);
-            String dataKey = isComponentData ? COMPONENT_DATA : DATA;
-            List<Map<String, String>> messagesMap =
-                    (List<Map<String, String>>) ((Map<?, ?>) formData.get(MESSAGES)).get(dataKey);
+            List<Map<String, String>> messagesMap = getMessages((Map<String, Object>) formData.get(MESSAGES));
+            if (messagesMap == null) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        "messages are not provided in the configuration correctly");
+            }
             for (Map<String, String> message : messagesMap) {
-                if (message.containsKey(ROLE) && message.containsKey(CONTENT)) {
+                if (message != null && message.containsKey(ROLE) && message.containsKey(CONTENT)) {
                     stringBuilder
                             .append("\n\n")
                             .append(message.get(ROLE))
@@ -118,6 +126,31 @@ public class ChatCommand implements AnthropicCommand {
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                     "messages are not provided in the configuration");
         }
+    }
+
+    private List<Map<String, String>> getMessages(Map<String, Object> messages) {
+        Type listType = new TypeToken<List<Map<String, String>>>() {}.getType();
+        if (messages.containsKey(VIEW_TYPE)) {
+            if ("json".equals(messages.get(VIEW_TYPE))) {
+                // data is present in data key as String
+                return gson.fromJson((String) messages.get(DATA), listType);
+            } else if ("component".equals(messages.get(VIEW_TYPE))) {
+                return (List<Map<String, String>>) messages.get(COMPONENT_DATA);
+            }
+        }
+        // return object stored in data key
+        return (List<Map<String, String>>) messages.get(DATA);
+    }
+
+    /**
+     * Finds right data key from formData.messages. If viewType is present and it's json, then use `componentData`key
+     * else use `data` key to find right messages.
+     */
+    private String findDataKey(Map<String, Object> messages) {
+        if (messages.containsKey(VIEW_TYPE) && "json".equals(messages.get(VIEW_TYPE))) {
+            return COMPONENT_DATA;
+        }
+        return DATA;
     }
 
     private int getMaxTokenFromFormData(Map<String, Object> formData) {
