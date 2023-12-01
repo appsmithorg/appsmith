@@ -80,3 +80,4 @@ VOLUME [ "/appsmith-stacks" ]
 # ------------------------------------------------------------------------
 ENV TMP="/tmp/appsmith"
 ENV NGINX_WWW_PATH="$TMP/www"
+ENV WWW_PATH="$TMP/www"
