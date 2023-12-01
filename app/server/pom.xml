@@ -29,6 +29,7 @@
         <deploy.disabled>true</deploy.disabled>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
+        <logback.version>1.4.12</logback.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
