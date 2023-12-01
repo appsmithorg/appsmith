@@ -121,16 +121,29 @@ function NewActionButton(props: NewActionButtonProps) {
         </Button>
       </MenuTrigger>
       <MenuContent align={"end"} side={"bottom"}>
+        <Text className="pl-2" kind="heading-xs">{`Create a ${
+          pluginType === PluginType.DB || pluginType === PluginType.SAAS
+            ? "query"
+            : "api"
+        } in`}</Text>
         {pageMenuItems.map((page, i) => {
           if (page) {
             return [
               <MenuItem
                 key={page.pageId}
                 onSelect={() => createQueryAction(page.pageId)}
+                startIcon={page.isDefault ? "home-3-line" : "page-line"}
                 title={page.pageName}
               >
-                <div className={"flex justify-between"}>
-                  <Text kind={"action-m"}>{page.pageName}</Text>
+                <div className={"flex justify-between gap-2 flex-1"}>
+                  <Text
+                    className={
+                      "text-ellipsis whitespace-nowrap overflow-hidden"
+                    }
+                    kind={"action-m"}
+                  >
+                    {page.pageName}
+                  </Text>
                   {i === 0 ? <Tag isClosable={false}>Current</Tag> : null}
                 </div>
               </MenuItem>,
