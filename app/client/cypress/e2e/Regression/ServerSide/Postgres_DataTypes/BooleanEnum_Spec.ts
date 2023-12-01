@@ -13,6 +13,8 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Boolean & Enum Datatype tests", function () {
@@ -240,6 +242,7 @@ describe("Boolean & Enum Datatype tests", function () {
 
       //Delete queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+      AppSidebar.navigate(AppSidebarButton.Editor);
       PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
 

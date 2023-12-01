@@ -144,6 +144,7 @@ describe("MySQL Datatype tests", function () {
 
       //DS deletion
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+      AppSidebar.navigate(AppSidebarButton.Editor);
       PageLeftPane.expandCollapseItem("Queries/JS");
       ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
         (type) => {

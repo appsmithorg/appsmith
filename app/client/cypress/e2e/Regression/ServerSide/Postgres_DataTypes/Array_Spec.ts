@@ -169,6 +169,7 @@ describe("Array Datatype tests", function () {
   it("6. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyArrayFunctions");
