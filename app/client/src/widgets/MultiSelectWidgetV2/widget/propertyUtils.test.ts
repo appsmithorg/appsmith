@@ -397,7 +397,7 @@ describe("labelKeyValidation", () => {
         messages: [
           {
             name: "ValidationError",
-            message: `value does not evaluate to type: string | Array<string>`,
+            message: `Invalid value. This field expects a value of type: string | Array<string>`,
           },
         ],
       });
@@ -450,7 +450,7 @@ describe("labelKeyValidation", () => {
         messages: [
           {
             name: "ValidationError",
-            message: `Invalid entry at index: 1. This value does not evaluate to type: string`,
+            message: `Invalid entry at index: 1. Invalid value. This field expects a value of type: string`,
           },
         ],
       });
@@ -465,7 +465,8 @@ describe("labelKeyValidation", () => {
       messages: [
         {
           name: "ValidationError",
-          message: "value does not evaluate to type: string | Array<string>",
+          message:
+            "Invalid value. This field expects a value of type: string | Array<string>",
         },
       ],
     });
@@ -479,7 +480,8 @@ describe("labelKeyValidation", () => {
       messages: [
         {
           name: "ValidationError",
-          message: "value does not evaluate to type: string | Array<string>",
+          message:
+            "Invalid value. This field expects a value of type: string | Array<string>",
         },
       ],
     });
@@ -493,7 +495,8 @@ describe("labelKeyValidation", () => {
       messages: [
         {
           name: "ValidationError",
-          message: "value does not evaluate to type: string | Array<string>",
+          message:
+            "Invalid value. This field expects a value of type: string | Array<string>",
         },
       ],
     });
@@ -517,7 +520,7 @@ describe("valueKeyValidation", () => {
         messages: [
           {
             name: "ValidationError",
-            message: `value does not evaluate to type: string | Array<string| number | boolean>`,
+            message: `Invalid value. This field expects a value of type: string | Array<string| number | boolean>`,
           },
         ],
       });
@@ -584,7 +587,7 @@ describe("valueKeyValidation", () => {
         messages: [
           {
             name: "ValidationError",
-            message: `Invalid entry at index: 1. This value does not evaluate to type: string | number | boolean`,
+            message: `Invalid entry at index: 1. Invalid value. This field expects a value of type: string | number | boolean`,
           },
         ],
       });
@@ -644,7 +647,7 @@ describe("valueKeyValidation", () => {
         {
           name: "ValidationError",
           message:
-            "value does not evaluate to type: string | Array<string | number | boolean>",
+            "Invalid value. This field expects a value of type: string | Array<string | number | boolean>",
         },
       ],
     });
@@ -665,7 +668,7 @@ describe("valueKeyValidation", () => {
         {
           name: "ValidationError",
           message:
-            "value does not evaluate to type: string | Array<string | number | boolean>",
+            "Invalid value. This field expects a value of type: string | Array<string | number | boolean>",
         },
       ],
     });
@@ -686,7 +689,7 @@ describe("valueKeyValidation", () => {
         {
           name: "ValidationError",
           message:
-            "value does not evaluate to type: string | Array<string | number | boolean>",
+            "Invalid value. This field expects a value of type: string | Array<string | number | boolean>",
         },
       ],
     });

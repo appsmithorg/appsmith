@@ -27,7 +27,8 @@ function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          message: "This value does not evaluate to type: string or number",
+          message:
+            "Invalid value. This field expects a value of type: string or number",
         },
       ],
     };
@@ -41,7 +42,8 @@ function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          message: "This value does not evaluate to type: string or number",
+          message:
+            "Invalid value. This field expects a value of type: string or number",
         },
       ],
     };

@@ -827,8 +827,8 @@ export function selectColumnOptionsValidation(
     _parsed,
     _message = "";
   let uniqueValues: Set<unknown>;
-  const invalidArrayValueMessage = `This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
-  const invalidMessage = `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`;
+  const invalidArrayValueMessage = `Invalid value. This field expects a value of type: { "label": string | number, "value": string | number | boolean }`;
+  const invalidMessage = `Invalid value. This field expects a value of type Array<{ "label": string | number, "value": string | number | boolean }>`;
   const allowedValueTypes = ["string", "number", "boolean"];
   const allowedLabelTypes = ["string", "number"];
 
@@ -869,7 +869,7 @@ export function selectColumnOptionsValidation(
       return `${generateErrorMessagePrefix(
         rowIndex,
         optionIndex,
-      )} This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
+      )} Invalid value. This field expects a value of type: { "label": string | number, "value": string | number | boolean }`;
     }
 
     if (!option.hasOwnProperty("label")) {
@@ -901,7 +901,9 @@ export function selectColumnOptionsValidation(
       return `${generateErrorMessagePrefix(
         rowIndex,
         optionIndex,
-      )} value does not evaluate to type ${allowedValueTypes.join(" | ")}`;
+      )} Invalid value. This field expects a value of type ${allowedValueTypes.join(
+        " | ",
+      )}`;
     }
 
     if (uniqueValues.has(option.value)) {
@@ -1028,7 +1030,7 @@ export const tableDataValidation = (
     messages: [
       {
         name: "TypeError",
-        message: `This value does not evaluate to type Array<Object>}`,
+        message: `Invalid value. This field expects a value of type Array<Object>}`,
       },
     ],
   };

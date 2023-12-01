@@ -35,7 +35,7 @@ function defaultDateValidation(
       messages: [
         {
           name: "TypeError",
-          message: `This value does not evaluate to type: Date ${dateFormat}`,
+          message: `Invalid value. This field expects a value of type: Date ${dateFormat}`,
         },
       ],
     };

@@ -93,7 +93,7 @@ describe(".optionsValidation", () => {
         {
           name: "TypeError",
           message:
-            'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+            'Invalid value. This field expects a value of type Array<{ "label": "string", "value": "string" | number }>',
         },
       ],
     };

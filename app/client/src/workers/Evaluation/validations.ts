@@ -326,7 +326,7 @@ export const validate = (
 };
 
 export const WIDGET_TYPE_VALIDATION_ERROR =
-  "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
+  "Invalid value. This field expects a value of type"; // TODO: Lot's of changes in validations.ts file
 
 export function getExpectedType(config?: ValidationConfig): string | undefined {
   if (!config) return UNDEFINED_VALIDATION; // basic fallback

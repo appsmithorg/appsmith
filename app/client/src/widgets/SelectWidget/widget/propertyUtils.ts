@@ -54,7 +54,7 @@ export function defaultOptionValueValidation(
     message = {
       name: "TypeError",
       message:
-        'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }',
+        'Invalid value. This field expects a value of type: string | number | { "label": "label1", "value": "value1" }',
     };
   }
 
@@ -165,7 +165,7 @@ export function labelKeyValidation(
       messages: [
         {
           name: "ValidationError",
-          message: `value does not evaluate to type: string | Array<string>`,
+          message: `Invalid value. This field expects a value of type: string | Array<string>`,
         },
       ],
     };
@@ -188,7 +188,7 @@ export function labelKeyValidation(
           ? [
               {
                 name: "ValidationError",
-                message: `Invalid entry at index: ${errorIndex}. This value does not evaluate to type: string`,
+                message: `Invalid entry at index: ${errorIndex}. Invalid value. This field expects a value of type: string`,
               },
             ]
           : [],
@@ -200,7 +200,8 @@ export function labelKeyValidation(
       messages: [
         {
           name: "ValidationError",
-          message: "value does not evaluate to type: string | Array<string>",
+          message:
+            "Invalid value. This field expects a value of type: string | Array<string>",
         },
       ],
     };
@@ -226,7 +227,7 @@ export function valueKeyValidation(
       messages: [
         {
           name: "ValidationError",
-          message: `value does not evaluate to type: string | Array<string| number | boolean>`,
+          message: `Invalid value. This field expects a value of type: string | Array<string| number | boolean>`,
         },
       ],
     };
@@ -270,7 +271,7 @@ export function valueKeyValidation(
         messages: [
           {
             name: "ValidationError",
-            message: `Invalid entry at index: ${errorIndex}. This value does not evaluate to type: string | number | boolean`,
+            message: `Invalid entry at index: ${errorIndex}. Invalid value. This field expects a value of type: string | number | boolean`,
           },
         ],
       };
@@ -285,7 +286,7 @@ export function valueKeyValidation(
         {
           name: "ValidationError",
           message:
-            "value does not evaluate to type: string | Array<string | number | boolean>",
+            "Invalid value. This field expects a value of type: string | Array<string | number | boolean>",
         },
       ],
     };

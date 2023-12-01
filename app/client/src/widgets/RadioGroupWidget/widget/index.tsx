@@ -92,7 +92,7 @@ export function optionsCustomValidation(
           message:
             "Invalid entry at index: " +
             i +
-            ". Value of key: label is invalid: This value does not evaluate to type string",
+            ". Value of key: label is invalid: Invalid value. This field expects a value of type string",
         };
         break;
       }
@@ -113,7 +113,7 @@ export function optionsCustomValidation(
         message = {
           name: "TypeError",
           message:
-            'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+            'Invalid value. This field expects a value of type Array<{ "label": "string", "value": "string" | number }>',
         };
         break;
       }
@@ -133,7 +133,7 @@ export function optionsCustomValidation(
       {
         name: "TypeError",
         message:
-          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+          'Invalid value. This field expects a value of type Array<{ "label": "string", "value": "string" | number }>',
       },
     ],
   };
@@ -164,7 +164,8 @@ function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          message: "This value does not evaluate to type: string or number",
+          message:
+            "Invalid value. This field expects a value of type: string or number",
         },
       ],
     };
@@ -178,7 +179,8 @@ function defaultOptionValidation(
       messages: [
         {
           name: "TypeError",
-          message: "This value does not evaluate to type: string or number",
+          message:
+            "Invalid value. This field expects a value of type: string or number",
         },
       ],
     };

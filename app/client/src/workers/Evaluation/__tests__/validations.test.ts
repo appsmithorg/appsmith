@@ -536,7 +536,8 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: "This value does not evaluate to type boolean",
+            message:
+              "Invalid value. This field expects a value of type boolean",
           },
         ],
       },
@@ -645,7 +646,7 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: `Value of key: key1 is invalid: This value does not evaluate to type number Required`,
+            message: `Value of key: key1 is invalid: Invalid value. This field expects a value of type number Required`,
           },
         ],
       },
@@ -655,7 +656,7 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: `Value of key: key2 is invalid: This value does not evaluate to type string ( abc | mnop )`,
+            message: `Value of key: key2 is invalid: Invalid value. This field expects a value of type string ( abc | mnop )`,
           },
         ],
       },
@@ -738,7 +739,7 @@ describe("Validate Validators", () => {
           {
             name: "TypeError",
             message:
-              "This value does not evaluate to type Array<'a' | 'b' | 'c' | 'n' | 'm' | 'p' | 'r'>",
+              "Invalid value. This field expects a value of type Array<'a' | 'b' | 'c' | 'n' | 'm' | 'p' | 'r'>",
           },
         ],
       },
@@ -812,7 +813,7 @@ describe("Validate Validators", () => {
           {
             name: "TypeError",
             message:
-              "This value does not evaluate to type Array<'a' | 'b' | 'c' | 'n' | 'm' | 'p' | 'r'>",
+              "Invalid value. This field expects a value of type Array<'a' | 'b' | 'c' | 'n' | 'm' | 'p' | 'r'>",
           },
         ],
       },
@@ -861,52 +862,52 @@ describe("Validate Validators", () => {
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 0. This value does not evaluate to type number Required",
+            "Invalid entry at index: 0. Invalid value. This field expects a value of type number Required",
         },
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 1. This value does not evaluate to type number Required",
+            "Invalid entry at index: 1. Invalid value. This field expects a value of type number Required",
         },
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 2. This value does not evaluate to type number Required",
+            "Invalid entry at index: 2. Invalid value. This field expects a value of type number Required",
         },
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 3. This value does not evaluate to type number Required",
+            "Invalid entry at index: 3. Invalid value. This field expects a value of type number Required",
         },
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 4. This value does not evaluate to type number Required",
+            "Invalid entry at index: 4. Invalid value. This field expects a value of type number Required",
         },
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 5. This value does not evaluate to type number Required",
+            "Invalid entry at index: 5. Invalid value. This field expects a value of type number Required",
         },
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 6. This value does not evaluate to type number Required",
+            "Invalid entry at index: 6. Invalid value. This field expects a value of type number Required",
         },
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 7. This value does not evaluate to type number Required",
+            "Invalid entry at index: 7. Invalid value. This field expects a value of type number Required",
         },
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 8. This value does not evaluate to type number Required",
+            "Invalid entry at index: 8. Invalid value. This field expects a value of type number Required",
         },
         {
           name: "TypeError",
           message:
-            "Invalid entry at index: 9. This value does not evaluate to type number Required",
+            "Invalid entry at index: 9. Invalid value. This field expects a value of type number Required",
         },
       ],
     };
@@ -978,7 +979,7 @@ describe("Validate Validators", () => {
           {
             name: "TypeError",
             message:
-              "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
+              "Invalid value. This field expects a value of type Array<string ( a | b | c | n | m | p | r )>",
           },
         ],
       },
@@ -1011,7 +1012,7 @@ describe("Validate Validators", () => {
           {
             name: "TypeError",
             message:
-              "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
+              "Invalid value. This field expects a value of type Array<string ( a | b | c | n | m | p | r )>",
           },
         ],
       },
@@ -1027,7 +1028,7 @@ describe("Validate Validators", () => {
           {
             name: "TypeError",
             message:
-              "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
+              "Invalid value. This field expects a value of type Array<string ( a | b | c | n | m | p | r )>",
           },
         ],
       },
@@ -1155,7 +1156,7 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type number Required`,
+            message: `Invalid entry at index: 0. Value of key: label is invalid: Invalid value. This field expects a value of type number Required`,
           },
         ],
       },
@@ -1382,7 +1383,8 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: "This value does not evaluate to type Array<Object>",
+            message:
+              "Invalid value. This field expects a value of type Array<Object>",
           },
         ],
       },
@@ -1392,7 +1394,8 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: "This value does not evaluate to type Array<Object>",
+            message:
+              "Invalid value. This field expects a value of type Array<Object>",
           },
         ],
       },
@@ -1402,7 +1405,8 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: "This value does not evaluate to type Array<Object>",
+            message:
+              "Invalid value. This field expects a value of type Array<Object>",
           },
         ],
       },
@@ -1412,7 +1416,8 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: "This value does not evaluate to type Array<Object>",
+            message:
+              "Invalid value. This field expects a value of type Array<Object>",
           },
         ],
       },
@@ -1422,7 +1427,8 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: "This value does not evaluate to type Array<Object>",
+            message:
+              "Invalid value. This field expects a value of type Array<Object>",
           },
         ],
       },
@@ -1432,7 +1438,8 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: "This value does not evaluate to type Array<Object>",
+            message:
+              "Invalid value. This field expects a value of type Array<Object>",
           },
         ],
       },
@@ -1472,7 +1479,8 @@ describe("Validate Validators", () => {
         messages: [
           {
             name: "TypeError",
-            message: "This value does not evaluate to type Array<Object>",
+            message:
+              "Invalid value. This field expects a value of type Array<Object>",
           },
         ],
       },
@@ -1738,12 +1746,12 @@ describe("Validate Validators", () => {
 //     {
 //       isValid: false,
 //       parsed: "",
-//       message: "This value does not evaluate to type: text",
+//       message: "Invalid value. This field expects a value of type: text",
 //     },
 //     {
 //       isValid: false,
 //       parsed: "",
-//       message: "This value does not evaluate to type: text",
+//       message: "Invalid value. This field expects a value of type: text",
 //     },
 //   ];
 //   inputs.forEach((input, index) => {

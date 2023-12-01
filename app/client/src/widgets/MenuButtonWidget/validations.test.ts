@@ -84,7 +84,7 @@ describe("sourceDataArrayValidation", () => {
       messages: [
         {
           name: "TypeError",
-          message: "This value does not evaluate to type Array",
+          message: "Invalid value. This field expects a value of type Array",
         },
       ],
     };

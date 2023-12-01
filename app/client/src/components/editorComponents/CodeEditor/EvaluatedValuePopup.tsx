@@ -510,7 +510,7 @@ function PopoverContent(props: PopoverContentProps) {
   const getErrorMessage = (error: Error) => {
     return error
       ? error.message
-      : `This value does not evaluate to type "${expected?.type}".`;
+      : `Invalid value. This field expects a value of type "${expected?.type}".`;
   };
 
   return (

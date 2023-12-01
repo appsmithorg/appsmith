@@ -34,7 +34,7 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
       messages: [
         {
           name: "TypeError",
-          message: "This value does not evaluate to type: string",
+          message: "Invalid value. This field expects a value of type: string",
         },
       ],
     };

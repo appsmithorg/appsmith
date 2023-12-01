@@ -494,7 +494,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [],
         messages: [
-          `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`,
+          `Invalid value. This field expects a value of type Array<{ "label": string | number, "value": string | number | boolean }>`,
         ],
       });
 
@@ -504,7 +504,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [],
         messages: [
-          `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`,
+          `Invalid value. This field expects a value of type Array<{ "label": string | number, "value": string | number | boolean }>`,
         ],
       });
 
@@ -528,7 +528,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [],
         messages: [
-          `Invalid entry at index: 0. This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`,
+          `Invalid entry at index: 0. Invalid value. This field expects a value of type: { "label": string | number, "value": string | number | boolean }`,
         ],
       });
     });
@@ -540,7 +540,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [1, 2],
         messages: [
-          `Invalid entry at index: 0. This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`,
+          `Invalid entry at index: 0. Invalid value. This field expects a value of type: { "label": string | number, "value": string | number | boolean }`,
         ],
       });
     });
@@ -606,7 +606,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [{ label: "1", value: [] }],
         messages: [
-          "Invalid entry at index: 0. value does not evaluate to type string | number | boolean",
+          "Invalid entry at index: 0. Invalid value. This field expects a value of type string | number | boolean",
         ],
       });
 
@@ -708,7 +708,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [],
         messages: [
-          `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`,
+          `Invalid value. This field expects a value of type Array<{ "label": string | number, "value": string | number | boolean }>`,
         ],
       });
     });
@@ -720,7 +720,7 @@ describe("selectColumnOptionsValidation", () => {
         isValid: false,
         parsed: [[1, 2]],
         messages: [
-          `Invalid entry at Row: 0 index: 0. This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`,
+          `Invalid entry at Row: 0 index: 0. Invalid value. This field expects a value of type: { "label": string | number, "value": string | number | boolean }`,
         ],
       });
     });
