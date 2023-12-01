@@ -15,8 +15,11 @@ import {
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Validate Oracle DS", () => {
   let dataSourceName: string, guid: any, query: string, selectQuery: string;
@@ -112,8 +115,8 @@ describe("Validate Oracle DS", () => {
     dataSources.AssertDataSourceInfo(["Host address", "Port", "Service Name"]);
     agHelper.ClickButton("Edit"); //Navigate to Edit page & check if DS edit is opened
     dataSources.ValidateNSelectDropdown("SSL mode", "Disable");
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    AppSidebar.navigate(AppSidebarButton.Data);
     dataSources.AssertDSInActiveList(dataSourceName);
   });
 
@@ -421,7 +424,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
     });
     agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
     dataSources.RunQueryNVerifyResponseViews(2);
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     agHelper.ActionContextMenuWithInPane({
       action: "Move to page",
@@ -462,11 +465,11 @@ WHERE aircraft_type = 'Passenger Plane'`;
     "Verify Deletion of the Oracle datasource after all created queries are deleted",
     () => {
       dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 409); //Since all queries exists
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dataSourceName);
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dataSourceName, 200);
     },
   );

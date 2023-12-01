@@ -14,6 +14,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 let jsName: any, dsName: any;
@@ -36,7 +37,6 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
     );
     propPane.RenameWidget("Select1", "selRecordFilter");
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 500, 300);
-    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1.{{ this?.params?.condition }}", function () {
@@ -245,7 +245,7 @@ describe("Bug #10784 - Passing params from JS to SQL query should not break", ()
   it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
     deployMode.NavigateBacktoEditor();
     //agHelper.Sleep(2500);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "ParamsTest",
       action: "Delete",

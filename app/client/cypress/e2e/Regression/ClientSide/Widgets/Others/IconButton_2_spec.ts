@@ -9,6 +9,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Icon Button widget Tests", function () {
@@ -58,7 +59,7 @@ describe("Icon Button widget Tests", function () {
 
     // Copy and paste widget using cmd+c and cmd+v
     entityExplorer.CopyPasteWidget("NewIconButton");
-    entityExplorer.AssertEntityPresenceInExplorer("NewIconButtonCopy");
+    PageLeftPane.assertPresence("NewIconButtonCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewIconButtonCopy");
 
     // Copy paste from property pane and delete from property pane

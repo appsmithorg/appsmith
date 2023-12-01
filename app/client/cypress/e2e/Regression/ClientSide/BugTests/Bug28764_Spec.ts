@@ -1,7 +1,6 @@
 import {
   agHelper,
   locators,
-  entityExplorer,
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
@@ -9,10 +8,6 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("JS Function Execution", function () {
-  before(() => {
-    entityExplorer.NavigateToSwitcher("Explorer");
-  });
-
   it("Retains lint errors after navigation", function () {
     // JS Object 1
     jsEditor.CreateJSObject(

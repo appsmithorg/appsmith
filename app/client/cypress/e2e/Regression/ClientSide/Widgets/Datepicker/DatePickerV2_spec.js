@@ -120,7 +120,6 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
     _.propPane.EnterJSContext("Min Date", "2021-01-01");
     _.propPane.EnterJSContext("Max Date", "2021-10-10");
-    _.propPane.EnterJSContext("Default Date", "");
     cy.selectDateFormat("DD/MM/YYYY HH:mm");
     _.propPane.EnterJSContext(
       "Default Date",

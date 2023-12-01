@@ -14,6 +14,7 @@ import {
 } from "../../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../../support/Pages/EditorNavigation";
 
 describe("Import and validate older app (app created in older versions of Appsmith) from Gitea", function () {
@@ -42,7 +43,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
   });
 
   it("1. Validate merge status + Bug23822", () => {
-    entityExplorer.AssertEntityPresenceInExplorer("ListingAndReviews");
+    PageLeftPane.assertPresence("ListingAndReviews");
     //Wait for the app to settle
     agHelper.Sleep(3000);
     homePage.RenameApplication(appName);

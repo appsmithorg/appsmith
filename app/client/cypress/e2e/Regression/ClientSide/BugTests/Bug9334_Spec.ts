@@ -3,14 +3,15 @@ import {
   appSettings,
   assertHelper,
   dataSources,
-  entityExplorer,
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let dsName: any;
 
@@ -21,13 +22,13 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Create dummy pages for navigating", () => {
     //CRUD page 2
-    entityExplorer.AddNewPage();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage();
+    PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
@@ -44,8 +45,8 @@ describe("Bug 9334: The Select widget value is sent as null when user switches b
     table.WaitUntilTableLoad();
 
     //CRUD page 3
-    entityExplorer.AddNewPage();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage();
+    PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 

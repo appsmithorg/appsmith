@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -87,7 +88,11 @@ import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import type { ChangeQueryPayload } from "actions/queryPaneActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -372,7 +377,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
-  const pageId: string = yield select(getCurrentPageId);
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
   // Only look at db plugins
@@ -384,6 +388,17 @@ function* handleDatasourceCreatedSaga(
   )
     return;
 
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const application: ApplicationPayload | undefined = yield select(
+    getApplicationByIdFromWorkspaces,
+    currentApplicationIdForCreateNewApp || "",
+  );
+  const pageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultPageId
+    : yield select(getCurrentPageId);
+
   yield put(initialize(DATASOURCE_DB_FORM, omit(payload, "name")));
 
   const queryParams = getQueryParams();
@@ -394,10 +409,6 @@ function* handleDatasourceCreatedSaga(
   );
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
     yield select(getGenerateCRUDEnabledPluginMap);
-
-  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
-    getCurrentApplicationIdForCreateNewApp,
-  );
 
   // isGeneratePageInitiator ensures that datasource is being created from generate page with data
   // then we check if the current plugin is supported for generate page with data functionality
@@ -417,7 +428,10 @@ function* handleDatasourceCreatedSaga(
         },
       }),
     );
-  } else if (!currentApplicationIdForCreateNewApp) {
+  } else if (
+    !currentApplicationIdForCreateNewApp ||
+    (!!currentApplicationIdForCreateNewApp && payload.id !== TEMP_DATASOURCE_ID)
+  ) {
     history.push(
       datasourcesEditorIdURL({
         pageId,

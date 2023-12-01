@@ -580,6 +580,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                 .getUnpublishedAction()
                                 .getDefaultResources()
                                 .getCollectionId();
+                        final String collectionId =
+                                newAction.getUnpublishedAction().getCollectionId();
+
                         newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
                             if (layout.getLayoutOnLoadActions() != null) {
                                 layout.getLayoutOnLoadActions().forEach(onLoadAction -> onLoadAction.stream()
@@ -587,6 +590,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                         .forEach(actionDTO -> {
                                             actionDTO.setDefaultActionId(defaultActionId);
                                             actionDTO.setDefaultCollectionId(defaultCollectionId);
+                                            actionDTO.setCollectionId(collectionId);
                                         }));
                             }
                         });
@@ -608,6 +612,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                                 actionDTO.setDefaultCollectionId(newAction
                                                         .getPublishedAction()
                                                         .getDefaultResources()
+                                                        .getCollectionId());
+                                                actionDTO.setCollectionId(newAction
+                                                        .getPublishedAction()
                                                         .getCollectionId());
                                             }
                                         }));

@@ -11,6 +11,8 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Category Slider spec", () => {
@@ -111,7 +113,7 @@ describe("Category Slider spec", () => {
   });
 
   it("4. Verify Range slider visibility in explorer", () => {
-    entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     agHelper.ClearTextField(locators._entityExplorersearch);
     agHelper.TypeText(locators._entityExplorersearch, "Category");
     agHelper.AssertElementExist(

@@ -27,7 +27,7 @@ import {
   isAppStateChange,
   isPageChange,
 } from "../navigation/FocusUtils";
-import { AppState } from "../entities/IDE/constants";
+import { EditorState } from "../entities/IDE/constants";
 import { getCurrentApplicationId } from "../selectors/editorSelectors";
 import { get } from "lodash";
 
@@ -212,7 +212,7 @@ function* getEntitiesForStore(previousPath: string, currentPath: string) {
         entityInfo: {
           entity: FocusEntity.PAGE,
           id: prevFocusEntityInfo.pageId,
-          appState: AppState.PAGES,
+          appState: EditorState.EDITOR,
         },
       });
     }
@@ -282,7 +282,7 @@ function* getEntitiesForSet(
         entityInfo: {
           entity: FocusEntity.PAGE,
           id: currentEntityInfo.pageId,
-          appState: AppState.PAGES,
+          appState: EditorState.EDITOR,
         },
       });
       const focusHistory: FocusState = yield select(getCurrentFocusInfo, key);
