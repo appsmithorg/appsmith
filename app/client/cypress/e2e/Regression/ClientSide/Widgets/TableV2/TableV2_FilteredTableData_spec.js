@@ -13,7 +13,6 @@ describe("Table Widget V2 Filtered Table data in autocomplete", function () {
   before("Table Widget V2 Functionality", () => {
     _.agHelper.AddDsl("tableV2AndTextDsl");
     cy.openPropertyPane("tablewidgetv2");
-    cy.wait("@updateLayout");
   });
 
   it("1. Table Widget V2 Functionality To Filter and search data", function () {

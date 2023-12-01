@@ -21,8 +21,6 @@ import {
   HeaderWrapper,
 } from "pages/Editor/commons/EditorHeaderComponents";
 import { LockEntityExplorer } from "pages/Editor/commons/LockEntityExplorer";
-import { Omnibar } from "pages/Editor/commons/Omnibar";
-import { HelperBarInHeader } from "pages/Editor/HelpBarInHeader";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import {
   publishPackage,
@@ -111,7 +109,7 @@ export function PackageEditorHeader() {
           />
         </HeaderSection>
 
-        <HelperBarInHeader isPreview={false} />
+        <HeaderSection />
 
         <HeaderSection className="gap-x-1">
           <div className="flex items-center">
@@ -127,8 +125,6 @@ export function PackageEditorHeader() {
             </Button>
           </div>
         </HeaderSection>
-
-        <Omnibar />
       </HeaderWrapper>
     </ThemeProvider>
   );

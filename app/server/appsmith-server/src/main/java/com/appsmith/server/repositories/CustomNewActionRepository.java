@@ -27,5 +27,9 @@ public interface CustomNewActionRepository extends CustomNewActionRepositoryCE {
     Flux<NewAction> findUnpublishedActionsByModuleIdAndExecuteOnLoadSetByUserTrue(
             String moduleId, AclPermission editPermission);
 
-    Flux<NewAction> findByWorkflowId(String workflowId, Optional<AclPermission> aclPermission);
+    Flux<NewAction> findByWorkflowId(
+            String workflowId, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
+
+    Flux<NewAction> findByWorkflowIds(
+            List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields);
 }

@@ -25,7 +25,9 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.workflows.crud.CrudApprovalRequestService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
+import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +59,7 @@ import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
 import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
@@ -98,6 +101,9 @@ public class InteractApprovalRequestServiceTest {
 
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
+
+    @SpyBean
+    WorkflowProxyHelper workflowProxyHelper;
 
     Workspace workspace = null;
     Workflow workflow = null;
@@ -156,6 +162,10 @@ public class InteractApprovalRequestServiceTest {
 
         User apiUser = userRepository.findByCaseInsensitiveEmail("api_user").block();
         userUtils.makeSuperUser(List.of(apiUser)).block();
+
+        Mockito.doReturn(Mono.just(new JSONObject()))
+                .when(workflowProxyHelper)
+                .updateApprovalRequestResolutionOnProxy(any());
     }
 
     @AfterEach
@@ -191,7 +201,7 @@ public class InteractApprovalRequestServiceTest {
                 approvalRequestTitle, approvalRequestMessage, allowedResolutions, createdUser, createdUserGroupDTO);
 
         ApprovalRequestResolutionDTO approvalRequestResolutionDTO = new ApprovalRequestResolutionDTO();
-        Mono<Boolean> resolutionMono = runAs(
+        Mono<JSONObject> resolutionMono = runAs(
                 interactApprovalRequestService.resolveApprovalRequest(approvalRequestResolutionDTO),
                 createdUser,
                 testName);
@@ -233,7 +243,7 @@ public class InteractApprovalRequestServiceTest {
 
         ApprovalRequestResolutionDTO approvalRequestResolutionDTO = new ApprovalRequestResolutionDTO();
         approvalRequestResolutionDTO.setWorkflowId(workflow.getId());
-        Mono<Boolean> resolutionMono = runAs(
+        Mono<JSONObject> resolutionMono = runAs(
                 interactApprovalRequestService.resolveApprovalRequest(approvalRequestResolutionDTO),
                 createdUser,
                 testName);
@@ -276,7 +286,7 @@ public class InteractApprovalRequestServiceTest {
         ApprovalRequestResolutionDTO approvalRequestResolutionDTO = new ApprovalRequestResolutionDTO();
         approvalRequestResolutionDTO.setWorkflowId(workflow.getId());
         approvalRequestResolutionDTO.setRequestId(approvalRequest.getId());
-        Mono<Boolean> resolutionMono = runAs(
+        Mono<JSONObject> resolutionMono = runAs(
                 interactApprovalRequestService.resolveApprovalRequest(approvalRequestResolutionDTO),
                 createdUser,
                 testName);
@@ -318,7 +328,7 @@ public class InteractApprovalRequestServiceTest {
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
 
         String approvalRequestResolutionReason = "Resolution Reason: " + testName;
-        Mono<Boolean> resolutionMono = resolveApprovalRequestInviteUser(
+        Mono<JSONObject> resolutionMono = resolveApprovalRequestInviteUser(
                 approvalRequest, approvalRequestResolutionReason, resolution3, createdUser, testName);
 
         StepVerifier.create(resolutionMono)
@@ -374,7 +384,7 @@ public class InteractApprovalRequestServiceTest {
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
 
         String approvalRequestResolutionReason = "Resolution Reason: " + testName;
-        Mono<Boolean> resolutionMono = resolveApprovalRequestInviteUser(
+        Mono<JSONObject> resolutionMono = resolveApprovalRequestInviteUser(
                         approvalRequest, approvalRequestResolutionReason, resolution1, createdUser, testName)
                 .flatMap(resolved1 -> resolveApprovalRequestInviteUser(
                         approvalRequest, approvalRequestResolutionReason, resolution1, createdUser, testName));
@@ -426,7 +436,7 @@ public class InteractApprovalRequestServiceTest {
                 approvalRequestTitle, approvalRequestMessage, allowedResolutions, createdUser, null);
 
         String approvalRequestResolutionReason = "Resolution Reason: " + testName;
-        Mono<Boolean> resolutionMono = resolveApprovalRequestInviteUser(
+        Mono<JSONObject> resolutionMono = resolveApprovalRequestInviteUser(
                 approvalRequest, approvalRequestResolutionReason, resolution1, createdUser, testName);
 
         StepVerifier.create(resolutionMono)
@@ -486,7 +496,7 @@ public class InteractApprovalRequestServiceTest {
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
 
         String approvalRequestResolutionReason = "Resolution Reason: " + testName;
-        Mono<Boolean> resolutionMono = resolveApprovalRequestInviteUser(
+        Mono<JSONObject> resolutionMono = resolveApprovalRequestInviteUser(
                 approvalRequest, approvalRequestResolutionReason, resolution1, createdUser1, testName);
 
         StepVerifier.create(resolutionMono)
@@ -494,6 +504,62 @@ public class InteractApprovalRequestServiceTest {
                     assertThat(throwable).isInstanceOf(AppsmithException.class);
                     assertThat(throwable.getMessage())
                             .contains(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(REQUEST, approvalRequest.getId()));
+                    return true;
+                })
+                .verify();
+
+        ApprovalRequest resolvedApprovalRequest =
+                approvalRequestRepository.findById(approvalRequest.getId()).block();
+        assertThat(resolvedApprovalRequest).isNotNull();
+        assertThat(resolvedApprovalRequest.getId()).isNotEmpty();
+        assertThat(resolvedApprovalRequest.getTitle()).isEqualTo(approvalRequestTitle);
+        assertThat(resolvedApprovalRequest.getDescription()).isEqualTo(approvalRequestMessage);
+        assertThat(resolvedApprovalRequest.getWorkflowId()).isEqualTo(workflow.getId());
+        assertThat(resolvedApprovalRequest.getResolutionStatus()).isEqualTo(PENDING);
+        assertThat(resolvedApprovalRequest.getAllowedResolutions())
+                .containsExactlyInAnyOrderElementsOf(allowedResolutions);
+        assertThat(resolvedApprovalRequest.getResolution()).isNullOrEmpty();
+        assertThat(resolvedApprovalRequest.getResolutionReason()).isNullOrEmpty();
+        assertThat(resolvedApprovalRequest.getResolvedAt()).isNull();
+        assertThat(resolvedApprovalRequest.getResolvedBy()).isNullOrEmpty();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testInvalidApprovalResolution_errorFromWorkflowProxyOnResolution() {
+        String testName = "testInvalidApprovalResolution_errorFromWorkflowProxyOnResolution";
+        Mockito.doReturn(Mono.error(new AppsmithException(AppsmithError.WORKFLOW_PROXY_REQUEST_FAILED, "test", "test")))
+                .when(workflowProxyHelper)
+                .updateApprovalRequestResolutionOnProxy(any());
+
+        User user = new User();
+        user.setEmail(testName);
+        user.setPassword(testName);
+        User createdUser = userService.create(user).block();
+
+        String resolution1 = "resolution1";
+        String resolution2 = "resolution2";
+        Set<String> allowedResolutions = Set.of(resolution1, resolution2);
+        String approvalRequestTitle = "Title: " + testName;
+        String approvalRequestMessage = "Message: " + testName;
+
+        ApprovalRequest approvalRequest = createTestApprovalRequest(
+                approvalRequestTitle, approvalRequestMessage, allowedResolutions, createdUser, null);
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(List.of(user.getUsername()));
+        inviteUsersDTO.setPermissionGroupId(workspaceAdminRole.getId());
+        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
+
+        String approvalRequestResolutionReason = "Resolution Reason: " + testName;
+        Mono<JSONObject> resolved = resolveApprovalRequestInviteUser(
+                approvalRequest, approvalRequestResolutionReason, resolution1, createdUser, testName);
+
+        StepVerifier.create(resolved)
+                .expectErrorMatches(throwable -> {
+                    assertThat(throwable).isInstanceOf(AppsmithException.class);
+                    assertThat(throwable.getMessage())
+                            .contains(AppsmithError.WORKFLOW_PROXY_REQUEST_FAILED.getMessage("test", "test"));
                     return true;
                 })
                 .verify();
@@ -539,11 +605,11 @@ public class InteractApprovalRequestServiceTest {
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
 
         String approvalRequestResolutionReason = "Resolution Reason: " + testName;
-        Boolean resolved = resolveApprovalRequestInviteUser(
+        JSONObject resolved = resolveApprovalRequestInviteUser(
                         approvalRequest, approvalRequestResolutionReason, resolution1, createdUser, testName)
                 .block();
 
-        assertThat(resolved).isTrue();
+        assertThat(resolved.toString()).isEqualTo((new JSONObject()).toString());
 
         ApprovalRequest resolvedApprovalRequest =
                 approvalRequestRepository.findById(approvalRequest.getId()).block();
@@ -593,7 +659,7 @@ public class InteractApprovalRequestServiceTest {
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
 
         String approvalRequestResolutionReason = "Resolution Reason: " + testName;
-        Boolean resolved = resolveApprovalRequestInviteGroup(
+        JSONObject resolved = resolveApprovalRequestInviteGroup(
                         approvalRequest,
                         approvalRequestResolutionReason,
                         resolution1,
@@ -602,7 +668,7 @@ public class InteractApprovalRequestServiceTest {
                         testName)
                 .block();
 
-        assertThat(resolved).isTrue();
+        assertThat(resolved.toString()).isEqualTo((new JSONObject()).toString());
 
         ApprovalRequest resolvedApprovalRequest =
                 approvalRequestRepository.findById(approvalRequest.getId()).block();
@@ -644,7 +710,7 @@ public class InteractApprovalRequestServiceTest {
                 .block();
     }
 
-    private Mono<Boolean> resolveApprovalRequestInviteUser(
+    private Mono<JSONObject> resolveApprovalRequestInviteUser(
             ApprovalRequest approvalRequest,
             String approvalRequestResolutionReason,
             String resolution,
@@ -660,7 +726,7 @@ public class InteractApprovalRequestServiceTest {
                 interactApprovalRequestService.resolveApprovalRequest(approvalRequestResolutionDTO), user, password);
     }
 
-    private Mono<Boolean> resolveApprovalRequestInviteGroup(
+    private Mono<JSONObject> resolveApprovalRequestInviteGroup(
             ApprovalRequest approvalRequest,
             String approvalRequestResolutionReason,
             String resolution,

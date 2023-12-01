@@ -53,7 +53,7 @@ export const GetNavigationMenuData = ({
 
   return [
     {
-      text: "Home",
+      text: "Back to all apps",
       onClick: () => history.replace(APPLICATIONS_URL),
       type: MenuTypes.MENU,
       isVisible: true,
@@ -64,9 +64,22 @@ export const GetNavigationMenuData = ({
       isVisible: true,
     },
     {
-      text: "Edit name",
+      text: "Rename",
       onClick: editMode,
       type: MenuTypes.MENU,
+      isVisible: true,
+    },
+    hasDeletePackagePermission(currentPackage?.userPermissions) && {
+      text: "Delete package",
+      confirmText: "Are you sure?",
+      onClick: onDeletePackage,
+      type: MenuTypes.RECONFIRM,
+      isVisible: isPkgIdPresent,
+      style: { color: Colors.ERROR_RED },
+    },
+    {
+      text: "divider_1",
+      type: MenuTypes.MENU_DIVIDER,
       isVisible: true,
     },
     {
@@ -104,14 +117,6 @@ export const GetNavigationMenuData = ({
           isOpensNewWindow: true,
         },
       ],
-    },
-    hasDeletePackagePermission(currentPackage?.userPermissions) && {
-      text: "Delete package",
-      confirmText: "Are you sure?",
-      onClick: onDeletePackage,
-      type: MenuTypes.RECONFIRM,
-      isVisible: isPkgIdPresent,
-      style: { color: Colors.ERROR_RED },
     },
   ].filter(Boolean) as MenuItemData[];
 };

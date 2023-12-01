@@ -11,7 +11,7 @@ import { lightTheme } from "selectors/themeSelectors";
 
 describe("PackageMainContainer", () => {
   it("renders sidebar and app body", () => {
-    const { container } = render(
+    render(
       <ThemeProvider theme={lightTheme}>
         <Provider store={store}>
           <Router>
@@ -21,9 +21,6 @@ describe("PackageMainContainer", () => {
       </ThemeProvider>,
     );
 
-    const body = container.querySelector("#app-body");
-
-    expect(body).not.toBeNull();
     expect(screen.getByTestId("sidebar-active")).toBeInTheDocument();
   });
 });

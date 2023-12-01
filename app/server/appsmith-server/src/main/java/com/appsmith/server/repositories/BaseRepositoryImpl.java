@@ -2,8 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
-import com.mongodb.client.result.UpdateResult;
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -22,10 +20,7 @@ import reactor.core.publisher.Mono;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
@@ -91,12 +86,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
         return where(entityInformation.getIdAttribute()).is(id);
     }
 
-    /**
-     * When `fieldName` is blank, this method will return the entire object. Otherwise, it will return only the value
-     * against the `fieldName` property in the matching object.
-     */
     @Override
-    public Mono<T> findByIdAndFieldNames(ID id, List<String> fieldNames) {
+    public Mono<T> findById(ID id) {
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
@@ -104,15 +95,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                 .flatMap(principal -> {
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(notDeleted());
-
-                    if (fieldNames != null && fieldNames.size() > 0) {
-                        fieldNames.forEach(fieldName -> {
-                            if (!isBlank(fieldName)) {
-                                query.fields().include(fieldName);
-                            }
-                        });
-                    }
-
                     return mongoOperations
                             .query(entityInformation.getJavaType())
                             .inCollection(entityInformation.getCollectionName())
@@ -131,38 +113,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                 .inCollection(entityInformation.getCollectionName())
                 .matching(query)
                 .one();
-    }
-
-    @Override
-    public Mono<T> findById(ID id) {
-        return this.findByIdAndFieldNames(id, null);
-    }
-
-    @Override
-    public Mono<T> findByIdAndBranchName(ID id, String branchName) {
-        // branchName will be ignored and this method is overridden for the services which are shared across branches
-        return this.findById(id);
-    }
-
-    /**
-     * This method is supposed to update the given list of field names with the associated values in an object as opposed to replacing the entire object.
-     */
-    @Override
-    public Mono<UpdateResult> updateByIdAndFieldNames(@NotNull ID id, @NotNull Map<String, Object> fieldNameValueMap) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
-
-                    Update update = new Update();
-                    fieldNameValueMap.forEach((fieldName, fieldValue) -> {
-                        update.set(fieldName, fieldValue);
-                    });
-
-                    return mongoOperations.updateFirst(query, update, entityInformation.getJavaType());
-                });
     }
 
     @Override

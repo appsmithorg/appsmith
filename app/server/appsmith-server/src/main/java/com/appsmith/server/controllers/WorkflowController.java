@@ -6,6 +6,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
+import com.appsmith.server.workflows.interact.InteractWorkflowService;
 import com.appsmith.server.workflows.proxy.ProxyWorkflowService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -38,9 +39,15 @@ public class WorkflowController {
 
     private final ProxyWorkflowService proxyWorkflowService;
 
-    public WorkflowController(CrudWorkflowService crudWorkflowService, ProxyWorkflowService proxyWorkflowService) {
+    private final InteractWorkflowService interactWorkflowService;
+
+    public WorkflowController(
+            CrudWorkflowService crudWorkflowService,
+            ProxyWorkflowService proxyWorkflowService,
+            InteractWorkflowService interactWorkflowService) {
         this.crudWorkflowService = crudWorkflowService;
         this.proxyWorkflowService = proxyWorkflowService;
+        this.interactWorkflowService = interactWorkflowService;
     }
 
     @JsonView(Views.Public.class)
@@ -126,5 +133,15 @@ public class WorkflowController {
         return proxyWorkflowService
                 .getWorkflowHistoryByWorkflowId(id, filters)
                 .map(workflowHistory -> new ResponseDTO<>(HttpStatus.OK.value(), workflowHistory, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/token/{id}")
+    public Mono<ResponseDTO<Boolean>> archiveBearerTokenForWorkflow(@PathVariable String id) {
+        log.debug("Archiving Bearer Token for workflow: {}", id);
+        return interactWorkflowService
+                .archiveBearerTokenForWebhook(id)
+                .map(archived -> new ResponseDTO<>(HttpStatus.OK.value(), archived, null));
     }
 }

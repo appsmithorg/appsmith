@@ -35,6 +35,17 @@ export const getModulePublicAction = (
   return action ? action.config : undefined;
 };
 
+export const getModulePublicJSCollection = (
+  state: AppState,
+  moduleId: string,
+) => {
+  const action = state.entities.jsActions.find(
+    (action) => action.config.moduleId === moduleId && action.config.isPublic,
+  );
+
+  return action ? action.config : undefined;
+};
+
 export const getIsModuleSaving = (state: AppState) => {
   return state.ui.editor.isModuleUpdating;
 };

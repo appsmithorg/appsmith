@@ -1782,8 +1782,8 @@ public class AuditLogServiceTest {
         String resourceType = auditLogService.getResourceType(new NewPage());
 
         applicationPageService
-                .getPageByBranchAndDefaultPageId(
-                        createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, true)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(
+                        createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, true, false)
                 .block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(
@@ -1867,8 +1867,8 @@ public class AuditLogServiceTest {
         String resourceType = auditLogService.getResourceType(new NewPage());
 
         applicationPageService
-                .getPageByBranchAndDefaultPageId(
-                        createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, false)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(
+                        createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, false, false)
                 .block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(

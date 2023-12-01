@@ -5,16 +5,19 @@ import { MODULE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
 import { useSelector } from "react-redux";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { Module } from "@appsmith/constants/ModuleConstants";
-import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import {
   apiEditorIdURL,
+  jsCollectionIdURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "@appsmith/RouteBuilder";
 import { keyBy } from "lodash";
 import type { Plugin } from "api/PluginApi";
-import { getModulePublicAction } from "@appsmith/selectors/modulesSelector";
+import {
+  getModulePublicAction,
+  getModulePublicJSCollection,
+} from "@appsmith/selectors/modulesSelector";
 
 interface ModuleEditorDefaultRedirectProps {
   module: Module;
@@ -41,6 +44,11 @@ const getURL = ({ id, moduleId, plugin }: GetUrlProps) => {
       queryId: id,
       moduleId,
     });
+  } else if (plugin.type === PluginType.JS) {
+    return jsCollectionIdURL({
+      moduleId,
+      collectionId: id,
+    });
   } else {
     return apiEditorIdURL({ apiId: id, moduleId });
   }
@@ -51,21 +59,26 @@ function ModuleEditorDefaultRedirect({
 }: ModuleEditorDefaultRedirectProps) {
   const { pathname } = useLocation();
   const { isExact } = matchPath(pathname, MODULE_EDITOR_PATH) || {};
-  const action: Action | undefined = useSelector((state) =>
+  const action = useSelector((state) =>
     getModulePublicAction(state, module.id),
+  );
+
+  const jsCollection = useSelector((state) =>
+    getModulePublicJSCollection(state, module.id),
   );
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const entity = action || jsCollection;
 
-  if (!action) return null;
+  if (!entity) return null;
 
-  const plugin = pluginGroups[action?.pluginId];
+  const plugin = pluginGroups[entity?.pluginId];
 
   if (!isExact || !plugin) return null;
 
   const defaultRedirectUrl = getURL({
-    id: action.id,
-    plugin: pluginGroups[action.pluginId],
+    id: entity.id,
+    plugin: pluginGroups[entity.pluginId],
     moduleId: module.id,
   });
 
