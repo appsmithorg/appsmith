@@ -10,7 +10,6 @@ export enum ModuleInstanceCreatorType {
 export interface ModuleInstance {
   id: ModuleInstanceId;
   type: MODULE_TYPE;
-  moduleId: ModuleId;
   name: string;
   inputs: {
     [key: string]: string;
