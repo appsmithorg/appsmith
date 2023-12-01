@@ -2022,7 +2022,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreatePage", () => {
-  AppSidebar.navigate(AppSidebarButton.Pages);
+  AppSidebar.navigate(AppSidebarButton.Editor);
   cy.get(pages.AddPage).first().click();
   cy.xpath("//span[text()='New blank page']/parent::div").click();
 });

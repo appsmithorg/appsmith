@@ -5,7 +5,6 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import homePage from "../locators/HomePage";
-import explorer from "../locators/explorerlocators";
 import { ObjectsRegistry } from "../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -220,7 +219,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
     if (!$appName.hasClass(homePage.editingAppName)) {
       cy.get(homePage.applicationName).click({ force: true });
       cy.get(homePage.portalMenuItem)
-        .contains("Edit name", { matchCase: false })
+        .contains("Rename", { matchCase: false })
         .click({ force: true });
     }
   });

@@ -17,6 +17,7 @@ export interface FetchPageRequest {
   id: string;
   isFirstLoad?: boolean;
   handleResponseLater?: boolean;
+  migrateDSL?: boolean;
 }
 
 export interface FetchPublishedPageRequest {
@@ -201,7 +202,8 @@ class PageApi extends Api {
   static async fetchPage(
     pageRequest: FetchPageRequest,
   ): Promise<AxiosPromise<FetchPageResponse>> {
-    return Api.get(PageApi.url + "/" + pageRequest.id);
+    const params = { migrateDsl: pageRequest.migrateDSL };
+    return Api.get(PageApi.url + "/" + pageRequest.id, undefined, { params });
   }
 
   static savePage(

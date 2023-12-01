@@ -146,7 +146,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
       dataSources.SaveDatasource();
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     propPane.MoveToTab("Style");
 
     propPane.MoveToTab("Content");

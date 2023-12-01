@@ -28,13 +28,21 @@ import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
 } from "@appsmith/selectors/applicationSelectors";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
+  const { isDBCreated, payload } = actionPayload;
+  const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
+  // Only look at SAAS plugins
+  if (!plugin) return;
+  if (plugin.type !== PluginType.SAAS) return;
+
   const currentApplicationIdForCreateNewApp: string | undefined = yield select(
     getCurrentApplicationIdForCreateNewApp,
   );
+
   const application: ApplicationPayload | undefined = yield select(
     getApplicationByIdFromWorkspaces,
     currentApplicationIdForCreateNewApp || "",
@@ -42,11 +50,6 @@ function* handleDatasourceCreatedSaga(
   const pageId: string = !!currentApplicationIdForCreateNewApp
     ? application?.defaultPageId
     : yield select(getCurrentPageId);
-  const { isDBCreated, payload } = actionPayload;
-  const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
-  // Only look at SAAS plugins
-  if (!plugin) return;
-  if (plugin.type !== PluginType.SAAS) return;
 
   yield put(initialize(DATASOURCE_SAAS_FORM, omit(payload, "name")));
 
@@ -77,7 +80,10 @@ function* handleDatasourceCreatedSaga(
         },
       }),
     );
-  } else if (!currentApplicationIdForCreateNewApp) {
+  } else if (
+    !currentApplicationIdForCreateNewApp ||
+    (!!currentApplicationIdForCreateNewApp && payload.id !== TEMP_DATASOURCE_ID)
+  ) {
     history.push(
       saasEditorDatasourceIdURL({
         pageId,
