@@ -11,6 +11,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, newCallsign: any;
@@ -170,7 +171,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.EnterQuery(updateQuery);
     agHelper.PressEscape();
     agHelper.AssertAutoSave();
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
     EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
     UpdatingVesselsJSONPropertyFileds();
   });
@@ -427,7 +428,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.EnterQuery(insertQuery);
     agHelper.PressEscape();
     agHelper.AssertAutoSave();
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("11. Update JSON fields with placeholds for Addition - on Vessels", () => {

@@ -2,14 +2,12 @@ import ApiEditor from "../../../../locators/ApiEditor";
 import DynamicInput from "../../../../locators/DynamicInput";
 import HomePage from "../../../../locators/HomePage";
 
-import {
-  entityExplorer,
-  apiPage,
-} from "../../../../support/Objects/ObjectsCore";
+import { apiPage } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate API Panel CSS Styles", function () {
@@ -66,7 +64,7 @@ describe("Validate API Panel CSS Styles", function () {
         //Create two datasource for testing binding prompt background-color
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
-        AppSidebar.navigate(AppSidebarButton.Pages);
+        AppSidebar.navigate(AppSidebarButton.Editor);
         EditorNavigation.SelectEntityByName("test_styles", EntityType.Api);
         //Click on API search editor
         cy.get(ApiEditor.codeEditorWrapper).first().click();
@@ -83,9 +81,9 @@ describe("Validate API Panel CSS Styles", function () {
           .should("have.css", "background-color", hover);
         //Delete created test API
         cy.DeleteAPI();
-        AppSidebar.navigate(AppSidebarButton.Pages);
+        AppSidebar.navigate(AppSidebarButton.Editor);
         cy.wait(2000);
-        entityExplorer.AssertEntityAbsenceInExplorer("test_styles");
+        PageLeftPane.assertAbsence("test_styles");
         //Delete two datasources
         cy.deleteDatasource(appName1);
         cy.deleteDatasource(appName2);

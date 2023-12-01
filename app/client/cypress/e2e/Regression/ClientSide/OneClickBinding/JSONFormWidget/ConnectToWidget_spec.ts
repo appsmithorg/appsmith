@@ -13,6 +13,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -72,7 +73,7 @@ describe("JSONForm widget one click binding feature", () => {
   });
 
   it("Connect to a list widget", () => {
-    entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.LIST_V2, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 600, 400);

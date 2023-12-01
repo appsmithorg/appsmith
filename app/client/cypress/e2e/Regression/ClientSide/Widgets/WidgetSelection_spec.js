@@ -61,7 +61,7 @@ describe("Widget Selection", function () {
     // Hit CTRL +A
     cy.get("body").type("{ctrl}{a}");
     // Switch to the Canvas
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     // Widgets should not be selected
     cy.get(".t--multi-selection-box").should("not.exist");

@@ -9,6 +9,7 @@
     "allowJs": true,
     "baseUrl": ".",
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "paths": {
       "@constants/*": ["./src/constants/*"],
       "@services/*": ["./src/services/*"],

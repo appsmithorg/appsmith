@@ -13,6 +13,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -39,18 +40,6 @@ describe("Array Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
 
-    //Creating SELECT query - arraytypes + Bug 14493
-    dataSources.createQueryWithDatasourceSchemaTemplate(
-      dsName,
-      "public.arraytypes",
-      "Select",
-    );
-    agHelper.RenameWithInPane("selectRecords");
-    dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-
     //Creating other queries
     query = `INSERT INTO arraytypes ("name", "pay_by_quarter", "schedule")  VALUES ('{{Insertname.text}}', ARRAY{{Insertpaybyquarter.text.split(',').map(Number)}}, ARRAY[['{{Insertschedule.text.split(',').slice(0,2).toString()}}'],['{{Insertschedule.text.split(',').slice(2,4).toString()}}']]);`;
 
@@ -72,7 +61,19 @@ describe("Array Datatype tests", function () {
     query = `DROP table public."arraytypes"`;
     dataSources.CreateQueryFromOverlay(dsName, query, "dropTable"); //Creating query from EE overlay
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    //Creating SELECT query - arraytypes + Bug 14493
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.arraytypes",
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
+
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("2. Inserting record - arraytypes", () => {
@@ -168,7 +169,8 @@ describe("Array Datatype tests", function () {
   it("6. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyArrayFunctions");
 
@@ -475,7 +477,8 @@ describe("Array Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("7. Deleting records - arraytypes", () => {
@@ -524,7 +527,7 @@ describe("Array Datatype tests", function () {
     EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.AssertQueryTableResponse(0, "0");
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.arraytypes", false);
   });
 
@@ -533,15 +536,15 @@ describe("Array Datatype tests", function () {
     () => {
       //Verify Deletion of all created queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      AppSidebar.navigate(AppSidebarButton.Pages);
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
       //Ds Deletion
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
     },
   );
 });
