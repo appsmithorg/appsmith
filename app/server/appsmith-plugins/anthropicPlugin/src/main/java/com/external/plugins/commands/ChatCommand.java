@@ -7,7 +7,6 @@ import com.external.plugins.constants.AnthropicConstants;
 import com.external.plugins.models.AnthropicRequestDTO;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
