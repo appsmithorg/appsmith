@@ -83,7 +83,7 @@ function StarterBuildingBlocks() {
       ),
     );
 
-    AnalyticsUtil.logEvent("FORK_APLICATIONTEMPLATE", {
+    AnalyticsUtil.logEvent("fork_APLICATIONTEMPLATE", {
       applicationId: currentApplication?.id,
       workspaceId: currentWorkSpace.id,
       source: "canvas",

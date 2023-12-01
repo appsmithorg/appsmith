@@ -1,3 +1,8 @@
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
@@ -55,7 +60,7 @@ describe("List Widget V2 Functionality", function () {
     "excludeForAirgap",
     "should validate that all widgets can be added to List",
     () => {
-      entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       allowed.forEach((widget) => {
         entityExplorer.DragDropWidgetNVerify(widget);
         //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
@@ -69,7 +74,7 @@ describe("List Widget V2 Functionality", function () {
     "airgap",
     "should validate that all widgets can be added to List except mapwidget - airgap",
     () => {
-      entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       const airgapAllowed = allowed.filter((widget) => widget !== "mapwidget");
       airgapAllowed.forEach((widget) => {
         entityExplorer.DragDropWidgetNVerify(widget);

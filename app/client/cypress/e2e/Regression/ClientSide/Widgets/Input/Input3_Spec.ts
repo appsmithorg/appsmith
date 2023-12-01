@@ -7,6 +7,9 @@ import {
   propPane,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("InputV2 widget tests - continuation", function () {
   before(() => {
@@ -31,7 +34,7 @@ describe("InputV2 widget tests - continuation", function () {
   it("2. Validate Max Characters (Single & Multi Line Text)", function () {
     //Single line text input
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Data type", "Single-line text");
     propPane.UpdatePropertyFieldValue("Max characters", "10");
 
@@ -48,7 +51,7 @@ describe("InputV2 widget tests - continuation", function () {
 
     //Multi line text input
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Data type", "Multi-line text");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.INPUT_V2));
     agHelper.ClearNType(
@@ -64,7 +67,7 @@ describe("InputV2 widget tests - continuation", function () {
 
   it("3. Validate Valid property", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Valid", "{{Input1.text.length > 5}}");
 
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.INPUT_V2));
@@ -77,7 +80,7 @@ describe("InputV2 widget tests - continuation", function () {
 
   it("4. Validate tooltip & onTextChangedEvent", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Tooltip", "Input tooltip");
     propPane.EnterJSContext(
       "onTextChanged",
@@ -97,7 +100,7 @@ describe("InputV2 widget tests - continuation", function () {
 
   it("5. Validate showStepArrows for number input", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Data type", "Number");
     agHelper.AssertElementAbsence(widgetLocators.inputWidgetStepUp);
     agHelper.AssertElementAbsence(widgetLocators.inputWidgetStepDown);
@@ -144,7 +147,7 @@ describe("InputV2 widget tests - continuation", function () {
 
   it("6. Verify Input widget styles", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.MoveToTab("Style");
     propPane.SelectColorFromColorPicker("fontcolor", 11);
     propPane.SelectPropertiesDropDown("Font size", "M");
@@ -182,7 +185,7 @@ describe("InputV2 widget tests - continuation", function () {
 
     //JS conversion
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Input1", "Widgets");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Font color", "#22c55e");
     propPane.EnterJSContext("Font size", "1.25rem");

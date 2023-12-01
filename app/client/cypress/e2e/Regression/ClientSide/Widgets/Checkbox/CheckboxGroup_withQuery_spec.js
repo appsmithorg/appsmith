@@ -1,5 +1,6 @@
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebar,
+  AppSidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -13,7 +14,7 @@ describe("Checkbox Group Widget Functionality", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Check checkbox group with dynamic query", function () {

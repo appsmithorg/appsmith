@@ -153,7 +153,14 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                         .thenReturn(application);
                             });
                 })
-                .flatMap(application -> applicationService.update(application.getId(), application))
+                .flatMap(application -> {
+                    Map<String, Object> fieldNameValueMap = Map.of(
+                            FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
+                            application.getUnpublishedCustomJSLibs());
+                    return applicationService
+                            .update(applicationId, fieldNameValueMap, branchName)
+                            .then(Mono.just(application));
+                })
                 .as(transactionalOperator::transactional);
 
         // Send Analytics event

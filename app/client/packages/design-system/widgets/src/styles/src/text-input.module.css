@@ -8,6 +8,7 @@
     box-shadow: 0 0 0 1px var(--color-bd-neutral);
     padding-inline: var(--inner-spacing-1);
     padding-block: var(--inner-spacing-1);
+    flex: 1;
   }
 
   & [data-field-input] :is(input, textarea) {
@@ -17,6 +18,7 @@
     flex-grow: 1;
     color: var(--color-fg);
     text-overflow: ellipsis;
+    width: 100%;
 
     &:autofill,
     &:autofill:hover,

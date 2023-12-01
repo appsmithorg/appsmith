@@ -50,7 +50,7 @@ import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { WDS_V2_WIDGET_MAP } from "components/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import Collapsible from "components/common/Collapsible";
 
 const BINDING_GUIDE_GIF = `${ASSETS_CDN_URL}/binding.gif`;

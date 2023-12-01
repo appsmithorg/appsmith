@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -9,7 +13,6 @@ describe("Table Widget V2 Filtered Table data in autocomplete", function () {
   before("Table Widget V2 Functionality", () => {
     _.agHelper.AddDsl("tableV2AndTextDsl");
     cy.openPropertyPane("tablewidgetv2");
-    cy.wait("@updateLayout");
   });
 
   it("1. Table Widget V2 Functionality To Filter and search data", function () {
@@ -27,7 +30,7 @@ describe("Table Widget V2 Filtered Table data in autocomplete", function () {
   });
 
   it("2. Table Widget V2 Functionality to validate filtered table data", function () {
-    _.entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     cy.testJsontext("text", "{{Table1.filteredTableData[0].task}}");
     cy.readTableV2data("0", "1").then((tabData) => {
       const tableData = tabData;

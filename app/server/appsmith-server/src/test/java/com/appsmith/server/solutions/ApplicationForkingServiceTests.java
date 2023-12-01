@@ -44,6 +44,7 @@ import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -157,6 +158,9 @@ public class ApplicationForkingServiceTests {
 
     @Autowired
     private LayoutActionService layoutActionService;
+
+    @Autowired
+    private UpdateLayoutService updateLayoutService;
 
     @Autowired
     private NewPageService newPageService;
@@ -337,7 +341,7 @@ public class ApplicationForkingServiceTests {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(parentDsl);
 
-        layoutActionService
+        updateLayoutService
                 .updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)
                 .block();
         return app1.getId();

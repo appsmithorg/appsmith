@@ -1,4 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Divider Widget Functionality", function () {
   before(() => {
@@ -12,7 +15,7 @@ describe("Divider Widget Functionality", function () {
       200,
     );
     //Open Existing Divider from created  list
-    _.entityExplorer.SelectEntityByName("Divider1");
-    _.entityExplorer.SelectEntityByName("Divider2");
+    EditorNavigation.SelectEntityByName("Divider1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("Divider2", EntityType.Widget);
   });
 });

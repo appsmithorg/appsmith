@@ -19,6 +19,7 @@ import {
 import { get, isEmpty, merge, omit, partition, set } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
@@ -129,7 +130,11 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
-import { getWorkspaceIdForImport } from "@appsmith/selectors/applicationSelectors";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+  getWorkspaceIdForImport,
+} from "@appsmith/selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
@@ -154,7 +159,7 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
@@ -255,7 +260,15 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
     const { name, packageName, pluginId, skipRedirection, workspaceId } =
       actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
-    const pageId: string = yield select(getCurrentPageId);
+    const currentApplicationIdForCreateNewApp: string | undefined =
+      yield select(getCurrentApplicationIdForCreateNewApp);
+    const application: ApplicationPayload | undefined = yield select(
+      getApplicationByIdFromWorkspaces,
+      currentApplicationIdForCreateNewApp || "",
+    );
+    const pageId: string = !!currentApplicationIdForCreateNewApp
+      ? application?.defaultPageId
+      : yield select(getCurrentPageId);
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.addMockDbToDatasources(
         name,
@@ -971,6 +984,17 @@ function* createTempDatasourceFromFormSaga(
     payload.datasourceStorages[defaultEnvId],
     initialValues,
   );
+
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+
+  if (currentApplicationIdForCreateNewApp) {
+    yield put({
+      type: ReduxActionTypes.SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP,
+      payload: actionPayload.payload.pluginId,
+    });
+  }
 
   yield put(createDatasourceSuccess(payload as Datasource));
 

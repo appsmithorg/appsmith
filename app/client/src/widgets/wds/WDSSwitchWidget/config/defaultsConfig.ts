@@ -1,3 +1,4 @@
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export const defaultsConfig = {
@@ -11,4 +12,5 @@ export const defaultsConfig = {
   isDisabled: false,
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
+  minWidth: FILL_WIDGET_MIN_WIDTH,
 };

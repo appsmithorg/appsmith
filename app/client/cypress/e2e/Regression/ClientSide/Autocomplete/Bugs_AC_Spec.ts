@@ -1,15 +1,17 @@
 import {
   agHelper,
-  locators,
+  draggableWidgets,
   entityExplorer,
+  installer,
   jsEditor,
+  locators,
   propPane,
   table,
-  installer,
-  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Autocomplete bug fixes", function () {
@@ -17,7 +19,7 @@ describe("Autocomplete bug fixes", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
     table.AddSampleTableData();
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 200, 600);
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.TypeTextIntoField("Text", "{{Table1.");
     agHelper.AssertElementExist(locators._hints);
     agHelper.GetNAssertElementText(locators._hints, "Best match");
@@ -30,7 +32,7 @@ describe("Autocomplete bug fixes", function () {
   });
 
   it("2. Bug #13983 Verifies if object properties are in autocomplete list", function () {
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.TypeTextIntoField("Text", '{{Table1.selectedRow["');
     agHelper.AssertElementExist(locators._hints);
     agHelper.GetNAssertElementText(locators._hints, "status", "contain.text");
@@ -41,7 +43,7 @@ describe("Autocomplete bug fixes", function () {
   });
 
   it("3. Bug #13983 Verifies if object properties are in autocomplete list", function () {
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.TypeTextIntoField("Text", '{{Table1.selectedRo"');
     agHelper.AssertElementAbsence(locators._hints);
 
@@ -51,7 +53,7 @@ describe("Autocomplete bug fixes", function () {
 
   it("4. Bug #14990 Checks if copied widget show up on autocomplete suggestions", function () {
     entityExplorer.CopyPasteWidget("Text1");
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Text", "");
     propPane.TypeTextIntoField("Text", "{{Te");
     agHelper.AssertElementExist(locators._hints);
@@ -66,7 +68,7 @@ describe("Autocomplete bug fixes", function () {
 
   it("5. Bug #14100 Custom columns name label change should reflect in autocomplete", function () {
     // select table widget
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     // add new column
     cy.get(".t--add-column-btn").click();
     // edit column name
@@ -77,7 +79,7 @@ describe("Autocomplete bug fixes", function () {
     propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
     cy.wait(500);
     // select text widget
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
 
     // type {{Table1.selectedRow. and check for autocompletion suggestion having edited column name
     propPane.TypeTextIntoField("Text", "{{Table1.selectedRow.");
@@ -93,12 +95,12 @@ describe("Autocomplete bug fixes", function () {
     "excludeForAirgap",
     "7. Installed library should show up in autocomplete",
     function () {
-      EditorNavigation.ViaSidebar(SidebarButton.Libraries);
+      AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
-      entityExplorer.SelectEntityByName("Text1");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.TypeTextIntoField("Text", "{{UUI");
       agHelper.GetNAssertElementText(locators._hints, "UUID");
     },
@@ -109,16 +111,16 @@ describe("Autocomplete bug fixes", function () {
     "8. No autocomplete for Removed libraries",
     function () {
       entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
-      EditorNavigation.ViaSidebar(SidebarButton.Libraries);
+      AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.uninstallLibrary("uuidjs");
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       propPane.TypeTextIntoField("Text", "{{UUID.");
       agHelper.AssertElementAbsence(locators._hints);
     },
   );
 
   it("9. Bug #20449 Cursor should be between parenthesis when function is autocompleted (Property Pane)", function () {
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.TypeTextIntoField("Text", "{{console.l");
 
     agHelper.GetNClickByContains(locators._hints, "log");

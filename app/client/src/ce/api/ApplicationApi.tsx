@@ -1,13 +1,13 @@
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
-import type { AxiosPromise } from "axios";
+import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { IconNames } from "design-system";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
-import type { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 import type {
   LayoutSystemTypeConfig,
@@ -119,6 +119,7 @@ export interface UpdateApplicationPayload {
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
+    themeSetting?: ThemeSetting;
     appPositioning?: LayoutSystemTypeConfig;
   };
   forkingEnabled?: boolean;
@@ -179,7 +180,7 @@ export interface FetchUnconfiguredDatasourceListResponse extends ApiResponse {
 export interface ImportApplicationRequest {
   workspaceId: string;
   applicationFile?: File;
-  progress?: (progressEvent: ProgressEvent) => void;
+  progress?: (progressEvent: AxiosProgressEvent) => void;
   onSuccessCallback?: () => void;
   appId?: string;
 }
@@ -215,6 +216,7 @@ export interface UpdateApplicationResponse {
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
     appPositioning?: LayoutSystemTypeConfig;
+    themeSetting?: ThemeSetting;
   };
 }
 
@@ -250,7 +252,7 @@ export interface exportApplicationRequest {
 export interface ImportPartialApplicationRequest {
   workspaceId: string;
   applicationFile: File;
-  progress?: (progressEvent: ProgressEvent) => void;
+  progress?: (progressEvent: AxiosProgressEvent) => void;
   onSuccessCallback?: () => void;
   applicationId: string;
   pageId: string;
