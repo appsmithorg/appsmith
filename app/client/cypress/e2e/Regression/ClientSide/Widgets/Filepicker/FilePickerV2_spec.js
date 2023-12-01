@@ -1,3 +1,8 @@
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
@@ -34,6 +39,7 @@ describe("File picker widget v2", () => {
   });
 
   it("3. Check if the uploaded data does not reset when back from query page", () => {
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -50,12 +56,8 @@ describe("File picker widget v2", () => {
     cy.wait(1000);
     cy.validateEvaluatedValue("testFile.mov");
 
-    cy.get("[data-testid='more-action-trigger']")
-      .first()
-      .click({ force: true });
-
     // Go back to widgets page
-    _.entityExplorer.NavigateToSwitcher("Widgets", 0, true);
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     cy.get(widgetsPage.filepickerwidgetv2).should(
       "contain",
       "1 files selected",
@@ -68,9 +70,8 @@ describe("File picker widget v2", () => {
     cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
-    _.entityExplorer.NavigateToSwitcher("Explorer");
-
-    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.expandCollapseItem("Queries/JS");
     cy.get(".t--entity-item:contains(Api1)").click();
     cy.focusCodeInput("[class*='t--actionConfiguration']");
     cy.wait(1000);

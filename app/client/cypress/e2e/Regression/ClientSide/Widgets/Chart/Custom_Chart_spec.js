@@ -1,3 +1,5 @@
+import { PageLeftPane } from "../../../../../support/Pages/EditorNavigation";
+
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -128,14 +130,14 @@ describe("Chart Widget Functionality around custom chart feature", function () {
   it("4. Chart-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
     cy.wait(1000);
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
+    PageLeftPane.expandCollapseItem("Widgets");
+    PageLeftPane.expandCollapseItem("Container3");
     _.propPane.CopyPasteWidgetFromPropertyPane("Test");
     _.deployMode.DeployApp();
     //Chart-Delete Verification"
     _.deployMode.NavigateBacktoEditor();
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
+    PageLeftPane.expandCollapseItem("Widgets");
+    PageLeftPane.expandCollapseItem("Container3");
     _.propPane.DeleteWidgetFromPropertyPane("TestCopy");
     _.deployMode.DeployApp();
     cy.get(viewWidgetsPage.chartWidget).should("not.exist");

@@ -1,6 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Binding the list widget with text widget", function () {
@@ -39,8 +40,8 @@ describe("Binding the list widget with text widget", function () {
       "Items",
       '[[{ "name": "pawan"}, { "name": "Vivek" }], [{ "name": "Ashok"}, {"name": "rahul"}]]',
     );
-    _.entityExplorer.ExpandCollapseEntity("List1");
-    _.entityExplorer.ExpandCollapseEntity("Container1");
+    PageLeftPane.expandCollapseItem("List1");
+    PageLeftPane.expandCollapseItem("Container1");
     EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, [
       "List1",
       "Container1",
@@ -71,8 +72,8 @@ describe("Binding the list widget with text widget", function () {
       "Items",
       '[{ "name": "pawan"}, { "name": "Vivek" }]',
     );
-    _.entityExplorer.ExpandCollapseEntity("List1");
-    _.entityExplorer.ExpandCollapseEntity("Container1");
+    PageLeftPane.expandCollapseItem("List1");
+    PageLeftPane.expandCollapseItem("Container1");
     EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, [
       "List1",
       "Container1",

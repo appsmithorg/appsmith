@@ -17,13 +17,9 @@ describe("JSONForm widget one click binding feature", () => {
   it("1.tests select/unselect fields for json form widget", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 450, 200);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
-      entityExplorer.NavigateToSwitcher("Widgets");
-
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(

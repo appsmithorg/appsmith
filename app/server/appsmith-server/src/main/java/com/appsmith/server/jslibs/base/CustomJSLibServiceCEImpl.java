@@ -17,7 +17,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
@@ -87,7 +86,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     public Mono<CustomJSLibApplicationDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
         return repository
-                .findByUidString(jsLib.getUidString())
+                .findUniqueCustomJsLib(jsLib)
                 .flatMap(foundJSLib -> {
                     /*
                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
@@ -161,15 +160,19 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     private Mono<List<CustomJSLib>> getAllCustomJSLibsFromApplication(
             String applicationId, String branchName, boolean isViewMode) {
         return getAllJSLibApplicationDTOFromApplication(applicationId, branchName, isViewMode)
-                .map(jsLibDTOSet ->
-                        jsLibDTOSet.stream().map(dto -> dto.getUidString()).collect(Collectors.toList()))
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(uidString -> repository.findByUidString(uidString))
+                .map(this::filterAndMapGlobalUidStrings)
+                .flatMapMany(uidStrings -> repository.findCustomJsLibsInContext(uidStrings, null, null))
                 .collectList()
                 .map(jsLibList -> {
                     Collections.sort(jsLibList, Comparator.comparing(CustomJSLib::getUidString));
                     return jsLibList;
                 });
+    }
+
+    protected Set<String> filterAndMapGlobalUidStrings(Set<CustomJSLibApplicationDTO> customJSLibApplicationDTOS) {
+        return customJSLibApplicationDTOS.stream()
+                .map(CustomJSLibApplicationDTO::getUidString)
+                .collect(Collectors.toSet());
     }
 
     @Override

@@ -1,5 +1,8 @@
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const dsl = require("../../../../fixtures/widgetSelection.json");
@@ -53,15 +56,13 @@ describe("Widget Selection", function () {
   });
 
   it("3. Should not select widgets if we hit CTRL + A on other Pages", function () {
-    // Switch to the Explorer Pane
-    _.entityExplorer.NavigateToSwitcher("Explorer");
     // Click to create a New Data Source
     _.dataSources.NavigateToDSCreateNew();
     // Hit CTRL +A
     cy.get("body").type("{ctrl}{a}");
     // Switch to the Canvas
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
     // Widgets should not be selected
     cy.get(".t--multi-selection-box").should("not.exist");
   });

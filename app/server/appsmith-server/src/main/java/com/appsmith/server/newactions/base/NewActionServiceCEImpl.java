@@ -55,6 +55,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.validations.EntityValidationService;
 import com.mongodb.bulk.BulkWriteResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
@@ -75,7 +76,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
-import javax.lang.model.SourceVersion;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -132,7 +132,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     protected final ActionPermission actionPermission;
-
+    private final EntityValidationService entityValidationService;
     private final ObservationRegistry observationRegistry;
     private final Map<String, Plugin> defaultPluginMap = new HashMap<>();
     private final AtomicReference<Plugin> jsTypePluginReference = new AtomicReference<>();
@@ -159,6 +159,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
+            EntityValidationService entityValidationService,
             ObservationRegistry observationRegistry) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
@@ -172,6 +173,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationService = applicationService;
         this.policySolution = policySolution;
         this.permissionGroupService = permissionGroupService;
+        this.entityValidationService = entityValidationService;
         this.observationRegistry = observationRegistry;
         this.responseUtils = responseUtils;
         this.configService = configService;
@@ -179,14 +181,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
-    }
-
-    @Override
-    public Boolean validateActionName(String name) {
-        boolean isValidName = SourceVersion.isName(name);
-        String pattern = "^((?=[A-Za-z0-9_])(?![\\\\-]).)*$";
-        boolean doesPatternMatch = name.matches(pattern);
-        return (isValidName && doesPatternMatch);
     }
 
     private void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
@@ -297,7 +291,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         this.validateCreatorId(action);
 
-        if (!validateActionName(action.getName())) {
+        if (!isValidActionName(action)) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
         }
@@ -424,6 +418,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(repository::setUserPermissionsInObject)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
+    }
+
+    protected boolean isValidActionName(ActionDTO action) {
+        return entityValidationService.validateName(action.getName());
     }
 
     protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
