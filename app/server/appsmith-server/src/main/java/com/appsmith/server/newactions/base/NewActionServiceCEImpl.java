@@ -767,11 +767,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String pageId, String branchName) {
         if (!isBlank(defaultApplicationId)) {
             return getActionsForViewMode(defaultApplicationId, branchName);
-        }
-        else if (!isBlank(pageId)) {
-            return newPageService.findPageById(pageId, pagePermission.getReadPermission(), true)
-                .map(PageDTO::getApplicationId)
-                .flatMapMany(appId -> getActionsForViewMode(appId, branchName));
+        } else if (!isBlank(pageId)) {
+            return newPageService
+                    .findPageById(pageId, pagePermission.getReadPermission(), true)
+                    .map(PageDTO::getApplicationId)
+                    .flatMapMany(appId -> getActionsForViewMode(appId, branchName));
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "application id / page id"));
@@ -1047,9 +1047,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<Application> branchedApplicationMono = !StringUtils.hasLength(params.getFirst(APPLICATION_ID))
                 ? Mono.just(new Application())
                 : applicationService.findByBranchNameAndDefaultApplicationId(
-                        branchName,
-                        params.getFirst(APPLICATION_ID),
-                        applicationPermission.getReadPermission());
+                        branchName, params.getFirst(APPLICATION_ID), applicationPermission.getReadPermission());
 
         return Mono.zip(branchedApplicationMono, branchedPageMono)
                 .flatMapMany(tuple -> {
@@ -1058,8 +1056,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (!CollectionUtils.isEmpty(params.get(FieldName.PAGE_ID)) && StringUtils.hasLength(pageId)) {
                         updatedParams.set(FieldName.PAGE_ID, pageId);
                     }
-                    if (!CollectionUtils.isEmpty(params.get(APPLICATION_ID))
-                            && StringUtils.hasLength(applicationId)) {
+                    if (!CollectionUtils.isEmpty(params.get(APPLICATION_ID)) && StringUtils.hasLength(applicationId)) {
                         updatedParams.set(APPLICATION_ID, applicationId);
                     }
                     return getUnpublishedActions(updatedParams, includeJsActions);
@@ -1077,19 +1074,19 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return getUnpublishedActions(params, branchName, TRUE);
     }
 
-    public Flux<ActionDTO> getAllUnpublishedActionsInAppExceptJsUsingPageId(String pageId,
-                                                                     String branchName) {
+    public Flux<ActionDTO> getAllUnpublishedActionsInAppExceptJsUsingPageId(String pageId, String branchName) {
         if (isBlank(pageId)) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
         }
 
-        return newPageService.findById(pageId, pagePermission.getReadPermission())
-            .map(NewPage::getApplicationId)
-            .flatMapMany(applicationId -> {
-                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                params.put(APPLICATION_ID, singletonList(applicationId));
-                return getUnpublishedActionsExceptJs(params, branchName);
-            });
+        return newPageService
+                .findById(pageId, pagePermission.getReadPermission())
+                .map(NewPage::getApplicationId)
+                .flatMapMany(applicationId -> {
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.put(APPLICATION_ID, singletonList(applicationId));
+                    return getUnpublishedActionsExceptJs(params, branchName);
+                });
     }
 
     @Override

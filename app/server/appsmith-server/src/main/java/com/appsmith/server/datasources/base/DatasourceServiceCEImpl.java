@@ -466,8 +466,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 if (!hasText(datasourceStorage.getDatasourceId())) {
 
                     if (!hasText(datasourceStorage.getWorkspaceId())) {
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.INVALID_PARAMETER, WORKSPACE_ID));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, WORKSPACE_ID));
                     }
 
                     datasourceStorageMono = getTrueEnvironmentId(
@@ -753,15 +752,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
         }
 
-        return newPageService.findById(pageId, pagePermission.getReadPermission())
-            .map(NewPage::getApplicationId)
-            .flatMap(applicationService::getById)
-            .map(Application::getWorkspaceId)
-            .flatMapMany(workspaceId -> {
-                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                params.put(WORKSPACE_ID, singletonList(workspaceId));
-                return getAllWithStorages(params);
-            });
+        return newPageService
+                .findById(pageId, pagePermission.getReadPermission())
+                .map(NewPage::getApplicationId)
+                .flatMap(applicationService::getById)
+                .map(Application::getWorkspaceId)
+                .flatMapMany(workspaceId -> {
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.put(WORKSPACE_ID, singletonList(workspaceId));
+                    return getAllWithStorages(params);
+                });
     }
 
     @Override

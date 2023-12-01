@@ -74,6 +74,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
+
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String pageId, String branchName);
 
     ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO);
@@ -116,8 +117,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName);
-    Flux<ActionDTO> getAllUnpublishedActionsInAppExceptJsUsingPageId(String pageId,
-                                                                String branchName);
+
+    Flux<ActionDTO> getAllUnpublishedActionsInAppExceptJsUsingPageId(String pageId, String branchName);
+
     Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission);
 

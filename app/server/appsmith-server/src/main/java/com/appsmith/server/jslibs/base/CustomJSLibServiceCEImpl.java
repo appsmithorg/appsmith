@@ -131,14 +131,15 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     }
 
     public Mono<List<CustomJSLib>> getAllJSLibsInApplicationUsingPageId(
-        String pageId, String branchName, Boolean isViewMode) {
+            String pageId, String branchName, Boolean isViewMode) {
         if (isBlank(pageId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
         }
 
-        return newPageService.findById(pageId, pagePermission.getReadPermission())
-            .map(NewPage::getApplicationId)
-            .flatMap(applicationId -> getAllJSLibsInApplication(applicationId, branchName, isViewMode));
+        return newPageService
+                .findById(pageId, pagePermission.getReadPermission())
+                .map(NewPage::getApplicationId)
+                .flatMap(applicationId -> getAllJSLibsInApplication(applicationId, branchName, isViewMode));
     }
 
     @Override

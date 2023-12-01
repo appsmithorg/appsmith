@@ -86,9 +86,9 @@ public class DatasourceControllerCE {
     public Mono<ResponseDTO<List<Datasource>>> getAll(@PathVariable String pageId) {
         log.debug("Going to get all resources from datasource controller using pageId: {}", pageId);
         return datasourceService
-            .getAllDatasourcesWithStorageUsingPageId(pageId)
-            .collectList()
-            .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .getAllDatasourcesWithStorageUsingPageId(pageId)
+                .collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @JsonView(Views.Public.class)

@@ -92,15 +92,16 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
         return repository.getSystemThemes();
     }
 
-    public Mono<Theme> getApplicationThemeUsingPageId(@NonNull String pageId, ApplicationMode applicationMode,
-                                                      String branchName) {
+    public Mono<Theme> getApplicationThemeUsingPageId(
+            @NonNull String pageId, ApplicationMode applicationMode, String branchName) {
         if (isBlank(pageId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
         }
 
-        return newPageService.findById(pageId, pagePermission.getReadPermission())
-            .map(NewPage::getApplicationId)
-            .flatMap(applicationId -> getApplicationTheme(applicationId, applicationMode, branchName));
+        return newPageService
+                .findById(pageId, pagePermission.getReadPermission())
+                .map(NewPage::getApplicationId)
+                .flatMap(applicationId -> getApplicationTheme(applicationId, applicationMode, branchName));
     }
 
     @Override
@@ -130,9 +131,10 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
         }
 
-        return newPageService.findById(pageId, pagePermission.getReadPermission())
-            .map(NewPage::getApplicationId)
-            .flatMapMany(applicationId -> getApplicationThemes(applicationId, branchName));
+        return newPageService
+                .findById(pageId, pagePermission.getReadPermission())
+                .map(NewPage::getApplicationId)
+                .flatMapMany(applicationId -> getApplicationThemes(applicationId, branchName));
     }
 
     @Override

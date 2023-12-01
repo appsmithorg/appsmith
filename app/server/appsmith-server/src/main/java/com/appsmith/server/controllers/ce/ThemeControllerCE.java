@@ -51,11 +51,11 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
     @JsonView(Views.Public.class)
     @GetMapping("applications/usingPageId/{pageId}")
     public Mono<ResponseDTO<List<Theme>>> getApplicationThemesUsingPageId(
-        @PathVariable String pageId,
-        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String pageId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.getApplicationThemesUsingPageId(pageId, branchName)
-            .collectList()
-            .map(themes -> new ResponseDTO<>(HttpStatus.OK.value(), themes, null));
+                .collectList()
+                .map(themes -> new ResponseDTO<>(HttpStatus.OK.value(), themes, null));
     }
 
     @JsonView(Views.Public.class)
@@ -71,11 +71,11 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
     @JsonView(Views.Public.class)
     @GetMapping("applications/usingPageId/{pageId}/current")
     public Mono<ResponseDTO<Theme>> getCurrentThemeUsingPageId(
-        @PathVariable String pageId,
-        @RequestParam(required = false, defaultValue = "EDIT") ApplicationMode mode,
-        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String pageId,
+            @RequestParam(required = false, defaultValue = "EDIT") ApplicationMode mode,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.getApplicationThemeUsingPageId(pageId, mode, branchName)
-            .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
+                .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 
     @JsonView(Views.Public.class)

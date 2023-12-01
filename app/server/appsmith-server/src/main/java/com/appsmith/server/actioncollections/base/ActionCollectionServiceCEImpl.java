@@ -162,21 +162,20 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .flatMap(actionCollectionDTO -> this.populateActionCollectionByViewMode(actionCollectionDTO, viewMode));
     }
 
-    public Flux<ActionCollectionDTO> getAllUnpublishedActionCollectionsInApplication(
-        String pageId, String branchName) {
+    public Flux<ActionCollectionDTO> getAllUnpublishedActionCollectionsInApplication(String pageId, String branchName) {
         if (isBlank(pageId)) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
         }
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            return newPageService.findPageById(pageId, pagePermission.getReadPermission(), true)
+        return newPageService
+                .findPageById(pageId, pagePermission.getReadPermission(), true)
                 .map(PageDTO::getApplicationId)
                 .flatMapMany(applicationId -> {
                     params.put(APPLICATION_ID, singletonList(applicationId));
                     return getPopulatedActionCollectionsByViewMode(params, false, branchName);
                 });
     }
-
 
     @Override
     public Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
@@ -238,16 +237,16 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         });
     }
 
-    public Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String applicationId,
-                                                                         String pageId, String branchName) {
+    public Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(
+            String applicationId, String pageId, String branchName) {
 
         if (!isBlank(applicationId)) {
             return getActionCollectionsForViewMode(applicationId, branchName);
-        }
-        else if (!isBlank(pageId)) {
-            return newPageService.findPageById(pageId, pagePermission.getReadPermission(), true)
-                .map(PageDTO::getApplicationId)
-                .flatMapMany(appId ->  getActionCollectionsForViewMode(appId, branchName));
+        } else if (!isBlank(pageId)) {
+            return newPageService
+                    .findPageById(pageId, pagePermission.getReadPermission(), true)
+                    .map(PageDTO::getApplicationId)
+                    .flatMapMany(appId -> getActionCollectionsForViewMode(appId, branchName));
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "application id / page id"));

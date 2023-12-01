@@ -201,17 +201,18 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PAGE_ID));
         }
 
-        return newPageService.findById(pageId, pagePermission.getReadPermission())
-            .map(NewPage::getApplicationId)
-            .flatMap(applicationService::getById)
-            .map(Application::getWorkspaceId)
-            .flatMap(workspaceService::getById)
-            .map(Workspace::getId)
-            .flatMapMany(workspaceId -> {
-                MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                params.put(WORKSPACE_ID, singletonList(workspaceId));
-                return get(params);
-            });
+        return newPageService
+                .findById(pageId, pagePermission.getReadPermission())
+                .map(NewPage::getApplicationId)
+                .flatMap(applicationService::getById)
+                .map(Application::getWorkspaceId)
+                .flatMap(workspaceService::getById)
+                .map(Workspace::getId)
+                .flatMapMany(workspaceId -> {
+                    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+                    params.put(WORKSPACE_ID, singletonList(workspaceId));
+                    return get(params);
+                });
     }
 
     @Override

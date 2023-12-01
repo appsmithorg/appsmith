@@ -77,18 +77,19 @@ public class ActionCollectionControllerCE {
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-
     @JsonView(Views.Public.class)
     @GetMapping("/edit/getAllActionCollectionsInApp/{pageId}")
     public Mono<ResponseDTO<List<ActionCollectionDTO>>> getAllUnpublishedActionCollectionsInAppUsingPageId(
-        @PathVariable String pageId,
-        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to get all unpublished action collections in application with pageId: {}, branch: {}", pageId,
-            branchName);
+            @PathVariable String pageId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug(
+                "Going to get all unpublished action collections in application with pageId: {}, branch: {}",
+                pageId,
+                branchName);
         return actionCollectionService
-            .getAllUnpublishedActionCollectionsInApplication(pageId, branchName)
-            .collectList()
-            .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+                .getAllUnpublishedActionCollectionsInApplication(pageId, branchName)
+                .collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @JsonView(Views.Public.class)

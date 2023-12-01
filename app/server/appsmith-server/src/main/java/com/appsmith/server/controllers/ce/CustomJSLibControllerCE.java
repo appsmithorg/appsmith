@@ -79,13 +79,15 @@ public class CustomJSLibControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/getAll/usingPageId/{pageId}")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplicationUsingPageId(
-        @PathVariable String pageId,
-        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to get all unpublished JS libs in application using pageId: {}, on branch: {}", pageId,
-            branchName);
+            @PathVariable String pageId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug(
+                "Going to get all unpublished JS libs in application using pageId: {}, on branch: {}",
+                pageId,
+                branchName);
         return customJSLibService
-            .getAllJSLibsInApplicationUsingPageId(pageId, branchName, false)
-            .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
+                .getAllJSLibsInApplicationUsingPageId(pageId, branchName, false)
+                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
     @JsonView(Views.Public.class)
@@ -102,12 +104,14 @@ public class CustomJSLibControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/getAll/usingPageId/{pageId}/view")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplicationForViewModeUsingPageId(
-        @PathVariable String pageId,
-        @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to get all published JS libs in application using pageId: {}, on branch: {}", pageId,
-            branchName);
+            @PathVariable String pageId,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug(
+                "Going to get all published JS libs in application using pageId: {}, on branch: {}",
+                pageId,
+                branchName);
         return customJSLibService
-            .getAllJSLibsInApplication(pageId, branchName, true)
-            .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
+                .getAllJSLibsInApplication(pageId, branchName, true)
+                .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 }
