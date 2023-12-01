@@ -8,6 +8,7 @@ export interface ChangeQueryPayload {
   applicationId?: string;
   pageId?: string;
   moduleId?: string;
+  workflowId?: string;
   newQuery?: boolean;
   action?: Action;
 }

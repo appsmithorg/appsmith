@@ -1,8 +1,5 @@
-import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
-  appSettings,
-  assertHelper,
   draggableWidgets,
   entityExplorer,
   locators,
@@ -11,6 +8,8 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe("Statbox spec", () => {
@@ -57,13 +56,13 @@ describe("Statbox spec", () => {
     });
   });
   it("2. Validate if the default widgets are present inside the statbox", () => {
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.AssertEntityPresenceInExplorer("Statbox1");
-    entityExplorer.ExpandCollapseEntity("Statbox1");
-    entityExplorer.AssertEntityPresenceInExplorer("Text1");
-    entityExplorer.AssertEntityPresenceInExplorer("Text2");
-    entityExplorer.AssertEntityPresenceInExplorer("IconButton1");
-    entityExplorer.AssertEntityPresenceInExplorer("Text3");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.assertPresence("Statbox1");
+    PageLeftPane.expandCollapseItem("Statbox1");
+    PageLeftPane.assertPresence("Text1");
+    PageLeftPane.assertPresence("Text2");
+    PageLeftPane.assertPresence("IconButton1");
+    PageLeftPane.assertPresence("Text3");
   });
   it("3. Validate visibility", () => {
     propPane.MoveToTab("Content");
@@ -95,14 +94,14 @@ describe("Statbox spec", () => {
   });
 
   it("4. Validate if widgets can be D&D inside the Statbox widget", () => {
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.ExpandCollapseEntity("Statbox1");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.expandCollapseItem("Statbox1");
     propPane.DeleteWidgetFromPropertyPane("IconButton1");
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.ICONBUTTON, 260, 189);
     //Verifying if the dropped widget exists in the container
-    entityExplorer.NavigateToSwitcher("Explorer");
-    entityExplorer.ExpandCollapseEntity("Statbox1");
-    entityExplorer.AssertEntityPresenceInExplorer("IconButton1");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.expandCollapseItem("Statbox1");
+    PageLeftPane.assertPresence("IconButton1");
     //Verifying if the dropped widget exists once deployed
     deployMode.DeployApp();
     agHelper.AssertElementVisibility(

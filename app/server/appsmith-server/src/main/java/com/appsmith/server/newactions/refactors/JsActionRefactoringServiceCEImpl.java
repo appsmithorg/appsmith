@@ -44,11 +44,6 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
     }
 
     @Override
-    public Mono<Boolean> validateName(String name) {
-        return Mono.just(newActionService.validateActionName(name));
-    }
-
-    @Override
     public Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));

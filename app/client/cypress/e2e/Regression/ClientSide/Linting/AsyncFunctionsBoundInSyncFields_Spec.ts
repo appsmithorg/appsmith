@@ -9,12 +9,12 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Linting async JSFunctions bound to data fields", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Doesn't show lint warnings in debugger but shows on Hover only", () => {
@@ -113,7 +113,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
           JSObject1.myFun2()
       }}}`,
     );
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
     agHelper.AssertElementAbsence(locators._lintWarningElement);
   });

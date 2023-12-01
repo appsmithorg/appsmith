@@ -14,7 +14,6 @@ import EditorNavigation, {
 describe("UI to Code", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
-    entityExplorer.NavigateToSwitcher("Explorer");
     apiPage.CreateApi();
     apiPage.CreateApi("Api2", "POST");
   });
