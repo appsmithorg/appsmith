@@ -10,7 +10,6 @@ import { SectionColumns } from "../utils/constants";
 
 interface SpaceDistributionNodeProps {
   columnPosition: number;
-  index: number;
   left: number;
   parentZones: string[];
   sectionLayoutId: string;
@@ -59,16 +58,7 @@ export const SpaceDistributionHandle = ({
   const leftPositionOfHandle =
     left - SpaceDistributorHandleDimensions.width * 0.5;
   const [leftZone, rightZone] = parentZones;
-  const leftZonePosition = layoutElementPositions[leftZone];
-  const rightZonePosition = layoutElementPositions[rightZone];
   const columnWidth = spaceToWorkWith / 12;
-  const minWidthOfAZone = 2 * columnWidth;
-  const minLeft = leftZonePosition.offsetLeft + minWidthOfAZone + 1;
-  const maxLeft =
-    rightZonePosition.offsetLeft +
-    rightZonePosition.width -
-    minWidthOfAZone +
-    1;
   useEffect(() => {
     if (ref.current) {
       if (isDistributingSpace) {
@@ -290,11 +280,14 @@ export const SpaceDistributionHandle = ({
       };
     }
   }, [
-    leftPositionOfHandle,
-    spaceDistributed,
-    minLeft,
-    maxLeft,
     columnPosition,
+    layoutElementPositions,
+    left,
+    parentZones,
+    sectionLayoutId,
+    spaceBetweenZones,
+    spaceDistributed,
+    spaceToWorkWith,
   ]);
   return (
     <StyledSpaceDistributionHandle left={leftPositionOfHandle} ref={ref} />

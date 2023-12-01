@@ -75,7 +75,6 @@ const SectionSpaceDistributorHandles = (
         return (
           <SpaceDistributionHandle
             columnPosition={each.columnPosition}
-            index={index}
             key={index}
             layoutElementPositions={layoutElementPositions}
             left={each.position.left}
@@ -96,12 +95,18 @@ export const SectionSpaceDistributor = (
 ) => {
   const { zones } = props;
   const isPreviewMode = useSelector(previewModeSelector);
+  const isDragging = useSelector(
+    (state) => state.ui.widgetDragResize.isDragging,
+  );
   const layoutElementPositions = useSelector(getLayoutElementPositions);
   const allZonePositionsAreAvailable = zones.every(
     (each) => !!layoutElementPositions[each.widgetId],
   );
   const canRedistributeSpace =
-    !isPreviewMode && allZonePositionsAreAvailable && zones.length > 1;
+    !isPreviewMode &&
+    !isDragging &&
+    allZonePositionsAreAvailable &&
+    zones.length > 1;
   return canRedistributeSpace ? (
     <SectionSpaceDistributorHandles {...props} />
   ) : null;

@@ -45,6 +45,7 @@ import { SectionWidget } from "widgets/anvil/SectionWidget";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { SectionColumns } from "layoutSystems/anvil/utils/constants";
 
 export function* getMainCanvasLastRowHighlight() {
   const mainCanvas: WidgetProps = yield select(
@@ -382,6 +383,22 @@ function* updateAndSaveAnvilLayoutSaga(
           );
         }
       } else if (each.zoneCount !== each.children?.length) {
+        // remove current space distribution if zone count is changed
+        const childrenToUpdate = each.children || [];
+        const spaceToApply = SectionColumns / childrenToUpdate.length;
+        childrenToUpdate.forEach((child) => {
+          updatedWidgets[child] = {
+            ...updatedWidgets[child],
+            flexGrow: spaceToApply,
+          };
+          updatedWidgets[each.widgetId] = {
+            ...updatedWidgets[each.widgetId],
+            spaceDistributed: {
+              ...updatedWidgets[each.widgetId].spaceDistributed,
+              [child]: spaceToApply,
+            },
+          };
+        });
         /**
          * If section's zone count doesn't match it's child count,
          * => update the zone count.
@@ -389,7 +406,7 @@ function* updateAndSaveAnvilLayoutSaga(
         updatedWidgets = {
           ...updatedWidgets,
           [each.widgetId]: {
-            ...each,
+            ...updatedWidgets[each.widgetId],
             zoneCount: each.children?.length,
           },
         };

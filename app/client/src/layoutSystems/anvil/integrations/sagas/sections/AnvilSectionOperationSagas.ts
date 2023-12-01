@@ -3,7 +3,6 @@ import {
   type ReduxAction,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
@@ -13,6 +12,7 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
 import { batchUpdateWidgetProperty } from "actions/controlActions";
 import { SectionColumns } from "layoutSystems/anvil/utils/constants";
+import { saveAnvilLayout } from "../../actions/saveLayoutActions";
 
 function* updateZonesCountOfSectionSaga(
   actionPayload: ReduxAction<{
@@ -69,7 +69,7 @@ function* updateZonesCountOfSectionSaga(
         ...updatedWidgets[sectionWidgetId],
         zoneCount,
       };
-      yield put(updateAndSaveLayout(updatedWidgets));
+      yield put(saveAnvilLayout(updatedWidgets));
     }
   }
 }
