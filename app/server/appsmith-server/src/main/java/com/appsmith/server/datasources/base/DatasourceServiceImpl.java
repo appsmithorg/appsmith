@@ -3,11 +3,13 @@ package com.appsmith.server.datasources.base;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SequenceService;
@@ -15,6 +17,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
+import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,9 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             PluginService pluginService,
+            ApplicationService applicationService,
+            NewPageService newPageService,
+            PagePermission pagePermission,
             PluginExecutorHelper pluginExecutorHelper,
             PolicyGenerator policyGenerator,
             SequenceService sequenceService,
@@ -47,6 +53,9 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 analyticsService,
                 sessionUserService,
                 pluginService,
+                applicationService,
+                newPageService,
+                pagePermission,
                 pluginExecutorHelper,
                 policyGenerator,
                 sequenceService,

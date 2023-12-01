@@ -3,11 +3,13 @@ package com.appsmith.server.actioncollections.base;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.PagePermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -27,10 +29,12 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ActionCollectionRepository repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
+            NewPageService newPageService,
             PolicyGenerator policyGenerator,
             ApplicationService applicationService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
+            PagePermission pagePermission,
             ActionPermission actionPermission) {
         super(
                 scheduler,
@@ -40,10 +44,12 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 repository,
                 analyticsService,
                 newActionService,
+                newPageService,
                 policyGenerator,
                 applicationService,
                 responseUtils,
                 applicationPermission,
+                pagePermission,
                 actionPermission);
     }
 }

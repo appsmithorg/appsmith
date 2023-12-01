@@ -1,11 +1,14 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginServiceCE;
 import com.appsmith.server.plugins.base.PluginServiceCEImpl;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,6 +72,12 @@ public class PluginServiceCEImplTest {
 
     PluginServiceCE pluginService;
 
+    ApplicationService applicationService;
+
+    NewPageService newPageService;
+
+    PagePermission pagePermission;
+
     @BeforeEach
     public void setUp() {
         objectMapper = new ObjectMapper();
@@ -80,6 +89,9 @@ public class PluginServiceCEImplTest {
                 repository,
                 analyticsService,
                 workspaceService,
+                applicationService,
+                newPageService,
+                pagePermission,
                 pluginManager,
                 reactiveTemplate,
                 topic,

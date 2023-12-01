@@ -1,8 +1,11 @@
 package com.appsmith.server.plugins.base;
 
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,9 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
             PluginRepository repository,
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
+            ApplicationService applicationService,
+            NewPageService newPageService,
+            PagePermission pagePermission,
             PluginManager pluginManager,
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
@@ -39,6 +45,9 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                 repository,
                 analyticsService,
                 workspaceService,
+                applicationService,
+                newPageService,
+                pagePermission,
                 pluginManager,
                 reactiveTemplate,
                 topic,

@@ -1,8 +1,10 @@
 package com.appsmith.server.jslibs.base;
 
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.solutions.PagePermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -21,6 +23,8 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
             ReactiveMongoTemplate reactiveMongoTemplate,
             CustomJSLibRepository repository,
             ApplicationService applicationService,
+            NewPageService newPageService,
+            PagePermission pagePermission,
             AnalyticsService analyticsService) {
         super(
                 scheduler,
@@ -29,6 +33,8 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
                 reactiveMongoTemplate,
                 repository,
                 applicationService,
+                newPageService,
+                pagePermission,
                 analyticsService);
     }
 }
