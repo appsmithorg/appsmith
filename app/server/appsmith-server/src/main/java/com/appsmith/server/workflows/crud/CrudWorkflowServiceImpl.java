@@ -372,6 +372,7 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
         workflowAction.setUnpublishedAction(actionDTO);
         workflowAction.setDefaultResources(new DefaultResources());
         workflowAction.setPublishedAction(new ActionDTO());
+        workflowAction.setWorkflowId(workflow.getId());
         Set<Policy> workflowActionPolicies =
                 policyGenerator.getAllChildPolicies(workflow.getPolicies(), Workflow.class, Action.class);
         workflowAction.setPolicies(workflowActionPolicies);

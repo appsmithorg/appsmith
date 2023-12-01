@@ -323,22 +323,24 @@ public class CrudWorkflowServiceTest {
         actionDTO.setWorkspaceId(workspace.getId());
         actionDTO.setContextType(CreatorContextType.WORKFLOW);
 
-        Mono<ActionDTO> workflowActionDTOMono = crudWorkflowService.createWorkflowAction(workflow.getId(), actionDTO);
+        ActionDTO workflowActionDTO = crudWorkflowService
+                .createWorkflowAction(workflow.getId(), actionDTO)
+                .block();
 
-        StepVerifier.create(workflowActionDTOMono)
-                .assertNext(workflowActionDTO -> {
-                    assertThat(workflowActionDTO.getWorkflowId()).isEqualTo(workflow.getId());
-                    assertThat(workflowActionDTO.getWorkspaceId()).isEqualTo(workspace.getId());
-                    assertThat(workflowActionDTO.getDatasource().getId()).isEqualTo(savedDs.getId());
-                    Set<String> expectedUserPermissions = Set.of(
-                            MANAGE_ACTIONS.getValue(),
-                            READ_ACTIONS.getValue(),
-                            EXECUTE_ACTIONS.getValue(),
-                            DELETE_ACTIONS.getValue());
-                    assertThat(workflowActionDTO.getUserPermissions())
-                            .containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
-                })
-                .verifyComplete();
+        assertThat(workflowActionDTO.getWorkflowId()).isEqualTo(workflow.getId());
+        assertThat(workflowActionDTO.getWorkspaceId()).isEqualTo(workspace.getId());
+        assertThat(workflowActionDTO.getDatasource().getId()).isEqualTo(savedDs.getId());
+        assertThat(workflowActionDTO.getWorkflowId()).isEqualTo(workflow.getId());
+        Set<String> expectedUserPermissions = Set.of(
+                MANAGE_ACTIONS.getValue(),
+                READ_ACTIONS.getValue(),
+                EXECUTE_ACTIONS.getValue(),
+                DELETE_ACTIONS.getValue());
+        assertThat(workflowActionDTO.getUserPermissions()).containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
+
+        NewAction createdNewAction =
+                newActionRepository.findById(workflowActionDTO.getId()).block();
+        assertThat(createdNewAction.getWorkflowId()).isEqualTo(workflow.getId());
 
         Workflow deleteWorkflow =
                 crudWorkflowService.deleteWorkflow(createdWorkflow.getId()).block();
