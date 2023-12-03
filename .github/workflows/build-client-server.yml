@@ -95,7 +95,7 @@ jobs:
 
       - name: Comment the filenames if PR is there
         if: steps.check_files.outputs.non_ts_files_count != 0 && steps.args.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ fromJson(steps.args.outputs.pr) }}
           body: |
@@ -107,7 +107,7 @@ jobs:
 
       - name: Add a comment on the PR with link to workflow run
         if: success() && steps.args.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ fromJson(steps.args.outputs.pr) }}
           body: |
@@ -271,7 +271,7 @@ jobs:
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
@@ -282,7 +282,7 @@ jobs:
 
       - name: Add a comment on the PR when ci-test-limited is success
         if: needs.ci-test-limited.result == 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
@@ -388,7 +388,7 @@ jobs:
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited-existing-docker-image.result != 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
@@ -399,7 +399,7 @@ jobs:
 
       - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
         if: needs.ci-test-limited-existing-docker-image.result == 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |

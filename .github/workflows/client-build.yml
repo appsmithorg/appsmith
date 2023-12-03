@@ -101,7 +101,7 @@ jobs:
       # Comment in PR if test files are not written in ts and fail the workflow
       - name: Comment in PR if test files are not written in ts
         if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ inputs.pr }}
           body: |
@@ -142,7 +142,7 @@ jobs:
       # Comment in PR if test files are not written in ts and fail the workflow
       - name: Comment in PR if test files are not written in ts
         if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
-        uses: peter-evans/create-or-update-comment@v1
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ inputs.pr }}
           body: |
