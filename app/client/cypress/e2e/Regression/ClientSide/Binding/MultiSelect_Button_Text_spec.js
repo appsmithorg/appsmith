@@ -33,7 +33,7 @@ const widgetsToTest = {
 };
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
-  describe(`${testConfig.widgetName} widget test for validating reset action`, function () {
+  describe(`${testConfig.widgetName} widget test for validating reset action`, { tags: ["@tag.Binding"] }, function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();
     });

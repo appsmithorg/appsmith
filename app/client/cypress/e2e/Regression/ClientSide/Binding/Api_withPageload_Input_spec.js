@@ -7,7 +7,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the API with pageOnLoad and input Widgets", function () {
+describe("Binding the API with pageOnLoad and input Widgets", { tags: ["@tag.Binding"] }, function () {
   before(() => {
     _.agHelper.AddDsl("MultipleInput");
   });

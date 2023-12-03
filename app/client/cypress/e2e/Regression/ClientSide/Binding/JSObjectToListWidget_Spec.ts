@@ -4,7 +4,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 let valueToTest: any, jsName: any;
 
-describe("Validate JSObj binding to Table widget", () => {
+describe("Validate JSObj binding to Table widget", { tags: ["@tag.Binding"] }, () => {
   before(() => {
     _.agHelper.AddDsl("listwidgetdsl");
   });

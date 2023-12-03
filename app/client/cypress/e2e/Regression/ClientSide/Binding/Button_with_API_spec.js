@@ -7,7 +7,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 import apiLocators from "../../../../locators/ApiEditor";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Bind a button and Api usecase", function () {
+describe("Bind a button and Api usecase", { tags: ["@tag.Binding"] }, function () {
   let apiData;
   let valueToTest;
   before(() => {

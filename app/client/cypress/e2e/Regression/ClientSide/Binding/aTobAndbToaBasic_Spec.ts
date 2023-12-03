@@ -9,7 +9,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Validate basic binding of Input widget to Input widget", () => {
+describe("Validate basic binding of Input widget to Input widget", { tags: ["@tag.Binding"] }, () => {
   before(() => {
     agHelper.AddDsl("inputBindingdsl");
   });

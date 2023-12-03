@@ -7,7 +7,7 @@ const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 
-describe("Text-Chart Binding Functionality", function () {
+describe("Text-Chart Binding Functionality", { tags: ["@tag.Binding"] }, function () {
   before(() => {
     agHelper.AddDsl("ChartTextDsl");
   });

@@ -7,7 +7,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Table Widget condtional formatting to remain consistent", function () {
+describe("Table Widget condtional formatting to remain consistent", { tags: ["@tag.Binding"] }, function () {
   before(() => {
     agHelper.AddDsl("tableWidgetCondnFormatDsl");
   });

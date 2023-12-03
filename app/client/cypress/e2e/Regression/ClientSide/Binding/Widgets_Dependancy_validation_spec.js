@@ -11,7 +11,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the multiple input Widget", function () {
+describe("Binding the multiple input Widget", { tags: ["@tag.Binding"] }, function () {
   before(() => {
     agHelper.AddDsl("MultipleInput");
   });

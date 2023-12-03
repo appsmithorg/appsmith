@@ -12,7 +12,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Text-Table Binding Functionality", function () {
+describe("Text-Table Binding Functionality", { tags: ["@tag.Binding"] }, function () {
   const updateData = `[
   {
     "x": "Product1",
