@@ -247,7 +247,7 @@ const HomepageHeaderAction = ({
                       dispatch(onboardingCreateApplication());
                     }
                   }}
-                  startIcon="group-control"
+                  startIcon="guide"
                 >
                   {createMessage(TRY_GUIDED_TOUR)}
                 </MenuItem>
@@ -256,7 +256,7 @@ const HomepageHeaderAction = ({
                   onClick={() => {
                     window.open(DOCS_BASE_URL, "_blank");
                   }}
-                  startIcon="settings-control"
+                  startIcon="book-line"
                 >
                   {createMessage(DOCUMENTATION)}
                 </MenuItem>
@@ -282,7 +282,7 @@ const HomepageHeaderAction = ({
                   onClick={() => {
                     setIsProductUpdatesModalOpen(true);
                   }}
-                  startIcon="logout"
+                  startIcon="gift-line"
                 >
                   {createMessage(WHATS_NEW)}
                 </MenuItem>
