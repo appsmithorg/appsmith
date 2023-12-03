@@ -56,6 +56,7 @@ import {
   updateCurrentApplicationForkingEnabled,
   fetchAllApplicationsOfWorkspace,
   updateApplicationThemeSettingAction,
+  resetSearchEntity,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -128,7 +129,8 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-// import SearchApi from "@appsmith/api/SearchApi.ts";
+import type { MockedSearchApiResponse } from "@appsmith/api/SearchApi";
+import SearchApi from "@appsmith/api/SearchApi";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -1109,16 +1111,22 @@ export function* deleteNavigationLogoSaga(
     });
   }
 }
-export function* searchWorkspaceEntitiesSaga() {
+export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
+  if (!action.payload || !action.payload.trim()) {
+    yield put(resetSearchEntity());
+    return;
+  }
   try {
-    // const response = yield call(SearchApi.searchAllEntities, action.payload);
-    // const response = SearchApi.searchAllEntities(action.payload);
-    // const isValidResponse: boolean = yield validateResponse(response);
-    // if (isValidResponse) {
-    //   yield put({
-    //     type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS,
-    //     payload: response.data,
-    //   });
-    // }
+    const response: MockedSearchApiResponse = yield call(
+      SearchApi.searchAllEntities,
+      { keyword: action.payload },
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS,
+        payload: response.data,
+      });
+    }
   } catch (error) {}
 }

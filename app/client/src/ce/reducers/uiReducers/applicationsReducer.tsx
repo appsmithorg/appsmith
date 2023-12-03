@@ -42,7 +42,7 @@ export const initialState: ApplicationsReduxState = {
   creatingApplication: {},
   deletingApplication: false,
   forkingApplication: false,
-  searchEntities: [],
+  searchEntities: {},
   isFetchingEntities: false,
   importingApplication: false,
   importedApplication: null,
@@ -801,6 +801,15 @@ export const handlers = {
       ...state,
       isFetchingEntities: false,
       searchEntities: action.payload,
+    };
+  },
+  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_RESET]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      isFetchingEntities: false,
+      searchEntities: {},
     };
   },
 };

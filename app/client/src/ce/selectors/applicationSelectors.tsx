@@ -13,6 +13,7 @@ import {
   defaultThemeSetting,
 } from "constants/AppConstants";
 import { getApplicationsOfWorkspace } from "./selectedWorkspaceSelectors";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name", "packages.name"],
@@ -230,3 +231,15 @@ export const getAppThemeSettings = (state: AppState) => {
     defaultThemeSetting
   );
 };
+
+export const getSearchedWorkspaces = createSelector(
+  getApplicationsState,
+  (applicationsState): Workspace[] | undefined =>
+    applicationsState.searchEntities?.workspaces,
+);
+
+export const getSearchedApplications = createSelector(
+  getApplicationsState,
+  (applicationsState): ApplicationPayload[] | undefined =>
+    applicationsState.searchEntities?.applications,
+);

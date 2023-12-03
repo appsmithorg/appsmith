@@ -37,7 +37,11 @@ import { get, noop } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { Banner, ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
-import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+import {
+  getCurrentApplicationIdForCreateNewApp,
+  getSearchedApplications,
+  getSearchedWorkspaces,
+} from "@appsmith/selectors/applicationSelectors";
 import {
   getAdminSettingsPath,
   getShowAdminSettings,
@@ -50,20 +54,26 @@ import {
 } from "./CustomizedDropdown/dropdownHelpers";
 import {
   APPSMITH_DISPLAY_VERSION,
+  CHAT_WITH_US,
   DOCUMENTATION,
-  JOIN_OUR_DISCORD,
   TRY_GUIDED_TOUR,
   WHATS_NEW,
   createMessage,
 } from "@appsmith/constants/messages";
 import { getOnboardingWorkspaces } from "selectors/onboardingSelectors";
 import { onboardingCreateApplication } from "actions/onboardingActions";
-import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { searchEntities } from "@appsmith/actions/applicationActions";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { debounce } from "lodash";
+import bootIntercom from "utils/bootIntercom";
+import { IntercomConsent } from "pages/Editor/HelpButton";
+const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -106,7 +116,7 @@ const SearchContainer = styled.div<{ isMobile?: boolean }>`
 `;
 const SearchListContainer = styled.div`
   width: 350px;
-  height: 420px;
+  max-height: 420px;
   position: absolute;
   top: 30px;
   left: 0;
@@ -120,7 +130,7 @@ const SearchListContainer = styled.div`
   overflow-y: auto;
 `;
 
-const SearhListItem = styled.div`
+const SearchListItem = styled.div`
   display: flex;
   align-items: center;
   padding: 8px;
@@ -179,11 +189,13 @@ const HomepageHeaderAction = ({
   const isAirgappedInstance = isAirgapped();
   const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
+  const [showIntercomConsent, setShowIntercomConsent] = useState(false);
 
   if (!isHomePage || !!isCreateNewAppFlow) return null;
+
   return (
     <div className="flex items-center">
-      {<ShowUpgradeMenuItem />}
+      <ShowUpgradeMenuItem />
       {getShowAdminSettings(isFeatureEnabled, user) && (
         <Button
           className="admin-settings-menu-option"
@@ -203,7 +215,13 @@ const HomepageHeaderAction = ({
         />
       )}
       {!isAirgappedInstance && (
-        <Menu>
+        <Menu
+          onOpenChange={(open) => {
+            if (open) {
+              setShowIntercomConsent(false);
+            }
+          }}
+        >
           <MenuTrigger>
             <Button
               isIconButton
@@ -214,58 +232,74 @@ const HomepageHeaderAction = ({
             />
           </MenuTrigger>
           <MenuContent align="end" width="172px">
-            <MenuItem
-              className="t--welcome-tour"
-              onClick={() => {
-                if (!isFetchingApplications && !!onboardingWorkspaces.length) {
-                  AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-                  dispatch(onboardingCreateApplication());
-                }
-              }}
-              startIcon="group-control"
-            >
-              {createMessage(TRY_GUIDED_TOUR)}
-            </MenuItem>
-            <MenuItem
-              className="t--welcome-tour"
-              onClick={() => {
-                window.open(DOCS_BASE_URL, "_blank");
-              }}
-              startIcon="settings-control"
-            >
-              {createMessage(DOCUMENTATION)}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                window.open(DISCORD_URL, "_blank");
-              }}
-              startIcon="group-line"
-            >
-              {createMessage(JOIN_OUR_DISCORD)}
-            </MenuItem>
-            <MenuSeparator className="mb-1" />
-            <MenuItem
-              className="t--product-updates-btn"
-              data-testid="t--product-updates-btn"
-              onClick={() => {
-                setIsProductUpdatesModalOpen(true);
-              }}
-              startIcon="logout"
-            >
-              {createMessage(WHATS_NEW)}
-            </MenuItem>
-            <VersionData>
-              <span>
-                {createMessage(
-                  APPSMITH_DISPLAY_VERSION,
-                  appVersion.edition,
-                  appVersion.id,
+            {showIntercomConsent ? (
+              <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
+            ) : (
+              <>
+                <MenuItem
+                  className="t--welcome-tour"
+                  onClick={() => {
+                    if (
+                      !isFetchingApplications &&
+                      !!onboardingWorkspaces.length
+                    ) {
+                      AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+                      dispatch(onboardingCreateApplication());
+                    }
+                  }}
+                  startIcon="guide"
+                >
+                  {createMessage(TRY_GUIDED_TOUR)}
+                </MenuItem>
+                <MenuItem
+                  className="t--welcome-tour"
+                  onClick={() => {
+                    window.open(DOCS_BASE_URL, "_blank");
+                  }}
+                  startIcon="book-line"
+                >
+                  {createMessage(DOCUMENTATION)}
+                </MenuItem>
+                {intercomAppID && window.Intercom && !isAirgapped() && (
+                  <MenuItem
+                    onSelect={(e) => {
+                      if (user?.isIntercomConsentGiven || cloudHosting) {
+                        window.Intercom("show");
+                      } else {
+                        e?.preventDefault();
+                        setShowIntercomConsent(true);
+                      }
+                    }}
+                    startIcon="chat-help"
+                  >
+                    {createMessage(CHAT_WITH_US)}
+                  </MenuItem>
                 )}
-              </span>
-              {howMuchTimeBefore !== "" && (
-                <span>Released {howMuchTimeBefore} ago</span>
-              )}
-            </VersionData>
+                <MenuSeparator className="mb-1" />
+                <MenuItem
+                  className="t--product-updates-btn"
+                  data-testid="t--product-updates-btn"
+                  onClick={() => {
+                    setIsProductUpdatesModalOpen(true);
+                  }}
+                  startIcon="gift-line"
+                >
+                  {createMessage(WHATS_NEW)}
+                </MenuItem>
+                <VersionData>
+                  <span>
+                    {createMessage(
+                      APPSMITH_DISPLAY_VERSION,
+                      appVersion.edition,
+                      appVersion.id,
+                    )}
+                  </span>
+                  {howMuchTimeBefore !== "" && (
+                    <span>Released {howMuchTimeBefore} ago</span>
+                  )}
+                </VersionData>
+              </>
+            )}
           </MenuContent>
         </Menu>
       )}
@@ -308,9 +342,17 @@ export function PageHeader(props: PageHeaderProps) {
     dispatch(getTemplateNotificationSeenAction());
   }, []);
 
+  useEffect(() => {
+    bootIntercom(user);
+  }, [user?.email]);
+
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
+
+  const handleSearchDebounced = debounce((text: string) => {
+    dispatch(searchEntities(text));
+  }, 1000);
 
   function MobileSearchBar() {
     return (
@@ -345,9 +387,15 @@ export function PageHeader(props: PageHeaderProps) {
 
   function MainSearchBar() {
     const [searchInput, setSearchInput] = useState("");
+    const workspacesList = useSelector(getSearchedWorkspaces);
+    const applicationsList = useSelector(getSearchedApplications);
+    const canShowSearchDropdown = !!(
+      workspacesList?.length || applicationsList?.length
+    );
+
     function handleSearchInput(text: string) {
       setSearchInput(text);
-      dispatch(searchEntities(text));
+      handleSearchDebounced(text);
     }
     return (
       <StyledPageHeader
@@ -401,119 +449,61 @@ export function PageHeader(props: PageHeaderProps) {
               startIcon="search"
             />
           ) : (
-            false && (
-              <SearchContainer isMobile={isMobile}>
-                <SearchInput
-                  data-testid="t--application-search-input"
-                  isDisabled={isFetchingApplications}
-                  onChange={handleSearchInput}
-                  placeholder={""}
-                  value={searchInput}
-                />
+            <SearchContainer isMobile={isMobile}>
+              <SearchInput
+                data-testid="t--application-search-input"
+                isDisabled={isFetchingApplications}
+                onChange={handleSearchInput}
+                placeholder={""}
+                value={searchInput}
+              />
+              {canShowSearchDropdown && (
                 <SearchListContainer>
-                  <Text className="!mb-2" kind="body-s">
-                    Workspaces
-                  </Text>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text className="truncate" kind="body-m">
-                      Unitiled Workspace 1 dbshjds sadusa dsdusa dhsaud
-                      hsuadhusa dus dsui
-                    </Text>
-                  </SearhListItem>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text kind="body-m">Unitiled Workspace 2</Text>
-                  </SearhListItem>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text kind="body-m">Unitiled Workspace 3</Text>
-                  </SearhListItem>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text kind="body-m">Unitiled Workspace 4</Text>
-                  </SearhListItem>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text kind="body-m">Unitiled Workspace 4</Text>
-                  </SearhListItem>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text kind="body-m">Unitiled Workspace 4</Text>
-                  </SearhListItem>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text kind="body-m">Unitiled Workspace 4</Text>
-                  </SearhListItem>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text kind="body-m">Unitiled Workspace 4</Text>
-                  </SearhListItem>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text kind="body-m">Unitiled Workspace 4</Text>
-                  </SearhListItem>
-                  <SearhListItem>
-                    <Icon
-                      className="!mr-2"
-                      color="var(--ads-v2-color-fg)"
-                      name="group-2-line"
-                      size="md"
-                    />
-                    <Text kind="body-m">Unitiled Workspace 4</Text>
-                  </SearhListItem>
-
-                  <Text className="!mb-2 !mt-2" kind="body-s">
-                    Applications
-                  </Text>
+                  {!!workspacesList?.length && (
+                    <>
+                      <Text className="!mb-2" kind="body-s">
+                        Workspaces
+                      </Text>
+                      {workspacesList.map((workspace: Workspace) => (
+                        <SearchListItem key={workspace.id}>
+                          <Icon
+                            className="!mr-2"
+                            color="var(--ads-v2-color-fg)"
+                            name="group-2-line"
+                            size="md"
+                          />
+                          <Text className="truncate" kind="body-m">
+                            {workspace.name}
+                          </Text>
+                        </SearchListItem>
+                      ))}
+                    </>
+                  )}
+                  {!!applicationsList?.length && (
+                    <>
+                      <Text className="!mb-2" kind="body-s">
+                        Applications
+                      </Text>
+                      {applicationsList.map(
+                        (application: ApplicationPayload) => (
+                          <SearchListItem key={application.id}>
+                            <Icon
+                              className="!mr-2"
+                              color="var(--ads-v2-color-fg)"
+                              name="group-2-line"
+                              size="md"
+                            />
+                            <Text className="truncate" kind="body-m">
+                              {application.name}
+                            </Text>
+                          </SearchListItem>
+                        ),
+                      )}
+                    </>
+                  )}
                 </SearchListContainer>
-              </SearchContainer>
-            )
+              )}
+            </SearchContainer>
           ))}
 
         {user && !isMobile && (

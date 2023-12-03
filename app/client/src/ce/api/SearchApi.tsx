@@ -2,12 +2,13 @@ import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { FetchApplicationsResponse } from "./ApplicationApi";
 import type { FetchWorkspacesResponse } from "./WorkspaceApi";
+import type { AxiosPromise } from "axios";
 
 export interface SearchEntitiesRequest {
-  entities: string[];
+  entities?: string[];
   keyword: string;
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
 }
 
 export interface SearchEntitiesResponse {
@@ -27,16 +28,15 @@ export interface MockedSearchApiResponse extends ApiResponse {
 export class SearchApi extends Api {
   static searchURL = "v1/search-entities";
 
-  static async searchAllEntities() {
-    // keyword: string,
-    // : Promise<AxiosPromise<SearchEntitiesResponse>> {
-    // const request: SearchEntitiesRequest = {
-    //   keyword,
-    //   entities: ["workspaces", "applications", "packages"],
-    //   page: 1,
-    //   limit: 100,
-    // };
-    // return new Promise();
+  static async searchAllEntities(params: {
+    keyword: string;
+    page?: number;
+    limit?: number;
+  }): Promise<AxiosPromise<MockedSearchApiResponse>> {
+    const { keyword, limit = 10, page = 0 } = params;
+    return Api.get(
+      `${SearchApi.searchURL}?keyword=${keyword}&page=${page}&size=${limit}&entities=Application,Workspace`,
+    );
   }
 }
 
