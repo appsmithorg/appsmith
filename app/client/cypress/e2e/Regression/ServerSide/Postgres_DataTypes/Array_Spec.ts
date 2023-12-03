@@ -40,18 +40,6 @@ describe("Array Datatype tests", function () {
     agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
 
-    //Creating SELECT query - arraytypes + Bug 14493
-    dataSources.createQueryWithDatasourceSchemaTemplate(
-      dsName,
-      "public.arraytypes",
-      "Select",
-    );
-    agHelper.RenameWithInPane("selectRecords");
-    dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-
     //Creating other queries
     query = `INSERT INTO arraytypes ("name", "pay_by_quarter", "schedule")  VALUES ('{{Insertname.text}}', ARRAY{{Insertpaybyquarter.text.split(',').map(Number)}}, ARRAY[['{{Insertschedule.text.split(',').slice(0,2).toString()}}'],['{{Insertschedule.text.split(',').slice(2,4).toString()}}']]);`;
 
@@ -72,6 +60,18 @@ describe("Array Datatype tests", function () {
 
     query = `DROP table public."arraytypes"`;
     dataSources.CreateQueryFromOverlay(dsName, query, "dropTable"); //Creating query from EE overlay
+
+    //Creating SELECT query - arraytypes + Bug 14493
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.arraytypes",
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
 
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
@@ -169,6 +169,7 @@ describe("Array Datatype tests", function () {
   it("6. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyArrayFunctions");
@@ -476,6 +477,7 @@ describe("Array Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
