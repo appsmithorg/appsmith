@@ -73,7 +73,7 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
     }
 
     @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+    public Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
@@ -106,9 +106,12 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QActionCollection.actionCollection.publishedCollection) + "."
-                                + fieldName(QActionCollection.actionCollection.publishedCollection.pageId))
-                        .in(pageIds);
+                String pageIdFieldPath = String.format(
+                        "%s.%s.%s",
+                        fieldName(QActionCollection.actionCollection.publishedCollection),
+                        fieldName(QActionCollection.actionCollection.publishedCollection.defaultResources),
+                        fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
+                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteria.add(pageCriteria);
             }
         }
@@ -123,9 +126,12 @@ public class CustomActionCollectionRepositoryImpl extends CustomActionCollection
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                                + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
-                        .in(pageIds);
+                String pageIdFieldPath = String.format(
+                        "%s.%s.%s",
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection),
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultResources),
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId));
+                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteria.add(pageCriteria);
             }
 

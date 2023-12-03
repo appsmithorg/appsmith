@@ -237,7 +237,7 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(false));
 
-        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         Mockito.any(),
                         Mockito.any(),
                         Mockito.anyBoolean(),
@@ -278,7 +278,7 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(true));
 
-        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         Mockito.any(),
                         Mockito.any(),
                         Mockito.anyBoolean(),
@@ -343,7 +343,7 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(refactoringService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(true));
 
-        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+        Mockito.when(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         Mockito.any(),
                         Mockito.any(),
                         Mockito.anyBoolean(),
