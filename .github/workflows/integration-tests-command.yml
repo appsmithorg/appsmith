@@ -19,6 +19,7 @@ jobs:
             Workflow: `${{ github.workflow }}`.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
+            Tags: `${{ github.event.client_payload.slash_command.args.named.tags }}`.
 
   server-build:
     name: server-build
@@ -69,6 +70,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
+      tags: ${{ github.event.client_payload.slash_command.args.named.tags }}
 
   ci-test-result:
     needs: [ci-test]
