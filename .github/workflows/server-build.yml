@@ -47,6 +47,7 @@ jobs:
         uses: actions/checkout@v4
         if: inputs.pr != 0
         with:
+          fetch-tags: true
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Check out the specified branch in case this workflow is called by another workflow
@@ -54,12 +55,15 @@ jobs:
         if: inputs.pr == 0 && inputs.branch != ''
         uses: actions/checkout@v4
         with:
+          fetch-tags: true
           ref: ${{ inputs.branch }}
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Check out the head commit of the branch
         uses: actions/checkout@v4
         if: inputs.pr == 0 && inputs.branch == ''
+        with:
+          fetch-tags: true
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
