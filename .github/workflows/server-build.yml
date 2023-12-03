@@ -44,25 +44,22 @@ jobs:
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Check out merged commit from PR and base branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: inputs.pr != 0
         with:
-          fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Check out the specified branch in case this workflow is called by another workflow
       - name: Checkout the specified branch
         if: inputs.pr == 0 && inputs.branch != ''
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.branch }}
-  
+
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Check out the head commit of the branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: inputs.pr == 0 && inputs.branch == ''
-        with:
-          fetch-depth: 0
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
@@ -92,8 +89,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
