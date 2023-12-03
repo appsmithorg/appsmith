@@ -8,7 +8,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the table widget and input Widget", { tags: ["@tag.Binding"] }, function () {
+describe("Binding the table widget and input Widget", function () {
   before(() => {
     _.agHelper.AddDsl("formInputTableDsl");
   });

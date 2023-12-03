@@ -9,7 +9,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Loadash basic test with input Widget", { tags: ["@tag.Binding"] }, () => {
+describe("Loadash basic test with input Widget", () => {
   before(() => {
     agHelper.AddDsl("inputBindingdsl");
   });

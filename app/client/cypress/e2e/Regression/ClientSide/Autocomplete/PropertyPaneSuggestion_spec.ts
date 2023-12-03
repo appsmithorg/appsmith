@@ -10,7 +10,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Property Pane Suggestions", { tags: ["@tag.JS"] }, () => {
+describe("Property Pane Suggestions", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
   });

@@ -10,7 +10,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
+describe("Navigate To feature", () => {
   it("2. Gives error message when invalid word is entered in the url tab of navigate to", () => {
     PageList.AddNewPage(); // page 2
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);

@@ -11,7 +11,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 let datasourceName;
 let currentUrl;
 
-describe("Addwidget from Query and bind with other widgets", { tags: ["@tag.Binding"] }, function () {
+describe("Addwidget from Query and bind with other widgets", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });

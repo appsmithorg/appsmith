@@ -6,7 +6,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS Toggle tests", { tags: ["@tag.Binding"] }, () => {
+describe("JS Toggle tests", () => {
   before(() => {
     agHelper.AddDsl("Js_toggle_dsl");
   });

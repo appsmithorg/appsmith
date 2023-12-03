@@ -11,7 +11,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   propPane = ObjectsRegistry.PropertyPane;
 
-describe("Validate basic Promises", { tags: ["@tag.Binding"] }, () => {
+describe("Validate basic Promises", () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });

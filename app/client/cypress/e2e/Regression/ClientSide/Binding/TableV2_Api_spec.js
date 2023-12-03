@@ -10,7 +10,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test Create Api and Bind to Table widget V2", { tags: ["@tag.Binding"] }, function () {
+describe("Test Create Api and Bind to Table widget V2", function () {
   let apiData;
   before(() => {
     agHelper.AddDsl("tableV2WidgetDsl");

@@ -13,7 +13,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget V2 and Navigate to functionality validation", { tags: ["@tag.Binding"] }, function () {
+describe("Table Widget V2 and Navigate to functionality validation", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

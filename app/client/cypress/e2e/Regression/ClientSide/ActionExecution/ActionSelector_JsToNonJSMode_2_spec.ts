@@ -8,7 +8,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
+describe("JS to non-JS mode in Action Selector", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
   });

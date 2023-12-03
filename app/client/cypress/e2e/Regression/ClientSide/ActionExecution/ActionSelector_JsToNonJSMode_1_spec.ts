@@ -9,7 +9,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
+describe("JS to non-JS mode in Action Selector", () => {
   it("1. should not show any fields with a blank JS field", () => {
     agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);

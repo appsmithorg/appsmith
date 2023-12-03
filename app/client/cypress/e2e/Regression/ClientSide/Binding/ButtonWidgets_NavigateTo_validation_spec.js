@@ -8,7 +8,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 const testdata = require("../../../../fixtures/testdata.json");
 
-describe("Binding the button Widgets and validating NavigateTo Page functionality", { tags: ["@tag.Binding"] }, function () {
+describe("Binding the button Widgets and validating NavigateTo Page functionality", function () {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
   });

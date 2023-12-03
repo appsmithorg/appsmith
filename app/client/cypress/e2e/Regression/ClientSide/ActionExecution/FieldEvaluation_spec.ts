@@ -8,7 +8,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Field value evaluation", { tags: ["@tag.JS"] }, () => {
+describe("Field value evaluation", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
   });

@@ -6,7 +6,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the multiple input Widget", { tags: ["@tag.Binding"] }, function () {
+describe("Binding the multiple input Widget", function () {
   before(() => {
     _.agHelper.AddDsl("formInputTableV2Dsl");
   });

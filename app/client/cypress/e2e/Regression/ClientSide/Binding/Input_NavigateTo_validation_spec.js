@@ -12,7 +12,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
 import { agHelper, propPane } from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the multiple Widgets and validating NavigateTo Page", { tags: ["@tag.Binding"] }, function () {
+describe("Binding the multiple Widgets and validating NavigateTo Page", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

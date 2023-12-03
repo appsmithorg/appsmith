@@ -12,7 +12,7 @@ import {
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget V2 property pane feature validation", { tags: ["@tag.Binding"] }, function () {
+describe("Table Widget V2 property pane feature validation", function () {
   before(() => {
     agHelper.AddDsl("tableV2NewDsl");
   });

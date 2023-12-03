@@ -7,7 +7,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
+describe("JS to non-JS mode in Action Selector", () => {
   before(() => {
     agHelper.AddDsl("promisesBtnDsl", locators._buttonByText("Submit"));
   });

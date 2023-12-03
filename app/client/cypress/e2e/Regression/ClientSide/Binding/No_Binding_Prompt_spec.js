@@ -8,7 +8,7 @@ import {
   entityExplorer,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
-describe("Binding prompt", { tags: ["@tag.Binding"] }, function () {
+describe("Binding prompt", function () {
   before(() => {
     agHelper.AddDsl("inputdsl");
   });

@@ -4,7 +4,7 @@ import {
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Test cases around bracket notation", { tags: ["@tag.JS"] }, function () {
+describe("Test cases around bracket notation", function () {
   const jsObjectBody = `export default {
         "my variable 1": [],
         myVar2: {},

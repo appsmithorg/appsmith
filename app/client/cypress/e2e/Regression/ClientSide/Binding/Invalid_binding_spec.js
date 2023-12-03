@@ -9,7 +9,7 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Binding the multiple widgets and validating default data", { tags: ["@tag.Binding"] }, function () {
+describe("Binding the multiple widgets and validating default data", function () {
   before(() => {
     agHelper.AddDsl("Invalid_binding_dsl");
   });

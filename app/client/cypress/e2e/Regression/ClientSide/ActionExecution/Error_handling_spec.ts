@@ -12,7 +12,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Test Create Api and Bind to Button widget", { tags: ["@tag.JS"] }, function () {
+describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     cy.fixture("TestDataSet1").then(function (dataSet) {

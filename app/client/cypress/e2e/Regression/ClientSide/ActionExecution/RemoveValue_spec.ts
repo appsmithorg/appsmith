@@ -11,7 +11,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("removeValue Action test", { tags: ["@tag.JS"] }, () => {
+describe("removeValue Action test", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);

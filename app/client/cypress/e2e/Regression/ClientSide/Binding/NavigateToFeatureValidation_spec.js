@@ -12,7 +12,7 @@ import {
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget with Input Widget and Navigate to functionality validation", { tags: ["@tag.Binding"] }, function () {
+describe("Table Widget with Input Widget and Navigate to functionality validation", function () {
   before(() => {
     agHelper.AddDsl("navigateTotabledsl");
   });
