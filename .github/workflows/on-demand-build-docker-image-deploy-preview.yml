@@ -3,7 +3,7 @@ name: On demand build Docker image and deploy preview
 on:
   # This workflow is only triggered by the `/build-deploy-preview` command dispatch
   repository_dispatch:
-    types: [ build-deploy-preview-command ]
+    types: [build-deploy-preview-command]
 
 jobs:
   notify-job-details:
@@ -11,7 +11,7 @@ jobs:
     steps:
       # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to workflow run
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
@@ -47,7 +47,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
-      skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}      
+      skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
 
   vercel-build:
     name: vercel-build
@@ -114,13 +114,11 @@ jobs:
               body: bodyLines.join("\n"),
             })
 
-
   push-image:
     needs: [client-build, rts-build, server-build]
     runs-on: ubuntu-latest
     if: success()
     steps:
-
       # Check out merge commit
       - name: Checkout PR
         uses: actions/checkout@v3
@@ -202,7 +200,6 @@ jobs:
 
     if: success()
     steps:
-
       - name: Checkout PR
         uses: actions/checkout@v3
         with:
@@ -263,7 +260,7 @@ jobs:
     steps:
       # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to Deploy-Preview
-        uses: peter-evans/create-or-update-comment@v2
+        uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
