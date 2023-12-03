@@ -31,7 +31,6 @@ import {
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
-import BetaCard from "components/editorComponents/BetaCard";
 import { capitalizeFirstLetter } from "utils/helpers";
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
@@ -125,7 +124,6 @@ function ThemeEditor() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <SubText>Theme properties</SubText>
-            <BetaCard />
           </div>
           <div>
             <Menu>
