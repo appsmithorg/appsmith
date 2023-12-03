@@ -27,7 +27,6 @@ on:
         type: string
         default: "true"
 
-
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:
@@ -74,17 +73,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      # get all the files changes in the cypress/e2e folder    
+      # get all the files changes in the cypress/e2e folder
       - name: Get added files in cypress/e2e folder
         if: inputs.pr != 0
         id: files
-        uses: umani/changed-files@v4.0.0
+        uses: umani/changed-files@v4.1.0
         with:
           repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          pattern: 'app/client/cypress/e2e/.*'
+          pattern: "app/client/cypress/e2e/.*"
           pr-number: ${{ inputs.pr }}
-          
-      # Check all the newly added files are in ts  
+
+      # Check all the newly added files are in ts
       - name: Check the newly added files are written in ts
         if: inputs.check-test-files == 'true' && inputs.pr != 0
         id: check_files
@@ -98,8 +97,8 @@ jobs:
           done
           echo "non_ts_files=${non_ts_files[@]}" >> $GITHUB_OUTPUT
           echo "non_ts_files_count=${#non_ts_files[@]}" >> $GITHUB_OUTPUT
-      
-      # Comment in PR if test files are not written in ts and fail the workflow    
+
+      # Comment in PR if test files are not written in ts and fail the workflow
       - name: Comment in PR if test files are not written in ts
         if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
         uses: peter-evans/create-or-update-comment@v1
@@ -111,17 +110,17 @@ jobs:
             <ol>${{ steps.check_files.outputs.non_ts_files }}</ol>
       - if: steps.check_files.outputs.non_ts_files_count != 0 && inputs.check-test-files == 'true' && inputs.pr != 0
         run: exit 1
-           
+
       - name: Get all the added or changed files in client/src folder
         if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
         id: client_files
-        uses: umani/changed-files@v4.0.0
+        uses: umani/changed-files@v4.1.0
         with:
           repo-token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          pattern: 'app/client/src/.*'
+          pattern: "app/client/src/.*"
           pr-number: ${{ inputs.pr }}
 
-      # Check all the newly added files are in ts  
+      # Check all the newly added files are in ts
       - name: ADS compliant check
         if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
         id: ads_check
@@ -140,7 +139,7 @@ jobs:
           echo "ads_non_compliant_files=$unique_files" >> $GITHUB_OUTPUT
           echo "ads_non_compliant_count=${#unique_files[@]}" >> $GITHUB_OUTPUT
 
-      # Comment in PR if test files are not written in ts and fail the workflow    
+      # Comment in PR if test files are not written in ts and fail the workflow
       - name: Comment in PR if test files are not written in ts
         if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
         uses: peter-evans/create-or-update-comment@v1
