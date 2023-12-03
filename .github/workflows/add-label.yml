@@ -30,7 +30,7 @@ jobs:
             echo "No files changed in the specified folder"
             exit 1
           else
-            echo "::set-output name=files_changed_count::$filesChangedCount"            
+            echo "files_changed_count=$filesChangedCount" >> $GITHUB_OUTPUT
           fi
 
       - name: Check if PR is merged
