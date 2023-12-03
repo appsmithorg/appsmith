@@ -9,7 +9,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Disable JS toggle when Action selector code is not parsable", () => {
+describe("Disable JS toggle when Action selector code is not parsable", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
     apiPage.CreateApi("Api1", "GET");

@@ -9,7 +9,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Test Create Api and Bind to Button widget", function () {
+describe("Test Create Api and Bind to Button widget", { tags: ["@tag.JS"] }, function () {
   before("Test_Add users api and execute api", () => {
     agHelper.AddDsl("buttonApiDsl");
     cy.createAndFillApi(data.userApi, "/mock-api?records=10");
