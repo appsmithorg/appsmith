@@ -9,6 +9,7 @@ import Fuse from "fuse.js";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import { getApplicationsOfWorkspace } from "./selectedWorkspaceSelectors";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name", "packages.name"],
@@ -219,4 +220,15 @@ export const getApplicationByIdFromWorkspaces = createSelector(
     );
     return application;
   },
+);
+
+export const getSearchedWorkspaces = createSelector(
+  getApplicationsState,
+  (applicationsState): Workspace[] | undefined =>
+    applicationsState.searchEntities?.workspaces,
+);
+export const getSearchedApplications = createSelector(
+  getApplicationsState,
+  (applicationsState): ApplicationPayload[] | undefined =>
+    applicationsState.searchEntities?.applications,
 );
