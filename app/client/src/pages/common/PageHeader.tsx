@@ -54,15 +54,15 @@ import {
 } from "./CustomizedDropdown/dropdownHelpers";
 import {
   APPSMITH_DISPLAY_VERSION,
+  CHAT_WITH_US,
   DOCUMENTATION,
-  JOIN_OUR_DISCORD,
   TRY_GUIDED_TOUR,
   WHATS_NEW,
   createMessage,
 } from "@appsmith/constants/messages";
 import { getOnboardingWorkspaces } from "selectors/onboardingSelectors";
 import { onboardingCreateApplication } from "actions/onboardingActions";
-import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
@@ -71,6 +71,9 @@ import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspace
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { debounce } from "lodash";
+import bootIntercom from "utils/bootIntercom";
+import { IntercomConsent } from "pages/Editor/HelpButton";
+const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -186,11 +189,13 @@ const HomepageHeaderAction = ({
   const isAirgappedInstance = isAirgapped();
   const { appVersion } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
+  const [showIntercomConsent, setShowIntercomConsent] = useState(false);
 
   if (!isHomePage || !!isCreateNewAppFlow) return null;
+
   return (
     <div className="flex items-center">
-      {<ShowUpgradeMenuItem />}
+      <ShowUpgradeMenuItem />
       {getShowAdminSettings(isFeatureEnabled, user) && (
         <Button
           className="admin-settings-menu-option"
@@ -210,7 +215,13 @@ const HomepageHeaderAction = ({
         />
       )}
       {!isAirgappedInstance && (
-        <Menu>
+        <Menu
+          onOpenChange={(open) => {
+            if (open) {
+              setShowIntercomConsent(false);
+            }
+          }}
+        >
           <MenuTrigger>
             <Button
               isIconButton
@@ -221,58 +232,74 @@ const HomepageHeaderAction = ({
             />
           </MenuTrigger>
           <MenuContent align="end" width="172px">
-            <MenuItem
-              className="t--welcome-tour"
-              onClick={() => {
-                if (!isFetchingApplications && !!onboardingWorkspaces.length) {
-                  AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-                  dispatch(onboardingCreateApplication());
-                }
-              }}
-              startIcon="group-control"
-            >
-              {createMessage(TRY_GUIDED_TOUR)}
-            </MenuItem>
-            <MenuItem
-              className="t--welcome-tour"
-              onClick={() => {
-                window.open(DOCS_BASE_URL, "_blank");
-              }}
-              startIcon="settings-control"
-            >
-              {createMessage(DOCUMENTATION)}
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                window.open(DISCORD_URL, "_blank");
-              }}
-              startIcon="group-line"
-            >
-              {createMessage(JOIN_OUR_DISCORD)}
-            </MenuItem>
-            <MenuSeparator className="mb-1" />
-            <MenuItem
-              className="t--product-updates-btn"
-              data-testid="t--product-updates-btn"
-              onClick={() => {
-                setIsProductUpdatesModalOpen(true);
-              }}
-              startIcon="logout"
-            >
-              {createMessage(WHATS_NEW)}
-            </MenuItem>
-            <VersionData>
-              <span>
-                {createMessage(
-                  APPSMITH_DISPLAY_VERSION,
-                  appVersion.edition,
-                  appVersion.id,
+            {showIntercomConsent ? (
+              <IntercomConsent showIntercomConsent={setShowIntercomConsent} />
+            ) : (
+              <>
+                <MenuItem
+                  className="t--welcome-tour"
+                  onClick={() => {
+                    if (
+                      !isFetchingApplications &&
+                      !!onboardingWorkspaces.length
+                    ) {
+                      AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+                      dispatch(onboardingCreateApplication());
+                    }
+                  }}
+                  startIcon="group-control"
+                >
+                  {createMessage(TRY_GUIDED_TOUR)}
+                </MenuItem>
+                <MenuItem
+                  className="t--welcome-tour"
+                  onClick={() => {
+                    window.open(DOCS_BASE_URL, "_blank");
+                  }}
+                  startIcon="settings-control"
+                >
+                  {createMessage(DOCUMENTATION)}
+                </MenuItem>
+                {intercomAppID && window.Intercom && !isAirgapped() && (
+                  <MenuItem
+                    onSelect={(e) => {
+                      if (user?.isIntercomConsentGiven || cloudHosting) {
+                        window.Intercom("show");
+                      } else {
+                        e?.preventDefault();
+                        setShowIntercomConsent(true);
+                      }
+                    }}
+                    startIcon="chat-help"
+                  >
+                    {createMessage(CHAT_WITH_US)}
+                  </MenuItem>
                 )}
-              </span>
-              {howMuchTimeBefore !== "" && (
-                <span>Released {howMuchTimeBefore} ago</span>
-              )}
-            </VersionData>
+                <MenuSeparator className="mb-1" />
+                <MenuItem
+                  className="t--product-updates-btn"
+                  data-testid="t--product-updates-btn"
+                  onClick={() => {
+                    setIsProductUpdatesModalOpen(true);
+                  }}
+                  startIcon="logout"
+                >
+                  {createMessage(WHATS_NEW)}
+                </MenuItem>
+                <VersionData>
+                  <span>
+                    {createMessage(
+                      APPSMITH_DISPLAY_VERSION,
+                      appVersion.edition,
+                      appVersion.id,
+                    )}
+                  </span>
+                  {howMuchTimeBefore !== "" && (
+                    <span>Released {howMuchTimeBefore} ago</span>
+                  )}
+                </VersionData>
+              </>
+            )}
           </MenuContent>
         </Menu>
       )}
@@ -314,6 +341,10 @@ export function PageHeader(props: PageHeaderProps) {
   useEffect(() => {
     dispatch(getTemplateNotificationSeenAction());
   }, []);
+
+  useEffect(() => {
+    bootIntercom(user);
+  }, [user?.email]);
 
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
