@@ -91,18 +91,6 @@ jobs:
           rm -f ~/failed_spec_ci
           rm -f ~/combined_failed_spec_ci
 
-      # Force store previous cypress dashboard url from cache
-      - name: Store the previous cypress dashboard url
-        continue-on-error: true
-        if: success()
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
-          restore-keys: |
-            ${{ github.run_id }}-dashboard-url
-
       - name: Print cypress dashboard url
         continue-on-error: true
         id: dashboard_url

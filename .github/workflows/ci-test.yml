@@ -497,15 +497,6 @@ jobs:
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
-      # Force store previous run result to cache
-      - name: Store the previous run result
-        if: success()
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_attempt }}
-
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v3
