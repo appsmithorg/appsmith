@@ -333,6 +333,13 @@ export class cypressSplit {
       const cypressSpecs = this.util.getVars().cypressSpecs;
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
+      if (typeof specPattern === 'string' && !specPattern.startsWith('***/e2e')) {
+        specPattern = specPattern.replace(/^[^/]+/, '***/e2e'); // Replacing the initial part of the path
+        console.log("------------------ specPattern in replace------------------")
+        console.log("Specs Pattern: ", specPattern)
+        console.log("------------------replace end------------------")
+      }
+      
       if (cypressSpecs != "")
         specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
         console.log("------------------ Specs after comma split------------------")
