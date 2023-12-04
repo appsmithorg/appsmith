@@ -12,7 +12,6 @@ import EditorNavigation, {
 describe("Disable JS toggle when Action selector code is not parsable", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
-    entityExplorer.NavigateToSwitcher("Explorer");
     apiPage.CreateApi("Api1", "GET");
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
   });

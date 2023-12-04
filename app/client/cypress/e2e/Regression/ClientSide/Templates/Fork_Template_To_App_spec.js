@@ -4,11 +4,11 @@ import {
   agHelper,
   assertHelper,
   deployMode,
-  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("excludeForAirgap", "Fork a template to the current app", () => {
   afterEach(() => {
@@ -28,7 +28,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
 
   it("1. Fork a template to the current app + Bug 17477", () => {
     cy.wait(3000);
-    entityExplorer.AddNewPage("Add page from template");
+    PageList.AddNewPage("Add page from template");
     // Commented out below code as fetch template call is not going through when template dialog is closed
     // cy.wait("@fetchTemplate").should(
     //   "have.nested.property",

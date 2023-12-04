@@ -1,7 +1,10 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let propertyControlSelector,
   propertyControlClickSelector,
@@ -15,11 +18,11 @@ describe("Canvas context Property Pane", function () {
   before(() => {
     _.agHelper.AddDsl("editorContextdsl");
 
-    _.entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     _.apiPage.CreateApi(api1);
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
   });
 
   beforeEach(() => {

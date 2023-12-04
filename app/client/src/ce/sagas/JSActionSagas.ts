@@ -41,7 +41,11 @@ import {
   JS_ACTION_MOVE_SUCCESS,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "../../sagas/ErrorSagas";
-import type { FetchPageResponse, PageLayout } from "api/PageApi";
+import type {
+  FetchPageRequest,
+  FetchPageResponse,
+  PageLayout,
+} from "api/PageApi";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -58,6 +62,7 @@ import { checkAndLogErrorsIfCyclicDependency } from "../../sagas/helper";
 import { toast } from "design-system";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "../../sagas/selectors";
 
 export function* fetchJSCollectionsSaga(
@@ -343,9 +348,12 @@ export function* refactorJSObjectName(
   oldName: string,
   newName: string,
 ) {
-  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-    id: pageId,
-  });
+  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
+  const params: FetchPageRequest = { id: pageId };
+  if (isServerDSLMigrationsEnabled) {
+    params.migrateDSL = true;
+  }
+  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
@@ -377,19 +385,19 @@ export function* refactorJSObjectName(
         getJSCollection(state, id),
       );
       const functions = jsObject.actions;
-      yield put(
-        updateActionData(
-          functions.map((f) => ({
-            entityName: newName,
-            data: undefined,
-            dataPath: `${f.name}.data`,
-            dataPathRef: `${oldName}.${f.name}.data`,
-          })),
-        ),
-      );
       if (currentPageId === pageId) {
         // @ts-expect-error: refactorResponse.data is of type unknown
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
+        yield put(
+          updateActionData(
+            functions.map((f) => ({
+              entityName: newName,
+              data: undefined,
+              dataPath: `${f.name}.data`,
+              dataPathRef: `${oldName}.${f.name}.data`,
+            })),
+          ),
+        );
       } else {
         yield put(fetchJSCollectionsForPage(pageId));
       }

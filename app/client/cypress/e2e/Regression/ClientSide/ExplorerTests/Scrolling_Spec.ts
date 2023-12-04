@@ -5,6 +5,10 @@ import {
   entityExplorer,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 let mockDBNameUsers: string, mockDBNameMovies: string;
 
 describe("Entity explorer context menu should hide on scrolling", function () {
@@ -23,16 +27,16 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
       agHelper.GetNClick(locators._closeModal, 0, true, 0);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
-      entityExplorer.NavigateToSwitcher("Explorer");
-      entityExplorer.ExpandCollapseEntity("Modal1");
-      entityExplorer.ExpandCollapseEntity("Modal2");
-      entityExplorer.ExpandCollapseEntity("Modal3");
-      entityExplorer.ExpandCollapseEntity("Modal4");
-      entityExplorer.ExpandCollapseEntity("Modal5");
-      entityExplorer.ExpandCollapseEntity("Modal6");
+      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.expandCollapseItem("Modal1");
+      PageLeftPane.expandCollapseItem("Modal2");
+      PageLeftPane.expandCollapseItem("Modal3");
+      PageLeftPane.expandCollapseItem("Modal4");
+      PageLeftPane.expandCollapseItem("Modal5");
+      PageLeftPane.expandCollapseItem("Modal6");
 
       // Setup to make the explorer scrollable
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
         cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
@@ -73,16 +77,16 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
       agHelper.GetNClick(locators._closeModal, 0, true, 0);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
-      entityExplorer.NavigateToSwitcher("Explorer");
-      entityExplorer.ExpandCollapseEntity("Modal1");
-      entityExplorer.ExpandCollapseEntity("Modal2");
-      entityExplorer.ExpandCollapseEntity("Modal3");
-      entityExplorer.ExpandCollapseEntity("Modal4");
-      entityExplorer.ExpandCollapseEntity("Modal5");
-      entityExplorer.ExpandCollapseEntity("Modal6");
+      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.expandCollapseItem("Modal1");
+      PageLeftPane.expandCollapseItem("Modal2");
+      PageLeftPane.expandCollapseItem("Modal3");
+      PageLeftPane.expandCollapseItem("Modal4");
+      PageLeftPane.expandCollapseItem("Modal5");
+      PageLeftPane.expandCollapseItem("Modal6");
 
       // Setup to make the explorer scrollable
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($createdMockUsers: any) => {
         mockDBNameUsers = $createdMockUsers;

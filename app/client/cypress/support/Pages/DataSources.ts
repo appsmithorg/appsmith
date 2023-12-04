@@ -3,9 +3,12 @@ import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
+import PageList from "./PageList";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -54,8 +57,6 @@ export class DataSources {
       Elasticsearch: this.dataManager.elastic_docker(containerName),
     };
   }; //Container KeyValuePair
-
-  private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
   private _dsReviewSection = "[data-testid='t--ds-review-section']";
   public _addNewDataSource = ".t--add-datasource-button";
   private _createNewPlgin = (pluginName: string) =>
@@ -69,13 +70,8 @@ export class DataSources {
     "input[name$='.datasourceConfiguration.authentication.username']";
   private _section = (name: string) =>
     "//div[text()='" + name + "']/parent::div";
-  private _sectionState = (name: string) =>
-    this._section(name) +
-    "/following-sibling::div/div[@class ='bp3-collapse-body']";
   public _password =
     "input[name $= '.datasourceConfiguration.authentication.password']";
-  private defaultDatabaseName =
-    "input[name*='datasourceConfiguration.connection.defaultDatabaseName']";
   private _testDs = ".t--test-datasource";
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
@@ -215,7 +211,6 @@ export class DataSources {
   private _oauth2 = ".rc-select-item-option:contains('OAuth 2.0')";
   private _accessTokenUrl =
     "[data-testid='authentication.accessTokenUrl'] input";
-  private _scope = "[data-testid='authentication.scopeString'] input";
   private _clientID = "[data-testid='authentication.clientId'] input";
   private _clientSecret = "[data-testid='authentication.clientSecret'] input";
   private _clientCredentails =
@@ -306,7 +301,7 @@ export class DataSources {
   }
 
   public GeneratePageWithDB(datasourceName: any, tableName: string) {
-    this.entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this.locator._dropdownText,
@@ -322,7 +317,7 @@ export class DataSources {
   }
 
   public GeneratePageWithMockDB() {
-    this.entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this._dropdownOption,
@@ -445,7 +440,7 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     Cypress._.times(2, () => {
       this.agHelper.GetNClick(this._addNewDataSource, 0, true);
       this.agHelper.Sleep();
@@ -916,7 +911,7 @@ export class DataSources {
   }
 
   public AssertDSInActiveList(dsName: string | RegExp) {
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     return this.agHelper.GetNAssertContains(this._datasourceCard, dsName);
   }
 
@@ -954,7 +949,7 @@ export class DataSources {
     queryName = "",
     cancelEditDs = true,
   ) {
-    EditorNavigation.ViaSidebar(SidebarButton.Data);
+    AppSidebar.navigate(AppSidebarButton.Data);
     cy.get(this._datasourceCard)
       .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
       .scrollIntoView()
@@ -968,7 +963,7 @@ export class DataSources {
   }
 
   DeleteQuery(queryName: string) {
-    this.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     this.entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: queryName,
       action: "Delete",
@@ -1464,7 +1459,7 @@ export class DataSources {
 
   // this initiates saving via the back button.
   public SaveDSFromDialog(save = true) {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages, true);
+    AppSidebar.navigate(AppSidebarButton.Editor, true);
     this.AssertDatasourceSaveModalVisibilityAndSave(save);
   }
 

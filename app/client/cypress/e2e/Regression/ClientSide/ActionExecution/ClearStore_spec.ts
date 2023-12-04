@@ -12,7 +12,6 @@ import EditorNavigation, {
 describe("clearStore Action test", () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Feature 11639 : Clear all store value", function () {
