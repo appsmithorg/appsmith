@@ -2,6 +2,8 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 import java.util.List;
@@ -23,21 +25,30 @@ public interface Executable {
 
     Set<String> getSelfReferencingDataPaths();
 
+    @JsonIgnore
     ExecutableConfiguration getExecutableConfiguration();
 
+    @JsonIgnore
     String getConfigurationPath();
 
+    @JsonIgnore
     default String getCompleteDynamicBindingPath(String fieldPath) {
         return this.getConfigurationPath() + "." + fieldPath;
     }
 
+    @JsonIgnore
     default boolean hasExtractableBinding() {
         return false;
     }
 
+    @JsonIgnore
     DslExecutableDTO getDslExecutable();
 
     String getValidName();
+
+    @JsonIgnore
+    @Transient
+    String getExecutableName();
 
     EntityReferenceType getEntityReferenceType();
 

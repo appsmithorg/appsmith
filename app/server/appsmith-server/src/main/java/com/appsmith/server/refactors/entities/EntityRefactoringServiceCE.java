@@ -17,8 +17,6 @@ public interface EntityRefactoringServiceCE<T> {
         refactorEntityNameDTO.setNewFullyQualifiedName(refactorEntityNameDTO.getNewName());
     }
 
-    Mono<Boolean> validateName(String newName);
-
     Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO);
 

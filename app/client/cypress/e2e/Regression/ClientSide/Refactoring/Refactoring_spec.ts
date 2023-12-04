@@ -13,6 +13,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate JS Object Refactoring does not affect the comments & variables", () => {
@@ -46,7 +47,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     dataSources.CreateDataSource("MySql", true, false);
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
 
       //Selecting paintings table from MySQL DS
       //Initialize new JSObject with custom code
@@ -76,7 +77,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
       refactorInput.inputWidget.oldName,
       refactorInput.inputWidget.newName,
     );
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.RenameEntityFromExplorer(
       refactorInput.query.oldName,
       refactorInput.query.newName,

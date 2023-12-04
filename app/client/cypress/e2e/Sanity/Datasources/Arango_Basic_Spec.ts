@@ -11,6 +11,7 @@ import {
 import { Widgets } from "../../../support/Pages/DataSources";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../support/Pages/EditorNavigation";
 
 describe("Validate Arango & CURL Import Datasources", () => {
@@ -320,7 +321,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
 
   after("Delete collection via curl & then data source", () => {
     //Deleting all queries created on this DB
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
 
     //Deleting collection via Curl

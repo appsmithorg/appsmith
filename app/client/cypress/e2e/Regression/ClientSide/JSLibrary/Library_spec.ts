@@ -17,7 +17,7 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
   });
 
   it("2. Installs the library against a unique namespace when there is a collision with the existing entity", () => {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE, 200, 200);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");

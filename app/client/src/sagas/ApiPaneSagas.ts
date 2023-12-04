@@ -595,6 +595,13 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
+  const plugin: Plugin | undefined = yield select(
+    getPlugin,
+    actionPayload.payload.pluginId,
+  );
+  // Only look at API plugins
+  if (plugin && plugin.type !== PluginType.API) return;
+
   const currentApplicationIdForCreateNewApp: string | undefined = yield select(
     getCurrentApplicationIdForCreateNewApp,
   );
@@ -605,12 +612,6 @@ function* handleDatasourceCreatedSaga(
   const pageId: string = !!currentApplicationIdForCreateNewApp
     ? application?.defaultPageId
     : yield select(getCurrentPageId);
-  const plugin: Plugin | undefined = yield select(
-    getPlugin,
-    actionPayload.payload.pluginId,
-  );
-  // Only look at API plugins
-  if (plugin && plugin.type !== PluginType.API) return;
 
   const actionRouteInfo: Partial<{
     apiId: string;
@@ -657,7 +658,11 @@ function* handleDatasourceCreatedSaga(
         apiId: actionRouteInfo.apiId ?? "",
       }),
     );
-  } else if (!currentApplicationIdForCreateNewApp) {
+  } else if (
+    !currentApplicationIdForCreateNewApp ||
+    (!!currentApplicationIdForCreateNewApp &&
+      actionPayload.payload.id !== TEMP_DATASOURCE_ID)
+  ) {
     history.push(
       datasourcesEditorIdURL({
         pageId,
