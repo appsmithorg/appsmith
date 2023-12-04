@@ -106,7 +106,7 @@ describe("Icon Button widget Tests", function () {
     propPane.ToggleJSMode("onClick", true);
     propPane.UpdatePropertyFieldValue(
       "onClick",
-      "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
+      `{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}`,
     );
     deployMode.DeployApp(
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
@@ -114,12 +114,10 @@ describe("Icon Button widget Tests", function () {
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
     cy.intercept("**").as("allRequests");
     cy.wait("@allRequests").then((interception) => {
-      const url = (interception.response as any)?.url;
-      assert(url?.includes("yahoo"), "Current URL does not have 'yahoo'");
+      const url = interception.request.url;
+      cy.wrap(url).should("include", "yahoo");
     });
-    cy.window({ timeout: 60000 }).then((win) => {
-      win.history.back();
-    });
+    cy.go("back");
     agHelper.WaitUntilEleAppear(locators._widgetInDeployed("iconbuttonwidget"));
     assertHelper.AssertNetworkResponseData("@viewPage");
     assertHelper.AssertDocumentReady();
