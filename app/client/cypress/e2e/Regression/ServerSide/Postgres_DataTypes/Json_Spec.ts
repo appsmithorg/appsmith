@@ -11,7 +11,9 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -27,10 +29,9 @@ describe("Json & JsonB Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     agHelper.AddDsl("Datatypes/JsonDTdsl");
 
-    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(16, 20);
   });
 
@@ -93,7 +94,7 @@ describe("Json & JsonB Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropTable");
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("4. Inserting record - jsonbooks", () => {
@@ -188,7 +189,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("8. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
 
     //Verifying -> - returns results in json format
@@ -265,7 +266,8 @@ describe("Json & JsonB Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("9. Deleting records - jsonbooks", () => {
@@ -328,7 +330,8 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("13. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
 
@@ -339,7 +342,6 @@ describe("Json & JsonB Datatype tests", function () {
   it("14. Importing App & setting theme", () => {
     agHelper.AddDsl("Datatypes/JsonBDTdsl");
 
-    entityExplorer.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(12, 23);
   });
 
@@ -408,7 +410,7 @@ describe("Json & JsonB Datatype tests", function () {
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("dropEnum");
 
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("18. Inserting record - jsonbooks", () => {
@@ -529,7 +531,6 @@ describe("Json & JsonB Datatype tests", function () {
   it("22. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyJsonBFunctions");
 
@@ -601,7 +602,8 @@ describe("Json & JsonB Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("23. Deleting records - jsonbooks", () => {
@@ -663,13 +665,14 @@ describe("Json & JsonB Datatype tests", function () {
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.jsonBbooks", false);
   });
 
   it("27. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });
 
@@ -678,7 +681,7 @@ describe("Json & JsonB Datatype tests", function () {
   it("28. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
   });
 });

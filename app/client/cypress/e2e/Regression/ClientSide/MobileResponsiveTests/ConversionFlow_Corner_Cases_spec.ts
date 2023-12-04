@@ -10,18 +10,19 @@ import widgetLocators from "../../../../locators/Widgets.json";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Handle Cases while conversion", () => {
   it("1. when snapshot is restored from a page created before Conversion, it should refresh in the same page", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.CONTAINER, 100, 200);
 
-    entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     autoLayout.ConvertToAutoLayoutAndVerify();
 
     autoLayout.UseSnapshotFromBanner();
 
-    entityExplorer.VerifyIsCurrentPage("Page2");
+    PageList.VerifyIsCurrentPage("Page2");
 
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
@@ -35,11 +36,11 @@ describe("Handle Cases while conversion", () => {
   it("2. when snapshot is restored from a page created after Conversion, it should redirected to home page", () => {
     autoLayout.ConvertToAutoLayoutAndVerify();
 
-    entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     autoLayout.UseSnapshotFromBanner();
 
-    entityExplorer.VerifyIsCurrentPage("Page1");
+    PageList.VerifyIsCurrentPage("Page1");
   });
 
   it("3. #21969 - when app has null values in some widget's property actions or bindings, it should still convert without errors", () => {
@@ -65,7 +66,7 @@ describe("Handle Cases while conversion", () => {
     "excludeForAirgap",
     "5. #23367 when app imports pages from a template, it should convert without any errors before refreshing the page after load",
     () => {
-      entityExplorer.AddNewPage("Add page from template");
+      PageList.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.GetNClick(template.marketingDashboard);
       cy.wait(10000); // for templates page to load fully

@@ -10,7 +10,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Autocomplete bug fixes", function () {
@@ -94,11 +95,11 @@ describe("Autocomplete bug fixes", function () {
     "excludeForAirgap",
     "7. Installed library should show up in autocomplete",
     function () {
-      EditorNavigation.ViaSidebar(SidebarButton.Libraries);
+      AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.TypeTextIntoField("Text", "{{UUI");
       agHelper.GetNAssertElementText(locators._hints, "UUID");
@@ -110,9 +111,9 @@ describe("Autocomplete bug fixes", function () {
     "8. No autocomplete for Removed libraries",
     function () {
       entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
-      EditorNavigation.ViaSidebar(SidebarButton.Libraries);
+      AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.uninstallLibrary("uuidjs");
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       propPane.TypeTextIntoField("Text", "{{UUID.");
       agHelper.AssertElementAbsence(locators._hints);
     },

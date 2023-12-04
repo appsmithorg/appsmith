@@ -13,7 +13,6 @@ import widgetsPage from "../../../../../locators/Widgets.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
@@ -22,14 +21,9 @@ describe("Table widget one click binding feature", () => {
   it("should check that queries are created and bound to table widget properly", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 450, 200);
 
-    entityExplorer.NavigateToSwitcher("Explorer");
-
     dataSources.CreateDataSource("Mongo");
 
     cy.get("@dsName").then((dsName) => {
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
-      entityExplorer.NavigateToSwitcher("Widgets");
-
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
       oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
