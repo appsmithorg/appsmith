@@ -103,7 +103,7 @@ describe("Icon Button widget Tests", function () {
   });
 
   it("4. Verify onClick", () => {
-    cy.intercept('GET', '**').as('interceptedRequest');
+    cy.intercept("GET", "**").as("interceptedRequest");
     propPane.ToggleJSMode("onClick", true);
     propPane.UpdatePropertyFieldValue(
       "onClick",
@@ -114,8 +114,8 @@ describe("Icon Button widget Tests", function () {
     );
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
 
-    cy.url().then(currentURL => {
-      expect(currentURL).to.include('yahoo.com'); 
+    cy.url().then((currentURL) => {
+      expect(currentURL).to.include("yahoo.com");
     });
 
     cy.go("back");
