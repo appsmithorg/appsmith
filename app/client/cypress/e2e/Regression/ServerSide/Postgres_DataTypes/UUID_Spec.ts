@@ -30,7 +30,7 @@ describe("UUID Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     agHelper.AddDsl("Datatypes/UUIDDTdsl");
 
     appSettings.OpenPaneAndChangeTheme("Earth");
@@ -326,7 +326,7 @@ describe("UUID Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
@@ -391,7 +391,7 @@ describe("UUID Datatype tests", function () {
 
   it("15. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
   });

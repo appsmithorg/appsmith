@@ -5,7 +5,7 @@ import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
 export enum AppSidebarButton {
   Data = "Data",
-  Pages = "Pages",
+  Editor = "Editor",
   Libraries = "Libraries",
   Settings = "Settings",
 }
@@ -50,7 +50,7 @@ class EditorNavigation {
     clickOptions?: Partial<ClickOptions>,
     hierarchy: string[] = [],
   ) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     PageLeftPane.expandCollapseItem("Widgets");
     hierarchy.forEach((level) => {
@@ -61,7 +61,7 @@ class EditorNavigation {
   }
 
   NavigateToQuery(name: string) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     PageLeftPane.expandCollapseItem("Queries/JS");
     PageLeftPane.selectItem(name);
@@ -69,7 +69,7 @@ class EditorNavigation {
   }
 
   NavigateToJSObject(name: string) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     PageLeftPane.expandCollapseItem("Queries/JS");
     PageLeftPane.selectItem(name);
@@ -77,7 +77,7 @@ class EditorNavigation {
   }
 
   NavigateToPage(name: string) {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AggregateHelper.Sleep(); //for selection to settle
@@ -112,7 +112,7 @@ class EditorNavigation {
   }
 
   ShowCanvas() {
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.Widgets);
   }
 }
