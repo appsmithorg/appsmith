@@ -313,7 +313,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
         return repository
-                .findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+                .findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort)
                 .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
     }
