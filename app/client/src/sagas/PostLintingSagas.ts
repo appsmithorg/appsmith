@@ -52,7 +52,7 @@ export function* logLatestLintPropertyErrors({
         source: {
           id: uniqueId,
           name: entityName,
-          type: ENTITY_TYPE.JSACTION,
+          type: entity.ENTITY_TYPE,
           propertyPath,
         },
       },
