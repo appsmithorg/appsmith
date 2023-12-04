@@ -311,6 +311,11 @@ export class cypressSplit {
     config: Cypress.PluginConfigOptions,
   ) {
     try {
+      console.log("In splitSpecs() fucntion")
+      console.log("------------------ Specs Splitting Started ------------------")
+      console.log("Specs Pattern: ", config.specPattern)
+      console.log("------------------ Specs Splitting Ended ------------------")
+
       let specPattern = config.specPattern;
       let ignorePattern: string | string[] = config.excludeSpecPattern;
       const cypressSpecs = this.util.getVars().cypressSpecs;
