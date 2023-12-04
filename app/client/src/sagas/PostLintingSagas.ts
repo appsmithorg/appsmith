@@ -1,4 +1,4 @@
-import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
+import { Severity, type ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
@@ -52,7 +52,7 @@ export function* logLatestLintPropertyErrors({
         source: {
           id: uniqueId,
           name: entityName,
-          type: entity.ENTITY_TYPE,
+          type: entity.ENTITY_TYPE as unknown as ENTITY_TYPE,
           propertyPath,
         },
       },
