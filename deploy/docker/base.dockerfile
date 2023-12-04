@@ -57,6 +57,9 @@ RUN set -o xtrace \
   && curl --location "https://github.com/caddyserver/caddy/releases/download/v$version/caddy_${version}_linux_$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/').tar.gz" \
   | tar -xz -C /opt/caddy
 
+# Install Temporal
+RUN curl  --silent --show-error https://temporal.download/cli.sh | sh
+
 # Untar & install keycloak - Service Layer
 RUN mkdir -p /opt/keycloak/data \
   && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/22.0.4/keycloak-22.0.4.tar.gz \

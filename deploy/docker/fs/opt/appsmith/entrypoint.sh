@@ -479,6 +479,10 @@ configure_supervisord() {
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
+    if [[ -z "$APPSMITH_TEMPORAL_URL" || $APPSMITH_TEMPORAL_URL == *"localhost"* || $APPSMITH_TEMPORAL_URL == *"127.0.0.1"* ]]; then
+      cp "$supervisord_conf_source/temporal.conf" "$SUPERVISORD_CONF_TARGET"
+      mkdir -p "$stacks_path/data/temporal"
+    fi    
     if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
       if [[ -n "${APPSMITH_CUSTOM_DOMAIN-}" ]]; then
         cp "$supervisord_conf_source/cron.conf" "$SUPERVISORD_CONF_TARGET"
@@ -637,7 +641,7 @@ mkdir -p /appsmith-stacks/data/{backup,restore,keycloak}
 
 # Create sub-directory to store services log in the container mounting folder
 mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
-mkdir -p /appsmith-stacks/logs/keycloak
+mkdir -p /appsmith-stacks/logs/{keycloak,temporal}
 
 # Stop nginx gracefully
 nginx -s quit
