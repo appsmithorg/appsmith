@@ -1925,10 +1925,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return Mono.just(result);
                 })
                 .onErrorResume(throwable -> {
-                    // in case of any error, we need to release the lock and pass the exception
-                    if (isFileLock) {
-                        return releaseFileLock(defaultApplicationId).then(Mono.error(throwable));
-                    }
+                    /*
+                     in case of any error, the global exception handler will release the lock
+                     hence we don't need to do that manually
+                    */
                     log.error(
                             "Error to get status for application: {}, branch: {}",
                             defaultApplicationId,
@@ -2051,14 +2051,18 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 }
                                 return Mono.just(branchTrackingStatus);
                             })
-                            .onErrorResume(error -> {
-                                if (isFileLock) {
-                                    return releaseFileLock(defaultApplicationId)
-                                            .then(Mono.error(new AppsmithException(
-                                                    AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
-                                }
+                            .onErrorResume(throwable -> {
+                                /*
+                                 in case of any error, the global exception handler will release the lock
+                                 hence we don't need to do that manually
+                                */
+                                log.error(
+                                        "Error to fetch from remote for application: {}, branch: {}",
+                                        defaultApplicationId,
+                                        branchName,
+                                        throwable);
                                 return Mono.error(new AppsmithException(
-                                        AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage()));
+                                        AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage()));
                             });
                 })
                 .elapsed()
