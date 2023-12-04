@@ -34,6 +34,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
@@ -65,6 +66,7 @@ import com.mongodb.client.result.UpdateResult;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -125,6 +127,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
     private final DatasourcePermission datasourcePermission;
+    private final DSLMigrationUtils dslMigrationUtils;
 
     public static final Integer EVALUATION_VERSION = 2;
 
@@ -278,21 +281,82 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<PageDTO> getPageByBranchAndDefaultPageId(String defaultPageId, String branchName, boolean viewMode) {
-
+    public Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
+            String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
         // Fetch the page with read permission in both editor and in viewer.
-        AclPermission permission = pagePermission.getReadPermission();
         return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission())
                 .flatMap(newPage -> {
-                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage, viewMode));
+                    return sendPageViewAnalyticsEvent(newPage, viewMode)
+                            .then(getPage(newPage, viewMode))
+                            .zipWith(Mono.just(newPage));
                 })
-                .flatMap(page -> {
-                    // Call the DSL Utils for on demand migration of the page.
-                    // Based on view mode save the migrated DSL to the database
-                    return Mono.just(page);
+                .flatMap(objects -> {
+                    PageDTO pageDTO = objects.getT1();
+                    if (migrateDsl) {
+                        // Call the DSL Utils for on demand migration of the page.
+                        // Based on view mode save the migrated DSL to the database
+                        // Migrate the DSL to the latest version if required
+                        NewPage newPage = objects.getT2();
+                        if (pageDTO.getLayouts() != null) {
+                            return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                        }
+                    }
+                    return Mono.just(pageDTO);
                 })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
+    }
+
+    private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {
+        return dslMigrationUtils
+                .getLatestDslVersion()
+                .onErrorMap(throwable -> {
+                    log.error("Error fetching latest DSL version", throwable);
+                    return new AppsmithException(AppsmithError.RTS_SERVER_ERROR, "Error fetching latest DSL version");
+                })
+                .flatMap(latestDslVersion -> {
+                    // ensuring that the page has only one layout, as we don't support multiple layouts yet
+                    // when multiple layouts are supported, this code will have to be updated
+                    assert page.getLayouts().size() == 1;
+
+                    Layout layout = page.getLayouts().get(0);
+                    JSONObject layoutDsl = layout.getDsl();
+                    boolean isMigrationRequired = true;
+                    String versionKey = "version";
+                    if (layoutDsl.containsKey(versionKey)) {
+                        int currentDslVersion =
+                                layoutDsl.getAsNumber(versionKey).intValue();
+                        if (currentDslVersion >= latestDslVersion) {
+                            isMigrationRequired = false;
+                        }
+                    }
+
+                    if (isMigrationRequired) {
+                        return dslMigrationUtils
+                                .migratePageDsl(layoutDsl)
+                                .onErrorMap(throwable -> {
+                                    log.error("Error while migrating DSL ", throwable);
+                                    return new AppsmithException(
+                                            AppsmithError.RTS_SERVER_ERROR,
+                                            "Error while migrating to latest DSL version");
+                                })
+                                .flatMap(migratedDsl -> {
+                                    // update the current page DTO with migrated dsl
+                                    page.getLayouts().get(0).setDsl(migratedDsl);
+
+                                    // update the new page with migrated dsl and save to the database
+                                    PageDTO updatedPage;
+                                    if (viewMode) {
+                                        updatedPage = newPage.getPublishedPage();
+                                    } else {
+                                        updatedPage = newPage.getUnpublishedPage();
+                                    }
+                                    updatedPage.getLayouts().get(0).setDsl(migratedDsl);
+                                    return newPageService.save(newPage).thenReturn(page);
+                                });
+                    }
+                    return Mono.just(page);
+                });
     }
 
     @Override
