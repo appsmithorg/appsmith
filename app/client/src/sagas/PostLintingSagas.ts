@@ -6,6 +6,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import isLintErrorLoggingEnabledForEntity from "@appsmith/plugins/Linting/utils/isLintErrorLoggingEnabledForEntity";
+import getEntityUniqueIdForLogs from "@appsmith/plugins/Linting/utils/getEntityUniqueIdForLogs";
 
 // We currently only log lint errors in JSObjects
 export function* logLatestLintPropertyErrors({
@@ -33,7 +34,8 @@ export function* logLatestLintPropertyErrors({
       lineNumber: error.line,
       character: error.ch,
     }));
-    const uniqueId = entityName;
+    const uniqueId = getEntityUniqueIdForLogs(entity);
+
     const debuggerKey = uniqueId + propertyPath + "-lint";
 
     if (isEmpty(lintErrorsInPath)) {
