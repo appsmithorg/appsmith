@@ -697,7 +697,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
-    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "AuthorNAwards");
     GenerateCRUDNValidateDeployPage(

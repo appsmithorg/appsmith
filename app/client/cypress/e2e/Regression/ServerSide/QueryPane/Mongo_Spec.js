@@ -202,7 +202,7 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("5. Validate Aggregate command & Run and then delete the query", function () {
-    dataSources.CreateQueryAfterDSSaved(datasourceName);
+    dataSources.CreateQueryForDS(datasourceName);
     assertHelper.AssertNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,

@@ -56,7 +56,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("1. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function () {
-    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
+    dataSources.GeneratePageForDS(datasourceName);
     cy.wait(3000);
     //Verifying List of Files from UI
     cy.get(generatePage.selectTableDropdown).click();

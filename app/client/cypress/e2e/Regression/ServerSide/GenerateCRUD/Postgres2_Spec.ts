@@ -82,7 +82,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
-    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "vessels");
     agHelper.GetNClick(dataSources._generatePageBtn);

@@ -2,7 +2,6 @@ import EditorNavigation, {
   EntityType,
 } from "../../../support/Pages/EditorNavigation";
 
-const queryLocators = require("../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
@@ -29,13 +28,12 @@ describe("MySQL noise test", function () {
         .blur();
       cy.fillMySQLDatasourceForm();
       cy.testSaveDatasource();
-      dataSources.CreateQueryAfterDSSaved(datasourceName);
+      // mySQL query to fetch data
+      dataSources.CreateQueryAfterDSSaved(
+        "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10",
+        "NoiseTestQuery",
+      );
     });
-    cy.get(queryLocators.queryNameField).type("NoiseTestQuery");
-    // mySQL query to fetch data
-    dataSources.EnterQuery(
-      "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10",
-    );
     cy.WaitAutoSave();
     cy.runQuery();
     // API for killing mySQL session

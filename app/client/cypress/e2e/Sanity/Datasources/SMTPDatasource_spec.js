@@ -30,7 +30,7 @@ describe("SMTP datasource test cases using ted", function () {
 
       cy.fillSMTPDatasourceForm();
       cy.testSaveDatasource();
-      dataSources.CreateQueryAfterDSSaved(SMTPDatasourceName);
+      dataSources.CreateQueryAfterDSSaved();
     });
     // create new query and bind fields with widgets
     cy.get(queryLocators.queryNameField).type("smtpquery");

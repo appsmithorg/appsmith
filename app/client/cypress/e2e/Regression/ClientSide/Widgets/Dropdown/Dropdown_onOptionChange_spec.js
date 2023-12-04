@@ -107,7 +107,7 @@ describe("Dropdown Widget", function () {
       // );
       cy.fillPostgresDatasourceForm();
       cy.saveDatasource();
-      dataSources.CreateQueryAfterDSSaved(postgresDatasourceName);
+      dataSources.CreateQueryAfterDSSaved();
     });
 
     cy.CreateMockQuery("Query1");

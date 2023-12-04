@@ -112,7 +112,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "employees");
 
@@ -178,7 +178,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
-    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "productlines");
     agHelper.GetNClick(dataSources._generatePageBtn);

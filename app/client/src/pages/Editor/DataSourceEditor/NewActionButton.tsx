@@ -54,22 +54,6 @@ function NewActionButton(props: NewActionButtonProps) {
     ...pages.filter((p) => p.pageId !== currentPageId),
   ];
 
-  const handleOnInteraction = useCallback(
-    (open: boolean) => {
-      if (disabled || isLoading) return;
-      if (!open) {
-        setIsPageSelectionOpen(false);
-        return;
-      }
-      if (pages.length === 1) {
-        createQueryAction(currentPageId);
-        return;
-      }
-      setIsPageSelectionOpen(true);
-    },
-    [pages],
-  );
-
   const createQueryAction = useCallback(
     (pageId: string) => {
       if (
@@ -100,6 +84,22 @@ function NewActionButton(props: NewActionButtonProps) {
       }
     },
     [dispatch, currentPageId, datasource, pluginType],
+  );
+
+  const handleOnInteraction = useCallback(
+    (open: boolean) => {
+      if (disabled || isLoading) return;
+      if (!open) {
+        setIsPageSelectionOpen(false);
+        return;
+      }
+      if (pages.length === 1) {
+        createQueryAction(currentPageId);
+        return;
+      }
+      setIsPageSelectionOpen(true);
+    },
+    [pages, createQueryAction],
   );
 
   return (

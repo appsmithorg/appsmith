@@ -2,9 +2,9 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import { WIDGET } from "../../locators/WidgetLocators";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
   AppSidebar,
+  AppSidebarButton,
+  EntityType,
   PageLeftPane,
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
@@ -933,26 +933,25 @@ export class DataSources {
     queryName = "",
     cancelEditDs = true,
   ) {
-    AppSidebar.navigate(AppSidebarButton.Data);
-    cy.get(this._datasourceCard)
-      .contains(new RegExp("^" + datasourceName + "$")) //This regex is to exact match the datasource name
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
-    this.agHelper.Sleep(); //for the Datasource page to open
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
     if (cancelEditDs) {
-      cy.get("body").then(($body) => {
-        if ($body.find(this._cancelEditDatasourceButton).length > 0) {
-          this.agHelper.GetNClick(
-            this._cancelEditDatasourceButton,
-            0,
-            true,
-            200,
-          );
-        }
-      });
+      this.cancelIfEditing();
     }
     this.CreateQueryAfterDSSaved(query, queryName);
+  }
+
+  public GeneratePageForDS(datasourceName: string) {
+    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
+    this.cancelIfEditing();
+    this.agHelper.GetNClick(this._datasourceCardGeneratePageBtn);
+  }
+
+  private cancelIfEditing() {
+    cy.get("body").then(($body) => {
+      if ($body.find(this._cancelEditDatasourceButton).length > 0) {
+        this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, true, 200);
+      }
+    });
   }
 
   DeleteQuery(queryName: string) {

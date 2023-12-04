@@ -10,10 +10,9 @@ import {
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
+import {
   AppSidebar,
   AppSidebarButton,
-  EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
@@ -99,7 +98,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "orders");
 
