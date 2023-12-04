@@ -103,7 +103,6 @@ describe("Icon Button widget Tests", function () {
   });
 
   it("4. Verify onClick", () => {
-    cy.intercept("GET", "**").as("interceptedRequest");
     propPane.ToggleJSMode("onClick", true);
     propPane.UpdatePropertyFieldValue(
       "onClick",
