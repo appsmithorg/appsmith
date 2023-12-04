@@ -1919,6 +1919,46 @@ public class RestApiPluginTest {
     }
 
     @Test
+    public void testDenyInstanceMetadataAwsViaCnameIpv6() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://0--a9fe-a9fe.sslip.io/latest/meta-data");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertTrue(result.getPluginErrorDetails()
+                            .getDownstreamErrorMessage()
+                            .contains("Host not allowed."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDenyInstanceMetadataAwsViaCompatibleIpv6Address() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("http://[::169.254.169.254]/latest/meta-data");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertTrue(result.getPluginErrorDetails()
+                            .getDownstreamErrorMessage()
+                            .contains("Host not allowed."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testDenyInstanceMetadataGcp() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");

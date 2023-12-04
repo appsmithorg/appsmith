@@ -6,7 +6,7 @@ import type {
   UpdateApplicationPayload,
 } from "@appsmith/api/ApplicationApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { IconNames } from "design-system";
 import type { Datasource } from "entities/Datasource";
 
@@ -107,6 +107,13 @@ export const updateApplicationNavigationSettingAction = (
   return {
     type: ReduxActionTypes.UPDATE_NAVIGATION_SETTING,
     payload: navigationSetting,
+  };
+};
+
+export const updateApplicationThemeSettingAction = (theme: ThemeSetting) => {
+  return {
+    type: ReduxActionTypes.UPDATE_THEME_SETTING,
+    payload: theme,
   };
 };
 
