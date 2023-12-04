@@ -112,10 +112,11 @@ describe("Icon Button widget Tests", function () {
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
     );
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
-    // agHelper.BrowserNavigation(-1);
     cy.intercept("**").as("allRequests");
-    cy.wait("@allRequests").its("response.url").should("include", "yahoo");
-
+    cy.wait("@allRequests").then((interception) => {
+      const url = (interception.response as any)?.url;
+      assert(url?.includes("yahoo"), "Current URL does not have 'yahoo'");
+    });
     cy.window({ timeout: 60000 }).then((win) => {
       win.history.back();
     });
@@ -124,7 +125,7 @@ describe("Icon Button widget Tests", function () {
     assertHelper.AssertDocumentReady();
     agHelper.Sleep(3000); //for view page to complete loading & then navigate back
     deployMode.NavigateBacktoEditor();
-    });
+  });
 
   it("5. Verify tooltip", () => {
     // entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 500, 300);
