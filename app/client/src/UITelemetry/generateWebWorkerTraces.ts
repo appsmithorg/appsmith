@@ -29,7 +29,11 @@ export const startSpan = (
 export const startSpansInAnEvaluation = () => {
   return {
     allSpans: [] as WebworkerSpan[],
-    profileFn: function (spanName: string, attributes: any, fun: any) {
+    profileFn: function (
+      spanName: string,
+      attributes: Attributes = {},
+      fun: (...args: any[]) => any,
+    ) {
       const span = startSpan(spanName, attributes);
       const res = fun && fun();
       span.endSpan?.();
