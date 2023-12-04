@@ -25,7 +25,7 @@ import {
 import type {
   JSCollectionData,
   JSCollectionDataState,
-} from "reducers/entityReducers/jsActionsReducer";
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import type { JSCollection, JSAction, Variable } from "entities/JSCollection";

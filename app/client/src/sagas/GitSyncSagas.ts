@@ -118,7 +118,7 @@ import {
   getJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
 import { updateGitDefaultBranchSaga } from "@appsmith/sagas/GitExtendedSagas";
 

@@ -2,7 +2,7 @@ import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
 import { keyBy } from "lodash";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type {
   EntityNavigationData,

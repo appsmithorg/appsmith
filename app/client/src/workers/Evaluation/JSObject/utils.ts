@@ -16,7 +16,7 @@ import type {
   JSCollectionData,
   JSExecutionData,
   JSExecutionError,
-} from "reducers/entityReducers/jsActionsReducer";
+} from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
 import type { JSAction } from "entities/JSCollection";
 import { getCurrentJSCollections } from "@appsmith/selectors/entitiesSelector";

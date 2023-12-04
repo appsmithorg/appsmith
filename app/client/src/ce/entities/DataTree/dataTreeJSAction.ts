@@ -1,5 +1,5 @@
 import { ENTITY_TYPE_VALUE } from "entities/DataTree/dataTreeFactory";
-import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { MetaArgs } from "@appsmith/entities/DataTree/types";
