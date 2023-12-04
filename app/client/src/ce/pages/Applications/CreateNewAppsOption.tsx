@@ -246,7 +246,9 @@ const CreateNewAppsOption = ({
       }
     } else {
       if (application) {
-        AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
+        AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA", {
+          shortcut: "true",
+        });
         dispatch(
           firstTimeUserOnboardingInit(
             application.id,
