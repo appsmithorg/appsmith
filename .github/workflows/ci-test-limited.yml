@@ -437,5 +437,5 @@ jobs:
       # Set status = success
       - name: Save the status of the run
         run: |
-          echo "::set-output name=run_result::success"
+          echo "run_result=success" >> $GITHUB_OUTPUT
           echo "success" > ~/run_result

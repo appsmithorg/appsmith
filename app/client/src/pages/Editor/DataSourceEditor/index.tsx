@@ -1016,6 +1016,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                         isFormDirty={this.props.isFormDirty}
                         isInsideReconnectModal={isInsideReconnectModal}
                         isInvalid={this.validateForm()}
+                        isOnboardingFlow={isOnboardingFlow}
                         isSaving={isSaving}
                         isTesting={isTesting}
                         onCancel={() => this.onCancel()}
