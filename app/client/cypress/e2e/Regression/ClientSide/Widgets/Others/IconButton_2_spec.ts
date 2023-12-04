@@ -112,17 +112,19 @@ describe("Icon Button widget Tests", function () {
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
     );
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
-    agHelper.AssertURL("yahoo.com");
     // agHelper.BrowserNavigation(-1);
-    cy.go('back')
-    // cy.window({ timeout: 60000 }).then((win) => {
-    //   win.history.back();
-    // });
+    cy.intercept("**").as("allRequests");
+    cy.wait("@allRequests").its("response.url").should("include", "yahoo");
+
+    cy.window({ timeout: 60000 }).then((win) => {
+      win.history.back();
+    });
+    agHelper.WaitUntilEleAppear(locators._widgetInDeployed("iconbuttonwidget"));
     assertHelper.AssertNetworkResponseData("@viewPage");
     assertHelper.AssertDocumentReady();
     agHelper.Sleep(3000); //for view page to complete loading & then navigate back
     deployMode.NavigateBacktoEditor();
-  });
+    });
 
   it("5. Verify tooltip", () => {
     // entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 500, 300);
