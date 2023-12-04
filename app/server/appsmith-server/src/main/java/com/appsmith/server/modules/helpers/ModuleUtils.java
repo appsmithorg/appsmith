@@ -1,11 +1,15 @@
-package com.appsmith.server.helpers;
+package com.appsmith.server.modules.helpers;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import org.springframework.util.StringUtils;
 
 import java.util.Iterator;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 public class ModuleUtils {
     public static final String MODULE_ENTITY_NAME_SEPARATOR_PREFIX = "_$";
@@ -42,6 +46,18 @@ public class ModuleUtils {
             }
         }
         return false;
+    }
+
+    public static Boolean isModuleAction(ActionDTO actionDTO) {
+
+        if (actionDTO == null) {
+            return FALSE;
+        } else if (!StringUtils.hasLength(actionDTO.getModuleId())
+                || !CreatorContextType.MODULE.equals(actionDTO.getContextType())) {
+            return FALSE;
+        }
+
+        return TRUE;
     }
 
     public static String getValidName(String rootName, String currentFQN) {

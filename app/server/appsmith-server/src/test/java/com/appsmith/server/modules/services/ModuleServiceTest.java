@@ -1,5 +1,7 @@
 package com.appsmith.server.modules.services;
 
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -26,6 +28,7 @@ import com.appsmith.server.packages.permissions.PackagePermissionChecker;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -95,6 +98,9 @@ public class ModuleServiceTest {
 
     @Autowired
     PluginRepository pluginRepository;
+
+    @Autowired
+    LayoutActionService layoutActionService;
 
     @SpyBean
     FeatureFlagService featureFlagService;
@@ -212,16 +218,13 @@ public class ModuleServiceTest {
     }
 
     public void setupTestPackage() {
-        if (testPackage == null) {
-            PackageDTO newPackage = new PackageDTO();
-            newPackage.setName(UUID.randomUUID().toString());
-            newPackage.setColor("#C2DAF0");
-            newPackage.setIcon("rupee");
+        PackageDTO newPackage = new PackageDTO();
+        newPackage.setName(UUID.randomUUID().toString());
+        newPackage.setColor("#C2DAF0");
+        newPackage.setIcon("rupee");
 
-            testPackage =
-                    crudPackageService.createPackage(newPackage, workspaceId).block();
-            packageId = testPackage.getId();
-        }
+        testPackage = crudPackageService.createPackage(newPackage, workspaceId).block();
+        packageId = testPackage.getId();
     }
 
     @WithUserDetails(value = "api_user")
@@ -604,6 +607,45 @@ public class ModuleServiceTest {
         StepVerifier.create(allModulesMono)
                 .assertNext(allModules -> {
                     assertThat(allModules.size()).isEqualTo(2);
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testCreatePrivateModuleAction() {
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("testCreatePrivateModuleAction");
+        moduleDTO.setType(ModuleType.QUERY_MODULE);
+        moduleDTO.setPackageId(packageId);
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
+
+        moduleDTO.setEntity(moduleActionDTO);
+
+        ModuleDTO createdModule = crudModuleService.createModule(moduleDTO).block();
+
+        ModuleActionDTO privateModuleAction = new ModuleActionDTO();
+        privateModuleAction.setName("firstPrivateModuleAction");
+        privateModuleAction.setPluginId(datasource.getPluginId());
+        privateModuleAction.setDatasource(datasource);
+        privateModuleAction.setModuleId(createdModule.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("select * from users");
+        privateModuleAction.setActionConfiguration(actionConfiguration);
+        privateModuleAction.setContextType(CreatorContextType.MODULE);
+
+        Mono<ActionDTO> moduleActionMono =
+                layoutActionService.createSingleActionWithBranch(privateModuleAction, "master");
+
+        StepVerifier.create(moduleActionMono)
+                .assertNext(createdModuleAction -> {
+                    assertThat(createdModuleAction).isNotNull();
+                    assertThat(createdModuleAction.getContextType()).isEqualTo(CreatorContextType.MODULE);
+                    assertThat(createdModuleAction.getModuleId()).isEqualTo(createdModule.getId());
+                    assertThat(createdModuleAction.getIsPublic()).isFalse();
                 })
                 .verifyComplete();
     }

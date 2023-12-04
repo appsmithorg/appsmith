@@ -9,6 +9,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -21,12 +22,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
+import static com.appsmith.server.modules.helpers.ModuleUtils.isModuleAction;
+
 @Service
 @Slf4j
 public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implements LayoutActionService {
 
     private final DatasourceService datasourceService;
     private final DatasourcePermission datasourcePermission;
+    private final CrudModuleService crudModuleService;
 
     public LayoutActionServiceImpl(
             AnalyticsService analyticsService,
@@ -39,7 +43,8 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             DatasourceService datasourceService,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            DatasourcePermission datasourcePermission) {
+            DatasourcePermission datasourcePermission,
+            CrudModuleService crudModuleService) {
 
         super(
                 analyticsService,
@@ -55,6 +60,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
 
         this.datasourceService = datasourceService;
         this.datasourcePermission = datasourcePermission;
+        this.crudModuleService = crudModuleService;
     }
 
     @Override
@@ -75,5 +81,15 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "datasource", datasourceId)))
                 .then(createActionMono);
+    }
+
+    @Override
+    public Mono<ActionDTO> createSingleActionWithBranch(ActionDTO action, String branchName) {
+
+        if (isModuleAction(action)) {
+            return crudModuleService.createPrivateModuleAction(action, branchName);
+        }
+
+        return super.createSingleActionWithBranch(action, branchName);
     }
 }

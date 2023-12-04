@@ -20,10 +20,10 @@ import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
-import com.appsmith.server.helpers.ModuleUtils;
 import com.appsmith.server.helpers.ObjectUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermissionChecker;
+import com.appsmith.server.modules.helpers.ModuleUtils;
 import com.appsmith.server.modules.permissions.ModulePermission;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.packages.permissions.PackagePermission;
@@ -39,6 +39,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -161,6 +162,19 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<ActionDTO> createPrivateModuleAction(ActionDTO action, String branchName) {
+
+        // branchName handling is left as a TODO for future git implementation for git connected modules.
+
+        if (!StringUtils.hasLength(action.getModuleId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.MODULE_ID));
+        }
+
+        return createModuleAction(action.getModuleId(), null, false, (ModuleActionDTO) action);
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleDTO> getModule(String moduleId) {
 
         return moduleRepository
@@ -245,45 +259,75 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
     }
 
     private Mono<ModuleDTO> saveModuleAndCreateAction(Module module, String workspaceId) {
-        return moduleRepository.save(module).flatMap(savedModule -> moduleRepository
-                .findById(savedModule.getId(), modulePermission.getCreateExecutablesPermission())
-                .flatMap(fetchedModule -> {
-                    ModuleDTO moduleDTO = module.getUnpublishedModule();
-                    moduleDTO.setId(fetchedModule.getId());
-                    moduleDTO.setUserPermissions(fetchedModule.getUserPermissions());
 
-                    NewAction moduleAction = createModuleAction(moduleDTO, workspaceId, true);
-                    Set<Policy> childActionPolicies = policyGenerator.getAllChildPolicies(
-                            fetchedModule.getPolicies(), Module.class, Action.class);
-                    moduleAction.setPolicies(childActionPolicies);
+        return moduleRepository.save(module).flatMap(savedModule -> {
+            ModuleActionDTO moduleActionDTO =
+                    (ModuleActionDTO) savedModule.getUnpublishedModule().getEntity();
 
-                    return newActionService
-                            .validateAndSaveActionToRepository(moduleAction)
-                            .flatMap(savedActionDTO -> moduleRepository
-                                    .save(fetchedModule)
-                                    .flatMap(moduleRepository::setUserPermissionsInObject)
-                                    .then(setTransientFieldsFromModuleToModuleDTO(
-                                                    fetchedModule, fetchedModule.getUnpublishedModule())
-                                            .flatMap(this::setModuleSettingsForCreator)));
-                }));
+            // Since this action is being created by default, we can set the name of the action to be the same as the
+            // module name
+            moduleActionDTO.setName(savedModule.getUnpublishedModule().getName());
+
+            return createModuleAction(savedModule.getId(), workspaceId, true, moduleActionDTO)
+                    .then(setTransientFieldsFromModuleToModuleDTO(savedModule, savedModule.getUnpublishedModule()))
+                    .flatMap(this::setModuleSettingsForCreator);
+        });
     }
 
-    private NewAction createModuleAction(ModuleDTO moduleDTO, String workspaceId, boolean isPublic) {
+    private Mono<ActionDTO> createModuleAction(
+            String moduleId, String optionalWorkspaceId, boolean isPublic, ModuleActionDTO moduleActionDTO) {
+        return moduleRepository
+                .findById(moduleId, modulePermission.getCreateExecutablesPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_ID, moduleId)))
+                .flatMap(module -> {
+                    if (StringUtils.hasLength(optionalWorkspaceId)) {
+                        return Mono.zip(Mono.just(module), Mono.just(optionalWorkspaceId));
+                    }
+
+                    // Using the least level permission to fetch the package (to auto fill workspaceid). It is assumed
+                    // that the developer has access to the package since she is editing a module in it by adding an
+                    // action.
+                    return packagePermissionChecker
+                            .findById(module.getPackageId(), packagePermission.getReadPermission())
+                            .switchIfEmpty(Mono.error(new AppsmithException(
+                                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PACKAGE_ID, module.getPackageId())))
+                            .flatMap(aPackage -> {
+                                if (!StringUtils.hasLength(aPackage.getWorkspaceId())) {
+                                    // This should never happen. If it does, it means that the package is not associated
+                                    // with
+                                    // any workspace. This is a bad state and should be reported.
+                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                }
+
+                                return Mono.zip(Mono.just(module), Mono.just(aPackage.getWorkspaceId()));
+                            });
+                })
+                .flatMap(tuple -> {
+                    Module module = tuple.getT1();
+                    String workspaceId = tuple.getT2();
+                    NewAction moduleAction = generateActionDomain(moduleId, workspaceId, isPublic, moduleActionDTO);
+                    Set<Policy> childActionPolicies =
+                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
+                    moduleAction.setPolicies(childActionPolicies);
+
+                    return newActionService.validateAndSaveActionToRepository(moduleAction);
+                });
+    }
+
+    private NewAction generateActionDomain(
+            String moduleId, String workspaceId, boolean isPublic, ModuleActionDTO moduleActionDTO) {
         NewAction moduleAction = new NewAction();
-        if (moduleDTO.getEntity() == null) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENTITY);
-        }
         moduleAction.setWorkspaceId(workspaceId);
 
-        ModuleActionDTO unpublishedAction = (ModuleActionDTO) moduleDTO.getEntity();
+        moduleActionDTO.setIsPublic(isPublic);
+        moduleActionDTO.setModuleId(moduleId);
+        moduleActionDTO.setDefaultResources(new DefaultResources());
+        moduleActionDTO.setContextType(CreatorContextType.MODULE);
 
+        moduleAction.setUnpublishedAction(moduleActionDTO);
         moduleAction.setIsPublic(isPublic);
-        unpublishedAction.setName(moduleDTO.getName());
-        unpublishedAction.setModuleId(moduleDTO.getId());
-        unpublishedAction.setDefaultResources(new DefaultResources());
-        unpublishedAction.setContextType(CreatorContextType.MODULE);
 
-        moduleAction.setUnpublishedAction(unpublishedAction);
         moduleAction.setPublishedAction(new ActionDTO());
         moduleAction.setDefaultResources(new DefaultResources());
 
