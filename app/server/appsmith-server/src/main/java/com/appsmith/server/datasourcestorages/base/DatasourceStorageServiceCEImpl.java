@@ -397,8 +397,10 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Flux<Set<MustacheBindingToken>> getBindingTokensForDatasourceStorages(Datasource datasource) {
+        // this find by datasource is 1 click compatible hence it would only give the datasource storages to
+        // allowed environments.
         return findByDatasource(datasource).map(datasourceStorage -> {
-            // We are only enabling this for headers of RESTAPI type plugins.
+            // We are only enabling this for headers of API type plugins.
             DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
             if (datasourceConfiguration == null || CollectionUtils.isEmpty(datasourceConfiguration.getHeaders())) {
                 return new HashSet<>();

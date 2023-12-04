@@ -475,6 +475,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<NewAction> extractAndSetJsonPathKeys(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
 
+        // The execute action payload consists of the parameter map which has the required key-value pair being
+        // consumed on backend in binding process. These parameter maps are filled via
+        // action's JsonPathKeys attribute which holds the reference to client side objects e.g. : "input1.Text", e.t.c,
+        // JsonPath keys are modified when the action is updated.
         return datasourceService
                 .extractKeysFromDatasource(action.getDatasource())
                 .map(datasourceBindings -> {

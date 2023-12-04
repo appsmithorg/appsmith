@@ -733,6 +733,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 || !StringUtils.hasText(datasource.getWorkspaceId())) {
             return Mono.just(new HashSet<>());
         }
+
+        // for RestAPI and Graphql plugin Type, there is a use case where custom header is required to be
+        // a moustache binding, Datasource binding evaluation has been enabled only to satisfy that use case.
         return pluginService.findById(datasource.getPluginId()).flatMap(plugin -> {
             if (plugin.getType() != PluginType.API) {
                 return Mono.just(new HashSet<>());
