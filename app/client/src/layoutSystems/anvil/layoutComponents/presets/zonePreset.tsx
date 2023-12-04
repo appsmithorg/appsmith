@@ -7,6 +7,7 @@ import { generateReactKey } from "utils/generators";
 export const zonePreset = (): LayoutProps[] => {
   return [
     {
+      isContainer: true,
       isDropTarget: true,
       isPermanent: true,
       layout: [],
@@ -14,6 +15,7 @@ export const zonePreset = (): LayoutProps[] => {
       layoutStyle: {
         border: "none",
         height: "100%",
+        containerType: "inline-size",
       },
       layoutType: LayoutComponentTypes.ZONE,
     },

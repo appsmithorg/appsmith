@@ -24,6 +24,7 @@ class LayoutRow extends BaseLayoutComponent {
   render() {
     const {
       canvasId,
+      isContainer,
       isDropTarget,
       layoutId,
       layoutIndex,
@@ -39,6 +40,7 @@ class LayoutRow extends BaseLayoutComponent {
         canvasId={canvasId}
         columnGap="4px"
         direction="row"
+        isContainer={!!isContainer}
         isDropTarget={!!isDropTarget}
         layoutId={layoutId}
         layoutIndex={layoutIndex}

@@ -151,7 +151,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
     "Verify Verify Deletion of all created queries & Deletion of datasource",
     () => {
       //Verify Deletion of all created queries
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "create_user",

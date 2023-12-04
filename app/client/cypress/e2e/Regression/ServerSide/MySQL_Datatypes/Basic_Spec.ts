@@ -35,7 +35,7 @@ describe("MySQL Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Creating mysqlDTs table & queries", () => {
@@ -45,18 +45,6 @@ describe("MySQL Datatype tests", function () {
 
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
     dataSources.RunQuery();
-
-    //Creating SELECT query
-    dataSources.createQueryWithDatasourceSchemaTemplate(
-      dsName,
-      inputData.tableName,
-      "Select",
-    );
-    agHelper.RenameWithInPane("selectRecords");
-    dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
 
     //Other queries
     query = inputData.query.insertRecord;
@@ -76,6 +64,18 @@ describe("MySQL Datatype tests", function () {
     );
     agHelper.RenameWithInPane("dropTable");
     dataSources.EnterQuery(query);
+
+    //Creating SELECT query
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      inputData.tableName,
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
   });
 
   //Insert valid/true values into datasource
@@ -144,6 +144,7 @@ describe("MySQL Datatype tests", function () {
 
       //DS deletion
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+      AppSidebar.navigate(AppSidebarButton.Editor);
       PageLeftPane.expandCollapseItem("Queries/JS");
       ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
         (type) => {
