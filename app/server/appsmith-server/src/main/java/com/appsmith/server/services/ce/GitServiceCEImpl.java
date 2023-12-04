@@ -1475,9 +1475,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return Mono.just(result);
                 })
                 .onErrorResume(throwable -> {
-                    if (addFileLock) {
-                        return releaseFileLock(defaultApplicationId).then(Mono.error(throwable));
-                    }
                     return Mono.error(throwable);
                 });
     }
