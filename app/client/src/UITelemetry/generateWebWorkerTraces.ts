@@ -35,7 +35,7 @@ export const startSpansInAnEvaluation = () => {
       fun: (...args: any[]) => any,
     ) {
       const span = startSpan(spanName, attributes);
-      const res = fun && fun();
+      const res = fun();
       span.endSpan?.();
       // delete endSpan since it is not serialisable by webworker's postMessage to main thread
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -59,7 +59,7 @@ export interface EvalTreeResponseData {
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
   jsVarsCreatedEvent?: { path: string; type: string }[];
-  webworkerTelemetry: WebworkerSpan[];
+  webworkerTelemetry?: WebworkerSpan[];
   updates: string;
 }
 
