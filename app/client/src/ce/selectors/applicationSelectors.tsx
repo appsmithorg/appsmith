@@ -11,7 +11,11 @@ import Fuse from "fuse.js";
 import type { Workspaces } from "@appsmith/constants/workspaceConstants";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
-import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
+import {
+  NAVIGATION_SETTINGS,
+  SIDEBAR_WIDTH,
+  defaultThemeSetting,
+} from "constants/AppConstants";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
 import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
@@ -326,4 +330,11 @@ export const getPartialImportExportLoadingState = (state: AppState) =>
 
 export const getCurrentPluginIdForCreateNewApp = (state: AppState) => {
   return state.ui.applications.currentPluginIdForCreateNewApp;
+};
+
+export const getAppThemeSettings = (state: AppState) => {
+  return (
+    state.ui.applications.currentApplication?.applicationDetail?.themeSetting ||
+    defaultThemeSetting
+  );
 };
