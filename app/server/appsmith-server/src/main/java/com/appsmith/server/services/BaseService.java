@@ -183,6 +183,7 @@ public abstract class BaseService<
         return null;
     }
 
+    // Ensure the indexes are present for the fields that are being searched on.
     public Flux<T> filterByFields(
             List<String> fields, String searchString, Pageable pageable, Sort sort, AclPermission permission) {
         List<Criteria> criteriaList = fields.stream()
