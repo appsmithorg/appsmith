@@ -15,7 +15,6 @@ describe("Property pane CTA to add an action", function () {
       .should("be.visible");
     //Check if CTA does not exist when there is an action
     _.apiPage.CreateApi("FirstAPI");
-    _.entityExplorer.NavigateToSwitcher("Widgets");
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
       "Container3",
     ]);

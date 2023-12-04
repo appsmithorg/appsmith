@@ -147,6 +147,7 @@ interface ReduxStateProps {
   isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
   isAppSidebarEnabled: boolean;
+  isOnboardingFlow?: boolean;
 }
 
 const Form = styled.div`
@@ -320,7 +321,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
-      this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
+      this.props?.match?.params?.datasourceId === TEMP_DATASOURCE_ID
     ) {
       this.props.createTempDatasource({
         pluginId,
@@ -906,6 +907,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isDeleting,
       isInsideReconnectModal,
       isNewDatasource,
+      isOnboardingFlow,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -959,7 +961,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        {isAppSidebarEnabled ? null : <CloseEditor />}
+        {isAppSidebarEnabled || !!isOnboardingFlow ? null : <CloseEditor />}
         {!isInsideReconnectModal && (
           <DSFormHeader
             canCreateDatasourceActions={canCreateDatasourceActions}
@@ -1014,6 +1016,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                         isFormDirty={this.props.isFormDirty}
                         isInsideReconnectModal={isInsideReconnectModal}
                         isInvalid={this.validateForm()}
+                        isOnboardingFlow={isOnboardingFlow}
                         isSaving={isSaving}
                         isTesting={isTesting}
                         onCancel={() => this.onCancel()}

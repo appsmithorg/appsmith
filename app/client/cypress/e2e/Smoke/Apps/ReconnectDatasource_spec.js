@@ -1,5 +1,4 @@
 import homePageLocators from "../../../locators/HomePage";
-import * as _ from "../../../support/Objects/ObjectsCore";
 import { homePage, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe("Reconnect Datasource Modal validation while importing application", function () {
@@ -54,13 +53,11 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           const name = uuid();
           appName = `app${name}`;
           cy.get(homePageLocators.applicationName).click({ force: true });
-          cy.get(".ads-v2-menu__menu-item-children:contains(Edit)")
-            .eq(0)
-            .click();
+          cy.get(homePageLocators.portalMenuItem)
+            .contains("Rename", { matchCase: false })
+            .click({ force: true });
           cy.wait(2000);
-          cy.get(homePageLocators.applicationName)
-            // .clear()
-            .type(appName);
+          cy.get(homePageLocators.applicationName).type(appName);
         });
       });
     });

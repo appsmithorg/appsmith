@@ -8,6 +8,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("JSObjects OnLoad Actions tests", function () {
@@ -17,7 +18,6 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   it("1. Api mapping on page load", function () {
     cy.fixture("testdata").then(function (dataSet: any) {
-      entityExplorer.NavigateToSwitcher("Explorer");
       apiPage.CreateAndFillApi(
         dataSet.baseUrl + dataSet.methods,
         "PageLoadApi",
@@ -46,8 +46,6 @@ describe("JSObjects OnLoad Actions tests", function () {
       );
     });
     apiPage.ToggleOnPageLoadRun(true);
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Container3");
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
       "Container3",
     ]);
@@ -60,7 +58,7 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   after(() => {
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "PageLoadApi",
       action: "Delete",
