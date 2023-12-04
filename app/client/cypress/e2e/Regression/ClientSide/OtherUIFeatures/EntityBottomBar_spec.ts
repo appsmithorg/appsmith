@@ -1,5 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
+import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 describe("Entity bottom bar", () => {
@@ -31,12 +32,11 @@ describe("Entity bottom bar", () => {
     //verify if response tab is selected on execution JSFunction.
     _.debuggerHelper.AssertSelectedTab("Response");
     //verify if bottom bar is closed on switching to canvas page.
-    _.entityExplorer.NavigateToSwitcher("Widgets");
+    EditorNavigation.ShowCanvas();
     _.debuggerHelper.AssertSelectedTab("Errors");
   });
 
   it("3. Api bottom pane should be collapsable", () => {
-    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.apiPage.CreateAndFillApi(
       _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
     );

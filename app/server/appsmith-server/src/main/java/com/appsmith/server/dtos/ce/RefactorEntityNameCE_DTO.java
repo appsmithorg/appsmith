@@ -32,4 +32,7 @@ public class RefactorEntityNameCE_DTO {
 
     @JsonView(Views.Internal.class)
     String newFullyQualifiedName;
+
+    @JsonView(Views.Internal.class)
+    Boolean isInternal;
 }

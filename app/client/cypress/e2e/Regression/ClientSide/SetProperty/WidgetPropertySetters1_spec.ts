@@ -14,6 +14,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const setterMethodsToTest = [
   {
@@ -122,7 +123,7 @@ Object.values(setterMethodsToTest).forEach(
   ) => {
     describe(`${index + 1}. ${name} method test`, () => {
       beforeEach("Adding new pag & DragDrop widget", () => {
-        entityExplorer.AddNewPage();
+        PageList.AddNewPage();
         entityExplorer.DragDropWidgetNVerify(widget, 300, 200);
       });
       it(`1. DragDrop Label/Text widgets and Verify the updated value`, () => {

@@ -5,15 +5,16 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
   EntityType,
-  SidebarButton,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Validate Mongo URI CRUD with JSON Form", () => {
   let dsName: any;
@@ -27,8 +28,8 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
       agHelper.RenameWithInPane(dsName, false);
       dataSources.FillMongoDatasourceFormWithURI();
       dataSources.TestSaveDatasource();
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
-      entityExplorer.AddNewPage("Generate page with data");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageList.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
@@ -186,7 +187,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
 
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
     dataSources.RunQuery({ toValidateResponse: false });

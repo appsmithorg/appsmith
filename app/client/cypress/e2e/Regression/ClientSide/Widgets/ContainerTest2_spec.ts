@@ -7,6 +7,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Rich Text Editor widget Tests", function () {
@@ -39,8 +40,8 @@ describe("Rich Text Editor widget Tests", function () {
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{c}`);
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
     agHelper.Sleep(1000);
-    entityExplorer.ExpandCollapseEntity("NewContainer");
-    entityExplorer.AssertEntityPresenceInExplorer("NewContainerCopy");
+    PageLeftPane.expandCollapseItem("NewContainer");
+    PageLeftPane.assertPresence("NewContainerCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewContainerCopy");
 
     // Copy paste from property pane and delete from property pane
@@ -88,7 +89,7 @@ describe("Rich Text Editor widget Tests", function () {
     });
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{g}`);
     agHelper.Sleep(1000);
-    entityExplorer.AssertEntityPresenceInExplorer("Container3");
+    PageLeftPane.assertPresence("Container3");
     entityExplorer.DeleteWidgetFromEntityExplorer("Container3");
   });
 
