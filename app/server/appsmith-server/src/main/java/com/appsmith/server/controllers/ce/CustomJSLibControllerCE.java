@@ -111,7 +111,7 @@ public class CustomJSLibControllerCE {
                 pageId,
                 branchName);
         return customJSLibService
-                .getAllJSLibsInApplication(pageId, branchName, true)
+                .getAllJSLibsInApplicationUsingPageId(pageId, branchName, true)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 }
