@@ -41,22 +41,13 @@
       "configProperty": "actionConfiguration.formData.messages",
       "controlType": "ARRAY_FIELD",
       "addMoreButtonLabel": "Add message",
-      "initialValue": [
-        {
-          "role": "system",
-          "content": "You are a helpful assistant."
-        },
-        {
-          "role": "user",
-          "content": "Hello!"
-        }
-      ],
       "schema": [
         {
           "label": "Role",
           "key": "role",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "user OR system"
+          "placeholderText": "user OR system",
+          "initialValue": "user"
         },
         {
           "label": "Content",
