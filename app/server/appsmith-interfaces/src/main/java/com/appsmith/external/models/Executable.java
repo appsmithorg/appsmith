@@ -48,6 +48,7 @@ public interface Executable {
     String getValidName();
 
     @JsonIgnore
+    @Transient
     String getExecutableName();
 
     EntityReferenceType getEntityReferenceType();

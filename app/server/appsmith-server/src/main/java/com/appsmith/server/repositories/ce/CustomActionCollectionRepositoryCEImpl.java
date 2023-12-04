@@ -70,7 +70,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public List<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+    public List<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
@@ -101,9 +101,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where("publishedCollection" + "."
-                                + "pageId")
-                        .in(pageIds);
+                String pageIdFieldPath = String.format(
+                        "%s.%s.%s",
+                        fieldName(QActionCollection.actionCollection.publishedCollection),
+                        fieldName(QActionCollection.actionCollection.publishedCollection.defaultResources),
+                        fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
+                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
         }
@@ -118,9 +121,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where("unpublishedCollection" + "."
-                                + "pageId")
-                        .in(pageIds);
+                String pageIdFieldPath = String.format(
+                        "%s.%s.%s",
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection),
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultResources),
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId));
+                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
 

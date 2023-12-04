@@ -21,7 +21,7 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission);
 
-    List<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+    List<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,

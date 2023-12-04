@@ -12,7 +12,6 @@ import { snapToGrid } from "./helpers";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { transformDSL } from "./DSLMigrations";
 import type { WidgetType } from "../WidgetProvider/factory";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
@@ -24,6 +23,7 @@ import type {
   WidgetDraggingBlock,
   XYCord,
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { migrateDSL } from "@shared/dsl";
 
 export interface WidgetOperationParams {
   operation: WidgetOperation;
@@ -36,40 +36,46 @@ const defaultDSL = defaultTemplate;
 /**
  * This function is responsible for the following operations:
  * 1. Using the default DSL if the response doesn't give us a DSL
- * 2. Running all the DSL migrations on the DSL (transformDSL)
+ * 2. Running all the DSL migrations on the DSL (migrateDSL)
  * 3. Transforming the DSL for the specifications of the layout system (only if a DSLTransformer is passed as an argument)
  * @param dslTransformer A function that takes a DSL and returns a DSL transformed for the specifications of the layout system
  * @param fetchPageResponse The response from the fetchPage API Call
  * @returns The updated DSL and the layoutId
  */
-export const extractCurrentDSL = (params: {
+export const extractCurrentDSL = ({
+  dslTransformer,
+  migrateDSLLocally = true,
+  response,
+}: {
   dslTransformer?: (dsl: DSLWidget) => DSLWidget;
+  migrateDSLLocally?: boolean;
   response?: FetchPageResponse;
 }): { dsl: DSLWidget; layoutId: string | undefined } => {
   // If fetch page response doesn't exist
   // It means we are creating a new page
-  const newPage = !params.response;
+  const newPage = !response;
   // Get the DSL from the response or default to the defaultDSL
-  const currentDSL = params.response?.data.layouts[0].dsl || {
+  const currentDSL = response?.data.layouts[0].dsl || {
     ...defaultDSL,
   };
 
-  // Run all the migrations on this DSL
-  const transformedDSL = transformDSL(
-    currentDSL as ContainerWidgetProps<WidgetProps>,
-    newPage,
-  );
-
-  let dsl = transformedDSL;
+  let dsl = currentDSL as DSLWidget;
+  if (migrateDSLLocally) {
+    // Run all the migrations on this DSL
+    dsl = migrateDSL(
+      currentDSL as ContainerWidgetProps<WidgetProps>,
+      newPage,
+    ) as DSLWidget;
+  }
   // If this DSL is meant to be transformed
   // then the dslTransformer would have been passed by the caller
-  if (params.dslTransformer) {
-    dsl = params.dslTransformer(transformedDSL);
+  if (dslTransformer) {
+    dsl = dslTransformer(dsl);
   }
 
   return {
     dsl,
-    layoutId: params.response?.data.layouts[0].id,
+    layoutId: response?.data.layouts[0].id,
   };
 };
 
