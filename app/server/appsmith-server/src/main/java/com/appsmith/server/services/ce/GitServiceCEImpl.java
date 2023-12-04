@@ -2622,6 +2622,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                         AppsmithError.GIT_FILE_SYSTEM_ERROR, throwable.getMessage()))));
                             });
                 })
+                .flatMap(application -> applicationPageService.publish(application.getId(), false))
                 // Add un-configured datasource to the list to response
                 .flatMap(application -> importApplicationService.getApplicationImportDTO(
                         application.getId(), application.getWorkspaceId(), application))
