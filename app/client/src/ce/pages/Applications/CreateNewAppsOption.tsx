@@ -59,6 +59,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { fetchMockDatasources } from "actions/datasourceActions";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
+import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -236,6 +237,9 @@ const CreateNewAppsOption = ({
       // fetch plugins information to show list of all plugins
       dispatch(fetchPlugins());
       dispatch(fetchMockDatasources());
+      if (application?.workspaceId) {
+        dispatch(fetchingEnvironmentConfigs(application?.workspaceId, true));
+      }
       setUseType(START_WITH_TYPE.DATA);
     } else {
       if (application) {
