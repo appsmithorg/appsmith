@@ -112,11 +112,7 @@ describe("Icon Button widget Tests", function () {
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
     );
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
-
-    cy.url().then((currentURL) => {
-      expect(currentURL).to.include("yahoo.com");
-    });
-
+    agHelper.AssertURL("yahoo.com");
     cy.go("back");
     agHelper.WaitUntilEleAppear(locators._widgetInDeployed("iconbuttonwidget"));
     assertHelper.AssertNetworkResponseData("@viewPage");
