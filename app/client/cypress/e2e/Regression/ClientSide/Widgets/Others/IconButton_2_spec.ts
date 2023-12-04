@@ -103,6 +103,7 @@ describe("Icon Button widget Tests", function () {
   });
 
   it("4. Verify onClick", () => {
+    cy.intercept('GET', '**').as('interceptedRequest');
     propPane.ToggleJSMode("onClick", true);
     propPane.UpdatePropertyFieldValue(
       "onClick",
@@ -112,11 +113,11 @@ describe("Icon Button widget Tests", function () {
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
     );
     agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
-    cy.intercept("**").as("allRequests");
-    cy.wait("@allRequests").then((interception) => {
-      const url = interception.request.url;
-      cy.wrap(url).should("include", "yahoo");
+
+    cy.url().then(currentURL => {
+      expect(currentURL).to.include('yahoo.com'); 
     });
+
     cy.go("back");
     agHelper.WaitUntilEleAppear(locators._widgetInDeployed("iconbuttonwidget"));
     assertHelper.AssertNetworkResponseData("@viewPage");
