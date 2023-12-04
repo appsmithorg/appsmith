@@ -78,7 +78,7 @@ public class ActionCollectionControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/edit/getAllActionCollectionsInApp/{pageId}")
+    @GetMapping("/edit/getAllActionCollectionsInApp/usingPageId/{pageId}")
     public Mono<ResponseDTO<List<ActionCollectionDTO>>> getAllUnpublishedActionCollectionsInAppUsingPageId(
             @PathVariable String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
@@ -121,8 +121,8 @@ public class ActionCollectionControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionCollectionViewDTO>>> getAllPublishedActionCollections(
-            @RequestParam String applicationId,
-            @RequestParam String pageId,
+            @RequestParam(required = false) String applicationId,
+            @RequestParam(required = false) String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
                 "Going to get all published action collections with application Id: {}, page Id: {}, branch: {}",
@@ -130,7 +130,7 @@ public class ActionCollectionControllerCE {
                 pageId,
                 branchName);
         return actionCollectionService
-                .getActionCollectionsForViewMode(applicationId, branchName)
+                .getActionCollectionsForViewMode(applicationId, pageId, branchName)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
