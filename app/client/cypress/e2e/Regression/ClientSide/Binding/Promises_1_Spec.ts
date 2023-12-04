@@ -6,6 +6,7 @@ import {
   deployMode,
   apiPage,
   dataManager,
+  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -138,27 +139,35 @@ return WhatTrumpThinks.run().then((res) => { showAlert("Today's Trump quote for 
     deployMode.NavigateBacktoEditor();
     agHelper.AddDsl("promisesBtnListDsl", locators._buttonByText("Submit"));
     apiPage.CreateAndFillApi(
-      "https://api.jikan.moe/v4/anime?q={{this.params.name}}",
+      dataManager.dsValues[dataManager.defaultEnviorment].echoApiUrl,
       "GetAnime",
-      30000,
+      10000,
+      "POST",
     );
+    apiPage.SelectPaneTab("Body");
+    apiPage.SelectSubTab("JSON");
+    // creating post request using echo
+    cy.fixture("TestDataSet1").then(function (dataSet) {
+      dataSources.EnterQuery(JSON.stringify(dataSet.GetAnimeResponse));
+    });
+
     EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "Items",
       `[{
-        "name": {{ GetAnime.data.data[0].title }},
-      "img": {{GetAnime.data.data[0].images.jpg.image_url}},
-      "synopsis": {{ GetAnime.data.data[0].synopsis }}
+        "name": {{ GetAnime.data.body.data[0].title }},
+      "img": {{GetAnime.data.body.data[0].images.jpg.image_url}},
+      "synopsis": {{ GetAnime.data.body.data[0].synopsis }}
             },
       {
-        "name": {{ GetAnime.data.data[3].title }},
-        "img": {{GetAnime.data.data[3].images.jpg.image_url}},
-        "synopsis": {{ GetAnime.data.data[3].synopsis }}
+        "name": {{ GetAnime.data.body.data[3].title }},
+        "img": {{GetAnime.data.body.data[3].images.jpg.image_url}},
+        "synopsis": {{ GetAnime.body.data.data[3].synopsis }}
       },
       {
-        "name": {{ GetAnime.data.data[2].title }},
-        "img": {{GetAnime.data.data[2].images.jpg.image_url}},
-        "synopsis": {{ GetAnime.data.data[2].synopsis }}
+        "name": {{ GetAnime.data.body.data[2].title }},
+        "img": {{GetAnime.data.body.data[2].images.jpg.image_url}},
+        "synopsis": {{ GetAnime.data.body.data[2].synopsis }}
       }]`,
     );
     agHelper.ValidateToastMessage(
