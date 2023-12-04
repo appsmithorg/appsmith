@@ -16,6 +16,8 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.appsmith.server.searchentities.helpers.SearchEntityHelper.shouldSearchEntity;
+
 @RequiredArgsConstructor
 public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
 
@@ -76,18 +78,5 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
             searchEntityDTO.setApplications(tuple2.getT2());
             return searchEntityDTO;
         });
-    }
-
-    @Override
-    public boolean shouldSearchEntity(Class<?> entity, String[] entities) {
-        if (entities == null || entities.length == 0) {
-            return true;
-        }
-        for (String entityToSearch : entities) {
-            if (entityToSearch.equalsIgnoreCase(entity.getSimpleName())) {
-                return true;
-            }
-        }
-        return false;
     }
 }
