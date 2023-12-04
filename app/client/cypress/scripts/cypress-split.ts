@@ -306,6 +306,18 @@ export class cypressSplit {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  private processSpecPattern(inputPath: string): string {
+    const pattern = '/***/';
+    const index = inputPath.indexOf(pattern);
+
+    if (index !== -1 && index > 0) {
+      return inputPath.substring(index + pattern.length);
+    } else {
+      return inputPath;
+    }
+  }
+
+
   public async splitSpecs(
     on: Cypress.PluginEvents,
     config: Cypress.PluginConfigOptions,
@@ -323,6 +335,10 @@ export class cypressSplit {
 
       if (cypressSpecs != "")
         specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
+        console.log("------------------ Specs after comma split------------------")
+        console.log("Specs Pattern: ", specPattern)
+        console.log("------------------Specs  comma split end------------------")
+
       if (this.util.getVars().cypressRerun === "true") {
         specPattern =
           (await this.getFailedSpecsFromPreviousRun()) ?? defaultSpec;
