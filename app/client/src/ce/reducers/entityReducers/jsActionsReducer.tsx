@@ -8,7 +8,8 @@ import {
 import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
 
-const initialState: JSCollectionDataState = [];
+export const initialState: JSCollectionDataState = [];
+
 export interface JSCollectionData {
   isLoading: boolean;
   config: JSCollection;
