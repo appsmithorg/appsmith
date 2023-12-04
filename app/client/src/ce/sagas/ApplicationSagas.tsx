@@ -59,6 +59,7 @@ import {
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
   updateCurrentApplicationForkingEnabled,
+  updateApplicationThemeSettingAction,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -454,6 +455,15 @@ export function* updateApplicationSaga(
           yield put(
             updateApplicationNavigationSettingAction(
               response.data.applicationDetail.navigationSetting,
+            ),
+          );
+        }
+
+        // TODO: refactor this once backend is ready
+        if (request.applicationDetail?.themeSetting) {
+          yield put(
+            updateApplicationThemeSettingAction(
+              request.applicationDetail?.themeSetting,
             ),
           );
         }
