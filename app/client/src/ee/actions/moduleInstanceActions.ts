@@ -82,11 +82,6 @@ export const fetchModuleInstancesForView = (
   payload,
 });
 
-export const setupModuleInstances = (payload: SetupModuleInstancePayload) => ({
-  type: ReduxActionTypes.SETUP_MODULE_INSTANCE_INIT,
-  payload,
-});
-
 export const setupModuleInstancesForView = (
   payload: SetupModuleInstancePayload,
 ) => ({

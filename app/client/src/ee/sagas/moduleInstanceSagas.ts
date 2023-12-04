@@ -10,7 +10,6 @@ import {
   type UpdateModuleInstanceOnPageLoadSettingsPayload,
   type UpdateModuleInstancePayload,
   type UpdateModuleInstanceSettingsPayload,
-  setupModuleInstances,
 } from "@appsmith/actions/moduleInstanceActions";
 import ModuleInstanceApi from "@appsmith/api/ModuleInstanceApi";
 import ModuleInstancesApi, {
@@ -417,12 +416,13 @@ export function* refactorModuleInstanceName({
         }),
       );
     } else {
-      yield put(
-        setupModuleInstances({
-          contextId: pageId,
+      yield call(setupModuleInstanceSaga, {
+        type: ReduxActionTypes.SETUP_MODULE_INSTANCE_INIT,
+        payload: {
+          contextId: id,
           contextType: ModuleInstanceCreatorType.PAGE,
-        }),
-      );
+        },
+      });
     }
   }
 }
