@@ -110,6 +110,11 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     private String tenantId;
 
+    // This field is used to indicate if the user was created by the system.
+    // e.g. AnonymousUser is created by the system migration during the first time startup.
+    @JsonView(Views.Public.class)
+    Boolean isSystemGenerated;
+
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override
     @JsonView(Views.Public.class)

@@ -11,7 +11,7 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
 
     Mono<User> findByCaseInsensitiveEmail(String email);
 
-    Mono<Long> countByDeletedAtNull();
+    Mono<Long> countByDeletedAtNullAndIsSystemGeneratedIsNot(Boolean isSystemGenerated);
 
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
 }

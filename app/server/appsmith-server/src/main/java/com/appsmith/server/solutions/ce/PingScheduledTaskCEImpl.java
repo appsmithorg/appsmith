@@ -122,13 +122,19 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
         }
 
         Mono<String> publicPermissionGroupIdMono = permissionGroupService.getPublicPermissionGroupId();
+
+        // Get the non-system generated active user count
+        Mono<Long> userCountMono = userRepository
+                .countByDeletedAtNullAndIsSystemGeneratedIsNot(true)
+                .defaultIfEmpty(0L);
+
         Mono<Tuple6<Long, Long, Long, Long, Long, Long>> nonDeletedObjectsCountMono = Mono.zip(
                 workspaceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 applicationRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 newPageRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 newActionRepository.countByDeletedAtNull().defaultIfEmpty(0L),
                 datasourceRepository.countByDeletedAtNull().defaultIfEmpty(0L),
-                userRepository.countByDeletedAtNull().defaultIfEmpty(0L));
+                userCountMono);
 
         publicPermissionGroupIdMono
                 .flatMap(publicPermissionGroupId -> Mono.zip(
