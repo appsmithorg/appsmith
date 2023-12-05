@@ -42,6 +42,14 @@ jobs:
         with:
           ref: refs/pull/${{ inputs.pr }}/merge
 
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        if: inputs.pr == 0 && inputs.branch != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: ${{ inputs.branch }}
+
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Check out the head commit of the branch
         uses: actions/checkout@v4
