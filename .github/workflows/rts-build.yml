@@ -119,7 +119,7 @@ jobs:
         run: |
           # Since this is an unreleased build, we set the version to incremented version number with a
           # `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $3++; print }')"
           echo "next_version = $next_version"
