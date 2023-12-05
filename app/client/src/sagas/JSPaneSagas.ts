@@ -367,7 +367,7 @@ export function* handleExecuteJSFunctionSaga(data: {
   isExecuteJSFunc: boolean;
 }) {
   const { action, collection, isExecuteJSFunc } = data;
-  const { id: collectionId, name: collectionName } = collection;
+  const { id: collectionId } = collection;
   const actionId = action.id;
   const appMode: APP_MODE = yield select(getAppMode);
   yield put(

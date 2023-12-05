@@ -28,7 +28,7 @@ import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
 } from "api/PluginApi";
-import type { JSAction, JSCollection } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";

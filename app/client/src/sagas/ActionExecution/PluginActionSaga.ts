@@ -130,7 +130,6 @@ import {
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
-import type { JSCollection } from "entities/JSCollection";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
