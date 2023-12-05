@@ -37,6 +37,7 @@ export const STORAGE_KEYS: {
   CURRENT_ENV: "CURRENT_ENV",
   AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
+  WIDGET_JS_TRIGGER: "WIDGET_JS_TRIGGER",
 };
 
 const store = localforage.createInstance({
@@ -858,6 +859,28 @@ export const getUsersFirstApplicationId = async () => {
     return firstApplicationId;
   } catch (error) {
     log.error("An error occurred while fetching USERS_FIRST_APPLICATION_ID");
+    log.error(error);
+  }
+};
+
+export const setWidgetJSTrigger = async (widgetId: string) => {
+  try {
+    await store.setItem(STORAGE_KEYS.WIDGET_JS_TRIGGER, widgetId);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting WIDGET_JS_TRIGGER");
+    log.error(error);
+  }
+};
+
+export const getWidgetJSTrigger = async () => {
+  try {
+    const widgetId: string | null = await store.getItem(
+      STORAGE_KEYS.WIDGET_JS_TRIGGER,
+    );
+    return widgetId;
+  } catch (error) {
+    log.error("An error occurred while fetching WIDGET_JS_TRIGGER");
     log.error(error);
   }
 };

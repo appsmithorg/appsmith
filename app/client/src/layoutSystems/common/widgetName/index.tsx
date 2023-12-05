@@ -39,7 +39,7 @@ const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
 
 const PositionStyle = styled.div<{
-  positionOffset: [number, number];
+  positionOffset: [number, number, string];
   topRow: number;
 }>`
   position: absolute;
@@ -50,7 +50,13 @@ const PositionStyle = styled.div<{
       ? `${-1 * WidgetNameComponentHeight + 1 + props.positionOffset[0]}px`
       : `calc(100% - ${1 + props.positionOffset[0]}px)`};
   height: ${WidgetNameComponentHeight}px;
-  right: ${(props) => props.positionOffset[1]}px;
+  ${(props) => {
+    if (props.positionOffset[2] === "left") {
+      return `left: ${props.positionOffset[1]}px;`;
+    } else {
+      return `right: ${props.positionOffset[1]}px;`;
+    }
+  }}
   z-index: ${Layers.widgetName};
 `;
 
@@ -196,6 +202,10 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     isAutoLayout,
   ]);
 
+  const customiseJS = useSelector(
+    (state) => state.ui.oneClickBinding.jsTriggerOnWidget,
+  );
+
   // const positionStyle: CSSProperties = useMemo(() => {
   //   return {
   //     top:
@@ -213,24 +223,57 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   //   WidgetNameComponentHeight,
   // ]);
   return showWidgetName ? (
-    <PositionStyle
-      className={isSnipingMode ? "t--settings-sniping-control" : ""}
-      data-testid="t--settings-controls-positioned-wrapper"
-      id={"widget_name_" + props.widgetId}
-      positionOffset={positionOffset}
-      topRow={props.topRow}
-    >
-      <ControlGroup>
-        <SettingsControl
-          activity={currentActivity}
-          errorCount={shouldHideErrors ? 0 : props.errorCount}
-          inverted={props.topRow <= 2}
-          name={props.widgetName}
-          toggleSettings={togglePropertyEditor}
-          widgetWidth={props.widgetWidth}
-        />
-      </ControlGroup>
-    </PositionStyle>
+    <>
+      <PositionStyle
+        className={isSnipingMode ? "t--settings-sniping-control" : ""}
+        data-testid="t--settings-controls-positioned-wrapper"
+        id={"widget_name_" + props.widgetId}
+        positionOffset={[...positionOffset, "right"]}
+        topRow={props.topRow}
+      >
+        <ControlGroup>
+          <SettingsControl
+            activity={currentActivity}
+            errorCount={shouldHideErrors ? 0 : props.errorCount}
+            inverted={props.topRow <= 2}
+            name={props.widgetName}
+            toggleSettings={togglePropertyEditor}
+            widgetId={props.widgetId}
+            widgetWidth={props.widgetWidth}
+          />
+        </ControlGroup>
+      </PositionStyle>
+      {customiseJS ? (
+        <PositionStyle
+          className={
+            isSnipingMode
+              ? "hidden"
+              : "mt-2 rounded hover:bg-[var(--ads-v2-color-orange-50)]"
+          }
+          data-testid="t--settings-transform-control-positioned-wrapper"
+          id={"widget_name_" + props.widgetId}
+          positionOffset={[
+            positionOffset[0],
+            props.widgetWidth / 2 - 50,
+            "left",
+          ]}
+          topRow={1}
+        >
+          <ControlGroup>
+            <SettingsControl
+              activity={currentActivity}
+              errorCount={shouldHideErrors ? 0 : props.errorCount}
+              icon="braces-line-exp"
+              inverted={false}
+              name={"Bind with JS"}
+              toggleSettings={togglePropertyEditor}
+              widgetId={props.widgetId}
+              widgetWidth={props.widgetWidth}
+            />
+          </ControlGroup>
+        </PositionStyle>
+      ) : null}
+    </>
   ) : null;
 }
 

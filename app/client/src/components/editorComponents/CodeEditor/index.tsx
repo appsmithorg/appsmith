@@ -477,7 +477,15 @@ class CodeEditor extends Component<Props, State> {
 
         setTimeout(() => {
           if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
-            editor.focus();
+            if (!editor.hasFocus()) editor.focus();
+            const value = editor.getValue();
+            const lastBindingIndex = value.lastIndexOf("}}");
+            if (this.props.editorLastCursorPosition) {
+              editor.setCursor(this.props.editorLastCursorPosition);
+            } else if (lastBindingIndex !== -1) {
+              const position = editor.getDoc().posFromIndex(lastBindingIndex);
+              editor.setCursor(position);
+            }
           }
         }, 200);
       }.bind(this);

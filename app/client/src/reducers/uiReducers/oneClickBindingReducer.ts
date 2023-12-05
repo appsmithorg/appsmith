@@ -7,12 +7,14 @@ const initialState: OneClickBindingState = {
   isConnecting: false,
   config: null,
   showOptions: false,
+  jsTriggerOnWidget: "",
 };
 
 export interface OneClickBindingState {
   isConnecting: boolean;
   config: WidgetQueryGenerationFormConfig | null;
   showOptions: boolean;
+  jsTriggerOnWidget: string;
 }
 
 const oneClickBindingReducer = createReducer(initialState, {
@@ -51,6 +53,15 @@ const oneClickBindingReducer = createReducer(initialState, {
     return {
       ...state,
       showOptions: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_JS_TRIGGER_ON_WIDGET]: (
+    state: OneClickBindingState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      jsTriggerOnWidget: action.payload,
     };
   },
 });

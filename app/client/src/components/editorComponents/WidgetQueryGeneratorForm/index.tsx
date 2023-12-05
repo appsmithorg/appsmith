@@ -21,6 +21,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 interface WidgetQueryGeneratorFormContextType {
   widgetId: string;
@@ -224,8 +225,12 @@ function WidgetQueryGeneratorForm(props: Props) {
   const addBinding = useCallback(
     (binding?: string, makeDynamicPropertyPath?: boolean) => {
       onUpdate(binding, makeDynamicPropertyPath);
+      dispatch({
+        type: ReduxActionTypes.SET_JS_TRIGGER_ON_WIDGET,
+        payload: widgetId,
+      });
     },
-    [onUpdate],
+    [onUpdate, widgetId],
   );
 
   const contextValue = useMemo(() => {

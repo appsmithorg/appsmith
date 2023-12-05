@@ -48,6 +48,12 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { fetchActions, runAction } from "actions/pluginActionActions";
 import { Toaster, Variant } from "design-system-old";
 import WidgetFactory from "WidgetProvider/factory";
+// import { getWidgetJSTrigger } from "utils/storage";
+import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import { setWidgetDynamicProperty } from "actions/controlActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "./WidgetSelectUtils";
+import { setFocusableInputField } from "actions/editorContextActions";
 
 export function* createActionsForOneClickBindingSaga(
   payload: Partial<Action> & { eventData: unknown; pluginId: string },
@@ -373,6 +379,21 @@ function* BindWidgetToDatasource(
     });
   }
 
+  // const widgetJSCustomizeTriggerShown: boolean = yield call(getWidgetJSTrigger);
+
+  // if (!widgetJSCustomizeTriggerShown) {
+  if (
+    ["TABLE_WIDGET_V2", "MULTI_SELECT_WIDGET_V2", "SELECT_WIDGET"].includes(
+      widget.type,
+    )
+  )
+    yield put({
+      type: ReduxActionTypes.SET_JS_TRIGGER_ON_WIDGET,
+      payload: widgetId,
+    });
+  // yield call(setWidgetJSTrigger, widgetId);
+  // }
+
   Toaster.show({
     text: `Successfully created action${
       newActions.length > 1 ? "s" : ""
@@ -383,11 +404,54 @@ function* BindWidgetToDatasource(
   });
 }
 
+function* toggleJStriggerOnWidgetSaga(action: ReduxAction<string>) {
+  const widgetId = action.payload;
+  const widget: WidgetProps = yield select(getWidgetByID(widgetId));
+
+  const widgetName = widget.widgetName;
+  const widgetType = widget.type;
+
+  if (!widgetName || !widgetType) return;
+
+  let propertyName = "";
+
+  if (widgetType === "TABLE_WIDGET_V2") {
+    propertyName = "tableData";
+  } else if (["MULTI_SELECT_WIDGET_V2", "SELECT_WIDGET"].includes(widgetType)) {
+    propertyName = "sourceData";
+  } else {
+    return;
+  }
+
+  if (!propertyName) return;
+
+  const dataTreePath = `${widgetName}.${propertyName}`;
+
+  yield put(setFocusablePropertyPaneField(dataTreePath));
+
+  yield put(setFocusableInputField(dataTreePath));
+
+  yield put(setWidgetDynamicProperty(widgetId, propertyName, true));
+
+  yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
+
+  yield put(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
+
+  yield put({
+    type: ReduxActionTypes.SET_JS_TRIGGER_ON_WIDGET,
+    payload: "",
+  });
+}
+
 export default function* oneClickBindingSaga() {
   yield all([
     takeLatest(
       ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE,
       BindWidgetToDatasource,
+    ),
+    takeLatest(
+      ReduxActionTypes.TOGGLE_JS_TRIGGER_ON_WIDGET,
+      toggleJStriggerOnWidgetSaga,
     ),
   ]);
 }

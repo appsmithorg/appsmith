@@ -1,11 +1,13 @@
 import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import type { CSSProperties } from "react";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { Icon } from "design-system";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import classNames from "classnames";
 // I honestly can't think of a better name for this enum
 export enum Activities {
   HOVERING,
@@ -71,17 +73,27 @@ interface SettingsControlProps {
   errorCount: number;
   inverted: boolean;
   widgetWidth: number;
+  widgetId: string;
+  icon?: string;
 }
 
 const getStyles = (
   activity: Activities,
   errorCount: number,
   isSnipingMode: boolean,
+  kind: string = "primary",
 ): CSSProperties | undefined => {
   if (isSnipingMode) {
     return {
       background: "var(--ads-v2-color-fg-information)",
       color: "var(--ads-v2-color-white)",
+    };
+  } else if (kind === "secondary") {
+    return {
+      background: "var(--ads-v2-color-bg-primary)",
+      color: "var(--ads-v2-color-fg-brand)",
+      border: "1px solid var(--ads-v2-color-fg-brand)",
+      borderRadius: "4px",
     };
   } else if (errorCount > 0) {
     return {
@@ -113,25 +125,50 @@ export function SettingsControl(props: SettingsControlProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   const errorIcon = <StyledErrorIcon name="warning" size="sm" />;
 
-  return (
-    <StyledTooltip
-      content={
-        isSnipingMode
-          ? `Bind to widget ${props.name}`
-          : "Edit widget properties"
+  const customiseJS = useSelector(
+    (state) => state.ui.oneClickBinding.jsTriggerOnWidget,
+  );
+
+  const dispatch = useDispatch();
+
+  const tooltip = isSnipingMode
+    ? `Bind to widget ${props.name}`
+    : "Edit widget properties";
+
+  const handleClick = useCallback(
+    (e) => {
+      if (customiseJS) {
+        dispatch({
+          type: ReduxActionTypes.TOGGLE_JS_TRIGGER_ON_WIDGET,
+          payload: props.widgetId,
+        });
+      } else {
+        props.toggleSettings(e);
       }
-      hoverOpenDelay={500}
-      position="top-right"
-    >
+    },
+    [props.toggleSettings, customiseJS, dispatch],
+  );
+
+  return (
+    <StyledTooltip content={tooltip} hoverOpenDelay={500} position="top-right">
       <SettingsWrapper
-        className="t--widget-propertypane-toggle"
+        className={classNames(
+          "t--widget-propertypane-toggle",
+          props.icon && "flex items-center gap-1",
+        )}
         data-testid="t--widget-propertypane-toggle"
         inverted={props.inverted}
-        onClick={props.toggleSettings}
-        style={getStyles(props.activity, props.errorCount, isSnipingMode)}
+        onClick={handleClick}
+        style={getStyles(
+          props.activity,
+          props.errorCount,
+          isSnipingMode,
+          props.icon ? "secondary" : "primary",
+        )}
         widgetWidth={props.widgetWidth}
       >
-        {!!props.errorCount && !isSnipingMode && errorIcon}
+        {props.icon && <Icon name={props.icon} size="sm" />}
+        {!!props.errorCount && !isSnipingMode && !props.icon && errorIcon}
         {isSnipingMode && (
           <Icon
             color="var(--ads-v2-color-white)"
@@ -139,7 +176,9 @@ export function SettingsControl(props: SettingsControlProps) {
             size="md"
           />
         )}
-        <WidgetName className="t--widget-name">
+        <WidgetName
+          className={classNames("t--widget-name", props.icon && "text-xs")}
+        >
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>
       </SettingsWrapper>

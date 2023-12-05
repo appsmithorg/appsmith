@@ -60,8 +60,8 @@ import { importSvg } from "design-system-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+// import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+// import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -162,9 +162,9 @@ const PropertyControl = memo((props: Props) => {
 
   const propertyValue = _.get(widgetProperties, props.propertyName);
 
-  const experimentalJSToggle = useFeatureFlag(
-    FEATURE_FLAG.ab_one_click_learning_popover_enabled,
-  );
+  // const experimentalJSToggle = useFeatureFlag(
+  //   FEATURE_FLAG.ab_one_click_learning_popover_enabled,
+  // );
 
   /**
    * checks if property value is deviated or not.
@@ -802,8 +802,9 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 mb-[2px] [&>span]:!h-[18px]">
             <PropertyHelpLabel
+              htmlFor={`js-toggle-${propertyName}`}
               label={label}
               theme={props.theme}
               tooltip={helpText}
@@ -813,13 +814,14 @@ const PropertyControl = memo((props: Props) => {
                 <span>
                   <ToggleButton
                     className={classNames({
-                      "t--js-toggle": true,
+                      "!h-[18px] t--js-toggle": true,
                       "is-active": isDynamic,
-                      "!h-[20px]": experimentalJSToggle,
                     })}
-                    icon="js-toggle-v2"
+                    icon="js-toggle-exp"
+                    id={`js-toggle-${propertyName}`}
                     isDisabled={isToggleDisabled}
                     isSelected={isDynamic}
+                    kind="combination"
                     onClick={() =>
                       toggleDynamicProperty(
                         propertyName,
@@ -830,7 +832,7 @@ const PropertyControl = memo((props: Props) => {
                         ),
                       )
                     }
-                    size={experimentalJSToggle ? "md" : "sm"}
+                    size={"md"}
                   />
                 </span>
               </Tooltip>

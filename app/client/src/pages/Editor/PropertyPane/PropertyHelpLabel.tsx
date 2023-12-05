@@ -20,6 +20,7 @@ interface Props {
   maxWidth?: string;
   lineHeight?: string;
   onClick?: () => void;
+  htmlFor?: string;
 }
 
 function PropertyHelpLabel(props: Props) {
@@ -36,6 +37,7 @@ function PropertyHelpLabel(props: Props) {
       <div onClick={props.onClick}>
         <Label
           className={`t--property-control-label`}
+          htmlFor={props.htmlFor}
           style={{
             cursor: toolTipDefined ? "help" : "default",
           }}
