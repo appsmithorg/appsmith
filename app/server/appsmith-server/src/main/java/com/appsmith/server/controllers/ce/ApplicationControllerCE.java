@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -25,7 +26,6 @@ import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.themes.base.ThemeService;

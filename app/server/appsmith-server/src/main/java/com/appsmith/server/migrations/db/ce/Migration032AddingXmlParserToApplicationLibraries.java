@@ -4,7 +4,7 @@ import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import io.mongock.api.annotations.ChangeUnit;
@@ -74,8 +74,8 @@ public class Migration032AddingXmlParserToApplicationLibraries {
                 new Query().addCriteria(getMigrationCriteria()), pushXmlParserUpdate, Application.class);
     }
 
-    private CustomJSLibApplicationDTO getXmlParserCustomJSLibApplicationDTO() {
-        CustomJSLibApplicationDTO xmlParserApplicationDTO = new CustomJSLibApplicationDTO();
+    private CustomJSLibContextDTO getXmlParserCustomJSLibApplicationDTO() {
+        CustomJSLibContextDTO xmlParserApplicationDTO = new CustomJSLibContextDTO();
         xmlParserApplicationDTO.setUidString(XML_PARSER_LIBRARY_UID);
         return xmlParserApplicationDTO;
     }
