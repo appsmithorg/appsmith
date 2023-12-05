@@ -20,6 +20,7 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      skip-tests: true
 
   client-build:
     name: client-build
@@ -62,6 +63,7 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      skip-tests: false
 
   client-unit-tests:
     needs: [build-docker-image]
