@@ -1,10 +1,6 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../support/Pages/EditorNavigation";
-
 const datasource = require("../../../locators/DatasourcesEditor.json");
 let datasourceName;
-import { dataSources } from "../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 describe("Redshift datasource test cases", function () {
   beforeEach(() => {
@@ -41,8 +37,7 @@ describe("Redshift datasource test cases", function () {
   });
 
   it("3. Create a new query from the datasource editor", function () {
-    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
-    cy.get(datasource.createQuery).last().click();
+    ObjectsRegistry.DataSources.CreateQueryForDS(datasourceName);
     cy.wait("@createNewApi").should(
       "have.nested.property",
       "response.body.responseMeta.status",
