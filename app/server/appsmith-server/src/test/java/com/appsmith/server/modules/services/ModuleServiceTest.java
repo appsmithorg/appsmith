@@ -248,6 +248,7 @@ public class ModuleServiceTest {
                     assertThat(createdModule.getId()).isNotEmpty();
                     assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
                     assertThat(createdModule.getSettingsForm()).isNotNull();
+                    assertThat(createdModule.getUserPermissions()).isNotEmpty();
                     verifySettingsForCreator(createdModule);
                 })
                 .verifyComplete();
@@ -310,6 +311,7 @@ public class ModuleServiceTest {
                     assertThat(updatedModule.getName()).isEqualTo(moduleDTO.getName());
                     assertThat(updatedModule.getInputsForm()).isNotEmpty();
                     assertThat(updatedModule.getInputsForm().size()).isEqualTo(1);
+                    assertThat(updatedModule.getUserPermissions()).isNotEmpty();
                     verifySettingsForCreator(updatedModule);
                 })
                 .verifyComplete();
@@ -377,11 +379,13 @@ public class ModuleServiceTest {
         moduleDTO.setEntity(moduleActionDTO);
 
         Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+        AtomicReference<String> moduleUUIDRef = new AtomicReference<>();
         AtomicReference<String> moduleIdRef = new AtomicReference<>();
 
         StepVerifier.create(moduleMono)
                 .assertNext(createdModule -> {
                     assertThat(createdModule.getId()).isNotEmpty();
+                    moduleUUIDRef.set(createdModule.getModuleUUID());
                     moduleIdRef.set(createdModule.getId());
                     assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
                 })
@@ -389,7 +393,7 @@ public class ModuleServiceTest {
 
         Mockito.doReturn(Mono.just(Long.valueOf(1)))
                 .when(moduleInstancePermissionChecker)
-                .getModuleInstanceCountByModuleId(moduleIdRef.get());
+                .getModuleInstanceCountByModuleUUID(moduleUUIDRef.get());
 
         Mono<ModuleDTO> deletedModuleMono = crudModuleService.deleteModule(moduleIdRef.get());
 
@@ -559,11 +563,13 @@ public class ModuleServiceTest {
         moduleDTO.setEntity(moduleActionDTO);
 
         Mono<ModuleDTO> moduleMono = crudModuleService.createModule(moduleDTO);
+        AtomicReference<String> moduleUUIDRef = new AtomicReference<>();
         AtomicReference<String> moduleIdRef = new AtomicReference<>();
 
         StepVerifier.create(moduleMono)
                 .assertNext(createdModule -> {
                     assertThat(createdModule.getId()).isNotEmpty();
+                    moduleUUIDRef.set(createdModule.getModuleUUID());
                     moduleIdRef.set(createdModule.getId());
                     assertThat(createdModule.getName()).isEqualTo(moduleDTO.getName());
                 })
@@ -589,7 +595,7 @@ public class ModuleServiceTest {
 
         Mockito.doReturn(Mono.just(Long.valueOf(1)))
                 .when(moduleInstancePermissionChecker)
-                .getModuleInstanceCountByModuleId(moduleIdRef.get());
+                .getModuleInstanceCountByModuleUUID(moduleUUIDRef.get());
 
         Mono<PackageDTO> deletePackageMono = crudPackageService.deletePackage(packageId.get());
 

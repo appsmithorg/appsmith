@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomModuleInstanceRepository extends AppsmithRepository<ModuleInstance> {
-    Mono<Long> getModuleInstanceCountByModuleId(String moduleId);
+    Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID);
 
     Flux<ModuleInstance> findAllByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission);

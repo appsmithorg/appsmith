@@ -36,9 +36,9 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Mono<Long> getModuleInstanceCountByModuleId(String moduleId) {
+    public Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID) {
         Criteria moduleIdCriteria =
-                where(fieldName(QModuleInstance.moduleInstance.sourceModuleId)).is(moduleId);
+                where(fieldName(QModuleInstance.moduleInstance.moduleUUID)).is(moduleUUID);
 
         return count(List.of(moduleIdCriteria), Optional.empty());
     }

@@ -402,10 +402,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         List<Criteria> criteria = new ArrayList<>();
         Criteria applicationCriteria =
                 where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        criteria.add(applicationCriteria);
 
         Criteria nonModuleInstanceActionCriterion = getNonModuleInstanceActionCriterion();
         criteria.add(nonModuleInstanceActionCriterion);
 
-        return queryAll(List.of(applicationCriteria), aclPermission, sort);
+        return queryAll(criteria, aclPermission, sort);
     }
 }

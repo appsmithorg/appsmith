@@ -17,6 +17,9 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
+import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.exceptions.AppsmithErrorCode;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -354,6 +357,59 @@ public class CrudModuleInstanceServiceTest {
 
                     assertThat(moduleInstances.size()).isEqualTo(0);
                     assertThat(actions.size()).isEqualTo(0);
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testDeleteModuleWhenModuleInstancesPresentShouldRestrictDeletion() {
+        // Create a module instance to restrict deletion of the source module
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+
+        Mono<ModuleDTO> deleteModuleMono = crudModuleService.deleteModule(
+                moduleInstanceTestHelperDTO.getSourceModuleDTO().getId());
+
+        // Module cannot be deleted as it has one reference
+        StepVerifier.create(deleteModuleMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && ((AppsmithException) throwable)
+                                .getError()
+                                .getAppErrorCode()
+                                .equals(AppsmithErrorCode.MODULE_HAS_INSTANCES.getCode()))
+                .verify();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testDeleteModuleWhenModuleInstancesAreDeletedShouldAllowModuleToDelete() {
+        // Create a module instance to restrict deletion of the source module
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+
+        Mono<ModuleDTO> deleteModuleMono = crudModuleService.deleteModule(
+                moduleInstanceTestHelperDTO.getSourceModuleDTO().getId());
+
+        // Module cannot be deleted as it has one reference
+        StepVerifier.create(deleteModuleMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && ((AppsmithException) throwable)
+                                .getError()
+                                .getAppErrorCode()
+                                .equals(AppsmithErrorCode.MODULE_HAS_INSTANCES.getCode()))
+                .verify();
+
+        // Make sure module has no instances
+        crudModuleInstanceService
+                .deleteUnpublishedModuleInstance(
+                        createModuleInstanceResponseDTO.getModuleInstance().getId(), null)
+                .block();
+
+        // Module can be deleted now as it has no reference exists
+        StepVerifier.create(deleteModuleMono)
+                .assertNext(deletedModule -> {
+                    assertThat(deletedModule.getId()).isNotNull();
                 })
                 .verifyComplete();
     }
