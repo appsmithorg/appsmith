@@ -55,7 +55,6 @@
       "isRequired": true,
       "configProperty": "actionConfiguration.formData.messages.data",
       "controlType": "ARRAY_FIELD",
-      "initialValue": [{ "role": "Human", "content": "Hello!" }],
       "addMoreButtonLabel": "Add message",
       "alternateViewTypes": ["json"],
       "schema": [

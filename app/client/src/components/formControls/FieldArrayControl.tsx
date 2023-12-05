@@ -31,7 +31,6 @@ const SecondaryBox = styled.div`
   width: min-content;
   align-items: center;
   justify-content: space-between;
-  margin-botton: 10px;
 
   & > div {
     margin-right: 8px;

@@ -56,7 +56,6 @@
       "configProperty": "actionConfiguration.formData.systemMessages",
       "controlType": "ARRAY_FIELD",
       "addMoreButtonLabel": "Add System Message",
-      "initialValue": [{ "content": "As an OCR expert your skills are unparalleled. Respond with just the text in the image" }],
       "customStyles": {
         "width": "40vw"
       },
@@ -65,7 +64,8 @@
           "label": "Content",
           "key": "content",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "{{ UserInput.text }}"
+          "placeholderText": "{{ UserInput.text }}",
+          "initialValue": "As an OCR expert your skills are unparalleled. Respond with just the text in the image"
         }
       ]
     },
@@ -78,21 +78,12 @@
       "configProperty": "actionConfiguration.formData.userMessages",
       "controlType": "ARRAY_FIELD",
       "addMoreButtonLabel": "Add User message or Image",
-      "initialValue": [
-        { 
-          "type": "text", 
-          "content": "Extract the text from this image." 
-        }, 
-        { 
-          "type": "image",
-          "content": "https://docs.appsmith.com/img/appsmith_logo_white.png"
-        }
-      ],
       "schema": [
         {
           "label": "Type",
           "key": "type",
           "controlType": "DROP_DOWN",
+          "initialValue": "text",        
           "options": [
             {
               "label": "Text",
