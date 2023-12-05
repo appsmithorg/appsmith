@@ -255,7 +255,7 @@ export class cypressSplit {
 
           specs = specs.map((spec) => {
             console.log("Specs to run in abs path: ", spec);
-            const relativePath = spec.replace(process.cwd(), '').replace(/^/,'');
+            const relativePath = spec.replace(process.cwd()+"/", '')
             console.log("Specs to run in relative path: ", relativePath);
             return relativePath;
           });
