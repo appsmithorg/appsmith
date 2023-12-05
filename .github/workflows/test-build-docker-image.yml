@@ -74,7 +74,7 @@ jobs:
       pr: 0
 
   ci-test-result:
-    needs: [ci-test]
+    needs: [ci-test, client-unit-tests, server-unit-tests]
     if: always() &&
       (github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
