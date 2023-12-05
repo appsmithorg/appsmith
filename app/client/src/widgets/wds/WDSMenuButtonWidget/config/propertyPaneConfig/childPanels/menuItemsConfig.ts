@@ -1,4 +1,3 @@
-import { ICON_NAMES } from "WidgetProvider/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 /**
@@ -69,93 +68,94 @@ export const menuItemsConfig = {
     },
   ],
   styleChildren: [
-    {
-      sectionName: "Icon",
-      children: [
-        {
-          propertyName: "iconName",
-          label: "Icon",
-          helpText: "Sets the icon to be used for a menu item",
-          controlType: "ICON_SELECT",
-          isBindProperty: false,
-          isTriggerProperty: false,
-          validation: {
-            type: ValidationTypes.TEXT,
-            params: {
-              allowedValues: ICON_NAMES,
-            },
-          },
-        },
-        {
-          propertyName: "iconAlign",
-          label: "Position",
-          helpText: "Sets the icon alignment of a menu item",
-          controlType: "ICON_TABS",
-          fullWidth: false,
-          options: [
-            {
-              startIcon: "skip-left-line",
-              value: "start",
-            },
-            {
-              startIcon: "skip-right-line",
-              value: "end",
-            },
-          ],
-          isBindProperty: false,
-          isTriggerProperty: false,
-          validation: {
-            type: ValidationTypes.TEXT,
-            allowedValues: ["start", "end"],
-          },
-        },
-      ],
-    },
-    // TODO - Uncomment once we have polished the fundamentals of WDS.
-    // Ref convo in slack - https://theappsmith.slack.com/archives/C04P60V0VQE/p1701435055352789?thread_ts=1701429043.543219&cid=C04P60V0VQE
-    // {
-    //   sectionName: "Color",
-    //   children: [
-    //     {
-    //       propertyName: "textColor",
-    //       label: "Text Color",
-    //       helpText: "Controls the color of the text displayed",
-    //       controlType: "DROP_DOWN",
-    //       defaultValue: "neutral",
-    //       options: [
-    //         {
-    //           label: "Accent",
-    //           value: "accent",
-    //         },
-    //         {
-    //           label: "Neutral",
-    //           value: "neutral",
-    //         },
-    //         {
-    //           label: "Positive",
-    //           value: "positive",
-    //         },
-    //         {
-    //           label: "Negative",
-    //           value: "negative",
-    //         },
-    //         {
-    //           label: "Warning",
-    //           value: "warning",
-    //         },
-    //       ],
-    //       isJSConvertible: true,
-    //       isBindProperty: true,
-    //       isTriggerProperty: false,
-    //       validation: {
-    //         type: ValidationTypes.TEXT,
-    //         params: {
-    //           allowedValues: Object.values(COLORS),
-    //           default: COLORS.neutral,
+    // TODO - Uncomment once we have
+    // 1. polished the fundamentals of WDS - https://theappsmith.slack.com/archives/C04P60V0VQE/p1701435055352789?thread_ts=1701429043.543219&cid=C04P60V0VQE
+    // 2. added icon support in the Item component - https://theappsmith.slack.com/archives/C04P60V0VQE/p1701764785966839?thread_ts=1701071080.561509&cid=C04P60V0VQE
+    //   {
+    //     sectionName: "Icon",
+    //     children: [
+    //       {
+    //         propertyName: "iconName",
+    //         label: "Icon",
+    //         helpText: "Sets the icon to be used for a menu item",
+    //         controlType: "ICON_SELECT",
+    //         isBindProperty: false,
+    //         isTriggerProperty: false,
+    //         validation: {
+    //           type: ValidationTypes.TEXT,
+    //           params: {
+    //             allowedValues: ICON_NAMES,
+    //           },
     //         },
     //       },
-    //     },
-    //   ],
-    // },
+    //       {
+    //         propertyName: "iconAlign",
+    //         label: "Position",
+    //         helpText: "Sets the icon alignment of a menu item",
+    //         controlType: "ICON_TABS",
+    //         fullWidth: false,
+    //         options: [
+    //           {
+    //             startIcon: "skip-left-line",
+    //             value: "start",
+    //           },
+    //           {
+    //             startIcon: "skip-right-line",
+    //             value: "end",
+    //           },
+    //         ],
+    //         isBindProperty: false,
+    //         isTriggerProperty: false,
+    //         validation: {
+    //           type: ValidationTypes.TEXT,
+    //           allowedValues: ["start", "end"],
+    //         },
+    //       },
+    //     ],
+    //   },
+    //   {
+    //     sectionName: "Color",
+    //     children: [
+    //       {
+    //         propertyName: "textColor",
+    //         label: "Text Color",
+    //         helpText: "Controls the color of the text displayed",
+    //         controlType: "DROP_DOWN",
+    //         defaultValue: "neutral",
+    //         options: [
+    //           {
+    //             label: "Accent",
+    //             value: "accent",
+    //           },
+    //           {
+    //             label: "Neutral",
+    //             value: "neutral",
+    //           },
+    //           {
+    //             label: "Positive",
+    //             value: "positive",
+    //           },
+    //           {
+    //             label: "Negative",
+    //             value: "negative",
+    //           },
+    //           {
+    //             label: "Warning",
+    //             value: "warning",
+    //           },
+    //         ],
+    //         isJSConvertible: true,
+    //         isBindProperty: true,
+    //         isTriggerProperty: false,
+    //         validation: {
+    //           type: ValidationTypes.TEXT,
+    //           params: {
+    //             allowedValues: Object.values(COLORS),
+    //             default: COLORS.neutral,
+    //           },
+    //         },
+    //       },
+    //     ],
+    //   },
   ],
 };

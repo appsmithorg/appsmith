@@ -19,7 +19,7 @@ import {
   type ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { Icon as BIcon } from "@blueprintjs/core";
-import { Icon, Text } from "@design-system/widgets";
+import { Text } from "@design-system/widgets";
 
 class WDSMenuButtonWidget extends BaseWidget<
   MenuButtonWidgetProps,
@@ -197,19 +197,7 @@ class WDSMenuButtonWidget extends BaseWidget<
         <MenuList>
           {visibleItems.map((menuItem: MenuItem) => (
             <Item key={menuItem.id}>
-              {menuItem.iconName && menuItem.iconAlign === "start" && (
-                <Icon>
-                  <BIcon icon={menuItem.iconName} />
-                </Icon>
-              )}
-
               <Text color={menuItem.textColor}>{menuItem.label}</Text>
-
-              {menuItem.iconName && menuItem.iconAlign === "end" && (
-                <Icon>
-                  <BIcon icon={menuItem.iconName} />
-                </Icon>
-              )}
             </Item>
           ))}
         </MenuList>
