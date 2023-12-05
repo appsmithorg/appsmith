@@ -197,7 +197,7 @@ public class ActionControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/edit/getAllActionsInApp/usingPageId/{pageId}")
-    public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(
+    public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActionsInAppUsingPageId(
             @PathVariable String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get all actions in application using pageId: {}, branch: {}", pageId, branchName);
