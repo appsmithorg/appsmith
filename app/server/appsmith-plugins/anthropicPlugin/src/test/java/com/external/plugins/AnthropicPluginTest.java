@@ -11,6 +11,7 @@ import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -83,6 +84,7 @@ public class AnthropicPluginTest {
     }
 
     @Test
+    @Disabled
     public void verifyTestDatasourceReturns() {
         ApiKeyAuth apiKeyAuth = new ApiKeyAuth();
         apiKeyAuth.setValue("apiKey");

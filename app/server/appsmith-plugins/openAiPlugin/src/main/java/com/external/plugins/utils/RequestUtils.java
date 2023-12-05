@@ -103,7 +103,7 @@ public class RequestUtils {
     }
 
     private static ConnectionProvider connectionProvider() {
-        return ConnectionProvider.builder("anthropic")
+        return ConnectionProvider.builder("openai")
                 .maxConnections(100)
                 .maxIdleTime(Duration.ofSeconds(60))
                 .maxLifeTime(Duration.ofSeconds(60))
