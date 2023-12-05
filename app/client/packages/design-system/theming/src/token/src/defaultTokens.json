@@ -40,10 +40,10 @@
       "userDensityRatio": 2.5
     },
     "typography": {
-      "minV": 8.7,
-      "maxV": 10.7,
+      "minV": 6,
+      "maxV": 8,
       "minR": 2,
-      "maxR": 4.4,
+      "maxR": 4,
       "minN": 3,
       "maxN": 5,
       "stepsUp": 5,
