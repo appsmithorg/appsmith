@@ -56,7 +56,6 @@ jobs:
       pr: 0
 
   server-unit-tests:
-    name: server-unit-tests
     needs: [build-docker-image]
     if: needs.path-filter.outputs.server == 'true'
     uses: ./.github/workflows/server-build.yml
@@ -65,7 +64,6 @@ jobs:
       pr: 0
 
   client-unit-tests:
-    name: client-unit-tests
     needs: [build-docker-image]
     if: needs.path-filter.outputs.client == 'true'
     uses: ./.github/workflows/client-unit-tests.yml
