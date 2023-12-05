@@ -333,6 +333,20 @@ export class cypressSplit {
       const cypressSpecs = this.util.getVars().cypressSpecs;
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
+      if (Array.isArray(specPattern)) {
+        specPattern = specPattern.map((specPath: string) => {
+          console.log("------------------ In Array ------------------")
+
+          const parts = specPath.split('***/e2e/');
+          return parts.length > 1 ? `***/e2e/${parts[1]}` : specPath;
+        });
+      } else if (typeof specPattern === 'string' && specPattern.includes('***/e2e/')) {
+        console.log("------------------ In String ------------------")
+        const parts = specPattern.split('***/e2e/');
+        specPattern = parts.length > 1 ? `***/e2e/${parts[1]}` : specPattern;
+      }
+  
+
       if (typeof specPattern === 'string' && !specPattern.startsWith('***/e2e')) {
         specPattern = specPattern.replace(/^[^/]+/, '***/e2e'); // Replacing the initial part of the path
         console.log("------------------ specPattern in replace------------------")
