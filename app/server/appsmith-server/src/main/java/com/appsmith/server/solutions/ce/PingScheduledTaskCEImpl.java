@@ -125,7 +125,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
         // Get the non-system generated active user count
         Mono<Long> userCountMono = userRepository
-                .countByDeletedAtNullAndIsSystemGeneratedIsNot(true)
+                .countByDeletedAtIsNullAndIsSystemGeneratedIsNot(true)
                 .defaultIfEmpty(0L);
 
         Mono<Tuple6<Long, Long, Long, Long, Long, Long>> nonDeletedObjectsCountMono = Mono.zip(
