@@ -7,7 +7,6 @@
   "deleteQuery": ".t--delete-query",
   "queryMoreAction": "[data-testid=more-action-trigger]",
   "deleteUsingContext": ".t--apiFormDeleteBtn",
-  "createQuery": ".t--create-query",
   "addQueryEntity": ".//div[contains(@class,'t--entity group queries')]//div[contains(@class,'t--entity-add-btn')]",
   "addDatasource": ".t--add-datasource",
   "editDatasourceButton": ".t--edit-datasource",

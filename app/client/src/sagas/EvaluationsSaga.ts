@@ -104,6 +104,7 @@ import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -289,6 +290,7 @@ export function* evaluateActionBindings(
   bindings: string[],
   executionParams: Record<string, any> | string = {},
 ) {
+  const span = startRootSpan("evaluateActionBindings");
   const workerResponse: { errors: EvalError[]; values: unknown } = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS,
@@ -301,6 +303,7 @@ export function* evaluateActionBindings(
   const { errors, values } = workerResponse;
 
   yield call(evalErrorHandler, errors);
+  endSpan(span);
   return values;
 }
 
@@ -541,6 +544,7 @@ function* evalAndLintingHandler(
     requiresLogging: boolean;
   }>,
 ) {
+  const span = startRootSpan("evalAndLintingHandler");
   const { forceEvaluation, requiresLogging, shouldReplay } = options;
 
   const requiresLinting = getRequiresLinting(action);
@@ -552,7 +556,10 @@ function* evalAndLintingHandler(
     triggeredEvaluation: requiresEval,
   });
 
-  if (!requiresEval && !requiresLinting) return;
+  if (!requiresEval && !requiresLinting) {
+    endSpan(span);
+    return;
+  }
 
   // Generate all the data needed for both eval and linting
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
@@ -580,6 +587,7 @@ function* evalAndLintingHandler(
   }
 
   yield all(effects);
+  endSpan(span);
 }
 
 function* evaluationChangeListenerSaga(): any {

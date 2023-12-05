@@ -1,22 +1,23 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
+  assertHelper,
+  dataSources,
   deployMode,
+  entityExplorer,
   entityItems,
   homePage,
-  dataSources,
+  locators,
   table,
-  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
   AppSidebar,
+  AppSidebarButton,
+  EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import PageList from "../../../../support/Pages/PageList";
+
 let dsName: any;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
@@ -111,7 +112,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "employees");
 
@@ -159,9 +160,11 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 ('Vintage Cars','Our Vintage Car models realistically portray automobiles produced from the early 1900s through the 1940s. Materials used include Bakelite, diecast, plastic and wood. Most of the replicas are in the 1:18 and 1:24 scale sizes, which provide the optimum in detail and accuracy. Prices range from $30.00 up to $180.00 for some special limited edition replicas. All models include a certificate of authenticity from their manufacturers and come fully assembled and ready for display in the home or office.',NULL,NULL);
 `;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("CreateProductLines");
-    dataSources.EnterQuery(tableCreateQuery);
+    dataSources.CreateQueryForDS(
+      dsName,
+      tableCreateQuery,
+      "CreateProductLines",
+    );
     agHelper.FocusElement(locators._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
@@ -175,7 +178,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "productlines");
     agHelper.GetNClick(dataSources._generatePageBtn);
@@ -278,9 +281,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("9. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
     let deleteTblQuery = "DROP TABLE productlines;";
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("DropProductlines");
-    dataSources.EnterQuery(deleteTblQuery);
+    dataSources.CreateQueryForDS(dsName, deleteTblQuery, "DropProductlines");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
