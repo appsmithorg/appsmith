@@ -7,6 +7,7 @@ import type {
   FetchPackageResponse,
   FetchPackagesInWorkspaceResponse,
 } from "@appsmith/api/PackageApi";
+import { klona } from "klona";
 
 type ID = string;
 
@@ -49,7 +50,7 @@ const packageReducer = createImmerReducer(INITIAL_STATE, {
     draftState: PackagesReducerState,
     action: ReduxAction<FetchPackagesInWorkspaceResponse>,
   ) => {
-    draftState = {};
+    draftState = klona(INITIAL_STATE);
     const { packages } = action.payload;
     packages.map((pkg) => {
       draftState[pkg.id] = pkg;

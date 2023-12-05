@@ -59,6 +59,7 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
         payload: {
           contextId: id,
           contextType: ModuleInstanceCreatorType.PAGE,
+          viewMode: false,
         },
       });
     }
@@ -98,6 +99,7 @@ export function* setupPublishedPageSaga(
         payload: {
           contextId: pageId,
           contextType: ModuleInstanceCreatorType.PAGE,
+          viewMode: true,
         },
       });
     }
