@@ -71,7 +71,8 @@ jobs:
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0 && inputs.branch == ''
         uses: actions/checkout@v4
-        fetch-tags: true
+        with:
+          fetch-tags: true
 
       # get all the files changes in the cypress/e2e folder
       - name: Get added files in cypress/e2e folder
