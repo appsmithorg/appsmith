@@ -16,14 +16,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.convert.DefaultTypeMapper;
 import org.springframework.data.convert.SimpleTypeInformationMapper;
 import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoTransactionManager;
-import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
@@ -32,7 +30,7 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.data.mongodb.core.convert.MongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
-import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.ReactiveTransactionManager;
 import org.springframework.transaction.reactive.TransactionalOperator;
 
@@ -48,12 +46,13 @@ import java.util.List;
  * {@link SoftDeleteMongoRepositoryFactoryBean} for details.
  */
 @Slf4j
-@Configuration
-@EnableReactiveMongoAuditing
-@EnableReactiveMongoRepositories(
-        repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
-        basePackages = "com.appsmith.server.repositories",
-        repositoryBaseClass = BaseRepositoryImpl.class)
+@Component
+// @Configuration
+// @EnableReactiveMongoAuditing
+// @EnableReactiveMongoRepositories(
+//         repositoryFactoryBeanClass = SoftDeleteMongoRepositoryFactoryBean.class,
+//         basePackages = "com.appsmith.server.repositories",
+//         repositoryBaseClass = BaseRepositoryImpl.class)
 public class MongoConfig {
 
     /*
@@ -70,6 +69,7 @@ public class MongoConfig {
         mongoDriver.setReadConcern(ReadConcern.LOCAL);
 
         return MongockSpringboot.builder()
+                .setEnabled(false)
                 .setDriver(mongoDriver)
                 .addChangeLogsScanPackages(List.of("com.appsmith.server.migrations"))
                 .addMigrationScanPackage("com.appsmith.server.migrations.db")

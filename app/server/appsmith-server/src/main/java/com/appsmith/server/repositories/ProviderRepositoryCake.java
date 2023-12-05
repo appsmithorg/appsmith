@@ -31,17 +31,16 @@ public class ProviderRepositoryCake {
     }
     // End from CrudRepository
 
-    public Flux<Provider> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
-    }
-
     public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
         return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
     }
 
     public Provider setUserPermissionsInObject(Provider obj, Set<String> permissionGroups) {
         return repository.setUserPermissionsInObject(obj, permissionGroups);
+    }
+
+    public Flux<Provider> findByName(String name) {
+        return Flux.fromIterable(repository.findByName(name));
     }
 
     public Mono<Provider> findById(String id, AclPermission permission) {
@@ -52,20 +51,13 @@ public class ProviderRepositoryCake {
         return Mono.justOrEmpty(repository.retrieveById(id));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
-    }
-
-    public Flux<Provider> findByName(String name) {
-        return Flux.fromIterable(repository.findByName(name));
-    }
-
     public Mono<Provider> archive(Provider entity) {
         return Mono.justOrEmpty(repository.archive(entity));
+    }
+
+    public Flux<Provider> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
     }
 
     public Provider updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
@@ -78,5 +70,13 @@ public class ProviderRepositoryCake {
 
     public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission) {
         return Flux.fromIterable(repository.queryAll(criterias, permission));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

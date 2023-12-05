@@ -31,48 +31,28 @@ public class ConfigRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<Config> findById(String id, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(id, permission));
+    public Mono<Config> findByName(String name) {
+        return Mono.justOrEmpty(repository.findByName(name));
     }
 
     public Config setUserPermissionsInObject(Config obj) {
         return repository.setUserPermissionsInObject(obj);
     }
 
-    public Mono<Config> findByNameAsUser(String name, User user, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findByNameAsUser(name, user, permission));
+    public Config updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return repository.updateAndReturn(id, updateObj, permission);
     }
 
-    public Mono<Config> findByName(String name) {
-        return Mono.justOrEmpty(repository.findByName(name));
+    public Mono<Config> findByNameAsUser(String name, User user, AclPermission permission) {
+        return Mono.justOrEmpty(repository.findByNameAsUser(name, user, permission));
     }
 
     public Flux<Config> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
         return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
     }
 
-    public Mono<Config> findByName(String name, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findByName(name, permission));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
-    }
-
-    public Mono<Config> retrieveById(String id) {
-        return Mono.justOrEmpty(repository.retrieveById(id));
-    }
-
-    public Config updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return repository.updateAndReturn(id, updateObj, permission);
-    }
-
-    public Mono<Config> archive(Config entity) {
-        return Mono.justOrEmpty(repository.archive(entity));
+    public Flux<Config> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission));
     }
 
     public Flux<Config> queryAll(
@@ -80,11 +60,31 @@ public class ConfigRepositoryCake {
         return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
     }
 
+    public Mono<Config> findById(String id, AclPermission permission) {
+        return Mono.justOrEmpty(repository.findById(id, permission));
+    }
+
+    public Mono<Config> archive(Config entity) {
+        return Mono.justOrEmpty(repository.archive(entity));
+    }
+
+    public Mono<Config> retrieveById(String id) {
+        return Mono.justOrEmpty(repository.retrieveById(id));
+    }
+
     public Config setUserPermissionsInObject(Config obj, Set<String> permissionGroups) {
         return repository.setUserPermissionsInObject(obj, permissionGroups);
     }
 
-    public Flux<Config> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission));
+    public Mono<Config> findByName(String name, AclPermission permission) {
+        return Mono.justOrEmpty(repository.findByName(name, permission));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

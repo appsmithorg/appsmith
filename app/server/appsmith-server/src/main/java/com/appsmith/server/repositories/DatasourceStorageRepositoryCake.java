@@ -31,36 +31,17 @@ public class DatasourceStorageRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<DatasourceStorage> findById(String id, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(id, permission));
+    public Mono<DatasourceStorage> archive(DatasourceStorage entity) {
+        return Mono.justOrEmpty(repository.archive(entity));
     }
 
-    public Flux<DatasourceStorage> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
+    public Flux<DatasourceStorage> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
-    }
-
-    public DatasourceStorage setUserPermissionsInObject(DatasourceStorage obj, Set<String> permissionGroups) {
-        return repository.setUserPermissionsInObject(obj, permissionGroups);
-    }
-
-    public DatasourceStorage setUserPermissionsInObject(DatasourceStorage obj) {
-        return repository.setUserPermissionsInObject(obj);
-    }
-
-    public DatasourceStorage updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return repository.updateAndReturn(id, updateObj, permission);
-    }
-
-    public Flux<DatasourceStorage> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission));
+    public Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+        return Mono.justOrEmpty(repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId));
     }
 
     public Mono<DatasourceStorage> retrieveById(String id) {
@@ -71,16 +52,35 @@ public class DatasourceStorageRepositoryCake {
         return Flux.fromIterable(repository.findByDatasourceId(datasourceId));
     }
 
-    public Mono<DatasourceStorage> archive(DatasourceStorage entity) {
-        return Mono.justOrEmpty(repository.archive(entity));
+    public Mono<DatasourceStorage> findById(String id, AclPermission permission) {
+        return Mono.justOrEmpty(repository.findById(id, permission));
     }
 
-    public Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
-        return Mono.justOrEmpty(repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId));
+    public DatasourceStorage updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return repository.updateAndReturn(id, updateObj, permission);
     }
 
-    public Flux<DatasourceStorage> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
+    public DatasourceStorage setUserPermissionsInObject(DatasourceStorage obj) {
+        return repository.setUserPermissionsInObject(obj);
+    }
+
+    public Flux<DatasourceStorage> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission));
+    }
+
+    public DatasourceStorage setUserPermissionsInObject(DatasourceStorage obj, Set<String> permissionGroups) {
+        return repository.setUserPermissionsInObject(obj, permissionGroups);
+    }
+
+    public Flux<DatasourceStorage> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

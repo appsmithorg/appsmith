@@ -33,19 +33,19 @@ public class EmailVerificationTokenRepositoryCake {
         return Mono.justOrEmpty(repository.archive(entity));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    public Mono<EmailVerificationToken> retrieveById(String id) {
+        return Mono.justOrEmpty(repository.retrieveById(id));
     }
 
     public Mono<EmailVerificationToken> findByEmail(String email) {
         return Mono.justOrEmpty(repository.findByEmail(email));
     }
 
-    public Mono<EmailVerificationToken> retrieveById(String id) {
-        return Mono.justOrEmpty(repository.retrieveById(id));
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

@@ -83,7 +83,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Flux<PermissionGroup> findAllByIds(Set<String> ids) {
-        return repository.findAllById(ids);
+        return repository.findAllByIdIn(ids);
     }
 
     @Override

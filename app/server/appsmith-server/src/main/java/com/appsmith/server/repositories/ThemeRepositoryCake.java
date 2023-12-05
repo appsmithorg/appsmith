@@ -31,50 +31,6 @@ public class ThemeRepositoryCake {
     }
     // End from CrudRepository
 
-    public Flux<Theme> getSystemThemes() {
-        return Flux.fromIterable(repository.getSystemThemes());
-    }
-
-    public Flux<Theme> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission));
-    }
-
-    public Mono<Theme> archive(Theme entity) {
-        return Mono.justOrEmpty(repository.archive(entity));
-    }
-
-    public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
-        return Mono.justOrEmpty(repository.archiveDraftThemesById(editModeThemeId, publishedModeThemeId));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
-    }
-
-    public Theme setUserPermissionsInObject(Theme obj, Set<String> permissionGroups) {
-        return repository.setUserPermissionsInObject(obj, permissionGroups);
-    }
-
-    public Theme setUserPermissionsInObject(Theme obj) {
-        return repository.setUserPermissionsInObject(obj);
-    }
-
-    public Mono<Theme> findById(String id, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(id, permission));
-    }
-
-    public Flux<Theme> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
-    }
-
-    public Mono<Theme> getSystemThemeByName(String themeName) {
-        return Mono.justOrEmpty(repository.getSystemThemeByName(themeName));
-    }
-
     public Theme updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
         return repository.updateAndReturn(id, updateObj, permission);
     }
@@ -87,12 +43,56 @@ public class ThemeRepositoryCake {
         return Mono.justOrEmpty(repository.archiveByApplicationId(applicationId));
     }
 
+    public Mono<Theme> retrieveById(String id) {
+        return Mono.justOrEmpty(repository.retrieveById(id));
+    }
+
+    public Flux<Theme> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission));
+    }
+
+    public Theme setUserPermissionsInObject(Theme obj, Set<String> permissionGroups) {
+        return repository.setUserPermissionsInObject(obj, permissionGroups);
+    }
+
+    public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
+        return Mono.justOrEmpty(repository.archiveDraftThemesById(editModeThemeId, publishedModeThemeId));
+    }
+
+    public Mono<Theme> archive(Theme entity) {
+        return Mono.justOrEmpty(repository.archive(entity));
+    }
+
+    public Mono<Theme> findById(String id, AclPermission permission) {
+        return Mono.justOrEmpty(repository.findById(id, permission));
+    }
+
     public Flux<Theme> queryAll(
             List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
     }
 
-    public Mono<Theme> retrieveById(String id) {
-        return Mono.justOrEmpty(repository.retrieveById(id));
+    public Mono<Theme> getSystemThemeByName(String themeName) {
+        return Mono.justOrEmpty(repository.getSystemThemeByName(themeName));
+    }
+
+    public Flux<Theme> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
+    }
+
+    public Flux<Theme> getSystemThemes() {
+        return Flux.fromIterable(repository.getSystemThemes());
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    }
+
+    public Theme setUserPermissionsInObject(Theme obj) {
+        return repository.setUserPermissionsInObject(obj);
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

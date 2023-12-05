@@ -100,7 +100,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     @Override
     public Optional<T> findById(ID id) {
-        return Optional.empty();/*
+        return Optional.empty(); /*
         Assert.notNull(id, "The given id must not be null!");
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
@@ -117,21 +117,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
-    public Optional<T> retrieveById(ID id) {
-        return Optional.empty();/*
-        Query query = new Query(getIdCriteria(id));
-        query.addCriteria(notDeleted());
-
-        return mongoOperations
-                .query(entityInformation.getJavaType())
-                .inCollection(entityInformation.getCollectionName())
-                .matching(query)
-                .one();*/
-    }
-
-    @Override
     public List<T> findAll() {
-        return Collections.emptyList();/*
+        return Collections.emptyList(); /*
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())

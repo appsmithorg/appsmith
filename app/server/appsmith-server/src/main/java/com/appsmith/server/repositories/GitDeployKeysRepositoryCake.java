@@ -29,23 +29,23 @@ public class GitDeployKeysRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<GitDeployKeys> archive(GitDeployKeys entity) {
-        return Mono.justOrEmpty(repository.archive(entity));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
-    }
-
     public Mono<GitDeployKeys> retrieveById(String id) {
         return Mono.justOrEmpty(repository.retrieveById(id));
     }
 
     public Mono<GitDeployKeys> findByEmail(String email) {
         return Mono.justOrEmpty(repository.findByEmail(email));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    }
+
+    public Mono<GitDeployKeys> archive(GitDeployKeys entity) {
+        return Mono.justOrEmpty(repository.archive(entity));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }
