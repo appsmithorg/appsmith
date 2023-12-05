@@ -14,7 +14,6 @@ interface State {
 const ErrorBoundaryContainer = styled.div`
   height: 100%;
   width: 100%;
-  min-width: inherit;
 `;
 
 const RetryLink = styled.span`

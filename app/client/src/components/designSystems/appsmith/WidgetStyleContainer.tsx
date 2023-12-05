@@ -45,7 +45,6 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
 
   display: block;
   overflow: hidden;
-  min-width: inherit;
 
   & > div {
     height: 100%;

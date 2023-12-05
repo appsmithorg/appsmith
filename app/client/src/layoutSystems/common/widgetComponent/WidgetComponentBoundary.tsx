@@ -13,7 +13,6 @@ interface Props {
 const WidgetComponentBoundaryWrapper = styled.div`
   height: 100%;
   width: 100%;
-  min-width: inherit;
 `;
 
 function WidgetComponentBoundary(props: Props) {
