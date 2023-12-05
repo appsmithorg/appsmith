@@ -53,9 +53,7 @@ const clickButtonAndAssertLintError = (
 
 const createMySQLDatasourceQuery = () => {
   // Create Query
-  dataSources.NavigateFromActiveDS(dsName, true);
-  const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
-  dataSources.EnterQuery(tableCreateQuery);
+  dataSources.CreateQueryForDS(dsName, `SELECT * FROM spacecrafts LIMIT 10;`);
 };
 
 describe("Linting", () => {
