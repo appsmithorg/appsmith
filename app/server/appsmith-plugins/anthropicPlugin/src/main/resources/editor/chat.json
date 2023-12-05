@@ -33,21 +33,46 @@
       }
     },
     {
+      "label": "Max Tokens",
+      "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+      "subtitle": "The maximum number of tokens to generate in the chat completion.",
+      "Description": "Put a positive integer value",
+      "configProperty": "actionConfiguration.formData.maxTokens",
+      "controlType": "INPUT_TEXT",
+      "initialValue": "256",
+      "isRequired": true,
+      "dataType": "NUMBER",
+      "customStyles": {
+        "width": "270px",
+        "minWidth": "270px"
+      }
+    },
+    {
       "label": "Messages",
       "tooltipText": "Ask a question",
       "subtitle": "A list of messages comprising the conversation so far.",
       "propertyName": "messages",
       "isRequired": true,
-      "configProperty": "actionConfiguration.formData.messages",
+      "configProperty": "actionConfiguration.formData.messages.data",
       "controlType": "ARRAY_FIELD",
       "addMoreButtonLabel": "Add message",
+      "alternateViewTypes": ["json"],
       "schema": [
         {
           "label": "Role",
           "key": "role",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "user OR system",
-          "initialValue": "user"
+          "controlType": "DROP_DOWN", 
+          "initialValue": "Human",        
+          "options": [
+            {
+              "label": "Human",
+              "value": "Human"
+            },
+            {
+              "label": "Assistant",
+              "value": "Assistant"
+            }
+          ]
         },
         {
           "label": "Content",
@@ -59,13 +84,13 @@
     },
     {
       "label": "Temperature",
-      "tooltipText": "Put a value between 0 and 2",
-      "Description": "Put a value between 0 and 2",
-      "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+      "tooltipText": "Put a value between 0 and 1",
+      "Description": "Put a value between 0 and 1",
+      "subtitle": "Defaults to 1. Ranges from 0 to 1. Use temp closer to 0 for analytical / multiple choice, and closer to 1 for creative and generative tasks.",
       "configProperty": "actionConfiguration.formData.temperature",
       "controlType": "INPUT_TEXT",
       "dataType": "NUMBER",
-      "initialValue": "0",
+      "initialValue": "1",
       "isRequired": false,
       "customStyles": {
         "width": "270px",
