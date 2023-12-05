@@ -138,6 +138,9 @@ function ContainerComponentWrapper(
       ref={containerRef}
       resizeDisabled={props.resizeDisabled}
       shouldScrollContents={!!props.shouldScrollContents}
+      style={{
+        minWidth: "inherit",
+      }}
       tabIndex={props.shouldScrollContents ? undefined : 0}
       type={props.type}
     >

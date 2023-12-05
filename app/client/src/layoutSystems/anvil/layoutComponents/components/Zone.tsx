@@ -26,6 +26,9 @@ class Zone extends AlignedLayoutColumn {
     const defaultTemplate: LayoutProps = {
       insertChild: true,
       layoutId: "",
+      layoutStyle: {
+        minWidth: "min-content",
+      },
       layoutType: LayoutComponentTypes.ALIGNED_WIDGET_ROW,
       layout: [],
     };

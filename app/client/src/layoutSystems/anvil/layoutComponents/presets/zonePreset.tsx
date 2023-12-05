@@ -15,7 +15,7 @@ export const zonePreset = (): LayoutProps[] => {
       layoutStyle: {
         border: "none",
         height: "100%",
-        containerType: "inline-size",
+        minWidth: "min-content",
       },
       layoutType: LayoutComponentTypes.ZONE,
     },

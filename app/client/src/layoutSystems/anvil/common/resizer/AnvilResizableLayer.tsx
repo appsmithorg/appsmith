@@ -6,5 +6,14 @@ export const AnvilResizableLayer = (props: BaseWidgetProps) => {
     return props.children;
   }
   // TODO: Does anvil need a new ResizableComponent?
-  return <div className="w-full h-full">{props.children}</div>;
+  return (
+    <div
+      className="w-full h-full"
+      style={{
+        minWidth: "inherit",
+      }}
+    >
+      {props.children}
+    </div>
+  );
 };

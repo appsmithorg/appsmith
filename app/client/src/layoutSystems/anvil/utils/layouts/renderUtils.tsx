@@ -172,6 +172,7 @@ export function renderWidgetsInAlignedRow(
     parentDropTarget: props.parentDropTarget,
     renderMode: props.renderMode,
     wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
+    minWidth: "auto",
   };
 
   const startChildren: Record<string, WidgetProps> = getChildrenMapForAlignment(

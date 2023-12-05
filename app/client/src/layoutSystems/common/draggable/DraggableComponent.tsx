@@ -26,6 +26,7 @@ const DraggableWrapper = styled.div`
   height: 100%;
   user-select: none;
   cursor: grab;
+  min-width: inherit;
 `;
 
 export interface DraggableComponentProps {
@@ -113,6 +114,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const dragBoundariesStyle: React.CSSProperties = useMemo(() => {
     return {
       opacity: !isResizingOrDragging || isCurrentWidgetResizing ? 0 : 1,
+      minWidth: "inherit",
     };
   }, [isResizingOrDragging, isCurrentWidgetResizing]);
 
