@@ -16,6 +16,9 @@ export function useWidgetBorderStyles(widgetId: string) {
   const isCanvasResizing: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
+  const isDistributingSpace: boolean = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDistributingSpace,
+  );
 
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   if (isPreviewMode) {
@@ -29,17 +32,19 @@ export function useWidgetBorderStyles(widgetId: string) {
   if (isSelected) {
     borderColor = "#F86A2B";
   }
+  const shouldHideBorder =
+    isDragging || isCanvasResizing || isDistributingSpace;
 
   return {
-    border: `1px solid ${
-      isDragging || isCanvasResizing ? "transparent" : borderColor
-    }`,
+    border: `1px solid ${shouldHideBorder ? "transparent" : borderColor}`,
     outline: `1px solid ${
-      !isDragging && (isFocused || isSelected) ? Colors.GREY_1 : "transparent"
+      !shouldHideBorder && (isFocused || isSelected)
+        ? Colors.GREY_1
+        : "transparent"
     }`,
     borderRadius: "4px 0px 4px 4px",
     boxShadow: `0px 0px 0px 1px ${
-      isDragging || isCanvasResizing ? "transparent" : borderColor
+      shouldHideBorder ? "transparent" : borderColor
     }`,
   };
 }

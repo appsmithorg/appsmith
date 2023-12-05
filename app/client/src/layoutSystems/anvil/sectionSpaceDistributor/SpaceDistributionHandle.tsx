@@ -59,6 +59,10 @@ export const SpaceDistributionHandle = ({
     left - SpaceDistributorHandleDimensions.width * 0.5;
   const [leftZone, rightZone] = parentZones;
   const columnWidth = spaceToWorkWith / 12;
+  const minSpacePerBlock = 2;
+  const minLimitBounceBackThreshold = 10 / columnWidth;
+  const minimumShrinkableSpacePerBlock =
+    minSpacePerBlock - minLimitBounceBackThreshold;
   useEffect(() => {
     if (ref.current) {
       if (isDistributingSpace) {
@@ -79,6 +83,12 @@ export const SpaceDistributionHandle = ({
         leftZone: spaceDistributed[leftZone],
         rightZone: spaceDistributed[rightZone],
       };
+      const leftZoneDom = document.getElementById(
+        getAnvilWidgetDOMId(leftZone),
+      );
+      const rightZoneDom = document.getElementById(
+        getAnvilWidgetDOMId(rightZone),
+      );
       const currentGrowthFactor = {
         leftZone: currentFlexGrow.leftZone,
         rightZone: currentFlexGrow.rightZone,
@@ -100,6 +110,7 @@ export const SpaceDistributionHandle = ({
       };
       const removeMouseMoveHandlers = () => {
         if (ref.current && sectionLayoutDom) {
+          ref.current.style.transition = "";
           ref.current.classList.remove("active");
           ref.current.style.left = "";
           setTimeout(() => {
@@ -110,8 +121,6 @@ export const SpaceDistributionHandle = ({
           const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
           if (zoneDom) {
             zoneDom.style.flexGrow = "";
-            zoneDom.style.background = "";
-            zoneDom.style.borderRadius = "";
             zoneDom.style.transition = "all 0.3s ease";
             setTimeout(() => {
               zoneDom.style.transition = "";
@@ -148,6 +157,7 @@ export const SpaceDistributionHandle = ({
           columnIndicatorDiv.style.top = e.clientY + "px";
         }
       };
+      const listenToPositionChangesOfRightZone = () => {};
       const onMouseDown = (e: MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
@@ -160,6 +170,7 @@ export const SpaceDistributionHandle = ({
         addMouseMoveHandlers();
         createColumnIndicator();
         repositionColumnIndicator(e);
+        listenToPositionChangesOfRightZone();
       };
       const onMouseUp = (e: MouseEvent) => {
         e.stopPropagation();
@@ -180,15 +191,33 @@ export const SpaceDistributionHandle = ({
           removeColumnIndicator();
         }
       };
+      const checkForNeedToAddResistiveForce = (
+        leftZoneComputedColumns: number,
+        rightZoneComputedColumns: number,
+        leftZoneDom: HTMLElement,
+        rightZoneDom: HTMLElement,
+      ) => {
+        if (ref.current) {
+          if (leftZoneComputedColumns <= minSpacePerBlock) {
+            leftZoneDom.style.transition = "all 0.6s ease";
+            // ref.current.style.transition = "all 0.6s ease";
+          } else {
+            leftZoneDom.style.transition = "";
+            ref.current.style.transition = "";
+          }
+          if (rightZoneComputedColumns <= minSpacePerBlock) {
+            rightZoneDom.style.transition = "all 0.6s ease";
+            // ref.current.style.transition = "all 0.6s ease";
+          } else {
+            rightZoneDom.style.transition = "";
+            ref.current.style.transition = "";
+          }
+        }
+      };
       const onMouseMove = (e: MouseEvent) => {
         if (ref.current && isCurrentHandleDistributingSpace.current) {
           const dx = e.clientX - x;
-          const leftZoneDom = document.getElementById(
-            getAnvilWidgetDOMId(leftZone),
-          );
-          const rightZoneDom = document.getElementById(
-            getAnvilWidgetDOMId(rightZone),
-          );
+          if (dx === 0) return; // Prevents unnecessary re-renders
           const columnChange = dx / columnWidth;
           const leftZoneComputedColumns =
             currentFlexGrow.leftZone + columnChange;
@@ -201,16 +230,29 @@ export const SpaceDistributionHandle = ({
             rightZoneComputedColumns,
           );
           if (leftZoneDom && rightZoneDom) {
-            if (leftZoneComputedColumns >= 2 && rightZoneComputedColumns >= 2) {
+            if (
+              leftZoneComputedColumns >= minimumShrinkableSpacePerBlock &&
+              rightZoneComputedColumns >= minimumShrinkableSpacePerBlock
+            ) {
+              checkForNeedToAddResistiveForce(
+                leftZoneComputedColumns,
+                rightZoneComputedColumns,
+                leftZoneDom,
+                rightZoneDom,
+              );
               leftZoneDom.style.background = "";
               rightZoneDom.style.background = "";
               leftZoneDom.style.flexGrow = Math.max(
                 leftZoneComputedColumns,
-                2,
+                minSpacePerBlock,
               ).toString();
               rightZoneDom.style.flexGrow = Math.max(
                 rightZoneComputedColumns,
+                minSpacePerBlock,
               ).toString();
+              const spaceBetweenZones =
+                rightZoneDom.offsetLeft -
+                (leftZoneDom.offsetLeft + leftZoneDom.clientWidth);
               const updatedLeft =
                 rightZoneDom.offsetLeft -
                 spaceBetweenZones * 0.5 -
@@ -227,32 +269,39 @@ export const SpaceDistributionHandle = ({
                 } / ${SectionColumns}`;
               }
             } else {
-              if (leftZoneComputedColumns < 2) {
-                leftZoneDom.style.flexGrow = "2";
-                leftZoneDom.style.borderRadius = "4px";
-                leftZoneDom.style.background = "red";
+              if (leftZoneComputedColumns < minimumShrinkableSpacePerBlock) {
+                leftZoneDom.style.flexGrow = `${minimumShrinkableSpacePerBlock}`;
                 rightZoneDom.style.flexGrow = (
                   currentFlexGrow.rightZone +
                   currentFlexGrow.leftZone -
-                  2
+                  minSpacePerBlock
                 ).toString();
+                const spaceBetweenZones =
+                  rightZoneDom.offsetLeft -
+                  (leftZoneDom.offsetLeft + leftZoneDom.clientWidth);
                 const updatedLeft =
                   rightZoneDom.offsetLeft -
                   spaceBetweenZones * 0.5 -
                   SpaceDistributorHandleDimensions.width * 0.5;
                 lastValidHandlePosition = updatedLeft;
                 ref.current.style.left = updatedLeft + "px";
-                currentGrowthFactor.leftZone = 2;
+                currentGrowthFactor.leftZone = minSpacePerBlock;
                 currentGrowthFactor.rightZone =
-                  currentFlexGrow.rightZone + currentFlexGrow.leftZone - 2;
-              } else if (rightZoneComputedColumns < 2) {
-                rightZoneDom.style.flexGrow = "2";
-                rightZoneDom.style.background = "red";
+                  currentFlexGrow.rightZone +
+                  currentFlexGrow.leftZone -
+                  minSpacePerBlock;
+              } else if (
+                rightZoneComputedColumns < minimumShrinkableSpacePerBlock
+              ) {
+                rightZoneDom.style.flexGrow = `${minimumShrinkableSpacePerBlock}`;
                 leftZoneDom.style.flexGrow = (
                   currentFlexGrow.rightZone +
                   currentFlexGrow.leftZone -
-                  2
+                  minSpacePerBlock
                 ).toString();
+                const spaceBetweenZones =
+                  rightZoneDom.offsetLeft -
+                  (leftZoneDom.offsetLeft + leftZoneDom.clientWidth);
                 const updatedLeft =
                   rightZoneDom.offsetLeft -
                   spaceBetweenZones * 0.5 -
@@ -260,8 +309,10 @@ export const SpaceDistributionHandle = ({
                 lastValidHandlePosition = updatedLeft;
                 ref.current.style.left = updatedLeft + "px";
                 currentGrowthFactor.leftZone =
-                  currentFlexGrow.rightZone + currentFlexGrow.leftZone - 2;
-                currentGrowthFactor.rightZone = 2;
+                  currentFlexGrow.rightZone +
+                  currentFlexGrow.leftZone -
+                  minSpacePerBlock;
+                currentGrowthFactor.rightZone = minSpacePerBlock;
               }
               ref.current.style.left = lastValidHandlePosition + "px";
             }
@@ -281,6 +332,7 @@ export const SpaceDistributionHandle = ({
     }
   }, [
     columnPosition,
+    minimumShrinkableSpacePerBlock,
     layoutElementPositions,
     left,
     parentZones,
