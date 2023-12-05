@@ -27,7 +27,7 @@ public class SearchEntityControllerCE {
     @GetMapping("")
     public Mono<ResponseDTO<SearchEntityDTO>> getAllUnpublishedActionCollections(
             @RequestParam(required = false) String[] entities,
-            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size) {
         log.debug("Going to search for entities with search string: {}", keyword);

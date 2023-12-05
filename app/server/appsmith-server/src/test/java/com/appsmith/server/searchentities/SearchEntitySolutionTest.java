@@ -19,7 +19,7 @@ import java.util.UUID;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @SpringBootTest
-class SearchEntitySolutionCETest {
+class SearchEntitySolutionTest {
 
     @Autowired
     ApplicationPageService applicationPageService;
@@ -85,6 +85,31 @@ class SearchEntitySolutionCETest {
 
                     Workspace workspace1 = searchEntityDTO.getWorkspaces().get(0);
                     assertThat(workspace1.getName()).contains(searchString);
+                })
+                .verifyComplete();
+
+        // Clean up
+        applicationPageService.deleteApplication(application.getId()).block();
+        workspaceService.archiveById(workspace.getId()).block();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void searchEntity_fetchAllEntities_nullSearchString_returnsPaginatedResult() {
+        Workspace workspace = workspaceService
+                .create(mockWorkspace(UUID.randomUUID().toString()))
+                .block();
+        assert workspace != null;
+        Application application =
+                mockNonGitConnectedApplication(UUID.randomUUID().toString(), workspace);
+        applicationPageService.createApplication(application, workspace.getId()).block();
+        Mono<SearchEntityDTO> searchEntityDTOMono =
+                searchEntitySolution.searchEntity(new String[] {}, null, 0, 10, true);
+
+        StepVerifier.create(searchEntityDTOMono)
+                .assertNext(searchEntityDTO -> {
+                    assertThat(searchEntityDTO.getApplications()).hasSize(1);
+                    assertThat(searchEntityDTO.getWorkspaces()).hasSize(1);
                 })
                 .verifyComplete();
 

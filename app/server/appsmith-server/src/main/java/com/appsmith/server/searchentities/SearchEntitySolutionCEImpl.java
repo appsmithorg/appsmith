@@ -13,6 +13,7 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -35,8 +36,10 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
 
     /**
      * This method searches for workspaces and applications based on the searchString provided.
-     * The search is performed on the name field of the entities and is case-insensitive.
+     * The search is performed with contains operator on the name field of the entities and is case-insensitive.
      * The search results are sorted by the updated_at field in descending order.
+     * searchString = "test" will return all entities with name containing "test".
+     * e.g. "test_app", "test_workspace", "appTest", "wsTest_random" etc.
      *
      * @param entities                  The list of entities to search for. If null or empty, all entities are searched.
      * @param searchString              The string to search for in the name field of the entities.
@@ -54,7 +57,7 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
         }
         Pageable pageable = Pageable.ofSize(size).withPage(page);
         Sort sort = Sort.by(Sort.Direction.DESC, FieldName.UPDATED_AT);
-
+        searchString = StringUtils.hasLength(searchString) ? searchString.trim() : "";
         // If no entities are specified, search for all entities.
         Mono<List<Workspace>> workspacesMono = Mono.just(new ArrayList<>());
         if (shouldSearchEntity(Workspace.class, entities)) {
