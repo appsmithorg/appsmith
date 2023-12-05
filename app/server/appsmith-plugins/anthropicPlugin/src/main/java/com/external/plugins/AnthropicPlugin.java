@@ -49,6 +49,7 @@ import static com.external.plugins.constants.AnthropicConstants.LABEL;
 import static com.external.plugins.constants.AnthropicConstants.TEST_MODEL;
 import static com.external.plugins.constants.AnthropicConstants.TEST_PROMPT;
 import static com.external.plugins.constants.AnthropicConstants.VALUE;
+import static com.external.plugins.constants.AnthropicErrorMessages.EMPTY_API_KEY;
 import static com.external.plugins.constants.AnthropicErrorMessages.INVALID_API_KEY;
 import static com.external.plugins.constants.AnthropicErrorMessages.QUERY_FAILED_TO_EXECUTE;
 
@@ -66,7 +67,10 @@ public class AnthropicPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
-            assert apiKeyAuth.getValue() != null;
+            if (!StringUtils.hasText(apiKeyAuth.getValue())) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, EMPTY_API_KEY));
+            }
 
             AnthropicCommand anthropicCommand = AnthropicMethodStrategy.selectExecutionMethod(AnthropicConstants.CHAT);
             URI uri = anthropicCommand.createExecutionUri();
@@ -124,7 +128,14 @@ public class AnthropicPlugin extends BasePlugin {
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, parameters, objectMapper);
 
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
-            assert apiKeyAuth.getValue() != null;
+
+            if (!StringUtils.hasText(apiKeyAuth.getValue())) {
+                ActionExecutionResult apiKeyNotPresentErrorResult = new ActionExecutionResult();
+                apiKeyNotPresentErrorResult.setIsExecutionSuccess(false);
+                apiKeyNotPresentErrorResult.setErrorInfo(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, EMPTY_API_KEY));
+                return Mono.just(apiKeyNotPresentErrorResult);
+            }
 
             return RequestUtils.makeRequest(httpMethod, uri, apiKeyAuth, BodyInserters.fromValue(anthropicRequestDTO))
                     .flatMap(responseEntity -> {
@@ -198,6 +209,10 @@ public class AnthropicPlugin extends BasePlugin {
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
             assert apiKeyAuth.getValue() != null;
+            if (!StringUtils.hasText(apiKeyAuth.getValue())) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, EMPTY_API_KEY));
+            }
             if (!StringUtils.hasText(request.getRequestType())) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "request type is missing");
