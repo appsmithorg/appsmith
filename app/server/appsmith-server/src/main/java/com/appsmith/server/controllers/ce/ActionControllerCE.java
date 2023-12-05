@@ -200,7 +200,7 @@ public class ActionControllerCE {
     public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(
             @PathVariable String pageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to get all actions with pageId: {}, branch: {}", pageId, branchName);
+        log.debug("Going to get all actions in application using pageId: {}, branch: {}", pageId, branchName);
         // We handle JS actions as part of the collections request, so that all the contextual variables are also picked
         // up
         return newActionService
