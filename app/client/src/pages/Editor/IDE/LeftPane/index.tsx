@@ -33,7 +33,7 @@ const LeftPane = () => {
   );
   const { path } = useRouteMatch();
   const guidedTourEnabled = useSelector(inGuidedTour);
-  if (!isPagesPaneEnabled || guidedTourEnabled) {
+  if (guidedTourEnabled) {
     return <WidgetsEditorEntityExplorer />;
   }
   return (
