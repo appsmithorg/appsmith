@@ -1240,7 +1240,8 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.listBranches(Mockito.any())).thenReturn(Mono.just(List.of()));
 
         Application branchedApplication = runAs(
-                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/" + branchName), api_user)
+                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/" + branchName, true),
+                        api_user)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         branchName, gitConnectedApplication.getId(), READ_APPLICATIONS))
                 .block();
@@ -1519,7 +1520,8 @@ public class GitServiceWithRBACTest {
                 .block();
 
         Mono<Application> applicationMono = runAs(
-                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal"), user)
+                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal", true),
+                        user)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         "branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
 
@@ -1580,7 +1582,8 @@ public class GitServiceWithRBACTest {
         permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
         Mono<Application> applicationMono = runAs(
-                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal"), user)
+                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal", true),
+                        user)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         "branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
 
