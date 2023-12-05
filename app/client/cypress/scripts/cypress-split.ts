@@ -252,6 +252,15 @@ export class cypressSplit {
             ignorePattern,
             attemptId,
           );
+
+          specs = specs.map((spec) => {
+            console.log("Specs to run in abs path: ", spec);
+            const relativePath = spec.replace(process.cwd(), ''); // Convert absolute path to relative path
+            console.log("Specs to run in relative path: ", relativePath);
+            return relativePath;
+          });
+
+        
           return specs;
         } else {
           await this.sleep(5000);
@@ -334,23 +343,8 @@ export class cypressSplit {
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
 
-      if (cypressSpecs && cypressSpecs !== "") {
-        specPattern = cypressSpecs
-          ?.split(",")
-          .filter((val) => val !== "")
-          .map((specPath: string) => {
-            if (!specPath.startsWith('***/e2e/')) {
-              console.log("Processing: ", specPath);
-              const match = specPath.match(/(?<=\*\*\*\/e2e\/).*$/);
-              return match ? `***/e2e/${match[0]}` : specPath;
-            }
-            return specPath;
-          }) || [];
-  
-        console.log("------------------ Specs after comma split------------------");
-        console.log("Specs Pattern: ", specPattern);
-        console.log("------------------ Specs comma split end------------------");
-      }
+      if (cypressSpecs != "")
+        specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
   
 
       if (this.util.getVars().cypressRerun === "true") {
