@@ -52,6 +52,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
             updateLength: updates.length,
           },
         });
+        throw new Error("some error");
       }
     }
   },

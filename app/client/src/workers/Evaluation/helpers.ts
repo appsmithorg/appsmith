@@ -269,18 +269,14 @@ const generateDiffUpdates = (
 
       const lhs = get(oldDataTree, segmentedPath);
 
-      //convert all invalid moment objects to nulls ...
-      //large collect nodes are anyway getting serialised so the invalid objects will be converted to nulls
-      if (isMoment(rhs) && !rhs.isValid()) {
-        if (lhs === undefined || lhs !== null) {
-          attachDirectly.push({
-            kind: "E",
-            lhs,
-            rhs: null as any,
-            path: segmentedPath,
-          });
-        }
-        // ignore invalid moment objects
+      //  if we have serialise all moment updates
+      if (isMoment(rhs)) {
+        attachDirectly.push({
+          kind: "N",
+          rhs: rhs as any,
+          path: segmentedPath,
+        });
+        // ignore trying to diff invalid moment objects
         return true;
       }
       if (rhs === undefined) {
