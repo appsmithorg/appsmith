@@ -333,32 +333,25 @@ export class cypressSplit {
       const cypressSpecs = this.util.getVars().cypressSpecs;
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
-      if (Array.isArray(specPattern)) {
-        specPattern = specPattern.map((specPath: string) => {
-          console.log("------------------ In Array ------------------")
 
-          const parts = specPath.split('***/e2e/');
-          return parts.length > 1 ? `***/e2e/${parts[1]}` : specPath;
-        });
-      } else if (typeof specPattern === 'string' && specPattern.includes('***/e2e/')) {
-        console.log("------------------ In String ------------------")
-        const parts = specPattern.split('***/e2e/');
-        specPattern = parts.length > 1 ? `***/e2e/${parts[1]}` : specPattern;
+      if (cypressSpecs && cypressSpecs !== "") {
+        specPattern = cypressSpecs
+          ?.split(",")
+          .filter((val) => val !== "")
+          .map((specPath: string) => {
+            if (!specPath.startsWith('***/e2e/')) {
+              console.log("Processing: ", specPath);
+              const match = specPath.match(/(?<=\*\*\*\/e2e\/).*$/);
+              return match ? `***/e2e/${match[0]}` : specPath;
+            }
+            return specPath;
+          }) || [];
+  
+        console.log("------------------ Specs after comma split------------------");
+        console.log("Specs Pattern: ", specPattern);
+        console.log("------------------ Specs comma split end------------------");
       }
   
-
-      if (typeof specPattern === 'string' && !specPattern.startsWith('***/e2e')) {
-        specPattern = specPattern.replace(/^[^/]+/, '***/e2e'); // Replacing the initial part of the path
-        console.log("------------------ specPattern in replace------------------")
-        console.log("Specs Pattern: ", specPattern)
-        console.log("------------------replace end------------------")
-      }
-      
-      if (cypressSpecs != "")
-        specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
-        console.log("------------------ Specs after comma split------------------")
-        console.log("Specs Pattern: ", specPattern)
-        console.log("------------------Specs  comma split end------------------")
 
       if (this.util.getVars().cypressRerun === "true") {
         specPattern =
