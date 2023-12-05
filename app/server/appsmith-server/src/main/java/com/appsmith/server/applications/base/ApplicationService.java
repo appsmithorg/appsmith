@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.applications.base;
 
 import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatible;
 

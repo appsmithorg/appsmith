@@ -560,6 +560,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       hiddenHeader,
       isDeleting,
       isInsideReconnectModal,
+      isOnboardingFlow,
       isPluginAuthFailed,
       isPluginAuthorized,
       isSaving,
@@ -685,6 +686,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     getSanitizedFormData={memoize(this.getSanitizedData)}
                     isInsideReconnectModal={isInsideReconnectModal}
                     isInvalid={validate(this.props.requiredFields, formData)}
+                    isOnboardingFlow={isOnboardingFlow}
                     isSaving={isSaving}
                     isTesting={isTesting}
                     onCancel={() => this.onCancel()}

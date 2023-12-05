@@ -38,6 +38,7 @@ import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSel
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { resetCurrentPluginIdForCreateNewApp } from "actions/onboardingActions";
 
 interface Props {
   datasource: Datasource;
@@ -65,6 +66,7 @@ interface Props {
   isFormDirty?: boolean;
   scopeValue?: string;
   onCancel: () => void;
+  isOnboardingFlow?: boolean;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -137,6 +139,7 @@ function DatasourceAuth({
   isFormDirty,
   isInsideReconnectModal,
   isInvalid,
+  isOnboardingFlow,
   isSaving,
   isTesting,
   onCancel,
@@ -343,12 +346,20 @@ function DatasourceAuth({
           kind="tertiary"
           onClick={() => {
             if (createMode) {
-              const URL = integrationEditorURL({
-                pageId,
-                selectedTab: INTEGRATION_TABS.NEW,
-                params: getQueryParams(),
-              });
-              history.push(URL);
+              if (!!isOnboardingFlow) {
+                // Going back from start from data screen
+                AnalyticsUtil.logEvent(
+                  "ONBOARDING_FLOW_DATASOURCE_FORM_CANCEL_CLICK",
+                );
+                dispatch(resetCurrentPluginIdForCreateNewApp());
+              } else {
+                const URL = integrationEditorURL({
+                  pageId,
+                  selectedTab: INTEGRATION_TABS.NEW,
+                  params: getQueryParams(),
+                });
+                history.push(URL);
+              }
             } else {
               !!onCancel && onCancel();
             }
