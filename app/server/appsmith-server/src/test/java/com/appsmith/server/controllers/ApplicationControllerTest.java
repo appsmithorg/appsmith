@@ -1,5 +1,6 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.constants.Url;
@@ -14,7 +15,6 @@ import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
