@@ -39,7 +39,6 @@ public enum FeatureFlagEnum {
     ab_mock_mongo_schema_enabled,
     rollout_datasource_test_rate_limit_enabled,
     release_query_module_enabled,
-    ab_onboarding_flow_start_with_data_dev_only_enabled,
 
     // Add EE flags below this line, to avoid conflicts.
     RBAC,
