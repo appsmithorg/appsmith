@@ -1,14 +1,14 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  homePage,
-  dataSources,
-  table,
-  entityItems,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  homePage,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
@@ -98,7 +98,7 @@ describe("Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "orders");
 
