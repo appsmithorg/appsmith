@@ -9,9 +9,9 @@
     </parent>
 
     <groupId>com.external.plugins</groupId>
-    <artifactId>openAiPlugin</artifactId>
+    <artifactId>anthropicPlugin</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>openAiPlugin</name>
+    <name>anthropicPlugin</name>
     <url>http://maven.apache.org</url>
 
     <dependencies>
@@ -65,22 +65,10 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${jackson-bom.version}</version>
         </dependency>
-
         <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-            <version>${jjwt.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <version>${jjwt.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <!-- or jjwt-gson if Gson is preferred -->
-            <version>${jjwt.version}</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.0.1-jre</version>
         </dependency>
 
         <!--
@@ -114,49 +102,7 @@
             <artifactId>reactor-netty-http</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>32.0.1-jre</version>
-        </dependency>
 
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-shade-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>io.jsonwebtoken</groupId>
-                                    <artifactId>jjwt-api</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>io.jsonwebtoken</groupId>
-                                    <artifactId>jjwt-impl</artifactId>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>io.jsonwebtoken</groupId>
-                                    <artifactId>jjwt-jackson</artifactId>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
