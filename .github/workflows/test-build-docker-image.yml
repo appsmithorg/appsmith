@@ -59,7 +59,6 @@ jobs:
   server-unit-tests:
     name: server-unit-tests
     needs: [build-docker-image]
-    if: needs.path-filter.outputs.server == 'true'
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
@@ -69,7 +68,6 @@ jobs:
   client-unit-tests:
     name: client-unit-tests
     needs: [build-docker-image]
-    if: needs.path-filter.outputs.client == 'true'
     uses: ./.github/workflows/client-unit-tests.yml
     secrets: inherit
     with:
