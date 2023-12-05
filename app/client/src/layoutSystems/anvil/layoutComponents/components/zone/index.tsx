@@ -1,5 +1,5 @@
 import React from "react";
-import AlignedLayoutColumn from "./AlignedLayoutColumn";
+import AlignedLayoutColumn from "../AlignedLayoutColumn";
 import type {
   LayoutComponentProps,
   LayoutProps,
@@ -7,7 +7,7 @@ import type {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import { isLargeWidget } from "layoutSystems/anvil/utils/layouts/widgetUtils";
-import { FlexLayout } from "./FlexLayout";
+import { ZoneColumn } from "./ZoneColumn";
 
 class Zone extends AlignedLayoutColumn {
   constructor(props: LayoutComponentProps) {
@@ -51,37 +51,11 @@ class Zone extends AlignedLayoutColumn {
   }
 
   render() {
-    const {
-      canvasId,
-      isContainer,
-      isDropTarget,
-      layoutId,
-      layoutIndex,
-      layoutStyle,
-      layoutType,
-      parentDropTarget,
-      renderMode,
-    } = this.props;
-
     return (
-      <FlexLayout
-        alignSelf={"stretch"}
-        canvasId={canvasId}
-        direction="column"
-        flexGrow={1}
-        flexShrink={1}
-        isContainer={!!isContainer}
-        isDropTarget={!!isDropTarget}
-        layoutId={layoutId}
-        layoutIndex={layoutIndex}
-        layoutType={layoutType}
-        parentDropTarget={parentDropTarget}
-        renderMode={renderMode}
-        {...(layoutStyle || {})}
-      >
+      <ZoneColumn {...this.props}>
         {this.renderDraggingArena()}
         {this.renderChildLayouts()}
-      </FlexLayout>
+      </ZoneColumn>
     );
   }
 }

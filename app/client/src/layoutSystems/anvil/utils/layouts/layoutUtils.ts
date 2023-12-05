@@ -14,7 +14,7 @@ import LayoutColumn from "layoutSystems/anvil/layoutComponents/components/Layout
 import LayoutRow from "layoutSystems/anvil/layoutComponents/components/LayoutRow";
 import WidgetColumn from "layoutSystems/anvil/layoutComponents/components/WidgetColumn";
 import WidgetRow from "layoutSystems/anvil/layoutComponents/components/WidgetRow";
-import Zone from "layoutSystems/anvil/layoutComponents/components/Zone";
+import Zone from "layoutSystems/anvil/layoutComponents/components/zone";
 import Section from "layoutSystems/anvil/layoutComponents/components/Section";
 
 const layoutComponents = [
