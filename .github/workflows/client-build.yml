@@ -54,7 +54,7 @@ jobs:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: refs/pull/${{ inputs.pr }}/merge
@@ -62,7 +62,7 @@ jobs:
       # Check out the specified branch in case this workflow is called by another workflow
       - name: Checkout the specified branch
         if: inputs.pr == 0 && inputs.branch != ''
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.branch }}
 
