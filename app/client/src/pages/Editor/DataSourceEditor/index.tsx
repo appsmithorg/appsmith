@@ -1188,7 +1188,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     defaultKeyValueArrayConfig,
     initialValue,
     showDebugger,
-    isAppSidebarEnabled,
   };
 };
 
