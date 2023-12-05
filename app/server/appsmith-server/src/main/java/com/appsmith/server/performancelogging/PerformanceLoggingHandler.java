@@ -67,9 +67,7 @@ class PerformanceLoggingHandler implements ObservationHandler<Observation.Contex
                     context.getName(),
                     executionTime,
                     urlName,
-                    memoryFootprint()
-                    // context.toString()
-                    );
+                    memoryFootprint());
         }
     }
 
