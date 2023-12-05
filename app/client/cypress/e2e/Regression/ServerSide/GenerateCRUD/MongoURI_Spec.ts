@@ -188,7 +188,7 @@ describe("Validate Mongo URI CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     PageList.AddNewPage();
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
     dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
     dataSources.RunQuery({ toValidateResponse: false });
     dataSources.AddSuggestedWidget(Widgets.Table);

@@ -45,6 +45,7 @@ import type {
   EvalTreeResponseData,
   JSVarMutatedEvents,
 } from "workers/Evaluation/types";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -198,6 +199,7 @@ export function* updateTernDefinitions(
   isCreateFirstTree: boolean,
   jsData: Record<string, unknown> = {},
 ) {
+  const span = startRootSpan("updateTernDefinitions");
   const shouldUpdate: boolean =
     isCreateFirstTree ||
     some(updates, (update) => {
@@ -215,7 +217,10 @@ export function* updateTernDefinitions(
       );
     });
 
-  if (!shouldUpdate) return;
+  if (!shouldUpdate) {
+    endSpan(span);
+    return;
+  }
   const start = performance.now();
 
   // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
@@ -232,6 +237,7 @@ export function* updateTernDefinitions(
   const end = performance.now();
   log.debug("Tern", { updates });
   log.debug("Tern definitions updated took ", (end - start).toFixed(2));
+  endSpan(span);
 }
 
 export function* handleJSFunctionExecutionErrorLog(
