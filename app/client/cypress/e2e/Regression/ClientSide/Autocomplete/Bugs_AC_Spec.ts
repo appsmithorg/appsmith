@@ -99,7 +99,7 @@ describe("Autocomplete bug fixes", function () {
       installer.OpenInstaller();
       installer.InstallLibrary("uuidjs", "UUID");
       installer.CloseInstaller();
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.TypeTextIntoField("Text", "{{UUI");
       agHelper.GetNAssertElementText(locators._hints, "UUID");
@@ -113,7 +113,7 @@ describe("Autocomplete bug fixes", function () {
       entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.uninstallLibrary("uuidjs");
-      AppSidebar.navigate(AppSidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       propPane.TypeTextIntoField("Text", "{{UUID.");
       agHelper.AssertElementAbsence(locators._hints);
     },

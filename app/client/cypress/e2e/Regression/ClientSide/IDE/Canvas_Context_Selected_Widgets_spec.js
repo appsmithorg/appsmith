@@ -185,7 +185,9 @@ describe("Canvas context widget selection", function () {
 
   it("7. Widget inside modal should be selected and modal should be open while switching back and forth betw_.entityExplorer.n pages", function () {
     //select widget in page1
-    _.entityExplorer.SelectEntityInModal("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+      "Modal1",
+    ]);
 
     //verify the Modal1 is open and Text1 is selected in page1
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
@@ -212,7 +214,9 @@ describe("Canvas context widget selection", function () {
 
   it("8. Widget inside modal should be selected and modal should be open while switching back to page from API pane", function () {
     //select widget in page1
-    _.entityExplorer.SelectEntityInModal("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+      "Modal1",
+    ]);
 
     //verify the Modal1 is open and Text1 is selected in page1
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
@@ -237,8 +241,8 @@ describe("Canvas context widget selection", function () {
     //switch to tab 2 and select widget a button inside tab 2 in page1
     cy.get(".t--tabid-tab2").click({ force: true });
     EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
-    _.entityExplorer.ExpandCollapseEntity("Tabs1", true);
-    _.entityExplorer.ExpandCollapseEntity("Tab 2", true);
+    PageLeftPane.expandCollapseItem("Tabs1", true);
+    PageLeftPane.expandCollapseItem("Tab 2", true);
     EditorNavigation.SelectEntityByName("Button4", EntityType.Widget);
 
     //verify the tab 2 is open and Button 4 is selected in page1
@@ -266,8 +270,8 @@ describe("Canvas context widget selection", function () {
     //switch to tab 2 and select widget a button inside tab 2 in page1
     cy.get(".t--tabid-tab2").click({ force: true });
     EditorNavigation.SelectEntityByName("Tabs1", EntityType.Widget);
-    _.entityExplorer.ExpandCollapseEntity("Tabs1", true);
-    _.entityExplorer.ExpandCollapseEntity("Tab 2", true);
+    PageLeftPane.expandCollapseItem("Tabs1", true);
+    PageLeftPane.expandCollapseItem("Tab 2", true);
     EditorNavigation.SelectEntityByName("Button4", EntityType.Widget);
 
     //verify the tab 2 is open and Button 4 is selected in page1
@@ -289,7 +293,9 @@ describe("Canvas context widget selection", function () {
 
   it("11. Widgets inside modal widget should open when loaded from the URL", function () {
     //select widget in page1
-    _.entityExplorer.SelectEntityInModal("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
+      "Modal1",
+    ]);
 
     //verify the Modal1 is open and Text1 is selected in page1
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
@@ -314,7 +320,9 @@ describe("Canvas context widget selection", function () {
       cy.wait(4000);
 
       //select widget in page1
-      _.entityExplorer.SelectEntityInModal("Modal1", "Widgets");
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, [
+        "Modal1",
+      ]);
 
       //verify the Modal1 is open and Text1 is selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 1);

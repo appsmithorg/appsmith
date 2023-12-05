@@ -1,3 +1,5 @@
+import { PageLeftPane } from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
@@ -210,14 +212,14 @@ describe("Button Widget Functionality", function () {
   it("10. Button-Copy & Delete Verification", function () {
     //Copy button and verify all properties
     _.agHelper.Sleep();
-    _.entityExplorer.ExpandCollapseEntity("Widgets");
-    _.entityExplorer.ExpandCollapseEntity("Container3");
+    PageLeftPane.expandCollapseItem("Widgets");
+    PageLeftPane.expandCollapseItem("Container3");
     _.propPane.CopyPasteWidgetFromPropertyPane("Submitbutton");
     //cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
     //_.deployMode.NavigateBacktoEditor();
     // Delete the button widget
 
-    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    PageLeftPane.expandCollapseItem("Container3", "Widgets");
     _.propPane.DeleteWidgetFromPropertyPane("SubmitbuttonCopy");
     _.deployMode.DeployApp();
     cy.get(widgetsPage.buttonWidget).should("not.exist");

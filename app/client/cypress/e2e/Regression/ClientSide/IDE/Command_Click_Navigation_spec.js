@@ -1,14 +1,13 @@
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
-import { PROPERTY_SELECTOR } from "../../../../locators/WidgetLocators";
 import {
   agHelper,
   homePage,
-  entityExplorer,
   locators,
   gitSync,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const NAVIGATION_ATTRIBUTE = "data-navigate-to";
@@ -52,7 +51,7 @@ describe("1. CommandClickNavigation", function () {
 
     //Assert link and and style
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    entityExplorer.ExpandCollapseEntity("Widgets");
+    PageLeftPane.expandCollapseItem("Widgets");
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
       "Container1",
     ]);
@@ -131,7 +130,7 @@ describe("1. CommandClickNavigation", function () {
       repoName = repName;
     });
 
-    entityExplorer.ExpandCollapseEntity("Widgets");
+    PageLeftPane.expandCollapseItem("Widgets");
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
       "Container1",
     ]);

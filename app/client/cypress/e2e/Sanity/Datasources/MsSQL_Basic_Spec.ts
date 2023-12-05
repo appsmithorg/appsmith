@@ -1,22 +1,24 @@
 import {
   agHelper,
   assertHelper,
-  propPane,
+  dataManager,
   dataSources,
-  entityItems,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  table,
-  dataManager,
+  entityItems,
   locators,
-  deployMode,
+  propPane,
+  table,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
 import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spec_utility";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../support/Pages/EditorNavigation";
+import PageList from "../../../support/Pages/PageList";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -280,8 +282,8 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   });
 
   it("5. Add new Page and generate CRUD template using created datasource", () => {
-    entityExplorer.AddNewPage();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage();
+    PageList.AddNewPage("Generate page with data");
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
@@ -303,7 +305,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page2",
       action: "Delete",
@@ -320,7 +322,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   });
 
   it("6. Generate CRUD page from datasource present in ACTIVE section", function () {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(
       dataSources._dropdownOption,

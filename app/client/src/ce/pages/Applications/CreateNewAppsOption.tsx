@@ -53,11 +53,15 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
 import localStorage from "utils/localStorage";
-import { getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { fetchMockDatasources } from "actions/datasourceActions";
+import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
+import type { Datasource } from "entities/Datasource";
+import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -130,6 +134,8 @@ const CardContainer = styled.div`
 const WithDataWrapper = styled.div`
   background: var(--ads-v2-color-bg);
   padding: var(--ads-v2-spaces-13);
+  border: 1px solid var(--ads-v2-color-gray-300);
+  border-radius: 5px;
 `;
 
 const Header = ({ subtitle, title }: { subtitle: string; title: string }) => {
@@ -188,6 +194,9 @@ const CreateNewAppsOption = ({
   const selectedPlugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, createNewAppPluginId || ""),
   );
+  const selectedDatasource: Datasource | undefined = useSelector((state) =>
+    getDatasource(state, TEMP_DATASOURCE_ID || ""),
+  );
 
   const application = useSelector((state) =>
     getApplicationByIdFromWorkspaces(
@@ -233,6 +242,10 @@ const CreateNewAppsOption = ({
       // fetch plugins information to show list of all plugins
       if (isEnabledForStartWithData) {
         dispatch(fetchPlugins());
+        dispatch(fetchMockDatasources());
+        if (application?.workspaceId) {
+          dispatch(fetchingEnvironmentConfigs(application?.workspaceId, true));
+        }
         setUseType(START_WITH_TYPE.DATA);
       }
     } else {
@@ -355,14 +368,14 @@ const CreateNewAppsOption = ({
   const selectionOptions: CardProps[] = [
     {
       onClick: onClickStartFromScratch,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-scratch.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-from-scratch.svg`),
       subTitle: createMessage(START_FROM_SCRATCH_SUBTITLE),
       testid: "t--start-from-scratch",
       title: createMessage(START_FROM_SCRATCH_TITLE),
     },
     {
       onClick: onClickStartFromTemplate,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-usecase.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-from-templates.svg`),
       subTitle: createMessage(START_FROM_TEMPLATE_SUBTITLE),
       testid: "t--start-from-template",
       title: createMessage(START_FROM_TEMPLATE_TITLE),
@@ -372,7 +385,7 @@ const CreateNewAppsOption = ({
   if (isEnabledForStartWithData) {
     selectionOptions.unshift({
       onClick: onClickStartWithData,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-data.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-with-data.svg`),
       subTitle: createMessage(START_WITH_DATA_SUBTITLE),
       testid: "t--start-from-data",
       title: createMessage(START_WITH_DATA_TITLE),
@@ -454,13 +467,19 @@ const CreateNewAppsOption = ({
             title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
           />
           <WithDataWrapper>
-            {createNewAppPluginId ? (
+            {createNewAppPluginId && !!selectedDatasource ? (
               selectedPlugin?.type === PluginType.SAAS ? (
-                <div>Load Gsheets</div>
+                <DatasourceForm
+                  datasourceId={TEMP_DATASOURCE_ID}
+                  isOnboardingFlow
+                  pageId={application?.defaultPageId || ""}
+                  pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
+                />
               ) : (
                 <DataSourceEditor
                   applicationId={currentApplicationIdForCreateNewApp}
                   datasourceId={TEMP_DATASOURCE_ID}
+                  isOnboardingFlow
                   pageId={application?.defaultPageId}
                 />
               )

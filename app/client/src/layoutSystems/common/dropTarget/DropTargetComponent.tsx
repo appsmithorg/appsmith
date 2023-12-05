@@ -50,7 +50,7 @@ import StarterBuildingBlocks from "./starterBuildingBlocks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import useCurrentAppState from "pages/Editor/IDE/hooks";
-import { AppState as IDEAppState } from "entities/IDE/constants";
+import { EditorState as IDEAppState } from "entities/IDE/constants";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -103,9 +103,9 @@ function Onboarding() {
     })();
   }, [user, currentApplicationId]);
 
-  if (shouldShowStarterTemplates && appState === IDEAppState.PAGES)
+  if (shouldShowStarterTemplates && appState === IDEAppState.EDITOR)
     return <StarterBuildingBlocks />;
-  else if (!shouldShowStarterTemplates && appState === IDEAppState.PAGES)
+  else if (!shouldShowStarterTemplates && appState === IDEAppState.EDITOR)
     return (
       <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
         Drag and drop a widget here

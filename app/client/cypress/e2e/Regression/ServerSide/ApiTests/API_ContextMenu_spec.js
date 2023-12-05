@@ -1,5 +1,6 @@
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -17,7 +18,7 @@ describe("API Panel Test Functionality ", function () {
     cy.enterDatasourceAndPath(testdata.baseUrl, "{{ '/random' }}");
     cy.assertPageSave();
     cy.get("body").click(0, 0);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "FirstAPI",
       action: "Copy to page",

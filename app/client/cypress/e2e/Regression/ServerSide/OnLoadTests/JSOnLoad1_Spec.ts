@@ -24,7 +24,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Tc 54, 55 - Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function () {
@@ -42,8 +42,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       },
     );
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true); //Only before calling confirmation is enabled by User here
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("GetEmployee");
+    dataSources.CreateQueryForDS(dsName, "", "GetEmployee");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
       dataSources.EnterQuery(

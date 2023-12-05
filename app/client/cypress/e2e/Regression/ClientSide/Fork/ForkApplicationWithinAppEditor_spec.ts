@@ -31,7 +31,7 @@ describe("Fork application across workspaces", function () {
     cy.get(_.homePage._appEditIcon).first().click({ force: true });
 
     cy.get(_.homePage._applicationName).click({ force: true });
-    cy.contains("Fork Application").click({ force: true });
+    cy.contains("Fork application").click({ force: true });
 
     cy.get(_.locators._forkAppToWorkspaceBtn).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting

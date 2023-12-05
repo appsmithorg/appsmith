@@ -10,13 +10,17 @@ import formControls from "../../../locators/FormControl.json";
 import {
   AppSidebar,
   AppSidebarButton,
+  PageLeftPane,
 } from "../../../support/Pages/EditorNavigation";
+import PageList from "../../../support/Pages/PageList";
 
 describe(
   "excludeForAirgap",
   "Validate Mock Query Active Ds querying & count",
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {
+      PageList.AddNewPage();
+      PageList.AddNewPage();
       dataSources.CreateMockDB("Users").then((mockDBName) => {
         dsName = mockDBName;
         cy.log("Mock DB Name: " + mockDBName);
@@ -87,8 +91,8 @@ describe(
     });
 
     afterEach(() => {
-      AppSidebar.navigate(AppSidebarButton.Pages);
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Delete",
