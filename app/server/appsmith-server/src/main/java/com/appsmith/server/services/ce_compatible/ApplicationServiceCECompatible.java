@@ -1,10 +1,10 @@
 package com.appsmith.server.services.ce_compatible;
 
+import com.appsmith.server.applications.base.ApplicationServiceCE;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
-import com.appsmith.server.services.ce.ApplicationServiceCE;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

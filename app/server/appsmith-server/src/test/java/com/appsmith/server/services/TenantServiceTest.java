@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.AccessControlConstants;
 import com.appsmith.server.constants.FieldName;

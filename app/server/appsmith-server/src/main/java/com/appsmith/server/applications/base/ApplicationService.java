@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.applications.base;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;

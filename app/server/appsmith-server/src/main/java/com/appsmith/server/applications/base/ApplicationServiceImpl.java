@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.applications.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Datasource;
@@ -32,6 +32,13 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;

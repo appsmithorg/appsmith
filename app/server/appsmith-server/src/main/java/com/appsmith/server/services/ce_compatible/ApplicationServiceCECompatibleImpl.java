@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.applications.base.ApplicationServiceCEImpl;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
@@ -16,7 +17,6 @@ import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.ce.ApplicationServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;

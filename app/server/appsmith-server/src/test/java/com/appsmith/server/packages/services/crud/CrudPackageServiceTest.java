@@ -62,7 +62,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class PackageServiceTest {
+public class CrudPackageServiceTest {
 
     @Autowired
     CrudPackageService crudPackageService;
@@ -222,6 +222,7 @@ public class PackageServiceTest {
                 .assertNext(createdPackage -> {
                     assertThat(createdPackage.getId()).isNotEmpty();
                     assertThat(createdPackage.getName()).isEqualTo(firstPackage.getName());
+                    assertThat(createdPackage.getCustomJSLibs()).hasSize(0);
                 })
                 .verifyComplete();
 
@@ -231,6 +232,7 @@ public class PackageServiceTest {
                 .assertNext(createdPackage -> {
                     assertThat(createdPackage.getId()).isNotEmpty();
                     assertThat(createdPackage.getName()).isEqualTo(secondPackage.getName());
+                    assertThat(createdPackage.getCustomJSLibs()).hasSize(0);
                 })
                 .verifyComplete();
 
