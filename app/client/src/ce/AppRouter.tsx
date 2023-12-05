@@ -18,6 +18,7 @@ import {
   SETUP,
   SIGNUP_SUCCESS_URL,
   SIGN_UP_URL,
+  TEMPLATES_PATH,
   USERS_URL,
   USER_AUTH_URL,
   VIEWER_CUSTOM_PATH,
@@ -53,6 +54,7 @@ import Setup from "pages/setup";
 import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import TemplatesListLoader from "pages/Templates/loader";
 import {
   fetchFeatureFlagsInit,
   fetchProductAlertInit,
@@ -104,6 +106,7 @@ export function Routes() {
       {isCustomWidgetsEnabled && (
         <SentryRoute component={WidgetBuilder} exact path={WIDGET_BUILDER} />
       )}
+      <SentryRoute component={TemplatesListLoader} path={TEMPLATES_PATH} />
       <Redirect
         exact
         from={ADMIN_SETTINGS_PATH}
