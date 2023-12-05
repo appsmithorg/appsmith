@@ -1,4 +1,3 @@
-import { COLORS } from "@design-system/widgets";
 import { ICON_NAMES } from "WidgetProvider/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
@@ -112,49 +111,51 @@ export const menuItemsConfig = {
         },
       ],
     },
-    {
-      sectionName: "Color",
-      children: [
-        {
-          propertyName: "textColor",
-          label: "Text Color",
-          helpText: "Controls the color of the text displayed",
-          controlType: "DROP_DOWN",
-          defaultValue: "neutral",
-          options: [
-            {
-              label: "Accent",
-              value: "accent",
-            },
-            {
-              label: "Neutral",
-              value: "neutral",
-            },
-            {
-              label: "Positive",
-              value: "positive",
-            },
-            {
-              label: "Negative",
-              value: "negative",
-            },
-            {
-              label: "Warning",
-              value: "warning",
-            },
-          ],
-          isJSConvertible: true,
-          isBindProperty: true,
-          isTriggerProperty: false,
-          validation: {
-            type: ValidationTypes.TEXT,
-            params: {
-              allowedValues: Object.values(COLORS),
-              default: COLORS.neutral,
-            },
-          },
-        },
-      ],
-    },
+    // TODO - Uncomment once we have polished the fundamentals of WDS.
+    // Ref convo in slack - https://theappsmith.slack.com/archives/C04P60V0VQE/p1701435055352789?thread_ts=1701429043.543219&cid=C04P60V0VQE
+    // {
+    //   sectionName: "Color",
+    //   children: [
+    //     {
+    //       propertyName: "textColor",
+    //       label: "Text Color",
+    //       helpText: "Controls the color of the text displayed",
+    //       controlType: "DROP_DOWN",
+    //       defaultValue: "neutral",
+    //       options: [
+    //         {
+    //           label: "Accent",
+    //           value: "accent",
+    //         },
+    //         {
+    //           label: "Neutral",
+    //           value: "neutral",
+    //         },
+    //         {
+    //           label: "Positive",
+    //           value: "positive",
+    //         },
+    //         {
+    //           label: "Negative",
+    //           value: "negative",
+    //         },
+    //         {
+    //           label: "Warning",
+    //           value: "warning",
+    //         },
+    //       ],
+    //       isJSConvertible: true,
+    //       isBindProperty: true,
+    //       isTriggerProperty: false,
+    //       validation: {
+    //         type: ValidationTypes.TEXT,
+    //         params: {
+    //           allowedValues: Object.values(COLORS),
+    //           default: COLORS.neutral,
+    //         },
+    //       },
+    //     },
+    //   ],
+    // },
   ],
 };
