@@ -36,6 +36,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -537,9 +538,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return applicationMono
                 .flatMapMany(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
-                            && !StringUtils.isEmpty(gitData.getRepoName())) {
+                    if (GitUtils.isApplicationConnectedToGit(application)) {
                         return applicationService.findAllApplicationsByDefaultApplicationId(
                                 gitData.getDefaultApplicationId(), applicationPermission.getDeletePermission());
                     }

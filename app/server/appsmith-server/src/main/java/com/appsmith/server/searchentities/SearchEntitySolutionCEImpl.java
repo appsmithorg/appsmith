@@ -4,6 +4,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.SearchEntityDTO;
+import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -29,18 +31,24 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
 
     private final ApplicationPermission applicationPermission;
 
+    private final ResponseUtils responseUtils;
+
     /**
      * This method searches for workspaces and applications based on the searchString provided.
      * The search is performed on the name field of the entities and is case-insensitive.
      * The search results are sorted by the updated_at field in descending order.
-     * @param entities      The list of entities to search for. If null or empty, all entities are searched.
-     * @param searchString  The string to search for in the name field of the entities.
-     * @param page          The page number of the results to return.
-     * @param size          Max number of results to return within each entity.
-     * @return              A Mono of SearchEntityDTO containing the list of workspaces and applications.
+     *
+     * @param entities                  The list of entities to search for. If null or empty, all entities are searched.
+     * @param searchString              The string to search for in the name field of the entities.
+     * @param page                      The page number of the results to return.
+     * @param size                      Max number of results to return within each entity.
+     * @param isRequestedForHomepage    Whether the search is requested for the homepage or not.
+     *
+     * @return  A Mono of SearchEntityDTO containing the list of workspaces and applications.
      */
     @Override
-    public Mono<SearchEntityDTO> searchEntity(String[] entities, String searchString, int page, int size) {
+    public Mono<SearchEntityDTO> searchEntity(
+            String[] entities, String searchString, int page, int size, Boolean isRequestedForHomepage) {
         if (size == 0) {
             return Mono.just(new SearchEntityDTO());
         }
@@ -69,6 +77,21 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
                             pageable,
                             sort,
                             applicationPermission.getReadPermission())
+                    .filter(application -> {
+                        if (Boolean.FALSE.equals(isRequestedForHomepage)) {
+                            return true;
+                        }
+                        /*
+                         * As the applications are requested on homepage filter applications based on the following
+                         * criteria:
+                         * - Applications that are not connected to Git.
+                         * OR
+                         * - Applications that, when connected, revert with default branch only.
+                         */
+                        return !GitUtils.isApplicationConnectedToGit(application)
+                                || GitUtils.isDefaultBranchedApplication(application);
+                    })
+                    .map(responseUtils::updateApplicationWithDefaultResources)
                     .collectList();
         }
 

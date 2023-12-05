@@ -32,7 +32,7 @@ public class SearchEntityControllerCE {
             @RequestParam(required = false, defaultValue = "10") int size) {
         log.debug("Going to search for entities with search string: {}", keyword);
         return searchEntitySolution
-                .searchEntity(entities, keyword, page, size)
+                .searchEntity(entities, keyword, page, size, Boolean.TRUE)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }
