@@ -48,7 +48,7 @@ public interface GitServiceCE {
 
     Mono<Application> createBranch(String defaultApplicationId, GitBranchDTO branchDTO, String srcBranch);
 
-    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
+    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName, boolean addFileLock);
 
     Mono<GitPullDTO> pullApplication(String defaultApplicationId, String branchName);
 
