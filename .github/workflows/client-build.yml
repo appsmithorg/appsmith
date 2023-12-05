@@ -194,8 +194,6 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
@@ -249,8 +247,6 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
