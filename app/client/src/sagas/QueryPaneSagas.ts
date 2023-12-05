@@ -24,7 +24,7 @@ import {
   QUERY_EDITOR_FORM_NAME,
 } from "@appsmith/constants/forms";
 import history from "utils/history";
-import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
+import { APPLICATIONS_URL } from "constants/routes";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { autofill, change, initialize, reset } from "redux-form";
 import {
@@ -65,8 +65,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
-  integrationEditorURL,
   queryEditorIdURL,
+  datasourcesEditorURL,
 } from "@appsmith/RouteBuilder";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
@@ -107,12 +107,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
   const action: Action | undefined = yield select(getAction, id);
   if (!action) {
     if (pageId) {
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.ACTIVE,
-        }),
-      );
+      history.push(datasourcesEditorURL({ pageId }));
     }
     return;
   }

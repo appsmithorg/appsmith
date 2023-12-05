@@ -7,7 +7,6 @@ import {
   getPageActions,
   getSavedDatasources,
 } from "@appsmith/selectors/entitiesSelector";
-import { INTEGRATION_TABS } from "constants/routes";
 import {
   getApplicationLastDeployedAt,
   getCurrentApplicationId,
@@ -47,7 +46,11 @@ import type { Datasource } from "entities/Datasource";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SIGNPOSTING_STEP } from "./Utils";
-import { builderURL, integrationEditorURL } from "@appsmith/RouteBuilder";
+import {
+  builderURL,
+  datasourceCreateURL,
+  datasourcesEditorURL,
+} from "@appsmith/RouteBuilder";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
@@ -495,9 +498,8 @@ export default function OnboardingChecklist() {
             dispatch(showSignpostingModal(false));
 
             history.push(
-              integrationEditorURL({
+              datasourceCreateURL({
                 pageId,
-                selectedTab: INTEGRATION_TABS.NEW,
               }),
             );
           }}
@@ -515,12 +517,7 @@ export default function OnboardingChecklist() {
               from: "CHECKLIST",
             });
             dispatch(showSignpostingModal(false));
-            history.push(
-              integrationEditorURL({
-                pageId,
-                selectedTab: INTEGRATION_TABS.ACTIVE,
-              }),
-            );
+            history.push(datasourcesEditorURL({ pageId }));
             // Event for datasource creation click
             const entryPoint = DatasourceCreateEntryPoints.NEW_APP_CHECKLIST;
             AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {

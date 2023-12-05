@@ -31,8 +31,7 @@ import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import { getEditingEntityName } from "@appsmith/selectors/entitiesSelector";
 import styled from "styled-components";
 import moment from "moment";
-import AnalyticsUtil from "../../utils/AnalyticsUtil";
-import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>
@@ -60,7 +59,6 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   const active = useSelector(getExplorerActive);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   /**
    * on entity explorer sidebar width change
@@ -208,7 +206,6 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
       className={classNames({
         "js-entity-explorer t--entity-explorer transition-transform transform  flex h-full duration-400":
           true,
-        "border-r": !isAppSidebarEnabled,
         relative: pinned,
         "-translate-x-80": !pinned && !active,
         "shadow-xl": !pinned,

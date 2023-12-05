@@ -11,13 +11,12 @@ import type { QueryAction } from "entities/Action";
 import history from "utils/history";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { INTEGRATION_TABS } from "constants/routes";
 import {
   getAction,
   getDatasource,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { datasourcesEditorURL } from "@appsmith/RouteBuilder";
 import { MenuItem, Tag } from "design-system";
 import type { Plugin } from "api/PluginApi";
 
@@ -119,12 +118,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
       }
 
-      history.push(
-        integrationEditorURL({
-          pageId: currentPageId,
-          selectedTab: INTEGRATION_TABS.ACTIVE,
-        }),
-      );
+      history.push(datasourcesEditorURL({ pageId: currentPageId }));
     },
     [
       dispatch,

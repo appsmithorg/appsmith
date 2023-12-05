@@ -26,13 +26,12 @@ import {
   addApiToPage,
 } from "actions/providerActions";
 import { getDuplicateName } from "utils/AppsmithUtils";
-import { INTEGRATION_TABS } from "constants/routes";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { datasourcesEditorURL } from "@appsmith/RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
@@ -296,25 +295,11 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             className="backBtn"
             icon="chevron-left"
             iconSize={16}
-            onClick={() =>
-              history.push(
-                integrationEditorURL({
-                  pageId,
-                  selectedTab: INTEGRATION_TABS.ACTIVE,
-                }),
-              )
-            }
+            onClick={() => history.push(datasourcesEditorURL({ pageId }))}
           />
           <span
             className="backBtnText"
-            onClick={() =>
-              history.push(
-                integrationEditorURL({
-                  pageId,
-                  selectedTab: INTEGRATION_TABS.ACTIVE,
-                }),
-              )
-            }
+            onClick={() => history.push(datasourcesEditorURL({ pageId }))}
           >
             {" Back"}
           </span>

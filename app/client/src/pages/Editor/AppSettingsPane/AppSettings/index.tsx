@@ -28,10 +28,7 @@ import {
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
-import {
-  closeAppSettingsPaneAction,
-  updateAppSettingsPaneSelectedTabAction,
-} from "actions/appSettingsPaneActions";
+import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
@@ -79,7 +76,7 @@ const PageSectionTitle = styled.p`
 
 const ThemeContentWrapper = styled.div`
   height: calc(100% - 48px);
-  overflow-y: overlay;
+  overflow-y: visible;
 `;
 
 function AppSettings() {
@@ -110,7 +107,6 @@ function AppSettings() {
   useEffect(() => {
     dispatch(
       updateAppSettingsPaneSelectedTabAction({
-        isOpen: true,
         context: {
           type: selectedTab.type,
         },
@@ -118,7 +114,13 @@ function AppSettings() {
     );
 
     return () => {
-      dispatch(closeAppSettingsPaneAction());
+      dispatch(
+        updateAppSettingsPaneSelectedTabAction({
+          context: {
+            type: AppSettingsTabs.General,
+          },
+        }),
+      );
     };
   }, [selectedTab]);
 

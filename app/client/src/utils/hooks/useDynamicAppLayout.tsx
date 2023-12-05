@@ -4,10 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import { updateCanvasLayoutAction } from "actions/editorActions";
-import {
-  APP_SETTINGS_PANE_WIDTH,
-  APP_SIDEBAR_WIDTH,
-} from "constants/AppConstants";
+import { APP_SIDEBAR_WIDTH } from "constants/AppConstants";
 import {
   DefaultLayoutType,
   layoutConfigurations,
@@ -27,10 +24,7 @@ import {
   getExplorerWidth,
 } from "selectors/explorerSelector";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
-import {
-  getIsAppSettingsPaneOpen,
-  getIsAppSettingsPaneWithNavigationTabOpen,
-} from "selectors/appSettingsPaneSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   getAppSidebarPinned,
   getCurrentApplication,
@@ -45,7 +39,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -62,7 +55,6 @@ export const useDynamicAppLayout = () => {
   const currentPageId = useSelector(getCurrentPageId);
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
   const layoutSystemType = useSelector(getLayoutSystemType);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
@@ -79,7 +71,6 @@ export const useDynamicAppLayout = () => {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
 
   const isPreviewing = isPreviewMode;
 
@@ -134,21 +125,8 @@ export const useDynamicAppLayout = () => {
       layoutSystemType === LayoutSystemTypes.AUTO ? 0 : GUTTER_WIDTH;
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
-    if (
-      isPreviewing === false &&
-      !isAppSettingsPaneOpen &&
-      appMode === APP_MODE.EDIT
-    ) {
+    if (isPreviewing === false && appMode === APP_MODE.EDIT) {
       calculatedWidth -= propertyPaneWidth;
-    }
-
-    // if app setting pane is open, we need to subtract the width of app setting page width
-    if (
-      isAppSettingsPaneOpen === true &&
-      appMode === APP_MODE.EDIT &&
-      !isAppSidebarEnabled
-    ) {
-      calculatedWidth -= APP_SETTINGS_PANE_WIDTH;
     }
 
     // if explorer is closed or its preview mode, we don't need to subtract the EE width
@@ -160,7 +138,7 @@ export const useDynamicAppLayout = () => {
       calculatedWidth -= explorerWidth;
     }
 
-    if (appMode === APP_MODE.EDIT && isAppSidebarEnabled) {
+    if (appMode === APP_MODE.EDIT) {
       calculatedWidth -= APP_SIDEBAR_WIDTH;
     }
 
@@ -307,7 +285,6 @@ export const useDynamicAppLayout = () => {
     propertyPaneWidth,
     isExplorerPinned,
     propertyPaneWidth,
-    isAppSettingsPaneOpen,
     isAppSidebarPinned,
     currentApplicationDetails?.applicationDetail?.navigationSetting
       ?.orientation,

@@ -75,7 +75,6 @@ import {
   getSettingConfig,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
-import { INTEGRATION_TABS } from "constants/routes";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -105,7 +104,7 @@ import { shouldBeDefined } from "utils/helpers";
 import {
   apiEditorIdURL,
   builderURL,
-  integrationEditorURL,
+  datasourceCreateURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "@appsmith/RouteBuilder";
@@ -539,9 +538,8 @@ export function* deleteActionSaga(
       actionPayload.payload.onSuccess();
     } else {
       history.push(
-        integrationEditorURL({
+        datasourceCreateURL({
           pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
         }),
       );
     }
@@ -964,9 +962,8 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   switch (actionPayload.payload.actionType) {
     case SlashCommand.NEW_INTEGRATION:
       history.push(
-        integrationEditorURL({
+        datasourceCreateURL({
           pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
         }),
       );
       break;

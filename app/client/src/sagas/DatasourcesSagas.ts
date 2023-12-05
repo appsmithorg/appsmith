@@ -81,7 +81,6 @@ import {
 } from "entities/Datasource";
 import {
   INTEGRATION_EDITOR_MODES,
-  INTEGRATION_TABS,
   RESPONSE_STATUS,
   SHOW_FILE_PICKER_KEY,
 } from "constants/routes";
@@ -139,7 +138,7 @@ import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
   generateTemplateFormURL,
-  integrationEditorURL,
+  datasourceCreateURL,
   saasEditorDatasourceIdURL,
 } from "@appsmith/RouteBuilder";
 import {
@@ -377,9 +376,8 @@ export function* deleteDatasourceSaga(
         window.location.pathname === saasPathWithoutQuery
       ) {
         history.push(
-          integrationEditorURL({
+          datasourceCreateURL({
             pageId,
-            selectedTab: INTEGRATION_TABS.NEW,
             params: {
               ...getQueryParams(),
               mode: INTEGRATION_EDITOR_MODES.AUTO,

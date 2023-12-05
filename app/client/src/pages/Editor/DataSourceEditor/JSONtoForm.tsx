@@ -7,7 +7,6 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import type { Datasource } from "entities/Datasource";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export const FormContainer = styled.div`
@@ -49,16 +48,9 @@ export class JSONtoForm<
   SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
   renderForm = (formContent: any) => {
-    const { featureFlags } = this.props;
-    const isSidebarEnabled =
-      featureFlags?.release_app_sidebar_enabled === true ||
-      featureFlags?.rollout_app_sidebar_enabled === true;
     return (
       // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
-        {isSidebarEnabled || !!this.props.isOnboardingFlow ? null : (
-          <CloseEditor />
-        )}
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>

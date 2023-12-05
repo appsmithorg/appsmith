@@ -11,7 +11,6 @@ export const featureFlagIntercept = (
     },
     data: {
       ...flags,
-      release_app_sidebar_enabled: true,
     },
     errorDisplay: "",
   };
@@ -40,7 +39,6 @@ export const featureFlagInterceptForLicenseFlags = () => {
           });
           modifiedResponse = {
             ...modifiedResponse,
-            release_app_sidebar_enabled: true,
           };
           res.send({
             responseMeta: {

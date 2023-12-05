@@ -25,8 +25,7 @@ import {
   getIsEditorInitialized,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { INTEGRATION_TABS } from "constants/routes";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { datasourcesEditorURL } from "@appsmith/RouteBuilder";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -175,14 +174,7 @@ class ListView extends React.Component<Props> {
       <IntegrationHomePage>
         <NotFound
           buttonText="Go back to Datasources"
-          onBackButton={() =>
-            history.push(
-              integrationEditorURL({
-                pageId,
-                selectedTab: INTEGRATION_TABS.ACTIVE,
-              }),
-            )
-          }
+          onBackButton={() => history.push(datasourcesEditorURL({ pageId }))}
           title="Datasources/Queries Not found"
         />
       </IntegrationHomePage>

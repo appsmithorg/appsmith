@@ -27,7 +27,6 @@ export const FEATURE_FLAG = {
   release_anvil_enabled: "release_anvil_enabled",
   ab_show_templates_instead_of_blank_canvas_enabled:
     "ab_show_templates_instead_of_blank_canvas_enabled",
-  release_app_sidebar_enabled: "release_app_sidebar_enabled",
   release_server_dsl_migrations_enabled:
     "release_server_dsl_migrations_enabled",
   license_git_branch_protection_enabled:
@@ -37,7 +36,6 @@ export const FEATURE_FLAG = {
   ab_create_new_apps_enabled: "ab_create_new_apps_enabled",
   release_show_new_sidebar_announcement_enabled:
     "release_show_new_sidebar_announcement_enabled",
-  rollout_app_sidebar_enabled: "rollout_app_sidebar_enabled",
   release_show_partial_import_export_enabled:
     "release_show_partial_import_export_enabled",
   release_show_new_sidebar_pages_pane_enabled:
@@ -71,14 +69,12 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_gac_enabled: false,
   release_anvil_enabled: false,
   ab_show_templates_instead_of_blank_canvas_enabled: false,
-  release_app_sidebar_enabled: false,
   release_server_dsl_migrations_enabled: false,
   license_git_branch_protection_enabled: false,
   license_widget_rtl_support_enabled: false,
   release_custom_widgets_enabled: false,
   ab_create_new_apps_enabled: false,
   release_show_new_sidebar_announcement_enabled: false,
-  rollout_app_sidebar_enabled: false,
   release_show_partial_import_export_enabled: false,
   release_show_new_sidebar_pages_pane_enabled: false,
   ab_one_click_learning_popover_enabled: false,

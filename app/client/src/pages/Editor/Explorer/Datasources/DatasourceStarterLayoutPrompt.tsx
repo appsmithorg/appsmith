@@ -22,13 +22,12 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import history from "utils/history";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { datasourceCreateURL } from "@appsmith/RouteBuilder";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { INTEGRATION_TABS } from "constants/routes";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { STARTER_BUILDING_BLOCK_TEMPLATE_NAME } from "constants/TemplatesConstants";
@@ -55,9 +54,8 @@ function DatasourceStarterLayoutPrompt() {
   const onClickConnect = useCallback(() => {
     dispatch(hideStarterBuildingBlockDatasourcePrompt());
     history.push(
-      integrationEditorURL({
+      datasourceCreateURL({
         pageId,
-        selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
 

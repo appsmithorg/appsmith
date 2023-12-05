@@ -25,8 +25,6 @@ import NewQueryScreen from "./NewQuery";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import history from "utils/history";
 import { showDebuggerFlag } from "../../../selectors/debuggerSelectors";
-import classNames from "classnames";
-import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   createMessage,
@@ -202,7 +200,6 @@ interface CreateNewDatasourceScreenProps {
   canCreateDatasource?: boolean;
   showDebugger: boolean;
   pageId: string;
-  isAppSidebarEnabled: boolean;
   isEnabledForCreateNew: boolean;
 }
 
@@ -233,7 +230,6 @@ class CreateNewDatasourceTab extends React.Component<
     const {
       canCreateDatasource = false,
       dataSources,
-      isAppSidebarEnabled,
       isCreating,
       isEnabledForCreateNew,
       pageId,
@@ -247,12 +243,7 @@ class CreateNewDatasourceTab extends React.Component<
         />
       ) : null;
     return (
-      <NewIntegrationsContainer
-        className={classNames({
-          "p-4": isAppSidebarEnabled,
-        })}
-        id="new-integrations-wrapper"
-      >
+      <NewIntegrationsContainer className="p-4" id="new-integrations-wrapper">
         {dataSources.length === 0 && <AddDatasourceSecurely />}
         {dataSources.length === 0 && this.props.mockDatasources.length > 0 && (
           <>
@@ -327,7 +318,6 @@ const mapStateToProps = (state: AppState) => {
 
   const isEnabledForCreateNew =
     !!featureFlags[FEATURE_FLAG.ab_create_new_apps_enabled];
-  const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
@@ -336,7 +326,6 @@ const mapStateToProps = (state: AppState) => {
     canCreateDatasource,
     showDebugger,
     pageId,
-    isAppSidebarEnabled,
     isEnabledForCreateNew,
   };
 };

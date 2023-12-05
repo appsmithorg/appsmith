@@ -7,9 +7,8 @@ import {
   DATASOURCE_BLANK_STATE_MESSAGE,
 } from "@appsmith/constants/messages";
 import history from "utils/history";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { datasourceCreateURL } from "@appsmith/RouteBuilder";
 import type { RouteComponentProps } from "react-router";
-import { INTEGRATION_TABS } from "constants/routes";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
@@ -66,9 +65,8 @@ const DatasourceBlankState = (
             kind="primary"
             onClick={() =>
               history.push(
-                integrationEditorURL({
+                datasourceCreateURL({
                   pageId: props.match.params.pageId,
-                  selectedTab: INTEGRATION_TABS.NEW,
                 }),
               )
             }

@@ -33,11 +33,7 @@ import EmptyCanvasPrompts from "./EmptyCanvasPrompts";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import {
-  getAppSettingsPaneContext,
-  getIsAppSettingsPaneWithNavigationTabOpen,
-} from "selectors/appSettingsPaneSelectors";
-import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -68,7 +64,9 @@ function WidgetsEditor() {
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
-  const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
+  const isAppNavigationSettingsOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   const navigationPreviewRef = useRef(null);
   const [navigationHeight, setNavigationHeight] = useState(0);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -105,7 +103,7 @@ function WidgetsEditor() {
     navigationPreviewRef,
     isPreviewMode,
     isProtectedMode,
-    appSettingsPaneContext?.type,
+    isAppNavigationSettingsOpen,
     currentApplicationDetails?.applicationDetail?.navigationSetting,
   ]);
 
@@ -244,7 +242,7 @@ function WidgetsEditor() {
                 canvasWidth={canvasWidth}
                 currentPageId={currentPageId}
                 isAppSettingsPaneWithNavigationTabOpen={
-                  AppSettingsTabs.Navigation === appSettingsPaneContext?.type
+                  isAppNavigationSettingsOpen
                 }
                 isPreviewMode={isPreviewMode}
                 isProtectedMode={isProtectedMode}

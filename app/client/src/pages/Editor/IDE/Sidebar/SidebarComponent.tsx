@@ -8,7 +8,6 @@ import {
   AnnouncementPopoverContent,
   Button,
 } from "design-system";
-import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
 
 const Container = styled.div`
   width: 50px;
@@ -46,7 +45,6 @@ function SidebarComponent(props: SidebarComponentProps) {
     topButtons,
   } = props;
   const [isPopoverOpen, setIsPopoverOpen] = useState(true);
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const isAppSidebarAnnouncementDismissed =
     localStorage.getItem("isAppSidebarAnnouncementDismissed") === "true";
 
@@ -57,10 +55,6 @@ function SidebarComponent(props: SidebarComponentProps) {
       JSON.stringify(true),
     );
   };
-
-  if (!isAppSidebarEnabled) {
-    return null;
-  }
 
   return (
     <Container className="t--sidebar" id="t--app-sidebar">

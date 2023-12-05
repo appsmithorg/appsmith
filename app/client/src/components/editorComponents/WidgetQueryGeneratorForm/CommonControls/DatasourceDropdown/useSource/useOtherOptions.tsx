@@ -1,8 +1,7 @@
 import React, { useContext, useMemo } from "react";
 import { Icon } from "design-system";
 import history from "utils/history";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { INTEGRATION_TABS } from "constants/routes";
+import { datasourceCreateURL } from "@appsmith/RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { useParams } from "react-router";
@@ -43,9 +42,8 @@ function useOtherOptions(props: OtherOptionsProps) {
         value: "Connect new datasource",
         onSelect: () => {
           history.push(
-            integrationEditorURL({
+            datasourceCreateURL({
               pageId: currentPageId,
-              selectedTab: INTEGRATION_TABS.NEW,
             }),
           );
 

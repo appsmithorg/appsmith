@@ -2,13 +2,12 @@ import React from "react";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { INTEGRATION_TABS } from "constants/routes";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   builderURL,
   generateTemplateFormURL,
-  integrationEditorURL,
+  datasourceCreateURL,
 } from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -32,14 +31,6 @@ function CloseEditor() {
   const pageId = useSelector(getCurrentPageId);
 
   const isGeneratePageInitiator = getIsGeneratePageInitiator();
-  let integrationTab = INTEGRATION_TABS.ACTIVE;
-
-  if (isGeneratePageInitiator) {
-    // When users routes to Integrations page via generate CRUD page form
-    // the INTEGRATION_TABS.ACTIVE is hidden and
-    // hence when routing back, user should go back to INTEGRATION_TABS.NEW tab.
-    integrationTab = INTEGRATION_TABS.NEW;
-  }
 
   const handleClose = () => {
     PerformanceTracker.startTracking(
@@ -56,9 +47,8 @@ function CloseEditor() {
 
     const URL =
       redirectTo === "datasources"
-        ? integrationEditorURL({
+        ? datasourceCreateURL({
             pageId,
-            selectedTab: integrationTab,
             params: getQueryParams(),
           })
         : redirectURL;

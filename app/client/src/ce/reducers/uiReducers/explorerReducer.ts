@@ -196,29 +196,6 @@ export const handlers = {
       active: action.payload,
     };
   },
-  [ReduxActionTypes.OPEN_APP_SETTINGS_PANE]: (
-    state: ExplorerReduxState,
-  ): ExplorerReduxState => {
-    return {
-      ...state,
-      pinnedState:
-        state.pinnedState === ExplorerPinnedState.PINNED
-          ? ExplorerPinnedState.HIDDEN
-          : state.pinnedState,
-      active: false,
-    };
-  },
-  [ReduxActionTypes.CLOSE_APP_SETTINGS_PANE]: (
-    state: ExplorerReduxState,
-  ): ExplorerReduxState => {
-    return {
-      ...state,
-      pinnedState:
-        state.pinnedState === ExplorerPinnedState.HIDDEN
-          ? ExplorerPinnedState.PINNED
-          : state.pinnedState,
-    };
-  },
 };
 
 const explorerReducer = createReducer(initialState, handlers);

@@ -18,12 +18,9 @@ import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   createMessage,
-  CONTEXT_SETTINGS,
   CONTEXT_PARTIAL_EXPORT,
   CONTEXT_PARTIAL_IMPORT,
 } from "@appsmith/constants/messages";
-import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
-import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { getPageById } from "selectors/editorSelectors";
 import {
   getCurrentApplication,
@@ -65,9 +62,6 @@ export function PageContextMenu(props: {
   const [showPartialExportModal, setShowPartialExportModal] = useState(false);
   const [showPartialImportModal, setShowPartialImportModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const isAppSidebarEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_app_sidebar_enabled,
-  );
 
   const partialImportExportLoadingState = useSelector(
     getPartialImportExportLoadingState,
@@ -151,14 +145,6 @@ export function PageContextMenu(props: {
     ],
   );
 
-  const openAppSettingsPane = () =>
-    dispatch(
-      openAppSettingsPaneAction({
-        type: AppSettingsTabs.Page,
-        pageId: props.pageId,
-      }),
-    );
-
   const openPartialExportModal = () => setShowPartialExportModal(true);
   const openPartialImportModal = () => setShowPartialImportModal(true);
 
@@ -231,11 +217,6 @@ export function PageContextMenu(props: {
       value: "partial-import",
       onSelect: openPartialImportModal,
       label: createMessage(CONTEXT_PARTIAL_IMPORT),
-    },
-    !isAppSidebarEnabled && {
-      value: "settings",
-      onSelect: openAppSettingsPane,
-      label: createMessage(CONTEXT_SETTINGS),
     },
     !props.isDefaultPage &&
       canDeletePages && {

@@ -11,7 +11,7 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   DATA_SOURCES_EDITOR_LIST_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
-  INTEGRATION_EDITOR_PATH,
+  DATASOURCE_CREATE_PATH,
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
@@ -21,7 +21,6 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
-import IntegrationEditor from "pages/Editor/IntegrationEditor";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import ApiEditor from "pages/Editor/APIEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
@@ -39,9 +38,8 @@ import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankS
 import ProviderTemplates from "pages/Editor/APIEditor/ProviderTemplates";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
-import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
-import { JSBlankState } from "../../../../../pages/Editor/JSEditor/JSBlankState";
-import { QueriesBlankState } from "../../../../../pages/Editor/QueryEditor/QueriesBlankState";
+import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
+import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 
 export interface RouteReturnType extends RouteProps {
   key: string;
@@ -53,8 +51,6 @@ export interface RouteReturnType extends RouteProps {
  */
 
 function useRoutes(path: string): RouteReturnType[] {
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
-
   return [
     {
       key: "Canvas",
@@ -71,12 +67,10 @@ function useRoutes(path: string): RouteReturnType[] {
       ],
     },
     {
-      key: "Datasource Create and Active",
-      component: isAppSidebarEnabled
-        ? CreateNewDatasourceTab
-        : IntegrationEditor,
+      key: "Datasource Create",
+      component: CreateNewDatasourceTab,
       exact: true,
-      path: `${path}${INTEGRATION_EDITOR_PATH}`,
+      path: `${path}${DATASOURCE_CREATE_PATH}`,
     },
     {
       key: "OnboardingChecklist",

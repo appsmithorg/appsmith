@@ -1,4 +1,3 @@
-import { INTEGRATION_TABS } from "constants/routes";
 import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
@@ -25,7 +24,7 @@ import {
   SEARCH_ITEM_TYPES,
 } from "./utils";
 import { PluginType } from "entities/Action";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { datasourceCreateURL } from "@appsmith/RouteBuilder";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
@@ -149,9 +148,8 @@ export const useFilteredAndSortedFileOperations = ({
   // Add genetic datasource creation
   const onRedirect = (pageId: string) => {
     history.push(
-      integrationEditorURL({
+      datasourceCreateURL({
         pageId,
-        selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
   };

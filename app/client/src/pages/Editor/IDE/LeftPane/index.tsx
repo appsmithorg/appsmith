@@ -9,14 +9,13 @@ import {
   APP_SETTINGS_EDITOR_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   DATA_SOURCES_EDITOR_LIST_PATH,
-  INTEGRATION_EDITOR_PATH,
+  DATASOURCE_CREATE_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "constants/routes";
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import { useIsAppSidebarEnabled } from "../../../../navigation/featureFlagHooks";
 import { PagesPane } from "../PagesPane";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -29,14 +28,13 @@ export const LeftPaneContainer = styled.div`
 `;
 
 const LeftPane = () => {
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const isPagesPaneEnabled = useFeatureFlag(
     FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
   );
   const { path } = useRouteMatch();
   const guidedTourEnabled = useSelector(inGuidedTour);
-  if (!isAppSidebarEnabled || guidedTourEnabled) {
-    return isPagesPaneEnabled ? <PagesPane /> : <WidgetsEditorEntityExplorer />;
+  if (!isPagesPaneEnabled || guidedTourEnabled) {
+    return <WidgetsEditorEntityExplorer />;
   }
   return (
     <LeftPaneContainer>
@@ -47,7 +45,7 @@ const LeftPane = () => {
           path={[
             `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
             `${path}${DATA_SOURCES_EDITOR_ID_PATH}`,
-            `${path}${INTEGRATION_EDITOR_PATH}`,
+            `${path}${DATASOURCE_CREATE_PATH}`,
             `${path}${SAAS_GSHEET_EDITOR_ID_PATH}`,
           ]}
         />

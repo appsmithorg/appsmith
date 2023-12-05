@@ -22,7 +22,7 @@ export const VIEWER_PATH_DEPRECATED_REGEX =
   /\/applications\/[^/]+\/pages\/[^/]+/;
 
 export const VIEWER_FORK_PATH = `/fork`;
-export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
+export const DATASOURCE_CREATE_PATH = `/datasources/NEW`;
 
 export const WIDGETS_EDITOR_BASE_PATH = `/widgets`;
 export const WIDGETS_EDITOR_ID_PATH = `${WIDGETS_EDITOR_BASE_PATH}/:widgetIds`;
@@ -130,11 +130,6 @@ export interface JSEditorRouteParams {
 }
 
 export const GIT_BRANCH_QUERY_KEY = "branch";
-
-export const INTEGRATION_TABS = {
-  ACTIVE: "ACTIVE",
-  NEW: "NEW",
-};
 
 export const INTEGRATION_EDITOR_MODES = {
   AUTO: "auto",

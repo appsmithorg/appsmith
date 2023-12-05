@@ -31,7 +31,7 @@ import {
 import { DEFAULT_CREATE_API_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DEFAULT_CREATE_GRAPHQL_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import history from "utils/history";
-import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_EDITOR_MODES } from "constants/routes";
 import { initialize, autofill, change, reset } from "redux-form";
 import type { Property } from "api/ActionAPI";
 import { createNewApiName } from "utils/AppsmithUtils";
@@ -79,7 +79,7 @@ import { getDisplayFormat } from "selectors/apiPaneSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
-  integrationEditorURL,
+  datasourcesEditorURL,
 } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
@@ -155,9 +155,8 @@ function* redirectToNewIntegrations(
   }>,
 ) {
   history.push(
-    integrationEditorURL({
+    datasourcesEditorURL({
       pageId: action.payload.pageId,
-      selectedTab: INTEGRATION_TABS.ACTIVE,
       params: {
         ...action.payload.params,
         mode: INTEGRATION_EDITOR_MODES.AUTO,

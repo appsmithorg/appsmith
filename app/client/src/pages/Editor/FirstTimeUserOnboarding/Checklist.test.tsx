@@ -2,9 +2,12 @@ const history = jest.fn();
 const dispatch = jest.fn();
 
 import { bindDataOnCanvas } from "actions/pluginActionActions";
-import { builderURL, integrationEditorURL } from "@appsmith/RouteBuilder";
+import {
+  builderURL,
+  datasourceCreateURL,
+  datasourcesEditorURL,
+} from "@appsmith/RouteBuilder";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";
 import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
@@ -91,9 +94,8 @@ describe("Checklist", () => {
     expect(banner.length).toBe(0);
     fireEvent.click(datasourceButton[0]);
     expect(history).toHaveBeenCalledWith(
-      integrationEditorURL({
+      datasourceCreateURL({
         pageId: initialState.entities.pageList.currentPageId,
-        selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
   });
@@ -121,9 +123,8 @@ describe("Checklist", () => {
     const actionButton = screen.queryAllByTestId("checklist-action");
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
-      integrationEditorURL({
+      datasourcesEditorURL({
         pageId: initialState.entities.pageList.currentPageId,
-        selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
     );
   });

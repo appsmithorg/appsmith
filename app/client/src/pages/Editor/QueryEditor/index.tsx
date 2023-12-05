@@ -7,7 +7,6 @@ import Editor from "./Editor";
 import history from "utils/history";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import BackToCanvas from "components/common/BackToCanvas";
-import { INTEGRATION_TABS } from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -19,7 +18,10 @@ import {
   getAction,
   getPluginSettingConfigs,
 } from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import {
+  datasourceCreateURL,
+  datasourcesEditorURL,
+} from "@appsmith/RouteBuilder";
 import { QueryEditorContextProvider } from "./QueryEditorContext";
 import type { QueryEditorRouteParams } from "constants/routes";
 import {
@@ -83,9 +85,8 @@ function QueryEditor(props: QueryEditorProps) {
 
   const onCreateDatasourceClick = useCallback(() => {
     history.push(
-      integrationEditorURL({
+      datasourceCreateURL({
         pageId,
-        selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
     // Event for datasource creation click
@@ -96,21 +97,15 @@ function QueryEditor(props: QueryEditorProps) {
   }, [
     pageId,
     history,
-    integrationEditorURL,
+    datasourceCreateURL,
     DatasourceCreateEntryPoints,
     AnalyticsUtil,
   ]);
 
   // custom function to return user to integrations page if action is not found
   const onEntityNotFoundBackClick = useCallback(
-    () =>
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.ACTIVE,
-        }),
-      ),
-    [pageId, history, integrationEditorURL],
+    () => history.push(datasourcesEditorURL({ pageId })),
+    [pageId, history, datasourceCreateURL],
   );
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);

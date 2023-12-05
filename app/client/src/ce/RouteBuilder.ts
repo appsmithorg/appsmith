@@ -60,13 +60,11 @@ export const jsCollectionIdURL = (
   });
 };
 
-export const integrationEditorURL = (
-  props: URLBuilderParams & { selectedTab: string },
-): string => {
+export const datasourceCreateURL = (props: URLBuilderParams): string => {
   const suffixPath = props.suffix ? `/${props.suffix}` : "";
   return urlBuilder.build({
     ...props,
-    suffix: `datasources/${props.selectedTab}${suffixPath}`,
+    suffix: `datasources/NEW${suffixPath}`,
   });
 };
 

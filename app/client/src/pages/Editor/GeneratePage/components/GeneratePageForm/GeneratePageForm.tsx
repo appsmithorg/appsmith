@@ -15,7 +15,6 @@ import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
@@ -58,7 +57,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 import {
   datasourcesEditorIdURL,
-  integrationEditorURL,
+  datasourceCreateURL,
 } from "@appsmith/RouteBuilder";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
@@ -548,9 +547,8 @@ function GeneratePageForm() {
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
-      integrationEditorURL({
+      datasourceCreateURL({
         pageId: currentPageId,
-        selectedTab: INTEGRATION_TABS.NEW,
         params: { isGeneratePageMode: "generate-page" },
       }),
     );

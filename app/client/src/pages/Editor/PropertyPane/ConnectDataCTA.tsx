@@ -3,11 +3,11 @@ import { Button, Text } from "design-system";
 import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_EDITOR_MODES } from "constants/routes";
 import history from "utils/history";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { WidgetType } from "constants/WidgetConstants";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { datasourceCreateURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
@@ -38,9 +38,8 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
   const onClick = () => {
     const { widgetId, widgetTitle, widgetType } = props;
     history.push(
-      integrationEditorURL({
+      datasourceCreateURL({
         pageId,
-        selectedTab: INTEGRATION_TABS.NEW,
         params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
       }),
     );

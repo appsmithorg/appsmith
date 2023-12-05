@@ -29,8 +29,8 @@ import {
 import { Button, toast } from "design-system";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { SHOW_FILE_PICKER_KEY } from "constants/routes";
+import { datasourceCreateURL } from "@appsmith/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
@@ -353,9 +353,8 @@ function DatasourceAuth({
                 );
                 dispatch(resetCurrentPluginIdForCreateNewApp());
               } else {
-                const URL = integrationEditorURL({
+                const URL = datasourceCreateURL({
                   pageId,
-                  selectedTab: INTEGRATION_TABS.NEW,
                   params: getQueryParams(),
                 });
                 history.push(URL);
