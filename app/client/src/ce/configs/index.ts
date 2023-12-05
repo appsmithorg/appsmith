@@ -305,7 +305,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     enableTNCPP:
       ENV_CONFIG.enableTNCPP || APPSMITH_FEATURE_CONFIGS?.enableTNCPP || false,
     appVersion:
-      ENV_CONFIG.appVersion || APPSMITH_FEATURE_CONFIGS?.appVersion || false,
+      APPSMITH_FEATURE_CONFIGS?.appVersion || ENV_CONFIG.appVersion || false,
     intercomAppID:
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS?.intercomAppID || "",
     mailEnabled:
