@@ -251,12 +251,9 @@ describe("Binary Datatype tests", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     PageLeftPane.expandCollapseItem("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyBinaryFunctions");
-
     //Validating zero octet
     query = `select encode('\\000'::bytea, 'hex') as "zero octet Hex", encode('\\000'::bytea, 'escape') as "zero octet Escape";`;
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dsName, query, "verifyBinaryFunctions");
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
       "zero octet Hex",
