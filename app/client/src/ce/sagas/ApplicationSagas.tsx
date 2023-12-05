@@ -218,10 +218,6 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
       ApplicationApi.fetchAllApplicationsOfWorkspace,
       activeWorkspaceId,
     );
-    const isEnabledForStartWithData: boolean = yield select(
-      selectFeatureFlagCheck,
-      FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
-    );
     const isEnabledForCreateNew: boolean = yield select(
       selectFeatureFlagCheck,
       FEATURE_FLAG.ab_create_new_apps_enabled,
@@ -239,11 +235,8 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
         type: ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_SUCCESS,
         payload: applications,
       });
-      if (
-        isEnabledForStartWithData &&
-        isEnabledForCreateNew &&
-        workspaces.length > 0
-      ) {
+
+      if (isEnabledForCreateNew && workspaces.length > 0) {
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: workspaces[0],

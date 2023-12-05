@@ -52,8 +52,7 @@ describe("FirstTimeUserOnboarding", function () {
         .realHover()
         .should("have.css", "cursor", "auto");
       agHelper.GetNClick(OnboardingLocator.checklistActionBtn);
-      EditorNavigation.SelectEntityByName("Movies", EntityType.Datasource);
-      agHelper.GetNClick(OnboardingLocator.createQuery);
+      dataSources.CreateQueryForDS("Movies");
 
       agHelper.Sleep();
       agHelper.GetNClick(debuggerHelper.locators._helpButton);
@@ -139,8 +138,7 @@ describe("FirstTimeUserOnboarding", function () {
         .should("have.css", "cursor", "auto");
       cy.get(OnboardingLocator.checklistActionBtn).should("be.visible");
       cy.get(OnboardingLocator.checklistActionBtn).click();
-      cy.get(OnboardingLocator.createQuery).should("be.visible");
-      cy.get(OnboardingLocator.createQuery).click();
+      dataSources.CreateQueryAfterDSSaved();
       cy.wait(1000);
       agHelper.GetNClick(debuggerHelper.locators._helpButton);
       cy.get(OnboardingLocator.checklistStatus).should("contain", "2 of 5");
