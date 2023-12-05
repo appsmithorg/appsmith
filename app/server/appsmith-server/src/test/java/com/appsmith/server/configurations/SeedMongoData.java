@@ -4,7 +4,6 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
@@ -18,7 +17,6 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ConfigRepository;
-import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
@@ -68,7 +66,6 @@ public class SeedMongoData {
             UserRepository userRepository,
             WorkspaceRepository workspaceRepository,
             ApplicationRepository applicationRepository,
-            PageRepository pageRepository,
             PluginRepository pluginRepository,
             ReactiveMongoTemplate mongoTemplate,
             TenantRepository tenantRepository,
@@ -215,7 +212,6 @@ public class SeedMongoData {
             {"TestApplications", Set.of(manageAppPolicy, readAppPolicy)},
             {"Another TestApplications", Set.of(manageAppPolicy, readAppPolicy)}
         };
-        Object[][] pageData = {{"validPageName", Set.of(managePagePolicy, readPagePolicy)}};
         Object[][] pluginData = {
             {"Installed Plugin Name", PluginType.API, "installed-plugin", true},
             {"Installed DB Plugin Name", PluginType.DB, "installed-db-plugin", true},
@@ -405,18 +401,7 @@ public class SeedMongoData {
                             // Query the seed data to get the applicationId (required for page creation)
                             )
                     .then(appByNameMono)
-                    .map(application -> application.getId())
-                    .flatMapMany(appId -> Flux.just(pageData)
-                            // Seed the page data into the DB
-                            .map(array -> {
-                                Page page = new Page();
-                                page.setName((String) array[0]);
-                                page.setApplicationId(appId);
-                                page.setPolicies((Set<Policy>) array[1]);
-                                return page;
-                            })
-                            .flatMap(pageRepository::save))
-                    .blockLast();
+                    .block();
         };
     }
 }
