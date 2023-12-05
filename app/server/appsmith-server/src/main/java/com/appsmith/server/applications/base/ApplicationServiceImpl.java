@@ -1,8 +1,13 @@
-package com.appsmith.server.services;
+package com.appsmith.server.applications.base;
 
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
