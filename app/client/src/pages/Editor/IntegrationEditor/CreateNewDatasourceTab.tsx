@@ -203,7 +203,7 @@ interface CreateNewDatasourceScreenProps {
   showDebugger: boolean;
   pageId: string;
   isAppSidebarEnabled: boolean;
-  isEnabledForStartWithData: boolean;
+  isEnabledForCreateNew: boolean;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -235,7 +235,7 @@ class CreateNewDatasourceTab extends React.Component<
       dataSources,
       isAppSidebarEnabled,
       isCreating,
-      isEnabledForStartWithData,
+      isEnabledForCreateNew,
       pageId,
     } = this.props;
     if (!canCreateDatasource) return null;
@@ -260,7 +260,7 @@ class CreateNewDatasourceTab extends React.Component<
             <StyledDivider />
           </>
         )}
-        {isEnabledForStartWithData && (
+        {isEnabledForCreateNew && (
           <>
             <CreateNewDatasource
               active={false}
@@ -325,10 +325,8 @@ const mapStateToProps = (state: AppState) => {
     userWorkspacePermissions,
   );
 
-  const isEnabledForStartWithData =
-    !!featureFlags[
-      FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled
-    ];
+  const isEnabledForCreateNew =
+    !!featureFlags[FEATURE_FLAG.ab_create_new_apps_enabled];
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
   return {
     dataSources: getDatasources(state),
@@ -339,7 +337,7 @@ const mapStateToProps = (state: AppState) => {
     showDebugger,
     pageId,
     isAppSidebarEnabled,
-    isEnabledForStartWithData,
+    isEnabledForCreateNew,
   };
 };
 

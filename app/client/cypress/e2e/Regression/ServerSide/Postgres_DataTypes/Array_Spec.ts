@@ -34,23 +34,12 @@ describe("Array Datatype tests", function () {
   });
 
   it("1. Creating table query - arraytypes + Bug 14493", () => {
-    query = `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
-    dataSources.RunQuery();
-
-    //Creating SELECT query - arraytypes + Bug 14493
-    dataSources.createQueryWithDatasourceSchemaTemplate(
+    dataSources.CreateQueryForDS(
       dsName,
-      "public.arraytypes",
-      "Select",
+      `CREATE TABLE arraytypes (serialId SERIAL not null primary key, name text, pay_by_quarter  integer[], schedule text[][]);`,
+      "createTable",
     );
-    agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
 
     //Creating other queries
     query = `INSERT INTO arraytypes ("name", "pay_by_quarter", "schedule")  VALUES ('{{Insertname.text}}', ARRAY{{Insertpaybyquarter.text.split(',').map(Number)}}, ARRAY[['{{Insertschedule.text.split(',').slice(0,2).toString()}}'],['{{Insertschedule.text.split(',').slice(2,4).toString()}}']]);`;
@@ -72,6 +61,18 @@ describe("Array Datatype tests", function () {
 
     query = `DROP table public."arraytypes"`;
     dataSources.CreateQueryFromOverlay(dsName, query, "dropTable"); //Creating query from EE overlay
+
+    //Creating SELECT query - arraytypes + Bug 14493
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.arraytypes",
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
 
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
@@ -169,8 +170,9 @@ describe("Array Datatype tests", function () {
   it("6. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
     agHelper.RenameWithInPane("verifyArrayFunctions");
 
     query = `SELECT name FROM arraytypes WHERE pay_by_quarter[1] <> pay_by_quarter[2];`;
@@ -476,6 +478,7 @@ describe("Array Datatype tests", function () {
       action: "Delete",
       entityType: entityItems.Query,
     });
+    AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 

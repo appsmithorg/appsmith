@@ -572,10 +572,9 @@ function* formValueChangeSaga(
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
-  const { id, pluginType } = actionPayload.payload;
+  const { id, pageId, pluginType } = actionPayload.payload;
   const action: Action | undefined = yield select(getAction, id);
   const data = action ? { ...action } : {};
-  const pageId: string = yield select(getCurrentPageId);
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
@@ -595,6 +594,13 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
+  const plugin: Plugin | undefined = yield select(
+    getPlugin,
+    actionPayload.payload.pluginId,
+  );
+  // Only look at API plugins
+  if (plugin && plugin.type !== PluginType.API) return;
+
   const currentApplicationIdForCreateNewApp: string | undefined = yield select(
     getCurrentApplicationIdForCreateNewApp,
   );
@@ -605,12 +611,6 @@ function* handleDatasourceCreatedSaga(
   const pageId: string = !!currentApplicationIdForCreateNewApp
     ? application?.defaultPageId
     : yield select(getCurrentPageId);
-  const plugin: Plugin | undefined = yield select(
-    getPlugin,
-    actionPayload.payload.pluginId,
-  );
-  // Only look at API plugins
-  if (plugin && plugin.type !== PluginType.API) return;
 
   const actionRouteInfo: Partial<{
     apiId: string;
