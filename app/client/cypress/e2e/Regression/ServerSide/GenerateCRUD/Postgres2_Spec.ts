@@ -11,6 +11,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, newCallsign: any;
@@ -53,10 +54,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
      INSERT INTO Vessels(SHIP_ID,CALLSIGN,SHIPNAME,COUNTRY,NEXT_PORT_NAME,DESTINATION,VESSEL_TYPE,TIMEZONE,STATUS_NAME,YEAR_BUILT,AREA_CODE,SPEED,ETA_UPDATED,DISTANCE_TO_GO,CURRENT_PORT) VALUES (159196,'OYGR2','EMMA MAERSK','Denmark','SHANGHAI','CNNBO>CNYSN','Cargo',8,'Underway using Engine',2006,'CCHINA - Central China',8.2,'2022-05-27 10:55:00',143,NULL);
      `;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
-
-    agHelper.RenameWithInPane("CreateVessels");
-    dataSources.EnterQuery(tableCreateQuery);
+    dataSources.CreateQueryForDS(dsName, tableCreateQuery, "CreateVessels");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
@@ -84,7 +82,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Vessels", () => {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "vessels");
     agHelper.GetNClick(dataSources._generatePageBtn);
@@ -170,7 +168,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.EnterQuery(updateQuery);
     agHelper.PressEscape();
     agHelper.AssertAutoSave();
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
     EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
     UpdatingVesselsJSONPropertyFileds();
   });
@@ -427,7 +425,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.EnterQuery(insertQuery);
     agHelper.PressEscape();
     agHelper.AssertAutoSave();
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("11. Update JSON fields with placeholds for Addition - on Vessels", () => {
@@ -613,9 +611,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("16. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
     const deleteTblQuery = "DROP TABLE Vessels;";
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("DropVessels");
-    dataSources.EnterQuery(deleteTblQuery);
+    dataSources.CreateQueryForDS(dsName, deleteTblQuery, "DropVessels");
     agHelper.FocusElement(locators._codeMirrorTextArea);
 
     dataSources.RunQueryNVerifyResponseViews();

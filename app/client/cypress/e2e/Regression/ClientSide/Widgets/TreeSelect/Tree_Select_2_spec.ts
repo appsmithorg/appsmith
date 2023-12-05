@@ -182,7 +182,7 @@ describe("Tree Select widget Tests", function () {
       agHelper.TypeText(locators._dsNameTxt, postgresDatasourceName);
       dataSources.FillPostgresDSForm();
       dataSources.SaveDatasource();
-      dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
+      dataSources.CreateQueryAfterDSSaved();
     });
     dataSources.RunQuery();
 
@@ -217,14 +217,14 @@ describe("Tree Select widget Tests", function () {
     propPane.ToggleJSMode("onOptionChange", true);
     propPane.UpdatePropertyFieldValue(
       "onOptionChange",
-      "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
+      "{{navigateTo('www.google.com', {}, 'SAME_WINDOW');}}",
     );
     deployMode.DeployApp();
     agHelper.GetNClick(
       `${locators._widgetInDeployed("singleselecttreewidget")}`,
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-    agHelper.AssertURL("yahoo.com");
+    agHelper.AssertURL("google.com");
     agHelper.BrowserNavigation(-1);
   });
 

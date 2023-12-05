@@ -38,7 +38,7 @@ describe("Undo/Redo functionality", function () {
 
       cy.get("body").type(`{${modifierKey}}z`);
       cy.get(".t--application-name").click({ force: true }).wait(500);
-      cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
+      cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").click();
       cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
         force: true,
       });
@@ -89,7 +89,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("3. Checks undo/redo in query editor", () => {
-    dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
+    dataSources.CreateQueryForDS(postgresDatasourceName);
     cy.get(".CodeMirror textarea").first().focus().type("{{FirstAPI}}", {
       force: true,
       parseSpecialCharSequences: false,
@@ -107,7 +107,7 @@ describe("Undo/Redo functionality", function () {
     cy.get(".CodeMirror-code span").contains("{{FirstAPI}}");
     // undo/edo through app menu
     cy.get(".t--application-name").click({ force: true });
-    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
+    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").click();
     cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
       multiple: true,
     });
@@ -134,7 +134,7 @@ describe("Undo/Redo functionality", function () {
     cy.contains("testJSFunction").should("exist");
     // performing undo from app menu
     cy.get(".t--application-name").click({ force: true });
-    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
+    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").click();
     cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
       multiple: true,
     });

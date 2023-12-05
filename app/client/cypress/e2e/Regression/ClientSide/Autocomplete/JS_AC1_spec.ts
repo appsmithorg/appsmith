@@ -12,6 +12,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 let jsName: any;
 
@@ -82,7 +83,7 @@ describe("Autocomplete tests", () => {
 
   it("2. Check for bindings not available in other page", () => {
     // dependent on above case: 1st page should have DocumentViewer widget
-    entityExplorer.AddNewPage();
+    PageList.AddNewPage();
     // create js object
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,

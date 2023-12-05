@@ -1,10 +1,6 @@
-import {
-  agHelper,
-  locators,
-  entityExplorer,
-  jsEditor,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, jsEditor } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 const jsObjectBody = `export default {
 	myVar1: [],
@@ -52,6 +48,6 @@ describe("Verifies JS object rename bug", () => {
 
     jsEditor.RenameJSObjFromPane("JSObj2");
 
-    entityExplorer.AssertEntityPresenceInExplorer("JSObj2");
+    PageLeftPane.assertPresence("JSObj2");
   });
 });

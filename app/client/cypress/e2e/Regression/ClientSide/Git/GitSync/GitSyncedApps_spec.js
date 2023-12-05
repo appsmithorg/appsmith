@@ -23,6 +23,7 @@ import {
   gitSync,
   dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../../support/Pages/PageList";
 
 const newPage = "ApiCalls_1";
 const pageName = "crudpage_1";
@@ -46,7 +47,7 @@ describe("Git sync apps", function () {
     homePage.CreateNewApplication();
 
     // create New App and  generate Postgres CRUD page
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     //cy.get(generatePage.generateCRUDPageActionCard).click();
 
     cy.get(generatePage.selectDatasourceDropdown).click();
@@ -295,10 +296,11 @@ describe("Git sync apps", function () {
     jsEditor.CreateJSObject('return "Success";');
     cy.wait(2000);
     // create postgres select query
-    //cy.CheckAndUnfoldEntityItem("Datasources");
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
-    agHelper.RenameWithInPane("get_users");
+    dataSources.CreateQueryForDS(
+      datasourceName,
+      "SELECT * FROM users ORDER BY id LIMIT 10;",
+      "get_users",
+    );
     dataSources.RunQuery();
     // create a new page
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -461,7 +463,7 @@ describe("Git sync apps", function () {
 
     //  clone the Child_Page
     EditorNavigation.SelectEntityByName("Child_Page", EntityType.Page);
-    entityExplorer.ClonePage("Child_Page");
+    PageList.ClonePage("Child_Page");
     // change cloned page visiblity to hidden
     EditorNavigation.SelectEntityByName("Child_Page Copy", EntityType.Page);
     entityExplorer.ActionContextMenuByEntityName({
@@ -509,12 +511,12 @@ describe("Git sync apps", function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify Child_Page is not on master
     cy.switchGitBranch(mainBranch);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    entityExplorer.AssertEntityAbsenceInExplorer("Child_Page Copy");
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence("Child_Page Copy");
     // create another branch and verify deleted page doesn't exist on it
     gitSync.CreateGitBranch(tempBranch0, true);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    entityExplorer.AssertEntityAbsenceInExplorer("Child_Page Copy");
+    PageLeftPane.expandCollapseItem("Pages");
+    PageLeftPane.assertAbsence("Child_Page Copy");
   });
 
   it("10. Import app from git and verify page order should not change", () => {

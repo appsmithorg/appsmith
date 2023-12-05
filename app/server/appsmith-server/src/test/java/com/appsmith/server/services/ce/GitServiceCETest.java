@@ -14,6 +14,7 @@ import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -55,7 +56,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.SessionUserService;
@@ -1896,7 +1896,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(branchList));
 
         Mono<Application> applicationMono = gitService
-                .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal")
+                .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal", true)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         "branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
 
@@ -1972,7 +1972,7 @@ public class GitServiceCETest {
         Mono<Tuple4<Theme, Application, Theme, Theme>> resultMono =
                 setCustomThemeToGitConnectedAppMono.flatMap(theme -> {
                     return gitService
-                            .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal2")
+                            .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal2", true)
                             .then(Mono.defer(() -> applicationService.findByBranchNameAndDefaultApplicationId(
                                     "branchNotInLocal2", gitConnectedApplication.getId(), READ_APPLICATIONS)))
                             .flatMap(application -> {
@@ -2035,7 +2035,7 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("fetchResult"));
 
         Mono<Application> applicationMono =
-                gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchInLocal");
+                gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchInLocal", true);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2049,8 +2049,7 @@ public class GitServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkoutBranch_branchNotProvided_throwInvalidParameterError() {
-
-        Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), null);
+        Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), null, true);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -4164,7 +4163,7 @@ public class GitServiceCETest {
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<Application> checkoutBranchMono = gitService.checkoutBranch(application.getId(), "origin/develop");
+        Mono<Application> checkoutBranchMono = gitService.checkoutBranch(application.getId(), "origin/develop", true);
         StepVerifier.create(checkoutBranchMono)
                 .assertNext(app -> {
                     assertThat(app.getId()).isEqualTo(application.getId());

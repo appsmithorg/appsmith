@@ -7,6 +7,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -22,7 +23,6 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -316,7 +316,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
         return repository
-                .findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+                .findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort)
                 .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
     }

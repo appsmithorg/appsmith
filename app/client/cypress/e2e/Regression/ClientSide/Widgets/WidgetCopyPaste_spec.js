@@ -9,6 +9,7 @@ const commonLocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 describe("Widget Copy paste", function () {
@@ -153,7 +154,7 @@ describe("Widget Copy paste", function () {
   });
 
   it("8. Should not be able to copy/cut canvas widgets (i.e. Individual Tabs) of tabs widget", function () {
-    _.entityExplorer.AddNewPage("New blank page");
+    PageList.AddNewPage("New blank page");
 
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TAB, 400, 200);
 

@@ -15,6 +15,7 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 const successMessage = "Successful Trigger";
@@ -52,9 +53,7 @@ const clickButtonAndAssertLintError = (
 
 const createMySQLDatasourceQuery = () => {
   // Create Query
-  dataSources.NavigateFromActiveDS(dsName, true);
-  const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
-  dataSources.EnterQuery(tableCreateQuery);
+  dataSources.CreateQueryForDS(dsName, `SELECT * FROM spacecrafts LIMIT 10;`);
 };
 
 describe("Linting", () => {
@@ -64,7 +63,7 @@ describe("Linting", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName as unknown as string;
     });
-    AppSidebar.navigate(AppSidebarButton.Pages);
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
@@ -92,7 +91,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete Api and assert that lint error shows
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
@@ -155,7 +154,7 @@ describe("Linting", () => {
       },
     );
     clickButtonAndAssertLintError(false);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
@@ -216,7 +215,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
       action: "Delete",
@@ -265,7 +264,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete all
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",
