@@ -1,5 +1,6 @@
 import WidgetsEditor from "pages/Editor/WidgetsEditor";
 import {
+  API_EDITOR_ID_ADD_PATH,
   API_EDITOR_ID_PATH,
   APP_LIBRARIES_EDITOR_PATH,
   APP_SETTINGS_EDITOR_PATH,
@@ -16,6 +17,7 @@ import {
   JS_COLLECTION_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
   QUERIES_EDITOR_BASE_PATH,
+  QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
@@ -29,6 +31,7 @@ import JSEditor from "pages/Editor/JSEditor";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 import ListView from "pages/Editor/SaaSEditor/ListView";
 import {
+  SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
   SAAS_EDITOR_PATH,
@@ -88,7 +91,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "ApiEditor",
       component: ApiEditor,
       exact: true,
-      path: `${path}${API_EDITOR_ID_PATH}`,
+      path: [
+        `${path}${API_EDITOR_ID_PATH}`,
+        `${path}${API_EDITOR_ID_ADD_PATH}`,
+      ],
     },
     {
       key: "QueryEditorList",
@@ -100,7 +106,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "QueryEditor",
       component: QueryEditor,
       exact: true,
-      path: `${path}${QUERIES_EDITOR_ID_PATH}`,
+      path: [
+        `${path}${QUERIES_EDITOR_ID_PATH}`,
+        `${path}${QUERIES_EDITOR_ID_ADD_PATH}`,
+      ],
     },
     {
       key: "JSEditorList",
@@ -136,7 +145,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "SAASEditor",
       component: QueryEditor,
       exact: true,
-      path: `${path}${SAAS_EDITOR_API_ID_PATH}`,
+      path: [
+        `${path}${SAAS_EDITOR_API_ID_PATH}`,
+        `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
+      ],
     },
     {
       key: "DatasourceEditor",

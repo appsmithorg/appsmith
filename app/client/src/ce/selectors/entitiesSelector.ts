@@ -1329,3 +1329,49 @@ export const getModuleInstanceEntities = () => {
     jsCollections: [],
   };
 };
+
+export const selectQueriesForPagespane = createSelector(
+  getCurrentActions,
+  getCurrentJSCollections,
+  selectDatasourceIdToNameMap,
+  (actions, jsActions, datasourceIdToNameMap) => {
+    // eslint-disable-next-line no-console
+    console.log("jsActions", jsActions);
+    let data: {
+      [key: string]: { id: string; name: string; type: string }[];
+    } = {};
+
+    [...actions, ...jsActions].forEach((file) => {
+      let group = "";
+      if (file.config.pluginType === PluginType.JS) {
+        group = "JS Objects";
+      } else if (file.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(file.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+      } else {
+        group = datasourceIdToNameMap[file.config.datasource.id];
+      }
+      if (!data[group]) {
+        data[group] = [];
+      }
+      data[group].push({
+        id: file.config.id,
+        name: file.config.name,
+        type: file.config.pluginType,
+      });
+    });
+    data = Object.keys(data)
+      .sort()
+      .reduce(
+        function (acc, key) {
+          acc[key] = data[key];
+          return acc;
+        },
+        {} as {
+          [key: string]: { id: string; name: string; type: string }[];
+        },
+      );
+    return data;
+  },
+);

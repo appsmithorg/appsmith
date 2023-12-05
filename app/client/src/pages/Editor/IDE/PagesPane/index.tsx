@@ -104,6 +104,7 @@ const _pagesPane = () => {
       {/* divider is inside the Pages component */}
       <Flex
         alignItems="center"
+        backgroundColor="var(--ads-v2-colors-control-track-default-bg)"
         className="ide-pages-pane__header"
         justifyContent="space-between"
         padding="spaces-2"
