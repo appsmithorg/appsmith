@@ -64,6 +64,10 @@ public class AnthropicPlugin extends BasePlugin {
         private static final Cache<String, TriggerResultDTO> triggerResponseCache =
                 CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
 
+        protected AnthropicPluginExecutor(SharedConfig sharedConfig) {
+            super(sharedConfig);
+        }
+
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
@@ -94,10 +98,6 @@ public class AnthropicPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(
                             "Error while trying to test the datasource configurations" + error.getMessage())));
-        }
-
-        protected AnthropicPluginExecutor(SharedConfig sharedConfig) {
-            super(sharedConfig);
         }
 
         @Override
@@ -208,7 +208,6 @@ public class AnthropicPlugin extends BasePlugin {
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
-            assert apiKeyAuth.getValue() != null;
             if (!StringUtils.hasText(apiKeyAuth.getValue())) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, EMPTY_API_KEY));
