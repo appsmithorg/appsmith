@@ -62,7 +62,7 @@ public class PluginControllerCE extends BaseController<PluginService, Plugin, St
     @JsonView(Views.Public.class)
     @GetMapping("/getAll/usingPageId/{pageId}")
     public Mono<ResponseDTO<List<Plugin>>> getAllPluginsUsingPageId(@PathVariable String pageId) {
-        return service.getDefaultPluginIcons()
+        return service.getAllPluginsUsingPageId(pageId)
                 .collectList()
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
