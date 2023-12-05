@@ -1,9 +1,19 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import produce from "immer";
+import produce, { Immutable } from "immer";
 
-export const createReducer = (
-  initialState: any,
-  handlers: { [type: string]: (state: any, action: any) => any },
+export type ActionHandlers<T> = Record<
+  string,
+  (state: T, action: ReduxAction<any>) => T
+>;
+
+export type ImmerActionHandlers<T> = Record<
+  string,
+  (state: T, action: ReduxAction<any>) => unknown
+>;
+
+export const createReducer = <T>(
+  initialState: T,
+  handlers: ActionHandlers<T>,
 ) => {
   return function reducer(state = initialState, action: ReduxAction<any>) {
     if (handlers.hasOwnProperty(action.type)) {
@@ -14,13 +24,13 @@ export const createReducer = (
   };
 };
 
-export const createImmerReducer = (
-  initialState: any,
-  handlers: { [type: string]: any },
+export const createImmerReducer = <T>(
+  initialState: T,
+  handlers: ImmerActionHandlers<T>,
 ) => {
   return function reducer(state = initialState, action: ReduxAction<any>) {
     if (handlers.hasOwnProperty(action.type)) {
-      return produce(handlers[action.type])(state, action);
+      return produce(handlers[action.type])(state as Immutable<T>, action);
     } else {
       return state;
     }

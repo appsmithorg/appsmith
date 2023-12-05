@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { ActionHandlers, createReducer } from "utils/ReducerUtils";
 import type {
   ReduxAction,
   ApplicationPayload,
@@ -64,7 +64,7 @@ export const initialState: ApplicationsReduxState = {
   },
 };
 
-export const handlers = {
+export const handlers: ActionHandlers<ApplicationsReduxState> = {
   [ReduxActionTypes.DELETE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => {
@@ -935,7 +935,7 @@ export interface ApplicationsReduxState {
   createApplicationError?: string;
   deletingApplication: boolean;
   forkingApplication: boolean;
-  currentApplication?: ApplicationPayload;
+  currentApplication: ApplicationPayload;
   userWorkspaces: Workspaces[];
   isSavingWorkspaceInfo: boolean;
   importingApplication: boolean;

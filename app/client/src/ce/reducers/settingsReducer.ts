@@ -34,7 +34,7 @@ export const handlers = {
   }),
   [ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS]: (
     state: SettingsReduxState,
-    action: ReduxAction<SettingsReduxState>,
+    action: ReduxAction<Record<string, any>>,
   ) => ({
     ...state,
     isLoading: false,
@@ -44,13 +44,13 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
-    state: SettingsReduxState & TenantReduxState<any>,
+    state: SettingsReduxState,
     action: ReduxAction<TenantReduxState<any>>,
   ) => {
-    const configs: any = {};
+    const configs: Record<string, any> = {};
     tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
-        configs[key] = action.payload?.tenantConfiguration?.[key];
+        configs[key] = action.payload.tenantConfiguration[key];
       }
     });
     return {
@@ -63,13 +63,13 @@ export const handlers = {
     };
   },
   [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (
-    state: SettingsReduxState & TenantReduxState<any>,
+    state: SettingsReduxState,
     action: ReduxAction<TenantReduxState<any>>,
   ) => {
     const configs: any = {};
     tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
-        configs[key] = action.payload?.tenantConfiguration?.[key];
+        configs[key] = action.payload.tenantConfiguration[key];
       }
     });
     return {

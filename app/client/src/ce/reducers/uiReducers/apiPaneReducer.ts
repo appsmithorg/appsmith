@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { type ActionHandlers, createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import type { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 
 export const initialState: ApiPaneReduxState = {
   isCreating: false,
@@ -34,39 +35,33 @@ export interface ApiPaneReduxState {
   selectedRightPaneTab?: string;
 }
 
-export const handlers = {
-  [ReduxActionTypes.FETCH_ACTIONS_INIT]: (state: ApiPaneReduxState) => ({
+export const handlers: ActionHandlers<ApiPaneReduxState> = {
+  [ReduxActionTypes.FETCH_ACTIONS_INIT]: (state) => ({
     ...state,
     isFetching: true,
   }),
-  [ReduxActionTypes.FETCH_ACTIONS_SUCCESS]: (state: ApiPaneReduxState) => ({
+  [ReduxActionTypes.FETCH_ACTIONS_SUCCESS]: (state) => ({
     ...state,
     isFetching: false,
   }),
-  [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: (state: ApiPaneReduxState) => ({
+  [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR]: (state) => ({
     ...state,
     isFetching: false,
   }),
-  [ReduxActionTypes.CREATE_ACTION_INIT]: (
-    state: ApiPaneReduxState,
-  ): ApiPaneReduxState => ({
+  [ReduxActionTypes.CREATE_ACTION_INIT]: (state) => ({
     ...state,
     isCreating: true,
   }),
-  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (
-    state: ApiPaneReduxState,
-  ): ApiPaneReduxState => ({
+  [ReduxActionTypes.CREATE_ACTION_SUCCESS]: (state) => ({
     ...state,
     isCreating: false,
   }),
-  [ReduxActionErrorTypes.CREATE_ACTION_ERROR]: (
-    state: ApiPaneReduxState,
-  ): ApiPaneReduxState => ({
+  [ReduxActionErrorTypes.CREATE_ACTION_ERROR]: (state) => ({
     ...state,
     isCreating: false,
   }),
   [ReduxActionTypes.RUN_ACTION_REQUEST]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
@@ -76,7 +71,7 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ [id: string]: any }>,
   ) => {
     const actionId = Object.keys(action.payload)[0];
@@ -89,7 +84,7 @@ export const handlers = {
     };
   },
   [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
@@ -99,7 +94,7 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ id: string }>,
   ): ApiPaneReduxState => ({
     ...state,
@@ -109,7 +104,7 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<UpdateActionPropertyActionPayload>,
   ) => ({
     ...state,
@@ -119,7 +114,7 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.UPDATE_ACTION_INIT]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
@@ -129,7 +124,7 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.UPDATE_ACTION_SUCCESS]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ data: Action }>,
   ) => ({
     ...state,
@@ -143,7 +138,7 @@ export const handlers = {
     },
   }),
   [ReduxActionErrorTypes.UPDATE_ACTION_ERROR]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
@@ -153,7 +148,7 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.DELETE_ACTION_INIT]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
@@ -173,7 +168,7 @@ export const handlers = {
     },
   }),
   [ReduxActionErrorTypes.DELETE_ACTION_ERROR]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
@@ -184,24 +179,14 @@ export const handlers = {
   }),
 
   [ReduxActionTypes.SET_CURRENT_CATEGORY]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ category: string }>,
   ) => ({
     ...state,
     currentCategory: action.payload.category,
   }),
-
-  /**
-   * This redux action sets the extraformData field for an action. This is used to select the
-   * appropriate body type tab selection in the Rest API plugin based on the content-type.
-   * This redux action can be extended to other functionalities as well in the future.
-   *
-   * @param {ApiPaneReduxState} state
-   * @param {ReduxAction} action
-   * @returns {ApiPaneReduxState}
-   */
   [ReduxActionTypes.SET_EXTRA_FORMDATA]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ id: string; values: Record<string, unknown> }>,
   ) => {
     const { id, values } = action.payload;
@@ -214,7 +199,7 @@ export const handlers = {
     };
   },
   [ReduxActionTypes.SET_API_PANE_CONFIG_SELECTED_TAB]: (
-    state: ApiPaneReduxState,
+    state,
     action: ReduxAction<{ selectedTabIndex: number }>,
   ) => {
     const { selectedTabIndex } = action.payload;
@@ -224,8 +209,8 @@ export const handlers = {
     };
   },
   [ReduxActionTypes.SET_API_RIGHT_PANE_SELECTED_TAB]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ selectedTab: number }>,
+    state,
+    action: ReturnType<typeof setApiRightPaneSelectedTab>,
   ) => {
     const { selectedTab } = action.payload;
     return {
@@ -235,6 +220,6 @@ export const handlers = {
   },
 };
 
-const apiPaneReducer = createReducer(initialState, handlers);
+const apiPaneReducer = createReducer<ApiPaneReduxState>(initialState, handlers);
 
 export default apiPaneReducer;

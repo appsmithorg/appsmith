@@ -80,6 +80,7 @@ import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingRe
     or done so by a module that is designed to be eventually pluggable */
 import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
+import type { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -146,7 +147,7 @@ export interface AppState {
     activeField: ActiveField;
   };
   entities: {
-    canvasWidgetsStructure: CanvasWidgetStructure;
+    canvasWidgetsStructure: CanvasWidgetsStructureReduxState;
     canvasWidgets: CanvasWidgetsReduxState;
     metaWidgets: MetaWidgetsReduxState;
     actions: ActionDataState;
