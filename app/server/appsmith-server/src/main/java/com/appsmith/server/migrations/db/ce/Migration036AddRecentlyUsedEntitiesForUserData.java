@@ -44,7 +44,7 @@ public class Migration036AddRecentlyUsedEntitiesForUserData {
         for (UserData userData : userDataList) {
             final Update update = new Update();
             if (CollectionUtils.isNullOrEmpty(userData.getRecentlyUsedWorkspaceIds())) {
-                break;
+                continue;
             }
             List<RecentlyUsedEntityDTO> recentlyUsedEntityDTOS = new ArrayList<>();
             for (String workspaceId : userData.getRecentlyUsedWorkspaceIds()) {
