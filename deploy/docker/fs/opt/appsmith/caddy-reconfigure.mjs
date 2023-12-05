@@ -92,7 +92,7 @@ parts.push(`
     import file_server
   }
 
-  @backend path /api/* /oauth2/* /login/*
+  @backend path /api/* /oauth2/* /login/* /actuator
   handle @backend {
     import reverse_proxy 8080
   }
@@ -104,6 +104,15 @@ parts.push(`
   redir /supervisor /supervisor/
   handle_path /supervisor/* {
     import reverse_proxy 9001
+  }
+
+  redir /auth /auth/
+  handle /auth/* {
+    import reverse_proxy 8081
+  }
+
+  handle /scim/* {
+    import reverse_proxy 8886
   }
 
   handle_errors {

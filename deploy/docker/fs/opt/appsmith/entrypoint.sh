@@ -92,9 +92,8 @@ init_env_file() {
     )
     local generated_appsmith_supervisor_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ""
+      echo ''
     )
-
     bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
   fi
 
