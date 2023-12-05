@@ -71,7 +71,6 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.RESOLVE_APPROVAL_REQUESTS;
-import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ADD_USER_TO_ALL_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_DELETE_ALL_USERS;
@@ -112,7 +111,6 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_RESOLVE_WORKFLOWS;
 
 @Component
 public class PolicyGenerator extends PolicyGeneratorCE {
@@ -142,7 +140,6 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_DELETE_WORKFLOWS, DELETE_WORKFLOWS);
         hierarchyGraph.addEdge(WORKSPACE_PUBLISH_WORKFLOWS, PUBLISH_WORKFLOWS);
         hierarchyGraph.addEdge(WORKSPACE_EXPORT_WORKFLOWS, EXPORT_WORKFLOWS);
-        hierarchyGraph.addEdge(WORKSPACE_RESOLVE_WORKFLOWS, RESOLVE_WORKFLOWS);
 
         lateralGraph.addEdge(MANAGE_WORKFLOWS, READ_WORKFLOWS);
         lateralGraph.addEdge(MANAGE_WORKFLOWS, EXECUTE_WORKFLOWS);
@@ -153,7 +150,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         lateralGraph.addEdge(READ_WORKFLOWS, EXECUTE_WORKFLOWS);
         lateralGraph.addEdge(READ_WORKFLOWS, READ_HISTORY_WORKFLOWS);
 
-        lateralGraph.addEdge(DELETE_WORKFLOWS, MANAGE_WORKFLOWS);
+        lateralGraph.addEdge(MANAGE_WORKFLOWS, READ_WORKFLOWS);
         lateralGraph.addEdge(DELETE_WORKFLOWS, READ_WORKFLOWS);
 
         lateralGraph.addEdge(PUBLISH_WORKFLOWS, READ_WORKFLOWS);
@@ -274,7 +271,6 @@ public class PolicyGenerator extends PolicyGeneratorCE {
 
         lateralGraph.addEdge(WORKSPACE_MANAGE_WORKFLOWS, WORKSPACE_READ_WORKFLOWS);
 
-        lateralGraph.addEdge(WORKSPACE_DELETE_WORKFLOWS, WORKSPACE_MANAGE_WORKFLOWS);
         lateralGraph.addEdge(WORKSPACE_DELETE_WORKFLOWS, WORKSPACE_READ_WORKFLOWS);
 
         lateralGraph.addEdge(WORKSPACE_PUBLISH_WORKFLOWS, WORKSPACE_MANAGE_WORKFLOWS);
@@ -337,6 +333,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         hierarchyGraph.addEdge(DELETE_MODULES, DELETE_ACTIONS);
 
         hierarchyGraph.addEdge(MANAGE_WORKFLOWS, MANAGE_ACTIONS);
+        hierarchyGraph.addEdge(READ_WORKFLOWS, EXECUTE_ACTIONS);
         hierarchyGraph.addEdge(EXECUTE_WORKFLOWS, EXECUTE_ACTIONS);
         hierarchyGraph.addEdge(DELETE_WORKFLOWS, DELETE_ACTIONS);
 

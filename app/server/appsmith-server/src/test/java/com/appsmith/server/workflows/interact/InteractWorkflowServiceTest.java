@@ -45,7 +45,6 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
@@ -160,7 +159,6 @@ class InteractWorkflowServiceTest {
                     || PUBLISH_WORKFLOWS.getValue().equals(policy.getPermission())
                     || DELETE_WORKFLOWS.getValue().equals(policy.getPermission())
                     || EXPORT_WORKFLOWS.getValue().equals(policy.getPermission())
-                    || RESOLVE_WORKFLOWS.getValue().equals(policy.getPermission())
                     || WORKFLOW_CREATE_ACTIONS.getValue().equals(policy.getPermission())
                     || READ_HISTORY_WORKFLOWS.getValue().equals(policy.getPermission())) {
                 assertThat(policy.getPermissionGroups()).doesNotContain(workflowBotRole.getId());

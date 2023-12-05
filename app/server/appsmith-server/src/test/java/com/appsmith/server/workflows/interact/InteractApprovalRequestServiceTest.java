@@ -53,7 +53,6 @@ import java.util.Set;
 import static com.appsmith.server.constants.ApprovalRequestStatus.PENDING;
 import static com.appsmith.server.constants.ApprovalRequestStatus.RESOLVED;
 import static com.appsmith.server.constants.FieldName.REQUEST;
-import static com.appsmith.server.constants.FieldName.WORKFLOW;
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
 import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
@@ -413,55 +412,6 @@ public class InteractApprovalRequestServiceTest {
         assertThat(resolvedApprovalRequest.getResolutionReason()).isEqualTo(approvalRequestResolutionReason);
         assertThat(resolvedApprovalRequest.getResolvedAt()).isBefore(Instant.now());
         assertThat(resolvedApprovalRequest.getResolvedBy()).isEqualTo(createdUser.getUsername());
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void testInvalidApprovalResolution_noResolveAccessToWorkflow() {
-        String testName = "testInvalidApprovalResolution_noResolveAccessToWorkflow";
-
-        User user = new User();
-        user.setEmail(testName);
-        user.setPassword(testName);
-        User createdUser = userService.create(user).block();
-
-        String resolution1 = "resolution1";
-        String resolution2 = "resolution2";
-        String resolution3 = "resolution3";
-        Set<String> allowedResolutions = Set.of(resolution1, resolution2);
-        String approvalRequestTitle = "Title: " + testName;
-        String approvalRequestMessage = "Message: " + testName;
-
-        ApprovalRequest approvalRequest = createTestApprovalRequest(
-                approvalRequestTitle, approvalRequestMessage, allowedResolutions, createdUser, null);
-
-        String approvalRequestResolutionReason = "Resolution Reason: " + testName;
-        Mono<JSONObject> resolutionMono = resolveApprovalRequestInviteUser(
-                approvalRequest, approvalRequestResolutionReason, resolution1, createdUser, testName);
-
-        StepVerifier.create(resolutionMono)
-                .expectErrorMatches(throwable -> {
-                    assertThat(throwable).isInstanceOf(AppsmithException.class);
-                    assertThat(throwable.getMessage())
-                            .contains(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(WORKFLOW, workflow.getId()));
-                    return true;
-                })
-                .verify();
-
-        ApprovalRequest resolvedApprovalRequest =
-                approvalRequestRepository.findById(approvalRequest.getId()).block();
-        assertThat(resolvedApprovalRequest).isNotNull();
-        assertThat(resolvedApprovalRequest.getId()).isNotEmpty();
-        assertThat(resolvedApprovalRequest.getTitle()).isEqualTo(approvalRequestTitle);
-        assertThat(resolvedApprovalRequest.getDescription()).isEqualTo(approvalRequestMessage);
-        assertThat(resolvedApprovalRequest.getWorkflowId()).isEqualTo(workflow.getId());
-        assertThat(resolvedApprovalRequest.getResolutionStatus()).isEqualTo(PENDING);
-        assertThat(resolvedApprovalRequest.getAllowedResolutions())
-                .containsExactlyInAnyOrderElementsOf(allowedResolutions);
-        assertThat(resolvedApprovalRequest.getResolution()).isNullOrEmpty();
-        assertThat(resolvedApprovalRequest.getResolutionReason()).isNullOrEmpty();
-        assertThat(resolvedApprovalRequest.getResolvedAt()).isNull();
-        assertThat(resolvedApprovalRequest.getResolvedBy()).isNullOrEmpty();
     }
 
     @Test

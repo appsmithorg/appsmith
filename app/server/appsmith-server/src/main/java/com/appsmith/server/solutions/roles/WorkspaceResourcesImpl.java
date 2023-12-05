@@ -17,6 +17,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
+import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -24,6 +25,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.TenantService;
@@ -80,6 +82,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
     private final NewActionRepository actionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
     private final DatasourceRepository datasourceRepository;
+    private final WorkflowRepository workflowRepository;
     private final ResponseUtils responseUtils;
     private final TenantService tenantService;
     private final PolicyGenerator policyGenerator;
@@ -93,6 +96,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
             NewActionRepository actionRepository,
             ActionCollectionRepository actionCollectionRepository,
             DatasourceRepository datasourceRepository,
+            WorkflowRepository workflowRepository,
             ResponseUtils responseUtils,
             TenantService tenantService,
             PolicyGenerator policyGenerator,
@@ -105,6 +109,7 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
         this.actionRepository = actionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
         this.datasourceRepository = datasourceRepository;
+        this.workflowRepository = workflowRepository;
         this.responseUtils = responseUtils;
         this.tenantService = tenantService;
         this.policyGenerator = policyGenerator;
@@ -1058,6 +1063,11 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .flatMap(environmentService::findByWorkspaceId)
                 .cache();
 
+        Flux<Workflow> workflowFlux = workspaceIdsMono
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(workspaceId -> workflowRepository.findAllByWorkspaceId(workspaceId, Optional.empty()))
+                .cache();
+
         Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono = environmentFlux
                 .collectMultimap(Environment::getWorkspaceId, Function.identity())
                 .cache();
@@ -1153,6 +1163,25 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 .collectMultimap(Datasource::getWorkspaceId, Function.identity())
                 .cache();
 
+        Mono<Map<String, Collection<Workflow>>> workspaceWorkflowMapMono = workflowFlux
+                .collectMultimap(Workflow::getWorkspaceId, Function.identity())
+                .cache();
+
+        Mono<Map<String, Collection<NewAction>>> workflowActionMapMono = workflowFlux
+                .collectList()
+                .flatMap(workflows -> {
+                    List<String> workflowActionsIncludeFields = new ArrayList<>(includeFields);
+                    workflowActionsIncludeFields.add(fieldName(QNewAction.newAction.workflowId));
+                    workflowActionsIncludeFields.add(fieldName(QNewAction.newAction.publishedAction));
+                    workflowActionsIncludeFields.add(fieldName(QNewAction.newAction.unpublishedAction));
+                    workflowActionsIncludeFields.add(fieldName(QNewAction.newAction.pluginId));
+                    List<String> workflowIds =
+                            workflows.stream().map(Workflow::getId).toList();
+                    return actionRepository
+                            .findByWorkflowIds(workflowIds, Optional.empty(), Optional.of(workflowActionsIncludeFields))
+                            .collectMultimap(NewAction::getWorkflowId, Function.identity());
+                });
+
         CommonAppsmithObjectData commonAppsmithObjectData = new CommonAppsmithObjectData(
                 workspaceFlux,
                 applicationFlux,
@@ -1161,12 +1190,15 @@ public class WorkspaceResourcesImpl implements WorkspaceResources {
                 actionCollectionFlux,
                 datasourceFlux,
                 environmentFlux,
+                workflowFlux,
                 workspaceApplicationsMapMono,
                 applicationPagesMapMono,
                 pageActionsMapMono,
                 pageActionCollectionMapMono,
                 workspaceDatasourcesMapMono,
-                workspaceEnvironmentMapMono);
+                workspaceEnvironmentMapMono,
+                workspaceWorkflowMapMono,
+                workflowActionMapMono);
 
         return commonAppsmithObjectData;
     }

@@ -49,7 +49,6 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_PACKAGES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_RESOLVE_WORKFLOWS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.PROVISIONING_ROLE;
@@ -79,7 +78,6 @@ public enum AppsmithRole {
                     WORKSPACE_MAKE_PUBLIC_APPLICATIONS,
                     WORKSPACE_CREATE_WORKFLOW,
                     WORKSPACE_EXPORT_WORKFLOWS,
-                    WORKSPACE_RESOLVE_WORKFLOWS,
                     WORKSPACE_CREATE_ENVIRONMENT,
                     WORKSPACE_DELETE_ENVIRONMENTS,
                     WORKSPACE_READ_ENVIRONMENTS)),
@@ -103,8 +101,7 @@ public enum AppsmithRole {
                     WORKSPACE_CREATE_ENVIRONMENT,
                     WORKSPACE_DELETE_ENVIRONMENTS,
                     WORKSPACE_READ_ENVIRONMENTS,
-                    WORKSPACE_CREATE_WORKFLOW,
-                    WORKSPACE_RESOLVE_WORKFLOWS)),
+                    WORKSPACE_CREATE_WORKFLOW)),
     ORGANIZATION_VIEWER(
             VIEWER,
             WORKSPACE_VIEWER_DESCRIPTION,

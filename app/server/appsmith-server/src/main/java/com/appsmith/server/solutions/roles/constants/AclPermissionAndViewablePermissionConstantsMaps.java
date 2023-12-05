@@ -25,6 +25,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.DELETE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -38,6 +39,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -47,6 +49,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_TENANT_AUDIT_LOGS;
 import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_ADD_USER_TO_ALL_USER_GROUPS;
@@ -58,12 +61,15 @@ import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_REMOVE_USER_FROM_ALL_USER_GROUPS;
+import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_ENVIRONMENT;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_WORKFLOW;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_ENVIRONMENTS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
@@ -71,9 +77,11 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_MAKE_PUBLIC_APPLIC
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_ENVIRONMENTS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_ENVIRONMENTS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_WORKFLOWS;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.ASSOCIATE_ROLE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.CREATE;
 import static com.appsmith.server.solutions.roles.constants.PermissionViewableName.DELETE;
@@ -107,6 +115,10 @@ public class AclPermissionAndViewablePermissionConstantsMaps {
             Map.entry(WORKSPACE_DELETE_ENVIRONMENTS, DELETE),
             Map.entry(WORKSPACE_READ_ENVIRONMENTS, VIEW),
             Map.entry(WORKSPACE_EXECUTE_ENVIRONMENTS, EXECUTE),
+            Map.entry(WORKSPACE_CREATE_WORKFLOW, CREATE),
+            Map.entry(WORKSPACE_MANAGE_WORKFLOWS, EDIT),
+            Map.entry(WORKSPACE_DELETE_WORKFLOWS, DELETE),
+            Map.entry(WORKSPACE_READ_WORKFLOWS, VIEW),
 
             // Datasource level permissions
             Map.entry(EXECUTE_DATASOURCES, EXECUTE),
@@ -166,7 +178,13 @@ public class AclPermissionAndViewablePermissionConstantsMaps {
             // Environment level permissions
             Map.entry(DELETE_ENVIRONMENTS, DELETE),
             Map.entry(EXECUTE_ENVIRONMENTS, EXECUTE),
-            Map.entry(MANAGE_ENVIRONMENTS, EDIT));
+            Map.entry(MANAGE_ENVIRONMENTS, EDIT),
+
+            // Workflow level permissions
+            Map.entry(WORKFLOW_CREATE_ACTIONS, CREATE),
+            Map.entry(MANAGE_WORKFLOWS, EDIT),
+            Map.entry(DELETE_WORKFLOWS, DELETE),
+            Map.entry(READ_WORKFLOWS, VIEW));
 
     private static final Map<PermissionViewableName, List<AclPermission>> viewableToPermissionsMap =
             permissionViewableMap.entrySet().stream()

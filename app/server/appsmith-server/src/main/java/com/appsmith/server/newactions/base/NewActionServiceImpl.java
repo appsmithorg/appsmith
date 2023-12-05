@@ -226,7 +226,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                         .findById(actionDTO.getWorkflowId(), Optional.empty())
                         .flatMap(workflow -> {
                             Mono<Map<String, List<String>>> mapPermissionToDefaultWorlflowRoleIdMono =
-                                    getMapDatasourcePermissionToDefaultWorkflowRoleId(actionDTO.getWorkflowId());
+                                    getMapDatasourcePermissionToDefaultWorkflowRoleId(newAction.getWorkflowId());
                             return updateDatasourcePolicyMap(
                                     actionDTO.getDatasource().getId(), mapPermissionToDefaultWorlflowRoleIdMono);
                         })

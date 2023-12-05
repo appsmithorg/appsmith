@@ -51,7 +51,6 @@ import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,7 +127,6 @@ public class CrudWorkflowServiceTest {
                             DELETE_WORKFLOWS.getValue(),
                             EXPORT_WORKFLOWS.getValue(),
                             EXECUTE_WORKFLOWS.getValue(),
-                            RESOLVE_WORKFLOWS.getValue(),
                             WORKFLOW_CREATE_ACTIONS.getValue(),
                             READ_HISTORY_WORKFLOWS.getValue());
 

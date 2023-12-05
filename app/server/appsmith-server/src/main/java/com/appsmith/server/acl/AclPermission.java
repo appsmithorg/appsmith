@@ -126,7 +126,6 @@ public enum AclPermission {
     WORKSPACE_PUBLISH_WORKFLOWS("publish:workspaceWorkflows", Workspace.class),
     WORKSPACE_EXPORT_WORKFLOWS("export:workspaceWorkflows", Workspace.class),
     WORKSPACE_DELETE_WORKFLOWS("delete:workspaceWorkflows", Workspace.class),
-    WORKSPACE_RESOLVE_WORKFLOWS("resolve:workspaceWorkflows", Workspace.class),
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
@@ -229,7 +228,6 @@ public enum AclPermission {
     DELETE_WORKFLOWS("delete:workflows", Workflow.class),
     EXPORT_WORKFLOWS("export:workflows", Workflow.class),
     EXECUTE_WORKFLOWS("execute:workflows", Workflow.class),
-    RESOLVE_WORKFLOWS("resolve:workflows", Workflow.class),
     WORKFLOW_CREATE_ACTIONS("create:workflowActions", Workflow.class),
     READ_HISTORY_WORKFLOWS("readHistory:workflows", Workflow.class),
 
