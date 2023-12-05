@@ -38,7 +38,7 @@ export const updateMenuItemsSource = (
     }
   }
 
-  return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
+  return propertiesToUpdate.length ? propertiesToUpdate : undefined;
 };
 
 export const getKeysFromSourceDataForEventAutocomplete = (
