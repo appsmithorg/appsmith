@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
 
@@ -121,7 +121,7 @@ jobs:
     steps:
       # Check out merge commit
       - name: Checkout PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
 
@@ -201,10 +201,9 @@ jobs:
     if: success()
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: "refs/pull/${{ github.event.client_payload.pull_request.number }}/merge"
-          fetch-depth: 0
 
       - name: Print versions of tools
         run: |
