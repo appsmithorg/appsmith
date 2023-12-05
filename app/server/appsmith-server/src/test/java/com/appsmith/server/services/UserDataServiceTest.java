@@ -401,7 +401,7 @@ public class UserDataServiceTest {
                                     .get(0)
                                     .getApplicationIds()
                                     .size())
-                            .isEqualTo(10);
+                            .isEqualTo(20);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo("org-1");
                     assertThat(userData.getRecentlyUsedEntityIds()
