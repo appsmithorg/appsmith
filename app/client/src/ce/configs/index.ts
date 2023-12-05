@@ -142,6 +142,24 @@ const getConfig = (fromENV: string, fromWindow = "") => {
   return { enabled: false, value: "" };
 };
 
+function sentryIntegrationsRetriever() {
+  const intergrations: any = [];
+  return function () {
+    if (typeof window === "undefined") return [];
+    if (intergrations.length > 0) return intergrations;
+    intergrations.push(
+      new Integrations.BrowserTracing({
+        routingInstrumentation: Sentry.reactRouterV5Instrumentation(
+          createBrowserHistory(),
+        ),
+      }),
+    );
+    return intergrations;
+  };
+}
+
+const getSentryIntegrations = sentryIntegrationsRetriever();
+
 // TODO(Abhinav): See if this is called so many times, that we may need some form of memoization.
 export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const APPSMITH_FEATURE_CONFIGS =
@@ -239,17 +257,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       release: sentryRelease.value,
       environment: sentryENV.value,
       normalizeDepth: 3,
-      integrations: [
-        typeof window === "undefined"
-          ? // The Browser Tracing instrumentation isn’t working (and is unnecessary) in the worker environment
-            undefined
-          : new Integrations.BrowserTracing({
-              // Can also use reactRouterV4Instrumentation
-              routingInstrumentation: Sentry.reactRouterV5Instrumentation(
-                createBrowserHistory(),
-              ),
-            }),
-      ].filter((i) => i !== undefined),
+      integrations: getSentryIntegrations(),
       tracesSampleRate: 0.1,
     },
     smartLook: {
