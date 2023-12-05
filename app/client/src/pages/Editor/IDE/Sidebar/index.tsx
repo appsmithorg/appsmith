@@ -1,28 +1,31 @@
-import React, { useCallback } from "react";
-import { getIsAppSidebarEnabled } from "selectors/ideSelectors";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
-import SidebarButton from "./SidebarButton";
+import React, { useCallback, useEffect } from "react";
+import { getIsAppSidebarAnnouncementEnabled } from "selectors/ideSelectors";
+import { useSelector, useDispatch } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import history from "utils/history";
-import { ButtonButtons, TopButtons } from "entities/IDE/constants";
+import history, { NavigationMethod } from "utils/history";
 import useCurrentAppState from "../hooks";
-
-const Container = styled.div`
-  width: 50px;
-  border-right: 1px solid var(--ads-v2-color-border);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background-color: var(--ads-v2-color-bg);
-`;
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import SidebarComponent from "./SidebarComponent";
+import { BottomButtons, TopButtons } from "entities/IDE/constants";
 
 function Sidebar() {
+  const dispatch = useDispatch();
   const appState = useCurrentAppState();
-  const isAppSidebarEnabled = useSelector(getIsAppSidebarEnabled);
+  const isAppSidebarAnnouncementEnabled = useSelector(
+    getIsAppSidebarAnnouncementEnabled,
+  );
   const pageId = useSelector(getCurrentPageId);
+
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const guidedTourEnabled = useSelector(inGuidedTour);
+
+  useEffect(() => {
+    dispatch(fetchWorkspace(currentWorkspaceId));
+  }, [currentWorkspaceId]);
+
   const onClick = useCallback(
     (suffix) => {
       history.push(
@@ -30,39 +33,26 @@ function Sidebar() {
           pageId,
           suffix,
         }),
+        {
+          invokedBy: NavigationMethod.AppSidebar,
+        },
       );
     },
     [pageId],
   );
-  if (!isAppSidebarEnabled) {
+
+  if (guidedTourEnabled) {
     return null;
   }
 
   return (
-    <Container>
-      <div>
-        {TopButtons.map((b) => (
-          <SidebarButton
-            icon={b.icon}
-            key={b.state}
-            onClick={() => onClick(b.urlSuffix)}
-            selected={appState === b.state}
-            title={b.title}
-          />
-        ))}
-      </div>
-      <div>
-        {ButtonButtons.map((b) => (
-          <SidebarButton
-            icon={b.icon}
-            key={b.state}
-            onClick={() => onClick(b.urlSuffix)}
-            selected={appState === b.state}
-            tooltip={b.title}
-          />
-        ))}
-      </div>
-    </Container>
+    <SidebarComponent
+      appState={appState}
+      bottomButtons={BottomButtons}
+      isAppSidebarAnnouncementEnabled={isAppSidebarAnnouncementEnabled}
+      onClick={onClick}
+      topButtons={TopButtons}
+    />
   );
 }
 

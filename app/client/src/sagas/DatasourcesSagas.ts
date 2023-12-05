@@ -19,6 +19,7 @@ import {
 import { get, isEmpty, merge, omit, partition, set } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
@@ -129,7 +130,11 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
-import { getWorkspaceIdForImport } from "@appsmith/selectors/applicationSelectors";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+  getWorkspaceIdForImport,
+} from "@appsmith/selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
@@ -154,13 +159,14 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
+import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
 import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
 } from "@appsmith/selectors/environmentSelectors";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -254,7 +260,15 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
     const { name, packageName, pluginId, skipRedirection, workspaceId } =
       actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
-    const pageId: string = yield select(getCurrentPageId);
+    const currentApplicationIdForCreateNewApp: string | undefined =
+      yield select(getCurrentApplicationIdForCreateNewApp);
+    const application: ApplicationPayload | undefined = yield select(
+      getApplicationByIdFromWorkspaces,
+      currentApplicationIdForCreateNewApp || "",
+    );
+    const pageId: string = !!currentApplicationIdForCreateNewApp
+      ? application?.defaultPageId
+      : yield select(getCurrentPageId);
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.addMockDbToDatasources(
         name,
@@ -452,12 +466,12 @@ function* updateDatasourceSaga(
   >,
 ) {
   try {
-    const currentEnvDetails: { id: string; name: string } = yield select(
+    const currentEnvDetails: { editingId: string; name: string } = yield select(
       getCurrentEnvironmentDetails,
     );
     const queryParams = getQueryParams();
     const currentEnvironment =
-      actionPayload.payload?.currEditingEnvId || currentEnvDetails.id;
+      actionPayload.payload?.currEditingEnvId || currentEnvDetails.editingId;
     const datasourcePayload = omit(actionPayload.payload, "name");
     const datasourceStoragePayload =
       datasourcePayload.datasourceStorages[currentEnvironment];
@@ -619,12 +633,17 @@ function* redirectAuthorizationCodeSaga(
 ) {
   const { datasourceId, pageId, pluginType } = actionPayload.payload;
   const isImport: string = yield select(getWorkspaceIdForImport);
+  const branchName: string | undefined = yield select(getCurrentGitBranch);
 
   if (pluginType === PluginType.API) {
     const currentEnvironment: string = yield select(
       getCurrentEditingEnvironmentId,
     );
-    window.location.href = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
+    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
+    if (!!branchName) {
+      windowLocation = windowLocation + `&branchName=` + branchName;
+    }
+    window.location.href = windowLocation;
   } else {
     try {
       // Get an "appsmith token" from the server
@@ -966,6 +985,17 @@ function* createTempDatasourceFromFormSaga(
     initialValues,
   );
 
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+
+  if (currentApplicationIdForCreateNewApp) {
+    yield put({
+      type: ReduxActionTypes.SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP,
+      payload: actionPayload.payload.pluginId,
+    });
+  }
+
   yield put(createDatasourceSuccess(payload as Datasource));
 
   yield put({
@@ -1127,6 +1157,9 @@ function* changeDatasourceSaga(
   const { datasource, shouldNotRedirect } = actionPayload.payload;
   const { id } = datasource;
   const draft: Record<string, unknown> = yield select(getDatasourceDraft, id);
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
   const pageId: string = yield select(getCurrentPageId);
   let data;
   if (isEmpty(draft)) {
@@ -1143,7 +1176,8 @@ function* changeDatasourceSaga(
     ),
   );
   // on reconnect modal, it shouldn't be redirected to datasource edit page
-  if (shouldNotRedirect) return;
+  // on create new app onboarding flow, it shouldn't redirect either
+  if (shouldNotRedirect || currentApplicationIdForCreateNewApp) return;
   // this redirects to the same route, so checking first.
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
@@ -1570,8 +1604,12 @@ function* executeDatasourceQuerySaga(
       },
     });
     if (action.onErrorCallback) {
-      // @ts-expect-error: onErrorCallback expects string
-      action.onErrorCallback(error);
+      if (error instanceof Error) {
+        action.onErrorCallback(error.message);
+      } else {
+        // @ts-expect-error: onErrorCallback expects string
+        action.onErrorCallback(error);
+      }
     }
   }
 }

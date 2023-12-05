@@ -1,10 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const fieldPrefix = ".t--jsonformfield";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
-let locators = ObjectsRegistry.CommonLocators;
-let propPane = ObjectsRegistry.PropertyPane;
+import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
 
 function selectAndValidateOption(selector, option, expectedFormData) {
   // Select option Zero
@@ -50,7 +47,7 @@ describe("JSONForm RadioGroup Field", () => {
     cy.closePropertyPane();
   });
 
-  it("accepts numeric options value", () => {
+  it("1. accepts numeric options value", () => {
     cy.openPropertyPane("jsonformwidget");
     const schema = {
       binary: 1,
@@ -76,7 +73,7 @@ describe("JSONForm RadioGroup Field", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 
     clearOptionsProperty();
-    cy.testJsontext("options", JSON.stringify(options));
+    propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
 
     cy.wait(2000);
 
@@ -99,7 +96,7 @@ describe("JSONForm RadioGroup Field", () => {
     });
   });
 
-  it("accepts string options value", () => {
+  it("2. accepts string options value", () => {
     cy.openPropertyPane("jsonformwidget");
     const schema = {
       accept: "N",
@@ -126,8 +123,7 @@ describe("JSONForm RadioGroup Field", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Radio Group$/);
 
     clearOptionsProperty();
-    cy.testJsontext("options", JSON.stringify(options));
-
+    propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
     cy.wait(2000);
 
     // Validate initial form data

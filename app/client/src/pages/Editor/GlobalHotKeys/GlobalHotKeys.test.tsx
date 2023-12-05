@@ -74,8 +74,8 @@ describe("Canvas Hot Keys", () => {
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
     }));
-    jest.mock("sagas/PageSagas", () => ({
-      ...jest.requireActual("sagas/PageSagas"),
+    jest.mock("@appsmith/sagas/PageSagas", () => ({
+      ...jest.requireActual("@appsmith/sagas/PageSagas"),
       default: mockGenerator,
     }));
   });

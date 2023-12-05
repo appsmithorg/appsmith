@@ -7,6 +7,7 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionProvider;
 import com.appsmith.external.models.AnalyticsInfo;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Documentation;
@@ -74,6 +75,9 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @JsonView(Views.Public.class)
     String pageId;
+
+    @JsonView(Views.Public.class)
+    CreatorContextType contextType;
 
     @JsonView(Views.Public.class)
     String collectionId;
@@ -205,6 +209,11 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    public String getExecutableName() {
+        return this.getValidName();
+    }
+
+    @Override
     public EntityReferenceType getEntityReferenceType() {
         if (this.getPluginType() == null) {
             return null;
@@ -216,6 +225,8 @@ public class ActionCE_DTO implements Identifiable, Executable {
         this.setEventData(null);
         this.setDefaultResources(null);
         this.setCacheResponse(null);
+        this.setCreatedAt(null);
+        this.setUpdatedAt(null);
         if (this.getDatasource() != null) {
             this.getDatasource().setCreatedAt(null);
             this.getDatasource().setDatasourceStorages(null);

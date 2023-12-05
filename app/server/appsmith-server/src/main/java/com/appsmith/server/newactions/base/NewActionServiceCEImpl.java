@@ -6,6 +6,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionProvider;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
@@ -30,11 +31,11 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
+import com.appsmith.server.dtos.ImportActionResultDTO;
+import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
-import com.appsmith.server.dtos.ce.ImportActionCollectionResultDTO;
-import com.appsmith.server.dtos.ce.ImportActionResultDTO;
-import com.appsmith.server.dtos.ce.ImportedActionAndCollectionMapsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -53,6 +54,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.validations.EntityValidationService;
 import com.mongodb.bulk.BulkWriteResult;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
@@ -73,7 +75,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
-import javax.lang.model.SourceVersion;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_REPOSITORY_CALL;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_UNPUBLISHED_ACTION;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_VIEW_MODE_ACTION;
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static java.lang.Boolean.FALSE;
@@ -125,8 +126,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
-    private final ActionPermission actionPermission;
-
+    protected final ActionPermission actionPermission;
+    private final EntityValidationService entityValidationService;
     private final ObservationRegistry observationRegistry;
     private final Map<String, Plugin> defaultPluginMap = new HashMap<>();
     private final AtomicReference<Plugin> jsTypePluginReference = new AtomicReference<>();
@@ -153,6 +154,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
+            EntityValidationService entityValidationService,
             ObservationRegistry observationRegistry) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
@@ -166,6 +168,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationService = applicationService;
         this.policySolution = policySolution;
         this.permissionGroupService = permissionGroupService;
+        this.entityValidationService = entityValidationService;
         this.observationRegistry = observationRegistry;
         this.responseUtils = responseUtils;
         this.configService = configService;
@@ -173,14 +176,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
-    }
-
-    @Override
-    public Boolean validateActionName(String name) {
-        boolean isValidName = SourceVersion.isName(name);
-        String pattern = "^((?=[A-Za-z0-9_])(?![\\\\-]).)*$";
-        boolean doesPatternMatch = name.matches(pattern);
-        return (isValidName && doesPatternMatch);
     }
 
     private void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
@@ -291,7 +286,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         this.validateCreatorId(action);
 
-        if (!validateActionName(action.getName())) {
+        if (!this.isValidActionName(action)) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_ACTION_NAME.getMessage());
         }
@@ -317,8 +312,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (action.getDatasource() == null || action.getDatasource().getIsAutoGenerated()) {
             if (action.getPluginType() != PluginType.JS) {
                 // This action isn't of type JS functions which requires that the pluginType be set by the client.
-                // Hence,
-                // datasource is very much required for such an action.
+                // Hence, datasource is very much required for such an action.
                 action.setIsValid(false);
                 invalids.add(AppsmithError.DATASOURCE_NOT_GIVEN.getMessage());
                 action.setInvalids(invalids);
@@ -419,6 +413,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(repository::setUserPermissionsInObject)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
+    }
+
+    protected boolean isValidActionName(ActionDTO action) {
+        return entityValidationService.validateName(action.getName());
     }
 
     protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
@@ -609,7 +607,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
                     final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
-                    copyNewFieldValuesIntoOldObject(action, unpublishedAction);
+                    copyNestedNonNullProperties(action, unpublishedAction);
                     return dbAction;
                 })
                 .flatMap(this::extractAndSetNativeQueryFromFormData)
@@ -780,42 +778,38 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // No need to sort the results
         return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                .map(action -> {
-                    ActionViewDTO actionViewDTO = new ActionViewDTO();
-                    actionViewDTO.setId(action.getDefaultResources().getActionId());
-                    actionViewDTO.setName(action.getPublishedAction().getValidName());
-                    actionViewDTO.setPageId(action.getPublishedAction().getPageId());
-                    actionViewDTO.setConfirmBeforeExecute(
-                            action.getPublishedAction().getConfirmBeforeExecute());
-                    // Update defaultResources
-                    DefaultResources defaults = action.getDefaultResources();
-                    // Consider a situation when action is not published but user is viewing in deployed mode
-                    if (action.getPublishedAction().getDefaultResources() != null) {
-                        defaults.setPageId(action.getPublishedAction()
-                                .getDefaultResources()
-                                .getPageId());
-                        defaults.setCollectionId(action.getPublishedAction()
-                                .getDefaultResources()
-                                .getCollectionId());
-                    } else {
-                        defaults.setPageId(null);
-                        defaults.setCollectionId(null);
-                    }
-                    actionViewDTO.setDefaultResources(defaults);
-                    if (action.getPublishedAction().getJsonPathKeys() != null
-                            && !action.getPublishedAction().getJsonPathKeys().isEmpty()) {
-                        Set<String> jsonPathKeys;
-                        jsonPathKeys = new HashSet<>();
-                        jsonPathKeys.addAll(action.getPublishedAction().getJsonPathKeys());
-                        actionViewDTO.setJsonPathKeys(jsonPathKeys);
-                    }
-                    if (action.getPublishedAction().getActionConfiguration() != null) {
-                        actionViewDTO.setTimeoutInMillisecond(action.getPublishedAction()
-                                .getActionConfiguration()
-                                .getTimeoutInMillisecond());
-                    }
-                    return actionViewDTO;
-                });
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction()));
+    }
+
+    @Override
+    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO) {
+        ActionViewDTO actionViewDTO = new ActionViewDTO();
+        actionViewDTO.setId(action.getDefaultResources().getActionId());
+        actionViewDTO.setName(actionDTO.getValidName());
+        actionViewDTO.setPageId(actionDTO.getPageId());
+        actionViewDTO.setConfirmBeforeExecute(actionDTO.getConfirmBeforeExecute());
+        // Update defaultResources
+        DefaultResources defaults = action.getDefaultResources();
+        // Consider a situation when action is not published but user is viewing in deployed mode
+        if (actionDTO.getDefaultResources() != null) {
+            defaults.setPageId(actionDTO.getDefaultResources().getPageId());
+            defaults.setCollectionId(actionDTO.getDefaultResources().getCollectionId());
+        } else {
+            defaults.setPageId(null);
+            defaults.setCollectionId(null);
+        }
+        actionViewDTO.setDefaultResources(defaults);
+        if (actionDTO.getJsonPathKeys() != null && !actionDTO.getJsonPathKeys().isEmpty()) {
+            Set<String> jsonPathKeys;
+            jsonPathKeys = new HashSet<>();
+            jsonPathKeys.addAll(actionDTO.getJsonPathKeys());
+            actionViewDTO.setJsonPathKeys(jsonPathKeys);
+        }
+        if (actionDTO.getActionConfiguration() != null) {
+            actionViewDTO.setTimeoutInMillisecond(
+                    actionDTO.getActionConfiguration().getTimeoutInMillisecond());
+        }
+        return actionViewDTO;
     }
 
     @Override
@@ -1725,5 +1719,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<NewAction> findByListOfPageIds(
             List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
         return repository.findByListOfPageIds(unpublishedPages, optionalPermission);
+    }
+
+    @Override
+    public Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            boolean viewMode,
+            boolean includeJs) {
+        if (viewMode) {
+            return repository.findAllPublishedActionsByContextIdAndContextType(
+                    contextId, contextType, permission, includeJs);
+        }
+        return repository.findAllUnpublishedActionsByContextIdAndContextType(
+                contextId, contextType, permission, includeJs);
     }
 }

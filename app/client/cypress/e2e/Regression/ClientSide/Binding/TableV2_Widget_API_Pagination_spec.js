@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
@@ -21,7 +25,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     );
     apiPage.RunAPI();
     //Validate Table V2 with API data and then add a column
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     cy.get(`.t--widget-tablewidgetv2 .page-item`)

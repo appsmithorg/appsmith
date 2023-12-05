@@ -1,11 +1,15 @@
 import {
   agHelper,
-  entityExplorer,
-  propPane,
   apiPage,
-  entityItems,
   assertHelper,
+  entityExplorer,
+  entityItems,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
@@ -14,15 +18,15 @@ describe("JSObjects OnLoad Actions tests", function () {
 
   it("1. Api mapping on page load", function () {
     cy.fixture("testdata").then(function (dataSet: any) {
-      entityExplorer.NavigateToSwitcher("Explorer");
       apiPage.CreateAndFillApi(
         dataSet.baseUrl + dataSet.methods,
         "PageLoadApi",
       );
     });
     agHelper.PressEscape();
-    entityExplorer.ExpandCollapseEntity("Container3");
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     propPane.UpdatePropertyFieldValue(
       "Table data",
       `{{PageLoadApi.data.data}}`,
@@ -42,9 +46,9 @@ describe("JSObjects OnLoad Actions tests", function () {
       );
     });
     apiPage.ToggleOnPageLoadRun(true);
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.ExpandCollapseEntity("Container3");
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     propPane.UpdatePropertyFieldValue(
       "Table data",
       `{{PageLoadApi2.data.data}}`,
@@ -54,7 +58,7 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   after(() => {
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "PageLoadApi",
       action: "Delete",

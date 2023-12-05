@@ -310,9 +310,7 @@ export class HomePage {
     cy.get(this._applicationName).then(($appName) => {
       if (!$appName.hasClass(this._editAppName)) {
         this.agHelper.GetNClick(this._applicationName);
-        // cy.get(this._appMenu)
-        //   .contains("Edit name", { matchCase: false })
-        this.agHelper.GetNClickByContains(this._appMenu, "Edit name");
+        this.agHelper.GetNClickByContains(this._appMenu, "Rename");
       }
     });
     cy.get(this._applicationName).type(appName);
@@ -326,8 +324,12 @@ export class HomePage {
 
   //Maps to LogOut in command.js
   public LogOutviaAPI() {
+    let httpMethod = "POST";
+    if (CURRENT_REPO === REPO.EE) {
+      httpMethod = "GET";
+    }
     cy.request({
-      method: "POST",
+      method: httpMethod,
       url: "/api/v1/logout",
       headers: {
         "X-Requested-By": "Appsmith",
@@ -342,7 +344,10 @@ export class HomePage {
     if (toNavigateToHome) this.NavigateToHome();
     this.agHelper.GetNClick(this._profileMenu);
     this.agHelper.GetNClick(this._signout);
-    this.assertHelper.AssertNetworkStatus("@postLogout");
+    //Logout is still a POST request in CE
+    if (CURRENT_REPO === REPO.CE) {
+      this.assertHelper.AssertNetworkStatus("@postLogout");
+    }
     return this.agHelper.Sleep(); //for logout to complete!
   }
 

@@ -7,6 +7,11 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 let dsName: any;
 import formControls from "../../../locators/FormControl.json";
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+} from "../../../support/Pages/EditorNavigation";
 
 describe(
   "excludeForAirgap",
@@ -27,20 +32,20 @@ describe(
         );
 
         dataSources.RunQueryNVerifyResponseViews(5); //minimum 5 rows are expected
-        dataSources.NavigateToActiveTab();
-        agHelper
-          .GetText(dataSources._queriesOnPageText(mockDBName))
+        AppSidebar.navigate(AppSidebarButton.Data);
+        dataSources
+          .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
-            expect($queryCount).to.eq("1 query on this page"),
+            expect($queryCount).to.eq("1 queries in this app"),
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.RunQueryNVerifyResponseViews(10, true);
-        dataSources.NavigateToActiveTab();
-        agHelper
-          .GetText(dataSources._queriesOnPageText(mockDBName))
+        AppSidebar.navigate(AppSidebarButton.Data);
+        dataSources
+          .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
-            expect($queryCount).to.eq("2 queries on this page"),
+            expect($queryCount).to.eq("2 queries in this app"),
           );
       });
     });
@@ -62,28 +67,29 @@ describe(
         agHelper.Sleep(2000); //for movies collection to load & populate in dropdown
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        dataSources.NavigateToActiveTab();
-        agHelper
-          .GetText(dataSources._queriesOnPageText(mockDBName))
+        AppSidebar.navigate(AppSidebarButton.Data);
+        dataSources
+          .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
-            expect($queryCount).to.eq("1 query on this page"),
+            expect($queryCount).to.eq("1 queries in this app"),
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
         dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
-        dataSources.NavigateToActiveTab();
-        agHelper
-          .GetText(dataSources._queriesOnPageText(mockDBName))
+        AppSidebar.navigate(AppSidebarButton.Data);
+        dataSources
+          .getDatasourceListItemDescription(mockDBName)
           .then(($queryCount) =>
-            expect($queryCount).to.eq("2 queries on this page"),
+            expect($queryCount).to.eq("2 queries in this app"),
           );
       });
     });
 
     afterEach(() => {
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Delete",
@@ -94,15 +100,13 @@ describe(
         action: "Delete",
         entityType: entityItems.Query,
       });
-      dataSources.NavigateToActiveTab();
-      agHelper
-        .GetText(dataSources._queriesOnPageText(dsName))
+      AppSidebar.navigate(AppSidebarButton.Data);
+      dataSources
+        .getDatasourceListItemDescription(dsName)
         .then(($queryCount) =>
-          expect($queryCount).to.eq(
-            "No query in this application is using this datasource",
-          ),
+          expect($queryCount).to.eq("No queries in this app"),
         );
-      dataSources.DeleteDatasouceFromActiveTab(dsName);
+      dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   },
 );

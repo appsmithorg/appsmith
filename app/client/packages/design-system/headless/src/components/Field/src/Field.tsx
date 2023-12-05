@@ -8,15 +8,11 @@ import type { StyleProps } from "@react-types/shared";
 
 export type FieldProps = Omit<
   SpectrumFieldProps,
-  | "includeNecessityIndicatorInAccessibilityName"
-  | "necessityIndicator"
-  | "isRequired"
-  | "showErrorIcon"
-  | "labelPosition"
-  | "labelAlign"
-  | keyof StyleProps
+  "showErrorIcon" | "labelPosition" | "labelAlign" | keyof StyleProps
 > & {
   fieldType?: "field" | "field-group";
+  labelClassName?: string;
+  helpTextClassName?: string;
 };
 
 export type FieldRef = Ref<HTMLDivElement>;
@@ -31,13 +27,19 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     errorMessage,
     errorMessageProps = {},
     fieldType = "field",
+    helpTextClassName,
+    includeNecessityIndicatorInAccessibilityName,
     isDisabled = false,
+    isRequired,
     label,
+    labelClassName,
     labelProps,
+    necessityIndicator,
     validationState,
     wrapperClassName,
     wrapperProps = {},
   } = props;
+
   const hasHelpText =
     Boolean(description) ||
     (Boolean(errorMessage) && validationState === "invalid");
@@ -45,6 +47,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
   const renderHelpText = () => {
     return (
       <HelpText
+        className={helpTextClassName}
         description={description}
         descriptionProps={descriptionProps}
         errorMessage={errorMessage}
@@ -55,13 +58,23 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
     );
   };
 
-  const isLabelVisible = Boolean(label) || Boolean(contextualHelp);
-
-  const labelAndContextualHelp = isLabelVisible && (
+  const labelAndContextualHelp = (Boolean(label) ||
+    Boolean(contextualHelp)) && (
     <div data-field-label-wrapper="">
-      <Label {...labelProps} elementType={elementType}>
-        {label}
-      </Label>
+      {Boolean(label) && (
+        <Label
+          {...labelProps}
+          className={labelClassName}
+          elementType={elementType}
+          includeNecessityIndicatorInAccessibilityName={
+            includeNecessityIndicatorInAccessibilityName
+          }
+          isRequired={isRequired}
+          necessityIndicator={necessityIndicator}
+        >
+          <span>{label}</span>
+        </Label>
+      )}
       {contextualHelp}
     </div>
   );

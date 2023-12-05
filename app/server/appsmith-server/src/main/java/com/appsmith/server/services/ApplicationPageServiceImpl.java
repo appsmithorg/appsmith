@@ -2,8 +2,10 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -33,6 +35,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             SessionUserService sessionUserService,
             WorkspaceRepository workspaceRepository,
             LayoutActionService layoutActionService,
+            UpdateLayoutService updateLayoutService,
             AnalyticsService analyticsService,
             PolicyGenerator policyGenerator,
             ApplicationRepository applicationRepository,
@@ -52,7 +55,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             NewActionRepository newActionRepository,
             NewPageRepository newPageRepository,
             DatasourceRepository datasourceRepository,
-            DatasourcePermission datasourcePermission) {
+            DatasourcePermission datasourcePermission,
+            DSLMigrationUtils dslMigrationUtils) {
 
         super(
                 workspaceService,
@@ -60,6 +64,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 sessionUserService,
                 workspaceRepository,
                 layoutActionService,
+                updateLayoutService,
                 analyticsService,
                 policyGenerator,
                 applicationRepository,
@@ -79,6 +84,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 newActionRepository,
                 newPageRepository,
                 datasourceRepository,
-                datasourcePermission);
+                datasourcePermission,
+                dslMigrationUtils);
     }
 }

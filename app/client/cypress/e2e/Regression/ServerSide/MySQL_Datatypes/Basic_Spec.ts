@@ -1,19 +1,33 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
   dataSources,
-  table,
+  deployMode,
+  entityExplorer,
   entityItems,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import inputData from "../../../../support/Objects/mySqlData";
+import EditorNavigation, {
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let dsName: any, query: string;
 
 describe("MySQL Datatype tests", function () {
   before("Load dsl, Change theme, Create Mysql DS", () => {
+    featureFlagIntercept(
+      {
+        ab_gsheet_schema_enabled: true,
+        ab_mock_mongo_schema_enabled: true,
+      },
+      false,
+    );
     agHelper.AddDsl("Datatypes/mySQLdsl");
 
     appSettings.OpenPaneAndChangeTheme("Moon");
@@ -21,6 +35,7 @@ describe("MySQL Datatype tests", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Creating mysqlDTs table & queries", () => {
@@ -31,10 +46,28 @@ describe("MySQL Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable"); //Creating query from EE overlay
     dataSources.RunQuery();
 
-    dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName);
+    //Other queries
+    query = inputData.query.insertRecord;
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      inputData.tableName,
+      "Insert",
+    );
+    agHelper.RenameWithInPane("insertRecord");
+    dataSources.EnterQuery(query);
+
+    query = inputData.query.dropTable;
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      inputData.tableName,
+      "Delete",
+    );
+    agHelper.RenameWithInPane("dropTable");
+    dataSources.EnterQuery(query);
 
     //Creating SELECT query
-    entityExplorer.ActionTemplateMenuByEntityName(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
       inputData.tableName,
       "Select",
     );
@@ -43,28 +76,10 @@ describe("MySQL Datatype tests", function () {
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-
-    //Other queries
-    query = inputData.query.insertRecord;
-    entityExplorer.ActionTemplateMenuByEntityName(
-      inputData.tableName,
-      "Insert",
-    );
-    agHelper.RenameWithInPane("insertRecord");
-    dataSources.EnterQuery(query);
-
-    query = inputData.query.dropTable;
-    entityExplorer.ActionTemplateMenuByEntityName(
-      inputData.tableName,
-      "Delete",
-    );
-    agHelper.RenameWithInPane("dropTable");
-    dataSources.EnterQuery(query);
   });
 
   //Insert valid/true values into datasource
   it("2. Inserting record", () => {
-    entityExplorer.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
@@ -107,8 +122,7 @@ describe("MySQL Datatype tests", function () {
   //And check response payload.
   it("4. Testing null value", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("selectRecords");
+    EditorNavigation.SelectEntityByName("selectRecords", EntityType.Query);
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then((intercept) => {
       expect(
@@ -123,25 +137,15 @@ describe("MySQL Datatype tests", function () {
   after(
     "Verify Drop of tables & Deletion of the datasource after all created queries are deleted",
     () => {
-      entityExplorer.SelectEntityByName("dropTable");
+      EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
       dataSources.RunQuery();
       dataSources.AssertQueryTableResponse(0, "0"); //Success response for dropped table!
-      entityExplorer.ExpandCollapseEntity("Queries/JS", false);
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.ExpandCollapseEntity(dsName);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: dsName,
-        action: "Refresh",
-      });
-      agHelper.AssertElementAbsence(
-        entityExplorer._entityNameInExplorer(inputData.tableName),
-      );
-      entityExplorer.ExpandCollapseEntity(dsName, false);
-      entityExplorer.ExpandCollapseEntity("Datasources", false);
+      dataSources.AssertTableInVirtuosoList(dsName, inputData.tableName, false);
 
       //DS deletion
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.expandCollapseItem("Queries/JS");
       ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
         (type) => {
           entityExplorer.ActionContextMenuByEntityName({
@@ -153,7 +157,7 @@ describe("MySQL Datatype tests", function () {
       );
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );

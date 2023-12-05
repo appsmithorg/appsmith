@@ -1,4 +1,5 @@
 import * as _ from "../../../support/Objects/ObjectsCore";
+import PageList from "../../../support/Pages/PageList";
 
 describe("Validate generate CRUD operation by creating a datasource from generate CRUD form", () => {
   it(
@@ -7,7 +8,7 @@ describe("Validate generate CRUD operation by creating a datasource from generat
     () => {
       _.dataSources.GeneratePageWithMockDB();
       //when there are entities in the current page
-      _.entityExplorer.AddNewPage();
+      PageList.AddNewPage();
       _.apiPage.CreateApi();
       _.dataSources.GeneratePageWithMockDB();
     },
@@ -21,7 +22,7 @@ describe("Validate generate CRUD operation by creating a datasource from generat
         _.dataSources.GeneratePageWithDB($dsName, "public.city");
 
         //when there are entities in the current page
-        _.entityExplorer.AddNewPage();
+        PageList.AddNewPage();
         _.apiPage.CreateApi();
         _.dataSources.GeneratePageWithDB($dsName, "public.city");
       });

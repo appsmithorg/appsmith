@@ -1,21 +1,26 @@
 import {
   entityExplorer,
-  jsEditor,
   entityItems,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Validate basic operations on Entity explorer JSEditor structure", () => {
   const pageId = "Page1";
 
   it("1. Validate JSObject creation & Run", () => {
     jsEditor.CreateJSObject('return "Hello World";');
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.AssertEntityPresenceInExplorer("JSObject1");
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.assertPresence("JSObject1");
     jsEditor.ValidateDefaultJSObjProperties("JSObject1");
 
     //Validate Rename JSObject from Form Header
     jsEditor.RenameJSObjFromPane("RenamedJSObject");
-    entityExplorer.AssertEntityPresenceInExplorer("RenamedJSObject");
+    PageLeftPane.assertPresence("RenamedJSObject");
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObject");
 
     // Validate Copy JSObject
@@ -30,39 +35,39 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
       "response.body.responseMeta.status",
       201,
     );
-    entityExplorer.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
+    PageLeftPane.assertPresence("RenamedJSObjectCopy");
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
 
     //Validate Rename JSObject from Entity Explorer
     jsEditor.RenameJSObjFromExplorer("RenamedJSObject", "ExplorerRenamed");
-    entityExplorer.AssertEntityPresenceInExplorer("ExplorerRenamed");
+    PageLeftPane.assertPresence("ExplorerRenamed");
     jsEditor.ValidateDefaultJSObjProperties("ExplorerRenamed");
   });
 
   it("2. Validate Move JSObject", function () {
     const newPageId = "Page2";
-    entityExplorer.AddNewPage();
-    entityExplorer.AssertEntityPresenceInExplorer(newPageId);
-    entityExplorer.SelectEntityByName(pageId);
+    PageList.AddNewPage();
+    PageLeftPane.assertPresence(newPageId);
+    EditorNavigation.SelectEntityByName(pageId, EntityType.Page);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "RenamedJSObjectCopy",
       action: "Move to page",
       subAction: newPageId,
       toastToValidate: "moved to page",
     });
-    entityExplorer.SelectEntityByName(newPageId);
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.AssertEntityPresenceInExplorer("RenamedJSObjectCopy");
+    EditorNavigation.SelectEntityByName(newPageId, EntityType.Page);
+    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.assertPresence("RenamedJSObjectCopy");
     jsEditor.ValidateDefaultJSObjProperties("RenamedJSObjectCopy");
   });
 
   it("3. Validate Deletion of JSObject", function () {
-    entityExplorer.SelectEntityByName(pageId);
+    EditorNavigation.SelectEntityByName(pageId, EntityType.Page);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "ExplorerRenamed",
       action: "Delete",
       entityType: entityItems.JSObject,
     });
-    entityExplorer.AssertEntityAbsenceInExplorer("ExplorerRenamed");
+    PageLeftPane.assertAbsence("ExplorerRenamed");
   });
 });

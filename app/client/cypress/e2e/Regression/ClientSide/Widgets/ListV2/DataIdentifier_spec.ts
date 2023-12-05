@@ -1,13 +1,15 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
-  draggableWidgets,
-  debuggerHelper,
   apiPage,
+  debuggerHelper,
+  draggableWidgets,
+  locators,
+  propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const data = [
   {
@@ -45,8 +47,10 @@ describe("List v2 - Data Identifier property", () => {
       "https://api.punkapi.com/v2/beers?page=1&per_page=2",
     );
     apiPage.RunAPI(false);
-    entityExplorer.ExpandCollapseEntity("List1");
-    entityExplorer.SelectEntityByName("Text2", "Container1");
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget, {}, [
+      "List1",
+      "Container1",
+    ]);
     propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
     agHelper.AssertText(propPane._widgetToVerifyText("Text2"), "text", "0");
     table.NavigateToPageUsingButton_List("next", 2);
@@ -54,8 +58,10 @@ describe("List v2 - Data Identifier property", () => {
   });
 
   it("2. Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
-    entityExplorer.ExpandCollapseEntity("List2");
-    entityExplorer.SelectEntityByName("Text4", "Container2");
+    EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
+      "List2",
+      "Container2",
+    ]);
     propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
     agHelper.AssertText(propPane._widgetToVerifyText("Text4"), "text", "0");
 
@@ -67,7 +73,7 @@ describe("List v2 - Data Identifier property", () => {
   });
 
   it("3. Non unique data identifier should throw error- (data type issue)", () => {
-    entityExplorer.SelectEntityByName("List2");
+    EditorNavigation.SelectEntityByName("List2", EntityType.Query);
     propPane.UpdatePropertyFieldValue("Items", JSON.stringify(data));
     // clicking on the data identifier dropdown
     propPane.RemoveText("dataidentifier");

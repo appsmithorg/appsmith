@@ -18,7 +18,7 @@ import {
 } from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import { saveAllPagesSaga } from "./PageSagas";
+import { saveAllPagesSaga } from "@appsmith/sagas/PageSagas";
 import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import {
   getCurrentApplicationId,

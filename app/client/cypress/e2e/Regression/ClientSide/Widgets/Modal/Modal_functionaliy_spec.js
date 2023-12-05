@@ -1,3 +1,9 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
@@ -20,15 +26,15 @@ describe("Modal Widget Functionality", function () {
   });
 
   it("2. Open Existing Modal from created Widgets list", () => {
-    _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     cy.get(".t--modal-widget").should("exist");
     cy.CreateAPI("FirstAPI");
-    _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
     cy.get(".t--modal-widget").should("exist");
   });
 
   it("3. Display toast on close action", () => {
-    _.entityExplorer.SelectEntityByName("Modal1");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
 
     cy.get(".t--property-control-onclose")
       .find(".t--js-toggle")
@@ -41,7 +47,7 @@ describe("Modal Widget Functionality", function () {
 
   it("4. Should paste modal widgets with main container as parentId", () => {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    _.entityExplorer.SelectEntityByName("Modal1");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
 
     cy.wait(200);
     //cy.get("body").type(`{${modifierKey}}c`);
@@ -64,7 +70,7 @@ describe("Modal Widget Functionality", function () {
 
   it("5. should select modal when clicked on modal label", () => {
     //open modal
-    _.entityExplorer.SelectEntityByName("Modal1");
+    EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);
 
     cy.get(".t--modal-widget").should("exist");
 
@@ -96,8 +102,8 @@ describe("Modal Widget Functionality", function () {
       300,
       300,
     );
-    _.entityExplorer.NavigateToSwitcher("Explorer");
-    cy.get(".t--entity-name").contains("Widgets").click();
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.expandCollapseItem("Widgets", true);
 
     //select all widgets and copy
     cy.get(`#div-selection-0`).click({
@@ -117,7 +123,8 @@ describe("Modal Widget Functionality", function () {
     //paste
     cy.get("body").type(`{${modifierKey}}v`);
 
-    _.entityExplorer.ExpandCollapseEntity("Widgets", true);
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.expandCollapseItem("Widgets", true);
 
     //verify that the two modal widget should have pasted on the main canvas
     _.agHelper.AssertElementVisibility(

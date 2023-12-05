@@ -3,9 +3,12 @@ import {
   dataSources,
   draggableWidgets,
   entityExplorer,
-  entityItems,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
 let mockDBNameUsers: string, mockDBNameMovies: string;
 
 describe("Entity explorer context menu should hide on scrolling", function () {
@@ -18,31 +21,41 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
       agHelper.GetNClick(locators._closeModal, 0, true, 0);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
-      entityExplorer.NavigateToSwitcher("Explorer");
-      entityExplorer.ExpandCollapseEntity("Modal1");
-      entityExplorer.ExpandCollapseEntity("Modal2");
-      entityExplorer.ExpandCollapseEntity("Modal3");
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.expandCollapseItem("Modal1");
+      PageLeftPane.expandCollapseItem("Modal2");
+      PageLeftPane.expandCollapseItem("Modal3");
+      PageLeftPane.expandCollapseItem("Modal4");
+      PageLeftPane.expandCollapseItem("Modal5");
+      PageLeftPane.expandCollapseItem("Modal6");
 
       // Setup to make the explorer scrollable
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      agHelper.ContainsNClick("Libraries");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
         cy.log("Users DB created is " + $createdMockUsers);
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
-        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
+        entityExplorer.CreateNewDsQuery(mockDBNameUsers);
+        entityExplorer.CreateNewDsQuery(mockDBNameUsers);
+        entityExplorer.CreateNewDsQuery(mockDBNameUsers);
 
         dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
           cy.log("Movies DB created is " + $createdMockMovies);
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
-
-          dataSources.AssertTableInVirtuosoList(mockDBNameMovies, "movies");
+          entityExplorer.CreateNewDsQuery(mockDBNameMovies);
+          entityExplorer.CreateNewDsQuery(mockDBNameMovies);
+          entityExplorer.CreateNewDsQuery(mockDBNameMovies);
 
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
-          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
+          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "top");
           agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });
       });
@@ -58,55 +71,44 @@ describe("Entity explorer context menu should hide on scrolling", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
       agHelper.GetNClick(locators._closeModal, 0, true, 0);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
-      entityExplorer.NavigateToSwitcher("Explorer");
-      entityExplorer.ExpandCollapseEntity("Modal1");
-      entityExplorer.ExpandCollapseEntity("Modal2");
-      entityExplorer.ExpandCollapseEntity("Modal3");
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      agHelper.GetNClick(locators._closeModal, 0, true, 0);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL);
+      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.expandCollapseItem("Modal1");
+      PageLeftPane.expandCollapseItem("Modal2");
+      PageLeftPane.expandCollapseItem("Modal3");
+      PageLeftPane.expandCollapseItem("Modal4");
+      PageLeftPane.expandCollapseItem("Modal5");
+      PageLeftPane.expandCollapseItem("Modal6");
 
       // Setup to make the explorer scrollable
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      agHelper.ContainsNClick("Libraries");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($createdMockUsers: any) => {
         mockDBNameUsers = $createdMockUsers;
         dataSources.CreateQueryAfterDSSaved();
-
-        dataSources.AssertTableInVirtuosoList(mockDBNameUsers, "public.users");
+        entityExplorer.CreateNewDsQuery(mockDBNameUsers);
+        entityExplorer.CreateNewDsQuery(mockDBNameUsers);
+        entityExplorer.CreateNewDsQuery(mockDBNameUsers);
 
         dataSources.CreateDataSource("Mongo");
         cy.get("@dsName").then(($createdMockMovies: any) => {
           mockDBNameMovies = $createdMockMovies;
           dataSources.CreateQueryAfterDSSaved();
-
-          dataSources.AssertTableInVirtuosoList(
-            mockDBNameMovies,
-            "listingAndReviews",
-          );
+          entityExplorer.CreateNewDsQuery(mockDBNameMovies);
+          entityExplorer.CreateNewDsQuery(mockDBNameMovies);
+          entityExplorer.CreateNewDsQuery(mockDBNameMovies);
 
           agHelper.GetNClick(locators._createNew);
           agHelper.AssertElementVisibility(entityExplorer._adsPopup);
-          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "bottom");
+          agHelper.ScrollTo(entityExplorer._entityExplorerWrapper, "top");
           agHelper.AssertElementAbsence(entityExplorer._adsPopup);
         });
       });
     },
   );
-
-  after(() => {
-    //clean up
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Query1",
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Query2",
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-    dataSources.DeleteDatasouceFromActiveTab(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tree
-    dataSources.DeleteDatasouceFromActiveTab(mockDBNameUsers);
-  });
 });

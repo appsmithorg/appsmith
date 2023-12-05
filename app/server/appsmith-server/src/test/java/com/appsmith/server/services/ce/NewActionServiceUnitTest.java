@@ -24,6 +24,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PolicySolution;
+import com.appsmith.server.validations.EntityValidationService;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -110,6 +111,9 @@ public class NewActionServiceUnitTest {
     @MockBean
     PagePermission pagePermission;
 
+    @MockBean
+    EntityValidationService entityValidationService;
+
     ActionPermission actionPermission = new ActionPermissionImpl();
 
     @MockBean
@@ -139,11 +143,13 @@ public class NewActionServiceUnitTest {
                 applicationPermission,
                 pagePermission,
                 actionPermission,
+                entityValidationService,
                 observationRegistry);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
         Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
+        Mockito.doReturn(true).when(entityValidationService).validateName(Mockito.anyString());
     }
 
     @Test

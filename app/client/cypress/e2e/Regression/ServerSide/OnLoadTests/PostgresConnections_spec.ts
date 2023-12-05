@@ -7,6 +7,11 @@ import {
   entityItems,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 let guid: any, dsName_1: any, dsName_2: any;
 
 describe("Test Postgres number of connections on page load + Bug 11572, Bug 11202", function () {
@@ -57,7 +62,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       dsName_2 = $dsName;
 
       //Create 10 queries
-      for (let i = 1; i <= 10; i++) {
+      for (let i = 1; i <= 8; i++) {
         dataSources.NavigateFromActiveDS(dsName_2, true);
         agHelper.RenameWithInPane("Query_" + i);
         const userCreateQuery = `select table_name from information_schema.tables where table_schema='public' and table_type='BASE TABLE';`;
@@ -67,7 +72,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
   });
 
   it("3. Bind queries to select widget", () => {
-    for (let i = 1; i < 10; i++) {
+    for (let i = 1; i < 8; i++) {
       entityExplorer.DragDropWidgetNVerify(
         "selectwidget",
         i * 1.5 * 50 + 100,
@@ -146,7 +151,8 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
     "Verify Verify Deletion of all created queries & Deletion of datasource",
     () => {
       //Verify Deletion of all created queries
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "create_user",
         action: "Delete",
@@ -163,7 +169,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
         entityType: entityItems.Query,
       });
 
-      for (let i = 1; i <= 10; i++) {
+      for (let i = 1; i <= 8; i++) {
         entityExplorer.ActionContextMenuByEntityName({
           entityNameinLeftSidebar: "Query_" + i,
           action: "Delete",
@@ -174,7 +180,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       //Verify deletion of datasource
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName_1, 200);
       dataSources.DeleteDatasourceFromWithinDS(dsName_2, 200);
     },

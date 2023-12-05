@@ -21,9 +21,9 @@ import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
-import type { FetchPageResponse } from "api/PageApi";
+import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type {
   FetchActionsPayload,
   SetActionPropertyPayload,
@@ -38,6 +38,7 @@ import {
   moveActionError,
   moveActionSuccess,
   updateAction,
+  updateActionData,
   updateActionProperty,
   updateActionSuccess,
 } from "actions/pluginActionActions";
@@ -128,6 +129,7 @@ import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
+import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 
 export function* createDefaultActionPayloadWithPluginDefaults(
   props: CreateActionDefaultsParams,
@@ -714,9 +716,13 @@ export function* refactorActionName(
     PerformanceTransactionName.REFACTOR_ACTION_NAME,
     { actionId: id },
   );
-  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
-    id: pageId,
-  });
+
+  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
+  const params: FetchPageRequest = { id: pageId };
+  if (isServerDSLMigrationsEnabled) {
+    params.migrateDSL = true;
+  }
+  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
@@ -750,6 +756,16 @@ export function* refactorActionName(
       if (currentPageId === pageId) {
         // @ts-expect-error: refactorResponse is of type unknown
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
+        yield put(
+          updateActionData([
+            {
+              entityName: newName,
+              dataPath: "data",
+              data: undefined,
+              dataPathRef: `${oldName}.data`,
+            },
+          ]),
+        );
       } else {
         yield put(fetchActionsForPage(pageId));
       }

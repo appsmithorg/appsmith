@@ -2,6 +2,9 @@ package com.appsmith.server.dtos.ce;
 
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
+import com.appsmith.server.dtos.ImportActionResultDTO;
+import com.appsmith.server.dtos.ImportedActionAndCollectionMapsDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

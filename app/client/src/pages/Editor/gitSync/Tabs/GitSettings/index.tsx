@@ -5,8 +5,7 @@ import styled from "styled-components";
 import { Divider, ModalBody } from "design-system";
 import GitDefaultBranch from "./GitDefaultBranch";
 import GitProtectedBranches from "./GitProtectedBranches";
-import { useSelector } from "react-redux";
-import { getIsGitProtectedFeatureEnabled } from "selectors/gitSyncSelectors";
+import { useIsGitAdmin } from "../../hooks/useIsGitAdmin";
 
 const Container = styled.div`
   overflow: auto;
@@ -20,21 +19,20 @@ const StyledDivider = styled(Divider)`
 `;
 
 function GitSettings() {
-  const isGitProtectedFeatureEnabled = useSelector(
-    getIsGitProtectedFeatureEnabled,
-  );
+  const isGitAdmin = useIsGitAdmin();
+
   return (
     <ModalBody>
       <Container>
         <GitUserSettings />
-        {isGitProtectedFeatureEnabled ? (
+        {isGitAdmin ? (
           <>
             <StyledDivider />
             <GitDefaultBranch />
             <GitProtectedBranches />
           </>
         ) : null}
-        <GitDisconnect />
+        {isGitAdmin && <GitDisconnect />}
       </Container>
     </ModalBody>
   );

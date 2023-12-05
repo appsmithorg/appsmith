@@ -8,6 +8,10 @@ import {
   entityItems,
   debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "Query pane navigation", () => {
   let ds1Name: string;
@@ -27,6 +31,7 @@ describe("excludeForAirgap", "Query pane navigation", () => {
     cy.get("@dsName").then(($dsName) => {
       ds2Name = $dsName as unknown as string;
     });
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Switching between S3 query and firestore query from the debugger", () => {
@@ -46,6 +51,7 @@ describe("excludeForAirgap", "Query pane navigation", () => {
     cy.get("@dsName").then(($dsName) => {
       ds2Name = $dsName as unknown as string;
     });
+    AppSidebar.navigate(AppSidebarButton.Editor);
     entityExplorer.CreateNewDsQuery(ds2Name);
     agHelper.UpdateCodeInput(
       ".t--actionConfiguration\\.formData\\.limitDocuments\\.data",
@@ -77,7 +83,7 @@ describe("excludeForAirgap", "Query pane navigation", () => {
       entityType: entityItems.Query,
     });
 
-    dataSources.DeleteDSFromEntityExplorer(ds1Name);
-    dataSources.DeleteDSFromEntityExplorer(ds2Name);
+    dataSources.DeleteDatasourceFromWithinDS(ds1Name);
+    dataSources.DeleteDatasourceFromWithinDS(ds2Name);
   });
 });

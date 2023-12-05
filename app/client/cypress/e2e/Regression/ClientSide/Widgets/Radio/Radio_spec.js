@@ -1,10 +1,11 @@
+import { PageLeftPane } from "../../../../../support/Pages/EditorNavigation";
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import {
   agHelper,
   propPane,
   deployMode,
-  entityExplorer,
   locators,
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -15,7 +16,7 @@ describe("Radio Widget Functionality", function () {
   });
 
   it("1. Radio Widget Functionality", function () {
-    entityExplorer.ExpandCollapseEntity("Container3");
+    PageLeftPane.expandCollapseItem("Container3");
     propPane.RenameWidget("RadioGroup1", "RGtest");
     /**
      * @param{IndexValue} Provide Input Index Value

@@ -1,4 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Verify various Table_Filter combinations", function () {
   before(() => {
@@ -6,7 +9,7 @@ describe("Verify various Table_Filter combinations", function () {
   });
 
   it("1. Verify Full table data - download csv and download Excel", function () {
-    _.entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     _.propPane.UpdatePropertyFieldValue(
       "Table data",
       JSON.stringify(this.dataSet.TableInput),

@@ -1,5 +1,4 @@
 import React, { lazy, Suspense } from "react";
-
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
@@ -63,6 +62,7 @@ export const emptyChartData = (props: ChartWidgetProps) => {
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   static type = "CHART_WIDGET";
+  static fontFamily: string = "Nunito Sans";
 
   static getConfig() {
     return {
@@ -71,6 +71,12 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       searchTags: ["graph", "visuals", "visualisations"],
+    };
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      customEChartConfig: ["chartType"],
     };
   }
 
@@ -128,6 +134,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},
@@ -150,7 +157,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             links: [
               {
                 text: "Learn more",
-                url: "https://docs.appsmith.com",
+                url: "https://www.appsmith.com/blog/deprecating-fusion-charts",
               },
             ],
           });
@@ -239,7 +246,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
               customEChartConfig={this.props.customEChartConfig}
               customFusionChartConfig={this.props.customFusionChartConfig}
               dimensions={this.props}
-              fontFamily={this.props.fontFamily ?? "Nunito Sans"}
+              fontFamily={ChartWidget.fontFamily}
               hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
               isLoading={this.props.isLoading}
               isVisible={this.props.isVisible}

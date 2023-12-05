@@ -1,6 +1,7 @@
 package com.appsmith.server.actioncollections.base;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -312,7 +313,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
         return repository
-                .findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+                .findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort)
                 .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
     }
@@ -619,5 +620,16 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         actionCollection.setDeleted(branchedActionCollection.getDeleted());
         // Set policies from existing branch object
         actionCollection.setPolicies(branchedActionCollection.getPolicies());
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
+            String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode) {
+        if (viewMode) {
+            return repository.findAllPublishedActionCollectionsByContextIdAndContextType(
+                    contextId, contextType, permission);
+        }
+        return repository.findAllUnpublishedActionCollectionsByContextIdAndContextType(
+                contextId, contextType, permission);
     }
 }

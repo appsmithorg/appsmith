@@ -77,12 +77,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     cy.wait(2000);
 
-    dataSources.AssertTableInVirtuosoList(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
       datasourceName,
-      "assets-test--appsmith",
-    );
-
-    entityExplorer.ActionTemplateMenuByEntityName(
       "assets-test--appsmith",
       "List files",
     );
@@ -475,11 +471,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         queryLocators.searchFilefield,
         fileName.substring(0, 14),
       );
-      agHelper.Sleep(10000); //for search to finish
 
-      cy.get(".t--widget-textwidget span:contains('" + fileName + "')")
-        .should("have.length", 1)
-        .scrollIntoView();
+      agHelper
+        .AssertElementVisibility(
+          ".t--widget-textwidget span:contains('" + fileName + "')",
+        )
+        .should("have.length", 1);
 
       //Verifying CopyFile URL icon from UI - Browser pop up appearing
       // cy.xpath(queryLocators.copyURLicon).click()
@@ -512,7 +509,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("7. Validate Deletion of the Newly Created Page", () => {
-    cy.NavigateToQueryEditor();
     dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Assets-test.appsmith.com",
@@ -522,6 +518,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   after("Deletes the datasource", () => {
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200, 409]);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
   });
 });

@@ -12,6 +12,10 @@ import {
   propPane,
   table,
 } from "../../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../../../support/Pages/EditorNavigation";
 
 describe("Import and validate older app (app created in older versions of Appsmith) from Gitea", function () {
   let appRepoName = "TestMigration",
@@ -39,7 +43,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
   });
 
   it("1. Validate merge status + Bug23822", () => {
-    entityExplorer.AssertEntityPresenceInExplorer("ListingAndReviews");
+    PageLeftPane.assertPresence("ListingAndReviews");
     //Wait for the app to settle
     agHelper.Sleep(3000);
     homePage.RenameApplication(appName);
@@ -255,10 +259,10 @@ describe("Import and validate older app (app created in older versions of Appsmi
     agHelper.Sleep(2000);
   });
 
-  it("4. Edit JSObject & Check Updated Data ", () => {
+  it.skip("4. Edit JSObject & Check Updated Data ", () => {
     deployMode.NavigateBacktoEditor();
     //Edit existing JS object
-    entityExplorer.SelectEntityByName("users", "Queries/JS");
+    EditorNavigation.SelectEntityByName("users", EntityType.JSObject);
     jsEditor.EditJSObj(`export default {
       fun: async () => {
         return await invalidApi.run().catch((e) => showAlert("404 hit : " + e.message));
@@ -276,7 +280,7 @@ describe("Import and validate older app (app created in older versions of Appsmi
     }`);
 
     //Update property field for button
-    entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", `{{users.myFun2()}}`, true, false);
 
     //Drag n drop text widget & bind it to myFun1

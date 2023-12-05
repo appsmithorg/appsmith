@@ -1,12 +1,17 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
   appSettings,
   autoLayout,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validating multiple widgets in auto layout mode with App navigation settings", function () {
   it("1. Drag and Drop multiple widgets in auto layout mode", function () {
@@ -18,14 +23,14 @@ describe("Validating multiple widgets in auto layout mode with App navigation se
   });
 
   it("2. Change App navigation settings and valdiate the layout settings", () => {
-    entityExplorer.SelectEntityByName("Page1", "Pages");
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._side,
     );
     agHelper.AssertElementExist(appSettings.locators._sideNavbar);
-    agHelper.GetNClick(locators._canvas);
+    AppSidebar.navigate(AppSidebarButton.Editor);
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"));
     agHelper.AssertElementExist(locators._widgetInCanvas("inputwidgetv2"), 1);
     agHelper.AssertElementExist(locators._fixedLayout);

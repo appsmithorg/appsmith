@@ -23,9 +23,8 @@ import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { toast } from "design-system";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { useFeatureFlag } from "../../../utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
 
 export interface NavigationMenuDataProps extends ThemeProp {
   editMode: typeof noop;
@@ -38,9 +37,7 @@ export const GetNavigationMenuData = ({
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const isAppSidebarEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_app_sidebar_enabled,
-  );
+  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const isProtectedMode = useSelector(protectedModeSelector);
 
   const applicationId = useSelector(getCurrentApplicationId);
@@ -101,7 +98,7 @@ export const GetNavigationMenuData = ({
 
   return [
     {
-      text: "Home",
+      text: "Back to all apps",
       onClick: () => history.replace(APPLICATIONS_URL),
       type: MenuTypes.MENU,
       isVisible: true,
@@ -112,9 +109,34 @@ export const GetNavigationMenuData = ({
       isVisible: true,
     },
     {
-      text: "Edit name",
+      text: "Rename",
       onClick: editMode,
       type: MenuTypes.MENU,
+      isVisible: true,
+    },
+    {
+      text: "Fork application",
+      onClick: () => setForkApplicationModalOpen(true),
+      type: MenuTypes.MENU,
+      isVisible: isApplicationIdPresent && hasEditPermission,
+    },
+    {
+      text: "Export application",
+      onClick: exportAppAsJSON,
+      type: MenuTypes.MENU,
+      isVisible: isApplicationIdPresent && hasExportPermission,
+    },
+    hasDeleteApplicationPermission(currentApplication?.userPermissions) && {
+      text: "Delete application",
+      confirmText: "Are you sure?",
+      onClick: deleteApplication,
+      type: MenuTypes.RECONFIRM,
+      isVisible: isApplicationIdPresent,
+      style: { color: Colors.ERROR_RED },
+    },
+    {
+      text: "divider_2",
+      type: MenuTypes.MENU_DIVIDER,
       isVisible: true,
     },
     {
@@ -179,26 +201,6 @@ export const GetNavigationMenuData = ({
           isOpensNewWindow: true,
         },
       ],
-    },
-    {
-      text: "Fork Application",
-      onClick: () => setForkApplicationModalOpen(true),
-      type: MenuTypes.MENU,
-      isVisible: isApplicationIdPresent && hasEditPermission,
-    },
-    {
-      text: "Export application",
-      onClick: exportAppAsJSON,
-      type: MenuTypes.MENU,
-      isVisible: isApplicationIdPresent && hasExportPermission,
-    },
-    hasDeleteApplicationPermission(currentApplication?.userPermissions) && {
-      text: "Delete application",
-      confirmText: "Are you sure?",
-      onClick: deleteApplication,
-      type: MenuTypes.RECONFIRM,
-      isVisible: isApplicationIdPresent,
-      style: { color: Colors.ERROR_RED },
     },
   ].filter(Boolean) as MenuItemData[];
 };

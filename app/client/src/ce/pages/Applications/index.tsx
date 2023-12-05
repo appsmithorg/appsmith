@@ -20,6 +20,7 @@ import {
   getApplicationList,
   getApplicationSearchKeyword,
   getCreateApplicationError,
+  getCurrentApplicationIdForCreateNewApp,
   getDeletingMultipleApps,
   getIsCreatingApplication,
   getIsDeletingApplication,
@@ -87,6 +88,7 @@ import { resetEditorRequest } from "actions/initActions";
 import {
   hasCreateNewAppPermission,
   hasDeleteWorkspacePermission,
+  hasManageWorkspaceEnvironmentPermission,
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
@@ -102,6 +104,10 @@ import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader"
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
+import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
+import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
+import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -468,6 +474,9 @@ export function ApplicationsSection(props: any) {
   const [workspaceToOpenMenu, setWorkspaceToOpenMenu] = useState<string | null>(
     null,
   );
+  const isManageEnvironmentEnabled = useSelector(
+    allowManageEnvironmentAccessForUser,
+  );
   const updateApplicationDispatch = (
     id: string,
     data: UpdateApplicationPayload,
@@ -590,7 +599,8 @@ export function ApplicationsSection(props: any) {
     workspacesListComponent = updatedWorkspaces.map(
       (workspaceObject: any, index: number) => {
         const isLastWorkspace = updatedWorkspaces.length === index + 1;
-        const { applications, packages, workspace } = workspaceObject;
+        const { applications, packages, workflows, workspace } =
+          workspaceObject;
         const hasManageWorkspacePermissions = isPermitted(
           workspace.userPermissions,
           PERMISSION_TYPE.MANAGE_WORKSPACE,
@@ -604,6 +614,10 @@ export function ApplicationsSection(props: any) {
         );
         const hasCreateNewApplicationPermission =
           hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
+
+        const renderManageEnvironmentMenu =
+          isManageEnvironmentEnabled &&
+          hasManageWorkspaceEnvironmentPermission(workspace.userPermissions);
 
         const onClickAddNewAppButton = (workspaceId: string) => {
           if (
@@ -624,7 +638,8 @@ export function ApplicationsSection(props: any) {
           canInviteToWorkspace ||
           hasManageWorkspacePermissions ||
           hasCreateNewApplicationPermission ||
-          (canDeleteWorkspace && applications.length === 0);
+          (canDeleteWorkspace && applications.length === 0) ||
+          renderManageEnvironmentMenu;
 
         const handleResetMenuState = () => {
           setWorkspaceToOpenMenu(null);
@@ -748,6 +763,13 @@ export function ApplicationsSection(props: any) {
                   workspaceId={workspace.id}
                 />
               )}
+              {!isLoadingResources && (
+                <WorkflowCardList
+                  isMobile={isMobile}
+                  workflows={workflows}
+                  workspaceId={workspace.id}
+                />
+              )}
             </WorkspaceSection>
             {!isLastWorkspace && <Divider />}
           </React.Fragment>
@@ -790,6 +812,8 @@ export interface ApplicationProps {
   resetEditor: () => void;
   queryModuleFeatureFlagEnabled: boolean;
   resetCurrentWorkspace: () => void;
+  currentApplicationIdForCreateNewApp?: string;
+  resetCurrentApplicationIdForCreateNewApp: () => void;
 }
 
 export interface ApplicationState {
@@ -827,7 +851,14 @@ export class Applications<
   }
 
   public render() {
-    return (
+    return this.props.currentApplicationIdForCreateNewApp ? (
+      <CreateNewAppsOption
+        currentApplicationIdForCreateNewApp={
+          this.props.currentApplicationIdForCreateNewApp
+        }
+        onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
+      />
+    ) : (
       <PageWrapper displayName="Applications">
         <LeftPane />
         <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
@@ -859,6 +890,8 @@ export const mapStateToProps = (state: AppState) => ({
   userWorkspaces: getUserApplicationsWorkspacesList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),
+  currentApplicationIdForCreateNewApp:
+    getCurrentApplicationIdForCreateNewApp(state),
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({
@@ -883,6 +916,8 @@ export const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
   resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
+  resetCurrentApplicationIdForCreateNewApp: () =>
+    dispatch(resetCurrentApplicationIdForCreateNewApp()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);

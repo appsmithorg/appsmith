@@ -1,8 +1,11 @@
 import {
-  agHelper,
   dataSources,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 let dsName: any, userMock: string, movieMock: string;
 
 describe(
@@ -23,29 +26,19 @@ describe(
           cy.get("@dsName").then(($dsName) => {
             dsName = $dsName;
             // Select Users
-            entityExplorer.SelectEntityByName(userMock, "Datasources");
-            agHelper.Sleep(200);
-            agHelper.AssertClassExists(
-              dataSources._entityExplorerID(userMock),
-              "active",
+            EditorNavigation.SelectEntityByName(
+              userMock,
+              EntityType.Datasource,
             );
 
             // Switch to Movies
-            entityExplorer.SelectEntityByName(movieMock, "Datasources");
-            agHelper.Sleep(200);
-            agHelper.AssertClassExists(
-              dataSources._entityExplorerID(movieMock),
-              "active",
+            EditorNavigation.SelectEntityByName(
+              movieMock,
+              EntityType.Datasource,
             );
 
             // Switch to custom DS
-            entityExplorer.SelectEntityByName(dsName, "Datasources");
-            entityExplorer.ExpandCollapseEntity(dsName, false);
-            agHelper.Sleep(200);
-            agHelper.AssertClassExists(
-              dataSources._entityExplorerID(dsName),
-              "active",
-            );
+            EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
 
             // Delete all datasources
             entityExplorer.ActionContextMenuByEntityName({
@@ -61,9 +54,9 @@ describe(
               action: "Delete",
             });
 
-            dataSources.DeleteDatasouceFromActiveTab(userMock);
-            dataSources.DeleteDatasouceFromActiveTab(movieMock);
-            dataSources.DeleteDatasouceFromActiveTab(dsName);
+            dataSources.DeleteDatasourceFromWithinDS(userMock);
+            dataSources.DeleteDatasourceFromWithinDS(movieMock);
+            dataSources.DeleteDatasourceFromWithinDS(dsName);
           });
         });
       });

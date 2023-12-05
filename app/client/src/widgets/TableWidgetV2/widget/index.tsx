@@ -167,8 +167,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static type = "TABLE_WIDGET_V2";
 
-  static preloadConfig = true;
-
   static getConfig() {
     return {
       name: "Table",
@@ -376,6 +374,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: {},

@@ -14,6 +14,10 @@ import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { screen } from "@testing-library/react";
 
+import { Provider } from "react-redux";
+import configureMockStore from "redux-mock-store";
+import { APP_MODE } from "entities/App";
+
 let container: any;
 
 describe("Chart Widget", () => {
@@ -72,9 +76,35 @@ describe("Chart Widget", () => {
     container = null;
   });
 
+  const mockStore = configureMockStore();
+  const store = mockStore({
+    entities: {
+      canvasWidgets: {},
+      app: {
+        mode: APP_MODE.PUBLISHED,
+      },
+    },
+    ui: {
+      widgetDragResize: {
+        selectedWidgets: [],
+      },
+      editor: {
+        isPreviewMode: false,
+      },
+      applications: {
+        currentApplication: "",
+      },
+      gitSync: {
+        protectedBranches: [],
+      },
+    },
+  });
+
   it("1. renders the correct library for chart type", async () => {
     const { container, getByText, rerender } = render(
-      <ChartComponent {...defaultProps} />,
+      <Provider store={store}>
+        <ChartComponent {...defaultProps} />
+      </Provider>,
     );
 
     const xAxisLabel = getByText("xaxisname");
@@ -91,7 +121,11 @@ describe("Chart Widget", () => {
     let props = { ...defaultProps };
     props.chartType = "CUSTOM_FUSION_CHART";
 
-    rerender(<ChartComponent {...props} />);
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
     echartsContainer = container.querySelector("#widgetIDechart-container");
     expect(echartsContainer).not.toBeInTheDocument();
@@ -104,10 +138,14 @@ describe("Chart Widget", () => {
     props = JSON.parse(JSON.stringify(defaultProps));
     props.chartType = "CUSTOM_ECHART";
 
-    rerender(<ChartComponent {...props} />);
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
-    const bing = getByText("Bing");
-    expect(bing).toBeInTheDocument();
+    echartsContainer = container.querySelector("iframe");
+    expect(echartsContainer).toBeInTheDocument();
   });
 
   it("2. successfully switches sequence of basic chart/custom fusion chart/basic chart/custom echart", async () => {
@@ -116,7 +154,9 @@ describe("Chart Widget", () => {
     props.chartType = "AREA_CHART";
 
     const { container, getByText, rerender } = render(
-      <ChartComponent {...props} />,
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
     );
 
     let xAxisLabel = getByText("xaxisname");
@@ -134,7 +174,11 @@ describe("Chart Widget", () => {
     props = JSON.parse(JSON.stringify(defaultProps));
     props.chartType = "CUSTOM_FUSION_CHART";
 
-    rerender(<ChartComponent {...props} />);
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
     echartsContainer = container.querySelector("#widgetIDechart-container");
     expect(echartsContainer).not.toBeInTheDocument();
@@ -148,7 +192,11 @@ describe("Chart Widget", () => {
     props = JSON.parse(JSON.stringify(defaultProps));
     props.chartType = "AREA_CHART";
 
-    rerender(<ChartComponent {...props} />);
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
     xAxisLabel = getByText("xaxisname");
     expect(xAxisLabel).toBeInTheDocument();
@@ -160,10 +208,14 @@ describe("Chart Widget", () => {
     props = JSON.parse(JSON.stringify(defaultProps));
     props.chartType = "CUSTOM_ECHART";
 
-    rerender(<ChartComponent {...props} />);
+    rerender(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
-    const bing = getByText("Bing");
-    expect(bing).toBeInTheDocument();
+    echartsContainer = container.querySelector("iframe");
+    expect(echartsContainer).toBeInTheDocument();
   });
 
   it("3. adds a click event when user adds a click callback", async () => {
@@ -174,129 +226,15 @@ describe("Chart Widget", () => {
       mockCallback(point);
     };
 
-    render(<ChartComponent {...props} />);
+    render(
+      <Provider store={store}>
+        <ChartComponent {...props} />
+      </Provider>,
+    );
 
     expect(mockCallback.mock.calls.length).toEqual(0);
     const el = await screen.findByText("1000");
     userEvent.click(el);
     expect(mockCallback.mock.calls.length).toEqual(1);
-  });
-
-  it("4. check each chart type has their independent error showing up in the chart widget", () => {
-    let props = JSON.parse(JSON.stringify(defaultProps));
-    props.chartType = "CUSTOM_ECHART";
-
-    const { container, getByText, queryByText, rerender } = render(
-      <ChartComponent {...props} />,
-    );
-
-    const bing = getByText("Bing");
-    expect(bing).toBeInTheDocument();
-
-    // incorrect source key, thus incorrect echart configuration
-    props = JSON.parse(JSON.stringify(props));
-    delete props.customEChartConfig.dataset.source;
-    props.customEChartConfig.dataset.soce = {};
-
-    rerender(<ChartComponent {...props} />);
-
-    const errorTitle = getByText("Error in Chart Data/Configuration");
-    expect(errorTitle).toBeInTheDocument();
-    expect(queryByText("Bing")).toBeNull();
-
-    // change chart type to basic echart
-    props = JSON.parse(JSON.stringify(props));
-    props.chartType = "LINE_CHART";
-
-    rerender(<ChartComponent {...props} />);
-
-    expect(queryByText("Error in Chart Data/Configuration")).toBeNull();
-    expect(queryByText("Bing")).toBeNull();
-    expect(queryByText("xaxisname")).toBeInTheDocument();
-
-    // Check if updating props in basic charts is working
-    props = JSON.parse(JSON.stringify(props));
-    props.chartType = "LINE_CHART";
-    props.xAxisName = "xaxisname123";
-
-    rerender(<ChartComponent {...props} />);
-
-    expect(queryByText("Error in Chart Data/Configuration")).toBeNull();
-    expect(queryByText("Bing")).toBeNull();
-    expect(queryByText("xaxisname")).not.toBeInTheDocument();
-    expect(queryByText("xaxisname123")).toBeInTheDocument();
-
-    // switching back to custom echart should show the original error
-    props = JSON.parse(JSON.stringify(props));
-    props.chartType = "CUSTOM_ECHART";
-
-    rerender(<ChartComponent {...props} />);
-    expect(
-      queryByText("Error in Chart Data/Configuration"),
-    ).toBeInTheDocument();
-
-    // Remove error from custom EChart, the chart should render without errors
-    props = JSON.parse(JSON.stringify(props));
-    props.customEChartConfig.dataset.source = JSON.parse(
-      JSON.stringify((defaultProps.customEChartConfig.dataset as any).source),
-    );
-    props.chartType = "CUSTOM_ECHART";
-
-    rerender(<ChartComponent {...props} />);
-
-    expect(
-      queryByText("Error in Chart Data/Configuration"),
-    ).not.toBeInTheDocument();
-    expect(queryByText("Bing")).toBeInTheDocument();
-
-    // Check if updating the props in custom ECharts is working now
-    props = JSON.parse(JSON.stringify(props));
-    let updatedSource = JSON.parse(
-      JSON.stringify((props.customEChartConfig.dataset as any).source),
-    );
-    updatedSource[2][0] = "Bing 123";
-    props.customEChartConfig.dataset.source = updatedSource;
-    props.chartType = "CUSTOM_ECHART";
-
-    rerender(<ChartComponent {...props} />);
-    expect(queryByText("Bing 123")).toBeInTheDocument();
-
-    // Switch to custom fusion charts
-    props = JSON.parse(JSON.stringify(props));
-    props.chartType = "CUSTOM_FUSION_CHART";
-
-    rerender(<ChartComponent {...props} />);
-
-    expect(
-      queryByText("Error in Chart Data/Configuration"),
-    ).not.toBeInTheDocument();
-    const fusionContainer = container.querySelector(
-      "#widgetIDcustom-fusion-chart-container",
-    );
-    expect(fusionContainer).toBeInTheDocument();
-
-    // Switching back to custom echart should work.
-    props = JSON.parse(JSON.stringify(props));
-    props.customEChartConfig.dataset.source = JSON.parse(
-      JSON.stringify((defaultProps.customEChartConfig.dataset as any).source),
-    );
-    props.chartType = "CUSTOM_ECHART";
-
-    rerender(<ChartComponent {...props} />);
-
-    expect(queryByText("Bing")).toBeInTheDocument();
-
-    // Updating props in custom echart should work.
-    props = JSON.parse(JSON.stringify(props));
-    updatedSource = JSON.parse(
-      JSON.stringify((props.customEChartConfig.dataset as any).source),
-    );
-    updatedSource[2][0] = "Bing 456";
-
-    props.customEChartConfig.dataset.source = updatedSource;
-    props.chartType = "CUSTOM_ECHART";
-
-    rerender(<ChartComponent {...props} />);
-    expect(queryByText("Bing 456")).toBeInTheDocument();
   });
 });

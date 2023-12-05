@@ -1,3 +1,8 @@
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../../fixtures/testdata.json");
 import { agHelper, apiPage } from "../../../../support/Objects/ObjectsCore";
 import apiEditor from "../../../../locators/ApiEditor";
@@ -7,8 +12,6 @@ const testUrl1 =
 describe("Bug 14666: Api Response Test Functionality ", function () {
   it("1. Test table loading when data is in array format", function () {
     cy.log("Login Successful");
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     apiPage.CreateAndFillApi(testUrl1, "TableTestAPI");
     agHelper.AssertAutoSave();
     apiPage.RunAPI();
@@ -17,9 +20,7 @@ describe("Bug 14666: Api Response Test Functionality ", function () {
   });
 
   it("2. Test table loading when data is not in array format", function () {
-    cy.log("Login Successful");
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
+    AppSidebar.navigate(AppSidebarButton.Editor);
     apiPage.CreateAndFillApi(
       testdata.baseUrl + testdata.echoMethod,
       "TableTestAPI",

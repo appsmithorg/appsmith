@@ -1,11 +1,13 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("JS Function Execution", function () {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON, 200, 200);
   });
   it("1. Shows js function data as part of autocompletion hints", function () {
-    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.jsEditor.CreateJSObject(
       `export default {
   	myFun1: ()=>{
@@ -23,7 +25,7 @@ describe("JS Function Execution", function () {
         prettify: false,
       },
     );
-    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", `{{JSObject1.`, true, false);
     _.agHelper.AssertContains("myFun1.data");
     _.agHelper.AssertContains("myFun2.data");

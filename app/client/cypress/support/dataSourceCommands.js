@@ -1,13 +1,13 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
+import { AppSidebar, AppSidebarButton } from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import { ObjectsRegistry } from "../support/Objects/Registry";
-const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
-const explorer = require("../locators/explorerlocators.json");
 const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
 const apiEditorLocators = require("../locators/ApiEditor");
 const dataSources = ObjectsRegistry.DataSources;
@@ -52,15 +52,11 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
 });
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
-  cy.get(explorer.addDBQueryEntity).last().click({ force: true });
   dataSources.NavigateToDSCreateNew();
 });
 
 Cypress.Commands.add("NavigateToActiveDatasources", () => {
-  cy.get(explorer.addDBQueryEntity).last().click({ force: true });
-  cy.get(pages.integrationActiveTab)
-    .should("be.visible")
-    .click({ force: true });
+  AppSidebar.navigate(AppSidebarButton.Data);
 });
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
@@ -261,7 +257,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("createPostgresDatasource", () => {
-  cy.NavigateToDatasourceEditor();
+  dataSources.NavigateToDSCreateNew();
   cy.get(datasourceEditor.PostgreSQL).click({ force: true });
   cy.fillPostgresDatasourceForm();
   cy.testSaveDatasource();
@@ -269,13 +265,12 @@ Cypress.Commands.add("createPostgresDatasource", () => {
 
 // this can be modified further when google sheets automation is done.
 Cypress.Commands.add("createGoogleSheetsDatasource", () => {
-  cy.NavigateToDatasourceEditor();
+  dataSources.NavigateToDSCreateNew();
   cy.get(datasourceEditor.GoogleSheets).click();
 });
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
-  cy.NavigateToQueryEditor();
-  dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+  dataSources.DeleteDatasourceFromWithinDS(datasourceName);
 });
 
 Cypress.Commands.add("renameDatasource", (datasourceName) => {
@@ -331,8 +326,7 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
 
 Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
   //Navigate to active datasources panel.
-  cy.get(pages.addEntityAPI).last().should("be.visible").click({ force: true });
-  dataSources.DeleteDatasouceFromActiveTab(renameVal);
+  dataSources.DeleteDatasourceFromWithinDS(renameVal);
 });
 
 Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {

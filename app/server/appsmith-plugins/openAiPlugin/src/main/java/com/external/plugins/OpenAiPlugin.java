@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.pf4j.PluginWrapper;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -95,7 +94,6 @@ public class OpenAiPlugin extends BasePlugin {
             OpenAIRequestDTO openAIRequestDTO = openAICommand.makeRequestBody(actionConfiguration);
             URI uri = openAICommand.createExecutionUri();
             HttpMethod httpMethod = openAICommand.getExecutionMethod();
-
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
@@ -106,16 +104,30 @@ public class OpenAiPlugin extends BasePlugin {
             return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.fromValue(openAIRequestDTO))
                     .flatMap(responseEntity -> {
                         HttpStatusCode statusCode = responseEntity.getStatusCode();
-                        HttpHeaders headers = responseEntity.getHeaders();
 
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setRequest(actionExecutionRequest);
                         actionExecutionResult.setStatusCode(statusCode.toString());
 
+                        if (HttpStatusCode.valueOf(401).isSameCodeAs(statusCode)) {
+                            actionExecutionResult.setIsExecutionSuccess(false);
+                            String errorMessage = "";
+                            if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
+                                errorMessage = new String(responseEntity.getBody());
+                            }
+                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR, errorMessage));
+                            return Mono.just(actionExecutionResult);
+                        }
+
                         if (statusCode.is4xxClientError()) {
                             actionExecutionResult.setIsExecutionSuccess(false);
-                            actionExecutionResult.setErrorInfo(
-                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
+                            String errorMessage = "";
+                            if (responseEntity.getBody() != null && responseEntity.getBody().length > 0) {
+                                errorMessage = new String(responseEntity.getBody());
+                            }
+                            actionExecutionResult.setErrorInfo(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ERROR, errorMessage));
                             return Mono.just(actionExecutionResult);
                         }
 
@@ -175,8 +187,8 @@ public class OpenAiPlugin extends BasePlugin {
             return RequestUtils.makeRequest(httpMethod, uri, bearerTokenAuth, BodyInserters.empty())
                     .flatMap(responseEntity -> {
                         if (responseEntity.getStatusCode().is4xxClientError()) {
-                            return Mono.error(
-                                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR));
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR));
                         }
 
                         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
@@ -229,12 +241,13 @@ public class OpenAiPlugin extends BasePlugin {
                         }
 
                         AppsmithPluginException error =
-                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR);
+                                new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR);
                         return new DatasourceTestResult(error.getMessage());
                     })
                     .onErrorResume(error -> {
                         if (!(error instanceof AppsmithPluginException)) {
-                            error = new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR);
+                            error = new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_AUTHENTICATION_ERROR);
                         }
                         return Mono.just(new DatasourceTestResult(error.getMessage()));
                     });

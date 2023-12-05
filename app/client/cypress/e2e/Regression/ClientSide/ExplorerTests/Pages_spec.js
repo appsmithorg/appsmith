@@ -1,4 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 const locators = {
   errorPageTitle: ".t--error-page-title",
 };
@@ -8,12 +12,11 @@ describe("Pages", function () {
   let apiName = "someApi";
 
   it("1. Clone page & check tooltip for long name", function () {
-    //cy.NavigateToAPI_Panel();
     _.apiPage.CreateApi(apiName);
-    _.entityExplorer.SelectEntityByName("Page1", "Pages");
-    _.entityExplorer.ClonePage("Page1");
-    _.entityExplorer.SelectEntityByName("Page1 Copy", "Pages");
-    _.entityExplorer.SelectEntityByName(apiName, "Queries/JS"); //Verify api also cloned along with PageClone
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    PageList.ClonePage("Page1");
+    EditorNavigation.SelectEntityByName("Page1 Copy", EntityType.Page);
+    EditorNavigation.SelectEntityByName(apiName, EntityType.Api); //Verify api also cloned along with PageClone
 
     //Creates a page with long name and checks if it shows tooltip on hover
     cy.get("body").click(0, 0);
@@ -30,7 +33,7 @@ describe("Pages", function () {
   it("2. Check for Refrsh page and validate and 404 is showing correct route", () => {
     //Automated as part Bug19654
     _.deployMode.NavigateBacktoEditor();
-    _.entityExplorer.SelectEntityByName("Page1 Copy", "Pages");
+    EditorNavigation.SelectEntityByName("Page1 Copy", EntityType.Page);
     //Checks if 404 is showing correct route
     cy.visit("/route-that-does-not-exist");
     cy.get(locators.errorPageTitle).should(($x) => {

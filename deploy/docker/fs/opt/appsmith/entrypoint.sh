@@ -2,12 +2,12 @@
 
 set -e
 
+echo "Running as: $(id)"
+
 stacks_path=/appsmith-stacks
 
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
-
-CERTBOT_CONFIG_DIR="$stacks_path/letsencrypt"
 
 mkdir -pv "$SUPERVISORD_CONF_TARGET" "$NGINX_WWW_PATH"
 
@@ -247,6 +247,7 @@ use-mongodb-key() {
   # We copy the MongoDB key file to `$MONGODB_TMP_KEY_PATH`, so that we can reliably set its permissions to 600.
   # Why? When the host machine of this Docker container is Windows, file permissions cannot be set on files in volumes.
   # So the key file should be somewhere inside the container, and not in a volume.
+  mkdir -pv "$(dirname "$MONGODB_TMP_KEY_PATH")"
   cp -v "$1" "$MONGODB_TMP_KEY_PATH"
   chmod 600 "$MONGODB_TMP_KEY_PATH"
 }
@@ -280,7 +281,8 @@ setup-custom-ca-certificates() (
 
   # Add the custom CA certificates to the store.
   find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
-    -exec keytool -import -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
+    -print \
+    -exec keytool -import -alias '{}' -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
 
   {
     echo "-Djavax.net.ssl.trustStore=$store"
@@ -310,6 +312,8 @@ configure_supervisord() {
     fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
+      # Update hosts lookup to resolve to embedded postgres
+      echo '127.0.0.1     mockdb.internal.appsmith.com' >> /etc/hosts
     fi
   fi
 
@@ -457,13 +461,11 @@ export "_IS_EMBEDDED_POSTGRES_RUNNING=$runEmbeddedPostgres"
 
 configure_supervisord
 
-mkdir -p "$CERTBOT_CONFIG_DIR" /appsmith-stacks/ssl
-
 # Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
 mkdir -p /appsmith-stacks/data/{backup,restore}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{supervisor,backend,editor,rts,mongodb,redis,postgres,appsmithctl}
+mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 # Stop nginx gracefully
 nginx -s quit

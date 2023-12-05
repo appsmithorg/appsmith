@@ -1,10 +1,10 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import {
-  agHelper,
-  entityExplorer,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the Table and input Widget", function () {
   before(() => {
@@ -12,8 +12,9 @@ describe("Binding the Table and input Widget", function () {
   });
 
   it("1. Input widget test with default value from table widget", function () {
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.SelectEntityByName("Input1", "Form1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
     cy.wait("@updateLayout")
       .its("response.body.responseMeta.status")
@@ -21,7 +22,7 @@ describe("Binding the Table and input Widget", function () {
   });
 
   it("2. Validation of data displayed in input widgets based on sorting", function () {
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     cy.testJsontext("defaultselectedrow", "0");
     cy.get(".draggable-header").contains("id").click({ force: true });
@@ -49,7 +50,7 @@ describe("Binding the Table and input Widget", function () {
   });
 
   it("3. Validation of column id displayed in input widgets based on sorted column", function () {
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     cy.testJsontext("defaultvalue", testdata.sortedColumn + "}}");
     cy.wait("@updateLayout").should(
       "have.nested.property",
