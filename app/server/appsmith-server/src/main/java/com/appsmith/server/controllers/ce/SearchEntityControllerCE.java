@@ -29,7 +29,7 @@ public class SearchEntityControllerCE {
             @RequestParam(required = false) String[] entities,
             @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "10") int size) {
+            @RequestParam(required = false, defaultValue = "20") int size) {
         log.debug("Going to search for entities with search string: {}", keyword);
         return searchEntitySolution
                 .searchEntity(entities, keyword, page, size, Boolean.TRUE)

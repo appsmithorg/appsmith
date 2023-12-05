@@ -1,4 +1,4 @@
-package com.appsmith.server.services.ce;
+package com.appsmith.server.applications.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;

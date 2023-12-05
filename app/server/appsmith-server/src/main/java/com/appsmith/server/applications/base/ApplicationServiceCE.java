@@ -1,4 +1,4 @@
-package com.appsmith.server.services.ce;
+package com.appsmith.server.applications.base;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
