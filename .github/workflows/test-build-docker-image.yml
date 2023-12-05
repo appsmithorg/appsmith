@@ -64,7 +64,7 @@ jobs:
     with:
       pr: 0
 
-   client-unit-tests:
+  client-unit-tests:
     name: client-unit-tests
     needs: [build-docker-image]
     if: needs.path-filter.outputs.client == 'true'
