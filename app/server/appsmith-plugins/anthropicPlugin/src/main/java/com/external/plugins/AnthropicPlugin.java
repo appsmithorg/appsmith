@@ -60,13 +60,15 @@ public class AnthropicPlugin extends BasePlugin {
 
     public static class AnthropicPluginExecutor extends BaseRestApiPluginExecutor {
         private static final Gson gson = new Gson();
+        private static final Cache<String, TriggerResultDTO> triggerResponseCache =
+                CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
             assert apiKeyAuth.getValue() != null;
 
-            AnthropicCommand anthropicCommand = AnthropicMethodStrategy.getExecutionMethod(AnthropicConstants.CHAT);
+            AnthropicCommand anthropicCommand = AnthropicMethodStrategy.selectExecutionMethod(AnthropicConstants.CHAT);
             URI uri = anthropicCommand.createExecutionUri();
             HttpMethod httpMethod = anthropicCommand.getExecutionMethod();
 
@@ -89,9 +91,6 @@ public class AnthropicPlugin extends BasePlugin {
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(
                             "Error while trying to test the datasource configurations" + error.getMessage())));
         }
-
-        private static final Cache<String, TriggerResultDTO> triggerResponseCache =
-                CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS).build();
 
         protected AnthropicPluginExecutor(SharedConfig sharedConfig) {
             super(sharedConfig);

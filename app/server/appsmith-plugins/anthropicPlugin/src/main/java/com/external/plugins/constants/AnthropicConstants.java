@@ -25,8 +25,6 @@ public class AnthropicConstants {
     public static final Float DEFAULT_TEMPERATURE = 1.0f;
     public static final String LABEL = "label";
     public static final String VALUE = "value";
-    public static final String ROLE_HUMAN = "Human";
-    public static final String ROLE_ASSISTANT = "Assistant";
     public static final String API_KEY_HEADER = "x-api-key";
     public static final String ANTHROPIC_VERSION_HEADER = "anthropic-version";
     public static final String ANTHROPIC_VERSION = "2023-06-01";
@@ -41,4 +39,6 @@ public class AnthropicConstants {
     public static final ExchangeStrategies EXCHANGE_STRATEGIES = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(/* 10MB */ 10 * 1024 * 1024))
             .build();
+    public static final String JSON = "json";
+    public static final String COMPONENT = "component";
 }

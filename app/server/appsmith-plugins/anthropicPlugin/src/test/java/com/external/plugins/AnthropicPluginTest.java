@@ -17,9 +17,13 @@ import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.external.plugins.constants.AnthropicConstants.CHAT_MODELS;
+import static com.external.plugins.constants.AnthropicConstants.LABEL;
+import static com.external.plugins.constants.AnthropicConstants.VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -91,11 +95,13 @@ public class AnthropicPluginTest {
 
         Mono<DatasourceTestResult> datasourceTestResultMono = pluginExecutor.testDatasource(datasourceConfiguration);
 
-        StepVerifier.create(datasourceTestResultMono).assertNext(datasourceTestResult -> {
-            assertEquals(datasourceTestResult.getInvalids().size(), 0);
-            assertEquals(datasourceTestResult.getMessages().size(), 0);
-            assertTrue(datasourceTestResult.isSuccess());
-        });
+        StepVerifier.create(datasourceTestResultMono)
+                .assertNext(datasourceTestResult -> {
+                    assertEquals(datasourceTestResult.getInvalids().size(), 0);
+                    assertEquals(datasourceTestResult.getMessages().size(), 0);
+                    assertTrue(datasourceTestResult.isSuccess());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -111,11 +117,12 @@ public class AnthropicPluginTest {
 
         Mono<DatasourceTestResult> datasourceTestResultMono = pluginExecutor.testDatasource(datasourceConfiguration);
 
-        StepVerifier.create(datasourceTestResultMono).assertNext(datasourceTestResult -> {
-            assertEquals(datasourceTestResult.getInvalids().size(), 1);
-            assertEquals(datasourceTestResult.getMessages().size(), 0);
-            assertFalse(datasourceTestResult.isSuccess());
-        });
+        StepVerifier.create(datasourceTestResultMono)
+                .assertNext(datasourceTestResult -> {
+                    assertEquals(datasourceTestResult.getInvalids().size(), 1);
+                    assertFalse(datasourceTestResult.isSuccess());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -134,11 +141,18 @@ public class AnthropicPluginTest {
         Mono<TriggerResultDTO> datasourceTriggerResultMono =
                 pluginExecutor.trigger(null, datasourceConfiguration, request);
 
-        StepVerifier.create(datasourceTriggerResultMono).assertNext(result -> {
-            assertTrue(result.getTrigger() instanceof List<?>);
-            assertEquals(((List) result.getTrigger()).size(), 1);
-            assertEquals(
-                    result.getTrigger(), List.of("claude-2.1", "claude-2", "claude-instant-1.2", "claude-instant-1"));
-        });
+        StepVerifier.create(datasourceTriggerResultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getTrigger() instanceof List<?>);
+                    assertEquals(((List) result.getTrigger()).size(), 4);
+                    assertEquals(
+                            result.getTrigger(),
+                            getDataToMap(List.of("claude-2.1", "claude-2", "claude-instant-1.2", "claude-instant-1")));
+                })
+                .verifyComplete();
+    }
+
+    private List<Map<String, String>> getDataToMap(List<String> data) {
+        return data.stream().sorted().map(x -> Map.of(LABEL, x, VALUE, x)).collect(Collectors.toList());
     }
 }

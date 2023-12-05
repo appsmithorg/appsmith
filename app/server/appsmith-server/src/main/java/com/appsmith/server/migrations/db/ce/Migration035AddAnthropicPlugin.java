@@ -43,6 +43,8 @@ public class Migration035AddAnthropicPlugin {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
+        assert plugin.getId() != null;
+
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 }

@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.constants.AnthropicConstants;
 import com.external.plugins.models.AnthropicRequestDTO;
+import com.external.plugins.models.Role;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -23,17 +24,18 @@ import static com.external.plugins.constants.AnthropicConstants.CHAT;
 import static com.external.plugins.constants.AnthropicConstants.CHAT_MODEL_SELECTOR;
 import static com.external.plugins.constants.AnthropicConstants.CLOUD_SERVICES;
 import static com.external.plugins.constants.AnthropicConstants.COMMAND;
+import static com.external.plugins.constants.AnthropicConstants.COMPONENT;
 import static com.external.plugins.constants.AnthropicConstants.COMPONENT_DATA;
 import static com.external.plugins.constants.AnthropicConstants.CONTENT;
 import static com.external.plugins.constants.AnthropicConstants.DATA;
 import static com.external.plugins.constants.AnthropicConstants.DEFAULT_MAX_TOKEN;
 import static com.external.plugins.constants.AnthropicConstants.DEFAULT_TEMPERATURE;
+import static com.external.plugins.constants.AnthropicConstants.JSON;
 import static com.external.plugins.constants.AnthropicConstants.MAX_TOKENS;
 import static com.external.plugins.constants.AnthropicConstants.MESSAGES;
 import static com.external.plugins.constants.AnthropicConstants.MODELS_API;
 import static com.external.plugins.constants.AnthropicConstants.PROVIDER;
 import static com.external.plugins.constants.AnthropicConstants.ROLE;
-import static com.external.plugins.constants.AnthropicConstants.ROLE_ASSISTANT;
 import static com.external.plugins.constants.AnthropicConstants.TEMPERATURE;
 import static com.external.plugins.constants.AnthropicConstants.VIEW_TYPE;
 import static com.external.plugins.constants.AnthropicErrorMessages.BAD_MAX_TOKEN_CONFIGURATION;
@@ -105,22 +107,22 @@ public class ChatCommand implements AnthropicCommand {
     private String createPrompt(Map<String, Object> formData) {
         StringBuilder stringBuilder = new StringBuilder();
         if (formData.containsKey(MESSAGES)) {
-            List<Map<String, String>> messagesMap = getMessages((Map<String, Object>) formData.get(MESSAGES));
-            if (messagesMap == null) {
+            List<Map<String, String>> messageMaps = getMessages((Map<String, Object>) formData.get(MESSAGES));
+            if (messageMaps == null) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                         "messages are not provided in the configuration correctly");
             }
-            for (Map<String, String> message : messagesMap) {
-                if (message != null && message.containsKey(ROLE) && message.containsKey(CONTENT)) {
+            for (Map<String, String> messageMap : messageMaps) {
+                if (messageMap != null && messageMap.containsKey(ROLE) && messageMap.containsKey(CONTENT)) {
                     stringBuilder
                             .append("\n\n")
-                            .append(message.get(ROLE))
+                            .append(messageMap.get(ROLE))
                             .append(": ")
-                            .append(message.get(CONTENT));
+                            .append(messageMap.get(CONTENT));
                 }
             }
-            return stringBuilder.append("\n").append(ROLE_ASSISTANT).append(":").toString();
+            return stringBuilder.append("\n").append(Role.Assistant).append(":").toString();
         } else {
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -131,10 +133,10 @@ public class ChatCommand implements AnthropicCommand {
     private List<Map<String, String>> getMessages(Map<String, Object> messages) {
         Type listType = new TypeToken<List<Map<String, String>>>() {}.getType();
         if (messages.containsKey(VIEW_TYPE)) {
-            if ("json".equals(messages.get(VIEW_TYPE))) {
+            if (JSON.equals(messages.get(VIEW_TYPE))) {
                 // data is present in data key as String
                 return gson.fromJson((String) messages.get(DATA), listType);
-            } else if ("component".equals(messages.get(VIEW_TYPE))) {
+            } else if (COMPONENT.equals(messages.get(VIEW_TYPE))) {
                 return (List<Map<String, String>>) messages.get(COMPONENT_DATA);
             }
         }

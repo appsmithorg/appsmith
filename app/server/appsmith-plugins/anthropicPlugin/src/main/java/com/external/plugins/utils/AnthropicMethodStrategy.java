@@ -34,14 +34,14 @@ public class AnthropicMethodStrategy {
 
         String command = extractDataFromFormData(formData, AnthropicConstants.COMMAND);
 
-        return getExecutionMethod(command);
+        return selectExecutionMethod(command);
     }
 
-    public static AnthropicCommand getExecutionMethod(String command) {
+    public static AnthropicCommand selectExecutionMethod(String command) {
         return switch (command) {
             case AnthropicConstants.CHAT -> new ChatCommand();
-            default -> throw Exceptions.propagate(
-                    new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR));
+            default -> throw Exceptions.propagate(new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported command: " + command));
         };
     }
 }
