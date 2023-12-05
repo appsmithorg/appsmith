@@ -42,8 +42,8 @@ import {
   getPlugin,
   isActionDirty,
   isActionSaving,
-  getJSCollection,
   getDatasource,
+  getJSCollectionFromAllEntities,
 } from "@appsmith/selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
@@ -169,6 +169,11 @@ import {
   setAttributesToSpan,
   startRootSpan,
 } from "UITelemetry/generateTraces";
+import {
+  getJSActionNameToDisplay,
+  getJSActionPathNameToDisplay,
+  getPluginActionNameToDisplay,
+} from "@appsmith/utils/actionExecutionUtils";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1023,71 +1028,71 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   const collectionId = pageAction.collectionId;
   const pageId: string | undefined = yield select(getCurrentPageId);
 
-  if (collectionId) {
-    const collection: JSCollection = yield select(
-      getJSCollection,
-      collectionId,
-    );
+  if (!collectionId) return;
 
-    if (!collection) {
-      Sentry.captureException(
-        new Error(
-          "Collection present in layoutOnLoadActions but no collection exists ",
-        ),
-        {
-          extra: {
-            collectionId,
-            actionId: pageAction.id,
-            pageId,
-          },
+  const collection: ReturnType<typeof getJSCollectionFromAllEntities> =
+    yield select(getJSCollectionFromAllEntities, collectionId);
+
+  if (!collection) {
+    Sentry.captureException(
+      new Error(
+        "Collection present in layoutOnLoadActions but no collection exists ",
+      ),
+      {
+        extra: {
+          collectionId,
+          actionId: pageAction.id,
+          pageId,
         },
-      );
-
-      return;
-    }
-
-    const jsAction = collection.actions.find(
-      (action) => action.id === pageAction.id,
+      },
     );
-    if (!!jsAction) {
-      if (jsAction.confirmBeforeExecute) {
-        const modalPayload = {
-          name: pageAction.name,
-          modalOpen: true,
-          modalType: ModalType.RUN_ACTION,
-        };
+    return;
+  }
 
-        const confirmed: unknown = yield call(
-          requestModalConfirmationSaga,
-          modalPayload,
-        );
-        if (!confirmed) {
-          yield put({
-            type: ReduxActionTypes.RUN_ACTION_CANCELLED,
-            payload: { id: pageAction.id },
-          });
-          toast.show(
-            createMessage(
-              ACTION_EXECUTION_CANCELLED,
-              `${collection.name}.${jsAction.name}`,
-            ),
-            {
-              kind: "error",
-            },
-          );
-          // Don't proceed to executing the js function
-          return;
-        }
-      }
-      const data = {
-        collectionName: collection.name,
-        action: jsAction,
-        collectionId: collectionId,
-        isExecuteJSFunc: true,
+  const jsAction = collection.actions.find(
+    (action) => action.id === pageAction.id,
+  );
+  if (!!jsAction) {
+    if (jsAction.confirmBeforeExecute) {
+      const jsActionNameToDisplay = getJSActionNameToDisplay(jsAction);
+      const modalPayload = {
+        name: jsActionNameToDisplay,
+        modalOpen: true,
+        modalType: ModalType.RUN_ACTION,
       };
 
-      yield call(handleExecuteJSFunctionSaga, data);
+      const confirmed: boolean = yield call(
+        requestModalConfirmationSaga,
+        modalPayload,
+      );
+      if (!confirmed) {
+        yield put({
+          type: ReduxActionTypes.RUN_ACTION_CANCELLED,
+          payload: { id: pageAction.id },
+        });
+
+        const jsActionPathNameToDisplay = getJSActionPathNameToDisplay(
+          jsAction,
+          collection,
+        );
+
+        toast.show(
+          createMessage(ACTION_EXECUTION_CANCELLED, jsActionPathNameToDisplay),
+          {
+            kind: "error",
+          },
+        );
+        // Don't proceed to executing the js function
+        return;
+      }
     }
+    const data = {
+      action: jsAction,
+      collection,
+      isExecuteJSFunc: true,
+    };
+
+    yield call(handleExecuteJSFunctionSaga, data);
   }
 }
 
@@ -1331,14 +1336,15 @@ function* executePluginActionSaga(
   parentSpan?: OtlpSpan,
 ) {
   const actionId = pluginAction.id;
+  const pluginActionNameToDisplay = getPluginActionNameToDisplay(pluginAction);
   parentSpan &&
     setAttributesToSpan(parentSpan, {
       actionId,
-      pluginName: pluginAction?.name,
+      pluginName: pluginActionNameToDisplay,
     });
   if (pluginAction.confirmBeforeExecute) {
     const modalPayload = {
-      name: pluginAction.name,
+      name: pluginActionNameToDisplay,
       modalOpen: true,
       modalType: ModalType.RUN_ACTION,
     };
