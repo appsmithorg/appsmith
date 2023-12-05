@@ -6,7 +6,10 @@ import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { SizeConfig } from "WidgetProvider/constants";
 import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
-import { getRenderMode } from "selectors/editorSelectors";
+import {
+  combinedPreviewModeSelector,
+  getRenderMode,
+} from "selectors/editorSelectors";
 import { RenderModes } from "constants/WidgetConstants";
 
 // ToDo: This is a placeholder implementation this is bound to change
@@ -19,8 +22,13 @@ export const getZoneMinWidth = (childrenMap: { [key: string]: WidgetProps }) =>
   createSelector(
     getCanvasWidgets,
     getRenderMode,
-    (widgets: CanvasWidgetsReduxState, renderMode: RenderModes): string => {
-      if (renderMode === RenderModes.CANVAS) return "auto";
+    combinedPreviewModeSelector,
+    (
+      widgets: CanvasWidgetsReduxState,
+      renderMode: RenderModes,
+      isPreviewMode: boolean,
+    ): string => {
+      if (renderMode === RenderModes.CANVAS && !isPreviewMode) return "auto";
       const childWidgets: {
         [key: string]: WidgetProps;
       } = {};
