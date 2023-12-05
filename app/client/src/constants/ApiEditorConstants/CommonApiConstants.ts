@@ -8,6 +8,12 @@ export enum HTTP_METHOD {
   PATCH = "PATCH",
 }
 
+export enum HTTP_PROTOCOL {
+  V1 = "HTTP1.0",
+  V2 = "HTTP2.0",
+  H2C = "H2C",
+}
+
 export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
   GET: "var(--ads-v2-color-fg-information)",
   POST: "var(--ads-v2-color-fg-warning)",
@@ -27,6 +33,12 @@ export enum API_EDITOR_TABS {
 export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHOD).map((method) => ({
   value: method,
 }));
+
+export const HTTP_PROTOCOL_VERSIONS = Object.values(HTTP_PROTOCOL).map(
+  (version) => ({
+    value: version,
+  }),
+);
 
 export const EMPTY_KEY_VALUE_PAIRS = [
   { key: "", value: "" },
