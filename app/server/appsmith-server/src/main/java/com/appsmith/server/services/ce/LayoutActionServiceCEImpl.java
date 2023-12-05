@@ -254,12 +254,20 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> updateSingleActionWithBranchName(
             String defaultActionId, ActionDTO action, String branchName) {
+        return newActionService
+                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
+                .flatMap(newAction -> updateActionBasedOnContextType(newAction, action));
+    }
+
+    /**
+     * Does not check for any CreatorContext on Actions.
+     * This is a basic action update, which updates actions related to pages.
+     */
+    protected Mono<ActionDTO> updateActionBasedOnContextType(NewAction newAction, ActionDTO action) {
         String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
-        return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
-                .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
+        return updateSingleAction(newAction.getId(), action)
                 .flatMap(updatedAction ->
                         updateLayoutService.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
