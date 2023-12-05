@@ -296,9 +296,11 @@ describe("Git sync apps", function () {
     jsEditor.CreateJSObject('return "Success";');
     cy.wait(2000);
     // create postgres select query
-    dataSources.NavigateFromActiveDS(datasourceName, true);
-    dataSources.EnterQuery("SELECT * FROM users ORDER BY id LIMIT 10;");
-    agHelper.RenameWithInPane("get_users");
+    dataSources.CreateQueryForDS(
+      datasourceName,
+      "SELECT * FROM users ORDER BY id LIMIT 10;",
+      "get_users",
+    );
     dataSources.RunQuery();
     // create a new page
     cy.CheckAndUnfoldEntityItem("Pages");

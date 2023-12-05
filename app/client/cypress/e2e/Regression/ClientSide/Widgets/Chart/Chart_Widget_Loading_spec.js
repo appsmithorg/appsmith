@@ -1,10 +1,9 @@
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
-
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const queryLocators = require("../../../../../locators/QueryEditor.json");
 
 let dsname;
 describe("Chart Widget Skeleton Loading Functionality", function () {
@@ -105,9 +104,9 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
       _.dataSources.CreateDataSource("Postgres");
       cy.get("@saveDatasource").then((httpResponse) => {
         dsname = httpResponse.response.body.data.name;
+        _.dataSources.CreateQueryForDS(dsname);
       });
       cy.wait(1000);
-      cy.get(datasource.createQuery).click();
 
       cy.get(".t--action-name-edit-field").click({ force: true });
 
