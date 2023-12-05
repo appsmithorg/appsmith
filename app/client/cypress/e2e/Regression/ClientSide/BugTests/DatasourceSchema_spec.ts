@@ -45,7 +45,7 @@ describe("Datasource form related tests", function () {
       agHelper.GetNClick(dataSources._editButton);
       dataSources.UpdatePassword("docker");
       dataSources.VerifySchema(dataSourceName, "public.", true);
-      agHelper.GetNClick(dataSources._createQuery);
+      dataSources.CreateQueryAfterDSSaved(dataSourceName);
     });
   });
 

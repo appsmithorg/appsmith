@@ -18,8 +18,10 @@ describe("Add widget - Postgress DataSource", function () {
 
   it("1. Validate Snipping with query and table widget on canvas", () => {
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    _.dataSources.EnterQuery("select * from public.configs");
+    _.dataSources.CreateQueryForDS(
+      datasourceName,
+      "select * from public.configs",
+    );
     cy.WaitAutoSave();
     cy.runQuery();
     _.dataSources.AddSuggestedWidget(Widgets.Table);

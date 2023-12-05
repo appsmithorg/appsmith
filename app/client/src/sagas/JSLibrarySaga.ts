@@ -34,6 +34,7 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { selectInstalledLibraries } from "@appsmith/selectors/entitiesSelector";
 import { toast } from "design-system";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 export function parseErrorMessage(text: string) {
   return text.split(": ").slice(1).join("");
@@ -309,6 +310,7 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
 }
 
 function* fetchJSLibraries(action: ReduxAction<string>) {
+  const span = startRootSpan("fetchJSLibraries");
   const applicationId: string = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
   try {
@@ -318,7 +320,10 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
       mode,
     );
     const isValidResponse: boolean = yield validateResponse(response);
-    if (!isValidResponse) return;
+    if (!isValidResponse) {
+      endSpan(span);
+      return;
+    }
 
     const libraries = response.data as Array<JSLibrary & { defs: string }>;
 
@@ -354,6 +359,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
           type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
         });
       }
+      endSpan(span);
       return;
     }
 
@@ -398,6 +404,7 @@ function* fetchJSLibraries(action: ReduxAction<string>) {
       type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
     });
   }
+  endSpan(span);
 }
 
 function* startInstallationRequestChannel() {

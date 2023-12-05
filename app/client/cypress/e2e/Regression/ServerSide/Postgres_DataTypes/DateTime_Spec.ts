@@ -37,9 +37,7 @@ describe("DateTime Datatype tests", function () {
     query = `CREATE TABLE datetimeTypes (serialId serial primary key, ts TIMESTAMP not null DEFAULT NOW(),
     tstz TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP, dater date NOT NULL, timer time NOT NULL,
     timertz time with time zone not null default now(), intervaler interval not null);`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(dsName, query, "createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
   });
