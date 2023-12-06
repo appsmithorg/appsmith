@@ -4,7 +4,7 @@ import type { JSCollection } from "entities/JSCollection";
 import { useDispatch, useSelector } from "react-redux";
 import JsEditorForm from "./Form";
 import * as Sentry from "@sentry/react";
-import { getJSCollectionById } from "selectors/editorSelectors";
+import { getJSCollectionDataById } from "selectors/editorSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
@@ -29,10 +29,11 @@ type Props = ReduxStateProps &
 function JSEditor(props: Props) {
   const { pageId } = props.match.params;
   const dispatch = useDispatch();
-  const jsCollection = useSelector((state) =>
-    getJSCollectionById(state, props),
+  const jsCollectionData = useSelector((state) =>
+    getJSCollectionDataById(state, props),
   );
   const { isCreating } = useSelector((state) => state.ui.jsPane);
+  const jsCollection = jsCollectionData?.config;
 
   const contextMenu = useMemo(() => {
     if (!jsCollection) {
@@ -63,7 +64,7 @@ function JSEditor(props: Props) {
       <JsEditorForm
         backLink={backLink}
         contextMenu={contextMenu}
-        jsCollection={jsCollection}
+        jsCollectionData={jsCollectionData}
         onUpdateSettings={onUpdateSettings}
         saveJSObjectName={saveJSObjectName}
       />

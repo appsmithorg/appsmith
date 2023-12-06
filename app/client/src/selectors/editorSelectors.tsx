@@ -920,6 +920,21 @@ export const getActionById = createSelector(
   },
 );
 
+export const getJSCollectionDataById = createSelector(
+  [
+    getJSCollections,
+    (state: any, props: any) => props.match.params.collectionId,
+  ],
+  (jsActions, id) => {
+    const action = jsActions.find((action) => action.config.id === id);
+    if (action) {
+      return action;
+    } else {
+      return undefined;
+    }
+  },
+);
+
 export const getJSCollectionById = createSelector(
   [
     getJSCollections,
