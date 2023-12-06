@@ -48,6 +48,11 @@
     transition: color 200ms;
     outline: none;
     font-size: 0.95em;
+    border-radius: clamp(0px, var(--border-radius-1), 6px);
+
+    &[data-hovered] {
+      background: var(--color-bg-neutral-subtle);
+    }
 
     svg {
       width: 1em;
