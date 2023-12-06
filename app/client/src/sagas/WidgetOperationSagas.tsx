@@ -389,8 +389,11 @@ function getDynamicTriggerPathListUpdate(
 }
 
 const DYNAMIC_BINDING_IGNORED_LIST = [
+  /* Table widget */
   "primaryColumns",
   "derivedColumns",
+
+  /* custom widget */
   "srcDoc.html",
   "srcDoc.css",
   "srcDoc.js",
