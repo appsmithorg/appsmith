@@ -20,6 +20,8 @@ import type {
 } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { Icon } from "design-system";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { ActionResponse } from "api/ActionAPI";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -84,17 +86,25 @@ interface ConnectToOptionsProps {
   widget: WidgetProps;
 }
 
+export interface ModuleInstanceData {
+  config: ModuleInstance;
+  data: ActionResponse;
+  isLoading: boolean;
+}
+export type ModuleInstanceDataState = ModuleInstanceData[];
+
 export const getQueryIcon = (
   query: ActionData,
   pluginImages: Record<string, string>,
 ) => {
   if (!query.config.hasOwnProperty("sourceModuleId")) {
+    const action: ActionData = query;
     return (
       <ImageWrapper>
         <DatasourceImage
           alt=""
           className="dataSourceImage"
-          src={pluginImages[query.config.pluginId]}
+          src={pluginImages[action.config.pluginId]}
         />
       </ImageWrapper>
     );
@@ -146,15 +156,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
       id: query.config.id,
       label: query.config.name,
       value: getBindingValue(widget, query),
-      icon: (
-        <ImageWrapper>
-          <DatasourceImage
-            alt=""
-            className="dataSourceImage"
-            src={pluginImages[query.config.pluginId]}
-          />
-        </ImageWrapper>
-      ),
+      icon: getQueryIcon(query, pluginImages),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
         addBinding(valueOption?.value, false);
 
