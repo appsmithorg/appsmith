@@ -45,6 +45,7 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 
 // All the test case are for failure or exception. Test cases for valid json file is already present in
 // ImportExportApplicationServiceTest class
@@ -135,7 +136,7 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any(), any()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any(), anyBoolean()))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST)));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
@@ -166,7 +167,7 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any(), any()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any(), anyBoolean()))
                 .thenReturn(Mono.error(new MongoTransactionException(
                         "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'")));
 
