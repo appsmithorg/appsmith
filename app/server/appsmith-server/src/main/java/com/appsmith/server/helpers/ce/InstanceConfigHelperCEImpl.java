@@ -19,6 +19,7 @@ import joptsimple.internal.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
@@ -57,6 +58,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
     @Override
     public Mono<? extends Config> registerInstance() {
+        initData();
 
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (baseUrl == null || StringUtils.isEmpty(baseUrl)) {
@@ -106,6 +108,10 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                                 return configService.save(Appsmith.APPSMITH_REGISTERED, Map.of("value", true));
                             }));
                 });
+    }
+
+    private void initData() {
+        configService.save(Config.fromMap("instance-id", Map.of("value", new ObjectId().toHexString())));
     }
 
     private void sendServerSetupEvent(String instanceId) {

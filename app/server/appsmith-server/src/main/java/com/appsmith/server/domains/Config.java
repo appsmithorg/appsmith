@@ -11,6 +11,8 @@ import lombok.ToString;
 import net.minidev.json.JSONObject;
 import org.hibernate.annotations.Type;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @ToString
@@ -22,5 +24,10 @@ public class Config extends BaseDomain {
     @Column(columnDefinition = "jsonb")
     private JSONObject config;
 
+    @Column(unique = true)
     String name;
+
+    public static Config fromMap(String name, Map<String, ?> config) {
+        return new Config(new JSONObject(config), name);
+    }
 }

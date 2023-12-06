@@ -12,12 +12,14 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_NEW_RELIC_ACCOUNT_ENABLE;
 
 @SpringBootApplication
 @EnableScheduling
 @EntityScan({"com.appsmith.external.models", "com.appsmith.server.domains", "com.appsmith.server.dtos"})
+@EnableTransactionManagement
 public class ServerApplication {
 
     public static void main(String[] args) {
