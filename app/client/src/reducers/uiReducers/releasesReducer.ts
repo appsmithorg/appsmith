@@ -10,7 +10,7 @@ const initialState: ReleasesState = {
 const importReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_RELEASES_SUCCESS]: (
     _state: ReleasesState,
-    action: ReduxAction<{ payload: Record<string, unknown> }>,
+    action: ReduxAction<ReleasesState>,
   ) => action.payload,
   [ReduxActionTypes.RESET_UNREAD_RELEASES_COUNT]: (state: ReleasesState) => ({
     ...state,

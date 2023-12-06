@@ -28,7 +28,7 @@ export interface GenerateCRUDSuccessInfoData {
 
 export interface CrudInfoModalReduxState {
   crudInfoModalOpen: boolean;
-  generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
+  generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | undefined | null;
 }
 
 export default crudInfoModalReducer;

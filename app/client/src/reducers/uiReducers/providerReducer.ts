@@ -55,7 +55,7 @@ const providersReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.ADD_API_TO_PAGE_INIT]: (
     state: ProvidersReduxState,
-    action: any,
+    action: ReduxAction<any>,
   ) => {
     const updatedProviderTemplates = state.providerTemplates.map((item) => {
       if (item.templateData.id === action.payload.marketplaceElement.item.id) {

@@ -1,4 +1,4 @@
-import { ActionHandlers, createReducer } from "utils/ReducerUtils";
+import { type ActionHandlers, createReducer } from "utils/ReducerUtils";
 import type {
   ReduxAction,
   ApplicationPayload,
