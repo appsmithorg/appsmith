@@ -27,6 +27,7 @@ export const getResponsiveMinWidth = (
   return {
     ...config,
     base: `max(100%, ${config[`${MOBILE_BREAKPOINT}px`] ?? minWidth})`,
+    // base: minWidth,
     [`${MOBILE_BREAKPOINT}px`]: config[`${MOBILE_BREAKPOINT}px`] ?? minWidth,
   };
 };

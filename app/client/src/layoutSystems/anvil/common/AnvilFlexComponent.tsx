@@ -147,14 +147,15 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
       }
       if (validateResponsiveProp(props.widgetSize?.minWidth)) {
         // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
-        data.minWidth = getResponsiveMinWidth(
-          props.widgetSize?.minWidth,
-          isFillWidget,
-        );
+        data.minWidth =
+          props.widgetType === "ZONE_WIDGET"
+            ? { base: "100%", "480px": "min-content" }
+            : // { base: "min-content" }
+              getResponsiveMinWidth(props.widgetSize?.minWidth, isFillWidget);
       }
     }
     return data;
-  }, [isFillWidget, props.widgetSize, verticalAlignment]);
+  }, [isFillWidget, props.widgetSize, verticalAlignment, props.widgetType]);
 
   const borderStyles = useWidgetBorderStyles(props.widgetId);
 
