@@ -223,19 +223,17 @@ module.exports = async (on, config) => {
     },
   });
 
+  console.log("Whats in config before:" + config.specPattern);
 
-  console.log("Whats in config here:"+ config.specPattern)
-  
-  if (config.SpecPattern) {
-    const specPattern = config.SpecPattern.map((pattern) => {
-      const index = pattern.indexOf('***');
-      return index !== -1 ? pattern.slice(index) : pattern;
-    });
-  
-    config.specPattern = specPattern;
-  }
-  
-  
+  const specPattern = config.specPattern.split(",").map((pattern) => {
+    const index = pattern.indexOf("***");
+    return index !== -1 ? pattern.slice(index) : pattern;
+  });
+
+  config.specPattern = specPattern;
+
+  console.log("Whats in config after:" + config.specPattern);
+
   if (process.env["RUNID"]) {
     config = await new cypressSplit().splitSpecs(on, config);
     cypressHooks(on, config);
