@@ -1329,3 +1329,7 @@ export const getModuleInstanceEntities = () => {
     jsCollections: [],
   };
 };
+
+export const getQueryModuleInstances = () => {
+  return [];
+};

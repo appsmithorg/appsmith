@@ -4,6 +4,7 @@ import {
   getCurrentActions,
   getCurrentPageWidgets,
   getPluginIdPackageNamesMap,
+  getQueryModuleInstances,
 } from "@appsmith/selectors/entitiesSelector";
 import WidgetFactory from "WidgetProvider/factory";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
@@ -17,6 +18,7 @@ import type {
   ActionData,
   ActionDataState,
 } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { getSortedQueries } from "@appsmith/components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DataSourceDropdown/useSource/utils";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -26,7 +28,10 @@ enum SortingWeights {
 
 const SORT_INCREAMENT = 1;
 
-function sortQueries(queries: ActionDataState, expectedDatatype: string) {
+export function sortQueries(
+  queries: ActionDataState,
+  expectedDatatype: string,
+) {
   return queries.sort((A, B) => {
     const score = {
       A: 0,
@@ -63,7 +68,7 @@ function sortQueries(queries: ActionDataState, expectedDatatype: string) {
   });
 }
 
-function getBindingValue(widget: WidgetProps, query: ActionData) {
+export function getBindingValue(widget: WidgetProps, query: ActionData) {
   const defaultBindingValue = `{{${query.config.name}.data}}`;
   const querySuggestedWidgets = query.data?.suggestedWidgets;
   if (!querySuggestedWidgets) return defaultBindingValue;
@@ -95,7 +100,9 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
 
   const { pluginImages, widget } = props;
 
+  const queryModuleInstances = useSelector(getQueryModuleInstances);
   let filteredQueries = queries;
+
   /* Exclude Gsheets from query options till this gets resolved https://github.com/appsmithorg/appsmith/issues/27102*/
   if (widget.type === "JSON_FORM_WIDGET") {
     filteredQueries = queries.filter((query) => {
@@ -106,41 +113,23 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     });
   }
 
-  const queryOptions = useMemo(() => {
-    return sortQueries(filteredQueries, expectedType).map((query) => ({
-      id: query.config.id,
-      label: query.config.name,
-      value: getBindingValue(widget, query),
-      icon: (
-        <ImageWrapper>
-          <DatasourceImage
-            alt=""
-            className="dataSourceImage"
-            src={pluginImages[query.config.pluginId]}
-          />
-        </ImageWrapper>
+  if (!!queryModuleInstances) {
+    filteredQueries = [...queries, ...queryModuleInstances];
+  }
+
+  const queryOptions = useMemo(
+    () =>
+      getSortedQueries(
+        pluginImages,
+        addBinding,
+        updateConfig,
+        widget,
+        propertyName,
+        expectedType,
+        filteredQueries,
       ),
-      onSelect: function (value?: string, valueOption?: DropdownOptionType) {
-        addBinding(valueOption?.value, false);
-
-        updateConfig({
-          datasource: "",
-          datasourcePluginType: "",
-          datasourcePluginName: "",
-          datasourceConnectionMode: "",
-        });
-
-        AnalyticsUtil.logEvent("BIND_EXISTING_DATA_TO_WIDGET", {
-          widgetName: widget.widgetName,
-          widgetType: widget.type,
-          propertyName: propertyName,
-          entityBound: "Query",
-          entityName: query.config.name,
-          pluginType: query.config.pluginType,
-        });
-      },
-    }));
-  }, [filteredQueries, pluginImages, addBinding, widget]);
+    [filteredQueries, pluginImages, addBinding, widget],
+  );
 
   const currentPageWidgets = useSelector(getCurrentPageWidgets);
 
