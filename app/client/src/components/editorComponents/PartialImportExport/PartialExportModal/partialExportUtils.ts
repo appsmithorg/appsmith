@@ -2,6 +2,22 @@ import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureRed
 import type { PartialExportParams } from "sagas/WidgetSelectionSagas";
 import type { JSLibrary } from "workers/common/JSLibrary";
 
+export function selectOnlyParentIdsForSelectedWidgets(
+  widget: CanvasStructure,
+  ids: string[],
+  finalWidgetIDs: string[] = [],
+) {
+  if (widget.widgetId && ids.includes(widget.widgetId)) {
+    finalWidgetIDs.push(widget.widgetId);
+    return finalWidgetIDs;
+  }
+  if (widget.children) {
+    widget.children.forEach((child) => {
+      selectOnlyParentIdsForSelectedWidgets(child, ids, finalWidgetIDs);
+    });
+  }
+  return finalWidgetIDs;
+}
 export function groupQueriesNJSObjets(files: any): Record<string, any> {
   const groupedData: Record<string, any> = {};
   let currentGroup: unknown = null;
