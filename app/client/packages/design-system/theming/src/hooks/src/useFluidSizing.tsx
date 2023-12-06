@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { calculateScales } from "./calculateScales";
 
+import type { TokenObj } from "../../token";
+import type { FluidConfig } from "./types";
 import type { ScaleConfig } from "./types";
 
 const getFluidValue = (
@@ -29,7 +32,7 @@ const getFluidValue = (
     maxVw,
   )[0];
 
-  return `clamp(${minSize}px, calc(${v}vw + ${r}px), ${maxSize}px)`;
+  return `clamp(${minSize}px, calc(${v} * var(--provider-width) / 100 + ${r}px), ${maxSize}px)`;
 };
 
 export const getFluidSizing = (
@@ -59,4 +62,23 @@ export const getFluidSizing = (
       0: 0,
     },
   );
+};
+
+export const useFluidSizing = (
+  fluidConfig: FluidConfig,
+  userDensity = 1,
+  userSizing = 1,
+) => {
+  const { maxVw, minVw, sizing: sizingConfig } = fluidConfig;
+  const [sizing, setSizing] = useState<TokenObj>();
+
+  useEffect(() => {
+    setSizing(
+      getFluidSizing(maxVw, minVw, sizingConfig, userDensity, userSizing),
+    );
+  }, [userDensity, userSizing, maxVw, minVw, sizingConfig]);
+
+  return {
+    sizing,
+  };
 };
