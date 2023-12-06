@@ -135,7 +135,7 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST)));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
@@ -166,7 +166,7 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new MongoTransactionException(
                         "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'")));
 
