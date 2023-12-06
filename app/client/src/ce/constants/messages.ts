@@ -2286,6 +2286,7 @@ export const PARTIAL_IMPORT_EXPORT = {
     modalHeading: () => "Export",
     modalSubHeading: () => "Select entities below to export from the Page",
     cta: () => "Export selected entities",
+    fullPageCta: () => "Export full page",
     sections: {
       jsObjects: () => "JS objects",
       databases: () => "Databases",

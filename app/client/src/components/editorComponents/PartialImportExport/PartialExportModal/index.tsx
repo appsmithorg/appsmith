@@ -34,6 +34,10 @@ import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import { Bar, ScrollableSection } from "./StyledSheet";
 import WidgetsExport from "./WidgetsExport";
+import {
+  getAllExportableIds,
+  groupQueriesNJSObjets,
+} from "./partialExportUtils";
 
 interface Props {
   handleModalClose: () => void;
@@ -66,18 +70,7 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   }, [libraries]);
 
   const entities = useMemo(() => {
-    const groupedData: Record<string, any> = {};
-
-    let currentGroup: unknown = null;
-
-    for (const item of files) {
-      if (item.type === "group") {
-        currentGroup = item.entity.name;
-        groupedData[currentGroup as string] = [];
-      } else if (currentGroup) {
-        groupedData[currentGroup as string].push(item);
-      }
-    }
+    const groupedData: Record<string, any> = groupQueriesNJSObjets(files);
     const jsObjects =
       groupedData["JS Objects"] &&
       groupedData["JS Objects"].map((item: any) => item.entity);
@@ -248,6 +241,19 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
     );
   };
 
+  const onExportAllClick = () => {
+    dispatch(
+      partialExportWidgets(
+        getAllExportableIds(
+          files,
+          canvasWidgets!,
+          customJsLibraries,
+          appWideDS,
+        ),
+      ),
+    );
+  };
+
   return (
     <Modal onOpenChange={handleModalClose} open={isModalOpen}>
       <ModalContent>
@@ -299,13 +305,18 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
           )}
         </ScrollableSection>
         <ModalFooter>
-          <Button
-            isLoading={partialImportExportLoadingState.isExporting}
-            onClick={onExportClick}
-            size="md"
-          >
-            {createMessage(PARTIAL_IMPORT_EXPORT.export.cta)}
-          </Button>
+          <section className="w-full flex justify-between">
+            <Button kind="secondary" onClick={onExportAllClick} size="md">
+              {createMessage(PARTIAL_IMPORT_EXPORT.export.fullPageCta)}
+            </Button>
+            <Button
+              isLoading={partialImportExportLoadingState.isExporting}
+              onClick={onExportClick}
+              size="md"
+            >
+              {createMessage(PARTIAL_IMPORT_EXPORT.export.cta)}
+            </Button>
+          </section>
         </ModalFooter>
       </ModalContent>
     </Modal>
