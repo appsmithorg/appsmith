@@ -118,7 +118,7 @@ jobs:
         run: |
           # Since this is an unreleased build, we set the version to incremented version number with a
           # `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
@@ -138,6 +138,7 @@ jobs:
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+          APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
           if [[ "${{ inputs.skip-tests }}" == "true" ]]
           then
@@ -147,7 +148,7 @@ jobs:
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true \
-            -Dsurefire.rerunFailingTestsCount=3 -Dsurefire.outputFile="./junit-report.xml" 
+            -Dsurefire.rerunFailingTestsCount=3 -Dsurefire.outputFile="./junit-report.xml"
           ./build.sh $args
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
