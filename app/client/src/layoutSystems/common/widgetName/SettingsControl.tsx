@@ -5,7 +5,6 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { Icon } from "design-system";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import classNames from "classnames";
 // I honestly can't think of a better name for this enum
@@ -62,10 +61,6 @@ const WidgetName = styled.span`
   white-space: nowrap;
 `;
 
-const StyledErrorIcon = styled(Icon)`
-  margin-right: ${(props) => props.theme.spaces[1]}px;
-`;
-
 interface SettingsControlProps {
   toggleSettings: (e: any) => void;
   activity: Activities;
@@ -74,7 +69,9 @@ interface SettingsControlProps {
   inverted: boolean;
   widgetWidth: number;
   widgetId: string;
-  icon?: string;
+  icon?: React.ReactNode;
+  tooltip?: string;
+  kind: "primary" | "secondary";
 }
 
 const getStyles = (
@@ -122,20 +119,13 @@ const getStyles = (
 };
 
 export function SettingsControl(props: SettingsControlProps) {
+  const dispatch = useDispatch();
+
   const isSnipingMode = useSelector(snipingModeSelector);
-  const errorIcon = <StyledErrorIcon name="warning" size="sm" />;
 
   const customiseJS = useSelector(
     (state) => state.ui.oneClickBinding.jsTriggerOnWidget,
   );
-
-  const dispatch = useDispatch();
-
-  const tooltip = isSnipingMode
-    ? `Bind to widget ${props.name}`
-    : props.icon
-    ? "Customize your data using javascript"
-    : "Edit widget properties";
 
   const handleClick = useCallback(
     (e) => {
@@ -152,11 +142,15 @@ export function SettingsControl(props: SettingsControlProps) {
   );
 
   return (
-    <StyledTooltip content={tooltip} hoverOpenDelay={500} position="top-right">
+    <StyledTooltip
+      content={props.tooltip}
+      hoverOpenDelay={500}
+      position="top-right"
+    >
       <SettingsWrapper
         className={classNames(
           "t--widget-propertypane-toggle",
-          props.icon && "flex items-center gap-1",
+          props.kind === "secondary" && "flex items-center gap-1",
         )}
         data-testid="t--widget-propertypane-toggle"
         inverted={props.inverted}
@@ -165,22 +159,12 @@ export function SettingsControl(props: SettingsControlProps) {
           props.activity,
           props.errorCount,
           isSnipingMode,
-          props.icon ? "secondary" : "primary",
+          props.kind,
         )}
         widgetWidth={props.widgetWidth}
       >
-        {props.icon && <Icon name={props.icon} size="sm" />}
-        {!!props.errorCount && !isSnipingMode && !props.icon && errorIcon}
-        {isSnipingMode && (
-          <Icon
-            color="var(--ads-v2-color-white)"
-            name="arrow-right-line"
-            size="md"
-          />
-        )}
-        <WidgetName className="t--widget-name">
-          {isSnipingMode ? `Bind to ${props.name}` : props.name}
-        </WidgetName>
+        {props.icon}
+        <WidgetName className="t--widget-name">{props.name}</WidgetName>
       </SettingsWrapper>
     </StyledTooltip>
   );

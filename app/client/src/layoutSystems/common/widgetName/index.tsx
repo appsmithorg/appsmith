@@ -34,6 +34,7 @@ import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";
+import { Icon } from "design-system";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
@@ -206,22 +207,27 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     (state) => state.ui.oneClickBinding.jsTriggerOnWidget,
   );
 
-  // const positionStyle: CSSProperties = useMemo(() => {
-  //   return {
-  //     top:
-  //       props.topRow > 2
-  //         ? `${-1 * WidgetNameComponentHeight + 1 + positionOffset[0]}px`
-  //         : `calc(100% - ${1 + positionOffset[0]}px)`,
-  //     height: WidgetNameComponentHeight + "px",
-  //     marginLeft: positionOffset[1] + "px",
-  //     zIndex: Layers.widgetName,
-  //   };
-  // }, [
-  //   Layers?.widgetName,
-  //   props.topRow,
-  //   positionOffset,
-  //   WidgetNameComponentHeight,
-  // ]);
+  const errorCount = shouldHideErrors ? 0 : props.errorCount;
+  const icon =
+    errorCount && !isSnipingMode ? (
+      <Icon name="warning" size="sm" />
+    ) : isSnipingMode ? (
+      <Icon
+        color="var(--ads-v2-color-white)"
+        name="arrow-right-line"
+        size="md"
+      />
+    ) : null;
+  const customiseJSIcon = customiseJS ? (
+    <Icon name="braces-line-exp" size="sm" />
+  ) : null;
+  const customizeJStooltip = customiseJS
+    ? "Customize your data using javascript"
+    : "";
+  const tooltip = isSnipingMode
+    ? `Bind to widget ${props.widgetName}`
+    : "Edit widget properties";
+
   return showWidgetName ? (
     <>
       <PositionStyle
@@ -234,22 +240,21 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
         <ControlGroup>
           <SettingsControl
             activity={currentActivity}
-            errorCount={shouldHideErrors ? 0 : props.errorCount}
+            errorCount={errorCount}
+            icon={icon}
             inverted={props.topRow <= 2}
+            kind="primary"
             name={props.widgetName}
             toggleSettings={togglePropertyEditor}
+            tooltip={tooltip}
             widgetId={props.widgetId}
             widgetWidth={props.widgetWidth}
           />
         </ControlGroup>
       </PositionStyle>
-      {customiseJS ? (
+      {customiseJS && !isSnipingMode ? (
         <PositionStyle
-          className={
-            isSnipingMode
-              ? "hidden"
-              : "mt-2 rounded hover:bg-[var(--ads-v2-color-orange-50)]"
-          }
+          className="mt-2 rounded hover:bg-[var(--ads-v2-color-orange-50)]"
           data-testid="t--settings-transform-control-positioned-wrapper"
           id={"widget_name_" + props.widgetId}
           positionOffset={[
@@ -262,11 +267,13 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
           <ControlGroup>
             <SettingsControl
               activity={currentActivity}
-              errorCount={shouldHideErrors ? 0 : props.errorCount}
-              icon="braces-line-exp"
+              errorCount={0}
+              icon={customiseJSIcon}
               inverted={false}
+              kind="secondary"
               name={"Bind with JS"}
               toggleSettings={togglePropertyEditor}
+              tooltip={customizeJStooltip}
               widgetId={props.widgetId}
               widgetWidth={props.widgetWidth}
             />
