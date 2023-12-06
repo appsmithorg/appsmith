@@ -149,7 +149,8 @@ export function AnvilFlexComponent(props: AnvilFlexComponentProps) {
         // Setting a base of 100% for Fill widgets to ensure that they expand on smaller sizes.
         data.minWidth =
           props.widgetType === "ZONE_WIDGET"
-            ? { base: "100%", "480px": "min-content" }
+            ? // ? { base: "100%", "480px": "min-content" }
+              { base: "min-content" }
             : getResponsiveMinWidth(props.widgetSize?.minWidth, isFillWidget);
       }
     }
