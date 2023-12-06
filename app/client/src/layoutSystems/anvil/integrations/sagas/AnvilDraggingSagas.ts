@@ -471,6 +471,32 @@ function* updateAndSaveAnvilLayoutSaga(
             zoneCount: each.children?.length,
           },
         };
+      } else if (!each.spaceDistributed) {
+        const zoneOrder: string[] = each.layout[0].layout.map(
+          (each: WidgetLayoutProps) => each.widgetId,
+        );
+        const defaultSpaceDistributed = getDefaultSpaceDistributed(zoneOrder);
+        // remove distribution if zone count is changed
+        zoneOrder.forEach((eachChild: string) => {
+          updatedWidgets[eachChild] = {
+            ...updatedWidgets[eachChild],
+            flexGrow: defaultSpaceDistributed[eachChild],
+          };
+          updatedWidgets[each.widgetId] = {
+            ...updatedWidgets[each.widgetId],
+            spaceDistributed: {
+              ...updatedWidgets[each.widgetId].spaceDistributed,
+              [eachChild]: defaultSpaceDistributed[eachChild],
+            },
+          };
+        });
+        updatedWidgets = {
+          ...updatedWidgets,
+          [each.widgetId]: {
+            ...updatedWidgets[each.widgetId],
+            spaceDistributed: defaultSpaceDistributed,
+          },
+        };
       }
     }
     yield put(updateAndSaveLayout(updatedWidgets));
