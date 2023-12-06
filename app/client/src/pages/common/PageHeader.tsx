@@ -363,7 +363,7 @@ export function PageHeader(props: PageHeaderProps) {
         isMobile={isMobile}
         showSeparator={props.showSeparator || false}
       >
-        <div className="flex items-center pl-4 w-full">
+        <div className="flex items-center w-full pl-4">
           <Icon className="!text-black !mr-2" name="search" size={"md"} />
           <MobileSearchInput
             data-testid="t--application-search-input"
@@ -465,7 +465,12 @@ export function PageHeader(props: PageHeaderProps) {
                         Workspaces
                       </Text>
                       {workspacesList.map((workspace: Workspace) => (
-                        <SearchListItem key={workspace.id}>
+                        <SearchListItem
+                          key={workspace.id}
+                          onClick={() =>
+                            (window.location.href = `${window.location.pathname}#${workspace?.id}`)
+                          }
+                        >
                           <Icon
                             className="!mr-2"
                             color="var(--ads-v2-color-fg)"
