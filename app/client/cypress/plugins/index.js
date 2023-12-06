@@ -228,7 +228,6 @@ module.exports = async (on, config) => {
 
   config.specPattern = trimPathsBeforeWildcard(config.specPattern);
 
-  console.log("Whats in splitSpecs:" + splitSpecs);
   console.log("Whats in config after:" + config.specPattern);
 
   if (process.env["RUNID"]) {
@@ -248,7 +247,7 @@ module.exports = async (on, config) => {
       if (wildcardIndex !== -1) {
         return path.slice(wildcardIndex);
       }
-      console.log("return paths:", paths)
+      console.log("return paths:", path)
       return path;
     });
     return trimmedPaths.join(',');
