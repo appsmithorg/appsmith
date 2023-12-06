@@ -365,6 +365,7 @@ function* updateAndSaveAnvilLayoutSaga(
 
     for (const each of sections) {
       const children: string[] | undefined = each.children;
+      const sectionWidget = currentWidgets[each.widgetId];
       /**
        * If a section doesn't have any children,
        * => delete it.
@@ -387,8 +388,7 @@ function* updateAndSaveAnvilLayoutSaga(
             each.type,
           );
         }
-      } else if (each.zoneCount !== each.children?.length) {
-        const sectionWidget = currentWidgets[each.widgetId];
+      } else if (each.zoneCount !== each.children?.length && sectionWidget) {
         const childrenToUpdate = each.children || [];
         const commonSpace = SectionColumns / childrenToUpdate.length;
         const previousZoneOrder: string[] = sectionWidget.layout[0].layout.map(

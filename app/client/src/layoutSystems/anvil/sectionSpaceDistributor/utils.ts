@@ -20,18 +20,17 @@ export const redistributeSectionSpace = (
   const evenlyDistributedLayout =
     (addedViaStepper || spaceDistributedArray.length > 1) &&
     spaceDistributedArray.every((each) => each === evenDistributionSpace);
-  if (evenlyDistributedLayout) {
-    const updatedEvenDistributionSpace =
-      12 / (spaceDistributedArray.length + 1);
-    return new Array(spaceDistributedArray.length + 1).fill(
-      updatedEvenDistributionSpace,
-    );
-  }
   const isAddingZone = zoneChange > 0;
   if (isAddingZone) {
     spaceDistributedArray.splice(index, 0, zoneChange);
   } else {
     spaceDistributedArray.splice(index, 1);
+  }
+  if (evenlyDistributedLayout) {
+    const updatedEvenDistributionSpace = 12 / spaceDistributedArray.length;
+    return new Array(spaceDistributedArray.length).fill(
+      updatedEvenDistributionSpace,
+    );
   }
   let leftIndex = index - 1;
   let rightIndex = isAddingZone ? index + 1 : index;
