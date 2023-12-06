@@ -226,13 +226,12 @@ module.exports = async (on, config) => {
   console.log("Whats in config before:" + config.specPattern);
   console.log("Type of 'config.specPattern':", typeof config.specPattern);
 
-  if (config.specPattern) {
     const specPattern = JSON.stringify(config.specPattern).split(',').map((pattern) => {
       const index = pattern.indexOf('***');
       return index !== -1 ? pattern.slice(index) : pattern;
-    });
+    }); 
     config.specPattern = specPattern;
-  }
+  
   
 
   console.log("Whats in config after:" + config.specPattern);
