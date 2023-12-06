@@ -224,9 +224,7 @@ const PropertyControl = memo((props: Props) => {
         shouldRejectDynamicBindingPathList = false;
       }
 
-      dispatch(
-        setCursorOnMount(isDynamic ? "" : (props.dataTreePath as string)),
-      );
+      dispatch(setCursorOnMount(isDynamic ? "" : (dataTreePath as string)));
 
       dispatch(
         setWidgetDynamicProperty(
@@ -245,6 +243,7 @@ const PropertyControl = memo((props: Props) => {
       props.controlType,
       propertyValue,
       dispatch,
+      dataTreePath,
     ],
   );
 
