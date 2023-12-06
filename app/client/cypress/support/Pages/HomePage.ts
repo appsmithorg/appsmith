@@ -36,7 +36,7 @@ export class HomePage {
       ? "//input[@type='email' and contains(@class,'bp3-input-ghost')]"
       : "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
-  _newWorkSpaceLink = this._visibleTextSpan("New workspace") + "/ancestor::a";
+  _newWorkSpaceLink = "[data-testid=t--workspace-new-workspace-auto-create]";
   private _userRole = (role: string) =>
     "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='" +
     role +

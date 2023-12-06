@@ -20,7 +20,7 @@ export default {
   homeIcon: ".t--appsmith-logo",
   inputAppName: "input[name=applicationName]",
   createNew: ".createnew",
-  createWorkspace: "span:contains('New workspace')",
+  createWorkspace: "[data-testid=t--workspace-new-workspace-auto-create]",
   inputWorkspaceName: "//input[@name='name']",
   submitBtn: "//span[text()='Submit']",
   workspaceMenu: "//span[text()='TestShareWorkspace']",
