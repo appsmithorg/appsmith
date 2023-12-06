@@ -1,0 +1,10 @@
+import { Canvas, Meta, Story } from "@storybook/addon-docs";
+import { Elevation } from "./Elevation";
+
+<Meta title="Design-system/Widgets testing" />
+
+export const Template = (args) => <Elevation {...args} />;
+
+<Canvas>
+  <Story name="Elevation">{Template.bind({})}</Story>
+</Canvas>
