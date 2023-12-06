@@ -1335,8 +1335,6 @@ export const selectQueriesForPagespane = createSelector(
   getCurrentJSCollections,
   selectDatasourceIdToNameMap,
   (actions, jsActions, datasourceIdToNameMap) => {
-    // eslint-disable-next-line no-console
-    console.log("jsActions", jsActions);
     let data: {
       [key: string]: { id: string; name: string; type: string }[];
     } = {};
