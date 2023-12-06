@@ -35,6 +35,7 @@ import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
 import {
+  getCurrentApplicationIdForCreateNewApp,
   getDeletingMultipleApps,
   getUserApplicationsWorkspacesList,
 } from "@appsmith/selectors/applicationSelectors";
@@ -214,6 +215,9 @@ export function* getAllApplicationSaga() {
       selectFeatureFlagCheck,
       FEATURE_FLAG.ab_create_new_apps_enabled,
     );
+    const isOnboardingApplicationId: string = yield select(
+      getCurrentApplicationIdForCreateNewApp,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const workspaceApplication: WorkspaceApplicationObject[] =
@@ -239,7 +243,12 @@ export function* getAllApplicationSaga() {
         payload: workspaceApplication,
       });
 
-      if (isEnabledForCreateNew && workspaceApplication.length > 0) {
+      // This will initialise the current workspace to first only during onboarding
+      if (
+        isEnabledForCreateNew &&
+        workspaceApplication.length > 0 &&
+        !!isOnboardingApplicationId
+      ) {
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: workspaceApplication[0]?.workspace,
