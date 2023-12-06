@@ -1,5 +1,6 @@
 package com.appsmith.server.jslibs.exports;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
@@ -38,7 +39,11 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
          * Ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1672225134025919
          */
         return customJSLibService
-                .getAllJSLibsInApplication(exportingMetaDTO.getApplicationId(), exportingMetaDTO.getBranchName(), false)
+                .getAllJSLibsInContext(
+                        exportingMetaDTO.getApplicationId(),
+                        CreatorContextType.APPLICATION,
+                        exportingMetaDTO.getBranchName(),
+                        false)
                 .map(jsLibList -> {
                     jsLibList.forEach(CustomJSLib::sanitiseToExportDBObject);
                     return jsLibList;

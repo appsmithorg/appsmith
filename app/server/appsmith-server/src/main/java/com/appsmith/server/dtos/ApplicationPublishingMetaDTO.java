@@ -25,5 +25,5 @@ public class ApplicationPublishingMetaDTO {
     Mono<List<ApplicationPage>> applicationPagesMono;
     Mono<Map<PluginType, Integer>> actionCountByPluginTypeMapMono;
     Mono<List<ActionCollection>> publishedActionCollectionsListMono;
-    Mono<Set<CustomJSLibApplicationDTO>> updatedPublishedJSLibDTOsMono;
+    Mono<Set<CustomJSLibContextDTO>> updatedPublishedJSLibDTOsMono;
 }

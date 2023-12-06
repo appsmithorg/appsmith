@@ -54,24 +54,25 @@ jobs:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-tags: true
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Check out the specified branch in case this workflow is called by another workflow
       - name: Checkout the specified branch
         if: inputs.pr == 0 && inputs.branch != ''
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          fetch-tags: true
           ref: ${{ inputs.branch }}
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0 && inputs.branch == ''
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-tags: true
 
       # get all the files changes in the cypress/e2e folder
       - name: Get added files in cypress/e2e folder
@@ -210,6 +211,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         id: vars
         run: |
+          set +o pipefail
           echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
           if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
               echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
@@ -219,7 +221,7 @@ jobs:
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
