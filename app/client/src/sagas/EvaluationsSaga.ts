@@ -58,7 +58,7 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import type { JSAction } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get, isEmpty } from "lodash";
@@ -397,11 +397,8 @@ interface JSFunctionExecutionResponse {
   logs?: LogObject[];
 }
 
-function* executeAsyncJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
+function* executeAsyncJSFunction(action: JSAction, collection: JSCollection) {
+  const { id: collectionId, name: collectionName } = collection;
   const functionCall = `${collectionName}.${action.name}()`;
   const triggerMeta = {
     source: {
@@ -422,27 +419,17 @@ function* executeAsyncJSFunction(
   return response;
 }
 
-export function* executeJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
+export function* executeJSFunction(action: JSAction, collection: JSCollection) {
   const response: {
     errors: unknown[];
     result: unknown;
     logs?: LogObject[];
-  } = yield call(executeAsyncJSFunction, collectionName, action, collectionId);
+  } = yield call(executeAsyncJSFunction, action, collection);
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
   // After every function execution, log execution errors if present
-  yield call(
-    handleJSFunctionExecutionErrorLog,
-    collectionId,
-    collectionName,
-    action,
-    errors,
-  );
+  yield call(handleJSFunctionExecutionErrorLog, action, collection, errors);
   return { result, isDirty };
 }
 
