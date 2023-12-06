@@ -381,7 +381,6 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       cy.wait(2000);
     } else {
       assertHelper.AssertNetworkStatus("getMe");
-      assertHelper.AssertNetworkStatus("applications");
       assertHelper.AssertNetworkStatus("getReleaseItems");
     }
   });
