@@ -3237,7 +3237,8 @@ public class ApplicationServiceCETest {
                     CustomJSLib jsLib =
                             new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
                     return customJSLibService
-                            .addJSLibToContext(application.getId(), CreatorContextType.APPLICATION, jsLib, null, false)
+                            .addJSLibsToContext(
+                                    application.getId(), CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                             .then(applicationService.getById(application.getId()));
                 })
                 .flatMap(application -> {
