@@ -11,8 +11,12 @@ import { addNewZonesToSection, mergeLastZonesOfSection } from "./utils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
 import { batchUpdateWidgetProperty } from "actions/controlActions";
-import { SectionColumns } from "layoutSystems/anvil/utils/constants";
 import { saveAnvilLayout } from "../../actions/saveLayoutActions";
+import {
+  getDefaultSpaceDistributed,
+  redistributeSectionSpace,
+} from "layoutSystems/anvil/sectionSpaceDistributor/utils";
+import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 
 function* updateZonesCountOfSectionSaga(
   actionPayload: ReduxAction<{
@@ -48,19 +52,43 @@ function* updateZonesCountOfSectionSaga(
         );
         updatedWidgets = updatedObj.updatedWidgets;
       }
+      const previousZoneOrder = sectionWidget.layout[0].layout.map(
+        (each: WidgetLayoutProps) => each.widgetId,
+      );
+      const currentDistributedSpace =
+        sectionWidget.spaceDistributed ||
+        getDefaultSpaceDistributed(previousZoneOrder);
+      const updatedZoneOrder: string[] = updatedWidgets[
+        sectionWidgetId
+      ].layout[0].layout.map((each: WidgetLayoutProps) => each.widgetId);
+      const updatedDistributedSpaceArray = redistributeSectionSpace(
+        currentDistributedSpace,
+        previousZoneOrder,
+        currentZoneCount > zoneCount ? -2 : 2,
+        currentZoneCount > zoneCount ? currentZoneCount - 1 : currentZoneCount,
+      );
+      const updatedDistributedSpace = updatedZoneOrder.reduce(
+        (result, each, index) => {
+          return {
+            ...result,
+            [each]: updatedDistributedSpaceArray[index],
+          };
+        },
+        {} as { [key: string]: number },
+      );
+
       // remove distribution if zone count is changed
       const childrenToUpdate = updatedWidgets[sectionWidgetId].children || [];
-      const spaceToApply = SectionColumns / zoneCount;
       childrenToUpdate.forEach((each) => {
         updatedWidgets[each] = {
           ...updatedWidgets[each],
-          flexGrow: spaceToApply,
+          flexGrow: updatedDistributedSpace[each],
         };
         updatedWidgets[sectionWidgetId] = {
           ...updatedWidgets[sectionWidgetId],
           spaceDistributed: {
             ...updatedWidgets[sectionWidgetId].spaceDistributed,
-            [each]: spaceToApply,
+            [each]: updatedDistributedSpace[each],
           },
           zoneCount,
         };

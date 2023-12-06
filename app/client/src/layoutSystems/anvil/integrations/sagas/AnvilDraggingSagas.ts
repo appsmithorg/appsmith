@@ -45,6 +45,10 @@ import { SectionWidget } from "widgets/anvil/SectionWidget";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import {
+  getDefaultSpaceDistributed,
+  redistributeSectionSpace,
+} from "layoutSystems/anvil/sectionSpaceDistributor/utils";
 import { SectionColumns } from "layoutSystems/anvil/utils/constants";
 
 export function* getMainCanvasLastRowHighlight() {
@@ -342,6 +346,7 @@ function* updateAndSaveAnvilLayoutSaga(
   }>,
 ) {
   try {
+    const currentWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const { widgets } = action.payload;
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
@@ -383,19 +388,75 @@ function* updateAndSaveAnvilLayoutSaga(
           );
         }
       } else if (each.zoneCount !== each.children?.length) {
-        // remove current space distribution if zone count is changed
+        const sectionWidget = currentWidgets[each.widgetId];
         const childrenToUpdate = each.children || [];
-        const spaceToApply = SectionColumns / childrenToUpdate.length;
-        childrenToUpdate.forEach((child) => {
-          updatedWidgets[child] = {
-            ...updatedWidgets[child],
-            flexGrow: spaceToApply,
+        const commonSpace = SectionColumns / childrenToUpdate.length;
+        const previousZoneOrder: string[] = sectionWidget.layout[0].layout.map(
+          (each: WidgetLayoutProps) => each.widgetId,
+        );
+        const currentDistributedSpace =
+          sectionWidget.spaceDistributed ||
+          getDefaultSpaceDistributed(previousZoneOrder);
+        const updatedZoneOrder: string[] = each.layout[0].layout.map(
+          (each: WidgetLayoutProps) => each.widgetId,
+        );
+        const zonesToAdd = updatedZoneOrder.filter(
+          (each) => !previousZoneOrder.includes(each),
+        );
+        const zonesToRemove = previousZoneOrder.filter(
+          (each) => !updatedZoneOrder.includes(each),
+        );
+        let updatedDistributedSpace: { [key: string]: number } = {};
+        zonesToRemove.forEach((eachZone) => {
+          const zoneProps = widgets[eachZone];
+          const index = previousZoneOrder.indexOf(eachZone);
+          const updatedDistributedSpaceArray = redistributeSectionSpace(
+            currentDistributedSpace,
+            previousZoneOrder,
+            -zoneProps.flexGrow || commonSpace,
+            index,
+          );
+          updatedDistributedSpace = updatedZoneOrder.reduce(
+            (result, each, index) => {
+              return {
+                ...result,
+                [each]: updatedDistributedSpaceArray[index],
+              };
+            },
+            {} as { [key: string]: number },
+          );
+        });
+        zonesToAdd.forEach((eachZone) => {
+          const zoneProps = widgets[eachZone];
+          const index = updatedZoneOrder.indexOf(eachZone);
+          const updatedDistributedSpaceArray = redistributeSectionSpace(
+            currentDistributedSpace,
+            previousZoneOrder,
+            zoneProps.flexGrow || commonSpace,
+            index,
+          );
+          updatedDistributedSpace = updatedZoneOrder.reduce(
+            (result, each, index) => {
+              return {
+                ...result,
+                [each]: updatedDistributedSpaceArray[index],
+              };
+            },
+            {} as { [key: string]: number },
+          );
+        });
+
+        // remove distribution if zone count is changed
+        childrenToUpdate.forEach((eachChild: string) => {
+          updatedWidgets[eachChild] = {
+            ...updatedWidgets[eachChild],
+            flexGrow: updatedDistributedSpace[eachChild] ?? commonSpace,
           };
           updatedWidgets[each.widgetId] = {
             ...updatedWidgets[each.widgetId],
             spaceDistributed: {
               ...updatedWidgets[each.widgetId].spaceDistributed,
-              [child]: spaceToApply,
+              [eachChild]: updatedDistributedSpace[eachChild] ?? commonSpace,
             },
           };
         });

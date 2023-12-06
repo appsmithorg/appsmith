@@ -5,8 +5,8 @@ import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
-import { SectionColumns } from "../utils/constants";
 import { getWidgetByID } from "sagas/selectors";
+import { getDefaultSpaceDistributed } from "./utils";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;
@@ -23,12 +23,8 @@ const SectionSpaceDistributorHandles = (
   const layoutElementPositions = useSelector(getLayoutElementPositions);
   const { zones } = props;
   const sectionWidget = useSelector(getWidgetByID(props.sectionWidgetId));
-  const defaultSpaceDistributed = zones.reduce(
-    (distributedSpace, each) => {
-      distributedSpace[each.widgetId] = SectionColumns / zones.length;
-      return distributedSpace;
-    },
-    {} as { [key: string]: number },
+  const defaultSpaceDistributed = getDefaultSpaceDistributed(
+    zones.map((each) => each.widgetId),
   );
   const { spaceDistributed = defaultSpaceDistributed } = sectionWidget;
   let previousZonePosition: LayoutElementPosition;
