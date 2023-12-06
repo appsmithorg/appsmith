@@ -224,13 +224,16 @@ module.exports = async (on, config) => {
   });
 
   console.log("Whats in config before:" + config.specPattern);
+  console.log("Type of 'config.specPattern':", typeof config.specPattern);
 
-  const specPattern = config.specPattern.split(",").map((pattern) => {
-    const index = pattern.indexOf("***");
-    return index !== -1 ? pattern.slice(index) : pattern;
-  });
+  if (typeof config.specPattern === "string") {
+    const specPattern = config.specPattern.split(",").map((pattern) => {
+      const index = pattern.indexOf("***");
+      return index !== -1 ? pattern.slice(index) : pattern;
+    });
 
-  config.specPattern = specPattern;
+    config.specPattern = specPattern;
+  }
 
   console.log("Whats in config after:" + config.specPattern);
 
