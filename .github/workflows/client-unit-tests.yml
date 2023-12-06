@@ -80,6 +80,16 @@ jobs:
         with:
           node-version-file: app/client/package.json
 
+      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v3
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
@@ -89,6 +99,13 @@ jobs:
       - name: Run the jest tests
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn run test:unit:ci
+
+      # Saving the cache to use it in subsequent runs
+      - name: Save Yarn cache
+        uses: actions/cache/save@v3
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
       # Set status = success
       - name: Save the status of the run
