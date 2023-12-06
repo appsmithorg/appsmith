@@ -61,7 +61,7 @@ export function getAllExportableIds(
     canvasWidgets?.children?.map((child) => child.widgetId) || [];
 
   const allCustomJSLibs =
-    customJsLibraries.map((jsLib) => jsLib.id || "") || [];
+    customJsLibraries?.map((jsLib) => jsLib.id || "") || [];
   const allDatasources = appWideDS.map((ds) => ds.id) || [];
   return {
     jsObjects: allJSObjects,
