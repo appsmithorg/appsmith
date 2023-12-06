@@ -324,6 +324,7 @@ jobs:
 
       - name: Run the cypress test
         uses: cypress-io/github-action@v6
+        working-directory: app/client
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}

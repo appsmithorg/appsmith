@@ -223,6 +223,12 @@ module.exports = async (on, config) => {
     },
   });
 
+  const specPattern = config.SpecPattern.map((pattern) => {
+    const index = pattern.indexOf('***');
+    return index !== -1 ? pattern.slice(index) : pattern;
+  });
+  config.specPattern = specPattern;
+  
   if (process.env["RUNID"]) {
     config = await new cypressSplit().splitSpecs(on, config);
     cypressHooks(on, config);

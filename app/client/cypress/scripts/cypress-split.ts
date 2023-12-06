@@ -253,13 +253,12 @@ export class cypressSplit {
             attemptId,
           );
 
-          specs = specs.map((spec) => {
-            console.log("Specs to run in abs path: ", spec);
-            const relativePath = spec.replace(process.cwd()+"/", '')
-            console.log("Specs to run in relative path: ", relativePath);
-            return relativePath;
-          });
-
+          // specs = specs.map((spec) => {
+          //   console.log("Specs to run in abs path: ", spec);
+          //   const relativePath = spec.replace(process.cwd()+"/", '')
+          //   console.log("Specs to run in relative path: ", relativePath);
+          //   return relativePath;
+          // });
         
           return specs;
         } else {
@@ -315,16 +314,16 @@ export class cypressSplit {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private processSpecPattern(inputPath: string): string {
-    const pattern = '/***/';
-    const index = inputPath.indexOf(pattern);
+  // private processSpecPattern(inputPath: string): string {
+  //   const pattern = '/***/';
+  //   const index = inputPath.indexOf(pattern);
 
-    if (index !== -1 && index > 0) {
-      return inputPath.substring(index + pattern.length);
-    } else {
-      return inputPath;
-    }
-  }
+  //   if (index !== -1 && index > 0) {
+  //     return inputPath.substring(index + pattern.length);
+  //   } else {
+  //     return inputPath;
+  //   }
+  // }
 
 
   public async splitSpecs(
