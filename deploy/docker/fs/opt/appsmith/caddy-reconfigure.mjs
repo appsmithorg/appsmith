@@ -86,7 +86,7 @@ parts.push(`
   }
 
   handle /static/* {
-   error 404
+    error 404
   }
 
   handle /info {
