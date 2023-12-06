@@ -343,12 +343,14 @@ export class cypressSplit {
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
       if (cypressSpecs != "") {
+        console.log("in cypress split")
         specPattern = cypressSpecs
           .split(",")
           .filter((val) => val !== "")
           .map((path) => path.trim().replace(process.cwd(), ""));
       }
   
+      console.log("in cypress :::::::" + specPattern)
 
       if (this.util.getVars().cypressRerun === "true") {
         specPattern =
