@@ -12,6 +12,7 @@ import {
   checkSectionZoneCountAction,
 } from "../integrations/actions/sectionActions";
 import { isCanvasOfSection } from "selectors/widgetSelectors";
+import { useClickToClearSelections } from "./useClickToClearSelections";
 
 export const AnvilCanvas = (props: BaseWidgetProps) => {
   const dispatch = useDispatch();
@@ -45,9 +46,14 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
     }
   }, [hasSectionParent, props.children]);
 
+  const clickToClearSelections = useClickToClearSelections(props.widgetId);
   const className: string = `anvil-canvas ${props.classList?.join(" ")}`;
   return (
-    <div className={className} id={getAnvilCanvasId(props.widgetId)}>
+    <div
+      className={className}
+      id={getAnvilCanvasId(props.widgetId)}
+      onClickCapture={clickToClearSelections}
+    >
       {renderLayouts(
         props.layout,
         map,
