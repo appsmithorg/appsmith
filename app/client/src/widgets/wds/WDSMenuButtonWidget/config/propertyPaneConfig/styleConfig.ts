@@ -1,19 +1,18 @@
 import { capitalize } from "lodash";
-import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
-
+import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { ButtonWidgetProps } from "./types";
+import { ICON_NAMES } from "WidgetProvider/constants";
+import type { MenuButtonWidgetProps } from "../../widget/types";
 
 export const propertyPaneStyleConfig = [
   {
     sectionName: "General",
     children: [
       {
-        propertyName: "buttonVariant",
+        propertyName: "triggerButtonVariant",
         label: "Button variant",
         controlType: "ICON_TABS",
-        fullWidth: true,
-        helpText: "Sets the variant of the button",
+        helpText: "Sets the variant of the menu button",
         options: Object.values(BUTTON_VARIANTS).map((variant) => ({
           label: capitalize(variant),
           value: variant,
@@ -30,7 +29,7 @@ export const propertyPaneStyleConfig = [
         },
       },
       {
-        propertyName: "buttonColor",
+        propertyName: "triggerButtonColor",
         label: "Button color",
         controlType: "DROP_DOWN",
         fullWidth: true,
@@ -56,18 +55,15 @@ export const propertyPaneStyleConfig = [
     sectionName: "Icon",
     children: [
       {
-        propertyName: "iconName",
-        label: "Select icon",
-        helpText: "Sets the icon to be used for the button",
+        propertyName: "triggerButtonIconName",
+        label: "Icon",
+        helpText: "Sets the icon to be used for the menu button",
         controlType: "ICON_SELECT",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-        },
         updateHook: (
-          props: ButtonWidgetProps,
+          props: MenuButtonWidgetProps,
           propertyPath: string,
           propertyValue: string,
         ) => {
@@ -82,11 +78,18 @@ export const propertyPaneStyleConfig = [
 
           return propertiesToUpdate;
         },
+        dependencies: ["iconAlign"],
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ICON_NAMES,
+          },
+        },
       },
       {
-        propertyName: "iconAlign",
+        propertyName: "triggerButtonIconAlign",
         label: "Position",
-        helpText: "Sets the icon alignment of the button",
+        helpText: "Sets the icon alignment of the menu button",
         controlType: "ICON_TABS",
         defaultValue: "start",
         fullWidth: false,
