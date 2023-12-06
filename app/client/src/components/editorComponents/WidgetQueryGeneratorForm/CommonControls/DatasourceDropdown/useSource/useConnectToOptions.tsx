@@ -137,7 +137,7 @@ export const getAnalyticsInfo = (
       widgetName: widget.widgetName,
       widgetType: widget.type,
       propertyName: propertyName,
-      entityBound: "QueryModuleInsatnce",
+      entityBound: "QueryModuleInstance",
       entityName: query.config.name,
       pluginType: "",
     };
