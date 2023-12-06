@@ -110,46 +110,6 @@ describe("generateOptimisedUpdates", () => {
         },
       ]);
     });
-    describe("ignore invalid moment updates", () => {
-      test("should generate a null update when it sees an invalid moment object", () => {
-        const newState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = moment("invalid value") as any;
-        });
-        const updates = generateOptimisedUpdates(oldState, newState);
-        expect(updates).toEqual([
-          { kind: "E", path: ["Table1", "pageSize"], lhs: 0, rhs: null },
-        ]);
-      });
-      test("should generate a regular update when it sees a valid moment object", () => {
-        const validMoment = moment();
-        const newState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = validMoment as any;
-        });
-        const updates = generateOptimisedUpdates(oldState, newState);
-        expect(updates).toEqual([
-          { kind: "E", path: ["Table1", "pageSize"], lhs: 0, rhs: validMoment },
-        ]);
-      });
-      test("should generate no diff update when prev state is already null", () => {
-        const prevState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = null as any;
-          draft.Table1.triggerRowSelection = undefined as any;
-        });
-        const newState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = moment("invalid value") as any;
-          draft.Table1.triggerRowSelection = moment("invalid value") as any;
-        });
-        const updates = generateOptimisedUpdates(prevState, newState);
-        expect(updates).toEqual([
-          {
-            kind: "E",
-            path: ["Table1", "triggerRowSelection"],
-            lhs: undefined,
-            rhs: null,
-          },
-        ]);
-      });
-    });
   });
 
   describe("diffs with identicalEvalPathsPatches", () => {
@@ -507,5 +467,36 @@ describe("generateSerialisedUpdates and parseUpdatesAndDeleteUndefinedUpdates", 
     });
 
     expect(parseAndApplyUpdatesToOldState).toEqual(expectedState);
+  });
+  describe("serialise momement updates directly", () => {
+    test("should generate a null update when it sees an invalid moment object", () => {
+      const newState = produce(oldState, (draft) => {
+        draft.Table1.pageSize = moment("invalid value") as any;
+      });
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        oldState,
+        newState,
+        {},
+      );
+      const serialisedExpectedOutput = JSON.stringify([
+        { kind: "E", rhs: null, path: ["Table1", "pageSize"] },
+      ]);
+      expect(serialisedUpdates).toEqual(serialisedExpectedOutput);
+    });
+    test("should generate a regular update when it sees a valid moment object", () => {
+      const validMoment = moment();
+      const newState = produce(oldState, (draft) => {
+        draft.Table1.pageSize = validMoment as any;
+      });
+      const { serialisedUpdates } = generateSerialisedUpdates(
+        oldState,
+        newState,
+        {},
+      );
+      const serialisedExpectedOutput = JSON.stringify([
+        { kind: "E", rhs: validMoment, path: ["Table1", "pageSize"] },
+      ]);
+      expect(serialisedUpdates).toEqual(serialisedExpectedOutput);
+    });
   });
 });

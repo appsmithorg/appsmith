@@ -269,10 +269,12 @@ const generateDiffUpdates = (
 
       const lhs = get(oldDataTree, segmentedPath);
 
-      //  if we have serialise all moment updates
+      //when a moment value changes we do not want the inner moment object updates, we just want the ISO result of it
+      // which we get during the serialisation process we perform at latter steps
       if (isMoment(rhs)) {
         attachDirectly.push({
-          kind: "N",
+          kind: "E",
+          lhs,
           rhs: rhs as any,
           path: segmentedPath,
         });
