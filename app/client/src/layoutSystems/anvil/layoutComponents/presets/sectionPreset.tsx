@@ -7,6 +7,7 @@ import { generateReactKey } from "utils/generators";
 export const sectionPreset = (): LayoutProps[] => {
   return [
     {
+      isContainer: true,
       isDropTarget: true,
       isPermanent: true,
       layout: [],

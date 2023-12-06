@@ -41,13 +41,8 @@ export function* createSectionAndAddWidget(
    */
 
   const sectionProps: FlattenedWidgetProps = updatedWidgets[widgetId];
-  const canvasId: string | undefined =
-    sectionProps.children && sectionProps.children[0];
 
-  if (!canvasId) return allWidgets;
-
-  const canvasProps: FlattenedWidgetProps = updatedWidgets[canvasId];
-  const preset: LayoutProps[] = canvasProps.layout;
+  const preset: LayoutProps[] = sectionProps.layout;
   const sectionLayout: LayoutProps = preset[0];
 
   /**
@@ -60,7 +55,6 @@ export function* createSectionAndAddWidget(
       widgets,
       highlight,
       sectionProps,
-      canvasProps,
       sectionLayout,
     );
 
@@ -113,12 +107,10 @@ export function* addWidgetsToSection(
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
   section: WidgetProps,
-  canvas: WidgetProps,
   sectionLayout: LayoutProps,
 ) {
   let canvasWidgets = { ...allWidgets };
-  const sectionProps = { ...section };
-  let canvasProps = { ...canvas };
+  let sectionProps = { ...section };
   /**
    * Step 1: Split widgets into zones and non zones.
    *
@@ -141,20 +133,21 @@ export function* addWidgetsToSection(
 
   zones.forEach((zone: WidgetLayoutProps) => {
     const res: { canvas: WidgetProps; section: LayoutProps } = addZoneToSection(
-      canvasProps,
+      sectionProps,
       sectionLayout,
       sectionComp,
       highlight,
       zone,
     );
-    canvasProps = res.canvas;
+
+    sectionProps = res.canvas;
     sectionLayout = res.section;
     // Update parent of the zone.
     canvasWidgets = {
       ...canvasWidgets,
       [zone.widgetId]: {
         ...canvasWidgets[zone.widgetId],
-        parentId: canvasProps.widgetId,
+        parentId: sectionProps.widgetId,
       },
     };
   });
@@ -174,10 +167,13 @@ export function* addWidgetsToSection(
         canvasWidgets,
         nonZones,
         highlight,
-        canvasProps.widgetId,
+        sectionProps.widgetId,
       );
 
-    canvasProps.children = [...canvasProps.children, data.zone.widgetId];
+    sectionProps.children = [
+      ...(sectionProps?.children || []),
+      data.zone.widgetId,
+    ];
     sectionLayout = sectionComp.addChild(
       sectionLayout,
       [
@@ -195,18 +191,11 @@ export function* addWidgetsToSection(
   /**
    * Step 4: Update canvas widget with the updated preset.
    */
-  canvasProps.layout = [sectionLayout];
-
-  /**
-   * Step 5: Establish relationship between section and canvas widget.
-   */
-  sectionProps.children = [canvasProps.widgetId];
-  canvasProps.parentId = sectionProps.widgetId;
+  sectionProps.layout = [sectionLayout];
 
   return {
     canvasWidgets: {
       ...canvasWidgets,
-      [canvasProps.widgetId]: canvasProps,
       [sectionProps.widgetId]: sectionProps,
     },
     section: sectionProps,
@@ -229,13 +218,8 @@ export function* moveWidgetsToSection(
    * Step 2: Get the new Section and its Canvas.
    */
   const { canvasId } = highlight;
-  const canvas: FlattenedWidgetProps = widgets[canvasId];
-  if (!canvas.parentId) {
-    throw new Error(
-      "moveWidgetsToSection - Canvas is not a child of any widget",
-    );
-  }
-  const section: FlattenedWidgetProps = widgets[canvas.parentId];
+
+  const section: FlattenedWidgetProps = widgets[canvasId];
 
   /**
    * Step 3: Add moved widgets to the section.
@@ -246,8 +230,7 @@ export function* moveWidgetsToSection(
     transformMovedWidgets(widgets, movedWidgets, highlight),
     highlight,
     section,
-    canvas,
-    canvas.layout[0],
+    section.layout[0],
   );
 
   return canvasWidgets;

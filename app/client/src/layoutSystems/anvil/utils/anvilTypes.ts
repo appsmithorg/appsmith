@@ -58,6 +58,7 @@ export interface LayoutProps {
 
   allowedWidgetTypes?: string[]; // Array of widget types that can be dropped on the layout component.
   childTemplate?: LayoutProps | null; // The template of child layout components to wrap new widgets in.
+  isContainer?: boolean; // Whether the layout component support container queries.
   isDropTarget?: boolean; // Whether the layout component is a drop target. Accordingly, renders
   insertChild?: boolean; // Identifies which of the child layout components in childTemplate to add new widgets to.
   isPermanent?: boolean; // Whether the layout component can exist without any children.

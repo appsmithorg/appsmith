@@ -24,38 +24,34 @@ function* updateZonesCountOfSectionSaga(
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const sectionWidget = allWidgets[sectionWidgetId];
     if (sectionWidget && sectionWidget.children) {
-      const sectionCanvasId = sectionWidget.children[0];
-      if (sectionCanvasId) {
-        const sectionCanvas = allWidgets[sectionCanvasId];
-        const zoneOrder = sectionCanvas.layout[0].layout.map(
-          (each: any) => each.widgetId,
-        );
-        const currentZoneCount = zoneOrder ? zoneOrder.length : 0;
-        let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+      const zoneOrder = sectionWidget.layout[0].layout.map(
+        (each: any) => each.widgetId,
+      );
+      const currentZoneCount = zoneOrder ? zoneOrder.length : 0;
+      let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
 
-        if (currentZoneCount > zoneCount) {
-          updatedWidgets = yield call(
-            mergeLastZonesOfSection,
-            currentZoneCount - zoneCount,
-            zoneOrder,
-          );
-        } else if (currentZoneCount < zoneCount) {
-          const updatedObj: {
-            updatedWidgets: CanvasWidgetsReduxState;
-            zoneIdsCreated: string[];
-          } = yield call(
-            addNewZonesToSection,
-            sectionCanvas.widgetId,
-            zoneCount - currentZoneCount,
-          );
-          updatedWidgets = updatedObj.updatedWidgets;
-        }
-        updatedWidgets[sectionWidgetId] = {
-          ...updatedWidgets[sectionWidgetId],
-          zoneCount,
-        };
-        yield put(updateAndSaveLayout(updatedWidgets));
+      if (currentZoneCount > zoneCount) {
+        updatedWidgets = yield call(
+          mergeLastZonesOfSection,
+          currentZoneCount - zoneCount,
+          zoneOrder,
+        );
+      } else if (currentZoneCount < zoneCount) {
+        const updatedObj: {
+          updatedWidgets: CanvasWidgetsReduxState;
+          zoneIdsCreated: string[];
+        } = yield call(
+          addNewZonesToSection,
+          sectionWidgetId,
+          zoneCount - currentZoneCount,
+        );
+        updatedWidgets = updatedObj.updatedWidgets;
       }
+      updatedWidgets[sectionWidgetId] = {
+        ...updatedWidgets[sectionWidgetId],
+        zoneCount,
+      };
+      yield put(updateAndSaveLayout(updatedWidgets));
     }
   }
 }
