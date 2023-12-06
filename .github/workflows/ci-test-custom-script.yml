@@ -168,10 +168,15 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v3
+      # - name: Download Docker image artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: cicontainer
+
+      - name: Restore the docker image cache
+        uses: actions/cache@v3
         with:
-          name: cicontainer
+          key: docker-image-${{github.run_id}}
 
       - name: Load Docker image from tar file
         run: |
@@ -252,8 +257,6 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies

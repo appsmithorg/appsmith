@@ -138,17 +138,16 @@ jobs:
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id != 0
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/cache@v3
         with:
-          name: cicontainer
-          run_id: ${{ inputs.previous-workflow-run-id }}
+          key: docker-image-${{ inputs.previous-workflow-run-id }}
 
       # In case of run-id is 0 download the artifact from the current run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id == 0
-        uses: actions/download-artifact@v3
+        uses: actions/cache@v3
         with:
-          name: cicontainer
+          key: docker-image-${{github.run_id}}
 
       - name: Load Docker image from tar file
         run: |
@@ -224,8 +223,6 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
