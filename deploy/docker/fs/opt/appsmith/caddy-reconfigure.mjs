@@ -84,7 +84,10 @@ parts.push(`
     import file_server
     skip_log
   }
-  error /static/* 404
+
+  handle /static/* {
+    error 404
+  }
 
   handle /info {
     root * /opt/appsmith

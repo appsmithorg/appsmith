@@ -26,7 +26,3 @@ export interface Scale {
   v: number;
   r: number;
 }
-
-export interface FluidScale {
-  fluid: number;
-}
