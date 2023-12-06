@@ -31,28 +31,37 @@ public class GroupRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<Group> archive(Group entity) {
-        return Mono.justOrEmpty(repository.archive(entity));
+    public Flux<Group> getAllByWorkspaceId(String workspaceId) {
+        return Flux.fromIterable(repository.getAllByWorkspaceId(workspaceId));
+    }
+
+    public Flux<Group> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
+    }
+
+    public Mono<Group> retrieveById(String id) {
+        return Mono.justOrEmpty(repository.retrieveById(id));
     }
 
     public Group setUserPermissionsInObject(Group obj) {
         return repository.setUserPermissionsInObject(obj);
     }
 
-    public Group updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return repository.updateAndReturn(id, updateObj, permission);
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
     }
 
-    public Flux<Group> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission));
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 
     public Group setUserPermissionsInObject(Group obj, Set<String> permissionGroups) {
         return repository.setUserPermissionsInObject(obj, permissionGroups);
     }
 
-    public Mono<Group> retrieveById(String id) {
-        return Mono.justOrEmpty(repository.retrieveById(id));
+    public Mono<Group> archive(Group entity) {
+        return Mono.justOrEmpty(repository.archive(entity));
     }
 
     public Mono<Group> findById(String id, AclPermission permission) {
@@ -63,20 +72,11 @@ public class GroupRepositoryCake {
         return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
     }
 
-    public Flux<Group> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
+    public Flux<Group> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission));
     }
 
-    public Flux<Group> getAllByWorkspaceId(String workspaceId) {
-        return Flux.fromIterable(repository.getAllByWorkspaceId(workspaceId));
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
+    public Group updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return repository.updateAndReturn(id, updateObj, permission);
     }
 }

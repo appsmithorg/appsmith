@@ -35,37 +35,32 @@ public class PageRepositoryCake {
         return Mono.justOrEmpty(repository.findByIdAndLayoutsId(id, layoutId, aclPermission));
     }
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    public Page setUserPermissionsInObject(Page obj, Set<String> permissionGroups) {
+        return repository.setUserPermissionsInObject(obj, permissionGroups);
     }
 
-    public Mono<Page> findByName(String name, AclPermission aclPermission) {
-        return Mono.justOrEmpty(repository.findByName(name, aclPermission));
+    public Mono<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission aclPermission) {
+        return Mono.justOrEmpty(repository.findByNameAndApplicationId(name, applicationId, aclPermission));
+    }
+
+    public Flux<Page> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
     }
 
     public Mono<Page> findById(String id, AclPermission permission) {
         return Mono.justOrEmpty(repository.findById(id, permission));
     }
 
-    public Page setUserPermissionsInObject(Page obj, Set<String> permissionGroups) {
-        return repository.setUserPermissionsInObject(obj, permissionGroups);
-    }
-
-    public Page setUserPermissionsInObject(Page obj) {
-        return repository.setUserPermissionsInObject(obj);
-    }
-
     public Flux<Page> findByApplicationId(String applicationId) {
         return Flux.fromIterable(repository.findByApplicationId(applicationId));
     }
 
-    public Flux<Page> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
-    }
-
-    public Flux<Page> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        return Flux.fromIterable(repository.findByApplicationId(applicationId, aclPermission));
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 
     public Flux<Page> queryAll(List<Criteria> criterias, AclPermission permission) {
@@ -76,23 +71,28 @@ public class PageRepositoryCake {
         return repository.updateAndReturn(id, updateObj, permission);
     }
 
-    public Flux<Page> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
+    public Flux<Page> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
+    }
+
+    public Page setUserPermissionsInObject(Page obj) {
+        return repository.setUserPermissionsInObject(obj);
     }
 
     public Mono<Page> archive(Page entity) {
         return Mono.justOrEmpty(repository.archive(entity));
     }
 
+    public Flux<Page> findByApplicationId(String applicationId, AclPermission aclPermission) {
+        return Flux.fromIterable(repository.findByApplicationId(applicationId, aclPermission));
+    }
+
+    public Mono<Page> findByName(String name, AclPermission aclPermission) {
+        return Mono.justOrEmpty(repository.findByName(name, aclPermission));
+    }
+
     public Mono<Page> retrieveById(String id) {
         return Mono.justOrEmpty(repository.retrieveById(id));
-    }
-
-    public Mono<Page> findByNameAndApplicationId(String name, String applicationId, AclPermission aclPermission) {
-        return Mono.justOrEmpty(repository.findByNameAndApplicationId(name, applicationId, aclPermission));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
     }
 }

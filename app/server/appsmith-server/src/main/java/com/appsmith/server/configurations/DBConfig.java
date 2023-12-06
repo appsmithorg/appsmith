@@ -16,7 +16,7 @@ public class DBConfig {
     private final EntityManagerFactory entityManagerFactory;
 
     @Bean
-    public PlatformTransactionManager dbTransactionManager() {
+    public PlatformTransactionManager transactionManager() {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory);
         return transactionManager;

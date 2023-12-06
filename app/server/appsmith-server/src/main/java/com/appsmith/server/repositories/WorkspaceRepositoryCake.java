@@ -31,16 +31,52 @@ public class WorkspaceRepositoryCake {
     }
     // End from CrudRepository
 
+    public Flux<Workspace> findAll(AclPermission permission) {
+        return Flux.fromIterable(repository.findAll(permission));
+    }
+
     public Mono<Long> countByDeletedAtNull() {
         return Mono.justOrEmpty(repository.countByDeletedAtNull());
     }
 
-    public Mono<Workspace> findBySlug(String slug) {
-        return Mono.justOrEmpty(repository.findBySlug(slug));
+    public Flux<Workspace> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission));
     }
 
-    public Mono<Workspace> findById(String id, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(id, permission));
+    public Flux<Workspace> findAllWorkspaces() {
+        return Flux.fromIterable(repository.findAllWorkspaces());
+    }
+
+    public Workspace setUserPermissionsInObject(Workspace obj, Set<String> permissionGroups) {
+        return repository.setUserPermissionsInObject(obj, permissionGroups);
+    }
+
+    public Flux<Workspace> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
+    }
+
+    public Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId) {
+        return Mono.justOrEmpty(repository.findByIdAndPluginsPluginId(workspaceId, pluginId));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    }
+
+    public Workspace setUserPermissionsInObject(Workspace obj) {
+        return repository.setUserPermissionsInObject(obj);
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
+    }
+
+    public Workspace updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return repository.updateAndReturn(id, updateObj, permission);
+    }
+
+    public Mono<Workspace> findByName(String name) {
+        return Mono.justOrEmpty(repository.findByName(name));
     }
 
     public Flux<Workspace> queryAll(
@@ -48,8 +84,12 @@ public class WorkspaceRepositoryCake {
         return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
     }
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    public Mono<Workspace> findById(String id, AclPermission permission) {
+        return Mono.justOrEmpty(repository.findById(id, permission));
+    }
+
+    public Mono<Workspace> archive(Workspace entity) {
+        return Mono.justOrEmpty(repository.archive(entity));
     }
 
     public Flux<Workspace> findByIdsIn(
@@ -57,55 +97,15 @@ public class WorkspaceRepositoryCake {
         return Flux.fromIterable(repository.findByIdsIn(workspaceIds, tenantId, aclPermission, sort));
     }
 
-    public Mono<Workspace> archive(Workspace entity) {
-        return Mono.justOrEmpty(repository.archive(entity));
-    }
-
-    public Workspace setUserPermissionsInObject(Workspace obj, Set<String> permissionGroups) {
-        return repository.setUserPermissionsInObject(obj, permissionGroups);
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Mono<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId) {
-        return Mono.justOrEmpty(repository.findByIdAndPluginsPluginId(workspaceId, pluginId));
-    }
-
     public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
         return Mono.justOrEmpty(repository.findByName(name, aclPermission));
     }
 
-    public Flux<Workspace> findAll(AclPermission permission) {
-        return Flux.fromIterable(repository.findAll(permission));
+    public Mono<Workspace> findBySlug(String slug) {
+        return Mono.justOrEmpty(repository.findBySlug(slug));
     }
 
     public Mono<Workspace> retrieveById(String id) {
         return Mono.justOrEmpty(repository.retrieveById(id));
-    }
-
-    public Flux<Workspace> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
-    }
-
-    public Workspace updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return repository.updateAndReturn(id, updateObj, permission);
-    }
-
-    public Flux<Workspace> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission));
-    }
-
-    public Mono<Workspace> findByName(String name) {
-        return Mono.justOrEmpty(repository.findByName(name));
-    }
-
-    public Workspace setUserPermissionsInObject(Workspace obj) {
-        return repository.setUserPermissionsInObject(obj);
-    }
-
-    public Flux<Workspace> findAllWorkspaces() {
-        return Flux.fromIterable(repository.findAllWorkspaces());
     }
 }

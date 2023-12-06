@@ -31,32 +31,12 @@ public class CustomJSLibRepositoryCake {
     }
     // End from CrudRepository
 
-    public Flux<CustomJSLib> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission));
-    }
-
-    public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
-        return Mono.justOrEmpty(repository.findUniqueCustomJsLib(customJSLib));
-    }
-
-    public CustomJSLib setUserPermissionsInObject(CustomJSLib obj, Set<String> permissionGroups) {
-        return repository.setUserPermissionsInObject(obj, permissionGroups);
-    }
-
-    public CustomJSLib setUserPermissionsInObject(CustomJSLib obj) {
-        return repository.setUserPermissionsInObject(obj);
+    public CustomJSLib updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return repository.updateAndReturn(id, updateObj, permission);
     }
 
     public Flux<CustomJSLib> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
         return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
-    }
-
-    public Mono<CustomJSLib> findById(String id, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(id, permission));
-    }
-
-    public CustomJSLib updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return repository.updateAndReturn(id, updateObj, permission);
     }
 
     public Flux<CustomJSLib> findCustomJsLibsInContext(
@@ -64,17 +44,16 @@ public class CustomJSLibRepositoryCake {
         return Flux.fromIterable(repository.findCustomJsLibsInContext(uidStrings, referenceId, contextType));
     }
 
-    public Mono<CustomJSLib> retrieveById(String id) {
-        return Mono.justOrEmpty(repository.retrieveById(id));
-    }
-
-    public Flux<CustomJSLib> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
+    public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
+        return Mono.justOrEmpty(repository.findUniqueCustomJsLib(customJSLib));
     }
 
     public Mono<CustomJSLib> archive(CustomJSLib entity) {
         return Mono.justOrEmpty(repository.archive(entity));
+    }
+
+    public Mono<CustomJSLib> retrieveById(String id) {
+        return Mono.justOrEmpty(repository.retrieveById(id));
     }
 
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
@@ -83,5 +62,26 @@ public class CustomJSLibRepositoryCake {
 
     public boolean archiveById(String id) {
         return repository.archiveById(id);
+    }
+
+    public Flux<CustomJSLib> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
+    }
+
+    public CustomJSLib setUserPermissionsInObject(CustomJSLib obj, Set<String> permissionGroups) {
+        return repository.setUserPermissionsInObject(obj, permissionGroups);
+    }
+
+    public Mono<CustomJSLib> findById(String id, AclPermission permission) {
+        return Mono.justOrEmpty(repository.findById(id, permission));
+    }
+
+    public Flux<CustomJSLib> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.fromIterable(repository.queryAll(criterias, permission));
+    }
+
+    public CustomJSLib setUserPermissionsInObject(CustomJSLib obj) {
+        return repository.setUserPermissionsInObject(obj);
     }
 }

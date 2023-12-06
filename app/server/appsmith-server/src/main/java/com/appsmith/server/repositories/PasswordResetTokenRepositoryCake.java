@@ -29,6 +29,14 @@ public class PasswordResetTokenRepositoryCake {
     }
     // End from CrudRepository
 
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
+    }
+
     public Mono<PasswordResetToken> archive(PasswordResetToken entity) {
         return Mono.justOrEmpty(repository.archive(entity));
     }
@@ -39,13 +47,5 @@ public class PasswordResetTokenRepositoryCake {
 
     public Mono<PasswordResetToken> retrieveById(String id) {
         return Mono.justOrEmpty(repository.retrieveById(id));
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
     }
 }

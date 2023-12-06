@@ -92,10 +92,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                     log.debug("Registration successful, updating state ...");
                     return instanceIdMono.flatMap(instanceId -> configService
                             .getByName(Appsmith.APPSMITH_REGISTERED)
-                            .switchIfEmpty(Mono.defer(() -> {
-                                sendServerSetupEvent(instanceId);
-                                return Mono.just(new Config());
-                            }))
+                            .onErrorReturn(new Config())
                             .flatMap(config -> {
                                 // if instance isn't already marked registered
                                 if (config.getConfig() != null

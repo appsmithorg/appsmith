@@ -49,14 +49,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
 
     @Override
     public Mono<Config> save(Config config) {
-        return Mono.empty(); /*
-        return repository
-                .findByName(config.getName())
-                .flatMap(dbConfig -> {
-                    dbConfig.setConfig(config.getConfig());
-                    return repository.save(dbConfig);
-                })
-                .switchIfEmpty(Mono.defer(() -> repository.save(config)));*/
+        return repository.save(config);
     }
 
     @Override
