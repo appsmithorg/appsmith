@@ -39,7 +39,7 @@ import {
   getHasDeletePagePermission,
   getHasManagePagePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import PartiaExportModel from "components/editorComponents/PartialImportExport/PartialExportModal";
+import PartiaExportModal from "components/editorComponents/PartialImportExport/PartialExportModal";
 import PartialImportModal from "components/editorComponents/PartialImportExport/PartialImportModal";
 
 const CustomLabel = styled.div`
@@ -260,7 +260,7 @@ export function PageContextMenu(props: {
         setConfirmDelete={setConfirmDelete}
       />
       {showPartialExportModal && (
-        <PartiaExportModel
+        <PartiaExportModal
           handleModalClose={() => setShowPartialExportModal(false)}
           isModalOpen={showPartialExportModal}
         />

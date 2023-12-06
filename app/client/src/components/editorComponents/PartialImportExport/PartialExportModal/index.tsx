@@ -44,7 +44,7 @@ const selectedParamsInitValue: PartialExportParams = {
   widgets: [],
   queries: [],
 };
-const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
+const PartiaExportModal = ({ handleModalClose, isModalOpen }: Props) => {
   const [customJsLibraries, setCustomJsLibraries] = useState<JSLibrary[]>([]);
   const dispatch = useDispatch();
   const [selectedParams, setSelectedParams] = useState<PartialExportParams>(
@@ -183,4 +183,4 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   );
 };
 
-export default PartiaExportModel;
+export default PartiaExportModal;
