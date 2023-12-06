@@ -191,6 +191,7 @@ jobs:
       - name: Restore Yarn cache
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
+        id: cache-dependencies
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
@@ -245,6 +246,7 @@ jobs:
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache/save@v3
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
