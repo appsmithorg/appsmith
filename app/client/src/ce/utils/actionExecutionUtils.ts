@@ -2,7 +2,7 @@ import type { Action } from "entities/Action";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 
 export function getPluginActionNameToDisplay(action: Action) {
-  return action.id;
+  return action.name;
 }
 
 export function getJSActionPathNameToDisplay(
