@@ -174,7 +174,9 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     });
   }
 
-  filteredQueries = [...queries, ...queryModuleInstances];
+  filteredQueries = [...queries, ...queryModuleInstances] as
+    | ActionDataState
+    | ModuleInstanceDataState;
 
   const queryOptions = useMemo(() => {
     return sortQueries(filteredQueries, expectedType).map((query) => ({
