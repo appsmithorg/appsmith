@@ -8,7 +8,7 @@ import BaseWidget from "widgets/BaseWidget";
 import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { RenderModes, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -248,7 +248,10 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         execute={(eventName: string) => this.execute(eventName)}
         height={this.props.componentHeight}
         model={this.props.model}
-        needsOverlay={!this.props.isWidgetSelected}
+        needsOverlay={
+          this.props.renderMode === RenderModes.CANVAS &&
+          !this.props.isWidgetSelected
+        }
         srcDoc={this.props.srcDoc}
         update={(data: any) => this.update(data)}
         width={this.props.componentWidth}
