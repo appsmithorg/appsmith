@@ -85,7 +85,7 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
 
     @JsonView(Views.Public.class)
     @GetMapping("/home")
-    public Mono<ResponseDTO<List<Workspace>>> getUserWorkspacesByRecentlyUsedOrder() {
+    public Mono<ResponseDTO<List<Workspace>>> workspacesForHome() {
         return userWorkspaceService
                 .getUserWorkspacesByRecentlyUsedOrder()
                 .map(workspaces -> new ResponseDTO<>(HttpStatus.OK.value(), workspaces, null));

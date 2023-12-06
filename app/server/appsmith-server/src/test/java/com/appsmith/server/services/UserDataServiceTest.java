@@ -77,6 +77,10 @@ public class UserDataServiceTest {
 
     private Mono<User> userMono;
 
+    private static final int MAX_RECENT_WORKSPACES_LIMIT = 10;
+
+    private static final int MAX_RECENT_APPLICATIONS_LIMIT = 20;
+
     @BeforeEach
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
@@ -345,19 +349,15 @@ public class UserDataServiceTest {
 
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
-                    // org id list should be truncated to 10
-                    assertThat(userData.getRecentlyUsedWorkspaceIds().size()).isEqualTo(10);
+                    assertThat(userData.getRecentlyUsedWorkspaceIds().size()).isEqualTo(MAX_RECENT_WORKSPACES_LIMIT);
                     assertThat(userData.getRecentlyUsedWorkspaceIds().get(0)).isEqualTo(sampleWorkspaceId);
                     assertThat(userData.getRecentlyUsedWorkspaceIds().get(9)).isEqualTo("org-9");
 
-                    // app id list should be truncated to 20
-                    assertThat(userData.getRecentlyUsedAppIds().size()).isEqualTo(20);
+                    assertThat(userData.getRecentlyUsedAppIds().size()).isEqualTo(MAX_RECENT_APPLICATIONS_LIMIT);
                     assertThat(userData.getRecentlyUsedAppIds().get(0)).isEqualTo(sampleAppId);
                     assertThat(userData.getRecentlyUsedAppIds().get(19)).isEqualTo("app-19");
 
-                    // recently used entity list should be truncated to 10 and within each entity, app id list should
-                    // be truncated to 10
-                    assertThat(userData.getRecentlyUsedEntityIds().size()).isEqualTo(10);
+                    assertThat(userData.getRecentlyUsedEntityIds().size()).isEqualTo(MAX_RECENT_WORKSPACES_LIMIT);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo(sampleWorkspaceId);
                     assertThat(userData.getRecentlyUsedEntityIds().get(9).getWorkspaceId())
@@ -401,7 +401,7 @@ public class UserDataServiceTest {
                                     .get(0)
                                     .getApplicationIds()
                                     .size())
-                            .isEqualTo(10);
+                            .isEqualTo(MAX_RECENT_APPLICATIONS_LIMIT);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo("org-1");
                     assertThat(userData.getRecentlyUsedEntityIds()

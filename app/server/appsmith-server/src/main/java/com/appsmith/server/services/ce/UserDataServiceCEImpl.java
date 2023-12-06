@@ -65,6 +65,10 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
 
+    private static final int MAX_RECENT_WORKSPACES_LIMIT = 10;
+
+    private static final int MAX_RECENT_APPLICATIONS_LIMIT = 20;
+
     @Autowired
     public UserDataServiceCEImpl(
             Scheduler scheduler,
@@ -266,20 +270,24 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                     // TODO remove the updated to deprecated fields once client starts consuming the updated API
                     // set recently used workspace ids
                     userData.setRecentlyUsedWorkspaceIds(addIdToRecentList(
-                            userData.getRecentlyUsedWorkspaceIds(), application.getWorkspaceId(), 10));
+                            userData.getRecentlyUsedWorkspaceIds(),
+                            application.getWorkspaceId(),
+                            MAX_RECENT_WORKSPACES_LIMIT));
                     // set recently used application ids
-                    userData.setRecentlyUsedAppIds(
-                            addIdToRecentList(userData.getRecentlyUsedAppIds(), application.getId(), 20));
+                    userData.setRecentlyUsedAppIds(addIdToRecentList(
+                            userData.getRecentlyUsedAppIds(), application.getId(), MAX_RECENT_APPLICATIONS_LIMIT));
 
                     // Update recently used workspace and corresponding application ids
                     List<RecentlyUsedEntityDTO> recentlyUsedEntities = reorderWorkspacesInRecentlyUsedOrderForUser(
-                            userData.getRecentlyUsedEntityIds(), application.getWorkspaceId(), 10);
+                            userData.getRecentlyUsedEntityIds(),
+                            application.getWorkspaceId(),
+                            MAX_RECENT_WORKSPACES_LIMIT);
 
                     if (!CollectionUtils.isNullOrEmpty(recentlyUsedEntities)) {
                         RecentlyUsedEntityDTO latest = recentlyUsedEntities.get(0);
                         // Add the current applicationId to the list
-                        latest.setApplicationIds(
-                                addIdToRecentList(latest.getApplicationIds(), application.getId(), 10));
+                        latest.setApplicationIds(addIdToRecentList(
+                                latest.getApplicationIds(), application.getId(), MAX_RECENT_APPLICATIONS_LIMIT));
                     }
                     userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
                     return Mono.zip(

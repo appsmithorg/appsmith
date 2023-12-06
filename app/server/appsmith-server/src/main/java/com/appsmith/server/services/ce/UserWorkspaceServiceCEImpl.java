@@ -407,6 +407,11 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 && permissionGroup.getAssignedToUserIds().size() == 1;
     }
 
+    /**
+     * This function returns the list of workspaces for the current user in the order of recently used.
+     *
+     * @return Mono of list of workspaces
+     */
     @Override
     public Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder() {
 
