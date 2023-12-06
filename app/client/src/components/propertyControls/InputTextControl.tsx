@@ -70,7 +70,6 @@ export function InputText(props: {
         onEditorBlur={onBlur}
         onEditorFocus={onFocus}
         placeholder={placeholder}
-        positionCursorInsideBinding
         size={EditorSize.EXTENDED}
         tabBehaviour={TabBehaviour.INDENT}
         theme={props.theme || EditorTheme.LIGHT}

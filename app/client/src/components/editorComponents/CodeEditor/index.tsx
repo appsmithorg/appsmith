@@ -154,12 +154,15 @@ import type { MultiplexingModeConfig } from "components/editorComponents/CodeEdi
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 import { getDeleteLineShortcut } from "./utils/deleteLine";
 import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
-import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
+import {
+  getFocusablePropertyPaneField,
+  selectSetCursorOnMountPath,
+} from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
-import { EMPTY_BINDING } from "../ActionCreator/constants";
 import {
   resetActiveEditorField,
   setActiveEditorField,
+  setCursorOnMount,
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 
@@ -240,7 +243,6 @@ export type EditorProps = EditorStyleProps &
     jsObjectName?: string;
     // Custom gutter
     customGutter?: CodeEditorGutter;
-    positionCursorInsideBinding?: boolean;
 
     // On focus and blur event handler
     onEditorBlur?: () => void;
@@ -426,10 +428,7 @@ class CodeEditor extends Component<Props, State> {
       options.value = removeNewLineCharsIfRequired(inputValue, this.props.size);
 
       // @ts-expect-error: Types are not available
-      options.finishInit = function (
-        this: CodeEditor,
-        editor: CodeMirror.Editor,
-      ) {
+      options.finishInit = (editor: CodeMirror.Editor) => {
         // If you need to do something with the editor right after it’s been created,
         // put that code here.
         //
@@ -476,19 +475,22 @@ class CodeEditor extends Component<Props, State> {
         this.lintCode(editor);
 
         setTimeout(() => {
-          if (this.props.editorIsFocused && shouldFocusOnPropertyControl()) {
-            if (!editor.hasFocus()) editor.focus();
+          if (this.props.editorIsFocused && shouldFocusOnPropertyControl())
+            editor.focus();
+          if (
+            this.props.cursorOnMountPath &&
+            this.props.cursorOnMountPath === this.props.dataTreePath
+          ) {
             const value = editor.getValue();
             const lastBindingIndex = value.lastIndexOf("}}");
-            if (this.props.editorLastCursorPosition) {
-              editor.setCursor(this.props.editorLastCursorPosition);
-            } else if (lastBindingIndex !== -1) {
-              const position = editor.getDoc().posFromIndex(lastBindingIndex);
-              editor.setCursor(position);
-            }
+            if (lastBindingIndex === -1) return;
+            if (!editor.hasFocus()) editor.focus();
+            const position = editor.getDoc().posFromIndex(lastBindingIndex);
+            editor.setCursor(position);
+            this.props.disableCursorOnMount();
           }
         }, 200);
-      }.bind(this);
+      };
       sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
 
       // Finally create the Codemirror editor
@@ -504,16 +506,6 @@ class CodeEditor extends Component<Props, State> {
       resizeObserver.observe(this.codeEditorTarget.current, [
         this.debounceEditorRefresh,
       ]);
-    }
-    if (
-      this.props.positionCursorInsideBinding &&
-      this.props.input.value === EMPTY_BINDING
-    ) {
-      this.editor.focus();
-      this.editor.setCursor({
-        ch: 2,
-        line: 0,
-      });
     }
   }
 
@@ -1745,6 +1737,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
   installedLibraries: selectInstalledLibraries(state),
   focusedProperty: getFocusablePropertyPaneField(state),
+  cursorOnMountPath: selectSetCursorOnMountPath(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1755,6 +1748,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setEditorFieldFocusAction(payload)),
   setActiveField: (path: string) => dispatch(setActiveEditorField(path)),
   resetActiveField: () => dispatch(resetActiveEditorField()),
+  disableCursorOnMount: () => dispatch(setCursorOnMount("")),
 });
 
 export default Sentry.withProfiler(

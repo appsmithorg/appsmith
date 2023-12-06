@@ -317,3 +317,6 @@ export const getShouldFocusPanelPropertySearch = createSelector(
       .includes(widgetName);
   },
 );
+
+export const selectSetCursorOnMountPath = (state: AppState) =>
+  state.ui.editorContext.codeEditorHistory.setCursorOnMountPath;

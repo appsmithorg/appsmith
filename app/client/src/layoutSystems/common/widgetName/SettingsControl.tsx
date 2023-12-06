@@ -133,6 +133,8 @@ export function SettingsControl(props: SettingsControlProps) {
 
   const tooltip = isSnipingMode
     ? `Bind to widget ${props.name}`
+    : props.icon
+    ? "Customize your data using javascript"
     : "Edit widget properties";
 
   const handleClick = useCallback(
@@ -176,9 +178,7 @@ export function SettingsControl(props: SettingsControlProps) {
             size="md"
           />
         )}
-        <WidgetName
-          className={classNames("t--widget-name", props.icon && "text-xs")}
-        >
+        <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>
       </SettingsWrapper>

@@ -15,7 +15,7 @@ export const getFocusableInputField = (state: AppState) =>
   state.ui.editorContext.focusedInputField;
 
 export const getCodeEditorHistory = (state: AppState) =>
-  state.ui.editorContext.codeEditorHistory;
+  state.ui.editorContext.codeEditorHistory.history;
 
 export const getPropertyPanelState = (state: AppState) =>
   state.ui.editorContext.propertyPanelState;

@@ -60,6 +60,7 @@ import { importSvg } from "design-system-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
+import { setCursorOnMount } from "actions/activeFieldActions";
 // import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 // import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
@@ -222,6 +223,10 @@ const PropertyControl = memo((props: Props) => {
       ) {
         shouldRejectDynamicBindingPathList = false;
       }
+
+      dispatch(
+        setCursorOnMount(isDynamic ? "" : (props.dataTreePath as string)),
+      );
 
       dispatch(
         setWidgetDynamicProperty(

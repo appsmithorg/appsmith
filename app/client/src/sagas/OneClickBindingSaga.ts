@@ -48,12 +48,10 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { fetchActions, runAction } from "actions/pluginActionActions";
 import { Toaster, Variant } from "design-system-old";
 import WidgetFactory from "WidgetProvider/factory";
-// import { getWidgetJSTrigger } from "utils/storage";
-import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import { setWidgetDynamicProperty } from "actions/controlActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
-import { setFocusableInputField } from "actions/editorContextActions";
+import { setCursorOnMount } from "actions/activeFieldActions";
 
 export function* createActionsForOneClickBindingSaga(
   payload: Partial<Action> & { eventData: unknown; pluginId: string },
@@ -427,9 +425,7 @@ function* toggleJStriggerOnWidgetSaga(action: ReduxAction<string>) {
 
   const dataTreePath = `${widgetName}.${propertyName}`;
 
-  yield put(setFocusablePropertyPaneField(dataTreePath));
-
-  yield put(setFocusableInputField(dataTreePath));
+  yield put(setCursorOnMount(dataTreePath));
 
   yield put(setWidgetDynamicProperty(widgetId, propertyName, true));
 

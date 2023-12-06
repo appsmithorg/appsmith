@@ -40,14 +40,20 @@ export interface EditorContextState {
   subEntityCollapsibleFields: Record<string, boolean>;
   explorerSwitchIndex: number;
   focusedInputField?: string;
-  codeEditorHistory: Record<string, CodeEditorContext>;
+  codeEditorHistory: {
+    history: Record<string, CodeEditorContext>;
+    setCursorOnMountPath: string;
+  };
   propertySectionState: Record<string, boolean>;
   selectedPropertyTabIndex: number;
   propertyPanelState: PropertyPanelState;
 }
 
 export const initialState: EditorContextState = {
-  codeEditorHistory: {},
+  codeEditorHistory: {
+    history: {},
+    setCursorOnMountPath: "",
+  },
   propertySectionState: {},
   selectedPropertyTabIndex: 0,
   propertyPanelState: {},
@@ -87,8 +93,9 @@ export const handlers = {
   ) => {
     const { cursorPosition, path } = action.payload;
     if (!path) return;
-    if (!state.codeEditorHistory[path]) state.codeEditorHistory[path] = {};
-    state.codeEditorHistory[path].cursorPosition = cursorPosition;
+    if (!state.codeEditorHistory.history[path])
+      state.codeEditorHistory.history[path] = {};
+    state.codeEditorHistory.history[path].cursorPosition = cursorPosition;
   },
   [ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY]: (
     state: EditorContextState,
@@ -96,7 +103,7 @@ export const handlers = {
       payload: Record<string, CodeEditorContext>;
     },
   ) => {
-    state.codeEditorHistory = action.payload || {};
+    state.codeEditorHistory.history = action.payload || {};
   },
   [ReduxActionTypes.SET_EVAL_POPUP_STATE]: (
     state: EditorContextState,
@@ -104,8 +111,9 @@ export const handlers = {
   ) => {
     const { evalPopupState, key } = action.payload;
     if (!key) return;
-    if (!state.codeEditorHistory[key]) state.codeEditorHistory[key] = {};
-    state.codeEditorHistory[key].evalPopupState = evalPopupState;
+    if (!state.codeEditorHistory.history[key])
+      state.codeEditorHistory.history[key] = {};
+    state.codeEditorHistory.history[key].evalPopupState = evalPopupState;
   },
   [ReduxActionTypes.SET_WIDGET_PROPERTY_SECTION_STATE]: (
     state: EditorContextState,
@@ -211,6 +219,12 @@ export const handlers = {
     action: ReduxAction<boolean>,
   ) => {
     state.explorerSwitchIndex = action.payload ? 1 : 0;
+  },
+  [ReduxActionTypes.SET_CURSOR_ON_MOUNT_PATH]: (
+    state: EditorContextState,
+    action: ReduxAction<string>,
+  ) => {
+    state.codeEditorHistory.setCursorOnMountPath = action.payload;
   },
 };
 
