@@ -80,17 +80,14 @@ jobs:
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       # Timestamp will be used to create cache key
       - id: timestamp

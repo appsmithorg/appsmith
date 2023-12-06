@@ -1,10 +1,10 @@
 package com.appsmith.server.themes.base;
 
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;

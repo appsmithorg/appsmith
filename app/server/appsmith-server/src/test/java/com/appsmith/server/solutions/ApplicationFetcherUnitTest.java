@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -14,7 +15,6 @@ import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;

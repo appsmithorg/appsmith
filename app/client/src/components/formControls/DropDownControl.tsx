@@ -3,7 +3,7 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import styled from "styled-components";
 import type { ControlType } from "constants/PropertyControlConstants";
-import { get, isNil } from "lodash";
+import { get, isEmpty, isNil } from "lodash";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { connect } from "react-redux";
@@ -119,13 +119,18 @@ function renderDropdown(
   } & DropDownControlProps,
 ): JSX.Element {
   let selectedValue: string | string[];
-  if (isNil(props.input?.value)) {
+  if (isEmpty(props.input?.value)) {
     if (props.isMultiSelect)
       selectedValue = props?.initialValue ? (props.initialValue as string) : [];
-    else
+    else {
       selectedValue = props?.initialValue
         ? (props.initialValue as string[])
         : "";
+      if (props.setFirstOptionAsDefault && props.options.length > 0) {
+        selectedValue = props.options[0].value as string;
+        props.input?.onChange(selectedValue);
+      }
+    }
   } else {
     selectedValue = props.input?.value;
     if (props.isMultiSelect) {
@@ -267,6 +272,7 @@ export interface DropDownControlProps extends ControlProps {
   fetchOptionsConditionally?: boolean;
   isLoading: boolean;
   formValues: Partial<Action>;
+  setFirstOptionAsDefault?: boolean;
 }
 
 interface ReduxDispatchProps {

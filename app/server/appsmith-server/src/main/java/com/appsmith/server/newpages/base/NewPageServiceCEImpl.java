@@ -2,6 +2,7 @@ package com.appsmith.server.newpages.base;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -18,7 +19,6 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
