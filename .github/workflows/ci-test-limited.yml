@@ -140,6 +140,7 @@ jobs:
         if: inputs.previous-workflow-run-id != 0
         uses: actions/cache@v3
         with:
+          path: cicontainer.tar.gz
           key: docker-image-${{ inputs.previous-workflow-run-id }}
 
       # In case of run-id is 0 download the artifact from the current run
