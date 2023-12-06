@@ -24,10 +24,17 @@ import type { AppState } from "@appsmith/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
   API_EDITOR_ID_ADD_PATH,
+  API_EDITOR_ID_PATH,
   BUILDER_CUSTOM_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
   QUERIES_EDITOR_ID_ADD_PATH,
+  QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
-import { SAAS_EDITOR_API_ID_ADD_PATH } from "pages/Editor/SaaSEditor/constants";
+import {
+  SAAS_EDITOR_API_ID_ADD_PATH,
+  SAAS_EDITOR_API_ID_PATH,
+} from "pages/Editor/SaaSEditor/constants";
 import history from "utils/history";
 
 const QueriesContainer = styled(Flex)`
@@ -55,13 +62,30 @@ const QueriesSection = () => {
     return state.entities.plugins.list;
   });
   const match = matchPath<{
+    queryId?: string;
     sidebarState?: string;
   }>(location.pathname, [
+    BUILDER_PATH_DEPRECATED + API_EDITOR_ID_ADD_PATH,
+    BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
+    BUILDER_PATH + API_EDITOR_ID_ADD_PATH,
+    BUILDER_PATH + API_EDITOR_ID_PATH,
     BUILDER_CUSTOM_PATH + API_EDITOR_ID_ADD_PATH,
+    BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
+    BUILDER_PATH_DEPRECATED + QUERIES_EDITOR_ID_ADD_PATH,
+    BUILDER_PATH_DEPRECATED + QUERIES_EDITOR_ID_PATH,
+    BUILDER_PATH + QUERIES_EDITOR_ID_ADD_PATH,
+    BUILDER_PATH + QUERIES_EDITOR_ID_PATH,
     BUILDER_CUSTOM_PATH + QUERIES_EDITOR_ID_ADD_PATH,
+    BUILDER_CUSTOM_PATH + QUERIES_EDITOR_ID_PATH,
+    BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_ADD_PATH,
+    BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
+    BUILDER_PATH + SAAS_EDITOR_API_ID_ADD_PATH,
+    BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
     BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_ADD_PATH,
+    BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
   ]);
-  const isAddPage = match?.params?.sidebarState === "add";
+  const isAddPage =
+    match?.params?.sidebarState === "add" || match?.params?.queryId === "add";
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const activeActionId = useActiveAction();
 

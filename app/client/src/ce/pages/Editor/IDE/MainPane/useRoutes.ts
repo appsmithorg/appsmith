@@ -100,7 +100,10 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "QueryEditorList",
       component: QueriesBlankState,
       exact: true,
-      path: `${path}${QUERIES_EDITOR_BASE_PATH}`,
+      path: [
+        `${path}${QUERIES_EDITOR_BASE_PATH}`,
+        `${path}${QUERIES_EDITOR_BASE_PATH}/add`,
+      ],
     },
     {
       key: "QueryEditor",
