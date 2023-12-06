@@ -56,9 +56,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
-    private final SessionUserService sessionUserService;
-
     private final ObjectMapper objectMapper;
+    private final SessionUserService sessionUserService;
 
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
