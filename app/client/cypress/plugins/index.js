@@ -237,7 +237,9 @@ module.exports = async (on, config) => {
   }
 
 
+  
   function trimPathsBeforeWildcard(pathsString) {
+    pathsString = JSON.stringify(pathsString);
     console.log("In trimPathsBeforeWildcard")
     const paths = pathsString.split(',');
     console.log("paths:", paths)
