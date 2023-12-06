@@ -3024,6 +3024,8 @@ __metadata:
     "@capsizecss/core": ^3.1.1
     "@capsizecss/metrics": ^1.2.0
     "@emotion/sheet": ^1.2.2
+    "@react-hook/debounce": ^4.0.0
+    "@react-hook/resize-observer": ^1.2.6
     lodash: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
@@ -6817,6 +6819,48 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   checksum: b80a92432e51892729b7e0ac461a647d935b788767a55f17a400073340067131268ca23a0130d40ee9500b20290c2a8f3572b8826b7e1782116fb37c53874952
+  languageName: node
+  linkType: hard
+
+"@react-hook/debounce@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@react-hook/debounce@npm:4.0.0"
+  dependencies:
+    "@react-hook/latest": ^1.0.2
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 199f944fd905b6cbeb0665e94ce49805f6a0a6f758f35862d784b87dd5c52760dcf2ce9a66abc5698f5b1418be387df5452a703812e9362d1dda0f9718a5d01d
+  languageName: node
+  linkType: hard
+
+"@react-hook/latest@npm:^1.0.2":
+  version: 1.0.3
+  resolution: "@react-hook/latest@npm:1.0.3"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 2408c9cd35c5cfa7697b6da3bc5eebef254a932ade70955074c474f23be7dd3e2f81bbba12edcc9208bd0f89c6ed366d6b11d4f6d7b1052877a0bac8f74afad4
+  languageName: node
+  linkType: hard
+
+"@react-hook/passive-layout-effect@npm:^1.2.0":
+  version: 1.2.1
+  resolution: "@react-hook/passive-layout-effect@npm:1.2.1"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 217cb8aa90fb8e677672319a9a466d7752890cf4357c76df000b207696e9cc717cf2ee88080671cc9dae238a82f92093ab4f61ab2f6032d2a8db958fc7d99b5d
+  languageName: node
+  linkType: hard
+
+"@react-hook/resize-observer@npm:^1.2.6":
+  version: 1.2.6
+  resolution: "@react-hook/resize-observer@npm:1.2.6"
+  dependencies:
+    "@juggle/resize-observer": ^3.3.1
+    "@react-hook/latest": ^1.0.2
+    "@react-hook/passive-layout-effect": ^1.2.0
+  peerDependencies:
+    react: ">=16.8"
+  checksum: d2ff6c50e847514acad774f2a4010fb1e6782a231ae00c9507c1a98028b3a26399e35f094170918f11b1eeafc581d60da7641bc178d496abf00c56eee8a6b36b
   languageName: node
   linkType: hard
 
