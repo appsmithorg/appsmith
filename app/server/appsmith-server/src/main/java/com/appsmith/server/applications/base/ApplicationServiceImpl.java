@@ -38,6 +38,7 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.ce_compatible.ApplicationServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -117,6 +118,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             SessionUserService sessionUserService,
+            UserDataService userDataService,
             PermissionGroupRepository permissionGroupRepository,
             PermissionGroupPermission permissionGroupPermission,
             RoleConfigurationSolution roleConfigurationSolution,
@@ -141,7 +143,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 assetService,
                 datasourcePermission,
                 applicationPermission,
-                sessionUserService);
+                sessionUserService,
+                userDataService);
         this.permissionGroupService = permissionGroupService;
         this.policySolution = policySolution;
         this.permissionGroupRepository = permissionGroupRepository;

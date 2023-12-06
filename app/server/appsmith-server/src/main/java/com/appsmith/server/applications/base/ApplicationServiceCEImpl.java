@@ -17,9 +17,11 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
@@ -35,6 +37,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -67,6 +70,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
+import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
@@ -84,6 +88,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final SessionUserService sessionUserService;
+    private final UserDataService userDataService;
     private static final Integer MAX_RETRIES = 5;
 
     @Autowired
@@ -102,7 +107,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
-            SessionUserService sessionUserService) {
+            SessionUserService sessionUserService,
+            UserDataService userDataService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policySolution = policySolution;
@@ -114,6 +120,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.datasourcePermission = datasourcePermission;
         this.applicationPermission = applicationPermission;
         this.sessionUserService = sessionUserService;
+        this.userDataService = userDataService;
     }
 
     @Override
@@ -177,6 +184,57 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
         return setTransientFields(repository.findByWorkspaceId(workspaceId, permission));
+    }
+
+    /**
+     * This method is used to fetch all the applications for a given workspaceId. It also sorts the applications based
+     * on recently used order.
+     * For git connected applications only default branched application is returned.
+     * @param workspaceId   workspaceId for which applications are to be fetched
+     * @return              Flux of applications
+     */
+    @Override
+    public Flux<Application> findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(String workspaceId) {
+
+        if (!StringUtils.hasLength(workspaceId)) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        Mono<RecentlyUsedEntityDTO> userDataMono = userDataService
+                .getForCurrentUser()
+                .defaultIfEmpty(new UserData())
+                .map(userData -> {
+                    if (userData.getRecentlyUsedEntityIds() == null) {
+                        return new RecentlyUsedEntityDTO();
+                    }
+                    return userData.getRecentlyUsedEntityIds().stream()
+                            .filter(entityDTO -> workspaceId.equals(entityDTO.getWorkspaceId()))
+                            .findFirst()
+                            .orElse(new RecentlyUsedEntityDTO());
+                });
+
+        // Collect all the applications as a map with workspace id as a key
+        return userDataMono.flatMapMany(
+                recentlyUsedEntityDTO -> this.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
+                        // sort transformation
+                        .transform(domainFlux -> sortDomainsBasedOnOrderedDomainIds(
+                                domainFlux, recentlyUsedEntityDTO.getApplicationIds()))
+                        .filter(application -> {
+                            /*
+                             * Filter applications based on the following criteria:
+                             * - Applications that are not connected to Git.
+                             * - Applications that, when connected, revert with default branch only.
+                             */
+                            GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+                            return metadata == null
+                                    // When the ssh key is generated by user and then the connect app fails
+                                    || (!StringUtils.hasLength(metadata.getDefaultBranchName())
+                                            && !StringUtils.hasLength(metadata.getBranchName()))
+                                    // Default branched application
+                                    || (StringUtils.hasLength(metadata.getBranchName())
+                                            && metadata.getBranchName().equals(metadata.getDefaultBranchName()));
+                        })
+                        .map(responseUtils::updateApplicationWithDefaultResources));
     }
 
     @Override
