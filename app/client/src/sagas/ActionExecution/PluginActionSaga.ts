@@ -169,7 +169,6 @@ import {
   startRootSpan,
 } from "UITelemetry/generateTraces";
 import {
-  getJSActionNameToDisplay,
   getJSActionPathNameToDisplay,
   getPluginActionNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
@@ -1053,9 +1052,12 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   );
   if (!!jsAction) {
     if (jsAction.confirmBeforeExecute) {
-      const jsActionNameToDisplay = getJSActionNameToDisplay(jsAction);
+      const jsActionPathNameToDisplay = getJSActionPathNameToDisplay(
+        jsAction,
+        collection,
+      );
       const modalPayload = {
-        name: jsActionNameToDisplay,
+        name: jsActionPathNameToDisplay,
         modalOpen: true,
         modalType: ModalType.RUN_ACTION,
       };
