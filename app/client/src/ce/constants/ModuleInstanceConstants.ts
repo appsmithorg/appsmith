@@ -1,4 +1,5 @@
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { ActionResponse } from "api/ActionAPI";
 
 export type ModuleId = string;
 export type ModuleInstanceId = string;
@@ -21,3 +22,10 @@ export interface ModuleInstance {
     [key: string]: any;
   };
 }
+
+export interface ModuleInstanceData {
+  config: ModuleInstance;
+  data: ActionResponse;
+  isLoading: boolean;
+}
+export type ModuleInstanceDataState = ModuleInstanceData[];

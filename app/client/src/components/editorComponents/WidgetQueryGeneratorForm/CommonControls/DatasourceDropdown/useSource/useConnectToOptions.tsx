@@ -20,8 +20,10 @@ import type {
 } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { Icon } from "design-system";
-import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
-import type { ActionResponse } from "api/ActionAPI";
+import type {
+  ModuleInstanceData,
+  ModuleInstanceDataState,
+} from "@appsmith/constants/ModuleInstanceConstants";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -32,7 +34,7 @@ enum SortingWeights {
 const SORT_INCREAMENT = 1;
 
 export function sortQueries(
-  queries: ActionDataState,
+  queries: ActionDataState | ModuleInstanceDataState,
   expectedDatatype: string,
 ) {
   return queries.sort((A, B) => {
@@ -71,7 +73,10 @@ export function sortQueries(
   });
 }
 
-export function getBindingValue(widget: WidgetProps, query: ActionData) {
+export function getBindingValue(
+  widget: WidgetProps,
+  query: ActionData | ModuleInstanceData,
+) {
   const defaultBindingValue = `{{${query.config.name}.data}}`;
   const querySuggestedWidgets = query.data?.suggestedWidgets;
   if (!querySuggestedWidgets) return defaultBindingValue;
@@ -86,19 +91,12 @@ interface ConnectToOptionsProps {
   widget: WidgetProps;
 }
 
-export interface ModuleInstanceData {
-  config: ModuleInstance;
-  data: ActionResponse;
-  isLoading: boolean;
-}
-export type ModuleInstanceDataState = ModuleInstanceData[];
-
 export const getQueryIcon = (
-  query: ActionData,
+  query: ActionData | ModuleInstanceData,
   pluginImages: Record<string, string>,
 ) => {
   if (!query.config.hasOwnProperty("sourceModuleId")) {
-    const action: ActionData = query;
+    const action = query as ActionData;
     return (
       <ImageWrapper>
         <DatasourceImage
@@ -114,6 +112,35 @@ export const getQueryIcon = (
         <Icon name="module" />
       </EntityIcon>
     );
+  }
+};
+
+export const getAnalyticsInfo = (
+  query: ActionData | ModuleInstanceData,
+  widget: WidgetProps,
+  propertyName: string,
+) => {
+  if (query.config.hasOwnProperty("pluginId")) {
+    const action = query as ActionData;
+    return {
+      widgetName: widget.widgetName,
+      widgetType: widget.type,
+      propertyName: propertyName,
+      entityBound: "Query",
+      entityName: action.config.name,
+      pluginType: action.config.pluginType,
+    };
+  }
+
+  if (query.config.hasOwnProperty("sourceModuleId")) {
+    return {
+      widgetName: widget.widgetName,
+      widgetType: widget.type,
+      propertyName: propertyName,
+      entityBound: "QueryModuleInsatnce",
+      entityName: query.config.name,
+      pluginType: "",
+    };
   }
 };
 
@@ -135,7 +162,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
   const { pluginImages, widget } = props;
 
   const queryModuleInstances = useSelector(getQueryModuleInstances);
-  let filteredQueries = queries;
+  let filteredQueries: ActionData[] | ModuleInstanceData[];
 
   /* Exclude Gsheets from query options till this gets resolved https://github.com/appsmithorg/appsmith/issues/27102*/
   if (widget.type === "JSON_FORM_WIDGET") {
@@ -147,9 +174,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     });
   }
 
-  if (!!queryModuleInstances) {
-    filteredQueries = [...queries, ...queryModuleInstances];
-  }
+  filteredQueries = [...queries, ...queryModuleInstances];
 
   const queryOptions = useMemo(() => {
     return sortQueries(filteredQueries, expectedType).map((query) => ({
@@ -167,14 +192,10 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
           datasourceConnectionMode: "",
         });
 
-        AnalyticsUtil.logEvent("BIND_EXISTING_DATA_TO_WIDGET", {
-          widgetName: widget.widgetName,
-          widgetType: widget.type,
-          propertyName: propertyName,
-          entityBound: "Query",
-          entityName: query.config.name,
-          pluginType: query.config.pluginType,
-        });
+        AnalyticsUtil.logEvent(
+          "BIND_EXISTING_DATA_TO_WIDGET",
+          getAnalyticsInfo(query, widget, propertyName),
+        );
       },
     }));
   }, [filteredQueries, pluginImages, addBinding, widget]);
