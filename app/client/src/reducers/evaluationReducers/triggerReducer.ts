@@ -6,6 +6,7 @@ import type {
   FormEvalOutput,
   FormEvaluationState,
 } from "./formEvaluationReducer";
+import { merge } from "lodash";
 
 // // Type for the object that will store the eval output for the app
 export type TriggerValuesEvaluationState = Record<string, FormEvalOutput>;
@@ -33,11 +34,10 @@ const triggers = createReducer(initialState, {
     action: ReduxAction<TriggerActionPayload>,
   ) => {
     const triggers = state[action.payload.formId];
+    const newTriggers = merge({}, triggers, action.payload.values);
     return {
-      [action.payload.formId]: {
-        ...triggers,
-        ...action.payload.values,
-      },
+      ...state,
+      [action.payload.formId]: newTriggers,
     };
   },
   [ReduxActionTypes.FETCH_TRIGGER_VALUES_SUCCESS]: (
@@ -45,11 +45,10 @@ const triggers = createReducer(initialState, {
     action: ReduxAction<TriggerActionPayload>,
   ) => {
     const triggers = state[action.payload.formId];
+    const newTriggers = merge({}, triggers, action.payload.values);
     return {
-      [action.payload.formId]: {
-        ...triggers,
-        ...action.payload.values,
-      },
+      ...state,
+      [action.payload.formId]: newTriggers,
     };
   },
   [ReduxActionTypes.SET_TRIGGER_VALUES_LOADING]: (

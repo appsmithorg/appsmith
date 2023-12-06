@@ -935,7 +935,7 @@ export interface ApplicationsReduxState {
   createApplicationError?: string;
   deletingApplication: boolean;
   forkingApplication: boolean;
-  currentApplication: ApplicationPayload;
+  currentApplication?: ApplicationPayload;
   userWorkspaces: Workspaces[];
   isSavingWorkspaceInfo: boolean;
   importingApplication: boolean;

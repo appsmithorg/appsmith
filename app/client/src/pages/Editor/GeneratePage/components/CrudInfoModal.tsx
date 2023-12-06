@@ -187,4 +187,4 @@ const mapStateToProps = (state: AppState) => ({
   generateCRUDSuccessInfo: getCrudInfoModalData(state).generateCRUDSuccessInfo,
 });
 
-export default connect(mapStateToProps)(GenCRUDSuccessModal);
+export default connect(mapStateToProps, null)(GenCRUDSuccessModal);
