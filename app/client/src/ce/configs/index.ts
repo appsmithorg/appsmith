@@ -310,8 +310,8 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
         ENV_CONFIG.appVersion?.id ||
         "",
       releaseDate:
-        ENV_CONFIG.appVersion?.releaseDate ||
         APPSMITH_FEATURE_CONFIGS?.appVersion?.releaseDate ||
+        ENV_CONFIG.appVersion?.releaseDate ||
         "",
       edition:
         ENV_CONFIG.appVersion?.edition ||
