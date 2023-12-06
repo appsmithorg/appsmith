@@ -170,7 +170,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         entity: FocusEntity.QUERY_LIST,
         id: "",
         pageId: match.params.pageId,
-        appState: AppState.EDITOR,
+        appState: EditorState.EDITOR,
       };
     }
     return {
