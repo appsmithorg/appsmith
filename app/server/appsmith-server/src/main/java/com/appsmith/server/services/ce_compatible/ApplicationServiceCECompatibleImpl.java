@@ -17,6 +17,7 @@ import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -48,7 +49,8 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
-            SessionUserService sessionUserService) {
+            SessionUserService sessionUserService,
+            UserDataService userDataService) {
         super(
                 scheduler,
                 validator,
@@ -64,7 +66,8 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
                 assetService,
                 datasourcePermission,
                 applicationPermission,
-                sessionUserService);
+                sessionUserService,
+                userDataService);
     }
 
     @Override
