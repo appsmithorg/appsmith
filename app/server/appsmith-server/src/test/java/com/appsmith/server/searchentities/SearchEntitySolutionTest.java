@@ -5,8 +5,10 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.SearchEntityDTO;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.WorkspaceService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,9 +16,12 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 class SearchEntitySolutionTest {
@@ -32,6 +37,24 @@ class SearchEntitySolutionTest {
 
     @Autowired
     SearchEntitySolution searchEntitySolution;
+
+    private final List<String> applicationIds = new ArrayList<>();
+
+    private final List<String> workspaceIds = new ArrayList<>();
+
+    @AfterEach
+    public void cleanup() {
+        if (!CollectionUtils.isNullOrEmpty(applicationIds)) {
+            applicationIds.forEach(applicationId ->
+                    applicationPageService.deleteApplication(applicationId).block());
+            applicationIds.clear();
+        }
+        if (!CollectionUtils.isNullOrEmpty(workspaceIds)) {
+            workspaceIds.forEach(
+                    workspaceId -> workspaceService.archiveById(workspaceId).block());
+            workspaceIds.clear();
+        }
+    }
 
     @Test
     @WithUserDetails("api_user")
@@ -69,9 +92,14 @@ class SearchEntitySolutionTest {
         final String searchString = UUID.randomUUID().toString();
         Workspace workspace =
                 workspaceService.create(mockWorkspace(searchString)).block();
-        assert workspace != null;
+        assertNotNull(workspace, "Workspace should not be null");
+        workspaceIds.add(workspace.getId());
         Application application = mockNonGitConnectedApplication(searchString, workspace);
-        applicationPageService.createApplication(application, workspace.getId()).block();
+        application = applicationPageService
+                .createApplication(application, workspace.getId())
+                .block();
+        assertNotNull(application, "Application should not be null");
+        applicationIds.add(application.getId());
         Mono<SearchEntityDTO> searchEntityDTOMono =
                 searchEntitySolution.searchEntity(new String[] {}, searchString, 0, 10, true);
 
@@ -87,10 +115,6 @@ class SearchEntitySolutionTest {
                     assertThat(workspace1.getName()).contains(searchString);
                 })
                 .verifyComplete();
-
-        // Clean up
-        applicationPageService.deleteApplication(application.getId()).block();
-        workspaceService.archiveById(workspace.getId()).block();
     }
 
     @Test
@@ -99,10 +123,15 @@ class SearchEntitySolutionTest {
         Workspace workspace = workspaceService
                 .create(mockWorkspace(UUID.randomUUID().toString()))
                 .block();
-        assert workspace != null;
+        assertNotNull(workspace, "Workspace should not be null");
+        workspaceIds.add(workspace.getId());
         Application application =
                 mockNonGitConnectedApplication(UUID.randomUUID().toString(), workspace);
-        applicationPageService.createApplication(application, workspace.getId()).block();
+        application = applicationPageService
+                .createApplication(application, workspace.getId())
+                .block();
+        assertNotNull(application, "Application should not be null");
+        applicationIds.add(application.getId());
         Mono<SearchEntityDTO> searchEntityDTOMono =
                 searchEntitySolution.searchEntity(new String[] {}, null, 0, 10, true);
 
@@ -112,10 +141,6 @@ class SearchEntitySolutionTest {
                     assertThat(searchEntityDTO.getWorkspaces()).hasSize(1);
                 })
                 .verifyComplete();
-
-        // Clean up
-        applicationPageService.deleteApplication(application.getId()).block();
-        workspaceService.archiveById(workspace.getId()).block();
     }
 
     @Test
@@ -124,9 +149,14 @@ class SearchEntitySolutionTest {
         final String searchString = UUID.randomUUID().toString();
         Workspace workspace =
                 workspaceService.create(mockWorkspace(searchString)).block();
-        assert workspace != null;
+        assertNotNull(workspace, "Workspace should not be null");
+        workspaceIds.add(workspace.getId());
         Application application = mockNonGitConnectedApplication(searchString, workspace);
-        applicationPageService.createApplication(application, workspace.getId()).block();
+        application = applicationPageService
+                .createApplication(application, workspace.getId())
+                .block();
+        assertNotNull(application, "Application should not be null");
+        applicationIds.add(application.getId());
         Mono<SearchEntityDTO> searchEntityDTOMono = searchEntitySolution.searchEntity(
                 new String[] {Workspace.class.getSimpleName()}, searchString, 0, 10, true);
 
@@ -139,10 +169,6 @@ class SearchEntitySolutionTest {
                     assertThat(workspace1.getName()).contains(searchString);
                 })
                 .verifyComplete();
-
-        // Clean up
-        applicationPageService.deleteApplication(application.getId()).block();
-        workspaceService.archiveById(workspace.getId()).block();
     }
 
     @Test
@@ -151,9 +177,15 @@ class SearchEntitySolutionTest {
         final String searchString = UUID.randomUUID().toString();
         Workspace workspace =
                 workspaceService.create(mockWorkspace(searchString)).block();
-        assert workspace != null;
+        assertNotNull(workspace, "Workspace should not be null");
+        workspaceIds.add(workspace.getId());
         Application application = mockNonGitConnectedApplication(searchString, workspace);
-        applicationPageService.createApplication(application, workspace.getId()).block();
+        application = applicationPageService
+                .createApplication(application, workspace.getId())
+                .block();
+        assertNotNull(application, "Application should not be null");
+        applicationIds.add(application.getId());
+
         Mono<SearchEntityDTO> searchEntityDTOMono = searchEntitySolution.searchEntity(
                 new String[] {Application.class.getSimpleName()}, searchString, 0, 10, true);
 
@@ -166,10 +198,6 @@ class SearchEntitySolutionTest {
                     assertThat(application1.getName()).isEqualTo(searchString + "_application");
                 })
                 .verifyComplete();
-
-        // Clean up
-        applicationPageService.deleteApplication(application.getId()).block();
-        workspaceService.archiveById(workspace.getId()).block();
     }
 
     @Test
@@ -178,12 +206,15 @@ class SearchEntitySolutionTest {
         final String searchString = UUID.randomUUID().toString();
         Workspace workspace =
                 workspaceService.create(mockWorkspace(searchString)).block();
-        assert workspace != null;
+        assertNotNull(workspace, "Workspace should not be null");
+        workspaceIds.add(workspace.getId());
+
         Application defaultApplication = mockGitConnectedApplication("main", "main", searchString, workspace);
         defaultApplication = applicationPageService
                 .createApplication(defaultApplication, workspace.getId())
                 .block();
         assert defaultApplication != null;
+        applicationIds.add(defaultApplication.getId());
         GitApplicationMetadata metadata = defaultApplication.getGitApplicationMetadata();
         metadata.setDefaultApplicationId(defaultApplication.getId());
         applicationService.save(defaultApplication).block();
@@ -209,10 +240,6 @@ class SearchEntitySolutionTest {
                     assertThat(application1.getName()).contains(searchString);
                 })
                 .verifyComplete();
-
-        // Clean up
-        applicationPageService.deleteApplication(defaultApplication.getId()).block();
-        workspaceService.archiveById(workspace.getId()).block();
     }
 
     private static Application mockGitConnectedApplication(

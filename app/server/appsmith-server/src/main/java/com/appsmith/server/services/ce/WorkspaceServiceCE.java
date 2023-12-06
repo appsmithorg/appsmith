@@ -47,6 +47,10 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission);
 
-    Flux<Workspace> filterByFields(
-            List<String> fields, String searchString, Pageable pageable, Sort sort, AclPermission permission);
+    Flux<Workspace> filterByEntityFields(
+            List<String> searchableEntityFields,
+            String searchString,
+            Pageable pageable,
+            Sort sort,
+            AclPermission permission);
 }

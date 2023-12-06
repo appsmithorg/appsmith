@@ -108,6 +108,10 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches);
 
-    Flux<Application> filterByFields(
-            List<String> fieldNames, String searchString, Pageable pageable, Sort sort, AclPermission permission);
+    Flux<Application> filterByEntityFields(
+            List<String> searchableEntityFields,
+            String searchString,
+            Pageable pageable,
+            Sort sort,
+            AclPermission permission);
 }
