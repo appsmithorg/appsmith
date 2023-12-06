@@ -207,9 +207,8 @@ function JSEditorForm({
     );
     dispatch(
       startExecutingJSFunction({
-        collectionName: currentJSCollection.name || "",
         action: jsAction,
-        collectionId: currentJSCollection.id || "",
+        collection: currentJSCollection,
         from: from,
       }),
     );
