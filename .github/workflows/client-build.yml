@@ -191,11 +191,10 @@ jobs:
       - name: Restore Yarn cache
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
+        id: cache-dependencies
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
@@ -211,6 +210,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         id: vars
         run: |
+          set +o pipefail
           echo "REACT_APP_ENVIRONMENT=DEVELOPMENT" >> $GITHUB_OUTPUT
           if [[ "${{github.ref}}" == "refs/heads/master" ]]; then
               echo "REACT_APP_ENVIRONMENT=PRODUCTION" >> $GITHUB_OUTPUT
@@ -220,7 +220,7 @@ jobs:
           fi
           # Since this is an unreleased build, we set the version to incremented version number with
           # a `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          latest_released_version="$(git ls-remote --tags --sort=-v:refname "$(git remote | head -1)" 'v*' | awk -F/ '{print $NF; exit}')"
           echo "latest_released_version = $latest_released_version"
           next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
           echo "next_version = $next_version"
@@ -246,11 +246,10 @@ jobs:
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
         uses: actions/cache/save@v3
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
