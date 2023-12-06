@@ -6,6 +6,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
