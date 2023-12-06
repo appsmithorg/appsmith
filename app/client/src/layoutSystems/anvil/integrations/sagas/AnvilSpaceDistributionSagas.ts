@@ -60,7 +60,7 @@ function* reDistributeZoneSpaces(
 export default function* anvilSpaceDistributionSagas() {
   yield all([
     takeLatest(
-      AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
+      AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_UPDATE,
       reDistributeZoneSpaces,
     ),
   ]);

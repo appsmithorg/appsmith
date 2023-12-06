@@ -63,6 +63,8 @@ export const SpaceDistributionHandle = ({
   const minLimitBounceBackThreshold = 10 / columnWidth;
   const minimumShrinkableSpacePerBlock =
     minSpacePerBlock - minLimitBounceBackThreshold;
+  const columnIndicatorDivRef = useRef<HTMLDivElement>();
+
   useEffect(() => {
     if (ref.current) {
       if (isDistributingSpace) {
@@ -93,7 +95,6 @@ export const SpaceDistributionHandle = ({
         leftZone: currentFlexGrow.leftZone,
         rightZone: currentFlexGrow.rightZone,
       };
-      let columnIndicatorDiv: HTMLDivElement | null = null;
       const sectionLayoutDom = ref.current.parentElement;
       const addMouseMoveHandlers = () => {
         if (ref.current && sectionLayoutDom) {
@@ -110,12 +111,10 @@ export const SpaceDistributionHandle = ({
       };
       const removeMouseMoveHandlers = () => {
         if (ref.current && sectionLayoutDom) {
+          ref.current.style.display = "none";
           ref.current.style.transition = "";
           ref.current.classList.remove("active");
           ref.current.style.left = "";
-          setTimeout(() => {
-            // sectionLayoutDom.style.backgroundImage = "";
-          }, 500);
         }
         Object.keys(spaceDistributed).forEach((zoneId) => {
           const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
@@ -132,7 +131,7 @@ export const SpaceDistributionHandle = ({
       };
 
       const createColumnIndicator = () => {
-        columnIndicatorDiv = document.createElement("div");
+        const columnIndicatorDiv = document.createElement("div");
         columnIndicatorDiv.innerHTML = `${columnPosition} / ${SectionColumns}`;
         columnIndicatorDiv.style.position = "absolute";
         columnIndicatorDiv.style.background = "white";
@@ -144,17 +143,18 @@ export const SpaceDistributionHandle = ({
         columnIndicatorDiv.style.fontSize = "10px";
         columnIndicatorDiv.style.fontWeight = "bold";
         document.body.appendChild(columnIndicatorDiv);
+        columnIndicatorDivRef.current = columnIndicatorDiv;
       };
       const removeColumnIndicator = () => {
-        if (columnIndicatorDiv) {
-          columnIndicatorDiv.remove();
-          columnIndicatorDiv = null;
+        if (columnIndicatorDivRef.current) {
+          columnIndicatorDivRef.current.remove();
+          columnIndicatorDivRef.current = undefined;
         }
       };
       const repositionColumnIndicator = (e: MouseEvent) => {
-        if (columnIndicatorDiv) {
-          columnIndicatorDiv.style.left = e.clientX + 10 + "px";
-          columnIndicatorDiv.style.top = e.clientY + "px";
+        if (columnIndicatorDivRef.current) {
+          columnIndicatorDivRef.current.style.left = e.clientX + 10 + "px";
+          columnIndicatorDivRef.current.style.top = e.clientY + "px";
         }
       };
       const listenToPositionChangesOfRightZone = () => {};
@@ -177,15 +177,23 @@ export const SpaceDistributionHandle = ({
         e.preventDefault();
         if (isCurrentHandleDistributingSpace.current) {
           isCurrentHandleDistributingSpace.current = false;
+          if (
+            currentFlexGrow.leftZone !== currentGrowthFactor.leftZone ||
+            currentFlexGrow.rightZone !== currentGrowthFactor.rightZone
+          ) {
+            dispatch({
+              type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_UPDATE,
+              payload: {
+                zonesDistributed: {
+                  [leftZone]: currentGrowthFactor.leftZone,
+                  [rightZone]: currentGrowthFactor.rightZone,
+                },
+                sectionLayoutId,
+              },
+            });
+          }
           dispatch({
             type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
-            payload: {
-              zonesDistributed: {
-                [leftZone]: currentGrowthFactor.leftZone,
-                [rightZone]: currentGrowthFactor.rightZone,
-              },
-              sectionLayoutId,
-            },
           });
           removeMouseMoveHandlers();
           removeColumnIndicator();
@@ -261,8 +269,8 @@ export const SpaceDistributionHandle = ({
               ref.current.style.left = updatedLeft + "px";
               currentGrowthFactor.leftZone = leftZoneComputedColumnsRoundOff;
               currentGrowthFactor.rightZone = rightZoneComputedColumnsRoundOff;
-              if (columnIndicatorDiv) {
-                columnIndicatorDiv.innerHTML = `${
+              if (columnIndicatorDivRef.current) {
+                columnIndicatorDivRef.current.innerHTML = `${
                   columnPosition -
                   currentFlexGrow.leftZone +
                   leftZoneComputedColumnsRoundOff
@@ -321,12 +329,10 @@ export const SpaceDistributionHandle = ({
         repositionColumnIndicator(e);
       };
       ref.current.addEventListener("mousedown", onMouseDown);
-      ref.current.addEventListener("mouseup", onMouseUp);
 
       return () => {
         if (ref.current) {
           ref.current.removeEventListener("mousedown", onMouseDown);
-          ref.current.removeEventListener("mouseup", onMouseUp);
         }
       };
     }
