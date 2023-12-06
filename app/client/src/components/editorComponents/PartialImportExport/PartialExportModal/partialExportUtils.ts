@@ -27,16 +27,17 @@ export function getAllExportableIds(
   const groupedData: Record<string, any> = groupQueriesNJSObjets(files);
 
   const [allJSObjects, allQueries] = Object.keys(groupedData).reduce(
-    (result: any[], key: string) => {
+    (result: string[][], key: string) => {
       if (key === "JS Objects") {
-        return result[0].concat(
+        result[0] = result[0].concat(
           groupedData[key].map((entity: any) => entity.entity.id),
         );
       } else {
-        return result[1].concat(
+        result[1] = result[1].concat(
           groupedData[key].map((entity: any) => entity.entity.id),
         );
       }
+      return result;
     },
     [[], []],
   );
@@ -45,7 +46,7 @@ export function getAllExportableIds(
 
   const allCustomJSLibs =
     customJsLibraries.map((jsLib) => jsLib.id || "") || [];
-  const allDatasources = appWideDS || [];
+  const allDatasources = appWideDS.map((ds) => ds.id) || [];
   return {
     jsObjects: allJSObjects,
     queries: allQueries,

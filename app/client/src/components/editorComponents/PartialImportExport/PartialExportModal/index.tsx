@@ -242,16 +242,14 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
   };
 
   const onExportAllClick = () => {
-    dispatch(
-      partialExportWidgets(
-        getAllExportableIds(
-          files,
-          canvasWidgets!,
-          customJsLibraries,
-          appWideDS,
-        ),
-      ),
+    const exportParams: PartialExportParams = getAllExportableIds(
+      files,
+      canvasWidgets!,
+      customJsLibraries,
+      appWideDS,
     );
+
+    dispatch(partialExportWidgets(exportParams));
   };
 
   return (
