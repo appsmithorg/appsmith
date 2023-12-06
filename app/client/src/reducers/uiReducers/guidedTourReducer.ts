@@ -125,7 +125,7 @@ const guidedTourReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FORCE_SHOW_CONTENT]: (
     state: GuidedTourState,
-    action: ReduxAction<boolean>,
+    action: ReduxAction<number>,
   ) => {
     return {
       ...state,
