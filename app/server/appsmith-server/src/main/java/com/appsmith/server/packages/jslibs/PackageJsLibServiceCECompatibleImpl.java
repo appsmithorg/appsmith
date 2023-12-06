@@ -14,7 +14,7 @@ import java.util.Set;
 @Service
 public class PackageJsLibServiceCECompatibleImpl implements ContextBasedJsLibServiceCE<Package> {
     @Override
-    public Mono<Set<CustomJSLibContextDTO>> getAllJSLibContextDTOFromContext(
+    public Mono<Set<CustomJSLibContextDTO>> getAllVisibleJSLibContextDTOFromContext(
             String contextId, String branchName, Boolean isViewMode) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }

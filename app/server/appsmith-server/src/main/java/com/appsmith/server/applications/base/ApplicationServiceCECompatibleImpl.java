@@ -1,7 +1,6 @@
-package com.appsmith.server.services.ce_compatible;
+package com.appsmith.server.applications.base;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.applications.base.ApplicationServiceCEImpl;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;

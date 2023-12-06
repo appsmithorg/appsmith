@@ -1,6 +1,5 @@
-package com.appsmith.server.services.ce_compatible;
+package com.appsmith.server.applications.base;
 
-import com.appsmith.server.applications.base.ApplicationServiceCE;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;

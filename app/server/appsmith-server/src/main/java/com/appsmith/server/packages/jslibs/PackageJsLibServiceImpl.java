@@ -28,7 +28,7 @@ public class PackageJsLibServiceImpl extends PackageJsLibServiceCECompatibleImpl
     private final PackagePermission packagePermission;
 
     @Override
-    public Mono<Set<CustomJSLibContextDTO>> getAllJSLibContextDTOFromContext(
+    public Mono<Set<CustomJSLibContextDTO>> getAllVisibleJSLibContextDTOFromContext(
             String contextId, String branchName, Boolean isViewMode) {
         return packageService
                 .findByBranchNameAndDefaultPackageId(
@@ -55,6 +55,39 @@ public class PackageJsLibServiceImpl extends PackageJsLibServiceCECompatibleImpl
             String contextId, String branchName, Set<CustomJSLibContextDTO> updatedJSLibDTOSet) {
         Map<String, Object> fieldNameValueMap =
                 Map.of(completeFieldName(QPackage.package$.unpublishedPackage.customJSLibs), updatedJSLibDTOSet);
+        return packageService.update(contextId, fieldNameValueMap, branchName);
+    }
+
+    @Override
+    public Mono<Set<CustomJSLibContextDTO>> getAllHiddenJSLibContextDTOFromContext(
+            String contextId, String branchName, Boolean isViewMode) {
+        return packageService
+                .findByBranchNameAndDefaultPackageId(
+                        branchName,
+                        contextId,
+                        List.of(
+                                isViewMode
+                                        ? completeFieldName(QPackage.package$.publishedPackage.hiddenJSLibs)
+                                        : completeFieldName(QPackage.package$.unpublishedPackage.hiddenJSLibs)),
+                        packagePermission.getReadPermission())
+                .map(aPackage -> {
+                    PackageDTO packageDTO;
+                    if (isViewMode) {
+                        packageDTO = aPackage.getPublishedPackage();
+                    } else {
+                        packageDTO = aPackage.getUnpublishedPackage();
+                    }
+                    return packageDTO == null || packageDTO.getHiddenJSLibs() == null
+                            ? new HashSet<>()
+                            : packageDTO.getHiddenJSLibs();
+                });
+    }
+
+    @Override
+    public Mono<UpdateResult> updateHiddenJsLibsInContext(
+            String contextId, String branchName, Set<CustomJSLibContextDTO> updatedJSLibDTOSet) {
+        Map<String, Object> fieldNameValueMap =
+                Map.of(completeFieldName(QPackage.package$.unpublishedPackage.hiddenJSLibs), updatedJSLibDTOSet);
         return packageService.update(contextId, fieldNameValueMap, branchName);
     }
 }

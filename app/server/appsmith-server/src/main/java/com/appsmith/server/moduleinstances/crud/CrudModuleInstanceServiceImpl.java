@@ -12,11 +12,13 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
@@ -28,6 +30,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.moduleinstances.permissions.ModuleInstancePermission;
 import com.appsmith.server.moduleinstantiation.ModuleInstantiatingService;
@@ -38,6 +41,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.ModuleRepository;
+import com.appsmith.server.repositories.PackageRepository;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import org.bson.types.ObjectId;
@@ -70,16 +74,17 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     private final ModuleInstantiatingService<NewAction> actionModuleInstantiatingService;
     private final ModuleInstantiatingService<ModuleInstance> moduleInstanceModuleInstantiatingService;
     private final ModuleInstantiatingService<ActionCollection> actionCollectionModuleInstantiatingService;
+    private final ModuleInstantiatingService<CustomJSLib> jsLibModuleInstantiatingService;
     private final PolicyGenerator policyGenerator;
     private final TransactionalOperator transactionalOperator;
     private final ModuleRepository moduleRepository;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final RefactoringService refactoringService;
-
     private final ApplicationService applicationService;
-
     private final UpdateLayoutService updateLayoutService;
+    private final CustomJSLibService customJSLibService;
+    private final PackageRepository packageRepository;
 
     public CrudModuleInstanceServiceImpl(
             ModuleInstanceRepository repository,
@@ -91,6 +96,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
             ModuleInstantiatingService<NewAction> actionModuleInstantiatingService,
             ModuleInstantiatingService<ModuleInstance> moduleInstanceModuleInstantiatingService,
             ModuleInstantiatingService<ActionCollection> actionCollectionModuleInstantiatingService,
+            ModuleInstantiatingService<CustomJSLib> jsLibModuleInstantiatingService,
             PolicyGenerator policyGenerator,
             TransactionalOperator transactionalOperator,
             ModuleRepository moduleRepository,
@@ -98,7 +104,9 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
             ActionCollectionService actionCollectionService,
             RefactoringService refactoringService,
             ApplicationService applicationService,
-            UpdateLayoutService updateLayoutService) {
+            UpdateLayoutService updateLayoutService,
+            CustomJSLibService customJSLibService,
+            PackageRepository packageRepository) {
         super(repository);
         this.repository = repository;
         this.moduleInstancePermission = moduleInstancePermission;
@@ -109,6 +117,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         this.actionModuleInstantiatingService = actionModuleInstantiatingService;
         this.moduleInstanceModuleInstantiatingService = moduleInstanceModuleInstantiatingService;
         this.actionCollectionModuleInstantiatingService = actionCollectionModuleInstantiatingService;
+        this.jsLibModuleInstantiatingService = jsLibModuleInstantiatingService;
         this.policyGenerator = policyGenerator;
         this.transactionalOperator = transactionalOperator;
         this.moduleRepository = moduleRepository;
@@ -117,6 +126,8 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         this.refactoringService = refactoringService;
         this.applicationService = applicationService;
         this.updateLayoutService = updateLayoutService;
+        this.customJSLibService = customJSLibService;
+        this.packageRepository = packageRepository;
     }
 
     @Override
@@ -130,9 +141,11 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND,
                         FieldName.MODULE_ID,
-                        moduleInstanceReqDTO.getSourceModuleId())));
+                        moduleInstanceReqDTO.getSourceModuleId())))
+                .cache();
 
         final HashMap<String, RefactorEntityNameDTO> sourceToInstantiatedEntityRefactorDTOsMap = new HashMap<>();
+        final ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO = new ModuleInstantiatingMetaDTO();
 
         Mono<Set<RefactorEntityNameDTO>> refactorDTOsForAllExistingEntitiesMono =
                 refactoringService.getRefactorDTOsForAllExistingEntitiesMono(
@@ -155,11 +168,18 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                     sourceToInstantiatedEntityRefactorDTOsMap.put("inputs", inputsRefactorDTO);
                 });
 
-        return updateEntityNamesMapMono.then(sourceModuleMono).flatMap(sourceModule -> {
+        Mono<Package> packageMono = sourceModuleMono
+                .map(Module::getPackageId)
+                .flatMap(packageRepository::findById)
+                .doOnNext(aPackage -> {
+                    String packageId = aPackage.getId();
+                    moduleInstantiatingMetaDTO.setSourcePackageId(packageId);
+                });
+
+        return packageMono.then(updateEntityNamesMapMono).then(sourceModuleMono).flatMap(sourceModule -> {
             ModuleInstance moduleInstance = new ModuleInstance();
             moduleInstance.setType(sourceModule.getType());
             moduleInstance.setId(new ObjectId().toString());
-            ModuleInstantiatingMetaDTO moduleInstantiatingMetaDTO = new ModuleInstantiatingMetaDTO();
             moduleInstantiatingMetaDTO.setOldToNewModuleEntityRefactorDTOsMap(
                     sourceToInstantiatedEntityRefactorDTOsMap);
 
@@ -240,6 +260,8 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                                         .then(actionModuleInstantiatingService.instantiateEntities(
                                                 moduleInstantiatingMetaDTO))
                                         .then(actionCollectionModuleInstantiatingService.instantiateEntities(
+                                                moduleInstantiatingMetaDTO))
+                                        .then(jsLibModuleInstantiatingService.instantiateEntities(
                                                 moduleInstantiatingMetaDTO))
                                         .then(generateModuleInstanceByViewMode(savedModuleInstance, ResourceModes.EDIT)
                                                 .flatMap(createdModuleInstance -> {

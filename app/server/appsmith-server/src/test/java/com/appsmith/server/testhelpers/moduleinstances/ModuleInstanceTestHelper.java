@@ -13,6 +13,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -26,6 +27,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -49,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static java.lang.Boolean.FALSE;
@@ -89,6 +92,8 @@ public class ModuleInstanceTestHelper {
     CrudModuleInstanceService crudModuleInstanceService;
 
     ObjectMapper objectMapper;
+
+    CustomJSLibService customJSLibService;
 
     public void createPrerequisites(ModuleInstanceTestHelperDTO moduleInstanceTestHelperDTO) {
 
@@ -223,6 +228,12 @@ public class ModuleInstanceTestHelper {
         ModuleDTO moduleReqDTO = createModuleRequestDTO(moduleInstanceTestHelperDTO, packageDTO);
 
         ModuleDTO sourceModuleDTO = createModule(moduleReqDTO);
+
+        CustomJSLib jsLib = new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
+        customJSLibService
+                .addJSLibsToContext(packageDTO.getId(), CreatorContextType.PACKAGE, Set.of(jsLib), null, false)
+                .block();
+
         moduleInstanceTestHelperDTO.setSourceModuleDTO(sourceModuleDTO);
 
         publishPackageService.publishPackage(packageDTO.getId()).block();
@@ -247,7 +258,7 @@ public class ModuleInstanceTestHelper {
 
         ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("Select * from users where gender = {{inputs.genderInput}}");
+        actionConfiguration.setBody("Select * from users where gender = Hello {{accessor.func(inputs.genderInput)}}");
 
         moduleActionDTO.setDynamicBindingPathList(List.of(new Property("body", null)));
 

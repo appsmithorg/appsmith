@@ -41,6 +41,9 @@ public class PackageDTO implements Identifiable {
     @JsonView(Views.Public.class)
     Set<CustomJSLibContextDTO> customJSLibs;
 
+    @JsonView(Views.Public.class)
+    Set<CustomJSLibContextDTO> hiddenJSLibs;
+
     @Transient
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();

@@ -42,7 +42,6 @@ import java.util.Set;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
@@ -231,7 +230,7 @@ class PackageJsLibServiceTest {
                 .block();
 
         Mono<Set<CustomJSLibContextDTO>> jsLibsMono =
-                packageJsLibService.getAllJSLibContextDTOFromContext(packageId, null, false);
+                packageJsLibService.getAllVisibleJSLibContextDTOFromContext(packageId, null, false);
 
         StepVerifier.create(jsLibsMono)
                 .assertNext(contextDTOS -> {

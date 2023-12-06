@@ -30,6 +30,7 @@ public interface AppsmithRepository<T> {
     /**
      * DO NOT USE THIS FUNCTION UNLESS YOU KNOW WHAT YOU ARE DOING
      * This is an unsafe function that fetches data without persmissions. This should only be used very sparingly
+     *
      * @param criterias
      * @param includeFields
      * @param sort

@@ -22,6 +22,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.moduleinstances.crud.CrudModuleInstanceService;
 import com.appsmith.server.moduleinstances.crud.LayoutModuleInstanceService;
 import com.appsmith.server.modules.crud.CrudModuleService;
@@ -199,6 +200,9 @@ public class ModuleInstanceApplicationShareTest {
     @Autowired
     PublishPackageService publishPackageService;
 
+    @Autowired
+    CustomJSLibService customJSLibService;
+
     String workspaceId;
 
     Workspace workspace;
@@ -221,7 +225,8 @@ public class ModuleInstanceApplicationShareTest {
                 commonConfig,
                 pluginService,
                 crudModuleInstanceService,
-                objectMapper);
+                objectMapper,
+                customJSLibService);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
