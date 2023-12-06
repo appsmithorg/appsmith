@@ -226,14 +226,14 @@ module.exports = async (on, config) => {
   console.log("Whats in config before:" + config.specPattern);
   console.log("Type of 'config.specPattern':", typeof config.specPattern);
 
-    const specPattern = JSON.stringify(config.specPattern).split(',').map((pattern) => {
+    const splitSpecs = JSON.stringify(config.specPattern).split(',').map((pattern) => {
+      console.log("Pattern:", pattern);
       const index = pattern.indexOf('***');
       return index !== -1 ? pattern.slice(index) : pattern;
     }); 
-    config.specPattern = specPattern;
+    config.specPattern = splitSpecs;
   
-  
-
+  console.log("Whats in splitSpecs:" + splitSpecs);
   console.log("Whats in config after:" + config.specPattern);
 
   if (process.env["RUNID"]) {
