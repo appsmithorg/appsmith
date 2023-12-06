@@ -47,9 +47,7 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("1. Creating table query - jsonbooks", () => {
     query = `CREATE TABLE jsonbooks(serialId SERIAL PRIMARY KEY, details JSON)`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(dsName, query, "createTable");
     dataSources.RunQuery();
   });
 
@@ -190,12 +188,9 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     PageLeftPane.expandCollapseItem("Queries/JS");
-    dataSources.NavigateFromActiveDS(dsName, true);
-
     //Verifying -> - returns results in json format
     query = `SELECT details -> 'title' AS "BookTitle" FROM jsonbooks;`;
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("verifyJsonFunctions");
+    dataSources.CreateQueryForDS(dsName, query, "verifyJsonFunctions");
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(["BookTitle"]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
@@ -347,9 +342,7 @@ describe("Json & JsonB Datatype tests", function () {
 
   it("15. Creating enum & table queries - jsonBbooks", () => {
     query = `CREATE TYPE genres AS ENUM ('Fiction', 'Thriller', 'Horror', 'Marketing & Sales', 'Self-Help', 'Psychology', 'Law', 'Politics', 'Productivity', 'Reference', 'Spirituality');`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createEnum");
+    dataSources.CreateQueryForDS(dsName, query, "createEnum");
     dataSources.RunQuery();
 
     query = `CREATE TABLE "jsonBbooks" (serialId SERIAL PRIMARY KEY, details JSONB)`;
@@ -531,12 +524,9 @@ describe("Json & JsonB Datatype tests", function () {
   it("22. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyJsonBFunctions");
-
     //Verifying @> contains
     query = `SELECT '["Fiction", "Thriller", "Horror"]'::jsonb @> '["Fiction", "Horror"]'::jsonb as "Result1", '["Fiction", "Horror"]'::jsonb @> '["Fiction", "Thriller", "Horror"]'::jsonb as "Result2", '{"name": "Alice", "agent": {"bot": true} }'::jsonb -> 'agent' ->> 'bot' is not null as "Filter"`;
-    dataSources.EnterQuery(query);
+    dataSources.CreateQueryForDS(dsName, query, "verifyJsonBFunctions");
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(["Result1", "Result2", "Filter"]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {

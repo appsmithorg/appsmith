@@ -72,7 +72,7 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
           isRequired={isRequired}
           necessityIndicator={necessityIndicator}
         >
-          {label}
+          <span>{label}</span>
         </Label>
       )}
       {contextualHelp}

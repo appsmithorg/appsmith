@@ -59,6 +59,7 @@ import {
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
   updateCurrentApplicationForkingEnabled,
+  updateApplicationThemeSettingAction,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -209,10 +210,6 @@ export function* getAllApplicationSaga() {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isEnabledForStartWithData: boolean = yield select(
-      selectFeatureFlagCheck,
-      FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
-    );
     const isEnabledForCreateNew: boolean = yield select(
       selectFeatureFlagCheck,
       FEATURE_FLAG.ab_create_new_apps_enabled,
@@ -242,11 +239,7 @@ export function* getAllApplicationSaga() {
         payload: workspaceApplication,
       });
 
-      if (
-        isEnabledForStartWithData &&
-        isEnabledForCreateNew &&
-        workspaceApplication.length > 0
-      ) {
+      if (isEnabledForCreateNew && workspaceApplication.length > 0) {
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: workspaceApplication[0]?.workspace,
@@ -454,6 +447,15 @@ export function* updateApplicationSaga(
           yield put(
             updateApplicationNavigationSettingAction(
               response.data.applicationDetail.navigationSetting,
+            ),
+          );
+        }
+
+        // TODO: refactor this once backend is ready
+        if (request.applicationDetail?.themeSetting) {
+          yield put(
+            updateApplicationThemeSettingAction(
+              request.applicationDetail?.themeSetting,
             ),
           );
         }

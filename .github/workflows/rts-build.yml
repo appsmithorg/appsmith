@@ -32,7 +32,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: appsmith-self-hosted-deployment-runner
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -48,25 +48,25 @@ jobs:
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-tags: true
           ref: refs/pull/${{ inputs.pr }}/merge
 
       # Check out the specified branch in case this workflow is called by another workflow
       - name: Checkout the specified branch
         if: inputs.pr == 0 && inputs.branch != ''
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          fetch-tags: true
           ref: ${{ inputs.branch }}
-
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0 && inputs.branch == ''
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-tags: true
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
@@ -109,23 +109,6 @@ jobs:
           restore-keys: |
             v1-yarn3-
 
-      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-      # first 11 characters. This can be used to build images for several branches
-      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
-      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
-      - name: Get the version to tag the Docker image
-        if: steps.run_result.outputs.run_result != 'success'
-        id: vars
-        run: |
-          # Since this is an unreleased build, we set the version to incremented version number with a
-          # `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
-          echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $3++; print }')"
-          echo "next_version = $next_version"
-          echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
-          echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
-
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
@@ -141,9 +124,6 @@ jobs:
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          if ! grep -qF "info.json" src/version.js; then
-            echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
-          fi
           yarn build
 
       # Set status = failure

@@ -7,9 +7,9 @@ import {
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "constants/routes";
-import { AppState } from "./constants";
+import { EditorState } from "./constants";
 
-export function getCurrentAppState(currentUrl: string): AppState {
+export function getCurrentAppState(currentUrl: string): EditorState {
   const match = matchPath<{
     appState?: "datasource" | "settings" | "libraries";
     datasourceId?: string;
@@ -31,14 +31,14 @@ export function getCurrentAppState(currentUrl: string): AppState {
   if (match) {
     const { appState, datasourceId, selectedTab } = match.params;
     if (appState === "datasource" || datasourceId || selectedTab) {
-      return AppState.DATA;
+      return EditorState.DATA;
     } else if (appState === "settings") {
-      return AppState.SETTINGS;
+      return EditorState.SETTINGS;
     } else if (appState === "libraries") {
-      return AppState.LIBRARIES;
+      return EditorState.LIBRARIES;
     } else {
-      return AppState.EDITOR;
+      return EditorState.EDITOR;
     }
   }
-  return AppState.EDITOR;
+  return EditorState.EDITOR;
 }
