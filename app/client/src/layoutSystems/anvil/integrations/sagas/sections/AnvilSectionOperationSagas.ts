@@ -66,6 +66,7 @@ function* updateZonesCountOfSectionSaga(
         previousZoneOrder,
         currentZoneCount > zoneCount ? -2 : 2,
         currentZoneCount > zoneCount ? currentZoneCount - 1 : currentZoneCount,
+        true,
       );
       const updatedDistributedSpace = updatedZoneOrder.reduce(
         (result, each, index) => {

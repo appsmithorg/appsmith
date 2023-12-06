@@ -7,6 +7,7 @@ export const redistributeSectionSpace = (
   zoneOrder: string[],
   zoneChangeFactor: number,
   index: number,
+  addedViaStepper?: boolean,
 ): number[] => {
   const spaceDistributedArray = zoneOrder.map(
     (zone) => spaceDistributedObj[zone],
@@ -16,9 +17,9 @@ export const redistributeSectionSpace = (
   const zoneChange =
     zoneChangeFactor > spaceWelcomed ? spaceWelcomed : zoneChangeFactor;
   const evenDistributionSpace = 12 / spaceDistributedArray.length;
-  const evenlyDistributedLayout = spaceDistributedArray.every(
-    (each) => each === evenDistributionSpace,
-  );
+  const evenlyDistributedLayout =
+    (addedViaStepper || spaceDistributedArray.length > 1) &&
+    spaceDistributedArray.every((each) => each === evenDistributionSpace);
   if (evenlyDistributedLayout) {
     const updatedEvenDistributionSpace =
       12 / (spaceDistributedArray.length + 1);
