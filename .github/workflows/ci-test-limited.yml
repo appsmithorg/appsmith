@@ -147,6 +147,7 @@ jobs:
         if: inputs.previous-workflow-run-id == 0
         uses: actions/cache@v3
         with:
+          path: cicontainer.tar.gz
           key: docker-image-${{github.run_id}}
 
       - name: Load Docker image from tar file
