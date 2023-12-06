@@ -73,6 +73,7 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { debounce } from "lodash";
 import bootIntercom from "utils/bootIntercom";
 import { IntercomConsent } from "pages/Editor/HelpButton";
+import { viewerURL } from "@appsmith/RouteBuilder";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 const StyledPageHeader = styled(StyledHeader)<{
@@ -397,6 +398,21 @@ export function PageHeader(props: PageHeaderProps) {
       setSearchInput(text);
       handleSearchDebounced(text);
     }
+
+    function navigateToApplication(applicationId: string) {
+      const searchedApplication = applicationsList?.find(
+        (app: ApplicationPayload) => app.id === applicationId,
+      );
+
+      const defaultPageId = searchedApplication?.pages.find(
+        (page) => page.isDefault === true,
+      )?.id;
+      const viewURL = viewerURL({
+        pageId: defaultPageId,
+      });
+      window.location.href = `${viewURL}`;
+    }
+
     return (
       <StyledPageHeader
         data-testid="t--appsmith-page-header"
@@ -491,7 +507,12 @@ export function PageHeader(props: PageHeaderProps) {
                       </Text>
                       {applicationsList.map(
                         (application: ApplicationPayload) => (
-                          <SearchListItem key={application.id}>
+                          <SearchListItem
+                            key={application.id}
+                            onClick={() =>
+                              navigateToApplication(application.id)
+                            }
+                          >
                             <Icon
                               className="!mr-2"
                               color="var(--ads-v2-color-fg)"
