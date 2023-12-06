@@ -407,6 +407,10 @@ function getDynamicBindingPathListUpdate(
     stringProp = JSON.stringify(propertyValue);
   }
 
+  /*
+   * TODO(Balaji Soundararajan): This is not appropriate from the platform's archtecture's point of view.
+   * This setting should come from widget configuration
+   */
   // Figure out a holistic solutions where we donot have to stringify above.
   if (DYNAMIC_BINDING_IGNORED_LIST.includes(propertyPath)) {
     return {
