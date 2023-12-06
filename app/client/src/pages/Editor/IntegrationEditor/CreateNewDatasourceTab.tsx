@@ -35,6 +35,10 @@ import {
   SAMPLE_DATASOURCES,
 } from "@appsmith/constants/messages";
 import { Divider } from "design-system";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -312,7 +316,14 @@ class CreateNewDatasourceTab extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
-  const pageId = getCurrentPageId(state);
+  const onboardingAppId = getCurrentApplicationIdForCreateNewApp(state);
+  const onboardingApplication = getApplicationByIdFromWorkspaces(
+    state,
+    onboardingAppId || "",
+  );
+  const pageId = !!onboardingAppId
+    ? onboardingApplication?.defaultPageId
+    : getCurrentPageId(state);
   const showDebugger = showDebuggerFlag(state);
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
