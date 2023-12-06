@@ -15,7 +15,6 @@
   "MySQL": ".t--plugin-name:contains('MySQL')",
   "GoogleSheets": ".t--plugin-name:contains('Google Sheets')",
   "sectionAuthentication": "[data-testid=section-Authentication] .t--collapse-section-container",
-  "createQuery": ".t--create-query",
   "activeDatasourceList": ".t--active-datasource-list",
   "datasourceCard": ".t--datasource",
   "datasourceCardMenu": ".t--datasource-menu-option",
