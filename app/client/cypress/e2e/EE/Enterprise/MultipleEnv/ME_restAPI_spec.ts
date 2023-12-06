@@ -65,7 +65,7 @@ describe(
 
     it("2. Create and test query responses for both ds on both environmets and add to a table", function () {
       // Create a query on the ME ds
-      agHelper.GetNClick(dataSources._createQuery);
+      dataSources.CreateQueryAfterDSSaved();
       cy.get(apiPage._editorDS).type("/getResponse");
       agHelper.Sleep();
       apiPage.RunAPI();
