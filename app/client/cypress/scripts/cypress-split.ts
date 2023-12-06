@@ -332,18 +332,22 @@ export class cypressSplit {
   ) {
     try {
       console.log("In splitSpecs() fucntion")
-      console.log("------------------ Specs Splitting Started ------------------")
-      console.log("Specs Pattern: ", config.specPattern)
-      console.log("------------------ Specs Splitting Ended ------------------")
+      console.log("------------------ Specs Splitting Started ------------------");
+      console.log("Specs Pattern: ", config.specPattern);
+      console.log("------------------ Specs Splitting Ended ------------------");
 
       let specPattern = config.specPattern;
+
       let ignorePattern: string | string[] = config.excludeSpecPattern;
       const cypressSpecs = this.util.getVars().cypressSpecs;
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
-
-      if (cypressSpecs != "")
-        specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
+      if (cypressSpecs != "") {
+        specPattern = cypressSpecs
+          .split(",")
+          .filter((val) => val !== "")
+          .map((path) => path.trim().replace(process.cwd(), ""));
+      }
   
 
       if (this.util.getVars().cypressRerun === "true") {

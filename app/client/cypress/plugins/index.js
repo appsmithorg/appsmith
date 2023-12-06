@@ -223,12 +223,13 @@ module.exports = async (on, config) => {
     },
   });
 
-  console.log("Whats in config before:" + config.specPattern);
-  console.log("Type of 'config.specPattern':", typeof config.specPattern);
+  // console.log("Whats in config before:" + config.specPattern);
+  // console.log("Type of 'config.specPattern':", typeof config.specPattern);
 
-  config.specPattern = trimPathsBeforeWildcard(config.specPattern);
+  // config.specPattern = trimPathsBeforeWildcard(config.specPattern);
 
-  console.log("Whats in config after:" + config.specPattern);
+  // console.log("Whats in splitSpecs:" + splitSpecs);
+  // console.log("Whats in config after:" + config.specPattern);
 
   if (process.env["RUNID"]) {
     config = await new cypressSplit().splitSpecs(on, config);
@@ -236,22 +237,20 @@ module.exports = async (on, config) => {
   }
 
 
-  
-  function trimPathsBeforeWildcard(pathsString) {
-    pathsString = JSON.stringify(pathsString);
-    console.log("In trimPathsBeforeWildcard")
-    const paths = pathsString.split(',');
-    console.log("paths:", paths)
-    const trimmedPaths = paths.map(path => {
-      const wildcardIndex = path.indexOf('***');
-      if (wildcardIndex !== -1) {
-        return path.slice(wildcardIndex);
-      }
-      console.log("return paths:", path)
-      return path;
-    });
-    return trimmedPaths.join(',');
-  }
+  // function trimPathsBeforeWildcard(pathsString) {
+  //   console.log("In trimPathsBeforeWildcard")
+  //   const paths = pathsString.split(',');
+  //   console.log("paths:", paths)
+  //   const trimmedPaths = paths.map(path => {
+  //     const wildcardIndex = path.indexOf('***');
+  //     if (wildcardIndex !== -1) {
+  //       return path.slice(wildcardIndex);
+  //     }
+  //     console.log("return paths:", paths)
+  //     return path;
+  //   });
+  //   return trimmedPaths.join(',');
+  // }
 
   return config;
 };
