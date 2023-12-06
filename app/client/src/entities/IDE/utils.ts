@@ -13,7 +13,6 @@ export function getCurrentAppState(currentUrl: string): EditorState {
   const match = matchPath<{
     appState?: "datasource" | "settings" | "libraries";
     datasourceId?: string;
-    selectedTab?: string;
   }>(currentUrl, {
     path: [
       BUILDER_PATH_DEPRECATED + SAAS_GSHEET_EDITOR_ID_PATH,
@@ -29,8 +28,12 @@ export function getCurrentAppState(currentUrl: string): EditorState {
   });
 
   if (match) {
-    const { appState, datasourceId, selectedTab } = match.params;
-    if (appState === "datasource" || datasourceId || selectedTab) {
+    const { appState, datasourceId } = match.params;
+    if (
+      appState === "datasource" ||
+      datasourceId ||
+      match.path.includes(DATASOURCE_CREATE_PATH)
+    ) {
       return EditorState.DATA;
     } else if (appState === "settings") {
       return EditorState.SETTINGS;

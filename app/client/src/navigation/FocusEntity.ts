@@ -59,7 +59,6 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     pageId?: string;
     collectionId?: string;
     widgetIds?: string;
-    selectedTab?: string; // Datasource creation/list screen
     entity?: string;
   }>(path, {
     path: [
@@ -136,10 +135,10 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       };
     }
   }
-  if (match.params.selectedTab) {
+  if (match.path.includes(DATASOURCE_CREATE_PATH)) {
     return {
       entity: FocusEntity.DATASOURCE,
-      id: match.params.selectedTab,
+      id: "NEW",
       pageId: match.params.pageId,
       appState: EditorState.DATA,
     };
