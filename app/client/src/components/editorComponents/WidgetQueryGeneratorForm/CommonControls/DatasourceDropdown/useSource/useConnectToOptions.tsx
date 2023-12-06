@@ -18,7 +18,8 @@ import type {
   ActionData,
   ActionDataState,
 } from "@appsmith/reducers/entityReducers/actionsReducer";
-import { getSortedQueries } from "@appsmith/components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DataSourceDropdown/useSource/utils";
+import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { Icon } from "design-system";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -83,6 +84,29 @@ interface ConnectToOptionsProps {
   widget: WidgetProps;
 }
 
+export const getQueryIcon = (
+  query: ActionData,
+  pluginImages: Record<string, string>,
+) => {
+  if (!query.config.hasOwnProperty("sourceModuleId")) {
+    return (
+      <ImageWrapper>
+        <DatasourceImage
+          alt=""
+          className="dataSourceImage"
+          src={pluginImages[query.config.pluginId]}
+        />
+      </ImageWrapper>
+    );
+  } else {
+    return (
+      <EntityIcon>
+        <Icon name="module" />
+      </EntityIcon>
+    );
+  }
+};
+
 /*
  * useConnectToOptions hook - this returns the dropdown options to connect to a query or a connectable widget.
  *  */
@@ -117,19 +141,41 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     filteredQueries = [...queries, ...queryModuleInstances];
   }
 
-  const queryOptions = useMemo(
-    () =>
-      getSortedQueries(
-        pluginImages,
-        addBinding,
-        updateConfig,
-        widget,
-        propertyName,
-        expectedType,
-        filteredQueries,
+  const queryOptions = useMemo(() => {
+    return sortQueries(filteredQueries, expectedType).map((query) => ({
+      id: query.config.id,
+      label: query.config.name,
+      value: getBindingValue(widget, query),
+      icon: (
+        <ImageWrapper>
+          <DatasourceImage
+            alt=""
+            className="dataSourceImage"
+            src={pluginImages[query.config.pluginId]}
+          />
+        </ImageWrapper>
       ),
-    [filteredQueries, pluginImages, addBinding, widget],
-  );
+      onSelect: function (value?: string, valueOption?: DropdownOptionType) {
+        addBinding(valueOption?.value, false);
+
+        updateConfig({
+          datasource: "",
+          datasourcePluginType: "",
+          datasourcePluginName: "",
+          datasourceConnectionMode: "",
+        });
+
+        AnalyticsUtil.logEvent("BIND_EXISTING_DATA_TO_WIDGET", {
+          widgetName: widget.widgetName,
+          widgetType: widget.type,
+          propertyName: propertyName,
+          entityBound: "Query",
+          entityName: query.config.name,
+          pluginType: query.config.pluginType,
+        });
+      },
+    }));
+  }, [filteredQueries, pluginImages, addBinding, widget]);
 
   const currentPageWidgets = useSelector(getCurrentPageWidgets);
 
