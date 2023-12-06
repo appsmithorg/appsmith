@@ -32,6 +32,8 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
 
+    private String tenantId;
+
     private final ConfigService configService;
 
     private final EnvManager envManager;
@@ -56,8 +58,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<String> getDefaultTenantId() {
-        return Mono.empty(); /*
-
         // If the value exists in cache, return it as is
         if (StringUtils.hasLength(tenantId)) {
             return Mono.just(tenantId);
@@ -67,7 +67,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             // Set the cache value before returning.
             this.tenantId = tenantId;
             return tenantId;
-        });*/
+        });
     }
 
     @Override

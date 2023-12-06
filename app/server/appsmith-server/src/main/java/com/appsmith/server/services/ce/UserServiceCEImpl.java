@@ -679,8 +679,6 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
-        return Mono.empty(); /*
-
         Mono<User> userFromDbMono = findByEmail(user.getEmail()).cache();
 
         Mono<Boolean> isSuperUserMono = userFromDbMono.flatMap(userUtils::isSuperUser);
@@ -699,7 +697,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                     final UserProfileDTO profile = new UserProfileDTO();
 
                     profile.setEmail(userFromDb.getEmail());
-                    profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
+                    // profile.setWorkspaceIds(userFromDb.getWorkspaceIds());
                     profile.setUsername(userFromDb.getUsername());
                     profile.setName(userFromDb.getName());
                     profile.setGender(userFromDb.getGender());
@@ -716,7 +714,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
                     return pacConfigurationService.setRolesAndGroups(
                             profile, userFromDb, true, commonConfig.isCloudHosting());
-                });*/
+                });
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {

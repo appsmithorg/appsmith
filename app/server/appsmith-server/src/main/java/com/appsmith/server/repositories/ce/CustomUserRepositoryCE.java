@@ -20,8 +20,6 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Optional<User> findByEmailAndTenantId(String email, String tenantId);
 
-    Optional<Boolean> isUsersEmpty();
-
     List<User> getAllByEmails(
             Set<String> emails,
             Optional<AclPermission> aclPermission,

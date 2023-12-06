@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -13,7 +12,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -69,26 +67,6 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         return mongoOperations.findOne(query, User.class);*/
     }
 
-    /**
-     * Fetch minmal information from *a* user document in the database, limit to two documents, filter anonymousUser
-     * If no documents left return true otherwise return false.
-     *
-     * @return Boolean, indicated where there exists at least one user in the system or not.
-     */
-    @Override
-    public Optional<Boolean> isUsersEmpty() {
-        return Optional.empty(); /*
-        final Query q = query(new Criteria());
-        q.fields().include("email");
-        // Basically limit to system generated emails plus 1 more.
-        q.limit(getSystemGeneratedUserEmails().size() + 1);
-        return mongoOperations
-                .find(q, User.class)
-                .filter(user -> !getSystemGeneratedUserEmails().contains(user.getEmail()))
-                .count()
-                .map(count -> count == 0);*/
-    }
-
     @Override
     public List<User> getAllByEmails(
             Set<String> emails,
@@ -100,11 +78,5 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         Sort sortBy = Sort.by(sortDirection, fieldName(sortKey));
         Criteria emailCriteria = where("email").in(emails);
         return queryAll(List.of(emailCriteria), Optional.empty(), aclPermission, sortBy, limit, skip);
-    }
-
-    protected Set<String> getSystemGeneratedUserEmails() {
-        Set<String> systemGeneratedEmails = new HashSet<>();
-        systemGeneratedEmails.add(FieldName.ANONYMOUS_USER);
-        return systemGeneratedEmails;
     }
 }
