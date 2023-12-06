@@ -1,15 +1,9 @@
-import type { AnvilConfig, SizeConfig } from "WidgetProvider/constants";
-import type { ZoneWidgetProps } from "..";
-import { RenderModes } from "constants/WidgetConstants";
+import type { AnvilConfig } from "WidgetProvider/constants";
 
 export const anvilConfig: AnvilConfig = {
   isLargeWidget: true,
-  widgetSize: (props: ZoneWidgetProps): SizeConfig => {
-    return {
-      minWidth: {
-        base: props.renderMode === RenderModes.CANVAS ? "120px" : `min-content`,
-      },
-      minHeight: { base: "50px" },
-    };
+  widgetSize: {
+    minWidth: { base: "240px" },
+    minHeight: { base: "50px" },
   },
 };
