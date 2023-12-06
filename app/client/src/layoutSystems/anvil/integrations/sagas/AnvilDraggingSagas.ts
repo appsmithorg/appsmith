@@ -408,7 +408,7 @@ function* updateAndSaveAnvilLayoutSaga(
         );
         let updatedDistributedSpace: { [key: string]: number } = {};
         zonesToRemove.forEach((eachZone) => {
-          const zoneProps = widgets[eachZone];
+          const zoneProps = currentWidgets[eachZone];
           const index = previousZoneOrder.indexOf(eachZone);
           const updatedDistributedSpaceArray = redistributeSectionSpace(
             currentDistributedSpace,
