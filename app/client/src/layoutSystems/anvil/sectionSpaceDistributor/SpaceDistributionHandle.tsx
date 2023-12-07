@@ -162,6 +162,31 @@ export const SpaceDistributionHandle = ({
         }
       };
       const listenToPositionChangesOfRightZone = () => {};
+      const onCSSTransitionEnd = () => {
+        if (
+          currentFlexGrow.leftZone !== currentGrowthFactor.leftZone ||
+          currentFlexGrow.rightZone !== currentGrowthFactor.rightZone
+        ) {
+          dispatch({
+            type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_UPDATE,
+            payload: {
+              zonesDistributed: {
+                [leftZone]: currentGrowthFactor.leftZone,
+                [rightZone]: currentGrowthFactor.rightZone,
+              },
+              sectionLayoutId,
+            },
+          });
+        }
+        dispatch({
+          type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
+        });
+        resetCSSOnZones();
+        removeMouseMoveHandlers();
+        if (ref.current) {
+          ref.current.removeEventListener("transitionend", onCSSTransitionEnd);
+        }
+      };
       const onMouseDown = (e: MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
@@ -179,32 +204,11 @@ export const SpaceDistributionHandle = ({
       const onMouseUp = (e: MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        if (isCurrentHandleDistributingSpace.current) {
-          resetHandleCSS();
+        if (isCurrentHandleDistributingSpace.current && ref.current) {
           removeColumnIndicator();
+          resetHandleCSS();
+          requestAnimationFrame(onCSSTransitionEnd);
           isCurrentHandleDistributingSpace.current = false;
-          window.requestIdleCallback(() => {
-            if (
-              currentFlexGrow.leftZone !== currentGrowthFactor.leftZone ||
-              currentFlexGrow.rightZone !== currentGrowthFactor.rightZone
-            ) {
-              dispatch({
-                type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_UPDATE,
-                payload: {
-                  zonesDistributed: {
-                    [leftZone]: currentGrowthFactor.leftZone,
-                    [rightZone]: currentGrowthFactor.rightZone,
-                  },
-                  sectionLayoutId,
-                },
-              });
-            }
-            dispatch({
-              type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
-            });
-            resetCSSOnZones();
-            removeMouseMoveHandlers();
-          });
         }
       };
       const checkForNeedToAddResistiveForce = (
