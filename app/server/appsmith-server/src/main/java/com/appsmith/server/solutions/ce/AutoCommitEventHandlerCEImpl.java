@@ -4,6 +4,7 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -104,42 +105,11 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                     autoCommitEvent.getApplicationId(),
                                     autoCommitEvent.getRepoName(),
                                     autoCommitEvent.getBranchName()))
-                            .flatMap(applicationJson -> {
-                                if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageList())) {
-                                    return migratePageDsl(applicationJson.getPageList(), latestSchemaVersion)
-                                            // if no page is updated then no need to proceed further
-                                            .filter(list -> {
-                                                if (CollectionUtils.isNullOrEmpty(list)) {
-                                                    log.info("No page is migrated, skipping auto commit");
-                                                    return false;
-                                                } else {
-                                                    log.info("{} pages migrated, proceeding auto commit", list.size());
-                                                    return true;
-                                                }
-                                            })
-                                            .map(updatedPageNamesList -> {
-                                                log.info(
-                                                        "{} pages migrated and will be added to auto commit",
-                                                        updatedPageNamesList.size());
-                                                /*
-                                                 Need to set the page names in the updated resources because the
-                                                 ApplicationJson to file system conversion will use this field to decide
-                                                 which pages need to be written back to file system.
-                                                */
-                                                Set<String> pageNamesSet = new HashSet<>(updatedPageNamesList);
-                                                Map<String, Set<String>> updatedResources = new HashMap<>();
-                                                updatedResources.put(PAGE_LIST, pageNamesSet);
-                                                applicationJson.setUpdatedResources(updatedResources);
-                                                return applicationJson;
-                                            });
-                                } else {
-                                    log.info(
-                                            "empty page list after reconstruction of application json for auto commit. application {}, branch {}",
-                                            autoCommitEvent.getApplicationId(),
-                                            autoCommitEvent.getBranchName());
-                                    return Mono.empty();
-                                }
-                            })
+                            .flatMap(applicationJson -> migrateApplicationJson(
+                                    applicationJson,
+                                    latestSchemaVersion,
+                                    autoCommitEvent.getApplicationId(),
+                                    autoCommitEvent.getBranchName()))
                             .flatMap(applicationJson -> {
                                 // all the migrations are done, write to file system
                                 try {
@@ -150,9 +120,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                             applicationJson,
                                             autoCommitEvent.getBranchName());
                                 } catch (Exception e) {
-                                    log.error(
-                                            "failed to save application to file system using saveApplicationToLocalRepo",
-                                            e);
+                                    log.error("failed to save application to file system using", e);
                                     return Mono.error(
                                             new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                                 }
@@ -191,6 +159,42 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                             .then(releaseFileLock(autoCommitEvent.getApplicationId()))
                             .thenReturn(Boolean.FALSE);
                 });
+    }
+
+    private Mono<ApplicationJson> migrateApplicationJson(
+            ApplicationJson applicationJson, Integer latestSchemaVersion, String applicationId, String branchName) {
+        if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageList())) {
+            return migratePageDsl(applicationJson.getPageList(), latestSchemaVersion)
+                    // if no page is updated then no need to proceed further
+                    .filter(list -> {
+                        if (CollectionUtils.isNullOrEmpty(list)) {
+                            log.info("No page is migrated, skipping auto commit");
+                            return false;
+                        } else {
+                            log.info("{} pages migrated, proceeding auto commit", list.size());
+                            return true;
+                        }
+                    })
+                    .map(updatedPageNamesList -> {
+                        log.info("{} pages migrated and will be added to auto commit", updatedPageNamesList.size());
+                        /*
+                         Need to set the page names in the updated resources because the
+                         ApplicationJson to file system conversion will use this field to decide
+                         which pages need to be written back to file system.
+                        */
+                        Set<String> pageNamesSet = new HashSet<>(updatedPageNamesList);
+                        Map<String, Set<String>> updatedResources = new HashMap<>();
+                        updatedResources.put(PAGE_LIST, pageNamesSet);
+                        applicationJson.setUpdatedResources(updatedResources);
+                        return applicationJson;
+                    });
+        } else {
+            log.info(
+                    "empty page list after reconstruction of application json for auto commit. application {}, branch {}",
+                    applicationId,
+                    branchName);
+            return Mono.empty();
+        }
     }
 
     /**
