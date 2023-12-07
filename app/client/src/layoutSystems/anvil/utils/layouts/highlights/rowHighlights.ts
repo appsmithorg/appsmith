@@ -223,6 +223,8 @@ export function getHighlightsForRow(
 
     const nextWidgetDimensions: LayoutElementPosition | undefined =
       index === row.length - 1 ? undefined : row[index + 1];
+    const prevWidgetDimensions: LayoutElementPosition | undefined =
+      index === 0 ? undefined : row[index - 1];
 
     // Don't add highlights for widget if it is being dragged.
     if (!isDraggedWidget) {
@@ -233,6 +235,7 @@ export function getHighlightsForRow(
         layoutDimensions,
         row[index],
         nextWidgetDimensions,
+        prevWidgetDimensions,
         tallestDimension,
         index + startingIndex - draggedWidgetCount,
         false,
@@ -250,6 +253,7 @@ export function getHighlightsForRow(
         layoutDimensions,
         row[index - 1],
         nextWidgetDimensions,
+        prevWidgetDimensions,
         tallestDimension,
         index + startingIndex - draggedWidgetCount,
         true,
@@ -366,6 +370,9 @@ export function getHighlightsForLayoutRow(
         ? undefined
         : getDimensions(layout[index + 1]?.layoutId);
 
+    const prevLayoutDimensions: LayoutElementPosition | undefined =
+      index === 0 ? undefined : getDimensions(layout[index - 1]?.layoutId);
+
     const layoutDimension: LayoutElementPosition = getDimensions(
       layoutProps.layoutId,
     );
@@ -404,6 +411,7 @@ export function getHighlightsForLayoutRow(
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
+        prevLayoutDimensions,
         undefined,
         index - discardedLayouts,
         false,
@@ -429,6 +437,7 @@ export function getHighlightsForLayoutRow(
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
+        prevLayoutDimensions,
         undefined,
         index - discardedLayouts,
         true,
@@ -445,6 +454,7 @@ function updateHighlights(
   layoutDimension: LayoutElementPosition,
   currDimension: LayoutElementPosition,
   nextDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   tallestWidget: LayoutElementPosition | undefined,
   rowIndex: number,
   isFinalHighlight: boolean,
@@ -466,6 +476,7 @@ function updateHighlights(
     layoutDimension,
     currDimension,
     nextDimension,
+    prevDimension,
     tallestWidget,
     rowIndex,
     isFinalHighlight,
@@ -489,6 +500,7 @@ export function generateHighlights(
   layoutDimension: LayoutElementPosition,
   currentDimension: LayoutElementPosition,
   nextDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   tallestDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
@@ -503,14 +515,25 @@ export function generateHighlights(
     if (isInitialHighlight) {
       posX = currentDimension.left;
     } else {
-      posX = Math.min(
-        currentDimension.left + currentDimension.width,
-        layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE - 2,
-      );
+      const gap: number =
+        layoutDimension.left +
+        layoutDimension.width -
+        currentDimension.left -
+        currentDimension.width;
+      const pos: number =
+        layoutDimension.left +
+        layoutDimension.width -
+        gap / 2 -
+        HIGHLIGHT_SIZE / 2;
+
+      posX = Math.min(currentDimension.left + currentDimension.width, pos);
     }
   } else {
+    const gap: number = prevDimension
+      ? currentDimension.left - (prevDimension.left + prevDimension.width)
+      : HIGHLIGHT_SIZE;
     posX = Math.max(
-      currentDimension.left - HIGHLIGHT_SIZE,
+      currentDimension.left - gap / 2 - HIGHLIGHT_SIZE / 2,
       layoutDimension.left,
     );
   }
@@ -573,6 +596,7 @@ export function getInitialHighlights(
       baseHighlight,
       layoutDimension,
       { ...layoutDimension, left: posX, width: HIGHLIGHT_SIZE },
+      undefined,
       undefined,
       undefined,
       0,
