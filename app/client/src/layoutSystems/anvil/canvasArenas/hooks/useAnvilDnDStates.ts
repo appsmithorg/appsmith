@@ -43,7 +43,6 @@ export interface AnvilDnDStates {
   isSection: boolean;
   isNewWidget: boolean;
   isNewWidgetInitialTargetCanvas: boolean;
-  isResizing: boolean;
   layoutElementPositions: LayoutElementPositions;
   dragMeta: AnvilDragMeta;
   mainCanvasLayoutId: string;
@@ -133,9 +132,6 @@ export const useAnvilDnDStates = ({
   );
 
   const { dragGroupActualParent: dragParent, newWidget } = dragDetails;
-  const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
-  );
   /**
    * boolean to indicate if the widget being dragged is a new widget
    */
@@ -227,7 +223,6 @@ export const useAnvilDnDStates = ({
     isMainCanvas,
     isSection,
     isNewWidgetInitialTargetCanvas,
-    isResizing,
     mainCanvasLayoutId,
     layoutElementPositions,
   };
