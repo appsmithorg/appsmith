@@ -322,7 +322,7 @@ const mapStateToProps = (state: AppState) => {
     onboardingAppId || "",
   );
   const pageId = !!onboardingAppId
-    ? onboardingApplication?.defaultPageId
+    ? onboardingApplication?.defaultPageId || ""
     : getCurrentPageId(state);
   const showDebugger = showDebuggerFlag(state);
   const userWorkspacePermissions =
