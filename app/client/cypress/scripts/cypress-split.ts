@@ -342,19 +342,14 @@ export class cypressSplit {
       const cypressSpecs = this.util.getVars().cypressSpecs;
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
-      console.log("in spec pattern type :::::::" + typeof specPattern)
-      specPattern = specPattern.toString().replace(process.cwd(), "");
-      console.log("in specPattern.tostring() :::::::" + specPattern)
+      console.log("in spec pattern type  ------->" + typeof specPattern)
+      specPattern = specPattern.toString().replaceAll(process.cwd()+"/", "");
+      console.log("in specPattern.tostring() ------->" + specPattern)
 
-      if (cypressSpecs != "") {
-        console.log("in cypress split")
-        specPattern = cypressSpecs
-          .split(",")
-          .filter((val) => val !== "")
-          .map((path) => path.trim().replace(process.cwd(), ""));
-      }
-  
-      console.log("in cypress :::::::" + specPattern)
+      if (cypressSpecs != "")
+        specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
+
+      console.log("in  ------->" + specPattern)
 
       if (this.util.getVars().cypressRerun === "true") {
         specPattern =
