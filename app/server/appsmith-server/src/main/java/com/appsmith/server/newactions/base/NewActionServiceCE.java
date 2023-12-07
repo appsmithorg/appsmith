@@ -144,4 +144,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
             AclPermission permission,
             boolean viewMode,
             boolean includeJs);
+
+    NewAction generateActionDomain(ActionDTO action);
+
+    void updateDefaultResourcesInAction(NewAction newAction);
 }

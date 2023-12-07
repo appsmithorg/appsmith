@@ -129,12 +129,6 @@ public class ActionCollectionCE_DTO {
         if (this.workspaceId == null) {
             validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID));
         }
-        if (this.applicationId == null) {
-            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID));
-        }
-        if (this.pageId == null) {
-            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID));
-        }
         if (this.pluginId == null) {
             validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PLUGIN_ID));
         }

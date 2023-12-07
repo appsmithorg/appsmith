@@ -1483,8 +1483,9 @@ public class ApplicationServiceCETest {
         actionCollectionDTO.setPluginId(installedJsPlugin.getId());
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        ActionCollectionDTO savedActionCollection =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO savedActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         Mono<Application> publicAppMono = applicationService
                 .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
@@ -2141,7 +2142,7 @@ public class ApplicationServiceCETest {
                     actionCollectionDTO.setPluginType(PluginType.JS);
 
                     return Mono.zip(
-                            layoutCollectionService.createCollection(actionCollectionDTO),
+                            layoutCollectionService.createCollection(actionCollectionDTO, null),
                             layoutActionService.createSingleAction(action, Boolean.FALSE),
                             updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout),
@@ -2502,7 +2503,7 @@ public class ApplicationServiceCETest {
                     layout.setDsl(parentDsl);
 
                     return Mono.zip(
-                            layoutCollectionService.createCollection(actionCollectionDTO),
+                            layoutCollectionService.createCollection(actionCollectionDTO, null),
                             layoutActionService.createSingleAction(action, Boolean.FALSE),
                             Mono.just(application),
                             Mono.just(testPage),
@@ -2899,7 +2900,7 @@ public class ApplicationServiceCETest {
 
                     return layoutActionService
                             .createSingleAction(action, Boolean.FALSE)
-                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
+                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();
                                 ActionCollectionDTO savedActionCollection = tuple1.getT2();
@@ -3367,8 +3368,9 @@ public class ApplicationServiceCETest {
         actionCollectionDTO1.setActions(List.of(jsAction));
         actionCollectionDTO1.setPluginType(PluginType.JS);
 
-        final ActionCollectionDTO createdActionCollectionDTO1 =
-                layoutCollectionService.createCollection(actionCollectionDTO1).block();
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService
+                .createCollection(actionCollectionDTO1, null)
+                .block();
 
         // Trigger the clone of application now.
         applicationPageService
@@ -3875,7 +3877,7 @@ public class ApplicationServiceCETest {
 
                     return layoutActionService
                             .createSingleAction(action, Boolean.FALSE)
-                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO))
+                            .zipWith(layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();
                                 ActionCollectionDTO savedActionCollection = tuple1.getT2();
