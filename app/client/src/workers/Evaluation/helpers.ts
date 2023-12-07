@@ -278,7 +278,7 @@ const generateDiffUpdates = (
           rhs: rhs as any,
           path: segmentedPath,
         });
-        // ignore trying to diff invalid moment objects
+        // ignore trying to diff moment objects
         return true;
       }
       if (rhs === undefined) {
