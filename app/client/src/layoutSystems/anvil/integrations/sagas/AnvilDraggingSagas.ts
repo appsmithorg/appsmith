@@ -452,14 +452,11 @@ function* updateAndSaveAnvilLayoutSaga(
             ...updatedWidgets[eachChild],
             flexGrow: updatedDistributedSpace[eachChild] ?? commonSpace,
           };
-          updatedWidgets[each.widgetId] = {
-            ...updatedWidgets[each.widgetId],
-            spaceDistributed: {
-              ...updatedWidgets[each.widgetId].spaceDistributed,
-              [eachChild]: updatedDistributedSpace[eachChild] ?? commonSpace,
-            },
-          };
         });
+        updatedWidgets[each.widgetId] = {
+          ...updatedWidgets[each.widgetId],
+          spaceDistributed: updatedDistributedSpace,
+        };
         /**
          * If section's zone count doesn't match it's child count,
          * => update the zone count.
