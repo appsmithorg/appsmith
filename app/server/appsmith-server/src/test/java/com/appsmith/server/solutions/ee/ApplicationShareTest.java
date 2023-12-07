@@ -16,6 +16,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
@@ -64,7 +65,6 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationMemberService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
@@ -519,8 +519,9 @@ public class ApplicationShareTest {
         actionCollectionDTO.setPluginId(pluginId);
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        ActionCollectionDTO createdActionCollectionDTO =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         ModuleDTO consumableModule = consumableModuleOptional.get();
 
@@ -3827,8 +3828,9 @@ public class ApplicationShareTest {
         actionCollectionDTO.setPluginId(pluginId);
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        ActionCollectionDTO createdActionCollectionDTO =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         Set<Policy> datasourcePoliciesAfterActionCollectionCreation =
                 datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();

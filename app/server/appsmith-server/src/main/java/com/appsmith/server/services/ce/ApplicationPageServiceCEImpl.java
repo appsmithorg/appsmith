@@ -11,6 +11,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -28,12 +29,13 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
@@ -48,7 +50,6 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -65,6 +66,7 @@ import com.mongodb.client.result.UpdateResult;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -125,6 +127,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewPageRepository newPageRepository;
     private final DatasourceRepository datasourceRepository;
     private final DatasourcePermission datasourcePermission;
+    private final DSLMigrationUtils dslMigrationUtils;
 
     public static final Integer EVALUATION_VERSION = 2;
 
@@ -278,21 +281,82 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<PageDTO> getPageByBranchAndDefaultPageId(String defaultPageId, String branchName, boolean viewMode) {
-
+    public Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
+            String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
         // Fetch the page with read permission in both editor and in viewer.
-        AclPermission permission = pagePermission.getReadPermission();
         return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission())
                 .flatMap(newPage -> {
-                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage, viewMode));
+                    return sendPageViewAnalyticsEvent(newPage, viewMode)
+                            .then(getPage(newPage, viewMode))
+                            .zipWith(Mono.just(newPage));
                 })
-                .flatMap(page -> {
-                    // Call the DSL Utils for on demand migration of the page.
-                    // Based on view mode save the migrated DSL to the database
-                    return Mono.just(page);
+                .flatMap(objects -> {
+                    PageDTO pageDTO = objects.getT1();
+                    if (migrateDsl) {
+                        // Call the DSL Utils for on demand migration of the page.
+                        // Based on view mode save the migrated DSL to the database
+                        // Migrate the DSL to the latest version if required
+                        NewPage newPage = objects.getT2();
+                        if (pageDTO.getLayouts() != null) {
+                            return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                        }
+                    }
+                    return Mono.just(pageDTO);
                 })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
+    }
+
+    private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {
+        return dslMigrationUtils
+                .getLatestDslVersion()
+                .onErrorMap(throwable -> {
+                    log.error("Error fetching latest DSL version", throwable);
+                    return new AppsmithException(AppsmithError.RTS_SERVER_ERROR, "Error fetching latest DSL version");
+                })
+                .flatMap(latestDslVersion -> {
+                    // ensuring that the page has only one layout, as we don't support multiple layouts yet
+                    // when multiple layouts are supported, this code will have to be updated
+                    assert page.getLayouts().size() == 1;
+
+                    Layout layout = page.getLayouts().get(0);
+                    JSONObject layoutDsl = layout.getDsl();
+                    boolean isMigrationRequired = true;
+                    String versionKey = "version";
+                    if (layoutDsl.containsKey(versionKey)) {
+                        int currentDslVersion =
+                                layoutDsl.getAsNumber(versionKey).intValue();
+                        if (currentDslVersion >= latestDslVersion) {
+                            isMigrationRequired = false;
+                        }
+                    }
+
+                    if (isMigrationRequired) {
+                        return dslMigrationUtils
+                                .migratePageDsl(layoutDsl)
+                                .onErrorMap(throwable -> {
+                                    log.error("Error while migrating DSL ", throwable);
+                                    return new AppsmithException(
+                                            AppsmithError.RTS_SERVER_ERROR,
+                                            "Error while migrating to latest DSL version");
+                                })
+                                .flatMap(migratedDsl -> {
+                                    // update the current page DTO with migrated dsl
+                                    page.getLayouts().get(0).setDsl(migratedDsl);
+
+                                    // update the new page with migrated dsl and save to the database
+                                    PageDTO updatedPage;
+                                    if (viewMode) {
+                                        updatedPage = newPage.getPublishedPage();
+                                    } else {
+                                        updatedPage = newPage.getUnpublishedPage();
+                                    }
+                                    updatedPage.getLayouts().get(0).setDsl(migratedDsl);
+                                    return newPageService.save(newPage).thenReturn(page);
+                                });
+                    }
+                    return Mono.just(page);
+                });
     }
 
     @Override
@@ -1134,7 +1198,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<Theme> publishThemeMono =
                 applicationMono.flatMap(application -> themeService.publishTheme(application.getId()));
 
-        Set<CustomJSLibApplicationDTO> updatedPublishedJSLibDTOs = new HashSet<>();
+        Set<CustomJSLibContextDTO> updatedPublishedJSLibDTOs = new HashSet<>();
         Mono<List<ApplicationPage>> publishApplicationAndPages = applicationMono
                 // Return all the pages in the Application
                 .flatMap(application -> {
@@ -1251,8 +1315,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<Map<PluginType, Integer>> publishedActionsFlux = publishingMetaDTO.getActionCountByPluginTypeMapMono();
         Mono<List<ActionCollection>> publishedActionsCollectionFlux =
                 publishingMetaDTO.getPublishedActionCollectionsListMono();
-        Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono =
-                publishingMetaDTO.getUpdatedPublishedJSLibDTOsMono();
+        Mono<Set<CustomJSLibContextDTO>> publishedJSLibDTOsMono = publishingMetaDTO.getUpdatedPublishedJSLibDTOsMono();
         String applicationId = publishingMetaDTO.getApplicationId();
         boolean isPublishedManually = publishingMetaDTO.isPublishedManually();
 

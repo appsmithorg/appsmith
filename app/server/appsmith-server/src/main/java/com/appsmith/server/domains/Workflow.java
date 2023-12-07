@@ -44,6 +44,9 @@ public class Workflow extends BranchAwareDomain {
     @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
+    @JsonView(Views.Public.class)
+    Boolean tokenGenerated = Boolean.FALSE;
+
     /**
      * `updatedAt` property is modified by the framework when there is any change in domain,
      * a new property lastEditedAt has been added to track the edit actions from users.

@@ -40,18 +40,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_HISTORY_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKFLOWS;
-import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static com.appsmith.server.acl.AclPermission.WORKFLOW_CREATE_ACTIONS;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,6 +79,9 @@ public class CrudWorkflowServiceTest {
 
     @Autowired
     private NewActionRepository newActionRepository;
+
+    @Autowired
+    private CrudWorkflowEntityService crudWorkflowEntityService;
 
     Workspace workspace;
     String defaultEnvironmentId;
@@ -128,7 +126,6 @@ public class CrudWorkflowServiceTest {
                             DELETE_WORKFLOWS.getValue(),
                             EXPORT_WORKFLOWS.getValue(),
                             EXECUTE_WORKFLOWS.getValue(),
-                            RESOLVE_WORKFLOWS.getValue(),
                             WORKFLOW_CREATE_ACTIONS.getValue(),
                             READ_HISTORY_WORKFLOWS.getValue());
 
@@ -289,63 +286,6 @@ public class CrudWorkflowServiceTest {
 
     //    @Test
     @WithUserDetails(value = "api_user")
-    public void testValid_createWorkflowAction() {
-        String testName = "testValid_createWorkflowAction";
-        Workflow workflow = new Workflow();
-        workflow.setName(testName);
-        Workflow createdWorkflow =
-                crudWorkflowService.createWorkflow(workflow, workspace.getId()).block();
-
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        Datasource externalDatasource = new Datasource();
-        externalDatasource.setName("updateShouldNotResetUserSetOnLoad Database");
-        externalDatasource.setWorkspaceId(workspace.getId());
-        Plugin installed_plugin =
-                pluginRepository.findByPackageName("installed-plugin").block();
-        externalDatasource.setPluginId(installed_plugin.getId());
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("some url here");
-
-        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(
-                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
-        externalDatasource.setDatasourceStorages(storages);
-        Datasource savedDs = datasourceService.create(externalDatasource).block();
-
-        ActionDTO actionDTO = new ActionDTO();
-        actionDTO.setName(testName);
-        actionDTO.setDatasource(savedDs);
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        actionDTO.setActionConfiguration(actionConfiguration);
-        actionDTO.setWorkspaceId(workspace.getId());
-        actionDTO.setContextType(CreatorContextType.WORKFLOW);
-
-        Mono<ActionDTO> workflowActionDTOMono = crudWorkflowService.createWorkflowAction(workflow.getId(), actionDTO);
-
-        StepVerifier.create(workflowActionDTOMono)
-                .assertNext(workflowActionDTO -> {
-                    assertThat(workflowActionDTO.getWorkflowId()).isEqualTo(workflow.getId());
-                    assertThat(workflowActionDTO.getWorkspaceId()).isEqualTo(workspace.getId());
-                    assertThat(workflowActionDTO.getDatasource().getId()).isEqualTo(savedDs.getId());
-                    Set<String> expectedUserPermissions = Set.of(
-                            MANAGE_ACTIONS.getValue(),
-                            READ_ACTIONS.getValue(),
-                            EXECUTE_ACTIONS.getValue(),
-                            DELETE_ACTIONS.getValue());
-                    assertThat(workflowActionDTO.getUserPermissions())
-                            .containsExactlyInAnyOrderElementsOf(expectedUserPermissions);
-                })
-                .verifyComplete();
-
-        Workflow deleteWorkflow =
-                crudWorkflowService.deleteWorkflow(createdWorkflow.getId()).block();
-    }
-
-    //    @Test
-    @WithUserDetails(value = "api_user")
     public void testValid_deleteWorkflow_shouldDeleteAction() {
         String testName = "testValid_deleteWorkflow_shouldDeleteAction";
         Workflow workflow = new Workflow();
@@ -372,6 +312,7 @@ public class CrudWorkflowServiceTest {
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 
         ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setWorkflowId(workflow.getId());
         actionDTO.setName(testName);
         actionDTO.setDatasource(savedDs);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -380,9 +321,8 @@ public class CrudWorkflowServiceTest {
         actionDTO.setWorkspaceId(workspace.getId());
         actionDTO.setContextType(CreatorContextType.WORKFLOW);
 
-        ActionDTO workflowActionDTO = crudWorkflowService
-                .createWorkflowAction(workflow.getId(), actionDTO)
-                .block();
+        ActionDTO workflowActionDTO =
+                crudWorkflowEntityService.createWorkflowAction(actionDTO, null).block();
 
         Workflow deleteWorkflow =
                 crudWorkflowService.deleteWorkflow(createdWorkflow.getId()).block();

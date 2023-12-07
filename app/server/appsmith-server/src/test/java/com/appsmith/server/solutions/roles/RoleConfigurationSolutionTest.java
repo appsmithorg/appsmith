@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -47,7 +48,7 @@ public class RoleConfigurationSolutionTest {
     @MockBean
     WorkspaceResources workspaceResources;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     User api_user = null;

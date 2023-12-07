@@ -87,17 +87,14 @@ jobs:
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -147,31 +144,31 @@ jobs:
         run: |
           if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
            echo 'docker_container_name=airgap-cicontainer' >> "$GITHUB_ENV"
+           echo 'cache_download_key=airgap-docker-image' >> "$GITHUB_ENV" 
           else
            echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
-          fi
+           echo 'cache_download_key=docker-image' >> "$GITHUB_ENV" 
+           fi
 
       - name: Log the docker container name
         run: |
           echo "docker_container_name: ${{ env.docker_container_name }}"
+          echo "cache_download_key: ${{ env.cache_download_key }}"
 
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id == 0
-        uses: actions/download-artifact@v3
+        uses: actions/cache@v3
         with:
-          name: ${{ env.docker_container_name }}
+          path: ${{ env.docker_container_name }}.tar.gz
+          key: ${{ cache_download_key }}-${{ github.run_id }}
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id != 0
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/cache@v3
         with:
-          name: ${{ env.docker_container_name }}
-          run_id: ${{ inputs.previous-workflow-run-id }}
-
-      # - name: Log the docker container name
-      #   run: |
-      #     echo "docker_container_name: ${{ env.docker_container_name }}"
+          path: ${{ env.docker_container_name }}.tar.gz
+          key: ${{ cache_download_key }}-${{ previous-workflow-run-id }}
 
       - name: Load Docker image from tar file
         run: |
@@ -229,6 +226,7 @@ jobs:
             -e FLAGSMITH_URL=http://host.docker.internal:5001/flagsmith \
             -e FLAGSMITH_SERVER_KEY=dummykey \
             -e FLAGSMITH_SERVER_KEY_BUSINESS_FEATURES=dummykeybusinessfeatures \
+            -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
             appsmith/cloud-services:release
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
@@ -255,8 +253,6 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
@@ -488,5 +484,5 @@ jobs:
       # Set status = success
       - name: Save the status of the run
         run: |
-          echo "::set-output name=run_result::success"
+          echo "run_result=success" >> $GITHUB_OUTPUT
           echo "success" > ~/run_result

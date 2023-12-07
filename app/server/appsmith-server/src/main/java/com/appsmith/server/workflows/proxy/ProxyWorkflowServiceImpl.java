@@ -7,13 +7,18 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.WorkflowRepository;
-import com.appsmith.server.workflows.helper.WorkflowProxyHelper;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
+import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,11 +33,17 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 @Service
 public class ProxyWorkflowServiceImpl extends ProxyWorkflowServiceCECompatibleImpl implements ProxyWorkflowService {
 
-    private final WorkflowRepository workflowRepository;
     private final WorkflowProxyHelper workflowProxyHelper;
 
-    public ProxyWorkflowServiceImpl(WorkflowRepository workflowRepository, WorkflowProxyHelper workflowProxyHelper) {
-        this.workflowRepository = workflowRepository;
+    public ProxyWorkflowServiceImpl(
+            Scheduler scheduler,
+            Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
+            WorkflowRepository repository,
+            AnalyticsService analyticsService,
+            WorkflowProxyHelper workflowProxyHelper) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workflowProxyHelper = workflowProxyHelper;
     }
 
@@ -57,14 +68,14 @@ public class ProxyWorkflowServiceImpl extends ProxyWorkflowServiceCECompatibleIm
             List<String> workflowIdsProvided = Arrays.stream(
                             filters.getFirst(WORKFLOW_ID).split(FILTER_DELIMITER))
                     .toList();
-            workflowIdsMono = workflowRepository
+            workflowIdsMono = repository
                     .findAllById(workflowIdsProvided, Optional.of(READ_HISTORY_WORKFLOWS), Optional.of(includeFields))
                     .map(Workflow::getId)
                     .collectList();
         }
         // No workflow Ids are sent.
         else {
-            workflowIdsMono = workflowRepository
+            workflowIdsMono = repository
                     .findAll(Optional.of(READ_HISTORY_WORKFLOWS), Optional.of(includeFields), Optional.empty())
                     .map(Workflow::getId)
                     .collectList();
@@ -75,7 +86,7 @@ public class ProxyWorkflowServiceImpl extends ProxyWorkflowServiceCECompatibleIm
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
     public Mono<JSONObject> getWorkflowHistoryByWorkflowId(String id, MultiValueMap<String, String> filters) {
-        Mono<Workflow> workflowMono = workflowRepository
+        Mono<Workflow> workflowMono = repository
                 .findById(id, READ_HISTORY_WORKFLOWS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, WORKFLOW, id)));
         return workflowMono.flatMap(workflow -> {

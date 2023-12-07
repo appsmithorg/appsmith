@@ -36,9 +36,9 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Mono<Long> getModuleInstanceCountByModuleId(String moduleId) {
+    public Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID) {
         Criteria moduleIdCriteria =
-                where(fieldName(QModuleInstance.moduleInstance.sourceModuleId)).is(moduleId);
+                where(fieldName(QModuleInstance.moduleInstance.moduleUUID)).is(moduleUUID);
 
         return count(List.of(moduleIdCriteria), Optional.empty());
     }
@@ -52,6 +52,21 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                 .is(contextType);
 
         return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+    }
+
+    @Override
+    public Flux<ModuleInstance> findAllUnpublishedByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission) {
+        Criteria contextIdAndContextTypeCriteria = where(contextTypeToContextIdPathMap.get(contextType))
+                .is(contextId)
+                .and(fieldName(QModuleInstance.moduleInstance.contextType))
+                .is(contextType);
+
+        Criteria deletedAtNullCriterion = where(fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance)
+                        + "." + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))
+                .isNull();
+
+        return queryAll(List.of(contextIdAndContextTypeCriteria, deletedAtNullCriterion), Optional.of(permission));
     }
 
     @Override

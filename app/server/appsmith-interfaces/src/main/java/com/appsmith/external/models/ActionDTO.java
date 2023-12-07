@@ -36,7 +36,7 @@ public class ActionDTO extends ActionCE_DTO {
     @Override
     public String getExecutableName() {
         String executableName = super.getExecutableName();
-        if (!Boolean.TRUE.equals(this.isPublic)) {
+        if (executableName == null || !Boolean.TRUE.equals(this.isPublic)) {
             return executableName;
         }
         Matcher matcher = PatternUtils.COMPOSITE_ENTITY_PARENT_NAME_PATTERN.matcher(executableName);

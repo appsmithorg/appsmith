@@ -1,10 +1,10 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.helpers.ce.GitPrivateRepoHelperCEImpl;
-import com.appsmith.server.services.ApplicationService;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 

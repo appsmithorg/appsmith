@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import * as React from "react";
 import {
   Button,
@@ -19,6 +20,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  ModalContent,
 } from "@design-system/widgets";
 // This component is used only for testing purpose and is not used in the prod
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
@@ -35,6 +37,9 @@ export const ComplexForm = () => {
       }, 500),
     );
   };
+
+  const [isModalOpen, setModalOpen] = useState(false);
+  const submitRef = useRef(null);
 
   return (
     <Flex direction="column" gap="spacing-6">
@@ -92,19 +97,29 @@ export const ComplexForm = () => {
             If you cancel, you will lose your order
           </TooltipContent>
         </TooltipRoot>
-        <Modal size="small">
-          <Button>Ok</Button>
-          <ModalHeader title="Confirmation" />
-          <ModalBody>
-            <Text>
-              <ul>
-                <li>Hamburger — XL</li>
-                <li>French fries — L</li>
-                <li>Coca-Cola — S</li>
-              </ul>
-            </Text>
-          </ModalBody>
-          <ModalFooter onSubmit={fakeSubmit} submitText="Confirm" />
+        <Button onPress={() => setModalOpen(!isModalOpen)} ref={submitRef}>
+          Ok
+        </Button>
+        <Modal
+          initialFocus={2}
+          isOpen={isModalOpen}
+          setOpen={setModalOpen}
+          size="small"
+          triggerRef={submitRef}
+        >
+          <ModalContent>
+            <ModalHeader title="Confirmation" />
+            <ModalBody>
+              <Text>
+                <ul>
+                  <li>Hamburger — XL</li>
+                  <li>French fries — L</li>
+                  <li>Coca-Cola — S</li>
+                </ul>
+              </Text>
+            </ModalBody>
+            <ModalFooter onSubmit={fakeSubmit} submitText="Confirm" />
+          </ModalContent>
         </Modal>
       </Flex>
     </Flex>

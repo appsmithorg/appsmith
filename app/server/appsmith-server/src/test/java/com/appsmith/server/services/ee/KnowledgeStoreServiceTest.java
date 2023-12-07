@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ee;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ProcessingStatus;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.KnowledgeBase;
@@ -8,7 +9,6 @@ import com.appsmith.server.dtos.KnowledgeStoreDTO;
 import com.appsmith.server.dtos.KnowledgeStoreDownstreamDTO;
 import com.appsmith.server.knowledgebase.services.KnowledgeStoreService;
 import com.appsmith.server.repositories.KnowledgeStoreRepository;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;

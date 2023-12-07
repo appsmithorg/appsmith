@@ -31,4 +31,11 @@ public interface RoleConfigurationSolutionCECompatible {
             String applicationRoleType,
             Map<String, List<AclPermission>> toBeAddedPermissions,
             Map<String, List<AclPermission>> toBeRemovedPermissions);
+
+    Mono<Long> updateWorkflowAndRelatedResourcesWithPermissionForRole(
+            String workflowId,
+            String workspaceId,
+            String roleId,
+            Map<String, List<AclPermission>> toBeAddedPermissions,
+            Map<String, List<AclPermission>> toBeRemovedPermissions);
 }

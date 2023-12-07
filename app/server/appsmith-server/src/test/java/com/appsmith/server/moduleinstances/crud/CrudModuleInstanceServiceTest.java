@@ -7,8 +7,10 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleInstanceDTO;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -16,7 +18,12 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
+import com.appsmith.server.dtos.ModuleDTO;
+import com.appsmith.server.exceptions.AppsmithErrorCode;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.modules.crud.CrudModuleService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -26,7 +33,6 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.ModuleInstanceRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -141,6 +147,9 @@ public class CrudModuleInstanceServiceTest {
     @Autowired
     NewPageService newPageService;
 
+    @Autowired
+    CustomJSLibService customJSLibService;
+
     @BeforeEach
     public void setup() {
         moduleInstanceTestHelper = new ModuleInstanceTestHelper(
@@ -158,7 +167,8 @@ public class CrudModuleInstanceServiceTest {
                 commonConfig,
                 pluginService,
                 crudModuleInstanceService,
-                objectMapper);
+                objectMapper,
+                customJSLibService);
         moduleInstanceTestHelperDTO = new ModuleInstanceTestHelperDTO();
         moduleInstanceTestHelperDTO.setWorkspaceName("CRUD_Module_Instance_Workspace");
         moduleInstanceTestHelperDTO.setApplicationName("CRUD_Module_Instance_Application");
@@ -174,9 +184,100 @@ public class CrudModuleInstanceServiceTest {
 
         Mono<List<NewAction>> actionsMono = getDBActions(createModuleInstanceResponseDTO);
 
+        List<CustomJSLib> customJSLibs = customJSLibService
+                .getAllJSLibsInContext(
+                        moduleInstanceTestHelperDTO.getPageDTO().getApplicationId(),
+                        CreatorContextType.APPLICATION,
+                        null,
+                        false)
+                .block();
+
+        Application application = applicationService
+                .findById(moduleInstanceTestHelperDTO.getPageDTO().getApplicationId())
+                .block();
+
         StepVerifier.create(actionsMono)
                 .assertNext(dbActions -> {
                     doAllAssertions(dbActions, createModuleInstanceResponseDTO, moduleInstanceDTO);
+
+                    // Make sure application gets source module's js libs as hidden libs
+                    assert customJSLibs != null;
+                    assertThat(customJSLibs.size()).isEqualTo(1);
+                    CustomJSLib customJSLib = customJSLibs.get(0);
+                    assertThat(customJSLib.getIsHidden()).isTrue();
+                    assertThat(customJSLib.getName()).isEqualTo("name1");
+
+                    assert application != null;
+                    assertThat(application.getUnpublishedApplicationDetail()).isNotNull();
+                    Set<CustomJSLibContextDTO> hiddenJSLibs =
+                            application.getUnpublishedApplicationDetail().getHiddenJSLibs();
+                    assertThat(hiddenJSLibs).isNotNull();
+                    assertThat(hiddenJSLibs.size()).isEqualTo(1);
+                    CustomJSLibContextDTO libContextDTO =
+                            hiddenJSLibs.stream().findFirst().get();
+                    assertThat(libContextDTO.getUidString()).isEqualTo("accessor_url");
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testCreateModuleInstance_withExistingCustomJsLib_doesNotCreateHiddenLib() {
+        String applicationId = moduleInstanceTestHelperDTO.getPageDTO().getApplicationId();
+        // Create custom JS lib in app
+        CustomJSLib jsLib = new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
+        customJSLibService
+                .addJSLibsToContext(applicationId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
+                .block();
+
+        List<CustomJSLib> originalCustomLibs = customJSLibService
+                .getAllJSLibsInContext(applicationId, CreatorContextType.APPLICATION, null, false)
+                .block();
+
+        // Make sure application originally had the same lib manually installed
+        assertThat(originalCustomLibs.size()).isEqualTo(1);
+        CustomJSLib originalLib = originalCustomLibs.get(0);
+        assertThat(originalLib.getIsHidden()).isNull();
+        assertThat(originalLib.getName()).isEqualTo("name1");
+
+        Application originalApp = applicationService.findById(applicationId).block();
+        assert originalApp != null;
+        assertThat(originalApp.getUnpublishedApplicationDetail()).isNull();
+        Set<CustomJSLibContextDTO> originalAppVisibleLibs = originalApp.getUnpublishedCustomJSLibs();
+        assertThat(originalAppVisibleLibs.size()).isEqualTo(1);
+        CustomJSLibContextDTO originalAppLibContextDTO =
+                originalAppVisibleLibs.stream().findFirst().get();
+        assertThat(originalAppLibContextDTO.getUidString()).isEqualTo("accessor_url");
+
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+        createModuleInstanceResponseDTO.getModuleInstance();
+
+        Mono<List<CustomJSLib>> customJSLibsMono =
+                customJSLibService.getAllJSLibsInContext(applicationId, CreatorContextType.APPLICATION, null, false);
+
+        Application application = applicationService.findById(applicationId).block();
+
+        StepVerifier.create(customJSLibsMono)
+                .assertNext(customJSLibs -> {
+                    // Make sure that we only get one entry for the lib in app eventually
+                    assertThat(customJSLibs.size()).isEqualTo(1);
+                    CustomJSLib customJSLib = customJSLibs.get(0);
+                    // And make sure that it is not hidden, as was the case originally
+                    assertThat(customJSLib.getIsHidden()).isNull();
+                    assertThat(customJSLib.getName()).isEqualTo("name1");
+
+                    // Also check the same as stored in the application document
+                    assert application != null;
+                    assertThat(application.getUnpublishedApplicationDetail()).isNotNull();
+                    Set<CustomJSLibContextDTO> hiddenJSLibs =
+                            application.getUnpublishedApplicationDetail().getHiddenJSLibs();
+                    assertThat(hiddenJSLibs.size()).isEqualTo(0);
+                    Set<CustomJSLibContextDTO> visibleLibs = application.getUnpublishedCustomJSLibs();
+                    assertThat(visibleLibs.size()).isEqualTo(1);
+                    CustomJSLibContextDTO libContextDTO =
+                            visibleLibs.stream().findFirst().get();
+                    assertThat(libContextDTO.getUidString()).isEqualTo("accessor_url");
                 })
                 .verifyComplete();
     }
@@ -191,10 +292,10 @@ public class CrudModuleInstanceServiceTest {
                 moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
         ModuleInstanceDTO secondModuleInstanceDTO = secondCreateModuleInstanceResponseDTO.getModuleInstance();
 
-        Mono<List<NewAction>> fristDBActionsMono = getDBActions(firstCreateModuleInstanceResponseDTO);
+        Mono<List<NewAction>> firstDBActionsMono = getDBActions(firstCreateModuleInstanceResponseDTO);
         Mono<List<NewAction>> secondDBActionsMono = getDBActions(secondCreateModuleInstanceResponseDTO);
 
-        StepVerifier.create(fristDBActionsMono)
+        StepVerifier.create(firstDBActionsMono)
                 .assertNext(dbActions -> {
                     doAllAssertions(dbActions, firstCreateModuleInstanceResponseDTO, firstModuleInstanceDTO);
                 })
@@ -251,7 +352,8 @@ public class CrudModuleInstanceServiceTest {
         List<MustacheBindingToken> mustacheTokens = MustacheHelper.extractMustacheKeysInOrder(
                 unpublishedDBAction.getActionConfiguration().getBody());
         assertThat(mustacheTokens.size()).isEqualTo(1);
-        assertThat(mustacheTokens.get(0).getValue()).isEqualTo(moduleInstanceName + ".inputs.genderInput");
+        assertThat(mustacheTokens.get(0).getValue())
+                .isEqualTo("accessor.func(" + moduleInstanceName + ".inputs.genderInput)");
 
         // Assert input references
         assertThat(firstModuleInstanceDTO.getInputs().size()).isEqualTo(1);
@@ -280,14 +382,6 @@ public class CrudModuleInstanceServiceTest {
                 .isEqualTo(TRUE);
     }
 
-    private CreateModuleInstanceResponseDTO getCreateModuleInstanceResponseDTO(
-            ModuleInstanceDTO firstModuleInstanceReqDTO) {
-        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO = crudModuleInstanceService
-                .createModuleInstance(firstModuleInstanceReqDTO, null)
-                .block();
-        return createModuleInstanceResponseDTO;
-    }
-
     @WithUserDetails(value = "api_user")
     @Test
     public void testInstantiateModuleHavingTheSameNameAsAnotherQueryOnThePageShouldCoExist() {
@@ -304,7 +398,8 @@ public class CrudModuleInstanceServiceTest {
                 .assertNext(createdAction -> {
                     assertThat(createdAction.getName()).isEqualTo("GetUsers");
                     assertThat(createdAction.getJsonPathKeys().size()).isEqualTo(1);
-                    assertThat(createdAction.getJsonPathKeys().contains("Input1.text"));
+                    assertThat(createdAction.getJsonPathKeys().contains("Input1.text"))
+                            .isTrue();
                 })
                 .verifyComplete();
 
@@ -354,6 +449,59 @@ public class CrudModuleInstanceServiceTest {
 
                     assertThat(moduleInstances.size()).isEqualTo(0);
                     assertThat(actions.size()).isEqualTo(0);
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testDeleteModuleWhenModuleInstancesPresentShouldRestrictDeletion() {
+        // Create a module instance to restrict deletion of the source module
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+
+        Mono<ModuleDTO> deleteModuleMono = crudModuleService.deleteModule(
+                moduleInstanceTestHelperDTO.getSourceModuleDTO().getId());
+
+        // Module cannot be deleted as it has one reference
+        StepVerifier.create(deleteModuleMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && ((AppsmithException) throwable)
+                                .getError()
+                                .getAppErrorCode()
+                                .equals(AppsmithErrorCode.MODULE_HAS_INSTANCES.getCode()))
+                .verify();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testDeleteModuleWhenModuleInstancesAreDeletedShouldAllowModuleToDelete() {
+        // Create a module instance to restrict deletion of the source module
+        CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
+                moduleInstanceTestHelper.createModuleInstance(moduleInstanceTestHelperDTO);
+
+        Mono<ModuleDTO> deleteModuleMono = crudModuleService.deleteModule(
+                moduleInstanceTestHelperDTO.getSourceModuleDTO().getId());
+
+        // Module cannot be deleted as it has one reference
+        StepVerifier.create(deleteModuleMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && ((AppsmithException) throwable)
+                                .getError()
+                                .getAppErrorCode()
+                                .equals(AppsmithErrorCode.MODULE_HAS_INSTANCES.getCode()))
+                .verify();
+
+        // Make sure module has no instances
+        crudModuleInstanceService
+                .deleteUnpublishedModuleInstance(
+                        createModuleInstanceResponseDTO.getModuleInstance().getId(), null)
+                .block();
+
+        // Module can be deleted now as it has no reference exists
+        StepVerifier.create(deleteModuleMono)
+                .assertNext(deletedModule -> {
+                    assertThat(deletedModule.getId()).isNotNull();
                 })
                 .verifyComplete();
     }

@@ -1,10 +1,10 @@
 package com.appsmith.server.services.ce_compatible;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.dtos.InviteUsersToApplicationDTO;
 import com.appsmith.server.dtos.UpdateApplicationRoleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.FeatureFlagService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

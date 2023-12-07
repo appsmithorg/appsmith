@@ -130,11 +130,11 @@ export const useFilteredAndSortedFileOperations = ({
     .filter(Boolean)
     .filter((ds) => ds.title.toLowerCase().includes(query.toLowerCase()));
   // Add genetic datasource creation
-  const onRedirect = (packageId: string) => {
+  const onRedirect = () => {
     history.push(
       integrationEditorURL({
-        pageId: packageId, // ankita: update later
         selectedTab: INTEGRATION_TABS.NEW,
+        generateEditorPath: true,
       }),
     );
   };

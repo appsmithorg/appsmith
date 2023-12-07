@@ -9,6 +9,10 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      tags:
+        description: "These are the optional tags a developer can specify in order to run a subset of all the tests"
+        required: false
+        type: string
       airgap-enabled:
         description: "This flag is used to determine if the workflow is running for airgap"
         required: false
@@ -121,21 +125,18 @@ jobs:
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       # Timestamp will be used to create cache key
       - id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%dT%H:%M:%S')"
+        run: echo "timestamp=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -178,18 +179,22 @@ jobs:
         run: |
           if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
            echo 'docker_container_name=airgap-cicontainer' >> "$GITHUB_ENV"
+           echo 'cache_download_key=airgap-docker-image-${{ github.run_id }}' >> "$GITHUB_ENV" 
           else
            echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
+           echo 'cache_download_key=docker-image-${{ github.run_id }}' >> "$GITHUB_ENV" 
            fi
 
       - name: Log the docker container name
         run: |
           echo "docker_container_name: ${{ env.docker_container_name }}"
+          echo "cache_download_key: ${{ env.cache_download_key }}"
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v3
+      - name: Restore the docker image cache
+        uses: actions/cache@v3
         with:
-          name: ${{ env.docker_container_name }}
+          path: ${{ env.docker_container_name }}.tar.gz
+          key: ${{ cache_download_key }}
 
       - name: Load Docker image from tar file
         run: |
@@ -211,7 +216,7 @@ jobs:
             export APPSMITH_LICENSE_KEY=${{ secrets.APPSMITH_LICENSE_KEY }}
           else
             export APPSMITH_LICENSE_KEY="VALID-LICENSE-KEY"
-          fi    
+          fi
 
       - name: Run Appsmith, CS & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
@@ -288,8 +293,6 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
@@ -433,7 +436,9 @@ jobs:
           CYPRESS_DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
+          CYPRESS_grepTags: ${{ inputs.tags }} # This is a comma separated list of tags to run a subset of the suite
           CYPRESS_SKIP_FLAKY: true
+          DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep
         with:
           browser: ${{ env.BROWSER_PATH }}
           install: false
@@ -496,15 +501,6 @@ jobs:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-
-      # Force store previous run result to cache
-      - name: Store the previous run result
-        if: success()
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ~/cypress_url
-          key: ${{ github.run_id }}-dashboard-url-${{ github.run_number }}
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure

@@ -7,6 +7,7 @@ import type {
   FetchPackagesInWorkspaceResponse,
 } from "@appsmith/api/PackageApi";
 import type { DeleteModulePayload } from "@appsmith/actions/moduleActions";
+import { klona } from "klona";
 
 type ID = string;
 
@@ -19,7 +20,7 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
     draftState: ModulesReducerState,
     action: ReduxAction<FetchPackageResponse>,
   ) => {
-    draftState = {};
+    draftState = klona(INITIAL_STATE);
     const { modules } = action.payload;
     modules.forEach((module) => {
       draftState[module.id] = module;
@@ -67,7 +68,7 @@ const modulesReducer = createImmerReducer(INITIAL_STATE, {
     draftState: ModulesReducerState,
     action: ReduxAction<FetchPackagesInWorkspaceResponse>,
   ) => {
-    draftState = INITIAL_STATE;
+    draftState = klona(INITIAL_STATE);
     const { modules } = action.payload;
     modules.map((module) => {
       draftState[module.id] = module;

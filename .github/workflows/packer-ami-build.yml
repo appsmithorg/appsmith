@@ -1,6 +1,4 @@
-
 ---
-
 name: Ami Packer Build
 
 on:
@@ -9,13 +7,12 @@ on:
 
 jobs:
   packer:
-
     runs-on: ubuntu-latest
     name: ami-packer-build
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -27,11 +24,11 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.8'
+          python-version: "3.8"
 
       - name: Install ansible
         run: pip install ansible
-      
+
       - name: Install Packer
         run: |
           sudo apt-get update; sudo apt-get install -y curl gnupg software-properties-common ;
@@ -40,6 +37,6 @@ jobs:
           sudo apt-get update && sudo apt-get install -y packer;
 
       - name: Build artifacts
-        run : |
+        run: |
           cd deploy/packer;
           packer build -var vpc_id=${{ secrets.APPSMITH_AWS_VPC_PROD }} -var subnet_id=${{ secrets.APPSMITH_AWS_PROD_SUBNET }} -var token=${{ secrets.DO_TOKEN }} template.json.pkr.hcl

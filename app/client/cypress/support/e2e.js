@@ -46,8 +46,10 @@ import {
   FEATURE_WALKTHROUGH_INDEX_KEY,
   WALKTHROUGH_TEST_PAGE,
 } from "./Constants.js";
+const registerCypressGrep = require("@cypress/grep");
 /// <reference types="cypress-xpath" />
 
+registerCypressGrep();
 installLogsCollector();
 
 Cypress.on("uncaught:exception", (error) => {

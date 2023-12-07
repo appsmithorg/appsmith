@@ -141,4 +141,8 @@ public class FieldName extends FieldNameCE {
     public static final String ASCENDING = "ASC";
 
     public static final String APPROVAL_REQUEST_ROLE_PREFIX = ApprovalRequest.class.getSimpleName() + " Role: %s";
+    public static final String WORKFLOW_EXECUTOR = "Workflow Executor";
+    public static final String WORKFLOW_EXECUTOR_DESCRIPTION =
+            "This role is an auto-created role, and will be have the permission to execute the Workflow and all it's related resources.";
+    public static final String PACKAGE = "package";
 }

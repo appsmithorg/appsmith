@@ -23,4 +23,7 @@ public class NewAction extends NewActionCE {
 
     @JsonView(Views.Public.class)
     String rootModuleInstanceId;
+
+    @JsonView(Views.Public.class)
+    String workflowId;
 }

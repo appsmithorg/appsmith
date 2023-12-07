@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 
 @Service
-public class CrudModuleEntityServiceImpl implements CrudModuleEntityService {
+public class CrudModuleEntityServiceImpl extends CrudModuleEntityServiceCECompatibleImpl
+        implements CrudModuleEntityService {
     private final ModuleRepository moduleRepository;
     private final NewActionService newActionService;
     private final ModulePermission modulePermission;

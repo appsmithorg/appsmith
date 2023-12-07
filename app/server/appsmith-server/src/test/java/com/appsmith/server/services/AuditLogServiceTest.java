@@ -22,6 +22,7 @@ import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.AuditLogConstants;
 import com.appsmith.server.constants.AuditLogEvents;
@@ -1782,8 +1783,8 @@ public class AuditLogServiceTest {
         String resourceType = auditLogService.getResourceType(new NewPage());
 
         applicationPageService
-                .getPageByBranchAndDefaultPageId(
-                        createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, true)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(
+                        createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, true, false)
                 .block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(
@@ -1867,8 +1868,8 @@ public class AuditLogServiceTest {
         String resourceType = auditLogService.getResourceType(new NewPage());
 
         applicationPageService
-                .getPageByBranchAndDefaultPageId(
-                        createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, false)
+                .getPageAndMigrateDslByBranchAndDefaultPageId(
+                        createdApplication.getPublishedPages().get(0).getDefaultPageId(), null, false, false)
                 .block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(
@@ -4737,8 +4738,9 @@ public class AuditLogServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setBody("export default { x: 1 }");
 
-        ActionCollectionDTO createdActionCollectionDTO =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("Permission Group - testPermissionGroup_testUpdateRoles");

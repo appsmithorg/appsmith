@@ -1,6 +1,8 @@
 export * from "ce/selectors/entitiesSelector";
 import { createSelector } from "reselect";
 import {
+  getAction as CE_getAction,
+  getActionData as CE_getActionData,
   getActions,
   getJSCollections,
   selectFilesForExplorer as CE_selectFilesForExplorer,
@@ -14,11 +16,16 @@ import {
 } from "@appsmith/selectors/modulesSelector";
 import type { ModuleInstanceReducerState } from "@appsmith/reducers/entityReducers/moduleInstancesReducer";
 import type { AppState } from "@appsmith/reducers";
-import { sortBy } from "lodash";
+import { find, sortBy } from "lodash";
 import { getAllModuleInstances } from "./moduleInstanceSelectors";
 import { getPackages } from "./packageSelectors";
 import type { ExplorerFileEntityForModule } from "@appsmith/pages/Editor/Explorer/helpers";
-import { getPackageNameForModule } from "@appsmith/utils/Packages/moduleHelpers";
+import {
+  convertModulesToArray,
+  getModuleIdPackageNameMap,
+} from "@appsmith/utils/Packages/moduleHelpers";
+import type { ActionResponse } from "api/ActionAPI";
+import type { Action } from "entities/Action";
 
 export const getCurrentModule = createSelector(
   getAllModules,
@@ -67,13 +74,11 @@ export const selectFilesForExplorer = createSelector(
   getAllModules,
   getPackages,
   (CE_files, moduleInstances, modules, packages) => {
+    const modulesArray = convertModulesToArray(modules);
+    const modulePackageMap = getModuleIdPackageNameMap(modulesArray, packages);
     const moduleInstanceFiles = Object.values(moduleInstances).reduce(
       (acc, file) => {
-        const group = getPackageNameForModule(
-          modules,
-          packages,
-          file.sourceModuleId,
-        );
+        const group = modulePackageMap[file.sourceModuleId] || "Packages";
         acc = acc.concat({
           type: "moduleInstance",
           entity: file,
@@ -125,3 +130,29 @@ export const selectFilesForExplorer = createSelector(
     return groupedFiles.files;
   },
 );
+
+export const getAction = (
+  state: AppState,
+  actionId: string,
+): Action | undefined => {
+  const action = CE_getAction(state, actionId);
+  if (action) return action;
+  const moduleInstanceAction = find(
+    getModuleInstanceEntities(state).actions,
+    (a) => a.config.id === actionId,
+  );
+  if (moduleInstanceAction) return moduleInstanceAction.config;
+};
+
+export const getActionData = (
+  state: AppState,
+  actionId: string,
+): ActionResponse | undefined => {
+  const actionData = CE_getActionData(state, actionId);
+  if (actionData) return actionData;
+  const moduleInstanceAction = find(
+    getModuleInstanceEntities(state).actions,
+    (a) => a.config.id === actionId,
+  );
+  if (moduleInstanceAction) return moduleInstanceAction.data;
+};

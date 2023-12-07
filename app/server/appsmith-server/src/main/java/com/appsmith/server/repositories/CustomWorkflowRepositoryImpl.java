@@ -50,4 +50,12 @@ public class CustomWorkflowRepositoryImpl extends BaseAppsmithRepositoryImpl<Wor
             Optional<AclPermission> permission, Optional<List<String>> includeFields, Optional<Sort> sortBy) {
         return queryAll(List.of(), includeFields, permission, sortBy);
     }
+
+    @Override
+    public Mono<UpdateResult> updateGeneratedTokenForWorkflow(
+            String workflowId, boolean tokenGenerated, Optional<AclPermission> aclPermission) {
+        Update generatedTokenUpdate = new Update();
+        generatedTokenUpdate.set(fieldName(QWorkflow.workflow.tokenGenerated), tokenGenerated);
+        return super.updateById(workflowId, generatedTokenUpdate, aclPermission);
+    }
 }

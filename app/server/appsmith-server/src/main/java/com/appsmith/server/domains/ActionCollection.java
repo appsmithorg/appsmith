@@ -19,6 +19,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document
 public class ActionCollection extends ActionCollectionCE {
+
+    @JsonView(Views.Public.class)
+    String moduleId;
+
     @JsonView(Views.Public.class)
     String moduleInstanceId;
 
@@ -27,4 +31,7 @@ public class ActionCollection extends ActionCollectionCE {
 
     @JsonView(Views.Public.class)
     String rootModuleInstanceId;
+
+    @JsonView(Views.Public.class)
+    String workflowId;
 }

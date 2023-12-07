@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
@@ -18,7 +19,6 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.EnvironmentService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -36,6 +36,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -102,7 +103,7 @@ public class EnvironmentResourcesTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @MockBean
+    @SpyBean
     FeatureFlagService featureFlagService;
 
     User api_user = null;

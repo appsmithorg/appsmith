@@ -82,7 +82,7 @@ describe(
     it("2. Create and test query responses for both ds on both environmets and add Suggested table", function () {
       // Create a query on the ME ds
       const query = 'SELECT * FROM public."city"';
-      dataSources.CreateQueryFromActiveTab(meDatasourceName);
+      dataSources.CreateQueryForDS(meDatasourceName);
       agHelper.RenameWithInPane(meQueryName, true);
       dataSources.EnterQuery(query);
       // Run and verify the response for the query
@@ -146,7 +146,7 @@ describe(
     });
 
     it("4. Generate CRUD page for both datasources", function () {
-      dataSources.NavigateFromActiveDS(meDatasourceName, false);
+      dataSources.GeneratePageForDS(meDatasourceName);
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "city");
       agHelper.ClickButton("Generate page");

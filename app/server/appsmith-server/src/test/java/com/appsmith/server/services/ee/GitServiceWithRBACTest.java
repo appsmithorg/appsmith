@@ -14,6 +14,7 @@ import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -55,7 +56,6 @@ import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.GitService;
 import com.appsmith.server.services.LayoutActionService;
@@ -758,7 +758,7 @@ public class GitServiceWithRBACTest {
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
                                                     layout)),
-                                    layoutCollectionService.createCollection(actionCollectionDTO))
+                                    layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .map(tuple2 -> application);
                 });
 
@@ -999,7 +999,7 @@ public class GitServiceWithRBACTest {
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
                                                     layout)),
-                                    layoutCollectionService.createCollection(actionCollectionDTO))
+                                    layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .map(tuple2 -> application);
                 });
 
@@ -1240,7 +1240,8 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.listBranches(Mockito.any())).thenReturn(Mono.just(List.of()));
 
         Application branchedApplication = runAs(
-                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/" + branchName), api_user)
+                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/" + branchName, true),
+                        api_user)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         branchName, gitConnectedApplication.getId(), READ_APPLICATIONS))
                 .block();
@@ -1519,7 +1520,8 @@ public class GitServiceWithRBACTest {
                 .block();
 
         Mono<Application> applicationMono = runAs(
-                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal"), user)
+                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal", true),
+                        user)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         "branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
 
@@ -1580,7 +1582,8 @@ public class GitServiceWithRBACTest {
         permissionGroupService.assignToUser(permissionGroup, newUser).block();
 
         Mono<Application> applicationMono = runAs(
-                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal"), user)
+                        gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal", true),
+                        user)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         "branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
 

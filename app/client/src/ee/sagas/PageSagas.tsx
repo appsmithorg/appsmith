@@ -1,8 +1,4 @@
 export * from "ce/sagas/PageSagas";
-import {
-  setupModuleInstances,
-  setupModuleInstancesForView,
-} from "@appsmith/actions/moduleInstanceActions";
 import { ModuleInstanceCreatorType } from "@appsmith/constants/ModuleInstanceConstants";
 import {
   type ReduxAction,
@@ -45,6 +41,10 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import { clearEvalCache } from "sagas/EvaluationsSaga";
+import {
+  setupModuleInstanceForViewSaga,
+  setupModuleInstanceSaga,
+} from "./moduleInstanceSagas";
 
 export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
   try {
@@ -54,12 +54,14 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
     );
 
     if (featureFlags.showQueryModule) {
-      yield put(
-        setupModuleInstances({
+      yield call(setupModuleInstanceSaga, {
+        type: ReduxActionTypes.SETUP_MODULE_INSTANCE_INIT,
+        payload: {
           contextId: id,
           contextType: ModuleInstanceCreatorType.PAGE,
-        }),
-      );
+          viewMode: false,
+        },
+      });
     }
 
     yield call(fetchPageSaga, {
@@ -92,14 +94,15 @@ export function* setupPublishedPageSaga(
     );
 
     if (featureFlags.showQueryModule) {
-      yield put(
-        setupModuleInstancesForView({
+      yield call(setupModuleInstanceForViewSaga, {
+        type: ReduxActionTypes.SETUP_MODULE_INSTANCE_FOR_VIEW_INIT,
+        payload: {
           contextId: pageId,
           contextType: ModuleInstanceCreatorType.PAGE,
-        }),
-      );
+          viewMode: true,
+        },
+      });
     }
-
     yield call(fetchPublishedPageSaga, {
       type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
       payload: { bustCache, firstLoad, pageId },

@@ -119,7 +119,7 @@ jobs:
         if: success()
         uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_CHANNEL: stabilizing-cypress
+          SLACK_CHANNEL: cypresspushworkflow
           SLACK_COLOR: ${{steps.slack_notification.outputs.slack_color}}
           SLACK_ICON_EMOJI: ${{steps.slack_notification.outputs.slack_icon}}
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}

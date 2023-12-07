@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;

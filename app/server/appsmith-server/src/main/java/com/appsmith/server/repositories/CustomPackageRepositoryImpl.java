@@ -69,4 +69,22 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
     public Mono<UpdateResult> update(String id, Update updateObj, AclPermission permission) {
         return updateById(id, updateObj, permission);
     }
+
+    @Override
+    public Mono<Package> findByBranchNameAndDefaultPackageId(
+            String defaultPackageId,
+            List<String> projectionFieldNames,
+            String branchName,
+            AclPermission aclPermission) {
+        // TODO : Uncomment the below after git support
+        //        String gitPackageMetadata = fieldName(QPackage.package$.gitPackageMetadata);
+        //        Criteria defaultAppCriteria = where(gitPackageMetadata + "."
+        //            + fieldName(QPackage.package$.gitPackageMetadata.defaultApplicationId))
+        //            .is(defaultPackageId);
+        //        Criteria branchNameCriteria = where(gitPackageMetadata + "."
+        //            + fieldName(QPackage.package$.gitPackageMetadata.branchName))
+        //            .is(branchName);
+        //        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), projectionFieldNames, aclPermission);
+        return findById(defaultPackageId, projectionFieldNames, aclPermission);
+    }
 }

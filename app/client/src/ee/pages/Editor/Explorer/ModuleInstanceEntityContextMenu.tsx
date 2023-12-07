@@ -35,7 +35,7 @@ export function ModuleInstanceEntityContextMenu(props: EntityContextMenuProps) {
         payload: {
           entityId: id,
           entityName: name,
-          entityType: ENTITY_TYPE_VALUE.MODULE_INPUT, // ankita: update this to MODULE_INSTANCE
+          entityType: ENTITY_TYPE_VALUE.MODULE_INSTANCE,
           show: true,
         },
       }),

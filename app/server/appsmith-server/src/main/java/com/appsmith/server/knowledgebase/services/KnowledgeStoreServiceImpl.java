@@ -2,6 +2,7 @@ package com.appsmith.server.knowledgebase.services;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ProcessingStatus;
@@ -18,7 +19,6 @@ import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.KnowledgeStoreRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ApplicationPermission;

@@ -1,4 +1,3 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 import { dataSources } from "../../../../support/Objects/ObjectsCore";
 
@@ -14,8 +13,10 @@ describe("Add widget - Postgress DataSource", function () {
   });
 
   it("1. Verify 'Add to widget [Widget Suggestion]' functionality - Postgress", () => {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    dataSources.EnterQuery("select * from public.configs");
+    dataSources.CreateQueryForDS(
+      datasourceName,
+      "select * from public.configs",
+    );
     cy.WaitAutoSave();
     cy.runQuery();
     cy.get(queryEditor.suggestedTableWidget).click();

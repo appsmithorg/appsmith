@@ -16,7 +16,7 @@ import com.appsmith.server.repositories.ApprovalRequestRepository;
 import com.appsmith.server.repositories.WorkflowRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.workflows.helper.WorkflowProxyHelper;
+import com.appsmith.server.workflows.helpers.WorkflowProxyHelper;
 import jakarta.validation.Validator;
 import org.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -30,7 +30,6 @@ import java.time.Instant;
 import java.util.Optional;
 
 import static com.appsmith.server.acl.AclPermission.RESOLVE_APPROVAL_REQUESTS;
-import static com.appsmith.server.acl.AclPermission.RESOLVE_WORKFLOWS;
 import static com.appsmith.server.constants.ApprovalRequestStatus.RESOLVED;
 import static com.appsmith.server.constants.FieldName.REQUEST;
 import static com.appsmith.server.constants.FieldName.WORKFLOW;
@@ -65,7 +64,7 @@ public class InteractApprovalRequestServiceImpl extends InteractApprovalRequestS
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         Mono<Workflow> workflowMono = workflowRepository
-                .findById(approvalRequestResolutionDTO.getWorkflowId(), RESOLVE_WORKFLOWS)
+                .findById(approvalRequestResolutionDTO.getWorkflowId(), Optional.empty())
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, WORKFLOW, approvalRequestResolutionDTO.getWorkflowId())));
 

@@ -1,6 +1,5 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.domains.ce.CustomJSLibCE;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
@@ -20,9 +20,7 @@ import java.util.Set;
 public class CustomJSLib extends CustomJSLibCE {
 
     /* Fields to be associated with libraries that have been instantiated in a context */
-    String contextId;
-    CreatorContextType contextType;
-    String sourcePackageId;
+    @Transient
     Boolean isHidden;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)

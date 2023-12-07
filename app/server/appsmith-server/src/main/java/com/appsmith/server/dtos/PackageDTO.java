@@ -39,7 +39,10 @@ public class PackageDTO implements Identifiable {
     String color;
 
     @JsonView(Views.Public.class)
-    Set<CustomJSLibApplicationDTO> customJSLibs;
+    Set<CustomJSLibContextDTO> customJSLibs;
+
+    @JsonView(Views.Public.class)
+    Set<CustomJSLibContextDTO> hiddenJSLibs;
 
     @Transient
     @JsonView(Views.Public.class)

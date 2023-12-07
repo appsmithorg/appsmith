@@ -148,6 +148,20 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     }
 
     @Override
+    public Flux<NewAction> findByWorkflowId(
+            String workflowId, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
+        return this.findByWorkflowIds(List.of(workflowId), aclPermission, includeFields);
+    }
+
+    @Override
+    public Flux<NewAction> findByWorkflowIds(
+            List<String> workflowIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
+        Criteria workflowCriteria =
+                Criteria.where(fieldName(QNewAction.newAction.workflowId)).in(workflowIds);
+        return queryAll(List.of(workflowCriteria), includeFields, aclPermission, Optional.empty());
+    }
+
+    @Override
     public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         if (contextType == CreatorContextType.PAGE) {
@@ -208,21 +222,6 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         criteriaList.add(jsInclusionOrExclusionCriteria);
 
         return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
-    }
-
-    @Override
-    public Flux<NewAction> findByWorkflowId(String workflowId, Optional<AclPermission> aclPermission) {
-        String unpublishedAction = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.workflowId);
-        String publishedAction = fieldName(QNewAction.newAction.publishedAction) + "."
-                + fieldName(QNewAction.newAction.publishedAction.workflowId);
-
-        Criteria workflowCriteria = new Criteria()
-                .orOperator(
-                        where(unpublishedAction).is(workflowId),
-                        where(publishedAction).is(workflowId));
-
-        return queryAll(List.of(workflowCriteria), aclPermission);
     }
 
     @Override
@@ -403,10 +402,11 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         List<Criteria> criteria = new ArrayList<>();
         Criteria applicationCriteria =
                 where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        criteria.add(applicationCriteria);
 
         Criteria nonModuleInstanceActionCriterion = getNonModuleInstanceActionCriterion();
         criteria.add(nonModuleInstanceActionCriterion);
 
-        return queryAll(List.of(applicationCriteria), aclPermission, sort);
+        return queryAll(criteria, aclPermission, sort);
     }
 }
