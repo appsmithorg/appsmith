@@ -408,7 +408,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return newAction;
                 })
                 .flatMap(this::sanitizeAction)
-                .flatMap(this::extractAndSetJsonPathKeys)
+                .map(this::extractAndSetJsonPathKeys)
                 .map(updatedAction -> {
                     // In case of external datasource (not embedded) instead of storing the entire datasource
                     // again inside the action, instead replace it with just the datasource ID. This is so that
@@ -498,33 +498,23 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @return
      */
     @Override
-    public Mono<NewAction> extractAndSetJsonPathKeys(NewAction newAction) {
+    public NewAction extractAndSetJsonPathKeys(NewAction newAction) {
         ActionDTO action = newAction.getUnpublishedAction();
+        Set<String> actionKeys = extractKeysFromAction(action).stream()
+                .map(token -> token.getValue())
+                .collect(Collectors.toSet());
+        Set<String> datasourceKeys = datasourceService.extractKeysFromDatasource(action.getDatasource()).stream()
+                .map(token -> token.getValue())
+                .collect(Collectors.toSet());
+        Set<String> keys = new HashSet<>() {
+            {
+                addAll(actionKeys);
+                addAll(datasourceKeys);
+            }
+        };
+        action.setJsonPathKeys(keys);
 
-        // The execute action payload consists of the parameter map which has the required key-value pair being
-        // consumed on backend in binding process. These parameter maps are filled via
-        // action's JsonPathKeys attribute which holds the reference to client side objects e.g. : "input1.Text", e.t.c,
-        // JsonPath keys are modified when the action is updated.
-        return datasourceService
-                .extractKeysFromDatasource(action.getDatasource())
-                .map(datasourceBindings -> {
-                    Set<String> actionKeys = extractKeysFromAction(action).stream()
-                            .map(token -> token.getValue())
-                            .collect(Collectors.toSet());
-
-                    Set<String> datasourceKeys = datasourceBindings.stream()
-                            .map(token -> token.getValue())
-                            .collect(Collectors.toSet());
-                    Set<String> keys = new HashSet<>() {
-                        {
-                            addAll(actionKeys);
-                            addAll(datasourceKeys);
-                        }
-                    };
-
-                    action.setJsonPathKeys(keys);
-                    return newAction;
-                });
+        return newAction;
     }
 
     private Mono<ActionDTO> setTransientFieldsInUnpublishedAction(NewAction newAction) {
