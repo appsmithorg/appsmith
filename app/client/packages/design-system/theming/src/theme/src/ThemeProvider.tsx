@@ -22,10 +22,11 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
   );
 
   const {
+    colorClassName,
     colorModeClassName,
     fontFamilyClassName,
     providerClassName,
-    typographyClassname,
+    typographyClassName,
     widthClassName,
   } = useCssTokens({ ...theme, width });
 
@@ -34,10 +35,11 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
       <div
         className={clsx(
           className,
+          colorClassName,
           colorModeClassName,
           fontFamilyClassName,
           providerClassName,
-          typographyClassname,
+          typographyClassName,
           widthClassName,
         )}
         data-theme-provider=""
