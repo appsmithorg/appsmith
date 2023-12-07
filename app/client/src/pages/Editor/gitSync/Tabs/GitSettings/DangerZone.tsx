@@ -15,6 +15,7 @@ import {
   setIsDisconnectGitModalOpen,
   setIsGitSyncModalOpen,
 } from "actions/gitSyncActions";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { Button, Divider, Text } from "design-system";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +23,7 @@ import { getCurrentApplication } from "selectors/editorSelectors";
 import { getIsAutocommitEnabled } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const Container = styled.div`
   padding-top: 16px;
@@ -59,6 +61,9 @@ const StyledDivider = styled(Divider)`
 `;
 
 function GitDisconnect() {
+  const isAutocommitFeatureEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_git_autocommit_feature_enabled,
+  );
   const isAutocommitEnabled = useSelector(getIsAutocommitEnabled);
 
   const dispatch = useDispatch();
@@ -114,23 +119,29 @@ function GitDisconnect() {
               : createMessage(AUTOCOMMIT_ENABLE)}
           </Button>
         </BodyContainer>
-        <StyledDivider />
-        <BodyContainer>
-          <BodyInnerContainer>
-            <Text kind="heading-xs" renderAs="p">
-              {createMessage(DISCONNECT_GIT)}
-            </Text>
-            <Text renderAs="p">{createMessage(DISCONNECT_GIT_MESSAGE)}</Text>
-          </BodyInnerContainer>
-          <Button
-            data-testid="t--git-disconnect-btn"
-            kind="error"
-            onClick={handleDisconnect}
-            size="md"
-          >
-            {createMessage(DISCONNECT_GIT)}
-          </Button>
-        </BodyContainer>
+        {isAutocommitFeatureEnabled ? (
+          <>
+            <StyledDivider />
+            <BodyContainer>
+              <BodyInnerContainer>
+                <Text kind="heading-xs" renderAs="p">
+                  {createMessage(DISCONNECT_GIT)}
+                </Text>
+                <Text renderAs="p">
+                  {createMessage(DISCONNECT_GIT_MESSAGE)}
+                </Text>
+              </BodyInnerContainer>
+              <Button
+                data-testid="t--git-disconnect-btn"
+                kind="error"
+                onClick={handleDisconnect}
+                size="md"
+              >
+                {createMessage(DISCONNECT_GIT)}
+              </Button>
+            </BodyContainer>
+          </>
+        ) : null}
       </ZoneContainer>
     </Container>
   );
