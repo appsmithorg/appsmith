@@ -29,7 +29,6 @@ public enum FeatureFlagEnum {
     release_embed_hide_share_settings_enabled,
     ab_mock_mongo_schema_enabled,
     rollout_datasource_test_rate_limit_enabled,
-    ab_onboarding_flow_start_with_data_dev_only_enabled,
     git_auto_commit_enabled,
     // Add EE flags below this line, to avoid conflicts.
 }
