@@ -2,6 +2,7 @@ package com.appsmith.server.newpages.onload;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Executable;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -11,7 +12,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.executables.ExecutableOnLoadServiceCE;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
