@@ -2,7 +2,6 @@ import "cypress-wait-until";
 import { v4 as uuidv4 } from "uuid";
 import { ObjectsRegistry } from "../Objects/Registry";
 import type CodeMirror from "codemirror";
-import { ReusableHelper } from "../Objects/ReusableHelper";
 import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
 
@@ -35,7 +34,7 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
   inputFieldName: "",
 };
 
-export class AggregateHelper extends ReusableHelper {
+export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
