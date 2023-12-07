@@ -310,7 +310,7 @@ init_keycloak() {
       echo "WARNING: Failed to migrate Keycloak data to v2 format. Will attempt again at next restart."
     fi
   fi
-  if [[ -f /appsmith-stacks/data/keycloak/keycloakdb.mv.db ]]; then
+  if [[ -f /appsmith-stacks/data/keycloak/keycloakdb.mv.db && ! -f /appsmith-stacks/data/keycloak/keycloakdb.lock.db ]]; then
     java -classpath /opt/keycloak/lib/lib/main/com.h2database.h2-*.jar org.h2.tools.Shell \
       -url jdbc:h2:/appsmith-stacks/data/keycloak/keycloakdb \
       -user sa \
