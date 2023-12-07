@@ -120,6 +120,10 @@ export const getIsPageSaving = (state: AppState) => {
   );
 };
 
+export const selectCustomiseJSOnWidget =
+  (widgetId: string) => (state: AppState) =>
+    widgetId && state.ui.oneClickBinding.jsTriggerOnWidget === widgetId;
+
 export const snipingModeSelector = (state: AppState) =>
   state.ui.editor.isSnipingMode;
 

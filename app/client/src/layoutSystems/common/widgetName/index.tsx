@@ -10,6 +10,7 @@ import { hideErrors } from "selectors/debuggerSelectors";
 import {
   combinedPreviewModeSelector,
   getIsAutoLayout,
+  selectCustomiseJSOnWidget,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
@@ -203,9 +204,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     isAutoLayout,
   ]);
 
-  const customiseJS = useSelector(
-    (state) => state.ui.oneClickBinding.jsTriggerOnWidget,
-  );
+  const customiseJS = useSelector(selectCustomiseJSOnWidget(props.widgetId));
 
   const errorCount = shouldHideErrors ? 0 : props.errorCount;
   const icon =
