@@ -15,12 +15,14 @@ public interface ImportableServiceCE<T extends BaseDomain> {
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson);
+            ApplicationJson applicationJson,
+            boolean isPartialImport);
 
     default Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            boolean isPartialImport) {
         return null;
     }
 }
