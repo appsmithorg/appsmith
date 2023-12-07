@@ -109,13 +109,15 @@ export const SpaceDistributionHandle = ({
         document.addEventListener("mouseup", onMouseUp);
         document.addEventListener("mousemove", onMouseMove);
       };
-      const removeMouseMoveHandlers = () => {
-        if (ref.current && sectionLayoutDom) {
+      const resetHandleCSS = () => {
+        if (ref.current) {
           ref.current.style.display = "none";
           ref.current.style.transition = "";
           ref.current.classList.remove("active");
           ref.current.style.left = "";
         }
+      };
+      const resetCSSOnZones = () => {
         Object.keys(spaceDistributed).forEach((zoneId) => {
           const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
           if (zoneDom) {
@@ -126,6 +128,8 @@ export const SpaceDistributionHandle = ({
             }, 500);
           }
         });
+      };
+      const removeMouseMoveHandlers = () => {
         document.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mousemove", onMouseMove);
       };
@@ -175,9 +179,9 @@ export const SpaceDistributionHandle = ({
       const onMouseUp = (e: MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        removeMouseMoveHandlers();
-        removeColumnIndicator();
         if (isCurrentHandleDistributingSpace.current) {
+          resetHandleCSS();
+          removeColumnIndicator();
           isCurrentHandleDistributingSpace.current = false;
           if (
             currentFlexGrow.leftZone !== currentGrowthFactor.leftZone ||
@@ -197,6 +201,8 @@ export const SpaceDistributionHandle = ({
           dispatch({
             type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
           });
+          resetCSSOnZones();
+          removeMouseMoveHandlers();
         }
       };
       const checkForNeedToAddResistiveForce = (
