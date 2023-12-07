@@ -146,13 +146,6 @@ describe("Entity Explorer tests", () => {
         <WidgetsEditorEntityExplorer />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("Widgets", {
-      selector: "div.t--entity-name",
-    });
-    act(() => {
-      fireEvent.click(widgetsTree);
-      jest.runAllTimers();
-    });
     const tabsWidget = component.queryByText(children[0].widgetName);
     expect(tabsWidget).toBeTruthy();
   });
@@ -178,6 +171,13 @@ describe("Entity Explorer tests", () => {
           <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
+      const widgetsTree: any = component.queryByText("Widgets", {
+        selector: "div.t--entity-name",
+      });
+      act(() => {
+        fireEvent.click(widgetsTree);
+        jest.runAllTimers();
+      });
       const tabsWidget: any = component.queryByText(children[0].widgetName);
       act(() => {
         fireEvent.click(tabsWidget);
