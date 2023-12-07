@@ -105,7 +105,7 @@ describe("Canvas context Property Pane", function () {
       },
       "Table1",
     );
-
+    cy.wait(500);
     cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
@@ -133,6 +133,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
+    cy.wait(500);
     cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
@@ -160,6 +161,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
+    cy.wait(500);
     cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
