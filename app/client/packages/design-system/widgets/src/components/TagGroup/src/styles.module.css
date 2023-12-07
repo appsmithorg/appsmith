@@ -42,7 +42,7 @@
   *-----------------------------------------------------------------------------
   */
   &[data-hovered] {
-    border-color: var(--color-bd-hover);
+    background-color: var(--color-bg-neutral-subtle-hover);
   }
 
   &[data-focus-visible] {
