@@ -44,6 +44,9 @@ const initialState: GitSyncReducerState = {
   protectedBranches: [],
 
   isUpdateProtectedBranchesLoading: false,
+
+  isAutocommitModalOpen: false,
+  isAutocommitEnabled: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -598,6 +601,20 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isUpdateProtectedBranchesLoading: false,
   }),
+  [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_ENABLED]: (
+    state,
+    action: ReduxAction<{ isAutocommitEnabled: boolean }>,
+  ) => ({
+    ...state,
+    isAutocommitEnabled: action.payload.isAutocommitEnabled,
+  }),
+  [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_MODAL_OPEN]: (
+    state,
+    action: ReduxAction<{ isAutocommitModalOpen: boolean }>,
+  ) => ({
+    ...state,
+    isAutocommitModalOpen: action.payload.isAutocommitModalOpen,
+  }),
 });
 
 export interface GitStatusData {
@@ -737,6 +754,9 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   protectedBranches: string[];
   protectedBranchesLoading: boolean;
   isUpdateProtectedBranchesLoading: boolean;
+
+  isAutocommitEnabled: boolean;
+  isAutocommitModalOpen: boolean;
 };
 
 export default gitSyncReducer;

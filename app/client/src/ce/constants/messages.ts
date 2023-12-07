@@ -1050,6 +1050,13 @@ export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
   "This is irreversible. If you wish to reconnect, you will have to connect a new empty repository.";
+export const AUTOCOMMIT = () => "Auto - commit";
+export const AUTOCOMMIT_MESSAGE = () =>
+  "Enable/disable auto migrations from Appsmith.";
+export const AUTOCOMMIT_ENABLE = () => "Enable auto - commit";
+export const AUTOCOMMIT_DISABLE = () => "Disable auto - commit";
+export const AUTOCOMMIT_CONFIRM_DISABLE_MESSAGE = () =>
+  "Disabling auto-commit may result in uncommitted system changes after an Appsmith instance upgrade, requiring manual handling and potential discrepancies in Git versioning.";
 export const NEED_EMPTY_REPO_MESSAGE = () =>
   "You need an empty repository to connect to Git on Appsmith, please create one on your Git service provider to continue.";
 export const GIT_IMPORT_WAITING = () =>
