@@ -61,6 +61,7 @@ import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleConfigDTO;
 import com.appsmith.server.solutions.roles.dtos.UpdateRoleEntityDTO;
 import com.appsmith.server.themes.base.ThemeService;
+import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -229,6 +230,9 @@ public class WorkspaceResourcesTest {
 
     @Autowired
     private CrudWorkflowService crudWorkflowService;
+
+    @Autowired
+    private CrudWorkflowEntityService crudWorkflowEntityService;
 
     @BeforeEach
     public void setup() {
@@ -3234,6 +3238,7 @@ public class WorkspaceResourcesTest {
         Datasource createdDatasource1 = datasourceService.create(datasource).block();
 
         ActionDTO action = new ActionDTO();
+        action.setWorkflowId(createdWorkflow.getId());
         action.setName("validAction");
         action.setPageId(createdApplication.getPages().get(0).getId());
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -3241,9 +3246,8 @@ public class WorkspaceResourcesTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(createdDatasource1);
 
-        ActionDTO createdAction = crudWorkflowService
-                .createWorkflowAction(createdWorkflow.getId(), action)
-                .block();
+        ActionDTO createdAction =
+                crudWorkflowEntityService.createWorkflowAction(action, null).block();
 
         PermissionGroup sampleRole = new PermissionGroup();
         sampleRole.setName("Role - " + testName);

@@ -60,6 +60,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ce_compatible.AuditLogServiceCECompatibleImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.server.workflows.helpers.WorkflowUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
@@ -720,7 +721,8 @@ public class AuditLogServiceImpl extends AuditLogServiceCECompatibleImpl impleme
         }
         auditLog.setResource(auditLogResource);
 
-        if (ModuleUtils.isModuleContext(newAction.getUnpublishedAction())) {
+        if (ModuleUtils.isModuleContext(newAction.getUnpublishedAction())
+                || WorkflowUtils.isWorkflowContext(newAction.getUnpublishedAction())) {
             return Mono.empty();
         }
 

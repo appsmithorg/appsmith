@@ -1,6 +1,6 @@
 package com.appsmith.server.workflows.crud;
 
-import com.appsmith.server.domains.Workflow;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.WorkflowRepository;
@@ -9,16 +9,14 @@ import com.appsmith.server.workflows.base.BaseWorkflowServiceImpl;
 import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
-@Component
-public class CrudWorkflowServiceCECompatibleImpl extends BaseWorkflowServiceImpl
-        implements CrudWorkflowServiceCECompatible {
-
-    public CrudWorkflowServiceCECompatibleImpl(
+@Service
+public class CrudWorkflowEntityServiceCECompatibleImpl extends BaseWorkflowServiceImpl
+        implements CrudWorkflowEntityServiceCECompatible {
+    public CrudWorkflowEntityServiceCECompatibleImpl(
             Scheduler scheduler,
             Validator validator,
             MongoConverter mongoConverter,
@@ -29,27 +27,12 @@ public class CrudWorkflowServiceCECompatibleImpl extends BaseWorkflowServiceImpl
     }
 
     @Override
-    public Mono<Workflow> createWorkflow(Workflow resource, String workspaceId) {
+    public Mono<ActionDTO> createWorkflowAction(ActionDTO actionDTO, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     @Override
-    public Mono<Workflow> updateWorkflow(Workflow workflowUpdate, String workflowId) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Flux<Workflow> getAllWorkflows(String workspaceId) {
-        return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<Workflow> getWorkflowById(String workflowId) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
-    @Override
-    public Mono<Workflow> deleteWorkflow(String workflowId) {
+    public Mono<ActionDTO> updateWorkflowAction(String actionId, ActionDTO actionDTO) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

@@ -1,10 +1,10 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import com.appsmith.server.workflows.crud.CrudWorkflowService;
 import com.appsmith.server.workflows.interact.InteractWorkflowService;
 import com.appsmith.server.workflows.proxy.ProxyWorkflowService;
@@ -40,14 +40,17 @@ public class WorkflowController {
     private final ProxyWorkflowService proxyWorkflowService;
 
     private final InteractWorkflowService interactWorkflowService;
+    private final CrudWorkflowEntityService crudWorkflowEntityService;
 
     public WorkflowController(
             CrudWorkflowService crudWorkflowService,
             ProxyWorkflowService proxyWorkflowService,
-            InteractWorkflowService interactWorkflowService) {
+            InteractWorkflowService interactWorkflowService,
+            CrudWorkflowEntityService crudWorkflowEntityService) {
         this.crudWorkflowService = crudWorkflowService;
         this.proxyWorkflowService = proxyWorkflowService;
         this.interactWorkflowService = interactWorkflowService;
+        this.crudWorkflowEntityService = crudWorkflowEntityService;
     }
 
     @JsonView(Views.Public.class)
@@ -103,17 +106,6 @@ public class WorkflowController {
         return crudWorkflowService
                 .deleteWorkflow(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
-    }
-
-    @JsonView(Views.Public.class)
-    @PostMapping("/{id}/action")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<ActionDTO>> createWorkflowAction(
-            @PathVariable String id, @Valid @RequestBody ActionDTO resource) {
-        log.debug("Going to create action for workflow id: {}", id);
-        return crudWorkflowService
-                .createWorkflowAction(id, resource)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)

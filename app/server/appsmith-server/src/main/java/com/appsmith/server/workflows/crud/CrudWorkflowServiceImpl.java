@@ -1,15 +1,11 @@
 package com.appsmith.server.workflows.crud;
 
-import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.QWorkflow;
 import com.appsmith.server.domains.User;
@@ -308,74 +304,5 @@ public class CrudWorkflowServiceImpl extends CrudWorkflowServiceCECompatibleImpl
                             .then(archiveActionsByWorkflowIdMono)
                             .then(repository.archive(workflowToDelete).thenReturn(workflowToDelete));
                 });
-    }
-
-    /**
-     * <p>
-     * Creates a workflow action and associates it with the specified workflow in a reactive manner.
-     * </p>
-     *
-     * <p>
-     * This method performs the following actions:
-     * <ol>
-     *   <li>Retrieves the workflow based on the provided workflow ID with action creation permissions checked.</li>
-     *   <li>If the workflow is not found, an error with the corresponding ACL no-resource-found code is thrown.</li>
-     *   <li>Generates a workflow action using the provided actionDTO and the retrieved workflow.</li>
-     *   <li>Validates and saves the workflow action to the repository using <code>validateAndSaveActionToRepository()</code> from the new action service.</li>
-     *   <li>If the actionDTO's datasource is null or has no ID, returns the created action without further checks.</li>
-     *   <li>Retrieves the datasource based on the datasource ID with action create permissions checked.</li>
-     *   <li>If the datasource is not found, an error with the corresponding ACL no-resource-found code is thrown.</li>
-     *   <li>Continues with the previously created action Mono, ensuring the action creation is dependent on datasource permissions.</li>
-     * </ol>
-     * </p>
-     *
-     * @param workflowId The ID of the workflow to which the action will be associated.
-     * @param actionDTO The DTO containing information for creating the workflow action.
-     * @return A Mono emitting the created action DTO after validation and saving to the repository.
-     *         The Mono will emit an error if the workflow is not found, the datasource is not found, or if any part
-     *         of the creation process encounters an issue.
-     * </p>
-     */
-    @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_workflows_enabled)
-    public Mono<ActionDTO> createWorkflowAction(String workflowId, ActionDTO actionDTO) {
-        Mono<Workflow> workflowMono = repository
-                .findById(workflowId, workflowPermission.getActionCreationPermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKFLOW, workflowId)));
-
-        Mono<ActionDTO> createActionMono = workflowMono.flatMap(workflow -> {
-            NewAction workflowAction = generateWorkflowAction(workflow, actionDTO);
-            return newActionService.validateAndSaveActionToRepository(workflowAction);
-        });
-
-        if (actionDTO.getDatasource() == null
-                || !StringUtils.hasLength(actionDTO.getDatasource().getId())) {
-            return createActionMono;
-        }
-
-        String datasourceId = actionDTO.getDatasource().getId();
-        return datasourceService
-                .findById(datasourceId, datasourcePermission.getActionCreatePermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "datasource", datasourceId)))
-                .then(createActionMono);
-    }
-
-    NewAction generateWorkflowAction(Workflow workflow, ActionDTO actionDTO) {
-        actionDTO.setWorkspaceId(workflow.getWorkspaceId());
-        actionDTO.setWorkflowId(workflow.getId());
-        actionDTO.setDefaultResources(new DefaultResources());
-        actionDTO.setContextType(CreatorContextType.WORKFLOW);
-        NewAction workflowAction = new NewAction();
-        workflowAction.setWorkspaceId(workflow.getWorkspaceId());
-        workflowAction.setUnpublishedAction(actionDTO);
-        workflowAction.setDefaultResources(new DefaultResources());
-        workflowAction.setPublishedAction(new ActionDTO());
-        workflowAction.setWorkflowId(workflow.getId());
-        Set<Policy> workflowActionPolicies =
-                policyGenerator.getAllChildPolicies(workflow.getPolicies(), Workflow.class, Action.class);
-        workflowAction.setPolicies(workflowActionPolicies);
-        return workflowAction;
     }
 }

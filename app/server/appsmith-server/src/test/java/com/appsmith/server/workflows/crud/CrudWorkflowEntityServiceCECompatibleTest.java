@@ -1,6 +1,6 @@
 package com.appsmith.server.workflows.crud;
 
-import com.appsmith.server.dtos.ApprovalRequestCreationDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.FeatureFlagService;
@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,13 +22,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
-class CrudApprovalRequestServiceCECompatibleTest {
+class CrudWorkflowEntityServiceCECompatibleTest {
 
     @SpyBean
-    FeatureFlagService featureFlagService;
+    private FeatureFlagService featureFlagService;
 
     @Autowired
-    CrudApprovalRequestService crudApprovalRequestService;
+    private CrudWorkflowEntityService crudWorkflowEntityService;
 
     @BeforeEach
     public void setup() {
@@ -38,27 +37,18 @@ class CrudApprovalRequestServiceCECompatibleTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void create() {
-        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudApprovalRequestService
-                .createApprovalRequest(new ApprovalRequestCreationDTO())
+    void createWorkflowAction() {
+        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudWorkflowEntityService
+                .createWorkflowAction(new ActionDTO(), null)
                 .block());
         assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void getById() {
-        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudApprovalRequestService
-                .getApprovalRequestById("random-id")
-                .block());
-        assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void getAll() {
-        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudApprovalRequestService
-                .getPaginatedApprovalRequests(new LinkedMultiValueMap<>())
+    void updateWorkflowAction() {
+        AppsmithException unsupportedException = assertThrows(AppsmithException.class, () -> crudWorkflowEntityService
+                .updateWorkflowAction("action-id", new ActionDTO())
                 .block());
         assertThat(unsupportedException.getMessage()).isEqualTo(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
     }
