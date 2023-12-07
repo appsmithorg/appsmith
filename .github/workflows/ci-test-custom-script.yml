@@ -179,18 +179,22 @@ jobs:
         run: |
           if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
            echo 'docker_container_name=airgap-cicontainer' >> "$GITHUB_ENV"
+           echo 'cache_download_key=airgap-docker-image-${{ github.run_id }}' >> "$GITHUB_ENV" 
           else
            echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
+           echo 'cache_download_key=docker-image-${{ github.run_id }}' >> "$GITHUB_ENV" 
            fi
 
       - name: Log the docker container name
         run: |
           echo "docker_container_name: ${{ env.docker_container_name }}"
+          echo "cache_download_key: ${{ env.cache_download_key }}"
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v3
+      - name: Restore the docker image cache
+        uses: actions/cache@v3
         with:
-          name: ${{ env.docker_container_name }}
+          path: ${{ env.docker_container_name }}.tar.gz
+          key: ${{ cache_download_key }}
 
       - name: Load Docker image from tar file
         run: |
@@ -212,7 +216,7 @@ jobs:
             export APPSMITH_LICENSE_KEY=${{ secrets.APPSMITH_LICENSE_KEY }}
           else
             export APPSMITH_LICENSE_KEY="VALID-LICENSE-KEY"
-          fi    
+          fi
 
       - name: Run Appsmith, CS & TED docker image
         if: steps.run_result.outputs.run_result != 'success'
@@ -289,8 +293,6 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
