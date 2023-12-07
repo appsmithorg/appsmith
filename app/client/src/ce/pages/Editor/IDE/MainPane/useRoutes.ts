@@ -16,7 +16,7 @@ import {
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
   PROVIDER_TEMPLATE_PATH,
-  QUERIES_ADD_PATH,
+  PAGEPANE_ADD_PATH,
   QUERIES_EDITOR_BASE_PATH,
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -133,7 +133,7 @@ function useRoutes(path: string): RouteReturnType[] {
       exact: true,
       path: [
         `${path}${CURL_IMPORT_PAGE_PATH}`,
-        `${path}${CURL_IMPORT_PAGE_PATH}${QUERIES_ADD_PATH}`,
+        `${path}${CURL_IMPORT_PAGE_PATH}${PAGEPANE_ADD_PATH}`,
       ],
     },
     {

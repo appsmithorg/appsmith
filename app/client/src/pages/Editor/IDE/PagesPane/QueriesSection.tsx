@@ -3,7 +3,7 @@ import { Flex } from "design-system";
 import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 
-import { QUERIES_ADD_PATH } from "constants/routes";
+import { PAGEPANE_ADD_PATH } from "constants/routes";
 import { SentryRoute } from "@appsmith/AppRouter";
 import { AddQuerySection } from "./AddQuerySection";
 import { ListQuerySection } from "./ListQuerySection";
@@ -32,7 +32,7 @@ const QueriesSection = () => {
         <SentryRoute
           component={AddQuerySection}
           exact
-          path={`${path}${QUERIES_ADD_PATH}`}
+          path={`${path}${PAGEPANE_ADD_PATH}`}
         />
         <SentryRoute component={ListQuerySection} />
       </Switch>
