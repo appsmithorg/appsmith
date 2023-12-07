@@ -217,10 +217,10 @@ export const redistributeSpaceWithRatios = (
     spaceDistributedArray.reduce((sum, value) => sum + value, 0);
 
   // Calculate the rounding error distribution among the zones
-  const roundOffForIndexPosition =
+  const roundOffForBiggestSpace =
     roundingError % (spaceDistributedArray.length - 1);
   const evenDistributionSpaceWithRoundingError =
-    (roundingError - roundOffForIndexPosition) /
+    (roundingError - roundOffForBiggestSpace) /
     (spaceDistributedArray.length - 1);
 
   // Distribute the rounding error among zones based on index position
@@ -231,9 +231,11 @@ export const redistributeSpaceWithRatios = (
       }
     }
   }
-
+  const biggestSpaceIndex = spaceDistributedArray.indexOf(
+    Math.max(...spaceDistributedArray),
+  );
   // Adjust the space at the specified index for the remaining rounding error
-  spaceDistributedArray[index] += roundOffForIndexPosition;
+  spaceDistributedArray[biggestSpaceIndex] += roundOffForBiggestSpace;
 
   // Return the resulting array after redistribution
   return spaceDistributedArray;
