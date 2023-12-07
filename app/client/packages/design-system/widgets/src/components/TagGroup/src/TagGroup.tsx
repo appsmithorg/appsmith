@@ -54,7 +54,6 @@ function TagGroup<T extends object>(props: TagGroupProps<T>) {
       {Boolean(errorMessage) && (
         <HeadlessText
           className={getTypographyClassName("footnote")}
-          elementType="div"
           slot="errorMessage"
         >
           {errorMessage}
