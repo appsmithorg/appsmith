@@ -194,7 +194,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.docker_container_name }}.tar.gz
-          key: ${{ cache_download_key }}
+          key: ${{ env.cache_download_key }}
 
       - name: Load Docker image from tar file
         run: |
