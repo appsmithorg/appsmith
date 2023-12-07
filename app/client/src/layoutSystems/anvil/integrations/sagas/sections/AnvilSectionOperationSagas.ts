@@ -17,6 +17,7 @@ import {
   redistributeSpaceWithRatios,
 } from "layoutSystems/anvil/sectionSpaceDistributor/utils";
 import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { ZoneMinColumnWidth } from "layoutSystems/anvil/utils/constants";
 
 function* updateZonesCountOfSectionSaga(
   actionPayload: ReduxAction<{
@@ -64,7 +65,7 @@ function* updateZonesCountOfSectionSaga(
       const updatedDistributedSpaceArray = redistributeSpaceWithRatios(
         currentDistributedSpace,
         previousZoneOrder,
-        currentZoneCount > zoneCount ? -2 : 2,
+        currentZoneCount > zoneCount ? -ZoneMinColumnWidth : ZoneMinColumnWidth,
         currentZoneCount > zoneCount ? currentZoneCount - 1 : currentZoneCount,
         true,
       );
