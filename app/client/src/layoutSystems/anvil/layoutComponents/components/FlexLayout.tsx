@@ -21,6 +21,8 @@ import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
 import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 
+export const FLEX_LAYOUT_PADDING = 4;
+
 export interface FlexLayoutProps
   extends AlignSelf,
     JustifyContent,
@@ -117,7 +119,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       maxWidth: maxWidth || "none",
       minHeight: minHeight || "unset",
       minWidth: minWidth || "unset",
-      padding: padding || (isDropTarget ? "4px" : "0px"),
+      padding: padding || (isDropTarget ? `${FLEX_LAYOUT_PADDING}px` : "0px"),
       rowGap: rowGap || "0px",
       width: width || "auto",
       wrap: wrap || "nowrap",

@@ -11,6 +11,7 @@ import {
   getRenderMode,
 } from "selectors/editorSelectors";
 import { RenderModes } from "constants/WidgetConstants";
+import { FLEX_LAYOUT_PADDING } from "../layoutComponents/components/FlexLayout";
 
 // ToDo: This is a placeholder implementation this is bound to change
 export function getDropTargetLayoutId(state: AppState, canvasId: string) {
@@ -47,7 +48,7 @@ export const getZoneMinWidth = (childrenMap: { [key: string]: WidgetProps }) =>
         },
         0,
       );
-      return `${minWidth + 8}px`;
+      return `${minWidth + FLEX_LAYOUT_PADDING * 2}px`;
     },
   );
 
