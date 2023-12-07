@@ -52,7 +52,7 @@ export const AnvilCanvas = (props: BaseWidgetProps) => {
     <div
       className={className}
       id={getAnvilCanvasId(props.widgetId)}
-      onClickCapture={clickToClearSelections}
+      onClick={clickToClearSelections}
     >
       {renderLayouts(
         props.layout,

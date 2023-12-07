@@ -175,6 +175,8 @@ export const SpaceDistributionHandle = ({
       const onMouseUp = (e: MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
+        removeMouseMoveHandlers();
+        removeColumnIndicator();
         if (isCurrentHandleDistributingSpace.current) {
           isCurrentHandleDistributingSpace.current = false;
           if (
@@ -195,8 +197,6 @@ export const SpaceDistributionHandle = ({
           dispatch({
             type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
           });
-          removeMouseMoveHandlers();
-          removeColumnIndicator();
         }
       };
       const checkForNeedToAddResistiveForce = (
