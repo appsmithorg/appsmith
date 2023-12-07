@@ -342,6 +342,10 @@ export class cypressSplit {
       const cypressSpecs = this.util.getVars().cypressSpecs;
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
+      console.log("in spec pattern type :::::::" + typeof specPattern)
+      specPattern = specPattern.toString().replace(process.cwd(), "");
+      console.log("in specPattern.tostring() :::::::" + specPattern)
+
       if (cypressSpecs != "") {
         console.log("in cypress split")
         specPattern = cypressSpecs
