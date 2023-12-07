@@ -17,6 +17,7 @@ export class HomePage {
   private _workspaceName = ".t--workspace-name";
   private _workspaceNameText = ".t--workspace-name-text";
   private _optionsIcon = ".t--options-icon";
+  private _newIcon = ".createnew";
   private _optionsIconInWorkspace = (workspaceName: string) =>
     "//span[text()='" +
     workspaceName +
@@ -572,7 +573,7 @@ export class HomePage {
         this.agHelper.GetNClick(
           this._optionsIconInWorkspace(intoWorkspaceName),
         );
-      else this.agHelper.GetNClick(this._optionsIcon);
+      else this.agHelper.GetNClick(this._newIcon);
       this.agHelper.GetNClick(this._workspaceImport, 0, true);
       this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
     }
