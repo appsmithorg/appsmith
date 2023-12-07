@@ -55,7 +55,8 @@ export class HomePage {
   _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
   _appContainer = ".t--applications-container";
-  _homePageAppCreateBtn = this._appContainer + " .createnew";
+  _homePageAppCreateBtn = " .createnew";
+  _newButtonCreateApplication = "[data-testid=t--workspace-action-create-app]";
   _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   _applicationName = ".t--application-name";
@@ -269,6 +270,7 @@ export class HomePage {
 
   public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
+    cy.get(this._newButtonCreateApplication).first().click({ force: true });
     this.AssertApplicationCreated();
     if (skipSignposting) {
       this.agHelper.AssertElementVisibility(
