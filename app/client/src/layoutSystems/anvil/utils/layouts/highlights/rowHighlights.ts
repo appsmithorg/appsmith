@@ -515,11 +515,13 @@ export function generateHighlights(
     if (isInitialHighlight) {
       posX = currentDimension.left;
     } else {
-      const gap: number =
+      const gap: number = Math.max(
         layoutDimension.left +
-        layoutDimension.width -
-        currentDimension.left -
-        currentDimension.width;
+          layoutDimension.width -
+          currentDimension.left -
+          currentDimension.width,
+        0,
+      );
       const pos: number =
         layoutDimension.left +
         layoutDimension.width -
