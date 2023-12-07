@@ -13,6 +13,8 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  AppSidebarButton,
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Boolean & Enum Datatype tests", function () {
@@ -40,18 +42,6 @@ describe("Boolean & Enum Datatype tests", function () {
     dataSources.CreateQueryFromOverlay(dsName, query, "createTable");
     dataSources.RunQuery();
 
-    //Select query:
-    dataSources.createQueryWithDatasourceSchemaTemplate(
-      dsName,
-      "public.boolenumtypes",
-      "Select",
-    );
-    agHelper.RenameWithInPane("selectRecords");
-    dataSources.RunQuery();
-    agHelper
-      .GetText(dataSources._noRecordFound)
-      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-
     //Other queries
     query = `INSERT INTO public."boolenumtypes" ("workingday", "areweworking") VALUES ({{Insertworkingday.selectedOptionValue}}, {{Insertareweworking.isSwitchedOn}})`;
     dataSources.CreateQueryFromOverlay(dsName, query, "insertRecord");
@@ -74,6 +64,17 @@ describe("Boolean & Enum Datatype tests", function () {
     query = `drop type weekdays`;
     dataSources.CreateQueryFromOverlay(dsName, query, "dropEnum");
 
+    //Select query:
+    dataSources.createQueryWithDatasourceSchemaTemplate(
+      dsName,
+      "public.boolenumtypes",
+      "Select",
+    );
+    agHelper.RenameWithInPane("selectRecords");
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._noRecordFound)
+      .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
     PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
@@ -87,6 +88,9 @@ describe("Boolean & Enum Datatype tests", function () {
     agHelper.ToggleSwitch("Areweworking");
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+    // agHelper.AssertElementAbsence(
+    //   locators._specificToast("Error while inserting resource"),
+    // );
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
@@ -238,6 +242,7 @@ describe("Boolean & Enum Datatype tests", function () {
 
       //Delete queries
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
+      AppSidebar.navigate(AppSidebarButton.Editor);
       PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
 

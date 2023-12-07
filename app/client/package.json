@@ -239,6 +239,7 @@
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",
     "@babel/helper-string-parser": "^7.19.4",
     "@craco/craco": "^7.0.0",
+    "@cypress/grep": "^4.0.1",
     "@faker-js/faker": "^7.4.0",
     "@octokit/rest": "^20.0.1",
     "@peculiar/webcrypto": "^1.4.3",

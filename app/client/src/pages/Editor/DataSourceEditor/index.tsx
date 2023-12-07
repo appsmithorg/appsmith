@@ -108,7 +108,6 @@ import {
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
-import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -148,7 +147,7 @@ interface ReduxStateProps {
   isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
   isAppSidebarEnabled: boolean;
-  currentApplicationIdForCreateNewApp: string | undefined;
+  isOnboardingFlow?: boolean;
 }
 
 const Form = styled.div`
@@ -171,6 +170,10 @@ export const DSEditorWrapper = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: row;
+
+  &.onboarding-flow {
+    height: 100%;
+  }
 `;
 
 export const CalloutContainer = styled.div<{
@@ -899,7 +902,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       canCreateDatasourceActions,
       canDeleteDatasource,
       canManageDatasource,
-      currentApplicationIdForCreateNewApp,
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
@@ -909,6 +911,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isDeleting,
       isInsideReconnectModal,
       isNewDatasource,
+      isOnboardingFlow,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -962,9 +965,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        {isAppSidebarEnabled || !!currentApplicationIdForCreateNewApp ? null : (
-          <CloseEditor />
-        )}
+        {isAppSidebarEnabled || !!isOnboardingFlow ? null : <CloseEditor />}
         {!isInsideReconnectModal && (
           <DSFormHeader
             canCreateDatasourceActions={canCreateDatasourceActions}
@@ -989,7 +990,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               showingTabsOnViewMode && "db-form-resizer-content-show-tabs"
             }`}
           >
-            <DSEditorWrapper>
+            <DSEditorWrapper
+              className={!!isOnboardingFlow ? "onboarding-flow" : ""}
+            >
               {viewMode && !isInsideReconnectModal ? (
                 this.renderTabsForViewMode()
               ) : (
@@ -1019,6 +1022,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                         isFormDirty={this.props.isFormDirty}
                         isInsideReconnectModal={isInsideReconnectModal}
                         isInvalid={this.validateForm()}
+                        isOnboardingFlow={isOnboardingFlow}
                         isSaving={isSaving}
                         isTesting={isTesting}
                         onCancel={() => this.onCancel()}
@@ -1161,10 +1165,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
 
-  // This is only present during onboarding flow
-  const currentApplicationIdForCreateNewApp =
-    getCurrentApplicationIdForCreateNewApp(state);
-
   return {
     canCreateDatasourceActions,
     canDeleteDatasource,
@@ -1202,7 +1202,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     initialValue,
     showDebugger,
     isAppSidebarEnabled,
-    currentApplicationIdForCreateNewApp,
   };
 };
 
