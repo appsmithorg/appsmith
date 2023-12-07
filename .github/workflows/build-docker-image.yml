@@ -100,13 +100,6 @@ jobs:
           docker save cicontainer -o cicontainer.tar
           gzip cicontainer.tar
 
-      # # Uploading the artifact to use it in other subsequent runners
-      # - name: Upload Docker image to artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: cicontainer
-      #     path: cicontainer.tar.gz
-
       - name: Cache docker image
         uses: actions/cache/save@v3
         with:

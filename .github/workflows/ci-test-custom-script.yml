@@ -168,11 +168,6 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      # - name: Download Docker image artifact
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: cicontainer
-
       - name: Restore the docker image cache
         uses: actions/cache@v3
         with:
