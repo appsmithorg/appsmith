@@ -162,7 +162,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
   const { pluginImages, widget } = props;
 
   const queryModuleInstances = useSelector(getQueryModuleInstances);
-  let filteredQueries: ActionData[] | ModuleInstanceData[];
+  let filteredQueries: ActionData[] | ModuleInstanceData[] = queries;
 
   /* Exclude Gsheets from query options till this gets resolved https://github.com/appsmithorg/appsmith/issues/27102*/
   if (widget.type === "JSON_FORM_WIDGET") {
@@ -174,7 +174,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     });
   }
 
-  filteredQueries = [...queries, ...queryModuleInstances] as
+  filteredQueries = [...filteredQueries, ...queryModuleInstances] as
     | ActionDataState
     | ModuleInstanceDataState;
 
