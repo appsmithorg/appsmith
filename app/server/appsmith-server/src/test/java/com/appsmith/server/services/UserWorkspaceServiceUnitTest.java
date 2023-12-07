@@ -5,10 +5,13 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -20,12 +23,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +40,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -43,7 +50,7 @@ public class UserWorkspaceServiceUnitTest {
     @Autowired
     UserDataRepository userDataRepository;
 
-    @Autowired
+    @SpyBean
     UserDataService userDataService;
 
     @Autowired
@@ -71,6 +78,8 @@ public class UserWorkspaceServiceUnitTest {
 
     Workspace workspace;
 
+    List<String> workspaceIds = new ArrayList<>();
+
     @BeforeEach
     public void setUp() {
         modelMapper = new ModelMapper();
@@ -90,6 +99,22 @@ public class UserWorkspaceServiceUnitTest {
         workspace = workspaceService.create(testWorkspace).block();
     }
 
+    private Flux<Workspace> createDummyWorkspaces() {
+        List<Workspace> workspaceList = new ArrayList<>(4);
+        for (int i = 1; i <= 4; i++) {
+            Workspace workspace = new Workspace();
+            workspace.setId("org-" + i);
+            workspace.setName(workspace.getId());
+            workspaceList.add(workspace);
+        }
+        return Flux.fromIterable(workspaceList)
+                .flatMap(workspace -> workspaceService.create(workspace))
+                .map(workspace -> {
+                    workspaceIds.add(workspace.getId());
+                    return workspace;
+                });
+    }
+
     @AfterEach
     public void cleanup() {
         User currentUser = sessionUserService.getCurrentUser().block();
@@ -102,8 +127,16 @@ public class UserWorkspaceServiceUnitTest {
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
-        Workspace deletedWorkspace =
-                workspaceService.archiveById(workspace.getId()).block();
+        if (workspace != null && workspace.getDeletedAt() == null) {
+            workspace = workspaceService.archiveById(workspace.getId()).block();
+        }
+
+        if (!CollectionUtils.isNullOrEmpty(workspaceIds)) {
+            Flux.fromIterable(workspaceIds)
+                    .flatMap(workspaceId -> workspaceService.archiveById(workspaceId))
+                    .map(deletedWorkspace -> workspaceIds.remove(deletedWorkspace.getId()))
+                    .blockLast();
+        }
     }
 
     @Test
@@ -208,5 +241,55 @@ public class UserWorkspaceServiceUnitTest {
         Workspace deletedSecondWorkspace = createSecondWorkspaceMono
                 .flatMap(createdSecondWorkspace -> workspaceService.archiveById(createdSecondWorkspace.getId()))
                 .block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getUserWorkspacesByRecentlyUsedOrder_noRecentWorkspaces_allEntriesAreReturned() {
+        // Mock the user data to return empty recently used workspaces
+        UserData userData = new UserData();
+        doReturn(Mono.just(userData)).when(userDataService).getForCurrentUser();
+        cleanup();
+        createDummyWorkspaces().blockLast();
+
+        StepVerifier.create(userWorkspaceService.getUserWorkspacesByRecentlyUsedOrder())
+                .assertNext(workspaces -> {
+                    assertThat(workspaces.size()).isEqualTo(4);
+                    workspaces.forEach(workspace -> {
+                        assertThat(workspaceIds.contains(workspace.getId())).isTrue();
+                        assertThat(workspace.getTenantId()).isNotEmpty();
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getUserWorkspacesByRecentlyUsedOrder_withRecentlyUsedWorkspaces_allEntriesWithSameOrderAreReturned() {
+        // Mock the user data to return recently used workspaces
+        UserData userData = new UserData();
+        cleanup();
+        createDummyWorkspaces().blockLast();
+        List<RecentlyUsedEntityDTO> recentlyUsedEntityDTOs = new ArrayList<>();
+        workspaceIds.forEach(workspaceId -> {
+            RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
+            recentlyUsedEntityDTO.setWorkspaceId(workspaceId);
+            recentlyUsedEntityDTOs.add(recentlyUsedEntityDTO);
+        });
+        userData.setRecentlyUsedEntityIds(recentlyUsedEntityDTOs);
+        doReturn(Mono.just(userData)).when(userDataService).getForCurrentUser();
+
+        StepVerifier.create(userWorkspaceService.getUserWorkspacesByRecentlyUsedOrder())
+                .assertNext(workspaces -> {
+                    assertThat(workspaces.size()).isEqualTo(4);
+                    List<String> fetchedWorkspaceIds = new ArrayList<>();
+                    workspaces.forEach(workspace -> {
+                        fetchedWorkspaceIds.add(workspace.getId());
+                        assertThat(workspaceIds.contains(workspace.getId())).isTrue();
+                        assertThat(workspace.getTenantId()).isNotEmpty();
+                    });
+                    assertThat(fetchedWorkspaceIds).isEqualTo(workspaceIds);
+                })
+                .verifyComplete();
     }
 }

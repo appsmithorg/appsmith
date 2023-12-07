@@ -563,7 +563,7 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1)
+                            .createCollection(actionCollectionDTO1, null)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(updateLayoutService.updateLayout(
@@ -2049,7 +2049,7 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setActions(List.of(action1));
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
-                    return layoutCollectionService.createCollection(actionCollectionDTO1);
+                    return layoutCollectionService.createCollection(actionCollectionDTO1, null);
                 })
                 .flatMap(actionCollectionDTO -> actionCollectionService.getById(actionCollectionDTO.getId()))
                 .flatMap(actionCollection -> applicationRepository.findById(actionCollection.getApplicationId()))
@@ -2780,7 +2780,7 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1)
+                            .createCollection(actionCollectionDTO1, null)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(updateLayoutService.updateLayout(
@@ -4766,7 +4766,7 @@ public class ImportApplicationServiceTests {
     public void createExportAppJsonWithCustomJSLibTest() {
         CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
         Mono<Boolean> addJSLibMonoCached = customJSLibService
-                .addJSLibToContext(testAppId, CreatorContextType.APPLICATION, jsLib, null, false)
+                .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                 .flatMap(isJSLibAdded ->
                         Mono.zip(Mono.just(isJSLibAdded), applicationPageService.publish(testAppId, true)))
                 .map(tuple2 -> {
@@ -4934,7 +4934,7 @@ public class ImportApplicationServiceTests {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
-        return layoutCollectionService.createCollection(actionCollectionDTO1);
+        return layoutCollectionService.createCollection(actionCollectionDTO1, null);
     }
 
     @Test
