@@ -33,7 +33,7 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import type { JSAction } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import type { ActionEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
@@ -241,11 +241,12 @@ export function* updateTernDefinitions(
 }
 
 export function* handleJSFunctionExecutionErrorLog(
-  collectionId: string,
-  collectionName: string,
   action: JSAction,
+  collection: JSCollection,
   errors: any[],
 ) {
+  const { id: collectionId, name: collectionName } = collection;
+
   errors.length
     ? AppsmithConsole.addErrors([
         {
