@@ -14,7 +14,7 @@ export const AlignmentIndexMap: { [key: string]: number } = {
   [FlexLayerAlignment.End]: 2,
 };
 export const SectionColumns = 12;
-
+export const ZoneMinColumnWidth = 2;
 export const defaultHighlightPayload: HighlightPayload = {
   highlights: [],
   skipEntity: false,

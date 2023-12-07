@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { AnvilReduxActionTypes } from "../integrations/actions/actionTypes";
 import { SpaceDistributorHandleDimensions } from "./constants";
-import { SectionColumns } from "../utils/constants";
+import { SectionColumns, ZoneMinColumnWidth } from "../utils/constants";
 
 interface SpaceDistributionNodeProps {
   columnPosition: number;
@@ -58,8 +58,8 @@ export const SpaceDistributionHandle = ({
   const leftPositionOfHandle =
     left - SpaceDistributorHandleDimensions.width * 0.5;
   const [leftZone, rightZone] = parentZones;
-  const columnWidth = spaceToWorkWith / 12;
-  const minSpacePerBlock = 2;
+  const columnWidth = spaceToWorkWith / SectionColumns;
+  const minSpacePerBlock = ZoneMinColumnWidth;
   const minLimitBounceBackThreshold = 10 / columnWidth;
   const minimumShrinkableSpacePerBlock =
     minSpacePerBlock - minLimitBounceBackThreshold;
