@@ -1,9 +1,11 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.converters.GsonCollectionAdapter;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.google.gson.annotations.JsonAdapter;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -63,6 +65,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     protected Instant deletedAt = null;
 
     @JsonView(Views.Internal.class)
+    @JsonAdapter(GsonCollectionAdapter.class) // custom Gson adapter that'll skip the field if empty
     protected Set<Policy> policies = new HashSet<>();
 
     @Override
@@ -78,6 +81,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
 
     @Transient
     @JsonView(Views.Public.class)
+    @JsonAdapter(GsonCollectionAdapter.class) // custom Gson adapter that'll skip the field if empty
     public Set<String> userPermissions = new HashSet<>();
 
     // This field will only be used for git related functionality to sync the action object across different instances.

@@ -43,8 +43,7 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
         Mono<Application> applicationMono = applicationService
                 .findById(defaultApplicationId, applicationPermission.getEditPermission())
                 .cache();
-        Mono<Boolean> featureEnabledMono =
-                featureFlagService.check(FeatureFlagEnum.ab_onboarding_flow_start_with_data_dev_only_enabled);
+        Mono<Boolean> featureEnabledMono = featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled);
         Mono<Boolean> branchProtectedMono = applicationMono.flatMap(application ->
                 gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName));
         Mono<Boolean> isAutoCommitRunningMono = redisUtils.isAutoCommitRunning(defaultApplicationId);
