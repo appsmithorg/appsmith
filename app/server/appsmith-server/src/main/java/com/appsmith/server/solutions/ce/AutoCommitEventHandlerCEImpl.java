@@ -77,7 +77,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         return redisUtils.releaseFileLock(defaultApplicationId);
     }
 
-    private Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent) {
+    public Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent) {
         return addFileLock(autoCommitEvent.getApplicationId())
                 .then(redisUtils.startAutoCommit(autoCommitEvent.getApplicationId(), autoCommitEvent.getBranchName()))
                 .then(dslMigrationUtils.getLatestDslVersion())
