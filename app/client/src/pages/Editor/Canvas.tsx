@@ -21,6 +21,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import MainCanvasSelectedLayer from "../../layoutSystems/fixedlayout/canvas/MainCanvasSelectedLayer";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -104,14 +105,16 @@ const Canvas = (props: CanvasProps) => {
           ref={isWDSEnabled ? undefined : focusRef}
           width={canvasWidth}
         >
-          {props.widgetsStructure.widgetId &&
-            renderAppsmithCanvas({
-              ...props.widgetsStructure,
-              classList:
-                layoutSystemType === LayoutSystemTypes.ANVIL
-                  ? ["main-anvil-canvas"]
-                  : [],
-            } as WidgetProps)}
+          <MainCanvasSelectedLayer>
+            {props.widgetsStructure.widgetId &&
+              renderAppsmithCanvas({
+                ...props.widgetsStructure,
+                classList:
+                  layoutSystemType === LayoutSystemTypes.ANVIL
+                    ? ["main-anvil-canvas"]
+                    : [],
+              } as WidgetProps)}
+          </MainCanvasSelectedLayer>
         </Wrapper>
       </WDSThemeProvider>
     );
