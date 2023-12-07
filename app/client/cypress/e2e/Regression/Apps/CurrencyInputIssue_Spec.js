@@ -1,4 +1,3 @@
-/// <reference types="Cypress" />
 import { homePage, agHelper } from "../../../support/Objects/ObjectsCore";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
 const themelocators = require("../../../locators/ThemeLocators.json");
