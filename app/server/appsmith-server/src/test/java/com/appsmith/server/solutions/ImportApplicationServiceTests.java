@@ -713,6 +713,8 @@ public class ImportApplicationServiceTests {
                             .isNull();
                     assertThat(datasource.getDatasourceConfiguration().getSshProxyEnabled())
                             .isNull();
+                    assertThat(datasource.getDatasourceConfiguration().getProperties())
+                            .isNull();
 
                     assertThat(applicationJson.getInvisibleActionFields()).isNull();
                     NewAction validAction2 = actionList.stream()

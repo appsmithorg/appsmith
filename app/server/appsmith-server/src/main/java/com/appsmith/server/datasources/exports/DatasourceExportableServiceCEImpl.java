@@ -107,6 +107,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
             datasourceStorage.getDatasourceConfiguration().setAuthentication(null);
             datasourceStorage.getDatasourceConfiguration().setSshProxy(null);
             datasourceStorage.getDatasourceConfiguration().setSshProxyEnabled(null);
+            datasourceStorage.getDatasourceConfiguration().setProperties(null);
         }
     }
 
