@@ -111,10 +111,10 @@ export const SpaceDistributionHandle = ({
       };
       const resetHandleCSS = () => {
         if (ref.current) {
-          ref.current.style.display = "none";
           ref.current.style.transition = "";
           ref.current.classList.remove("active");
           ref.current.style.left = "";
+          ref.current.style.display = "none";
         }
       };
       const resetCSSOnZones = () => {
@@ -158,7 +158,7 @@ export const SpaceDistributionHandle = ({
       const repositionColumnIndicator = (e: MouseEvent) => {
         if (columnIndicatorDivRef.current) {
           columnIndicatorDivRef.current.style.left = e.clientX + 10 + "px";
-          columnIndicatorDivRef.current.style.top = e.clientY + "px";
+          columnIndicatorDivRef.current.style.top = e.clientY - 10 + "px";
         }
       };
       const listenToPositionChangesOfRightZone = () => {};
@@ -183,26 +183,28 @@ export const SpaceDistributionHandle = ({
           resetHandleCSS();
           removeColumnIndicator();
           isCurrentHandleDistributingSpace.current = false;
-          if (
-            currentFlexGrow.leftZone !== currentGrowthFactor.leftZone ||
-            currentFlexGrow.rightZone !== currentGrowthFactor.rightZone
-          ) {
-            dispatch({
-              type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_UPDATE,
-              payload: {
-                zonesDistributed: {
-                  [leftZone]: currentGrowthFactor.leftZone,
-                  [rightZone]: currentGrowthFactor.rightZone,
+          window.requestIdleCallback(() => {
+            if (
+              currentFlexGrow.leftZone !== currentGrowthFactor.leftZone ||
+              currentFlexGrow.rightZone !== currentGrowthFactor.rightZone
+            ) {
+              dispatch({
+                type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_UPDATE,
+                payload: {
+                  zonesDistributed: {
+                    [leftZone]: currentGrowthFactor.leftZone,
+                    [rightZone]: currentGrowthFactor.rightZone,
+                  },
+                  sectionLayoutId,
                 },
-                sectionLayoutId,
-              },
+              });
+            }
+            dispatch({
+              type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
             });
-          }
-          dispatch({
-            type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
+            resetCSSOnZones();
+            removeMouseMoveHandlers();
           });
-          resetCSSOnZones();
-          removeMouseMoveHandlers();
         }
       };
       const checkForNeedToAddResistiveForce = (
