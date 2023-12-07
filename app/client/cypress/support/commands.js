@@ -294,8 +294,8 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.LogOutUser();
   cy.LoginUser(uname, pword);
   if (CURRENT_REPO === REPO.CE) {
-    cy.get(".t--applications-container .createnew").should("be.visible");
-    cy.get(".t--applications-container .createnew").should("be.enabled");
+    cy.get(".createnew").should("be.visible");
+    cy.get(".createnew").should("be.enabled");
   }
   initLocalstorage();
 });
