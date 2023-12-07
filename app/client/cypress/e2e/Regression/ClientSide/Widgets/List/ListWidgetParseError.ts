@@ -9,7 +9,7 @@ describe("List Widget parse error test", () => {
 
     // no toast message should be visible
     agHelper
-      .GetElement(CommonLocators._toastMsg)
+      .GetElement(CommonLocators._toastMsg, "noVerify")
       .should("not.have.length.above", 0);
   });
 });
