@@ -635,8 +635,9 @@ public class WorkspaceResourcesTest {
         actionCollectionDTO.setPluginId(restApiPlugin.getId());
         actionCollectionDTO.setPluginType(restApiPlugin.getType());
 
-        ActionCollectionDTO createdActionCollection =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         CommonAppsmithObjectData dataFromRepositoryForAllTabs = workspaceResources.getDataFromRepositoryForAllTabs();
 
@@ -1269,8 +1270,9 @@ public class WorkspaceResourcesTest {
         actionCollectionDTO.setPluginId(restApiPlugin.getId());
         actionCollectionDTO.setPluginType(restApiPlugin.getType());
 
-        ActionCollectionDTO createdActionCollection =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollection = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("New role for editing");
@@ -2484,8 +2486,9 @@ public class WorkspaceResourcesTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setBody("export default { x: 1 }");
 
-        ActionCollectionDTO createdActionCollectionDTO =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         UpdateRoleConfigDTO updateRoleConfigDTO = new UpdateRoleConfigDTO();
         updateRoleConfigDTO.setTabName(RoleTab.APPLICATION_RESOURCES.getName());

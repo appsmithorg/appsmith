@@ -20,8 +20,6 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Workflow;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.AnalyticEventDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.modules.helpers.ModuleUtils;
@@ -99,11 +97,10 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
-            ObservationRegistry observationRegistry,
             EntityValidationService entityValidationService,
+            ObservationRegistry observationRegistry,
             PermissionGroupRepository permissionGroupRepository,
             WorkflowRepository workflowRepository) {
-
         super(
                 scheduler,
                 validator,
@@ -129,7 +126,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 actionPermission,
                 entityValidationService,
                 observationRegistry);
-
         this.permissionGroupRepository = permissionGroupRepository;
         this.datasourceService = datasourceService;
         this.permissionGroupService = permissionGroupService;
@@ -353,22 +349,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             isInternal = true;
         }
         return entityValidationService.validateName(action.getName(), isInternal);
-    }
-
-    @Override
-    protected Mono<ActionDTO> validateCreatorId(ActionDTO action) {
-        if (ModuleUtils.isModuleContext(action)) {
-            if (action.getModuleId() == null || action.getModuleId().isBlank()) {
-                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.MODULE_ID);
-            }
-        } else if (WorkflowUtils.isWorkflowContext(action)) {
-            if (action.getWorkflowId() == null || action.getWorkflowId().isBlank()) {
-                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKFLOW_ID);
-            }
-        } else {
-            super.validateCreatorId(action);
-        }
-        return Mono.just(action);
     }
 
     @Override

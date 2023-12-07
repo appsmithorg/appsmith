@@ -11,10 +11,12 @@ import com.appsmith.server.annotations.FeatureFlagged;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.QModule;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -175,6 +177,21 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
+    public Mono<ActionCollectionDTO> createPrivateModuleActionCollection(
+            ActionCollectionDTO actionCollectionDTO, String branchName) {
+
+        // branchName handling is left as a TODO for future git implementation for git connected modules.
+
+        if (!StringUtils.hasLength(actionCollectionDTO.getModuleId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.MODULE_ID));
+        }
+
+        return createModuleActionCollection(
+                actionCollectionDTO.getModuleId(), null, false, (ActionCollectionDTO) actionCollectionDTO);
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleDTO> getModule(String moduleId) {
 
         return repository
@@ -281,6 +298,37 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
     private Mono<ActionDTO> createModuleAction(
             String moduleId, String optionalWorkspaceId, boolean isPublic, ModuleActionDTO moduleActionDTO) {
+        return checkIfCreateExecutableAllowedAndReturnModuleAndWorkspaceId(moduleId, optionalWorkspaceId)
+                .flatMap(tuple -> {
+                    Module module = tuple.getT1();
+                    String workspaceId = tuple.getT2();
+                    NewAction moduleAction = generateActionDomain(moduleId, workspaceId, isPublic, moduleActionDTO);
+                    Set<Policy> childActionPolicies =
+                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
+                    moduleAction.setPolicies(childActionPolicies);
+
+                    return newActionService.validateAndSaveActionToRepository(moduleAction);
+                });
+    }
+
+    private Mono<ActionCollectionDTO> createModuleActionCollection(
+            String moduleId, String optionalWorkspaceId, boolean isPublic, ActionCollectionDTO actionCollectionDTO) {
+        return checkIfCreateExecutableAllowedAndReturnModuleAndWorkspaceId(moduleId, optionalWorkspaceId)
+                .flatMap(tuple -> {
+                    Module module = tuple.getT1();
+                    String workspaceId = tuple.getT2();
+                    ActionCollection moduleActionCollection =
+                            generateActionCollectionDomain(moduleId, workspaceId, isPublic, actionCollectionDTO);
+                    Set<Policy> childActionCollectionPolicies =
+                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
+                    moduleActionCollection.setPolicies(childActionCollectionPolicies);
+
+                    return actionCollectionService.validateAndSaveCollection(moduleActionCollection);
+                });
+    }
+
+    private Mono<Tuple2<Module, String>> checkIfCreateExecutableAllowedAndReturnModuleAndWorkspaceId(
+            String moduleId, String optionalWorkspaceId) {
         return repository
                 .findById(moduleId, modulePermission.getCreateExecutablesPermission())
                 .switchIfEmpty(Mono.error(
@@ -307,16 +355,6 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
 
                                 return Mono.zip(Mono.just(module), Mono.just(aPackage.getWorkspaceId()));
                             });
-                })
-                .flatMap(tuple -> {
-                    Module module = tuple.getT1();
-                    String workspaceId = tuple.getT2();
-                    NewAction moduleAction = generateActionDomain(moduleId, workspaceId, isPublic, moduleActionDTO);
-                    Set<Policy> childActionPolicies =
-                            policyGenerator.getAllChildPolicies(module.getPolicies(), Module.class, Action.class);
-                    moduleAction.setPolicies(childActionPolicies);
-
-                    return newActionService.validateAndSaveActionToRepository(moduleAction);
                 });
     }
 
@@ -325,18 +363,43 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
         NewAction moduleAction = new NewAction();
         moduleAction.setWorkspaceId(workspaceId);
 
-        moduleActionDTO.setIsPublic(isPublic);
+        moduleAction.setIsPublic(isPublic);
         moduleActionDTO.setModuleId(moduleId);
         moduleActionDTO.setDefaultResources(new DefaultResources());
         moduleActionDTO.setContextType(CreatorContextType.MODULE);
 
         moduleAction.setUnpublishedAction(moduleActionDTO);
-        moduleAction.setIsPublic(isPublic);
-
         moduleAction.setPublishedAction(new ActionDTO());
         moduleAction.setDefaultResources(new DefaultResources());
 
         return moduleAction;
+    }
+
+    private ActionCollection generateActionCollectionDomain(
+            String moduleId, String workspaceId, boolean isPublic, ActionCollectionDTO actionCollectionDTO) {
+        ActionCollection actionCollection = new ActionCollection();
+        actionCollection.setWorkspaceId(workspaceId);
+        actionCollection.setModuleId(moduleId);
+        actionCollection.setIsPublic(isPublic);
+
+        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setIsPublic(isPublic);
+        actionCollectionDTO.setModuleId(moduleId);
+        actionCollectionDTO.setDefaultResources(new DefaultResources());
+        actionCollectionDTO.setContextType(CreatorContextType.MODULE);
+
+        // Ensure that all actions in the collection have the same contextType and moduleId as the collection itself
+        actionCollectionDTO.getActions().stream().forEach(action -> {
+            action.setIsPublic(isPublic);
+            action.setModuleId(moduleId);
+            action.setContextType(CreatorContextType.MODULE);
+        });
+
+        actionCollection.setUnpublishedCollection(actionCollectionDTO);
+        actionCollection.setPublishedCollection(new ActionCollectionDTO());
+        actionCollection.setDefaultResources(new DefaultResources());
+
+        return actionCollection;
     }
 
     private Mono<Boolean> isValidName(String name, String packageId, String currentModuleId) {

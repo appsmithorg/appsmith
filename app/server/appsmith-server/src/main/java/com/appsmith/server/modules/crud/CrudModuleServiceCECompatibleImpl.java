@@ -1,6 +1,7 @@
 package com.appsmith.server.modules.crud;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -27,6 +28,12 @@ public class CrudModuleServiceCECompatibleImpl extends BaseModuleServiceImpl imp
 
     @Override
     public Mono<ActionDTO> createPrivateModuleAction(ActionDTO action, String branchName) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<ActionCollectionDTO> createPrivateModuleActionCollection(
+            ActionCollectionDTO actionCollectionDTO, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 }

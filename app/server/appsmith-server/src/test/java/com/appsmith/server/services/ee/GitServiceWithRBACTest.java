@@ -758,7 +758,7 @@ public class GitServiceWithRBACTest {
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
                                                     layout)),
-                                    layoutCollectionService.createCollection(actionCollectionDTO))
+                                    layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .map(tuple2 -> application);
                 });
 
@@ -999,7 +999,7 @@ public class GitServiceWithRBACTest {
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
                                                     layout)),
-                                    layoutCollectionService.createCollection(actionCollectionDTO))
+                                    layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .map(tuple2 -> application);
                 });
 

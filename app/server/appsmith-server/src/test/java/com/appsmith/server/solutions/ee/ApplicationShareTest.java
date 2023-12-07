@@ -519,8 +519,9 @@ public class ApplicationShareTest {
         actionCollectionDTO.setPluginId(pluginId);
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        ActionCollectionDTO createdActionCollectionDTO =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         ModuleDTO consumableModule = consumableModuleOptional.get();
 
@@ -3827,8 +3828,9 @@ public class ApplicationShareTest {
         actionCollectionDTO.setPluginId(pluginId);
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        ActionCollectionDTO createdActionCollectionDTO =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         Set<Policy> datasourcePoliciesAfterActionCollectionCreation =
                 datasourceRepository.findById(createdDatasource.getId()).block().getPolicies();

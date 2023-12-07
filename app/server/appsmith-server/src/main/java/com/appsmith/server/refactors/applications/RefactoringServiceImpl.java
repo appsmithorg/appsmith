@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements RefactoringService {
-
     private final EntityRefactoringService<ModuleInstance> moduleInstanceEntityRefactoringService;
     private final CompositeEntityRefactoringService<ModuleInstance> moduleInstanceCompositeEntityRefactoringService;
 

@@ -4738,8 +4738,9 @@ public class AuditLogServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setBody("export default { x: 1 }");
 
-        ActionCollectionDTO createdActionCollectionDTO =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
+                .createCollection(actionCollectionDTO, null)
+                .block();
 
         PermissionGroup permissionGroup = new PermissionGroup();
         permissionGroup.setName("Permission Group - testPermissionGroup_testUpdateRoles");

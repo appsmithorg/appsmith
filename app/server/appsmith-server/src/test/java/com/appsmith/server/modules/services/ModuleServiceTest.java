@@ -8,11 +8,13 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.ModuleInput;
 import com.appsmith.external.models.ModuleInputForm;
 import com.appsmith.external.models.ModuleType;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ModuleActionDTO;
 import com.appsmith.server.dtos.ModuleDTO;
 import com.appsmith.server.dtos.PackageDTO;
@@ -29,6 +31,7 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -101,6 +104,9 @@ public class ModuleServiceTest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
 
     @SpyBean
     FeatureFlagService featureFlagService;
@@ -652,6 +658,62 @@ public class ModuleServiceTest {
                     assertThat(createdModuleAction.getContextType()).isEqualTo(CreatorContextType.MODULE);
                     assertThat(createdModuleAction.getModuleId()).isEqualTo(createdModule.getId());
                     assertThat(createdModuleAction.getIsPublic()).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails(value = "api_user")
+    @Test
+    public void testCreatePrivateModuleActionCollection() {
+
+        Mockito.doReturn(Mono.just(new Plugin())).when(pluginService).findById(Mockito.any());
+
+        ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setName("testCreatePrivateModuleActionCollection");
+        moduleDTO.setType(ModuleType.QUERY_MODULE);
+        moduleDTO.setPackageId(packageId);
+
+        ModuleActionDTO moduleActionDTO = new ModuleActionDTO();
+        moduleActionDTO.setPluginId(datasource.getPluginId());
+        moduleActionDTO.setDatasource(datasource);
+
+        moduleDTO.setEntity(moduleActionDTO);
+
+        ModuleDTO createdModule = crudModuleService.createModule(moduleDTO).block();
+
+        ActionCollectionDTO privateModuleActionCollection = new ActionCollectionDTO();
+        privateModuleActionCollection.setName("firstPrivateModuleActionCollection");
+        privateModuleActionCollection.setPluginId("pluginId");
+        privateModuleActionCollection.setPluginType(PluginType.JS);
+        privateModuleActionCollection.setModuleId(createdModule.getId());
+        privateModuleActionCollection.setContextType(CreatorContextType.MODULE);
+        privateModuleActionCollection.setBody("collectionBody");
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
+        privateModuleActionCollection.setActions(List.of(action1));
+
+        Mono<ActionCollectionDTO> moduleActionCollectionMono =
+                layoutCollectionService.createCollection(privateModuleActionCollection, null);
+
+        StepVerifier.create(moduleActionCollectionMono)
+                .assertNext(createdModuleActionCollection -> {
+                    assertThat(createdModuleActionCollection).isNotNull();
+                    assertThat(createdModuleActionCollection.getContextType()).isEqualTo(CreatorContextType.MODULE);
+                    assertThat(createdModuleActionCollection.getModuleId()).isEqualTo(createdModule.getId());
+                    assertThat(createdModuleActionCollection.getIsPublic()).isFalse();
+
+                    assertThat(createdModuleActionCollection.getActions()).isNotNull();
+                    assertThat(createdModuleActionCollection.getActions().size())
+                            .isEqualTo(1);
+                    assertThat(createdModuleActionCollection
+                                    .getActions()
+                                    .get(0)
+                                    .getActionConfiguration()
+                                    .getBody())
+                            .isEqualTo("mockBody");
                 })
                 .verifyComplete();
     }

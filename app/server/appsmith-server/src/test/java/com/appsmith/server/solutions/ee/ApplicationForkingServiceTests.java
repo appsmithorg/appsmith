@@ -247,7 +247,7 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        layoutCollectionService.createCollection(actionCollectionDTO).block();
+        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
 
         ObjectMapper objectMapper = new ObjectMapper();
         JSONObject parentDsl = new JSONObject(

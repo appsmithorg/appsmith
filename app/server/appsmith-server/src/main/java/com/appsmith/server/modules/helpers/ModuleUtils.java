@@ -2,6 +2,7 @@ package com.appsmith.server.modules.helpers;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.springframework.util.StringUtils;
@@ -54,6 +55,17 @@ public class ModuleUtils {
             return FALSE;
         } else if (!StringUtils.hasLength(actionDTO.getModuleId())
                 || !CreatorContextType.MODULE.equals(actionDTO.getContextType())) {
+            return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    public static Boolean isModuleActionCollection(ActionCollectionDTO actionCollectionDTO) {
+        if (actionCollectionDTO == null) {
+            return FALSE;
+        } else if (!StringUtils.hasLength(actionCollectionDTO.getModuleId())
+                || !CreatorContextType.MODULE.equals(actionCollectionDTO.getContextType())) {
             return FALSE;
         }
 
