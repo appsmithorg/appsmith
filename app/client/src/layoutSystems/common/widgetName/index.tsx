@@ -36,6 +36,7 @@ import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";
 import { Icon } from "design-system";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
@@ -271,7 +272,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
               inverted={false}
               kind="secondary"
               name={"Bind with JS"}
-              toggleSettings={togglePropertyEditor}
+              toggleSettings={() =>
+                dispatch({
+                  type: ReduxActionTypes.TOGGLE_JS_TRIGGER_ON_WIDGET,
+                  payload: props.widgetId,
+                })
+              }
               tooltip={customizeJStooltip}
               widgetId={props.widgetId}
               widgetWidth={props.widgetWidth}

@@ -1,11 +1,10 @@
 import { Classes, Tooltip } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import type { CSSProperties } from "react";
-import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import classNames from "classnames";
 // I honestly can't think of a better name for this enum
 export enum Activities {
@@ -119,27 +118,7 @@ const getStyles = (
 };
 
 export function SettingsControl(props: SettingsControlProps) {
-  const dispatch = useDispatch();
-
   const isSnipingMode = useSelector(snipingModeSelector);
-
-  const customiseJS = useSelector(
-    (state) => state.ui.oneClickBinding.jsTriggerOnWidget,
-  );
-
-  const handleClick = useCallback(
-    (e) => {
-      if (customiseJS) {
-        dispatch({
-          type: ReduxActionTypes.TOGGLE_JS_TRIGGER_ON_WIDGET,
-          payload: props.widgetId,
-        });
-      } else {
-        props.toggleSettings(e);
-      }
-    },
-    [props.toggleSettings, customiseJS, dispatch],
-  );
 
   return (
     <StyledTooltip
@@ -154,7 +133,7 @@ export function SettingsControl(props: SettingsControlProps) {
         )}
         data-testid="t--widget-propertypane-toggle"
         inverted={props.inverted}
-        onClick={handleClick}
+        onClick={props.toggleSettings}
         style={getStyles(
           props.activity,
           props.errorCount,
