@@ -329,7 +329,10 @@ export function extractMetaInformation(
 }
 
 export function checkIntersection(a: number[], b: number[]): boolean {
-  return a[0] < b[1] && b[0] < a[1];
+  return (
+    parseFloat(a[0].toFixed(2)) < parseFloat(b[1].toFixed(2)) &&
+    parseFloat(b[0].toFixed(2)) < parseFloat(a[1].toFixed(2))
+  );
 }
 
 /**
