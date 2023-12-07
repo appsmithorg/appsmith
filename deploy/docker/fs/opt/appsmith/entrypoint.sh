@@ -594,6 +594,14 @@ init_loading_pages(){
   /opt/caddy/caddy start --config "$TMP/Caddyfile"
 }
 
+function setup_auto_heal(){
+   if [[ ${APPSMITH_AUTO_HEAL-} = 1 ]]; then
+     # By default APPSMITH_AUTO_HEAL=0
+     # To enable auto heal set APPSMITH_AUTO_HEAL=1
+     bash /opt/appsmith/auto_heal.sh >> /appsmith-stacks/logs/cron/auto_heal.log 2>&1 &
+   fi
+}
+
 # Main Section
 init_loading_pages
 init_env_file
@@ -633,6 +641,8 @@ mkdir -p /appsmith-stacks/data/{backup,restore,keycloak}
 # Create sub-directory to store services log in the container mounting folder
 mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 mkdir -p /appsmith-stacks/logs/{keycloak,temporal}
+
+setup_auto_heal
 
 # Handle CMD command
 exec "$@"
