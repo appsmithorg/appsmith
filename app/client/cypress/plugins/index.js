@@ -223,6 +223,17 @@ module.exports = async (on, config) => {
     },
   });
 
+  console.log("Type of 'config.specPattern':", typeof config.specPattern);
+  /**
+   * Cypress grep plug return specPattern as object and with absolute path
+   */
+  if(typeof config.specPattern == 'object'){
+  config.specPattern = config.specPattern.map((spec) => {
+    return spec.replace(process.cwd() + "/", "");
+  });
+}
+console.log("config.specPattern:", config.specPattern);
+
   if (process.env["RUNID"]) {
     config = await new cypressSplit().splitSpecs(on, config);
     cypressHooks(on, config);
