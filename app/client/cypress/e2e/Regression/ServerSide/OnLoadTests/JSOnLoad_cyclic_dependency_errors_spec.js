@@ -6,7 +6,6 @@ import EditorNavigation, {
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 let queryName = "Query1";
 
@@ -70,7 +69,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
         dsname = httpResponse.response.body.data.name;
       });
       cy.wait(1000);
-      cy.get(datasource.createQuery).click();
+      dataSources.CreateQueryAfterDSSaved();
       dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       dataSources.ToggleUsePreparedStatement(false);
       PageLeftPane.switchSegment(PagePaneSegment.Widgets);

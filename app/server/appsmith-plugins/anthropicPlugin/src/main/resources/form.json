@@ -1,0 +1,43 @@
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
+        {
+          "label": "Authentication type",
+          "description": "Select the authentication type to use",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "DROP_DOWN",
+          "initialValue" : "apiKey",
+          "options": [
+            {
+              "label": "API Key",
+              "value": "apiKey"
+            }
+          ],
+          "isRequired": true,
+          "hidden": true
+        },
+        {
+          "label": "API Key",
+          "configProperty": "datasourceConfiguration.authentication.value",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "initialValue": "",
+          "isRequired": true,
+          "encrypted": true
+        },
+        {
+          "label": "Endpoint URL (with or without protocol and port no)",
+          "configProperty": "datasourceConfiguration.url",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "https://api.anthropic.com",
+          "isRequired": true,
+          "hidden": true
+        }
+      ]
+    }
+  ],
+  "formButton" : ["TEST", "CANCEL", "SAVE"]
+}

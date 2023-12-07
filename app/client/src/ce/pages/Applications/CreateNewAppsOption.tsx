@@ -15,7 +15,6 @@ import {
   START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -49,7 +48,6 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
 import localStorage from "utils/localStorage";
@@ -61,6 +59,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { fetchMockDatasources } from "actions/datasourceActions";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
+import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -203,9 +202,6 @@ const CreateNewAppsOption = ({
       currentApplicationIdForCreateNewApp,
     ),
   );
-  const isEnabledForStartWithData = useFeatureFlag(
-    FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
-  );
 
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
@@ -239,14 +235,17 @@ const CreateNewAppsOption = ({
     );
     if (devEnabled) {
       // fetch plugins information to show list of all plugins
-      if (isEnabledForStartWithData) {
-        dispatch(fetchPlugins());
-        dispatch(fetchMockDatasources());
-        setUseType(START_WITH_TYPE.DATA);
+      dispatch(fetchPlugins());
+      dispatch(fetchMockDatasources());
+      if (application?.workspaceId) {
+        dispatch(fetchingEnvironmentConfigs(application?.workspaceId, true));
       }
+      setUseType(START_WITH_TYPE.DATA);
     } else {
       if (application) {
-        AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
+        AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA", {
+          shortcut: "true",
+        });
         dispatch(
           firstTimeUserOnboardingInit(
             application.id,
@@ -363,6 +362,13 @@ const CreateNewAppsOption = ({
 
   const selectionOptions: CardProps[] = [
     {
+      onClick: onClickStartWithData,
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-with-data.svg`),
+      subTitle: createMessage(START_WITH_DATA_SUBTITLE),
+      testid: "t--start-from-data",
+      title: createMessage(START_WITH_DATA_TITLE),
+    },
+    {
       onClick: onClickStartFromScratch,
       src: getAssetUrl(`${ASSETS_CDN_URL}/start-from-scratch.svg`),
       subTitle: createMessage(START_FROM_SCRATCH_SUBTITLE),
@@ -377,16 +383,6 @@ const CreateNewAppsOption = ({
       title: createMessage(START_FROM_TEMPLATE_TITLE),
     },
   ];
-
-  if (isEnabledForStartWithData) {
-    selectionOptions.unshift({
-      onClick: onClickStartWithData,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/start-with-data.svg`),
-      subTitle: createMessage(START_WITH_DATA_SUBTITLE),
-      testid: "t--start-from-data",
-      title: createMessage(START_WITH_DATA_TITLE),
-    });
-  }
 
   useEffect(() => {
     AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {

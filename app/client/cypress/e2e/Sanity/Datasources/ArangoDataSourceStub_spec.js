@@ -1,4 +1,3 @@
-const datasource = require("../../../locators/DatasourcesEditor.json");
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe("Arango datasource test cases", function () {
@@ -26,7 +25,7 @@ describe("Arango datasource test cases", function () {
   });
 
   it("3. Create a new query from the datasource editor", function () {
-    cy.get(datasource.createQuery).last().click();
+    dataSources.CreateQueryAfterDSSaved();
     cy.wait("@createNewApi").should(
       "have.nested.property",
       "response.body.responseMeta.status",
