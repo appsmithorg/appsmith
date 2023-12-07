@@ -47,7 +47,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import {
   getDefaultSpaceDistributed,
-  redistributeSectionSpace,
+  redistributeSpaceWithRatios,
 } from "layoutSystems/anvil/sectionSpaceDistributor/utils";
 import { SectionColumns } from "layoutSystems/anvil/utils/constants";
 
@@ -410,7 +410,7 @@ function* updateAndSaveAnvilLayoutSaga(
         zonesToRemove.forEach((eachZone) => {
           const zoneProps = currentWidgets[eachZone];
           const index = previousZoneOrder.indexOf(eachZone);
-          const updatedDistributedSpaceArray = redistributeSectionSpace(
+          const updatedDistributedSpaceArray = redistributeSpaceWithRatios(
             currentDistributedSpace,
             previousZoneOrder,
             -zoneProps.flexGrow || commonSpace,
@@ -429,7 +429,7 @@ function* updateAndSaveAnvilLayoutSaga(
         zonesToAdd.forEach((eachZone) => {
           const zoneProps = widgets[eachZone];
           const index = updatedZoneOrder.indexOf(eachZone);
-          const updatedDistributedSpaceArray = redistributeSectionSpace(
+          const updatedDistributedSpaceArray = redistributeSpaceWithRatios(
             currentDistributedSpace,
             previousZoneOrder,
             zoneProps.flexGrow || commonSpace,

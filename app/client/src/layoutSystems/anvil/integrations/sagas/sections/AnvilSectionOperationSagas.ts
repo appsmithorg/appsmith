@@ -14,7 +14,7 @@ import { batchUpdateWidgetProperty } from "actions/controlActions";
 import { saveAnvilLayout } from "../../actions/saveLayoutActions";
 import {
   getDefaultSpaceDistributed,
-  redistributeSectionSpace,
+  redistributeSpaceWithRatios,
 } from "layoutSystems/anvil/sectionSpaceDistributor/utils";
 import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 
@@ -61,7 +61,7 @@ function* updateZonesCountOfSectionSaga(
       const updatedZoneOrder: string[] = updatedWidgets[
         sectionWidgetId
       ].layout[0].layout.map((each: WidgetLayoutProps) => each.widgetId);
-      const updatedDistributedSpaceArray = redistributeSectionSpace(
+      const updatedDistributedSpaceArray = redistributeSpaceWithRatios(
         currentDistributedSpace,
         previousZoneOrder,
         currentZoneCount > zoneCount ? -2 : 2,
