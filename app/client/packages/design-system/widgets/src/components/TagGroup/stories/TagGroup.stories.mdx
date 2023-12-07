@@ -26,6 +26,14 @@ Tag Group is a group of checkboxes that can be selected together.
   <Story name="Tag Group">{Template.bind({})}</Story>
 </Canvas>
 
+## Props ( Tag Group )
+
+<ArgsTable of={TagGroup} />
+
+## Props ( Tag )
+
+<ArgsTable of={Tag} />
+
 # Single Selection Mode
 
 Tag Group can be configured to allow only one selection at a time with the `selectionMode` prop.
@@ -58,7 +66,7 @@ Tag Group can be configured to allow multiple selections at a time with the `sel
 
 ## Removing Tags
 
-Tags can be removed with the `onRemove` prop.
+Tags can be removed with the `onRemove` prop. The Tag will render a close icon when this prop is provided on the TagGroup.
 
 <Canvas>
   <Story

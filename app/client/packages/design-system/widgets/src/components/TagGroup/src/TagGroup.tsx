@@ -12,6 +12,7 @@ import type {
 
 import { Text } from "../../Text";
 import styles from "./styles.module.css";
+import { getTypographyClassName } from "@design-system/theming";
 
 interface TagGroupProps<T>
   extends Omit<HeadlessTagGroupProps, "children">,
@@ -43,15 +44,20 @@ function TagGroup<T extends object>(props: TagGroupProps<T>) {
         {children}
       </HeadlessTagList>
       {Boolean(description) && (
-        <HeadlessText elementType="div" slot="description">
-          <Text variant="footnote">{description}</Text>
+        <HeadlessText
+          className={getTypographyClassName("footnote")}
+          slot="description"
+        >
+          {description}
         </HeadlessText>
       )}
       {Boolean(errorMessage) && (
-        <HeadlessText elementType="div" slot="errorMessage">
-          <Text color="negative" variant="footnote">
-            {errorMessage}
-          </Text>
+        <HeadlessText
+          className={getTypographyClassName("footnote")}
+          elementType="div"
+          slot="errorMessage"
+        >
+          {errorMessage}
         </HeadlessText>
       )}
     </HeadlessTagGroup>
