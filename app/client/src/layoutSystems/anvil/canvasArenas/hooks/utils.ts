@@ -41,7 +41,7 @@ export const getClosestHighlight = (
   return sortedHighlights[0];
 };
 
-function getViableDropPositions(
+export function getViableDropPositions(
   arr: AnvilHighlightInfo[],
   pos: XYCord,
 ): AnvilHighlightInfo[] {
@@ -106,7 +106,7 @@ function getViableDropPositions(
   return [...verticalSelection, ...horizontalSelection];
 }
 
-function isWithinHorizontalDropZone(
+export function isWithinHorizontalDropZone(
   pos: XYCord,
   highlight: AnvilHighlightInfo,
 ): boolean {
@@ -123,7 +123,7 @@ function isWithinHorizontalDropZone(
   return withinRightDropZone || withinLeftDropZone;
 }
 
-function isWithinVerticalDropZone(
+export function isWithinVerticalDropZone(
   pos: XYCord,
   highlight: AnvilHighlightInfo,
   hasVerticalSelection: boolean,
