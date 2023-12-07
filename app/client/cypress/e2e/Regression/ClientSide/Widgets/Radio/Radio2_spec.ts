@@ -319,7 +319,7 @@ describe("Radio Widget test cases", function () {
     });
 
     agHelper.GetWidth(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP));
-    agHelper.GetElement("@eleWidth").then(($currentWidth) => {
+    cy.get("@eleWidth").then(($currentWidth) => {
       expect($currentWidth).to.be.greaterThan(420);
     });
   });
@@ -368,7 +368,7 @@ describe("Radio Widget test cases", function () {
     });
 
     agHelper.GetWidth(locators._widgetInDeployed(draggableWidgets.RADIO_GROUP));
-    agHelper.GetElement("@eleWidth").then(($currentWidth) => {
+    cy.get("@eleWidth").then(($currentWidth) => {
       expect($currentWidth).to.be.greaterThan(420);
     });
   });
@@ -401,7 +401,7 @@ describe("Radio Widget test cases", function () {
       locators._widgetInDeployed(draggableWidgets.RADIO_GROUP),
     );
 
-    agHelper.GetElement("@postExecute").then((interception: any) => {
+    cy.get("@postExecute").then((interception: any) => {
       agHelper.Sleep();
       const name = interception.response.body.data.body[0].name;
       agHelper.AssertExistingCheckedState(
