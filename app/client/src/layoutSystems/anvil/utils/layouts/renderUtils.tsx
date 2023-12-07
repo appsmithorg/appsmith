@@ -163,7 +163,6 @@ export function renderWidgetsInAlignedRow(
   > = {
     alignSelf: "stretch",
     canvasId,
-    columnGap: "4px",
     direction: "row",
     flexBasis: { base: "auto", [`${MOBILE_BREAKPOINT}px`]: "0%" },
     flexGrow: 1,

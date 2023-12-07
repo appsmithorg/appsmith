@@ -10,8 +10,6 @@ import type {
   SizingDimension,
   SpacingDimension,
 } from "@design-system/widgets";
-import { ROW_GAP } from "layoutSystems/common/utils/constants";
-import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type {
@@ -120,9 +118,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       minHeight: minHeight || "unset",
       minWidth: minWidth || "unset",
       padding: padding || (isDropTarget ? "4px" : "0px"),
-      rowGap: rowGap || {
-        base: addPixelToSize(ROW_GAP),
-      },
+      rowGap: rowGap || "0px",
       width: width || "auto",
       wrap: wrap || "nowrap",
     };
