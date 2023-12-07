@@ -390,11 +390,14 @@ export function* refactorModuleInstanceName({
           viewMode: false,
         },
       });
+      yield put({
+        type: ReduxActionTypes.REFACTOR_MODULE_INSTANCE_COMPLETION,
+      });
     } else {
       yield call(setupModuleInstanceSaga, {
         type: ReduxActionTypes.SETUP_MODULE_INSTANCE_INIT,
         payload: {
-          contextId: id,
+          contextId: pageId,
           contextType: ModuleInstanceCreatorType.PAGE,
           viewMode: false,
         },

@@ -20,7 +20,10 @@ import { find, sortBy } from "lodash";
 import { getAllModuleInstances } from "./moduleInstanceSelectors";
 import { getPackages } from "./packageSelectors";
 import type { ExplorerFileEntityForModule } from "@appsmith/pages/Editor/Explorer/helpers";
-import { getPackageNameForModule } from "@appsmith/utils/Packages/moduleHelpers";
+import {
+  convertModulesToArray,
+  getModuleIdPackageNameMap,
+} from "@appsmith/utils/Packages/moduleHelpers";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Action } from "entities/Action";
 
@@ -71,13 +74,11 @@ export const selectFilesForExplorer = createSelector(
   getAllModules,
   getPackages,
   (CE_files, moduleInstances, modules, packages) => {
+    const modulesArray = convertModulesToArray(modules);
+    const modulePackageMap = getModuleIdPackageNameMap(modulesArray, packages);
     const moduleInstanceFiles = Object.values(moduleInstances).reduce(
       (acc, file) => {
-        const group = getPackageNameForModule(
-          modules,
-          packages,
-          file.sourceModuleId,
-        );
+        const group = modulePackageMap[file.sourceModuleId] || "Packages";
         acc = acc.concat({
           type: "moduleInstance",
           entity: file,
