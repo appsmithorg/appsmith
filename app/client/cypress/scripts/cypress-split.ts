@@ -252,14 +252,6 @@ export class cypressSplit {
             ignorePattern,
             attemptId,
           );
-
-          // specs = specs.map((spec) => {
-          //   console.log("Specs to run in abs path: ", spec);
-          //   const relativePath = spec.replace(process.cwd()+"/", '')
-          //   console.log("Specs to run in relative path: ", relativePath);
-          //   return relativePath;
-          // });
-        
           return specs;
         } else {
           await this.sleep(5000);
@@ -314,43 +306,18 @@ export class cypressSplit {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  // private processSpecPattern(inputPath: string): string {
-  //   const pattern = '/***/';
-  //   const index = inputPath.indexOf(pattern);
-
-  //   if (index !== -1 && index > 0) {
-  //     return inputPath.substring(index + pattern.length);
-  //   } else {
-  //     return inputPath;
-  //   }
-  // }
-
-
   public async splitSpecs(
     on: Cypress.PluginEvents,
     config: Cypress.PluginConfigOptions,
   ) {
     try {
-      console.log("In splitSpecs() fucntion")
-      console.log("------------------ Specs Splitting Started ------------------");
-      console.log("Specs Pattern: ", config.specPattern);
-      console.log("------------------ Specs Splitting Ended ------------------");
-
       let specPattern = config.specPattern;
-
       let ignorePattern: string | string[] = config.excludeSpecPattern;
       const cypressSpecs = this.util.getVars().cypressSpecs;
       const defaultSpec = "cypress/scripts/no_spec.ts";
 
-      console.log("in spec pattern type  ------->" + typeof specPattern)
-      specPattern = specPattern.toString().replaceAll(process.cwd()+"/", "");
-      console.log("in specPattern.tostring() ------->" + specPattern)
-
       if (cypressSpecs != "")
         specPattern = cypressSpecs?.split(",").filter((val) => val !== "");
-
-      console.log("in  ------->" + specPattern)
-
       if (this.util.getVars().cypressRerun === "true") {
         specPattern =
           (await this.getFailedSpecsFromPreviousRun()) ?? defaultSpec;
