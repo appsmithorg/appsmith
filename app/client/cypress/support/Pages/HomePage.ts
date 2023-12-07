@@ -75,8 +75,6 @@ export class HomePage {
   private _workspaceImportAppModal = ".t--import-application-modal";
   private _leaveWorkspaceConfirmButton =
     "[data-testid=t--workspace-leave-button]";
-  private _lastWorkspaceInHomePage =
-    "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   private _leaveWorkspace = "//span[text()='Leave workspace']";
   private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
@@ -97,8 +95,7 @@ export class HomePage {
   private _wsAction = (action: string) =>
     ".ads-v2-menu__menu-item-children:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
-  private _workSpaceByName = (wsName: string) =>
-    `//div[contains(@class, 't--applications-container')]//span[text()='${wsName}']`;
+  private adsV2Text = ".ads-v2-text";
   private _forkWorkspaceDropdownOption = "div.rc-select-selector";
   private _forkWorkspaceSelectOptions = (option: string) =>
     "div[title='" + option + "']";
@@ -154,8 +151,8 @@ export class HomePage {
 
     workspaceNewName &&
       cy
-        .xpath(this._lastWorkspaceInHomePage)
-        .first()
+        .get(this._workspaceNameText)
+        .find(this.adsV2Text)
         .then(($ele) => {
           oldName = $ele.text();
           cy.log("oldName is : " + oldName);
@@ -164,14 +161,7 @@ export class HomePage {
   }
 
   public OpenWorkspaceOptions(workspaceName: string) {
-    this.agHelper
-      .GetElement(this._workSpaceByName(workspaceName))
-      .last()
-      .closest(this._workspaceCompleteSection)
-      .scrollIntoView()
-      .wait(1000) ///for scroll to finish & element to come to view
-      .find(this._optionsIcon)
-      .click({ force: true });
+    this.agHelper.GetElement(this._optionsIcon).click({ force: true });
   }
 
   public OpenWorkspaceSettings(workspaceName: string) {
