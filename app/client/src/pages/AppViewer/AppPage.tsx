@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
@@ -18,6 +18,7 @@ import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { debounce } from "lodash";
 
 interface AppPageProps {
   appName?: string;
@@ -28,6 +29,7 @@ interface AppPageProps {
 }
 
 export function AppPage(props: AppPageProps) {
+  const [width, setWidth] = useState<number>(props.canvasWidth);
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
@@ -52,6 +54,25 @@ export function AppPage(props: AppPageProps) {
     });
   }, [props.pageId, props.pageName]);
 
+  useEffect(() => {
+    /**
+     * Frequent canvasWidth updates on operations like resizing of browser window
+     * are causing janks in behavior of this component.
+     * This is primarily because the props.canvasWidth is updating
+     * very rapidly and in an asynchronous manner.
+     * Using debounce here to slow down the application of the updates
+     * and to trim jankiness from the experience.
+     */
+    const debouncedSetWidth = debounce(() => {
+      setWidth(props.canvasWidth);
+    }, 100);
+    debouncedSetWidth();
+
+    // Cleanup
+    return () => {
+      debouncedSetWidth.cancel();
+    };
+  }, [props.canvasWidth]);
   return (
     <PageViewWrapper
       hasPinnedSidebar={
@@ -64,7 +85,7 @@ export function AppPage(props: AppPageProps) {
         isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
       }
     >
-      <PageView className="t--app-viewer-page" width={props.canvasWidth}>
+      <PageView className="t--app-viewer-page" width={width}>
         {props.widgetsStructure.widgetId &&
           renderAppsmithCanvas({
             ...props.widgetsStructure,
