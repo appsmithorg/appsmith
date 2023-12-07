@@ -72,6 +72,7 @@ import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
 import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
 import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
 import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
+import { WDSMenuButtonWidget } from "./wds/WDSMenuButtonWidget";
 
 const Widgets = [
   CanvasWidget,
@@ -137,6 +138,7 @@ const Widgets = [
   WDSSwitchWidget,
   WDSSwitchGroupWidget,
   WDSRadioGroupWidget,
+  WDSMenuButtonWidget,
 
   //Deprecated Widgets
   InputWidget,

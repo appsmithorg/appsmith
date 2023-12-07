@@ -171,6 +171,10 @@ export const DSEditorWrapper = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: row;
+
+  &.onboarding-flow {
+    height: 100%;
+  }
 `;
 
 export const CalloutContainer = styled.div<{
@@ -992,7 +996,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               showingTabsOnViewMode && "db-form-resizer-content-show-tabs"
             }`}
           >
-            <DSEditorWrapper>
+            <DSEditorWrapper
+              className={!!isOnboardingFlow ? "onboarding-flow" : ""}
+            >
               {viewMode && !isInsideReconnectModal ? (
                 this.renderTabsForViewMode()
               ) : (

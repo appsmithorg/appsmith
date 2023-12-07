@@ -1242,7 +1242,7 @@ public class GitServiceCETest {
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
                                                     layout)),
-                                    layoutCollectionService.createCollection(actionCollectionDTO))
+                                    layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .map(tuple2 -> application);
                 });
 
