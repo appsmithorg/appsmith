@@ -347,9 +347,8 @@ function* formValueChangeSaga(
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
-  const { actionConfiguration, id, pluginId, pluginType } =
+  const { actionConfiguration, id, pageId, pluginId, pluginType } =
     actionPayload.payload;
-  const pageId: string = yield select(getCurrentPageId);
   if (![PluginType.DB, PluginType.REMOTE, PluginType.AI].includes(pluginType))
     return;
   const pluginTemplates: Record<string, unknown> =

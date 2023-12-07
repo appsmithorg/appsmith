@@ -9,7 +9,7 @@ stacks_path=/appsmith-stacks
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
-mkdir -pv "$SUPERVISORD_CONF_TARGET" "$NGINX_WWW_PATH"
+mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
@@ -347,11 +347,6 @@ configure_supervisord() {
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
-    if ! [[ -e "/appsmith-stacks/ssl/fullchain.pem" ]] || ! [[ -e "/appsmith-stacks/ssl/privkey.pem" ]]; then
-      if [[ -n "${APPSMITH_CUSTOM_DOMAIN-}" ]]; then
-        cp "$supervisord_conf_source/cron.conf" "$SUPERVISORD_CONF_TARGET"
-      fi
-    fi
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
     fi
@@ -443,23 +438,28 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
-  local starting_page="/opt/appsmith/templates/appsmith_starting.html"
-  local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
-  local editor_load_page="$NGINX_WWW_PATH/loading.html"
-  cp "$initializing_page" "$NGINX_WWW_PATH/index.html"
-  # TODO: Also listen on 443, if HTTP certs are available.
-  cat <<EOF > "$TMP/nginx-app.conf"
-    server {
-      listen ${PORT:-80} default_server;
-      location / {
-        try_files \$uri \$uri/ /index.html =404;
-      }
-    }
-EOF
-  # Start nginx page to display the Appsmith is Initializing page
-  nginx
-  # Update editor nginx page for starting page
-  cp "$starting_page" "$editor_load_page"
+  export XDG_DATA_HOME=/appsmith-stacks/data  # so that caddy saves tls certs and other data under stacks/data/caddy
+  export XDG_CONFIG_HOME=/appsmith-stacks/configuration
+  mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
+  cp templates/loading.html "$WWW_PATH"
+  if [[ -z "${APPSMITH_ALLOWED_FRAME_ANCESTORS-}" ]]; then
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+    export APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
+  else
+    # Remove any extra rules that may be present in the frame ancestors value. This is to prevent this env variable from
+    # being used to inject more rules to the CSP header. If needed, that should be supported/solved separately.
+    export APPSMITH_ALLOWED_FRAME_ANCESTORS="${APPSMITH_ALLOWED_FRAME_ANCESTORS%;*}"
+  fi
+  node caddy-reconfigure.mjs
+  /opt/caddy/caddy start --config "$TMP/Caddyfile"
+}
+
+function setup_auto_heal(){
+   if [[ ${APPSMITH_AUTO_HEAL-} = 1 ]]; then
+     # By default APPSMITH_AUTO_HEAL=0
+     # To enable auto heal set APPSMITH_AUTO_HEAL=1
+     bash /opt/appsmith/auto_heal.sh >> /appsmith-stacks/logs/cron/auto_heal.log 2>&1 &
+   fi
 }
 
 # Main Section
@@ -498,8 +498,7 @@ mkdir -p /appsmith-stacks/data/{backup,restore}
 # Create sub-directory to store services log in the container mounting folder
 mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
-# Stop nginx gracefully
-nginx -s quit
+setup_auto_heal
 
 # Handle CMD command
 exec "$@"

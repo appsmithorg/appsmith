@@ -26,7 +26,7 @@ import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
 import DataStore from "../dataStore";
 import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
 import { MessageType, sendMessage } from "utils/MessageUtil";
-
+import { startSpansInAnEvaluation } from "UITelemetry/generateWebWorkerTraces";
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
@@ -46,7 +46,7 @@ export default function (request: EvalWorkerSyncRequest) {
   let staleMetaIds: string[] = [];
   let removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let isNewWidgetAdded = false;
-
+  const webworkerSpans = startSpansInAnEvaluation();
   const {
     allActionValidationConfig,
     appMode,
@@ -61,7 +61,6 @@ export default function (request: EvalWorkerSyncRequest) {
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
-
   try {
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
@@ -73,14 +72,19 @@ export default function (request: EvalWorkerSyncRequest) {
         allActionValidationConfig,
       );
 
-      const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
-        unevalTree,
-        configTree,
+      const setupFirstTreeResponse = webworkerSpans.profileFn(
+        "setupFirstTree",
+        { description: "during initialisation" },
+        () => dataTreeEvaluator?.setupFirstTree(unevalTree, configTree),
       );
       evalOrder = setupFirstTreeResponse.evalOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-      const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
+      const dataTreeResponse = webworkerSpans.profileFn(
+        "evalAndValidateFirstTree",
+        { description: "during initialisation" },
+        () => dataTreeEvaluator?.evalAndValidateFirstTree(),
+      );
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
         identicalEvalPathsPatches:
@@ -106,15 +110,21 @@ export default function (request: EvalWorkerSyncRequest) {
           allActionValidationConfig,
         );
       }
-      const setupFirstTreeResponse = dataTreeEvaluator.setupFirstTree(
-        unevalTree,
-        configTree,
+
+      const setupFirstTreeResponse = webworkerSpans.profileFn(
+        "setupFirstTree",
+        { description: "non-initialisation" },
+        () => dataTreeEvaluator?.setupFirstTree(unevalTree, configTree),
       );
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
-      const dataTreeResponse = dataTreeEvaluator.evalAndValidateFirstTree();
+      const dataTreeResponse = webworkerSpans.profileFn(
+        "evalAndValidateFirstTree",
+        { description: "non-initialisation" },
+        () => dataTreeEvaluator?.evalAndValidateFirstTree(),
+      );
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
@@ -132,9 +142,11 @@ export default function (request: EvalWorkerSyncRequest) {
       if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
-      const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
-        unevalTree,
-        configTree,
+
+      const setupUpdateTreeResponse = webworkerSpans.profileFn(
+        "setupUpdateTree",
+        undefined,
+        () => dataTreeEvaluator?.setupUpdateTree(unevalTree, configTree),
       );
 
       evalOrder = setupUpdateTreeResponse.evalOrder;
@@ -143,11 +155,16 @@ export default function (request: EvalWorkerSyncRequest) {
       removedPaths = setupUpdateTreeResponse.removedPaths;
       isNewWidgetAdded = setupUpdateTreeResponse.isNewWidgetAdded;
 
-      const updateResponse = dataTreeEvaluator.evalAndValidateSubTree(
-        evalOrder,
-        configTree,
-        unEvalUpdates,
-        Object.keys(metaWidgets),
+      const updateResponse = webworkerSpans.profileFn(
+        "evalAndValidateSubTree",
+        undefined,
+        () =>
+          dataTreeEvaluator?.evalAndValidateSubTree(
+            evalOrder,
+            configTree,
+            unEvalUpdates,
+            Object.keys(metaWidgets),
+          ),
       );
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
@@ -211,6 +228,7 @@ export default function (request: EvalWorkerSyncRequest) {
     evalMetaUpdates,
     evaluationOrder: evalOrder,
     jsUpdates,
+    webworkerTelemetry: webworkerSpans.allSpans,
     logs,
     unEvalUpdates,
     isCreateFirstTree,

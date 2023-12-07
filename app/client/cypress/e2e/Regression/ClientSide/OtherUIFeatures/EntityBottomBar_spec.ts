@@ -1,7 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
 import EditorNavigation from "../../../../support/Pages/EditorNavigation";
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 describe("Entity bottom bar", () => {
   it("1. Debugger should be closable", () => {
@@ -114,7 +113,7 @@ describe("Entity bottom bar", () => {
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar opens on clicking debugger icon in query page.
-    cy.get(datasource.createQuery).click();
+    _.dataSources.CreateQueryAfterDSSaved();
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.AssertOpen(PageType.Query);
     //Verify if bottom bar is closed on clicking close icon in query page.

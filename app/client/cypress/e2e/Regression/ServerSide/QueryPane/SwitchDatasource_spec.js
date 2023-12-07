@@ -1,7 +1,6 @@
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
 describe("Switch datasource", function () {
-  let guid, dsName_1, dsName_2, MongoDB;
+  let dsName_1, dsName_2, MongoDB;
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -27,7 +26,7 @@ describe("Switch datasource", function () {
   });
 
   it("4. By switching datasources execute a query with both the datasources", function () {
-    dataSources.CreateQueryFromActiveTab(dsName_1);
+    dataSources.CreateQueryForDS(dsName_1);
     agHelper.GetNClick(".rc-select-show-arrow");
     cy.contains(".rc-select-item-option-content", dsName_2).click().wait(1000);
     cy.runQuery();

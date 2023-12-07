@@ -28,7 +28,7 @@ import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
 } from "api/PluginApi";
-import type { JSAction, JSCollection } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -673,15 +673,27 @@ export const getActionData = (
   return action ? action.data : undefined;
 };
 
-export const getJSCollection = (
-  state: AppState,
-  actionId: string,
-): JSCollection | undefined => {
+export const getJSCollection = (state: AppState, actionId: string) => {
   const jsaction = find(
     state.entities.jsActions,
     (a) => a.config.id === actionId,
   );
-  return jsaction ? jsaction.config : undefined;
+  return jsaction && jsaction.config;
+};
+
+/**
+ *
+ * getJSCollectionFromAllEntities is used to get the js collection from all jsAction entities (including module instance entities) )
+ */
+export const getJSCollectionFromAllEntities = (
+  state: AppState,
+  actionId: string,
+) => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.id === actionId,
+  );
+  return jsaction && jsaction.config;
 };
 
 export function getCurrentPageNameByActionId(
