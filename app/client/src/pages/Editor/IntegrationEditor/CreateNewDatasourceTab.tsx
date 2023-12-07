@@ -18,7 +18,7 @@ import {
 import { connect } from "react-redux";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { Text, TextType } from "design-system-old";
+import { Text } from "design-system";
 import MockDataSources from "./MockDataSources";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
@@ -76,7 +76,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>{createMessage(SAMPLE_DATASOURCES)}</Text>
+      <Text kind="heading-m">{createMessage(SAMPLE_DATASOURCES)}</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -107,7 +107,7 @@ function CreateNewAPI({
   }, [active]);
   return (
     <div id="new-api" ref={newAPIRef}>
-      <Text type={TextType.H2}>APIs</Text>
+      <Text kind="heading-m">APIs</Text>
       <NewApiScreen
         history={history}
         isCreating={isCreating}
@@ -142,7 +142,7 @@ function CreateNewDatasource({
 
   return (
     <div id="new-datasources" ref={newDatasourceRef}>
-      <Text type={TextType.H2}>
+      <Text kind="heading-m">
         {showMostPopularPlugins
           ? createMessage(CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER)
           : createMessage(CREATE_NEW_DATASOURCE_DATABASE_HEADER)}
@@ -185,7 +185,7 @@ function CreateNewSaasIntegration({
   }, [active]);
   return !isAirgappedInstance ? (
     <div id="new-saas-api" ref={newSaasAPIRef}>
-      <Text type={TextType.H2}>SaaS Integrations</Text>
+      <Text kind="heading-m">SaaS Integrations</Text>
       <NewApiScreen
         history={history}
         isCreating={isCreating}

@@ -2,6 +2,7 @@ package com.appsmith.server.newactions.base;
 
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -39,8 +40,10 @@ import com.appsmith.server.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -123,6 +126,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ResponseUtils responseUtils;
 
     private final PermissionGroupService permissionGroupService;
+    private final NewActionHelper newActionHelper;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
@@ -150,6 +154,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
+            NewActionHelper newActionHelper,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
@@ -168,6 +173,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationService = applicationService;
         this.policySolution = policySolution;
         this.permissionGroupService = permissionGroupService;
+        this.newActionHelper = newActionHelper;
         this.entityValidationService = entityValidationService;
         this.observationRegistry = observationRegistry;
         this.responseUtils = responseUtils;
@@ -291,7 +297,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
 
-        this.validateCreatorId(action);
+        newActionHelper.validateCreatorId(action);
 
         if (!this.isValidActionName(action)) {
             action.setIsValid(false);
@@ -305,7 +311,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         if (action.getPluginType() == PluginType.JS
                 && action.getActionConfiguration() != null
-                && Boolean.FALSE.equals(action.getActionConfiguration().getIsValid())) {
+                && FALSE.equals(action.getActionConfiguration().getIsValid())) {
             action.setIsValid(false);
             invalids.add(AppsmithError.INVALID_JS_ACTION.getMessage());
         }
@@ -428,7 +434,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return Mono.just(savedAction);
                 })
                 .flatMap(repository::setUserPermissionsInObject)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.REPOSITORY_SAVE_FAILED)))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
@@ -1753,5 +1758,60 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
         return repository.findAllUnpublishedActionsByContextIdAndContextType(
                 contextId, contextType, permission, includeJs);
+    }
+
+    @Override
+    public NewAction generateActionDomain(ActionDTO action) {
+        if (action.getId() != null) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
+        }
+
+        if (action.getName() == null || action.getName().isBlank()) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME);
+        }
+
+        if (action.getDefaultResources() == null) {
+            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(action, null);
+        }
+
+        NewAction newAction = new NewAction();
+        newAction.setPublishedAction(new ActionDTO());
+        newAction.getPublishedAction().setDatasource(new Datasource());
+
+        return newAction;
+    }
+
+    @Override
+    public void updateDefaultResourcesInAction(NewAction newAction) {
+
+        ActionDTO action = newAction.getUnpublishedAction();
+
+        final DefaultResources immutableDefaultResources = action.getDefaultResources();
+        // Only store defaultPageId and defaultCollectionId for actionDTO level resource
+        DefaultResources defaultActionResource = new DefaultResources();
+        AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaultActionResource);
+
+        defaultActionResource.setApplicationId(null);
+        defaultActionResource.setActionId(null);
+        defaultActionResource.setBranchName(null);
+        if (!StringUtils.hasLength(defaultActionResource.getPageId())) {
+            defaultActionResource.setPageId(action.getPageId());
+        }
+        if (!StringUtils.hasLength(defaultActionResource.getCollectionId())) {
+            defaultActionResource.setCollectionId(action.getCollectionId());
+        }
+        action.setDefaultResources(defaultActionResource);
+
+        // Only store defaultApplicationId and defaultActionId for NewAction level resource
+        DefaultResources defaults = new DefaultResources();
+        AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaults);
+        defaults.setPageId(null);
+        defaults.setCollectionId(null);
+        if (!StringUtils.hasLength(defaults.getApplicationId())) {
+            defaults.setApplicationId(newAction.getApplicationId());
+        }
+        newAction.setDefaultResources(defaults);
+
+        newAction.setUnpublishedAction(action);
     }
 }
