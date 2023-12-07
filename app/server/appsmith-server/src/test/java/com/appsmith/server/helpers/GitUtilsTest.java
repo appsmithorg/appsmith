@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -80,5 +81,26 @@ public class GitUtilsTest {
                 .isEqualTo("example");
         assertThat(GitUtils.getGitProviderName("git@example.in:test/testRepo.git"))
                 .isEqualTo("example");
+    }
+
+    @Test
+    public void isMigrationRequired() {
+        int latestDslVersion = 87;
+        JSONObject jsonObject = new JSONObject();
+
+        // if the version is not present in dsl, migration should be required
+        assertThat(GitUtils.isMigrationRequired(jsonObject, latestDslVersion)).isTrue();
+
+        jsonObject.put("version", 86);
+        // version less than latest, migration should be required
+        assertThat(GitUtils.isMigrationRequired(jsonObject, latestDslVersion)).isTrue();
+
+        jsonObject.put("version", 87);
+        // version same as latest, migration should not be required
+        assertThat(GitUtils.isMigrationRequired(jsonObject, latestDslVersion)).isFalse();
+
+        jsonObject.put("version", 88);
+        // version greater than latest, migration should not be required
+        assertThat(GitUtils.isMigrationRequired(jsonObject, latestDslVersion)).isFalse();
     }
 }

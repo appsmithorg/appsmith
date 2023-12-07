@@ -1,0 +1,168 @@
+package com.appsmith.server.helpers.ce;
+
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.events.AutoCommitEvent;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.GitPrivateRepoHelper;
+import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.solutions.AutoCommitEventHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@Slf4j
+@DirtiesContext
+public class GitAutoCommitHelperImplTest {
+
+    @MockBean
+    FeatureFlagService featureFlagService;
+
+    @MockBean
+    AutoCommitEventHandler autoCommitEventHandler;
+
+    @MockBean
+    ApplicationService applicationService;
+
+    @MockBean
+    UserDataService userDataService;
+
+    @SpyBean
+    RedisUtils redisUtils;
+
+    @MockBean
+    GitPrivateRepoHelper gitPrivateRepoHelper;
+
+    @Autowired
+    ApplicationPermission applicationPermission;
+
+    @Autowired
+    GitAutoCommitHelper gitAutoCommitHelper;
+
+    private static final String defaultApplicationId = "default-app-id", branchName = "develop";
+
+    @AfterEach
+    public void afterTest() {
+        redisUtils.finishAutoCommit(defaultApplicationId).block();
+    }
+
+    @Test
+    public void autoCommitApplication_WhenFeatureFlagIsDisabled_AutoCommitNotTriggered() {
+        Application application = new Application();
+        application.setGitApplicationMetadata(new GitApplicationMetadata());
+
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled))
+                .thenReturn(Mono.just(Boolean.FALSE));
+        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
+                .thenReturn(Mono.just(application));
+        Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitApplicationMetadata.class), anyString()))
+                .thenReturn(Mono.just(Boolean.FALSE));
+
+        StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void autoCommitApplication_WhenBranchIsProtected_AutoCommitNotTriggered() {
+        Application application = new Application();
+        application.setGitApplicationMetadata(new GitApplicationMetadata());
+
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
+                .thenReturn(Mono.just(application));
+        Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitApplicationMetadata.class), eq(branchName)))
+                .thenReturn(Mono.just(Boolean.TRUE));
+
+        StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void autoCommitApplication_WhenAnotherCommitIsRunning_AutoCommitNotTriggered() {
+        Application application = new Application();
+        application.setGitApplicationMetadata(new GitApplicationMetadata());
+
+        Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
+                .thenReturn(Mono.just(application));
+        Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitApplicationMetadata.class), eq(branchName)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+
+        Mono<Boolean> autoCommitMono = redisUtils
+                .startAutoCommit(defaultApplicationId, branchName)
+                .then(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName));
+
+        StepVerifier.create(autoCommitMono)
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void autoCommitApplication_WhenAllConditionsMatched_AutoCommitTriggered() {
+        Application application = new Application();
+        application.setWorkspaceId("sample-workspace-id");
+        application.setGitApplicationMetadata(new GitApplicationMetadata());
+        application.getGitApplicationMetadata().setRepoName("test-repo-name");
+
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
+                .thenReturn(Mono.just(application));
+        Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitApplicationMetadata.class), eq(branchName)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+
+        GitProfile gitProfile = new GitProfile();
+        gitProfile.setAuthorEmail("user@example.com");
+        gitProfile.setAuthorName("test user name");
+
+        Mockito.when(userDataService.getGitProfileForCurrentUser(defaultApplicationId))
+                .thenReturn(Mono.just(gitProfile));
+
+        // we'll verify publish event is triggered with this same AutoCommitEvent
+        AutoCommitEvent autoCommitEvent = new AutoCommitEvent();
+        autoCommitEvent.setApplicationId(defaultApplicationId);
+        autoCommitEvent.setBranchName(branchName);
+        autoCommitEvent.setAuthorEmail(gitProfile.getAuthorEmail());
+        autoCommitEvent.setAuthorName(gitProfile.getAuthorName());
+        autoCommitEvent.setWorkspaceId(application.getWorkspaceId());
+        autoCommitEvent.setRepoName(application.getGitApplicationMetadata().getRepoName());
+
+        StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isTrue();
+                    Mockito.verify(autoCommitEventHandler).publish(autoCommitEvent);
+                })
+                .verifyComplete();
+    }
+}

@@ -94,6 +94,6 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                     // we cannot throw exception from this flow because doing so will fail the main operation
                     .onErrorResume(throwable -> Mono.just(Boolean.FALSE));
         }
-        return Mono.just(Boolean.TRUE);
+        return Mono.just(Boolean.FALSE);
     }
 }

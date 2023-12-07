@@ -1,6 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -106,21 +105,6 @@ public class GitUtils {
         return StringUtils.isEmptyOrNull(gitApplicationMetadata.getDefaultBranchName())
                 ? gitApplicationMetadata.getBranchName()
                 : gitApplicationMetadata.getDefaultBranchName();
-    }
-
-    /**
-     * Checks whether auto commit is enabled or not for the given GitApplicationMetadata.
-     * Auto commit will be enabled if Auto commit configuration is either not present or present and disabled
-     * @param gitApplicationMetadata Git meta data for the root application
-     * @return true if auto commit enabled, false otherwise
-     */
-    public static boolean isAutoCommitEnabled(GitApplicationMetadata gitApplicationMetadata) {
-        AutoCommitConfig autoCommitConfig = gitApplicationMetadata.getAutoCommitConfig();
-        if (autoCommitConfig == null || !Boolean.TRUE.equals(autoCommitConfig.getDisabled())) {
-            // auto commit is enabled. Now, check whether the branch is protected
-            return true;
-        }
-        return false;
     }
 
     public static boolean isMigrationRequired(JSONObject layoutDsl, Integer latestDslVersion) {
