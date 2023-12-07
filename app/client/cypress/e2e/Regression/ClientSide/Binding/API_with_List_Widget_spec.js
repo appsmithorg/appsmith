@@ -12,7 +12,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Test Create Api and Bind to List widget", function () {
+describe("Test Create Api and Bind to List widget", { tags: ["@tag.Binding"] }, function () {
   let valueToTest;
   before(() => {
     agHelper.AddDsl("listwidgetdsl");
