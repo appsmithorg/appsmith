@@ -16,7 +16,6 @@ do
         then
                 echo "TIMESTAMP=`date "+%Y-%m-%d %H:%M:%S"` backend is unresponsive";
                 supervisorctl restart backend || echo true
-                sleep 60
         else
                 echo "TIMESTAMP=`date "+%Y-%m-%d %H:%M:%S"` backend is responsive";
         fi
