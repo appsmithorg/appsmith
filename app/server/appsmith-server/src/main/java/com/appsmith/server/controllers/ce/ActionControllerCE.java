@@ -7,14 +7,17 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
+import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorActionNameDTO;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.newactions.base.NewActionService;
+import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
-import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.opentelemetry.api.trace.Span;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,19 +47,22 @@ public class ActionControllerCE {
 
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
-    private final RefactoringSolution refactoringSolution;
+    private final RefactoringService refactoringService;
     private final ActionExecutionSolution actionExecutionSolution;
+    private final OtlpTelemetry otlpTelemetry;
 
     @Autowired
     public ActionControllerCE(
             LayoutActionService layoutActionService,
             NewActionService newActionService,
-            RefactoringSolution refactoringSolution,
-            ActionExecutionSolution actionExecutionSolution) {
+            RefactoringService refactoringService,
+            ActionExecutionSolution actionExecutionSolution,
+            OtlpTelemetry otlpTelemetry) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
-        this.refactoringSolution = refactoringSolution;
+        this.refactoringService = refactoringService;
         this.actionExecutionSolution = actionExecutionSolution;
+        this.otlpTelemetry = otlpTelemetry;
     }
 
     @JsonView(Views.Public.class)
@@ -90,10 +96,14 @@ public class ActionControllerCE {
     public Mono<ResponseDTO<ActionExecutionResult>> executeAction(
             @RequestBody Flux<Part> partFlux,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId,
+            @RequestHeader(value = OtlpTelemetry.OTLP_HEADER_KEY, required = false) String traceparent) {
+        Span span = this.otlpTelemetry.startOtlpSpanFromTraceparent("action service execute", traceparent);
+
         return actionExecutionSolution
                 .executeAction(partFlux, branchName, environmentId)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null))
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(span));
     }
 
     @JsonView(Views.Public.class)
@@ -115,10 +125,11 @@ public class ActionControllerCE {
     @JsonView(Views.Public.class)
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionName(
-            @RequestBody RefactorActionNameDTO refactorActionNameDTO,
+            @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return refactoringSolution
-                .refactorActionName(refactorActionNameDTO, branchName)
+        refactorEntityNameDTO.setEntityType(EntityType.ACTION);
+        return refactoringService
+                .refactorEntityName(refactorEntityNameDTO, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 

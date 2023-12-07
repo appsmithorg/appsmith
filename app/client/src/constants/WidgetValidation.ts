@@ -17,6 +17,7 @@ export enum ValidationTypes {
   SAFE_URL = "SAFE_URL",
   ARRAY_OF_TYPE_OR_TYPE = "ARRAY_OF_TYPE_OR_TYPE",
   UNION = "UNION",
+  OBJECT_WITH_FUNCTION = "OBJECT_WITH_FUNCTION",
 }
 
 export interface ValidationResponse {
@@ -287,7 +288,7 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   PermissionStatus: "PermissionStatus",
   Permissions: "Permissions",
   postMessage: "postMessage",
-  ProgressEvent: "ProgressEvent",
+  AxiosProgressEvent: "AxiosProgressEvent",
   Promise: "Promise",
   PromiseRejectionEvent: "PromiseRejectionEvent",
   Proxy: "Proxy",

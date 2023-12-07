@@ -6,6 +6,7 @@ import omit from "lodash/omit";
 import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -93,6 +94,10 @@ import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -567,10 +572,9 @@ function* formValueChangeSaga(
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
-  const { id, pluginType } = actionPayload.payload;
+  const { id, pageId, pluginType } = actionPayload.payload;
   const action: Action | undefined = yield select(getAction, id);
   const data = action ? { ...action } : {};
-  const pageId: string = yield select(getCurrentPageId);
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
@@ -594,9 +598,19 @@ function* handleDatasourceCreatedSaga(
     getPlugin,
     actionPayload.payload.pluginId,
   );
-  const pageId: string = yield select(getCurrentPageId);
   // Only look at API plugins
   if (plugin && plugin.type !== PluginType.API) return;
+
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const application: ApplicationPayload | undefined = yield select(
+    getApplicationByIdFromWorkspaces,
+    currentApplicationIdForCreateNewApp || "",
+  );
+  const pageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultPageId
+    : yield select(getCurrentPageId);
 
   const actionRouteInfo: Partial<{
     apiId: string;
@@ -643,7 +657,11 @@ function* handleDatasourceCreatedSaga(
         apiId: actionRouteInfo.apiId ?? "",
       }),
     );
-  } else {
+  } else if (
+    !currentApplicationIdForCreateNewApp ||
+    (!!currentApplicationIdForCreateNewApp &&
+      actionPayload.payload.id !== TEMP_DATASOURCE_ID)
+  ) {
     history.push(
       datasourcesEditorIdURL({
         pageId,

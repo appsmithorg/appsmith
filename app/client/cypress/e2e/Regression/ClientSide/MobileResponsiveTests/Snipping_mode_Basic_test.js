@@ -1,5 +1,9 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 let datasourceName;
 
@@ -9,15 +13,15 @@ describe("Add widget - Postgress DataSource", function () {
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
     });
+    AppSidebar.navigate(AppSidebarButton.Editor);
   });
 
   it("1. Validate Snipping with query and table widget on canvas", () => {
-    cy.get(".t--close-editor span:contains('Back')").click({ force: true });
-    cy.get(".t--back-button span:contains('Back')").click({ force: true });
-
     _.autoLayout.ConvertToAutoLayoutAndVerify(false);
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    _.dataSources.EnterQuery("select * from public.configs");
+    _.dataSources.CreateQueryForDS(
+      datasourceName,
+      "select * from public.configs",
+    );
     cy.WaitAutoSave();
     cy.runQuery();
     _.dataSources.AddSuggestedWidget(Widgets.Table);

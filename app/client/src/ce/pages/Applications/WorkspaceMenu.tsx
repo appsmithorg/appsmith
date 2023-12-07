@@ -18,6 +18,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
+import { ManageEnvironmentsMenu } from "@appsmith/pages/Applications/ManageEnvironmentsMenu";
 
 interface WorkspaceMenuProps {
   canDeleteWorkspace: boolean;
@@ -162,6 +163,10 @@ function WorkspaceMenu({
             Members
           </MenuItem>
         )}
+        <ManageEnvironmentsMenu
+          workspaceId={workspace.id}
+          workspacePermissions={workspace.userPermissions || []}
+        />
         {canInviteToWorkspace && (
           <MenuItem
             className="error-menuitem"

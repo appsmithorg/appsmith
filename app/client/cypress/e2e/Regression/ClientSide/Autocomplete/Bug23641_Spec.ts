@@ -1,10 +1,13 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Autocomplete bug fixes", function () {
   it("1. Bug #23641 Verifies if 'children' shows up in autocomplete list", function () {
@@ -15,7 +18,7 @@ describe("Autocomplete bug fixes", function () {
     );
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TREESELECT, 200, 400);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 200, 600);
-    entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.TypeTextIntoField("Text", "{{TreeSelect1.options[0].c");
     agHelper.AssertElementExist(locators._hints);
     agHelper.GetNAssertElementText(locators._hints, "children", "contain.text");

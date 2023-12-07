@@ -52,6 +52,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgAccentSubtleActive: this.bgAccentSubtleActive.to("sRGB").toString(),
       bgAssistive: this.bgAssistive.to("sRGB").toString(),
       bgNeutral: this.bgNeutral.to("sRGB").toString(),
+      bgNeutralOpacity: this.bgNeutralOpacity.to("sRGB").toString(),
       bgNeutralHover: this.bgNeutralHover.to("sRGB").toString(),
       bgNeutralActive: this.bgNeutralActive.to("sRGB").toString(),
       bgNeutralSubtle: this.bgNeutralSubtle.to("sRGB").toString(),
@@ -75,6 +76,10 @@ export class LightModeTheme implements ColorModeTheme {
       bgWarningSubtle: this.bgWarningSubtle.to("sRGB").toString(),
       bgWarningSubtleHover: this.bgWarningSubtleHover.to("sRGB").toString(),
       bgWarningSubtleActive: this.bgWarningSubtleActive.to("sRGB").toString(),
+
+      bgElevation1: this.bgElevation1.to("sRGB").toString(),
+      bgElevation2: this.bgElevation2.to("sRGB").toString(),
+      bgElevation3: this.bgElevation3.to("sRGB").toString(),
 
       fg: this.fg.to("sRGB").toString(),
       fgAccent: this.fgAccent.to("sRGB").toString(),
@@ -297,6 +302,14 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       color.oklch.c = 0;
     }
+
+    return color;
+  }
+
+  private get bgNeutralOpacity() {
+    const color = this.bgNeutral.clone();
+
+    color.alpha = 0.5;
 
     return color;
   }
@@ -595,6 +608,34 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgWarningSubtle.clone();
 
     color.oklch.l -= 0.01;
+
+    return color;
+  }
+
+  /*
+   * Elevation colors
+   */
+
+  private get bgElevation1() {
+    const color = this.bg.clone();
+
+    color.oklch.l += 0.01;
+
+    return color;
+  }
+
+  private get bgElevation2() {
+    const color = this.bgElevation1.clone();
+
+    color.oklch.l += 0.01;
+
+    return color;
+  }
+
+  private get bgElevation3() {
+    const color = this.bgElevation2.clone();
+
+    color.oklch.l += 0.01;
 
     return color;
   }

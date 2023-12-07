@@ -1,4 +1,7 @@
-const queryLocators = require("../../../locators/QueryEditor.json");
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
+
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
@@ -25,17 +28,14 @@ describe("MySQL noise test", function () {
         .blur();
       cy.fillMySQLDatasourceForm();
       cy.testSaveDatasource();
-      cy.NavigateToActiveDSQueryPane(datasourceName);
+      // mySQL query to fetch data
+      dataSources.CreateQueryAfterDSSaved(
+        "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10",
+        "NoiseTestQuery",
+      );
     });
-    cy.get(queryLocators.queryNameField).type("NoiseTestQuery");
-    // mySQL query to fetch data
-    dataSources.EnterQuery(
-      "SELECT * FROM users where role = 'Admin' ORDER BY id LIMIT 10",
-    );
     cy.WaitAutoSave();
     cy.runQuery();
-    cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     // API for killing mySQL session
     cy.CreateAPI("killSession");
     cy.enterDatasourceAndPath(
@@ -44,7 +44,7 @@ describe("MySQL noise test", function () {
     );
     cy.SaveAndRunAPI();
     cy.ResponseCheck("killed");
-    cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(2000);
     // run kill query
     cy.get(".bp3-button-text:contains('Kill Session')").should("be.visible");

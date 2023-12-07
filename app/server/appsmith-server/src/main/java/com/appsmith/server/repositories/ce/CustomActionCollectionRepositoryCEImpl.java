@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -83,7 +84,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNamePageIdsViewModeAndBranch(
+    public Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
@@ -113,9 +114,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QActionCollection.actionCollection.publishedCollection) + "."
-                                + fieldName(QActionCollection.actionCollection.publishedCollection.pageId))
-                        .in(pageIds);
+                String pageIdFieldPath = String.format(
+                        "%s.%s.%s",
+                        fieldName(QActionCollection.actionCollection.publishedCollection),
+                        fieldName(QActionCollection.actionCollection.publishedCollection.defaultResources),
+                        fieldName(QActionCollection.actionCollection.publishedCollection.pageId));
+                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
         }
@@ -130,9 +134,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                                + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId))
-                        .in(pageIds);
+                String pageIdFieldPath = String.format(
+                        "%s.%s.%s",
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection),
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.defaultResources),
+                        fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId));
+                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
 
@@ -268,5 +275,29 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
         return queryAll(List.of(applicationCriteria), includeFields, null, null, NO_RECORD_LIMIT);
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission) {
+        String contextIdPath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.unpublishedCollection.pageId);
+        String contextTypePath = fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.unpublishedCollection.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission) {
+        String contextIdPath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.publishedCollection.pageId);
+        String contextTypePath = fieldName(QActionCollection.actionCollection.publishedCollection) + "."
+                + fieldName(QActionCollection.actionCollection.publishedCollection.contextType);
+        Criteria contextIdAndContextTypeCriteria =
+                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        return queryAll(List.of(contextIdAndContextTypeCriteria), Optional.of(permission));
     }
 }

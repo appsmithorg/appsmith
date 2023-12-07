@@ -1,14 +1,18 @@
 import {
-  entityExplorer,
-  draggableWidgets,
   agHelper,
-  dataSources,
-  propPane,
   apiPage,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import { expandLoadMoreOptions, OneClickBinding } from "./spec_utility";
 import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
-import onboardingLocator from "../../../../locators/FirstTimeUserOnboarding.json";
+import EditorNavigation, {
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+} from "../../../../support/Pages/EditorNavigation";
 
 const oneClickBinding = new OneClickBinding();
 
@@ -31,16 +35,12 @@ describe("excludeForAirgap", "One click binding control", () => {
       oneClickBindingLocator.datasourceOtherActionsSelector,
     );
 
-    entityExplorer.NavigateToSwitcher("Explorer", 0, true);
-
-    dataSources.CreateMockDB("Users").then(($createdMockUsers) => {
+    dataSources.CreateMockDB("Users").then(() => {
       dataSources.CreateQueryAfterDSSaved();
     });
 
     cy.wait(500);
-
-    entityExplorer.NavigateToSwitcher("Widgets");
-    entityExplorer.NavigateToSwitcher("Explorer");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
     agHelper.AssertElementExist(
@@ -67,9 +67,9 @@ describe("excludeForAirgap", "One click binding control", () => {
       oneClickBindingLocator.otherActionSelector("Connect new datasource"),
     );
 
-    agHelper.AssertElementExist(onboardingLocator.datasourcePage);
+    agHelper.AssertElementExist(dataSources._newDatasourceContainer);
 
-    agHelper.GetNClick(onboardingLocator.datasourceBackBtn);
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -110,8 +110,6 @@ describe("excludeForAirgap", "One click binding control", () => {
     oneClickBinding.ChooseAndAssertForm("sample Movies", "movies", "movies", {
       searchableColumn: "status",
     });
-
-    entityExplorer.NavigateToSwitcher("Explorer");
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Mongo");
     agHelper.RenameWithInPane("myinvalidds", false);
@@ -121,7 +119,7 @@ describe("excludeForAirgap", "One click binding control", () => {
 
     dataSources.SaveDatasource();
 
-    entityExplorer.NavigateToSwitcher("Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 
@@ -139,7 +137,6 @@ describe("excludeForAirgap", "One click binding control", () => {
 
   it("2. should check that load more options and search", () => {
     [1, 2].forEach((I) => {
-      entityExplorer.NavigateToSwitcher("Explorer");
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Mongo");
       agHelper.RenameWithInPane(`dummy${I}`, false);
@@ -148,23 +145,17 @@ describe("excludeForAirgap", "One click binding control", () => {
       agHelper.UpdateInputValue(dataSources._port, "8000");
 
       dataSources.SaveDatasource();
-
-      entityExplorer.NavigateToSwitcher("Widgets");
     });
-
+    AppSidebar.navigate(AppSidebarButton.Editor);
     propPane.MoveToTab("Style");
 
     propPane.MoveToTab("Content");
-
-    entityExplorer.NavigateToSwitcher("Explorer");
 
     [1, 2, 3, 4, 5].forEach(() => {
       apiPage.CreateAndFillApi("http://www.example.com");
     });
 
-    entityExplorer.NavigateToSwitcher("Widgets");
-
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
 

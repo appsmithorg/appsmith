@@ -27,6 +27,7 @@ export interface TableSizes {
   EDIT_ICON_TOP: number;
   ROW_VIRTUAL_OFFSET: number;
   VERTICAL_EDITOR_PADDING: number;
+  EDITABLE_CELL_HEIGHT: number;
 }
 
 export enum CompactModeTypes {
@@ -56,33 +57,36 @@ export enum ImageSizes {
 export const TABLE_SIZES: { [key: string]: TableSizes } = {
   [CompactModeTypes.DEFAULT]: {
     COLUMN_HEADER_HEIGHT: 32,
-    TABLE_HEADER_HEIGHT: 40,
+    TABLE_HEADER_HEIGHT: 68,
     ROW_HEIGHT: 40,
     ROW_FONT_SIZE: 14,
     VERTICAL_PADDING: 6,
     VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 10,
     ROW_VIRTUAL_OFFSET: 3,
+    EDITABLE_CELL_HEIGHT: 30,
   },
   [CompactModeTypes.SHORT]: {
     COLUMN_HEADER_HEIGHT: 32,
-    TABLE_HEADER_HEIGHT: 40,
+    TABLE_HEADER_HEIGHT: 68,
     ROW_HEIGHT: 30,
     ROW_FONT_SIZE: 12,
     VERTICAL_PADDING: 0,
     VERTICAL_EDITOR_PADDING: 0,
     EDIT_ICON_TOP: 5,
     ROW_VIRTUAL_OFFSET: 1,
+    EDITABLE_CELL_HEIGHT: 20,
   },
   [CompactModeTypes.TALL]: {
     COLUMN_HEADER_HEIGHT: 32,
-    TABLE_HEADER_HEIGHT: 40,
+    TABLE_HEADER_HEIGHT: 68,
     ROW_HEIGHT: 60,
     ROW_FONT_SIZE: 18,
     VERTICAL_PADDING: 16,
     VERTICAL_EDITOR_PADDING: 16,
     EDIT_ICON_TOP: 21,
     ROW_VIRTUAL_OFFSET: 3,
+    EDITABLE_CELL_HEIGHT: 30,
   },
 };
 
@@ -192,6 +196,13 @@ export interface DateCellProperties {
   timePrecision?: TimePrecision;
 }
 
+export interface CurrencyCellProperties {
+  currencyCode: string;
+  decimals: number;
+  thousandSeparator: boolean;
+  notation: Intl.NumberFormatOptions["notation"];
+}
+
 export interface BaseCellProperties {
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
@@ -217,6 +228,7 @@ export interface CellLayoutProperties
     SelectCellProperties,
     ImageCellProperties,
     DateCellProperties,
+    CurrencyCellProperties,
     BaseCellProperties {}
 
 export interface TableColumnMetaProps {
@@ -224,6 +236,7 @@ export interface TableColumnMetaProps {
   format?: string;
   inputFormat?: string;
   type: ColumnTypes;
+  decimals?: number;
 }
 
 export enum StickyType {
@@ -330,11 +343,19 @@ export interface EditActionColumnProperties {
   selectOptions?: DropdownOption[] | DropdownOption[][];
 }
 
+export interface CurrencyColumnProperties {
+  currencyCode?: string;
+  decimals?: number;
+  thousandSeparator?: boolean;
+  notation?: Intl.NumberFormatOptions["notation"];
+}
+
 export interface ColumnProperties
   extends ColumnBaseProperties,
     ColumnStyleProperties,
     DateColumnProperties,
     ColumnEditabilityProperties,
+    CurrencyColumnProperties,
     EditActionColumnProperties {
   allowSameOptionsInNewRow?: boolean;
   newRowSelectOptions?: DropdownOption[];

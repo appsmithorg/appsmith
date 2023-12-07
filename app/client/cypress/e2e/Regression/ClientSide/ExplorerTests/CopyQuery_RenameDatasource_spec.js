@@ -1,9 +1,12 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import {
   entityExplorer,
   dataSources,
-  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 
 const pageid = "MyPage";
@@ -23,13 +26,12 @@ describe("Entity explorer tests related to copy query", function () {
 
   it("1. Create a query with dataSource in explorer, Create new Page", function () {
     cy.Createpage(pageid);
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
-      cy.CheckAndUnfoldEntityItem("Datasources");
-      cy.NavigateToActiveDSQueryPane(datasourceName);
+      dataSources.CreateQueryAfterDSSaved(datasourceName);
     });
 
     cy.get("@getPluginForm").should(
@@ -44,7 +46,7 @@ describe("Entity explorer tests related to copy query", function () {
     cy.get(".t--action-name-edit-field").click({ force: true });
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
+      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Show bindings",
@@ -61,15 +63,14 @@ describe("Entity explorer tests related to copy query", function () {
   });
 
   it("2. Copy query in explorer to new page & verify Bindings are copied too", function () {
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
       action: "Copy to page",
       subAction: pageid,
       toastToValidate: "copied to page",
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("Query1");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     cy.runQuery();
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Query1",
@@ -81,39 +82,6 @@ describe("Entity explorer tests related to copy query", function () {
       expect($lis.eq(2)).to.contain("{{Query1.responseMeta}}");
       expect($lis.eq(3)).to.contain("{{Query1.run()}}");
       expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
-    });
-  });
-
-  it("3. Rename datasource in explorer, Delete query and try to Delete datasource", function () {
-    entityExplorer.SelectEntityByName("Page1");
-    cy.generateUUID().then((uid) => {
-      updatedName = uid;
-      cy.log("complete uid :" + updatedName);
-      updatedName = uid.replace(/-/g, "_").slice(1, 15);
-      cy.log("sliced id :" + updatedName);
-      entityExplorer.ExpandCollapseEntity("Queries/JS");
-      entityExplorer.ExpandCollapseEntity("Datasources");
-      entityExplorer.RenameEntityFromExplorer(datasourceName, updatedName);
-      //cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
-      cy.wait(1000);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: updatedName,
-        action: "Delete",
-        toAssertAction: false,
-      });
-      cy.wait(1000);
-      //This is check to make sure if a datasource is active 409
-      cy.wait("@deleteDatasource").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        409,
-      );
-    });
-    entityExplorer.SelectEntityByName("Query1", "Queries/JS");
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Query1",
-      action: "Delete",
-      entityType: entityItems.Query,
     });
   });
 });

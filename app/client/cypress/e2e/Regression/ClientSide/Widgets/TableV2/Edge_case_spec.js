@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
@@ -18,7 +22,7 @@ describe("Table widget v2 edge case scenario testing", function () {
   });
 
   it("1. Check if the selectedRowIndices does not contain 2d array", function () {
-    entityExplorer.SelectEntityByName("Table1", "Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.TogglePropertyState("Enable multi-row selection", "On"); //Enable Multi row select
 
     propPane.UpdatePropertyFieldValue("Default selected rows", "[1]"); //Change the value of default selected row
@@ -54,6 +58,7 @@ describe("Table widget v2 edge case scenario testing", function () {
 
     //Check the value present in the textfield which is selectedRowIndices is []
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should("have.text", "[]");
+    cy.wait(1000);
 
     //Select the 1st, 2nd and 3rd row
     table.SelectTableRow(0, 0, true, "v2");

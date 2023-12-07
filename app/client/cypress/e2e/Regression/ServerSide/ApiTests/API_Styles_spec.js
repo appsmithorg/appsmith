@@ -1,13 +1,14 @@
 import ApiEditor from "../../../../locators/ApiEditor";
 import DynamicInput from "../../../../locators/DynamicInput";
 import HomePage from "../../../../locators/HomePage";
-import { apiPage } from "../../../../support/Objects/ObjectsCore";
-const commonLocators = require("../../../../locators/commonlocators.json");
 
-import {
-  entityExplorer,
-  apiPage,
-} from "../../../../support/Objects/ObjectsCore";
+import { apiPage } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate API Panel CSS Styles", function () {
   const backgroundColorGray200 = "rgb(227, 232, 239)";
@@ -63,8 +64,8 @@ describe("Validate API Panel CSS Styles", function () {
         //Create two datasource for testing binding prompt background-color
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
-        entityExplorer.ExpandCollapseEntity("Queries/JS");
-        cy.get(commonLocators.entityName).contains("test_styles").click();
+        AppSidebar.navigate(AppSidebarButton.Editor);
+        EditorNavigation.SelectEntityByName("test_styles", EntityType.Api);
         //Click on API search editor
         cy.get(ApiEditor.codeEditorWrapper).first().click();
         //First hint for search background-color test
@@ -80,12 +81,10 @@ describe("Validate API Panel CSS Styles", function () {
           .should("have.css", "background-color", hover);
         //Delete created test API
         cy.DeleteAPI();
+        AppSidebar.navigate(AppSidebarButton.Editor);
         cy.wait(2000);
-        cy.get(commonLocators.entityName)
-          .contains("test_styles")
-          .should("not.exist");
+        PageLeftPane.assertAbsence("test_styles");
         //Delete two datasources
-        entityExplorer.ExpandCollapseEntity("Datasources");
         cy.deleteDatasource(appName1);
         cy.deleteDatasource(appName2);
       });

@@ -66,7 +66,10 @@ export default class PropertyPaneNavigation extends PaneNavigation {
     if (!this.entityInfo.propertyPath) return config;
 
     const propertyPaneContentConfig =
-      WidgetFactory.getWidgetPropertyPaneContentConfig(this.widget?.type);
+      WidgetFactory.getWidgetPropertyPaneContentConfig(
+        this.widget?.type,
+        this.widget,
+      );
     const propertyPaneStyleConfig =
       WidgetFactory.getWidgetPropertyPaneStyleConfig(this.widget?.type);
     const widgetProps: WidgetProps | undefined = yield select(

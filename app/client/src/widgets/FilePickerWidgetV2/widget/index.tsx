@@ -116,6 +116,7 @@ class FilePickerWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return {
+      isLargeWidget: false,
       widgetSize: {
         maxHeight: {},
         maxWidth: { base: "360px" },

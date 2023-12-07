@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -56,12 +57,18 @@ public class UserData extends BaseDomain {
     private List<String> recentlyUsedOrgIds;
 
     // list of workspace ids that were recently accessed by the user
+    @Deprecated
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedWorkspaceIds;
 
     // list of application ids that were recently accessed by the user
+    @Deprecated
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedAppIds;
+
+    // Map of workspaceId to list of recently used applicationIds. This field should be used to add entities
+    @JsonView(Views.Public.class)
+    private List<RecentlyUsedEntityDTO> recentlyUsedEntityIds;
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
@@ -72,6 +79,7 @@ public class UserData extends BaseDomain {
     Map<String, Object> userClaims;
 
     // list of template ids that were recently forked by the user
+    @Deprecated
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedTemplateIds;
 

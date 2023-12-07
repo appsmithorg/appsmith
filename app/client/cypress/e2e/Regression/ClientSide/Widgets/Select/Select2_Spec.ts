@@ -8,6 +8,9 @@ import {
   propPane,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Select widget tests", function () {
   before(() => {
@@ -44,7 +47,7 @@ describe("Select widget tests", function () {
     agHelper.AssertCSS(
       widgetLocators.selectWidgetLabelContainer,
       "width",
-      "59.765625px",
+      "55.859375px",
     );
     agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
     agHelper.GetNClick(widgetLocators.selectWidgetWidthPlusBtn);
@@ -82,7 +85,7 @@ describe("Select widget tests", function () {
 
   it("3. Validate tooltip and placeholder", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue("Tooltip", "{{Input1.text}}");
     propPane.UpdatePropertyFieldValue("Placeholder", "{{Input1.text}}");
     entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 200);
@@ -103,7 +106,7 @@ describe("Select widget tests", function () {
 
   it("4. Verify Visible property", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Visible", "true");
     propPane.EnterJSContext("Visible", "{{(55>45)?false:true}}", true, true);
     deployMode.DeployApp();
@@ -111,7 +114,7 @@ describe("Select widget tests", function () {
       locators._widgetInDeployed(draggableWidgets.SELECT),
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.EnterJSContext("Visible", "", false);
     propPane.ToggleJSMode("Visible", false);
     propPane.TogglePropertyState("Visible", "On");
@@ -123,7 +126,7 @@ describe("Select widget tests", function () {
 
   it("5. Verify Disabled property", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     agHelper.AssertExistingToggleState("Disabled", "false");
     propPane.EnterJSContext("Disabled", "{{(45>55)?false:true}}", true, true);
     deployMode.DeployApp();
@@ -133,7 +136,7 @@ describe("Select widget tests", function () {
       true,
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.EnterJSContext("Disabled", "", false);
     propPane.ToggleJSMode("Disabled", false);
     propPane.TogglePropertyState("Disabled", "Off");
@@ -145,7 +148,7 @@ describe("Select widget tests", function () {
 
   it("6. Verify Height property", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.AssertPropertiesDropDownCurrentValue("Height", "Fixed");
     propPane.AssertPropertiesDropDownValues("Height", [
       "Auto Height",
@@ -160,7 +163,7 @@ describe("Select widget tests", function () {
       "40px",
     );
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("Height", "Auto Height with limits");
     agHelper.AssertElementVisibility(locators._autoHeightHandles);
     agHelper.AssertElementVisibility(locators._autoHeightMin);
@@ -198,7 +201,7 @@ describe("Select widget tests", function () {
 
   it("8. Verify select widget styles", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.MoveToTab("Style");
     propPane.SelectColorFromColorPicker("fontcolor", 9);
     propPane.SelectPropertiesDropDown("Font size", "M");
@@ -232,7 +235,7 @@ describe("Select widget tests", function () {
 
     //JS conversion
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.MoveToTab("Style");
     propPane.EnterJSContext("Font color", "#22c55e");
     propPane.EnterJSContext("Font size", "1.25rem");
@@ -272,7 +275,7 @@ describe("Select widget tests", function () {
     deployMode.NavigateBacktoEditor();
     entityExplorer.DragNDropWidget(draggableWidgets.FORM, 300, 400);
     entityExplorer.DragNDropWidget(draggableWidgets.SELECT, 200, 500);
-    entityExplorer.SelectEntityByName("Select2", "Widgets");
+    EditorNavigation.SelectEntityByName("Select2", EntityType.Widget);
     agHelper.AssertExistingToggleState("Required", "false");
     propPane.TogglePropertyState("Required", "On");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.FORM));

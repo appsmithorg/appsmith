@@ -54,7 +54,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     propPane.UpdatePropertyFieldValue("Default value", "AutoTest");
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryForDS(datasourceName);
     dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").should(({ response }) => {
@@ -77,12 +77,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
     cy.wait(2000);
 
-    dataSources.AssertTableInVirtuosoList(
+    dataSources.createQueryWithDatasourceSchemaTemplate(
       datasourceName,
-      "assets-test--appsmith",
-    );
-
-    entityExplorer.ActionTemplateMenuByEntityName(
       "assets-test--appsmith",
       "List files",
     );
@@ -96,7 +92,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("2. Validate Create file in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
     //Create File
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryForDS(datasourceName);
     cy.setQueryTimeout(30000);
     dataSources.ValidateNSelectDropdown(
       "Commands",
@@ -247,7 +243,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   it("4. Validate Read files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
     //Read File
 
-    //cy.NavigateToActiveDSQueryPane(datasourceName);
     //cy.setQueryTimeout(30000);
     dataSources.ValidateNSelectDropdown(
       "Commands",
@@ -335,8 +330,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("5. Validate Delete file command for new file & Validating List Files in bucket command after new file is deleted, Verify possible error msgs, run & delete the query", () => {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    //cy.renameWithInPane(queryName);
+    dataSources.CreateQueryForDS(datasourceName);
     cy.setQueryTimeout(30000);
     dataSources.ValidateNSelectDropdown(
       "Commands",
@@ -383,7 +377,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
 
     //Validating List Files in bucket command after new file is deleted
-    //cy.NavigateToActiveDSQueryPane(datasourceName);
     dataSources.ValidateNSelectDropdown(
       "Commands",
       "Delete file",
@@ -401,7 +394,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("6. Create new 'text' file in bucket for UI Operations & Verify Search, Delete operations from NewPage CRUD UI created in S3 ds & Bug 8686, 8684", function () {
     //Creating new file in bucket
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryAfterDSSaved(datasourceName);
     dataSources.ValidateNSelectDropdown(
       "Commands",
       "List files in bucket",
@@ -475,11 +468,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
         queryLocators.searchFilefield,
         fileName.substring(0, 14),
       );
-      agHelper.Sleep(10000); //for search to finish
 
-      cy.get(".t--widget-textwidget span:contains('" + fileName + "')")
-        .should("have.length", 1)
-        .scrollIntoView();
+      agHelper
+        .AssertElementVisibility(
+          ".t--widget-textwidget span:contains('" + fileName + "')",
+        )
+        .should("have.length", 1);
 
       //Verifying CopyFile URL icon from UI - Browser pop up appearing
       // cy.xpath(queryLocators.copyURLicon).click()
@@ -512,7 +506,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   it("7. Validate Deletion of the Newly Created Page", () => {
-    cy.NavigateToQueryEditor();
     dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Assets-test.appsmith.com",
@@ -522,6 +515,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   after("Deletes the datasource", () => {
-    dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200, 409]);
+    dataSources.DeleteDatasourceFromWithinDS(datasourceName, [200, 409]);
   });
 });

@@ -1,4 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -33,9 +36,9 @@ describe("Validate JSObjects binding to Input widget", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
-    ee.ExpandCollapseEntity("Form1");
-    ee.SelectEntityByName("Input2");
+    EditorNavigation.SelectEntityByName("Input2", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     cy.get(locator._inputWidget)
       .last()
       .invoke("attr", "value")
@@ -80,11 +83,14 @@ describe("Validate JSObjects binding to Input widget", () => {
         //use async-await or promises
       }
     }`;
-    ee.SelectEntityByName(jsOjbNameReceived as string, "Queries/JS");
+    EditorNavigation.SelectEntityByName(
+      jsOjbNameReceived as string,
+      EntityType.JSObject,
+    );
     jsEditor.EditJSObj(jsBody);
-    ee.ExpandCollapseEntity("Widgets");
-    ee.ExpandCollapseEntity("Form1");
-    ee.SelectEntityByName("Input2");
+    EditorNavigation.SelectEntityByName("Input2", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     cy.get(locator._inputWidget)
       .last()
       .invoke("attr", "value")

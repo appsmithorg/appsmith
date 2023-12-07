@@ -4,6 +4,9 @@ import {
   propPane,
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const widgetName = "phoneinputwidget";
 
@@ -13,7 +16,7 @@ describe("Phone input widget - ", () => {
   });
 
   it("1. Should show empty dropdown for a typo", () => {
-    entityExplorer.SelectEntityByName("PhoneInput1");
+    EditorNavigation.SelectEntityByName("PhoneInput1", EntityType.Widget);
     // Turn on changecountrycode
     propPane.TogglePropertyState("Change country code");
 

@@ -17,6 +17,15 @@ export interface INJECTED_CONFIGS {
     apiKey: string;
     ceKey: string;
   };
+  newRelic: {
+    enableNewRelic: boolean;
+    accountId: string;
+    applicationId: string;
+    browserAgentlicenseKey: string;
+    otlpLicenseKey: string;
+    otlpServiceName: string;
+    otlpEndpoint: string;
+  };
   fusioncharts: {
     licenseKey: string;
   };
@@ -78,6 +87,17 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
       indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
       snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
+    },
+    newRelic: {
+      enableNewRelic: !!process.env.APPSMITH_NEW_RELIC_ACCOUNT_ENABLE,
+      accountId: process.env.APPSMITH_NEW_RELIC_ACCOUNT_ID || "",
+      applicationId: process.env.APPSMITH_NEW_RELIC_APPLICATION_ID || "",
+      browserAgentlicenseKey:
+        process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY || "",
+      otlpLicenseKey: process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY || "",
+      otlpEndpoint: process.env.APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME || "",
+      otlpServiceName:
+        process.env.APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT || "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
@@ -144,6 +164,31 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const segment = getConfig(
     ENV_CONFIG.segment.apiKey,
     APPSMITH_FEATURE_CONFIGS?.segment.apiKey,
+  );
+  const newRelicAccountId = getConfig(
+    ENV_CONFIG.newRelic.accountId,
+    APPSMITH_FEATURE_CONFIGS?.newRelic.accountId,
+  );
+  const newRelicApplicationId = getConfig(
+    ENV_CONFIG.newRelic.applicationId,
+    APPSMITH_FEATURE_CONFIGS?.newRelic.applicationId,
+  );
+  const newRelicBrowserLicenseKey = getConfig(
+    ENV_CONFIG.newRelic.browserAgentlicenseKey,
+    APPSMITH_FEATURE_CONFIGS?.newRelic.browserAgentlicenseKey,
+  );
+  const newRelicOtlpLicenseKey = getConfig(
+    ENV_CONFIG.newRelic.otlpLicenseKey,
+    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpLicenseKey,
+  );
+
+  const newRelicOtlpServiceName = getConfig(
+    ENV_CONFIG.newRelic.otlpServiceName,
+    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpServiceName,
+  );
+  const newRelicOtlpEndpoint = getConfig(
+    ENV_CONFIG.newRelic.otlpEndpoint,
+    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpEndpoint,
   );
   const fusioncharts = getConfig(
     ENV_CONFIG.fusioncharts.licenseKey,
@@ -216,6 +261,18 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiKey: segment.value,
       ceKey: segmentCEKey.value,
     },
+    newRelic: {
+      enableNewRelic:
+        ENV_CONFIG.newRelic.enableNewRelic ||
+        APPSMITH_FEATURE_CONFIGS?.newRelic.enableNewRelic ||
+        false,
+      accountId: newRelicAccountId.value,
+      applicationId: newRelicApplicationId.value,
+      browserAgentlicenseKey: newRelicBrowserLicenseKey.value,
+      otlpLicenseKey: newRelicOtlpLicenseKey.value,
+      otlpEndpoint: newRelicOtlpEndpoint.value,
+      otlpServiceName: newRelicOtlpServiceName.value,
+    },
     fusioncharts: {
       enabled: fusioncharts.enabled,
       licenseKey: fusioncharts.value,
@@ -247,8 +304,20 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.logLevel || APPSMITH_FEATURE_CONFIGS?.logLevel || false,
     enableTNCPP:
       ENV_CONFIG.enableTNCPP || APPSMITH_FEATURE_CONFIGS?.enableTNCPP || false,
-    appVersion:
-      ENV_CONFIG.appVersion || APPSMITH_FEATURE_CONFIGS?.appVersion || false,
+    appVersion: {
+      id:
+        APPSMITH_FEATURE_CONFIGS?.appVersion?.id ||
+        ENV_CONFIG.appVersion?.id ||
+        "",
+      releaseDate:
+        APPSMITH_FEATURE_CONFIGS?.appVersion?.releaseDate ||
+        ENV_CONFIG.appVersion?.releaseDate ||
+        "",
+      edition:
+        ENV_CONFIG.appVersion?.edition ||
+        APPSMITH_FEATURE_CONFIGS?.appVersion?.edition ||
+        "",
+    },
     intercomAppID:
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS?.intercomAppID || "",
     mailEnabled:

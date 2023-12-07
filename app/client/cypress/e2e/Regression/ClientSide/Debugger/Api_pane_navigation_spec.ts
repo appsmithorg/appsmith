@@ -7,9 +7,10 @@ import {
   dataSources,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
 describe("excludeForAirgap", "Api pane navigation", () => {
-  it("1. Navigation to Grapql pagination field", () => {
+  it("1. Navigation to Graphql pagination field", () => {
     apiPage.CreateGraphqlApi("Api1");
     apiPage.SelectPaneTab("Pagination");
     apiPage.SelectPaginationTypeViaIndex(2);
@@ -22,7 +23,7 @@ describe("excludeForAirgap", "Api pane navigation", () => {
     apiPage.SelectPaneTab("Headers");
     apiPage.EnterHeader("test", "test");
     debuggerHelper.AssertErrorCount(1);
-    entityExplorer.NavigateToSwitcher("Widgets");
+    EditorNavigation.ShowCanvas();
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClicklogEntityLink();
 
@@ -45,7 +46,7 @@ describe("excludeForAirgap", "Api pane navigation", () => {
       inputFieldName: "",
     });
     apiPage.SelectPaneTab("Headers");
-    entityExplorer.NavigateToSwitcher("Widgets");
+    EditorNavigation.ShowCanvas();
     debuggerHelper.AssertErrorCount(1);
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClicklogEntityLink();
@@ -64,7 +65,7 @@ describe("excludeForAirgap", "Api pane navigation", () => {
     dataSources.SetQueryTimeout(20000, "API");
 
     apiPage.SelectPaneTab("Pagination");
-    entityExplorer.NavigateToSwitcher("Widgets");
+    EditorNavigation.ShowCanvas();
     debuggerHelper.ClickDebuggerIcon();
     debuggerHelper.ClickLogsTab();
     debuggerHelper.ClicklogEntityLink(true);

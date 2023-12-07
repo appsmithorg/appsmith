@@ -55,20 +55,38 @@ import { PluginPackageName } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getExplorerWidth } from "selectors/explorerSelector";
-import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
+import {
+  getFirstJSObjectId,
+  getJSPaneConfigSelectedTab,
+} from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
   getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
-import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
+import {
+  getFirstQueryId,
+  getQueryPaneConfigSelectedTabIndex,
+} from "selectors/queryPaneSelectors";
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import { NavigationMethod } from "../utils/history";
 import { JSEditorTab } from "../reducers/uiReducers/jsPaneReducer";
-import { getSelectedDatasourceId } from "./FocusSelectors";
-import { setSelectedDatasource } from "./FocusSetters";
+import {
+  getCurrentAppUrl,
+  getCurrentPageUrl,
+  getSelectedDatasourceId,
+  getSelectedJSObjectId,
+  getSelectedQueryId,
+} from "./FocusSelectors";
+import {
+  setSelectedDatasource,
+  setSelectedJSObject,
+  setPageUrl,
+  setAppUrl,
+  setSelectedQuery,
+} from "./FocusSetters";
 import { getFirstDatasourceId } from "../selectors/datasourceSelectors";
 
 export enum FocusElement {
@@ -93,6 +111,10 @@ export enum FocusElement {
   SelectedWidgets = "SelectedWidgets",
   SubEntityCollapsibleState = "SubEntityCollapsibleState",
   InputField = "InputField",
+  PageUrl = "PageUrl",
+  AppUrl = "AppUrl",
+  SelectedQuery = "SelectedQuery",
+  SelectedJSObject = "SelectedJSObject",
 }
 
 export enum ConfigType {
@@ -124,13 +146,20 @@ export type Config = ConfigRedux | ConfigURL;
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
   [FocusEntity.NONE]: [],
+  [FocusEntity.APP_STATE]: [
+    {
+      type: ConfigType.URL,
+      name: FocusElement.AppUrl,
+      selector: getCurrentAppUrl,
+      setter: setAppUrl,
+    },
+  ],
   [FocusEntity.PAGE]: [
     {
-      type: ConfigType.Redux,
-      name: FocusElement.CodeEditorHistory,
-      selector: getCodeEditorHistory,
-      setter: setCodeEditorHistory,
-      defaultValue: {},
+      type: ConfigType.URL,
+      name: FocusElement.PageUrl,
+      selector: getCurrentPageUrl,
+      setter: setPageUrl,
     },
     {
       type: ConfigType.Redux,
@@ -165,6 +194,13 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       name: FocusElement.PropertyPanelContext,
       selector: getPropertyPanelState,
       setter: setPanelPropertiesState,
+      defaultValue: {},
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.CodeEditorHistory,
+      selector: getCodeEditorHistory,
+      setter: setCodeEditorHistory,
       defaultValue: {},
     },
   ],
@@ -256,24 +292,6 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setQueryPaneConfigSelectedTabIndex,
       defaultValue: 0,
     },
-  ],
-  [FocusEntity.PROPERTY_PANE]: [
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertyTabs,
-      selector: getWidgetSelectedPropertyTabIndex,
-      setter: setWidgetSelectedPropertyTabIndex,
-      defaultValue: 0,
-    },
-    {
-      type: ConfigType.Redux,
-      name: FocusElement.PropertyField,
-      selector: getFocusablePropertyPaneField,
-      setter: setFocusablePropertyPaneField,
-      defaultValue: "",
-    },
-  ],
-  [FocusEntity.API]: [
     {
       type: ConfigType.Redux,
       name: FocusElement.ApiPaneConfigTabs,
@@ -299,6 +317,23 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setApiRightPaneSelectedTab,
     },
   ],
+  [FocusEntity.PROPERTY_PANE]: [
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertyTabs,
+      selector: getWidgetSelectedPropertyTabIndex,
+      setter: setWidgetSelectedPropertyTabIndex,
+      defaultValue: 0,
+    },
+    {
+      type: ConfigType.Redux,
+      name: FocusElement.PropertyField,
+      selector: getFocusablePropertyPaneField,
+      setter: setFocusablePropertyPaneField,
+      defaultValue: "",
+    },
+  ],
+  [FocusEntity.API]: [],
   [FocusEntity.DEBUGGER]: [
     {
       type: ConfigType.Redux,
@@ -306,6 +341,26 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       selector: getDebuggerContext,
       setter: setDebuggerContext,
       defaultValue: DefaultDebuggerContext,
+    },
+  ],
+  [FocusEntity.LIBRARY]: [],
+  [FocusEntity.SETTINGS]: [],
+  [FocusEntity.QUERY_LIST]: [
+    {
+      type: ConfigType.URL,
+      name: FocusElement.SelectedQuery,
+      selector: getSelectedQueryId,
+      setter: setSelectedQuery,
+      defaultValue: getFirstQueryId,
+    },
+  ],
+  [FocusEntity.JS_OBJECT_LIST]: [
+    {
+      type: ConfigType.URL,
+      name: FocusElement.SelectedJSObject,
+      selector: getSelectedJSObjectId,
+      setter: setSelectedJSObject,
+      defaultValue: getFirstJSObjectId,
     },
   ],
 };

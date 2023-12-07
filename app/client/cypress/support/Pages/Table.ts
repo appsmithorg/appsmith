@@ -141,7 +141,7 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
   _headerCell = (column: string) =>
     `.t--widget-tablewidgetv2 .thead .th:contains(${column})`;
-  private _addNewRow = ".t--add-new-row";
+  public _addNewRow = ".t--add-new-row";
   _saveNewRow = ".t--save-new-row";
   _discardRow = ".t--discard-new-row";
   _searchInput = ".t--search-input input";

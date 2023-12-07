@@ -12,6 +12,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.BranchProtectionRequestDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
@@ -19,7 +20,6 @@ import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.ce.BranchProtectionRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
@@ -163,7 +163,7 @@ public class GitControllerCE {
             @PathVariable String defaultApplicationId,
             @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to checkout to branch {} application {} ", branchName, defaultApplicationId);
-        return service.checkoutBranch(defaultApplicationId, branchName)
+        return service.checkoutBranch(defaultApplicationId, branchName, true)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

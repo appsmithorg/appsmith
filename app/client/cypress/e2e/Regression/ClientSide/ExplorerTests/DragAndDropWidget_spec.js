@@ -1,3 +1,8 @@
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -37,13 +42,14 @@ describe("Entity explorer Drag and Drop widgets testcases", function () {
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom", { ensureScrollable: false })
       .should("be.visible");
-    _.entityExplorer.NavigateToSwitcher("Explorer");
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     _.deployMode.DeployApp();
     _.deployMode.NavigateBacktoEditor();
     cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.get(`.t--entity-name:contains(FormTest)`).trigger("mouseover");
-    cy.hoverAndClickParticularIndex(1);
-    cy.selectAction("Show bindings");
+    _.entityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: "FormTest",
+      action: "Show bindings",
+    });
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");

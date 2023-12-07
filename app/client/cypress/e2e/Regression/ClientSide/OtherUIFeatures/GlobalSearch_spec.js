@@ -1,4 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
@@ -49,7 +54,6 @@ describe("GlobalSearch", function () {
   });
 
   it("3. navigatesToApi", () => {
-    cy.NavigateToAPI_Panel();
     cy.CreateAPI("SomeApi");
 
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
@@ -81,8 +85,7 @@ describe("GlobalSearch", function () {
     cy.createPostgresDatasource();
     cy.get("@saveDatasource").then((httpResponse) => {
       const expectedDatasource = httpResponse.response.body.data;
-
-      cy.NavigateToActiveDSQueryPane(expectedDatasource.name);
+      _.dataSources.CreateQueryAfterDSSaved();
       cy.get(commonlocators.globalSearchTrigger).click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000); // modal open transition should be deterministic
@@ -136,6 +139,7 @@ describe("GlobalSearch", function () {
   });
 
   it("7. Api actions should have API as prefix", () => {
+    AppSidebar.navigate(AppSidebarButton.Editor);
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(globalSearchLocators.blankDatasource).first().click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
@@ -148,6 +152,7 @@ describe("GlobalSearch", function () {
     cy.fillAuthenticatedAPIForm();
     cy.saveDatasource();
 
+    AppSidebar.navigate(AppSidebarButton.Editor);
     cy.get(globalSearchLocators.createNew).click({ force: true });
     cy.get(".ads-v2-menu__menu-item span:contains('omnibarApiDatasource')")
       .first()

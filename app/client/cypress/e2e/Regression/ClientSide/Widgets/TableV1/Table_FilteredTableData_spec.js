@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../.././../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -11,7 +15,6 @@ describe("Table Widget Filtered Table data in autocomplete", function () {
 
   it("Table Widget Functionality To Filter and search data", function () {
     cy.openPropertyPane("tablewidget");
-    cy.wait("@updateLayout");
     cy.get(publish.searchInput).first().type("query");
     cy.get(publish.filterBtn).click();
     cy.get(publish.attributeDropdown).click();
@@ -26,7 +29,7 @@ describe("Table Widget Filtered Table data in autocomplete", function () {
   });
 
   it("Table Widget Functionality to validate filtered table data", function () {
-    _.entityExplorer.SelectEntityByName("Text1");
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     cy.testJsontext("text", "{{Table1.filteredTableData[0].task}}");
     cy.readTabledata("0", "1").then((tabData) => {
       const tableData = tabData;

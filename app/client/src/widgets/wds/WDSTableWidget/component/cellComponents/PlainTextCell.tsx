@@ -4,17 +4,23 @@ import { isNumber, isNil } from "lodash";
 
 import type { BaseCellComponentProps, VerticalAlignment } from "../Constants";
 import { ALIGN_ITEMS } from "../Constants";
-import type { EditableCell } from "widgets/TableWidgetV2/constants";
+import type { EditableCell } from "widgets/wds/WDSTableWidget/constants";
 import {
   ColumnTypes,
   EditableCellActions,
-} from "widgets/TableWidgetV2/constants";
+} from "widgets/wds/WDSTableWidget/constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
 import { BasicCell } from "./BasicCell";
 import { InlineCellEditor } from "./InlineCellEditor";
 import styled from "styled-components";
 import fastdom from "fastdom";
+import CurrencyTypeDropdown, {
+  CurrencyDropdownOptions,
+} from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
+import { getLocale } from "utils/helpers";
+import * as Sentry from "@sentry/react";
+import { getLocaleThousandSeparator } from "widgets/WidgetUtils";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;
@@ -58,6 +64,13 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   isNewRow: boolean;
 };
 
+export interface RenderCurrencyPropsType {
+  currencyCode?: string;
+  decimals?: number;
+  notation?: Intl.NumberFormatOptions["notation"];
+  thousandSeparator?: boolean;
+}
+
 interface editPropertyType {
   alias: string;
   onSubmitString: string;
@@ -73,6 +86,8 @@ export function getCellText(
 
   if (value && columnType === ColumnTypes.URL && displayText) {
     text = displayText;
+  } else if (columnType === ColumnTypes.CURRENCY) {
+    text = value ?? "";
   } else if (!isNil(value) && (!isNumber(value) || !isNaN(value))) {
     text = (value as string).toString();
   } else {
@@ -89,7 +104,9 @@ function getContentHeight(ref: RefObject<HTMLDivElement>) {
   );
 }
 
-function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
+function PlainTextCell(
+  props: RenderDefaultPropsType & editPropertyType & RenderCurrencyPropsType,
+) {
   const {
     accentColor,
     alias,
@@ -97,6 +114,8 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     cellBackground,
     columnType,
     compactMode,
+    currencyCode,
+    decimals,
     disabledEditIcon,
     disabledEditIconMessage,
     displayText,
@@ -110,12 +129,14 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     isEditableCellValid,
     isHidden,
     isNewRow,
+    notation,
     onCellTextChange,
     onSubmitString,
     rowIndex,
     tableWidth,
     textColor,
     textSize,
+    thousandSeparator,
     toggleCellEditMode,
     validationErrorMessage,
     verticalAlignment,
@@ -174,18 +195,82 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
     }
   }, [value, isCellEditMode]);
 
+  const currency = useMemo(
+    () => CurrencyDropdownOptions.find((d) => d.value === currencyCode),
+    [currencyCode],
+  );
+
+  const formattedValue = useMemo(() => {
+    if (columnType === ColumnTypes.CURRENCY) {
+      try {
+        const floatVal = parseFloat(value);
+
+        if (isNaN(floatVal)) {
+          return value;
+        } else {
+          let formattedValue = Intl.NumberFormat(getLocale(), {
+            style: "decimal",
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+            notation: notation,
+          }).format(floatVal);
+
+          if (!thousandSeparator) {
+            formattedValue = formattedValue.replaceAll(
+              getLocaleThousandSeparator(),
+              "",
+            );
+          }
+
+          return currency?.id + " " + formattedValue;
+        }
+      } catch (e) {
+        Sentry.captureException(e);
+        return value;
+      }
+    } else {
+      return value;
+    }
+  }, [value, decimals, currencyCode, notation, thousandSeparator, columnType]);
+
   if (isCellEditMode) {
+    const [inputType, inputHTMLType]: [InputTypes, "TEXT" | "NUMBER"] = (() => {
+      switch (columnType) {
+        case ColumnTypes.NUMBER:
+          return [InputTypes.NUMBER, "NUMBER"];
+        case ColumnTypes.CURRENCY:
+          return [InputTypes.CURRENCY, "NUMBER"];
+        default:
+          return [InputTypes.TEXT, "TEXT"];
+      }
+    })();
+
+    const additionalProps: Record<string, unknown> = {};
+
+    if (inputType === InputTypes.CURRENCY) {
+      additionalProps.inputHTMLType = "NUMBER";
+      additionalProps.leftIcon = (
+        <CurrencyTypeDropdown
+          accentColor={accentColor}
+          allowCurrencyChange={false}
+          options={CurrencyDropdownOptions}
+          selected={currencyCode}
+          widgetId={widgetId}
+        />
+      );
+      additionalProps.shouldUseLocale = true;
+      additionalProps.decimals = decimals;
+    }
+
     editor = (
       <InlineCellEditor
         accentColor={accentColor}
+        additionalProps={additionalProps}
         allowCellWrapping={allowCellWrapping}
         autoFocus={!isNewRow}
         compactMode={compactMode}
-        inputType={
-          columnType === ColumnTypes.NUMBER
-            ? InputTypes.NUMBER
-            : InputTypes.TEXT
-        }
+        inputHTMLType={inputHTMLType}
+        inputType={inputType}
         isEditableCellValid={isEditableCellValid}
         multiline={isMultiline}
         onChange={editEvents.onChange}
@@ -230,7 +315,7 @@ function PlainTextCell(props: RenderDefaultPropsType & editPropertyType) {
         textColor={textColor}
         textSize={textSize}
         url={columnType === ColumnTypes.URL ? props.value : null}
-        value={value}
+        value={formattedValue}
         verticalAlignment={verticalAlignment}
       />
       {editor}

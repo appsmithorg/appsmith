@@ -209,6 +209,7 @@ export class AggregateHelper extends ReusableHelper {
       .blur();
     this.PressEnter(); //allow lil more time for new name to settle
     this.AssertElementVisibility(this.locator._editIcon);
+    this.Sleep(); // wait for url update
   }
 
   public CheckForPageSaveError() {
@@ -268,17 +269,20 @@ export class AggregateHelper extends ReusableHelper {
       });
   }
 
-  public GetElement(selector: ElementType, timeout = 20000) {
+  public GetElement(
+    selector: ElementType,
+    timeout = Cypress.config().defaultCommandTimeout,
+  ) {
     let locator;
     if (typeof selector == "string") {
       //cy.log(selector, "selector");
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
           ? cy.xpath(selector, {
-              timeout: timeout,
+              timeout,
             })
           : cy.get(selector, {
-              timeout: timeout,
+              timeout,
             });
     } else locator = cy.wrap(selector);
     return locator;
@@ -1089,6 +1093,9 @@ export class AggregateHelper extends ReusableHelper {
         win.location.href = url;
       });
     });
+    this.AssertElementAbsence(
+      this.locator._specificToast("Cannot read properties of undefined"),
+    );
     this.assertHelper.AssertDocumentReady();
     this.Sleep(4000); //for page to load for CI runs
     networkCallAlias &&
@@ -1486,7 +1493,7 @@ export class AggregateHelper extends ReusableHelper {
     selector: ElementType,
     visibility = true,
     index = 0,
-    timeout = 20000,
+    timeout = Cypress.config("defaultCommandTimeout"),
   ) {
     return this.GetElement(selector, timeout)
       .eq(index)

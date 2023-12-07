@@ -16,7 +16,7 @@ describe("MySQL datasource test cases", function () {
       datasourceName = `MySQL MOCKDS ${UUID}`;
       cy.renameDatasource(datasourceName);
       cy.testSaveDatasource();
-      dataSources.DeleteDatasouceFromActiveTab(datasourceName);
+      dataSources.DeleteDatasourceFromWithinDS(datasourceName);
     });
   });
 
@@ -33,7 +33,7 @@ describe("MySQL datasource test cases", function () {
 
   it("3. Create a new query from the datasource editor", function () {
     // cy.get(datasource.createQuery).click();
-    cy.get(datasource.createQuery).last().click();
+    dataSources.CreateQueryAfterDSSaved();
     cy.wait("@createNewApi").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -56,7 +57,7 @@ import get from "lodash/get";
 import {
   initFormEvaluations,
   startFormEvaluations,
-} from "@appsmith/actions/evaluationActions";
+} from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
@@ -87,6 +88,11 @@ import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import type { ChangeQueryPayload } from "actions/queryPaneActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -341,9 +347,8 @@ function* formValueChangeSaga(
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
-  const { actionConfiguration, id, pluginId, pluginType } =
+  const { actionConfiguration, id, pageId, pluginId, pluginType } =
     actionPayload.payload;
-  const pageId: string = yield select(getCurrentPageId);
   if (![PluginType.DB, PluginType.REMOTE, PluginType.AI].includes(pluginType))
     return;
   const pluginTemplates: Record<string, unknown> =
@@ -371,7 +376,6 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
-  const pageId: string = yield select(getCurrentPageId);
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
   // Only look at db plugins
@@ -382,6 +386,17 @@ function* handleDatasourceCreatedSaga(
     plugin.type !== PluginType.AI
   )
     return;
+
+  const currentApplicationIdForCreateNewApp: string | undefined = yield select(
+    getCurrentApplicationIdForCreateNewApp,
+  );
+  const application: ApplicationPayload | undefined = yield select(
+    getApplicationByIdFromWorkspaces,
+    currentApplicationIdForCreateNewApp || "",
+  );
+  const pageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultPageId
+    : yield select(getCurrentPageId);
 
   yield put(initialize(DATASOURCE_DB_FORM, omit(payload, "name")));
 
@@ -412,7 +427,10 @@ function* handleDatasourceCreatedSaga(
         },
       }),
     );
-  } else {
+  } else if (
+    !currentApplicationIdForCreateNewApp ||
+    (!!currentApplicationIdForCreateNewApp && payload.id !== TEMP_DATASOURCE_ID)
+  ) {
     history.push(
       datasourcesEditorIdURL({
         pageId,

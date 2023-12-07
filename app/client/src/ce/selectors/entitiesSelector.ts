@@ -12,6 +12,7 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
@@ -27,7 +28,7 @@ import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
 } from "api/PluginApi";
-import type { JSAction, JSCollection } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
 import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
@@ -43,8 +44,10 @@ import type { JSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { MAX_DATASOURCE_SUGGESTIONS } from "pages/Editor/Explorer/hooks";
-import type { ModuleInput } from "@appsmith/constants/ModuleConstants";
+import { MAX_DATASOURCE_SUGGESTIONS } from "@appsmith/pages/Editor/Explorer/hooks";
+import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { Plugin } from "api/PluginApi";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -390,6 +393,36 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
+// Most popular datasources are hardcoded right now to include these 4 plugins and REST API
+// Going forward we may want to have separate list for each instance based on usage
+export const getMostPopularPlugins = createSelector(getPlugins, (plugins) => {
+  const popularPlugins: Plugin[] = [];
+
+  const gsheetPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.GOOGLE_SHEETS,
+  );
+  const restPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.REST_API,
+  );
+  const postgresPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.POSTGRES,
+  );
+  const mysqlPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MY_SQL,
+  );
+  const mongoPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.MONGO,
+  );
+
+  gsheetPlugin && popularPlugins.push(gsheetPlugin);
+  restPlugin && popularPlugins.push(restPlugin);
+  postgresPlugin && popularPlugins.push(postgresPlugin);
+  mysqlPlugin && popularPlugins.push(mysqlPlugin);
+  mongoPlugin && popularPlugins.push(mongoPlugin);
+
+  return popularPlugins;
+});
+
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter(
     (plugin) =>
@@ -557,6 +590,10 @@ export const getCurrentJSCollections = createSelector(
   },
 );
 
+export const getCurrentModuleActions = () => [];
+
+export const getCurrentModuleJSCollections = () => [];
+
 export const getJSCollectionFromName = createSelector(
   [
     getCurrentJSCollections,
@@ -636,15 +673,27 @@ export const getActionData = (
   return action ? action.data : undefined;
 };
 
-export const getJSCollection = (
-  state: AppState,
-  actionId: string,
-): JSCollection | undefined => {
+export const getJSCollection = (state: AppState, actionId: string) => {
   const jsaction = find(
     state.entities.jsActions,
     (a) => a.config.id === actionId,
   );
-  return jsaction ? jsaction.config : undefined;
+  return jsaction && jsaction.config;
+};
+
+/**
+ *
+ * getJSCollectionFromAllEntities is used to get the js collection from all jsAction entities (including module instance entities) )
+ */
+export const getJSCollectionFromAllEntities = (
+  state: AppState,
+  actionId: string,
+) => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.id === actionId,
+  );
+  return jsaction && jsaction.config;
 };
 
 export function getCurrentPageNameByActionId(
@@ -1278,6 +1327,17 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
   );
 };
 
-export function getInputsForModule(): Record<string, ModuleInput> {
-  return {};
+export function getInputsForModule(): Module["inputsForm"] {
+  return [];
 }
+
+export const getModuleInstances = (): Record<string, ModuleInstance> => {
+  return {};
+};
+
+export const getModuleInstanceEntities = () => {
+  return {
+    actions: [],
+    jsCollections: [],
+  };
+};

@@ -17,11 +17,12 @@
       "options": [],
       "placeholderText": "All models will be fetched.",
       "fetchOptionsConditionally": true,
+      "setFirstOptionAsDefault": true,
       "alternateViewTypes": ["json"],
       "conditionals": {
         "enable": "{{true}}",
         "fetchDynamicValues": {
-          "condition": "{{true}}",
+          "condition": "{{actionConfiguration.formData.command.data === 'CHAT'}}",
           "config": {
             "params": {
               "requestType": "CHAT_MODELS",
@@ -30,24 +31,6 @@
           }
         }
       }
-    },
-    {
-      "label": "path to query",
-      "configProperty": "actionConfiguration.path",
-      "controlType": "INPUT_TEXT",
-      "initialValue": "/v1/chat/completions",
-      "isRequired": true,
-      "hidden": true
-    },
-    {
-      "label": "Temperature",
-      "tooltipText": "Put a value between 0 and 2",
-      "Description": "Put a value between 0 and 2",
-      "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
-      "configProperty": "actionConfiguration.formData.temperature",
-      "controlType": "INPUT_TEXT",
-      "initialValue": "1",
-      "isRequired": false
     },
     {
       "label": "Messages",
@@ -63,7 +46,7 @@
           "label": "Role",
           "key": "role",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "\"user\", \"system\" or \"assistant\"",
+          "placeholderText": "user OR system",
           "initialValue": "user"
         },
         {
@@ -73,6 +56,21 @@
           "placeholderText": "{{ UserInput.text }}"
         }
       ]
+    },
+    {
+      "label": "Temperature",
+      "tooltipText": "Put a value between 0 and 2",
+      "Description": "Put a value between 0 and 2",
+      "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+      "configProperty": "actionConfiguration.formData.temperature",
+      "controlType": "INPUT_TEXT",
+      "dataType": "NUMBER",
+      "initialValue": "0",
+      "isRequired": false,
+      "customStyles": {
+        "width": "270px",
+        "minWidth": "270px"
+      }
     }
   ]
 }

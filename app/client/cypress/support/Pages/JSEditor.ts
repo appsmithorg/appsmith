@@ -1,4 +1,10 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import {
+  AppSidebar,
+  AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
+} from "./EditorNavigation";
 
 export interface ICreateJSObjectOptions {
   paste: boolean;
@@ -128,7 +134,8 @@ export class JSEditor {
   //#region Page functions
   public NavigateToNewJSEditor() {
     this.agHelper.ClickOutside(); //to enable click of below!
-
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
     cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
@@ -148,16 +155,16 @@ export class JSEditor {
 
   public CreateJSObject(
     JSCode: string,
-    options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
+    options: Partial<ICreateJSObjectOptions> = {},
   ) {
     const {
       completeReplace,
-      lineNumber = 4,
+      lineNumber,
       paste,
-      prettify = true,
+      prettify,
       shouldCreateNewJSObj,
       toRun,
-    } = options;
+    } = { ...DEFAULT_CREATE_JS_OBJECT_OPTIONS, ...options };
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
@@ -252,7 +259,7 @@ export class JSEditor {
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
-    this.ee.AssertEntityPresenceInExplorer(renameVal);
+    PageLeftPane.assertPresence(renameVal);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
   }
 

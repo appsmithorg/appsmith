@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { PluginPackageName } from "entities/Action";
 import { get, isArray } from "lodash";
-import { Icon } from "design-system";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
@@ -29,13 +28,6 @@ export function useColumnDropdown(props: any) {
         return {
           ...column,
           id: column.value,
-          icon: (
-            <Icon
-              color="var(--ads-v2-color-fg)"
-              name="layout-column-line"
-              size="md"
-            />
-          ),
         };
       });
     } else if (isArray(columns)) {
@@ -53,13 +45,6 @@ export function useColumnDropdown(props: any) {
             label: column.name,
             value: column.name,
             subText: column.type,
-            icon: (
-              <Icon
-                color="var(--ads-v2-color-fg)"
-                name="layout-column-line"
-                size="md"
-              />
-            ),
           };
         });
     } else {
@@ -98,7 +83,7 @@ export function useColumnDropdown(props: any) {
       const option = options.find((option) => option.value === selectedValue);
 
       return {
-        label: <Option label={option?.label} leftIcon={option?.icon} />,
+        label: <Option label={option?.label} />,
         key: option?.id,
       };
     }

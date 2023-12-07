@@ -3,12 +3,14 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   entityItems,
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Validate MySQL query UI flows - Bug 14054", () => {
   let dsName: any;
@@ -21,8 +23,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
   });
 
   it("1. Validate Describe & verify query response", () => {
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyDescribe");
+    dataSources.CreateQueryForDS(dsName, "", "verifyDescribe");
     runQueryNValidate("Describe customers;", [
       "Field",
       "Type",
@@ -54,8 +55,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
   });
 
   it("2. Validate SHOW & verify query response", () => {
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyShow");
+    dataSources.CreateQueryForDS(dsName, "", "verifyShow");
     runQueryNValidate("SHOW tables;", ["Tables_in_fakeapi"]);
     runQueryNValidate("SHOW databases", ["Database"]);
     agHelper.ActionContextMenuWithInPane({
@@ -65,8 +65,7 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
   });
 
   it("3. Validate Suggested widget binding for MySQL table", () => {
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("SuggestedWidgetBinding");
+    dataSources.CreateQueryForDS(dsName, "", "SuggestedWidgetBinding");
     runQueryNValidate("SELECT * FROM countryFlags LIMIT 10;", [
       "Country",
       "File_Name",
@@ -76,7 +75,10 @@ describe("Validate MySQL query UI flows - Bug 14054", () => {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("SuggestedWidgetBinding");
+    EditorNavigation.SelectEntityByName(
+      "SuggestedWidgetBinding",
+      EntityType.Query,
+    );
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,

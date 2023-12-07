@@ -11,7 +11,7 @@ describe("Postgres datasource test cases", function () {
     dataSources.CreateDataSource("Postgres");
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = JSON.stringify(httpResponse.response.body.data.name);
-      dataSources.DeleteDatasouceFromActiveTab(
+      dataSources.DeleteDatasourceFromWithinDS(
         datasourceName.replace(/['"]+/g, ""),
       );
     });
@@ -30,7 +30,7 @@ describe("Postgres datasource test cases", function () {
   });
 
   it("3. Create a new query from the datasource editor", function () {
-    cy.get(datasource.createQuery).last().click();
+    dataSources.CreateQueryAfterDSSaved();
     cy.wait("@createNewApi").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -6,6 +6,10 @@ import {
   appSettings,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  AppSidebar,
+  AppSidebarButton,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Test Top + Inline navigation style", function () {
   before(() => {
@@ -27,7 +31,7 @@ describe("Test Top + Inline navigation style", function () {
   });
 
   it("1. Change 'Orientation' to 'Top', and 'Nav style' to 'Inline', page navigation items should appear inline", () => {
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(
       appSettings.locators._navigationSettings._orientationOptions._top,
@@ -101,7 +105,7 @@ describe("Test Top + Inline navigation style", function () {
     );
     // Changing color style to theme should change navigation's background color
     deployMode.NavigateBacktoEditor();
-    agHelper.GetNClick(appSettings.locators._appSettings);
+    AppSidebar.navigate(AppSidebarButton.Settings);
     agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
     agHelper.GetNClick(appSettings.locators._colorStyleOptions._theme, 0, true);
     deployMode.DeployApp();

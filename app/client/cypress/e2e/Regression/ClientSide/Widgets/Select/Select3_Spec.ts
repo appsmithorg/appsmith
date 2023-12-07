@@ -8,6 +8,9 @@ import {
   propPane,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Select widget tests", function () {
   before(() => {
@@ -24,7 +27,7 @@ describe("Select widget tests", function () {
     dataSources.RunQuery();
 
     //Bind it to select widget
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     propPane.TogglePropertyState("Server side filtering", "On");
     propPane.ToggleJSMode("Server side filtering", true);
     propPane
@@ -59,7 +62,7 @@ describe("Select widget tests", function () {
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.SELECT));
 
     //Validate filtered data
-    agHelper.Sleep(3000); //Wait for widget to settle
+    agHelper.Sleep(6000); //Wait for widget to settle for CI failure
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.SELECT));
     agHelper.TypeText(widgetLocators.selectWidgetFilter, "Ulf");
     agHelper.Sleep(3000); //Wait for widget filter to settle for CI runs
@@ -76,7 +79,7 @@ describe("Select widget tests", function () {
 
   it("2. Validate renaming, duplication(copy, paste) & deletion of select widget", function () {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.SelectEntityByName("Select1", "Widgets");
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
     //Rename widget
     propPane.RenameWidget("Select1", "Select_Widget");
     agHelper.AssertContains(
@@ -101,7 +104,7 @@ describe("Select widget tests", function () {
     deployMode.NavigateBacktoEditor();
 
     //Duplicate from property pane
-    entityExplorer.SelectEntityByName("Select_WidgetCopy", "Widgets");
+    EditorNavigation.SelectEntityByName("Select_WidgetCopy", EntityType.Widget);
     propPane.CopyPasteWidgetFromPropertyPane("Select_WidgetCopy");
     agHelper.ValidateToastMessage("Copied Select_WidgetCopy");
     agHelper.AssertContains(
@@ -119,7 +122,7 @@ describe("Select widget tests", function () {
     propPane.DeleteWidgetFromPropertyPane("Select_WidgetCopyCopy");
 
     //Delete widget using hotkeys
-    entityExplorer.SelectEntityByName("Select_WidgetCopy", "Widgets");
+    EditorNavigation.SelectEntityByName("Select_WidgetCopy", EntityType.Widget);
     agHelper.PressDelete();
     agHelper.AssertContains(
       "Select_WidgetCopyCopy",

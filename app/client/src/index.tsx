@@ -22,13 +22,27 @@ import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
+import log from "loglevel";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
+const { newRelic } = getAppsmithConfigs();
 
 setAutoFreeze(shouldAutoFreeze);
 runSagaMiddleware();
 
 appInitializer();
+const { enableNewRelic } = newRelic;
+enableNewRelic &&
+  (async () => {
+    try {
+      await import(
+        /* webpackChunkName: "otlpTelemetry" */ "./UITelemetry/auto-otel-web.js"
+      );
+    } catch (e) {
+      log.error("Error loading telemetry script", e);
+    }
+  })();
 
 function App() {
   return (

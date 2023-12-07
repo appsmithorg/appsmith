@@ -12,7 +12,10 @@ import CollapseToggle from "./CollapseToggle";
 import EntityName from "./Name";
 import AddButton from "./AddButton";
 import Collapse from "./Collapse";
-import { useEntityUpdateState, useEntityEditState } from "../hooks";
+import {
+  useEntityUpdateState,
+  useEntityEditState,
+} from "@appsmith/pages/Editor/Explorer/hooks";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";

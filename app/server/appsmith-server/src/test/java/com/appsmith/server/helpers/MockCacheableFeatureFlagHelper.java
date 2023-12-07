@@ -3,8 +3,8 @@ package com.appsmith.server.helpers;
 import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.dtos.ce.FeaturesRequestDTO;
-import com.appsmith.server.dtos.ce.FeaturesResponseDTO;
+import com.appsmith.server.dtos.FeaturesRequestDTO;
+import com.appsmith.server.dtos.FeaturesResponseDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +27,8 @@ public class MockCacheableFeatureFlagHelper implements CacheableFeatureFlagHelpe
     @Override
     public Mono<CachedFlags> fetchUserCachedFlags(String userIdentifier, User user) {
         CachedFlags cachedFlags = new CachedFlags();
-        cachedFlags.setRefreshedAt(Instant.now().minus(1, ChronoUnit.DAYS));
-        cachedFlags.setFlags(Map.of(FeatureFlagEnum.TEST_FEATURE_2.toString(), Boolean.TRUE));
+        cachedFlags.setRefreshedAt(Instant.now());
+        cachedFlags.setFlags(new HashMap<>());
         return Mono.just(cachedFlags);
     }
 
@@ -50,7 +49,7 @@ public class MockCacheableFeatureFlagHelper implements CacheableFeatureFlagHelpe
     public Mono<CachedFeatures> fetchCachedTenantFeatures(String tenantId) {
         return getRemoteFeaturesForTenant(new FeaturesRequestDTO()).map(responseDTO -> {
             CachedFeatures cachedFeatures = new CachedFeatures();
-            cachedFeatures.setRefreshedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+            cachedFeatures.setRefreshedAt(Instant.now());
             cachedFeatures.setFeatures(responseDTO.getFeatures());
             return cachedFeatures;
         });

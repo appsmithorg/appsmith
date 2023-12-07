@@ -77,76 +77,10 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
     cy.datasourceIconWrapperStyle(".content-icon");
     //Name
     cy.datasourceNameStyle(".t--createBlankApiCard .textBtn");
-    //Datsource title font size should be 20px
-    cy.get(".sectionHeadings").should("have.css", "font-size", "20px");
-  });
-
-  it("4. Datasource Active card styles", () => {
-    // Action button icon placement
-    dataSources.NavigateToActiveTab();
-    //Icon should be placed left to the text.
-    cy.get(".t--create-query span");
-
-    //Active card wrapper
-    cy.get(".t--datasource")
-      .should("have.css", "padding", "15px")
-      .and("have.css", "cursor", "pointer")
-      .realHover()
-      .should("have.css", "background-color", backgroundColorGray1);
-
-    cy.get("[data-testid=active-datasource-image]")
-      .should("have.css", "height", "34px")
-      .and("have.css", "max-width", "100%");
-
-    cy.get("[data-testid=active-datasource-icon-wrapper]")
-      .should("have.css", "background-color", backgroundColorGray2)
-      .and("have.css", "width", "34px")
-      .and("have.css", "height", "34px")
-      .and("have.css", "border-radius", "0px")
-      .and("have.css", "display", "flex")
-      .and("have.css", "align-items", "center");
-
-    //Name
-    cy.datasourceNameStyle("[data-testid=active-datasource-name]");
-
-    //Queries
-    cy.get("[data-testid=active-datasource-queries]")
-      .should("have.css", "display", "flex")
-      .and("have.css", "margin", "4px 0px");
-
-    //Buttons wrapper
-    cy.get(".t--datasource-name .action-wrapper")
-      .should("have.css", "gap", "10px")
-      .and("have.css", "display", "flex")
-      .and("have.css", "align-items", "center");
-  });
-
-  it("5. Collapse component styles", () => {
-    //Collapse wrapper
-    cy.get("[data-testid=datasource-collapse-wrapper]")
-      .should("have.css", "color", backgroundColorGray700)
-      .and("have.css", "display", "flex")
-      .and("have.css", "gap", "8px")
-      .and("have.css", "align-items", "center");
-    //Collapse icon
-    cy.get("[data-testid=datasource-collapse-wrapper] span")
-      .invoke("attr", "data-testid")
-      .should("eq", "datasource-collapse-icon");
-    cy.get(
-      "[data-testid=datasource-collapse-wrapper] span[data-testid='datasource-collapse-icon'] svg",
-    )
-      .invoke("attr", "fill")
-      .should("eq", "currentColor")
-      .then(($element) => {
-        const attributes = $element[0].attributes;
-        cy.log(attributes);
-      });
-    // .invoke("attr", "width")
-    // .should("eq", "12");
   });
 
   after(() => {
-    dataSources.DeleteDatasouceFromActiveTab(dsName);
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
     //entityExplorer.ActionContextMenuByEntityName(dsName, "Delete");//Since Users is not appearing in EntityExplorer, this has potential to fail
   });
 });

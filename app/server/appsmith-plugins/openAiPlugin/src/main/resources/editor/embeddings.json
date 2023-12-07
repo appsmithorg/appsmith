@@ -17,11 +17,12 @@
       "options": [],
       "placeholderText": "All models will be fetched.",
       "fetchOptionsConditionally": true,
+      "setFirstOptionAsDefault": true,
       "alternateViewTypes": ["json"],
       "conditionals": {
         "enable": "{{true}}",
         "fetchDynamicValues": {
-          "condition": "{{true}}",
+          "condition": "{{actionConfiguration.formData.command.data === 'EMBEDDINGS'}}",
           "config": {
             "params": {
               "requestType": "EMBEDDING_MODELS",
@@ -30,14 +31,6 @@
           }
         }
       }
-    },
-    {
-      "label": "path to query",
-      "configProperty": "actionConfiguration.path",
-      "controlType": "INPUT_TEXT",
-      "initialValue": "/v1/embeddings",
-      "isRequired": true,
-      "hidden": true
     },
     {
       "label": "Input",

@@ -1,9 +1,8 @@
-import { useContext, useEffect } from "react";
-import type { RefObject } from "react";
-import React, { useCallback, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
-import { isString, noop } from "lodash";
+import { noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import {
@@ -23,12 +22,9 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import type { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
 import log from "loglevel";
-import { Text, TextType } from "design-system-old";
 import {
   Button,
-  Callout,
   Icon,
-  SegmentedControl,
   Spinner,
   Tab,
   TabPanel,
@@ -38,13 +34,8 @@ import {
 } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
-import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
-import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import Resizable, {
-  ResizerCSS,
-} from "components/editorComponents/Debugger/Resizer";
+import { ResizerCSS } from "components/editorComponents/Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
@@ -57,11 +48,8 @@ import {
   ACTION_EDITOR_REFRESH,
   CREATE_NEW_DATASOURCE,
   createMessage,
-  DEBUGGER_ERRORS,
-  DEBUGGER_LOGS,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
-  INSPECT_ENTITY,
   INVALID_FORM_CONFIGURATION,
   NO_DATASOURCE_FOR_QUERY,
   UNEXPECTED_ERROR,
@@ -72,62 +60,27 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
-import type {
-  ActionApiResponseReq,
-  PluginErrorDetails,
-  SuggestedWidget,
-} from "api/ActionAPI";
+import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import * as Sentry from "@sentry/react";
-import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
-import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
-import {
-  apiReactJsonProps,
-  NoResponse,
-  responseTabComponent,
-  ResponseTabErrorContainer,
-  ResponseTabErrorContent,
-  ResponseTabErrorDefaultMessage,
-} from "components/editorComponents/ApiResponseView";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import {
-  setDebuggerSelectedTab,
-  setResponsePaneHeight,
-  showDebugger,
-} from "actions/debuggerActions";
-import {
   getDebuggerSelectedTab,
-  getErrorCount,
-  getResponsePaneHeight,
   showDebuggerFlag,
 } from "selectors/debuggerSelectors";
-import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
-import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
-import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
-import ReactJson from "react-json-view";
-import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
-import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
-import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
-import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
-import { EditorFormSignPosting } from "@appsmith/components/editorComponents/EditorFormSignPosting";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import {
   getHasCreateDatasourcePermission,
   getHasExecuteActionPermission,
@@ -136,6 +89,8 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
+import QueryResponseTabView from "./QueryResponseView";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -182,13 +137,6 @@ const SettingsWrapper = styled.div`
   height: 100%;
 `;
 
-const ResultsCount = styled.div`
-  position: absolute;
-  right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: 9px;
-  color: var(--ads-v2-color-fg);
-`;
-
 const FieldWrapper = styled.div`
   margin-top: 15px;
 `;
@@ -198,18 +146,6 @@ const SecondaryWrapper = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-`;
-
-const HelpSection = styled.div``;
-
-const ResponseContentWrapper = styled.div<{ isError: boolean }>`
-  overflow-y: clip;
-  display: grid;
-  height: ${(props) => (props.isError ? "" : "100%")};
-
-  ${HelpSection} {
-    margin-bottom: 10px;
-  }
 `;
 
 export const StyledFormRow = styled(FormRow)`
@@ -342,15 +278,7 @@ interface QueryFormProps {
   isRunning: boolean;
   dataSources: Datasource[];
   uiComponent: UIComponentTypes;
-  executedQueryData?: {
-    body: any;
-    isExecutionSuccess?: boolean;
-    messages?: Array<string>;
-    suggestedWidgets?: SuggestedWidget[];
-    readableError?: string;
-    pluginErrorDetails?: PluginErrorDetails;
-    request?: ActionApiResponseReq;
-  };
+  actionResponse?: ActionResponse;
   runErrorMessage: string | undefined;
   location: {
     state: any;
@@ -361,11 +289,6 @@ interface QueryFormProps {
   formData: SaaSAction | QueryAction;
   responseDisplayFormat: { title: string; value: string };
   responseDataTypes: { key: string; title: string }[];
-  updateActionResponseDisplayFormat: ({
-    field,
-    id,
-    value,
-  }: UpdateActionPropertyActionPayload) => void;
   datasourceId: string;
   showCloseEditor: boolean;
 }
@@ -386,10 +309,10 @@ type Props = EditorJSONtoFormProps &
 export function EditorJSONtoForm(props: Props) {
   const {
     actionName,
+    actionResponse,
     dataSources,
     documentationLink,
     editorConfig,
-    executedQueryData,
     formName,
     handleSubmit,
     isRunning,
@@ -401,26 +324,18 @@ export function EditorJSONtoForm(props: Props) {
     runErrorMessage,
     settingConfig,
     uiComponent,
-    updateActionResponseDisplayFormat,
   } = props;
 
   const {
+    actionRightPaneAdditionSections,
     actionRightPaneBackLink,
     closeEditorLink,
     moreActionsMenu,
     saveActionName,
   } = useContext(QueryEditorContext);
 
-  let error = runErrorMessage;
-  let output: Record<string, any>[] | null = null;
-  let hintMessages: Array<string> = [];
-  const panelRef: RefObject<HTMLDivElement> = useRef(null);
-
   const params = useParams<{ apiId?: string; queryId?: string }>();
-
   // fetch the error count from the store.
-  const errorCount = useSelector(getErrorCount);
-
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
@@ -429,6 +344,8 @@ export function EditorJSONtoForm(props: Props) {
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
+    useState<boolean>(false);
 
   const isChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
@@ -442,9 +359,6 @@ export function EditorJSONtoForm(props: Props) {
   const userWorkspacePermissions = useSelector(
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
-
-  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
-    useState<boolean>(false);
 
   const canCreateDatasource = getHasCreateDatasourcePermission(
     isFeatureEnabled,
@@ -473,54 +387,24 @@ export function EditorJSONtoForm(props: Props) {
     (!actionBody && SQL_DATASOURCES.includes(currentActionPluginName)) ||
     !isExecutePermitted;
 
-  // Query is executed even once during the session, show the response data.
-  if (executedQueryData) {
-    if (!executedQueryData.isExecutionSuccess) {
-      // Pass the error to be shown in the error tab
-      error = executedQueryData.readableError
-        ? getErrorAsString(executedQueryData.readableError)
-        : getErrorAsString(executedQueryData.body);
-    } else if (isString(executedQueryData.body)) {
-      //reset error.
-      error = "";
-      try {
-        // Try to parse response as JSON array to be displayed in the Response tab
-        output = JSON.parse(executedQueryData.body);
-      } catch (e) {
-        // In case the string is not a JSON, wrap it in a response object
-        output = [
-          {
-            response: executedQueryData.body,
-          },
-        ];
-      }
-    } else {
-      //reset error.
-      error = "";
-      output = executedQueryData.body;
-    }
-    if (executedQueryData.messages && executedQueryData.messages.length) {
-      //reset error.
-      error = "";
-      hintMessages = executedQueryData.messages;
-    }
-  }
+  const dispatch = useDispatch();
 
   // These useEffects are used to open the response tab by default for page load queries
   // as for page load queries, query response is available and can be shown in response tab
   useEffect(() => {
-    // output and responseDisplayFormat is present only when query has response available
+    // actionResponse and responseDisplayFormat is present only when query has response available
     if (
       responseDisplayFormat &&
       !!responseDisplayFormat?.title &&
-      output &&
+      actionResponse &&
+      actionResponse.isExecutionSuccess &&
       !showResponseOnFirstLoad
     ) {
       dispatch(showDebugger(true));
       dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
       setShowResponseOnFirstLoad(true);
     }
-  }, [responseDisplayFormat, output, showResponseOnFirstLoad]);
+  }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
 
   // When multiple page load queries exist, we want to response tab by default for all of them
   // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
@@ -529,8 +413,6 @@ export function EditorJSONtoForm(props: Props) {
       setShowResponseOnFirstLoad(false);
     }
   }, [currentActionConfig?.id]);
-
-  const dispatch = useDispatch();
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -687,62 +569,7 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
-  // get the response pane height from the store.
-  const responsePaneHeight = useSelector(getResponsePaneHeight);
-  // set the response pane height on resize.
-  const setQueryResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setResponsePaneHeight(height));
-  }, []);
-
-  const responseBodyTabs =
-    responseDataTypes &&
-    responseDataTypes.map((dataType, index) => {
-      return {
-        index: index,
-        key: dataType.key,
-        title: dataType.title,
-        panelComponent: responseTabComponent(
-          dataType.key,
-          output,
-          responsePaneHeight,
-        ),
-      };
-    });
-
-  const segmentedControlOptions =
-    responseBodyTabs &&
-    responseBodyTabs.map((item) => {
-      return { value: item.key, label: item.title };
-    });
-
-  const [selectedControl, setSelectedControl] = useState(
-    segmentedControlOptions[0]?.value,
-  );
-
-  const onResponseTabSelect = (tabKey: string) => {
-    if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
-      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-        source: "QUERY_PANE",
-      });
-    }
-    updateActionResponseDisplayFormat({
-      id: currentActionConfig?.id || "",
-      field: "responseDisplayFormat",
-      value: tabKey,
-    });
-  };
-
   // onResponseTabSelect(selectedControl);
-
-  const selectedTabIndex =
-    responseDataTypes &&
-    responseDataTypes.findIndex(
-      (dataType) => dataType.title === responseDisplayFormat?.title,
-    );
-
-  //Update request timestamp to human readable format.
-  const responseState =
-    executedQueryData && getUpdateTimestamp(executedQueryData.request);
 
   // action source for analytics.
   const actionSource: SourceEntity = {
@@ -750,128 +577,6 @@ export function EditorJSONtoForm(props: Props) {
     name: currentActionConfig ? currentActionConfig.name : "",
     id: currentActionConfig ? currentActionConfig.id : "",
   };
-
-  const responseTabs = [
-    {
-      key: "response",
-      title: "Response",
-      panelComponent: (
-        <ResponseContentWrapper isError={!!error}>
-          {error && (
-            <ResponseTabErrorContainer>
-              <ResponseTabErrorContent>
-                <ResponseTabErrorDefaultMessage>
-                  Your query failed to execute
-                  {executedQueryData &&
-                    (executedQueryData.pluginErrorDetails ||
-                      executedQueryData.body) &&
-                    ":"}
-                </ResponseTabErrorDefaultMessage>
-                {executedQueryData &&
-                  (executedQueryData.pluginErrorDetails ? (
-                    <>
-                      <div data-testid="t--query-error">
-                        {
-                          executedQueryData.pluginErrorDetails
-                            .downstreamErrorMessage
-                        }
-                      </div>
-                      {executedQueryData.pluginErrorDetails
-                        .downstreamErrorCode && (
-                        <LogAdditionalInfo
-                          text={
-                            executedQueryData.pluginErrorDetails
-                              .downstreamErrorCode
-                          }
-                        />
-                      )}
-                    </>
-                  ) : (
-                    executedQueryData.body && (
-                      <div data-testid="t--query-error">
-                        {executedQueryData.body}
-                      </div>
-                    )
-                  ))}
-                <LogHelper
-                  logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
-                  name="PluginExecutionError"
-                  pluginErrorDetails={
-                    executedQueryData && executedQueryData.pluginErrorDetails
-                  }
-                  source={actionSource}
-                />
-              </ResponseTabErrorContent>
-              {executedQueryData && executedQueryData.request && (
-                <JsonWrapper
-                  className="t--debugger-log-state"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ReactJson src={responseState} {...apiReactJsonProps} />
-                </JsonWrapper>
-              )}
-            </ResponseTabErrorContainer>
-          )}
-          {hintMessages && hintMessages.length > 0 && (
-            <HelpSection>
-              {hintMessages.map((msg, index) => (
-                <Callout key={index} kind="warning">
-                  {msg}
-                </Callout>
-              ))}
-            </HelpSection>
-          )}
-          {currentActionConfig &&
-            output &&
-            responseBodyTabs &&
-            responseBodyTabs.length > 0 &&
-            selectedTabIndex !== -1 && (
-              <SegmentedControlContainer>
-                <SegmentedControl
-                  data-testid="t--response-tab-segmented-control"
-                  defaultValue={segmentedControlOptions[0]?.value}
-                  isFullWidth={false}
-                  onChange={(value) => {
-                    setSelectedControl(value);
-                    onResponseTabSelect(value);
-                  }}
-                  options={segmentedControlOptions}
-                  value={selectedControl}
-                />
-                {responseTabComponent(
-                  selectedControl || segmentedControlOptions[0]?.value,
-                  output,
-                  responsePaneHeight,
-                )}
-              </SegmentedControlContainer>
-            )}
-          {!output && !error && (
-            <NoResponse
-              isButtonDisabled={!isExecutePermitted}
-              isQueryRunning={isRunning}
-              onRunClick={responseTabOnRunClick}
-            />
-          )}
-        </ResponseContentWrapper>
-      ),
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <ErrorLogs />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={actionName} />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
-    },
-  ];
 
   const { hasDependencies } = useEntityDependencies(props.actionName);
 
@@ -910,27 +615,10 @@ export function EditorJSONtoForm(props: Props) {
 
   const selectedResponseTab = useSelector(getDebuggerSelectedTab);
 
-  const setSelectedResponseTab = useCallback((tabKey: string) => {
-    dispatch(setDebuggerSelectedTab(tabKey));
-  }, []);
-
-  const isPostgresPlugin = currentActionPluginName === PluginName.POSTGRES;
-  const featureFlags = useSelector(selectFeatureFlags);
-  const editorMode = isPostgresPlugin
-    ? editorSQLModes.POSTGRESQL_WITH_BINDING
-    : editorSQLModes.MYSQL_WITH_BINDING;
-
-  const isAIEnabledForPosting =
-    isPostgresPlugin && isAIEnabled(featureFlags, editorMode);
-
-  // close the debugger
-  //TODO: move this to a common place
-  const onClose = () => dispatch(showDebugger(false));
-
   // here we check for normal conditions for opening action pane
   // or if any of the flags are true, We should open the actionpane by default.
   const shouldOpenActionPaneByDefault =
-    ((hasDependencies || !!output) && !guidedTourEnabled) ||
+    ((hasDependencies || !!actionResponse) && !guidedTourEnabled) ||
     currentActionPluginName !== PluginName.SMTP;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
@@ -1013,11 +701,6 @@ export function EditorJSONtoForm(props: Props) {
                     className="tab-panel"
                     value={EDITOR_TABS.QUERY}
                   >
-                    <EditorFormSignPosting
-                      isAIEnabled={isAIEnabledForPosting}
-                      mode={editorMode}
-                    />
-
                     <SettingsWrapper>
                       {editorConfig && editorConfig.length > 0 ? (
                         renderConfig(editorConfig)
@@ -1085,52 +768,18 @@ export function EditorJSONtoForm(props: Props) {
               </TabContainerView>
               {renderDebugger &&
                 selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
-                  <TabbedViewContainer
-                    className="t--query-bottom-pane-container"
-                    ref={panelRef}
-                  >
-                    <Resizable
-                      initialHeight={responsePaneHeight}
-                      onResizeComplete={(height: number) =>
-                        setQueryResponsePaneHeight(height)
-                      }
-                      openResizer={isRunning}
-                      panelRef={panelRef}
-                      snapToHeight={ActionExecutionResizerHeight}
-                    />
-                    {isRunning && (
-                      <ActionExecutionInProgressView
-                        actionType="query"
-                        theme={EditorTheme.LIGHT}
-                      />
-                    )}
-
-                    {output && !!output.length && (
-                      <ResultsCount>
-                        <Text type={TextType.P3}>
-                          Result:
-                          <Text type={TextType.H5}>{` ${output.length} Record${
-                            output.length > 1 ? "s" : ""
-                          }`}</Text>
-                        </Text>
-                      </ResultsCount>
-                    )}
-
-                    <EntityBottomTabs
-                      expandedHeight={`${ActionExecutionResizerHeight}px`}
-                      onSelect={setSelectedResponseTab}
-                      selectedTabKey={selectedResponseTab}
-                      tabs={responseTabs}
-                    />
-                    <CloseDebugger
-                      className="close-debugger t--close-debugger"
-                      isIconButton
-                      kind="tertiary"
-                      onClick={onClose}
-                      size="md"
-                      startIcon="close-modal"
-                    />
-                  </TabbedViewContainer>
+                  <QueryResponseTabView
+                    actionName={actionName}
+                    actionResponse={actionResponse}
+                    actionSource={actionSource}
+                    currentActionConfig={currentActionConfig}
+                    isExecutePermitted={isExecutePermitted}
+                    isRunning={isRunning}
+                    responseDataTypes={responseDataTypes}
+                    responseDisplayFormat={responseDisplayFormat}
+                    responseTabOnRunClick={responseTabOnRunClick}
+                    runErrorMessage={runErrorMessage}
+                  />
                 )}
             </SecondaryWrapper>
           </div>
@@ -1138,12 +787,13 @@ export function EditorJSONtoForm(props: Props) {
             <ActionRightPane
               actionName={actionName}
               actionRightPaneBackLink={actionRightPaneBackLink}
+              additionalSections={actionRightPaneAdditionSections}
               context={DatasourceStructureContext.QUERY_EDITOR}
               datasourceId={props.datasourceId}
               hasConnections={hasDependencies}
-              hasResponse={!!output}
+              hasResponse={!!actionResponse}
               pluginId={props.pluginId}
-              suggestedWidgets={executedQueryData?.suggestedWidgets}
+              suggestedWidgets={actionResponse?.suggestedWidgets}
             />
           </SidebarWrapper>
         </Wrapper>

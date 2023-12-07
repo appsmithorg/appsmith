@@ -29,7 +29,7 @@ export class EChartsLayoutBuilder {
   scrollBarBottomOffset = 30;
 
   heightForLegend = 50;
-  heightForTitle = 50;
+  heightForTitle = 60;
 
   priorityOrderOfInclusion = ["legend", "title", "xAxis", "scrollBar"];
 

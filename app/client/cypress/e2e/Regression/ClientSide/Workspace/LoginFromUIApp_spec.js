@@ -2,6 +2,9 @@ import {
   entityExplorer,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Create page & delete page from UI", function () {
   let pageid;
@@ -9,7 +12,7 @@ describe("Create page & delete page from UI", function () {
     cy.generateUUID().then((uid) => {
       pageid = uid;
       cy.Createpage(pageid);
-      cy.get(`.t--entity-name`).contains(pageid).trigger("mouseover");
+      EditorNavigation.SelectEntityByName(pageid, EntityType.Page);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: pageid,
         action: "Delete",

@@ -2,6 +2,7 @@ package com.appsmith.server.dtos.ce;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
@@ -49,6 +50,9 @@ public class ActionCollectionCE_DTO {
 
     @JsonView(Views.Public.class)
     String pageId;
+
+    @JsonView(Views.Public.class)
+    CreatorContextType contextType;
 
     // This field will only be populated if this collection is bound to one plugin (eg: JS)
     @JsonView(Views.Public.class)
@@ -124,12 +128,6 @@ public class ActionCollectionCE_DTO {
         Set<String> validationErrors = new HashSet<>();
         if (this.workspaceId == null) {
             validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.WORKSPACE_ID));
-        }
-        if (this.applicationId == null) {
-            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID));
-        }
-        if (this.pageId == null) {
-            validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID));
         }
         if (this.pluginId == null) {
             validationErrors.add(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PLUGIN_ID));

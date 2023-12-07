@@ -6,6 +6,9 @@ import {
   entityItems,
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Bug #15372 Catch block was not triggering in Safari/firefox", () => {
   it("1. Triggers the catch block when the API hits a 404", () => {
@@ -31,7 +34,7 @@ describe("Bug #15372 Catch block was not triggering in Safari/firefox", () => {
       action: "Delete",
       entityType: entityItems.JSObject,
     });
-    entityExplorer.SelectEntityByName("Api1", "Queries/JS");
+    EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",
