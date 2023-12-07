@@ -426,13 +426,16 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .flatMap(savedNewAction -> newActionService
                         .validateAndSaveActionToRepository(savedNewAction)
                         .zipWith(Mono.just(savedNewAction)))
-                .zipWith(Mono.defer(() -> {
-                    if (action.getDatasource() != null && action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId());
+                .zipWhen(zippedActions -> {
+                    ActionDTO savedActionDTO = zippedActions.getT1();
+                    if (savedActionDTO.getDatasource() != null
+                            && savedActionDTO.getDatasource().getId() != null) {
+                        return datasourceService.findById(
+                                savedActionDTO.getDatasource().getId());
                     } else {
-                        return Mono.justOrEmpty(action.getDatasource());
+                        return Mono.justOrEmpty(savedActionDTO.getDatasource());
                     }
-                }))
+                })
                 .flatMap(zippedData -> {
                     final Tuple2<ActionDTO, NewAction> zippedActions = zippedData.getT1();
                     final Datasource datasource = zippedData.getT2();

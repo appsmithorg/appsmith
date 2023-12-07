@@ -595,6 +595,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
             "",
+            true,
           )}
         </FormInputContainer>
         {_.get(formData.authentication, "isTokenHeader") && (
@@ -678,6 +679,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
             "",
+            false,
           )}
         </FormInputContainer>
       </>
@@ -719,6 +721,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
               "",
               false,
               "",
+              false,
             )}
           </FormInputContainer>
         )}
