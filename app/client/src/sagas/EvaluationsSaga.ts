@@ -58,7 +58,7 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import type { JSAction } from "entities/JSCollection";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get, isEmpty } from "lodash";
@@ -101,7 +101,10 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
+import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -189,7 +192,7 @@ export function* updateDataTreeHandler(
     configTree,
     removedPaths,
   );
-
+  AnalyticsUtil.setBlockErrorLogs(isCreateFirstTree);
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
     postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
@@ -287,6 +290,7 @@ export function* evaluateActionBindings(
   bindings: string[],
   executionParams: Record<string, any> | string = {},
 ) {
+  const span = startRootSpan("evaluateActionBindings");
   const workerResponse: { errors: EvalError[]; values: unknown } = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS,
@@ -299,6 +303,7 @@ export function* evaluateActionBindings(
   const { errors, values } = workerResponse;
 
   yield call(evalErrorHandler, errors);
+  endSpan(span);
   return values;
 }
 
@@ -392,11 +397,8 @@ interface JSFunctionExecutionResponse {
   logs?: LogObject[];
 }
 
-function* executeAsyncJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
+function* executeAsyncJSFunction(action: JSAction, collection: JSCollection) {
+  const { id: collectionId, name: collectionName } = collection;
   const functionCall = `${collectionName}.${action.name}()`;
   const triggerMeta = {
     source: {
@@ -417,27 +419,17 @@ function* executeAsyncJSFunction(
   return response;
 }
 
-export function* executeJSFunction(
-  collectionName: string,
-  action: JSAction,
-  collectionId: string,
-) {
+export function* executeJSFunction(action: JSAction, collection: JSCollection) {
   const response: {
     errors: unknown[];
     result: unknown;
     logs?: LogObject[];
-  } = yield call(executeAsyncJSFunction, collectionName, action, collectionId);
+  } = yield call(executeAsyncJSFunction, action, collection);
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
   // After every function execution, log execution errors if present
-  yield call(
-    handleJSFunctionExecutionErrorLog,
-    collectionId,
-    collectionName,
-    action,
-    errors,
-  );
+  yield call(handleJSFunctionExecutionErrorLog, action, collection, errors);
   return { result, isDirty };
 }
 
@@ -539,6 +531,7 @@ function* evalAndLintingHandler(
     requiresLogging: boolean;
   }>,
 ) {
+  const span = startRootSpan("evalAndLintingHandler");
   const { forceEvaluation, requiresLogging, shouldReplay } = options;
 
   const requiresLinting = getRequiresLinting(action);
@@ -550,7 +543,10 @@ function* evalAndLintingHandler(
     triggeredEvaluation: requiresEval,
   });
 
-  if (!requiresEval && !requiresLinting) return;
+  if (!requiresEval && !requiresLinting) {
+    endSpan(span);
+    return;
+  }
 
   // Generate all the data needed for both eval and linting
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
@@ -578,6 +574,7 @@ function* evalAndLintingHandler(
   }
 
   yield all(effects);
+  endSpan(span);
 }
 
 function* evaluationChangeListenerSaga(): any {
@@ -606,7 +603,16 @@ function* evaluationChangeListenerSaga(): any {
   const initAction: EvaluationReduxAction<unknown> = yield take(
     FIRST_EVAL_REDUX_ACTIONS,
   );
-  yield call(waitForWidgetConfigBuild);
+
+  // Wait for widget config build to complete before starting evaluation only if the current editor is not a workflow
+  const isCurrentEditorWorkflowType = yield select(
+    getIsCurrentEditorWorkflowType,
+  );
+
+  if (!isCurrentEditorWorkflowType) {
+    yield call(waitForWidgetConfigBuild);
+  }
+
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evalAndLintingHandler, false, initAction, {
     shouldReplay: false,

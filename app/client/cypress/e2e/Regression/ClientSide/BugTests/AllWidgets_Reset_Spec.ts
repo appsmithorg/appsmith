@@ -1,6 +1,9 @@
 import testdata from "../../../../fixtures/testdata.json";
 import commonlocators from "../../../../locators/commonlocators.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 const widgetsToTest: Record<
   string,
@@ -429,13 +432,13 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it("2. Bind Button on click  and Text widget content", () => {
       // Set onClick assertWidgetReset, storing value
-      _.entityExplorer.SelectEntityByName("Button1", "Widgets");
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       _.propPane.EnterJSContext(
         "onClick",
         `{{resetWidget("${testConfig.widgetPrefixName}",true).then(() => showAlert("Reset Success!"))}}`,
       );
       // Bind to stored value above
-      _.entityExplorer.SelectEntityByName("Text1");
+      EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       _.propPane.UpdatePropertyFieldValue("Text", testConfig.textBindingValue);
     });
 
@@ -448,9 +451,9 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it(`4. Delete ${testConfig.widgetName} widget from canvas`, () => {
       _.deployMode.NavigateBacktoEditor();
-      _.entityExplorer.SelectEntityByName(
+      EditorNavigation.SelectEntityByName(
         `${testConfig.widgetPrefixName}`,
-        "Widgets",
+        EntityType.Widget,
       );
       _.agHelper.PressDelete();
     });

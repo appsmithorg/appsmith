@@ -1,5 +1,5 @@
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const queryLocators = require("../../../../locators/QueryEditor.json");
@@ -15,7 +15,6 @@ import {
   assertHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let datasourceName;
 
@@ -69,7 +68,7 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("2. Validate Find documents command & Run and then delete the query", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryForDS(datasourceName);
     dataSources.SetQueryTimeout(20000);
 
     //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
@@ -143,7 +142,7 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("3. Validate Count command & Run and then delete the query", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryForDS(datasourceName);
     assertHelper.AssertNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
@@ -171,7 +170,7 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("4. Validate Distinct command & Run and then delete the query", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryForDS(datasourceName);
     assertHelper.AssertNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
@@ -203,7 +202,7 @@ describe("Validate Mongo query commands", function () {
   });
 
   it("5. Validate Aggregate command & Run and then delete the query", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryForDS(datasourceName);
     assertHelper.AssertNetworkStatus("@trigger");
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
@@ -286,7 +285,7 @@ describe("Validate Mongo query commands", function () {
       action: "Delete",
       entityType: entityItems.Datasource,
     });
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
   });
 
   it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
@@ -296,7 +295,7 @@ describe("Validate Mongo query commands", function () {
       "listingAndReviews",
       "Find",
     );
-    entityExplorer.SelectEntityByName("Query1");
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
 
     cy.get(`${formControls.mongoCollection} .rc-select-selection-item`)
       .then(($field) => {
@@ -387,7 +386,7 @@ describe("Validate Mongo query commands", function () {
 
     //Insert documents
     cy.get("@dSName").then((dbName) => {
-      cy.NavigateToActiveDSQueryPane(dbName);
+      dataSources.CreateQueryForDS(dbName);
     });
 
     assertHelper.AssertNetworkStatus("@trigger");

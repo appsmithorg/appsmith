@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
@@ -26,22 +30,20 @@ describe("API Panel Test Functionality", function () {
   });
 
   it("2. Create and runs query", () => {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryAfterDSSaved(
+      "select * from {{ this.params.tableName || 'users' }} limit 10",
+    );
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch).last().click({ force: true });
     cy.xpath(queryLocators.query).click({ force: true });
-    dataSources.EnterQuery(
-      "select * from {{ this.params.tableName || 'users' }} limit 10",
-    );
-    cy.WaitAutoSave();
     cy.runQuery();
   });
 
   it("3. Will pass execution params", function () {
-    cy.CheckAndUnfoldEntityItem("Widgets");
     // Bind the table
-    cy.get(".t--entity-collapse-toggle").eq(2).click({ force: true });
-    cy.get(".t--entity-name").contains("Table1").click({ force: true });
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     cy.EnableAllCodeEditors();
     cy.testJsontext("tabledata", "{{Query1.data}}");
     // Assert 'posts' data (default)
@@ -49,7 +51,7 @@ describe("API Panel Test Functionality", function () {
       expect(cellData).to.be.equal("Test user 7");
     });
     // Choose static button
-    cy.get(".t--entity-name").contains("StaticButton").click({ force: true });
+    EditorNavigation.SelectEntityByName("StaticButton", EntityType.Widget);
     // toggle js of onClick
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
@@ -60,7 +62,7 @@ describe("API Panel Test Functionality", function () {
       "{{Query1.run(undefined, undefined, { tableName: 'users' })}}",
     );
     // Choose dynamic button
-    cy.get(".t--entity-name").contains("DynamicButton").click({ force: true });
+    EditorNavigation.SelectEntityByName("DynamicButton", EntityType.Widget);
     cy.wait(2000);
     // toggle js of onClick
     cy.get(".t--property-control-onclick").scrollIntoView();

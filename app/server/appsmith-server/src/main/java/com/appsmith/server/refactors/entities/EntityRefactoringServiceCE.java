@@ -1,9 +1,11 @@
 package com.appsmith.server.refactors.entities;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.RefactoringMetaDTO;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface EntityRefactoringServiceCE<T> {
@@ -15,10 +17,12 @@ public interface EntityRefactoringServiceCE<T> {
         refactorEntityNameDTO.setNewFullyQualifiedName(refactorEntityNameDTO.getNewName());
     }
 
-    Mono<Boolean> validateName(String newName);
-
     Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO);
 
     Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName);
+
+    default Flux<String> getExistingEntityNames(String contextId, CreatorContextType contextType, String layoutId) {
+        return Flux.empty();
+    }
 }

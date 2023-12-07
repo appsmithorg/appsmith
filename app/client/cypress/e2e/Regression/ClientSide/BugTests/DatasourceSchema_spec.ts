@@ -1,12 +1,14 @@
 import {
   agHelper,
-  entityItems,
   dataSources,
-  entityExplorer,
+  entityItems,
   homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
+  AppSidebarButton,
+  AppSidebar,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -43,17 +45,17 @@ describe("Datasource form related tests", function () {
       agHelper.GetNClick(dataSources._editButton);
       dataSources.UpdatePassword("docker");
       dataSources.VerifySchema(dataSourceName, "public.", true);
-      agHelper.GetNClick(dataSources._createQuery);
+      dataSources.CreateQueryAfterDSSaved(dataSourceName);
     });
   });
 
   it("2. Verify if schema was fetched once #18448", () => {
     agHelper.RefreshPage();
-    dataSources.navigateToDatasource(dataSourceName);
+    EditorNavigation.SelectEntityByName(dataSourceName, EntityType.Datasource);
     agHelper.Sleep(1500);
     agHelper.VerifyCallCount(`@getDatasourceStructure`, 1);
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    entityExplorer.SelectEntityByName("Query1");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    EditorNavigation.SelectEntityByName("Query1", EntityType.Query);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
@@ -69,7 +71,7 @@ describe("Datasource form related tests", function () {
       dataSources.CreateMockDB("Users");
       dataSources.CreateQueryAfterDSSaved();
       dataSources.VerifyTableSchemaOnQueryEditor("public.users");
-      entityExplorer.ExpandCollapseEntity("public.users");
+      PageLeftPane.expandCollapseItem("public.users");
       dataSources.VerifyColumnSchemaOnQueryEditor("id");
       dataSources.FilterAndVerifyDatasourceSchemaBySearch(
         "public.us",

@@ -1,8 +1,12 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 import apiLocators from "../../../../locators/ApiEditor";
 import {
   apiPage,
-  entityExplorer,
   agHelper,
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
@@ -31,8 +35,9 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("2. Test_Validate the Api data is updated on Table widget", function () {
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.SelectEntityByName("Table1", "Container3");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     cy.testJsontext("tabledata", "{{ Api1.data}}");
 
     /**
@@ -60,8 +65,10 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
-    entityExplorer.ExpandCollapseEntity("Widgets");
-    entityExplorer.SelectEntityByName("Table1", "Container3");
+    PageLeftPane.expandCollapseItem("Widgets");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     cy.togglebarDisable(
       ".t--property-control-enableclientsidesearch input[type='checkbox']",
     );

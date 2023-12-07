@@ -1,4 +1,4 @@
-import type { AxiosPromise } from "axios";
+import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type {
@@ -59,7 +59,7 @@ export interface SaveWorkspaceRequest {
 export interface SaveWorkspaceLogo {
   id: string;
   logo: File;
-  progress: (progressEvent: ProgressEvent) => void;
+  progress: (progressEvent: AxiosProgressEvent) => void;
 }
 
 export interface CreateWorkspaceRequest {

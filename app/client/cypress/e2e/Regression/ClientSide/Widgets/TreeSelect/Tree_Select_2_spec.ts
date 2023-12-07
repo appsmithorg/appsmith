@@ -8,6 +8,9 @@ import {
   dataSources,
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe("Tree Select widget Tests", function () {
   before(() => {
@@ -42,7 +45,9 @@ describe("Tree Select widget Tests", function () {
       ]`;
 
   it("1. Verify required field", function () {
-    entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.TogglePropertyState("required", "On");
     propPane.UpdatePropertyFieldValue("Default selected value", "");
     agHelper.AssertElementEnabledDisabled(locators._buttonInDeployedMode, 1);
@@ -52,7 +57,7 @@ describe("Tree Select widget Tests", function () {
       "Required",
       "{{Button3.isDisabled?false:true}}",
     );
-    entityExplorer.SelectEntityByName("Button3", "Widgets");
+    EditorNavigation.SelectEntityByName("Button3", EntityType.Widget);
     propPane.TogglePropertyState("disabled", "On");
     agHelper.AssertElementEnabledDisabled(
       locators._buttonInDeployedMode,
@@ -68,7 +73,9 @@ describe("Tree Select widget Tests", function () {
   });
 
   it("2. Verify placeholder", function () {
-    entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.UpdatePropertyFieldValue("Options", "");
     propPane.UpdatePropertyFieldValue("Placeholder", "Select new option");
     agHelper.AssertText(
@@ -79,7 +86,9 @@ describe("Tree Select widget Tests", function () {
     // Binding with Text widget
     entityExplorer.DragDropWidgetNVerify("textwidget", 550, 500);
     propPane.UpdatePropertyFieldValue("Text", "Select value");
-    entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.UpdatePropertyFieldValue("Placeholder", "{{Text2.text}}");
     agHelper.AssertText(
       locators._treeSelectPlaceholder,
@@ -130,7 +139,9 @@ describe("Tree Select widget Tests", function () {
     deployMode.NavigateBacktoEditor();
 
     // entityExplorer.SelectEntityByName("Form1");
-    entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.MoveToTab("Style");
 
     // Verify border
@@ -141,7 +152,9 @@ describe("Tree Select widget Tests", function () {
   it("5. Verify Api binding", () => {
     apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
     apiPage.RunAPI();
-    entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.MoveToTab("Content");
     propPane.UpdatePropertyFieldValue(
       "Options",
@@ -169,11 +182,13 @@ describe("Tree Select widget Tests", function () {
       agHelper.TypeText(locators._dsNameTxt, postgresDatasourceName);
       dataSources.FillPostgresDSForm();
       dataSources.SaveDatasource();
-      dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
+      dataSources.CreateQueryAfterDSSaved();
     });
     dataSources.RunQuery();
 
-    entityExplorer.SelectEntityByName("TreeSelect1", "Widgets");
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.UpdatePropertyFieldValue("Options", options);
     propPane.SelectPlatformFunction("onOptionChange", "Execute a query");
     agHelper.GetNClick(`${locators._dropDownValue("Query1")}`, 0, true);
@@ -195,27 +210,31 @@ describe("Tree Select widget Tests", function () {
   it("7. Verify onOptionChange with Navigate To", () => {
     deployMode.NavigateBacktoEditor();
     // Navigate To
-    entityExplorer.SelectEntityByName("Form1", "Widgets");
-    entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.ToggleJSMode("onOptionChange", true);
     propPane.UpdatePropertyFieldValue(
       "onOptionChange",
-      "{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}",
+      "{{navigateTo('www.google.com', {}, 'SAME_WINDOW');}}",
     );
     deployMode.DeployApp();
     agHelper.GetNClick(
       `${locators._widgetInDeployed("singleselecttreewidget")}`,
     );
     agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-    agHelper.AssertURL("yahoo.com");
+    agHelper.AssertURL("google.com");
     agHelper.BrowserNavigation(-1);
   });
 
   it("8. Verify onOptionChange with Alert", () => {
     deployMode.NavigateBacktoEditor();
     // Alert
-    entityExplorer.SelectEntityByName("Form1", "Widgets");
-    entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.UpdatePropertyFieldValue(
       "onOptionChange",
       "{{showAlert('Option Changed', '');}}",
@@ -231,8 +250,10 @@ describe("Tree Select widget Tests", function () {
   it("9. Verify onOptionChange with download", () => {
     deployMode.NavigateBacktoEditor();
     // Download
-    entityExplorer.SelectEntityByName("Form1", "Widgets");
-    entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.UpdatePropertyFieldValue(
       "onOptionChange",
       `{{download('https://assets.codepen.io/3/kiwi.svg', 'kiwi.svg', 'image/svg+xml').then(() => {
@@ -248,8 +269,10 @@ describe("Tree Select widget Tests", function () {
 
   it("10. Verify onOptionChange with Reset", () => {
     // Reset Widget
-    entityExplorer.SelectEntityByName("Form1", "Widgets");
-    entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.UpdatePropertyFieldValue(
       "onOptionChange",
       '{{resetWidget("Checkbox1", true);}}',
@@ -270,8 +293,10 @@ describe("Tree Select widget Tests", function () {
   it("11. Verify onOptionChange with Modal", () => {
     deployMode.NavigateBacktoEditor();
     // Modal
-    entityExplorer.SelectEntityByName("Form1", "Widgets");
-    entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.ToggleJSMode("onOptionChange", false);
     propPane.SelectPlatformFunction("onOptionChange", "Show modal");
     agHelper.GetNClick(propPane._actionOpenDropdownSelectModal);
@@ -292,7 +317,7 @@ describe("Tree Select widget Tests", function () {
   it("12. Verify onOptionChange with iframe", () => {
     deployMode.NavigateBacktoEditor();
     // Postmessage on iframe
-    entityExplorer.SelectEntityByName("Iframe1", "Widgets");
+    EditorNavigation.SelectEntityByName("Iframe1", EntityType.Widget);
     propPane.UpdatePropertyFieldValue(
       "srcDoc",
       `<div id="target"></div>
@@ -304,8 +329,10 @@ describe("Tree Select widget Tests", function () {
                 });
             </script>`,
     );
-    entityExplorer.SelectEntityByName("Form1", "Widgets");
-    entityExplorer.SelectEntityByName("TreeSelect1", "Form1");
+    EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+    EditorNavigation.SelectEntityByName("TreeSelect1", EntityType.Widget, {}, [
+      "Form1",
+    ]);
     propPane.ToggleJSMode("onOptionChange", true);
     propPane.UpdatePropertyFieldValue(
       "onOptionChange",

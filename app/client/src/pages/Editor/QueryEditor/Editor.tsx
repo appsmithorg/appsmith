@@ -228,10 +228,10 @@ class QueryEditor extends React.Component<Props> {
 
     return (
       <QueryEditorForm
+        actionResponse={responses[actionId]}
         dataSources={dataSources}
         datasourceId={this.props.datasourceId}
         editorConfig={editorConfig}
-        executedQueryData={responses[actionId]}
         formData={this.props.formData}
         isDeleting={isDeleting}
         isRunning={isRunning}

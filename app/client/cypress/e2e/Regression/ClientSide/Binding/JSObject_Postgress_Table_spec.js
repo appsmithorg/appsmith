@@ -1,5 +1,6 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
@@ -19,9 +20,8 @@ describe("Addwidget from Query and bind with other widgets", function () {
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
 
-      cy.NavigateToActiveDSQueryPane(datasourceName);
+      _.dataSources.CreateQueryAfterDSSaved("SELECT * FROM configs LIMIT 10;");
       // Resetting the default query and rewriting a new one
-      _.dataSources.EnterQuery("SELECT * FROM configs LIMIT 10;");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000);
       // Mock the response for this test
@@ -31,8 +31,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       cy.onlyQueryRun();
       _.dataSources.AddSuggestedWidget(Widgets.Table);
       _.jsEditor.CreateJSObject("return Query1.data;");
-      cy.CheckAndUnfoldEntityItem("Widgets");
-      cy.get(".t--entity-name").contains("Table1").click({ force: true });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.propPane.EnterJSContext("Table data", "{{JSObject1.myFun1()}}");
       cy.isSelectRow(1);
       cy.readTableV2dataPublish("1", "0").then((tabData) => {

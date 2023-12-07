@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
@@ -19,7 +23,7 @@ describe("Binding the multiple input Widget", function () {
   });
 
   it("1. Cyclic depedancy error message validation", function () {
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
     cy.wait("@updateLayout").should(
@@ -31,7 +35,7 @@ describe("Binding the multiple input Widget", function () {
   });
 
   it("2. Binding input widget1 and validating", function () {
-    entityExplorer.SelectEntityByName("Input1");
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
     cy.testJsontext("defaultvalue", testdata.defaultdata);
 
     cy.wait("@updateLayout").should(

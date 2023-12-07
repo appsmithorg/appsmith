@@ -18,6 +18,7 @@ import type { AppTheme } from "entities/AppTheming";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
 
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
@@ -64,6 +65,9 @@ export interface ActionEntityConfig extends EntityConfig {
   pluginId: PluginId;
   actionId: string;
   name: string;
+  moduleId?: string;
+  moduleInstanceId?: string;
+  isPublic?: boolean;
 }
 
 // JSAction (JSObject) entity Types
@@ -84,6 +88,9 @@ export interface JSActionEntityConfig extends EntityConfig {
   name: string;
   ENTITY_TYPE: ENTITY_TYPE.JSACTION;
   actionId: string;
+  moduleId?: string;
+  moduleInstanceId?: string;
+  isPublic?: boolean;
 }
 
 export interface JSActionEntity {
@@ -188,6 +195,8 @@ export interface DataTreeSeed {
   metaWidgets: MetaWidgetsReduxState;
   isMobile: boolean;
   moduleInputs: Module["inputsForm"];
+  moduleInstances: Record<string, ModuleInstance>;
+  moduleInstanceEntities: any;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;
 }

@@ -5,6 +5,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -17,6 +18,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -49,6 +51,7 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
@@ -61,7 +64,6 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -125,7 +127,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
-import static com.appsmith.server.dtos.CustomJSLibApplicationDTO.getDTOFromCustomJSLib;
+import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -180,6 +182,9 @@ public class ImportApplicationServiceTests {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     LayoutCollectionService layoutCollectionService;
@@ -558,10 +563,10 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1)
+                            .createCollection(actionCollectionDTO1, null)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
-                            .then(layoutActionService.updateLayout(
+                            .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -979,7 +984,8 @@ public class ImportApplicationServiceTests {
                             actionCollectionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList(),
-                            customJSLibService.getAllJSLibsInApplication(application.getId(), null, false));
+                            customJSLibService.getAllJSLibsInContext(
+                                    application.getId(), CreatorContextType.APPLICATION, null, false));
                 }))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();
@@ -2043,7 +2049,7 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setActions(List.of(action1));
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
-                    return layoutCollectionService.createCollection(actionCollectionDTO1);
+                    return layoutCollectionService.createCollection(actionCollectionDTO1, null);
                 })
                 .flatMap(actionCollectionDTO -> actionCollectionService.getById(actionCollectionDTO.getId()))
                 .flatMap(actionCollection -> applicationRepository.findById(actionCollection.getApplicationId()))
@@ -2774,10 +2780,10 @@ public class ImportApplicationServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1)
+                            .createCollection(actionCollectionDTO1, null)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
-                            .then(layoutActionService.updateLayout(
+                            .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportApplicationService.exportApplicationById(testApp.getId(), ""));
                 })
@@ -4760,7 +4766,7 @@ public class ImportApplicationServiceTests {
     public void createExportAppJsonWithCustomJSLibTest() {
         CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
         Mono<Boolean> addJSLibMonoCached = customJSLibService
-                .addJSLibToApplication(testAppId, jsLib, null, false)
+                .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                 .flatMap(isJSLibAdded ->
                         Mono.zip(Mono.just(isJSLibAdded), applicationPageService.publish(testAppId, true)))
                 .map(tuple2 -> {
@@ -4928,7 +4934,7 @@ public class ImportApplicationServiceTests {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
-        return layoutCollectionService.createCollection(actionCollectionDTO1);
+        return layoutCollectionService.createCollection(actionCollectionDTO1, null);
     }
 
     @Test

@@ -14,6 +14,7 @@ import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -45,6 +46,7 @@ import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -54,7 +56,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.SessionUserService;
@@ -172,6 +173,9 @@ public class GitServiceCETest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    UpdateLayoutService updateLayoutService;
 
     @Autowired
     NewPageService newPageService;
@@ -1233,12 +1237,12 @@ public class GitServiceCETest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleAction(action, Boolean.FALSE)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
                                                     layout)),
-                                    layoutCollectionService.createCollection(actionCollectionDTO))
+                                    layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .map(tuple2 -> application);
                 });
 
@@ -1892,7 +1896,7 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(branchList));
 
         Mono<Application> applicationMono = gitService
-                .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal")
+                .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal", true)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         "branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
 
@@ -1968,7 +1972,7 @@ public class GitServiceCETest {
         Mono<Tuple4<Theme, Application, Theme, Theme>> resultMono =
                 setCustomThemeToGitConnectedAppMono.flatMap(theme -> {
                     return gitService
-                            .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal2")
+                            .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal2", true)
                             .then(Mono.defer(() -> applicationService.findByBranchNameAndDefaultApplicationId(
                                     "branchNotInLocal2", gitConnectedApplication.getId(), READ_APPLICATIONS)))
                             .flatMap(application -> {
@@ -2031,7 +2035,7 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("fetchResult"));
 
         Mono<Application> applicationMono =
-                gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchInLocal");
+                gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchInLocal", true);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2045,8 +2049,7 @@ public class GitServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkoutBranch_branchNotProvided_throwInvalidParameterError() {
-
-        Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), null);
+        Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), null, true);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2558,7 +2561,7 @@ public class GitServiceCETest {
                     return Mono.zip(
                                     layoutActionService
                                             .createSingleActionWithBranch(action, null)
-                                            .then(layoutActionService.updateLayout(
+                                            .then(updateLayoutService.updateLayout(
                                                     testPage.getId(),
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
@@ -4160,7 +4163,7 @@ public class GitServiceCETest {
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<Application> checkoutBranchMono = gitService.checkoutBranch(application.getId(), "origin/develop");
+        Mono<Application> checkoutBranchMono = gitService.checkoutBranch(application.getId(), "origin/develop", true);
         StepVerifier.create(checkoutBranchMono)
                 .assertNext(app -> {
                     assertThat(app.getId()).isEqualTo(application.getId());

@@ -19,6 +19,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -44,6 +45,7 @@ import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -51,7 +53,6 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -157,6 +158,9 @@ public class ApplicationForkingServiceTests {
 
     @Autowired
     private LayoutActionService layoutActionService;
+
+    @Autowired
+    private UpdateLayoutService updateLayoutService;
 
     @Autowired
     private NewPageService newPageService;
@@ -312,7 +316,7 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        layoutCollectionService.createCollection(actionCollectionDTO).block();
+        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
 
         ObjectMapper objectMapper = new ObjectMapper();
         JSONObject parentDsl = new JSONObject(
@@ -337,7 +341,7 @@ public class ApplicationForkingServiceTests {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(parentDsl);
 
-        layoutActionService
+        updateLayoutService
                 .updateLayout(testPage.getId(), testPage.getApplicationId(), layout.getId(), layout)
                 .block();
         return app1.getId();

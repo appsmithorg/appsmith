@@ -1,19 +1,23 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
+  assertHelper,
+  dataSources,
   deployMode,
+  entityExplorer,
   entityItems,
   homePage,
-  dataSources,
+  locators,
   table,
-  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  SidebarButton,
+  AppSidebar,
+  AppSidebarButton,
+  EntityType,
+  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import PageList from "../../../../support/Pages/PageList";
+
 let dsName: any;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
@@ -34,9 +38,9 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
-      entityExplorer.AddNewPage();
-      entityExplorer.AddNewPage("Generate page with data");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      PageList.AddNewPage();
+      PageList.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
@@ -53,7 +57,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page2",
       action: "Delete",
@@ -80,7 +84,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("2. Create new app and Generate CRUD page using a new datasource", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     //agHelper.GetNClick(homePage._buildFromDataTableActionCard);
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(
@@ -108,7 +112,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "employees");
 
@@ -122,7 +126,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Employees",
       action: "Delete",
@@ -156,9 +160,11 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 ('Vintage Cars','Our Vintage Car models realistically portray automobiles produced from the early 1900s through the 1940s. Materials used include Bakelite, diecast, plastic and wood. Most of the replicas are in the 1:18 and 1:24 scale sizes, which provide the optimum in detail and accuracy. Prices range from $30.00 up to $180.00 for some special limited edition replicas. All models include a certificate of authenticity from their manufacturers and come fully assembled and ready for display in the home or office.',NULL,NULL);
 `;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("CreateProductLines");
-    dataSources.EnterQuery(tableCreateQuery);
+    dataSources.CreateQueryForDS(
+      dsName,
+      tableCreateQuery,
+      "CreateProductLines",
+    );
     agHelper.FocusElement(locators._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
@@ -172,7 +178,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("5. Verify Generate CRUD for the new table & Verify Deploy mode for table - Productlines", () => {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "productlines");
     agHelper.GetNClick(dataSources._generatePageBtn);
@@ -222,7 +228,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   //Open Bug 14063 - hence skipping
   // it.skip("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
-  //   entityExplorer.SelectEntityByName("update_form", "Widgets");
+  //   EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
   //   propPane.ChangeJsonFormFieldType(
   //     "Text Description",
   //     "Multiline Text Input",
@@ -275,9 +281,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("9. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
     let deleteTblQuery = "DROP TABLE productlines;";
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("DropProductlines");
-    dataSources.EnterQuery(deleteTblQuery);
+    dataSources.CreateQueryForDS(dsName, deleteTblQuery, "DropProductlines");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
@@ -286,8 +290,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("10. Verify application does not break when user runs the query with wrong table name", function () {
-    EditorNavigation.ViaSidebar(SidebarButton.Pages);
-    entityExplorer.SelectEntityByName("DropProductlines", "Queries/JS");
+    EditorNavigation.SelectEntityByName("DropProductlines", EntityType.Query);
     dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
       expect(response?.body.data.isExecutionSuccess).to.eq(false);

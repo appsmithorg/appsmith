@@ -35,6 +35,7 @@ import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
 import {
+  getCurrentApplicationIdForCreateNewApp,
   getDeletingMultipleApps,
   getUserApplicationsWorkspacesList,
 } from "@appsmith/selectors/applicationSelectors";
@@ -59,6 +60,7 @@ import {
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
   updateCurrentApplicationForkingEnabled,
+  updateApplicationThemeSettingAction,
 } from "@appsmith/actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -209,13 +211,12 @@ export function* getAllApplicationSaga() {
     const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isEnabledForStartWithData: boolean = yield select(
-      selectFeatureFlagCheck,
-      FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
-    );
     const isEnabledForCreateNew: boolean = yield select(
       selectFeatureFlagCheck,
       FEATURE_FLAG.ab_create_new_apps_enabled,
+    );
+    const isOnboardingApplicationId: string = yield select(
+      getCurrentApplicationIdForCreateNewApp,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -242,10 +243,11 @@ export function* getAllApplicationSaga() {
         payload: workspaceApplication,
       });
 
+      // This will initialise the current workspace to first only during onboarding
       if (
-        isEnabledForStartWithData &&
         isEnabledForCreateNew &&
-        workspaceApplication.length > 0
+        workspaceApplication.length > 0 &&
+        !!isOnboardingApplicationId
       ) {
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
@@ -454,6 +456,15 @@ export function* updateApplicationSaga(
           yield put(
             updateApplicationNavigationSettingAction(
               response.data.applicationDetail.navigationSetting,
+            ),
+          );
+        }
+
+        // TODO: refactor this once backend is ready
+        if (request.applicationDetail?.themeSetting) {
+          yield put(
+            updateApplicationThemeSettingAction(
+              request.applicationDetail?.themeSetting,
             ),
           );
         }

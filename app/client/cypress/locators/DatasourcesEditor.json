@@ -1,5 +1,4 @@
 {
-  "datasourceEditorIcon": ".t--entity-name:contains('DataSources)",
   "datasourcesCard": "t--datasource",
   "host": "input[name$='.datasourceConfiguration.endpoints[0].host']",
   "port": "input[name$='.datasourceConfiguration.endpoints[0].port']",
@@ -16,9 +15,6 @@
   "MySQL": ".t--plugin-name:contains('MySQL')",
   "GoogleSheets": ".t--plugin-name:contains('Google Sheets')",
   "sectionAuthentication": "[data-testid=section-Authentication] .t--collapse-section-container",
-  "PostgresEntity": ".t--entity-name:contains(PostgreSQL)",
-  "MySQLEntity": ".t--entity-name:contains(Mysql)",
-  "createQuery": ".t--create-query",
   "activeDatasourceList": ".t--active-datasource-list",
   "datasourceCard": ".t--datasource",
   "datasourceCardMenu": ".t--datasource-menu-option",

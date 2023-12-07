@@ -1,12 +1,16 @@
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 
 let queryName = "Query1";
 
 import {
   agHelper,
-  entityExplorer,
   jsEditor,
   propPane,
   dataSources,
@@ -41,7 +45,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
         dataSources.ToggleUsePreparedStatement(false);
         dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       });
-      entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       cy.openPropertyPane("inputwidgetv2");
       cy.get(widgetsPage.defaultInput).type(
         "{{" + queryName + ".data[0].gender",
@@ -65,10 +69,10 @@ describe("Cyclic Dependency Informational Error Messages", function () {
         dsname = httpResponse.response.body.data.name;
       });
       cy.wait(1000);
-      cy.get(datasource.createQuery).click();
+      dataSources.CreateQueryAfterDSSaved();
       dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
       dataSources.ToggleUsePreparedStatement(false);
-      entityExplorer.NavigateToSwitcher("Widgets");
+      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
       cy.openPropertyPane("inputwidgetv2");
       cy.get(widgetsPage.defaultInput).type(
         "{{" + queryName + ".data[0].gender",
@@ -152,7 +156,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     );
 
     // Case 6: When updating Datasource query
-    entityExplorer.SelectEntityByName(queryName, "Queries/JS");
+    EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
     // update query and check no cyclic dependency issue should occur
     cy.xpath(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea").first().focus().type(" ", {

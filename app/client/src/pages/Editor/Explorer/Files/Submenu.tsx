@@ -12,7 +12,7 @@ import keyBy from "lodash/keyBy";
 import type { AppState } from "@appsmith/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import { AddButtonWrapper, EntityClassNames } from "../Entity";
-import { useCloseMenuOnScroll } from "../hooks";
+import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import {
   Menu,
@@ -147,6 +147,15 @@ export default function ExplorerSubMenu({
                   </EntityIcon>
                 ));
 
+              const menuItem = (
+                <div className="flex items-center gap-2">
+                  {icon && <span className="flex-shrink-0">{icon}</span>}
+                  <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
+                    {item.shortTitle || item.title}
+                  </span>
+                </div>
+              );
+
               return (
                 <MenuItem
                   data-testid="t--file-operation"
@@ -157,12 +166,13 @@ export default function ExplorerSubMenu({
                     handleOpenChange(false);
                   }}
                 >
-                  <div className="flex items-center gap-2">
-                    {icon && <span className="flex-shrink-0">{icon}</span>}
-                    <span className="overflow-hidden whitespace-nowrap overflow-ellipsis">
-                      {item.shortTitle || item.title}
-                    </span>
-                  </div>
+                  {item.tooltip ? (
+                    <Tooltip content={item.tooltip} placement="topRight">
+                      {menuItem}
+                    </Tooltip>
+                  ) : (
+                    menuItem
+                  )}
                 </MenuItem>
               );
             })}

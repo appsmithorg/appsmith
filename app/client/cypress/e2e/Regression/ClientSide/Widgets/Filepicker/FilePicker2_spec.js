@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -21,8 +25,9 @@ describe("FilePicker Widget Functionality", function () {
   });
 
   it("2. FilePicker Widget Functionality", function () {
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.entityExplorer.SelectEntityByName("FilePicker1");
+    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     //Checking the edit props for FilePicker and also the properties of FilePicker widget
@@ -30,8 +35,9 @@ describe("FilePicker Widget Functionality", function () {
   });
 
   it("3. It checks the loading state of filepicker on call the action", function () {
-    _.entityExplorer.ExpandCollapseEntity("Container3");
-    _.entityExplorer.SelectEntityByName("FilePicker1");
+    EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget, {}, [
+      "Container3",
+    ]);
     const fixturePath = "cypress/fixtures/testFile.mov";
     cy.executeDbQuery("FirstAPI", "onFilesSelected");
     cy.get(commonlocators.filePickerButton).click();

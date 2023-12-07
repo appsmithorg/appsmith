@@ -1,6 +1,10 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../support/Pages/EditorNavigation";
+
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
-import { agHelper } from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe("SMTP datasource test cases using ted", function () {
   let SMTPDatasourceName;
@@ -26,7 +30,7 @@ describe("SMTP datasource test cases using ted", function () {
 
       cy.fillSMTPDatasourceForm();
       cy.testSaveDatasource();
-      cy.NavigateToActiveDSQueryPane(SMTPDatasourceName);
+      dataSources.CreateQueryAfterDSSaved();
     });
     // create new query and bind fields with widgets
     cy.get(queryLocators.queryNameField).type("smtpquery");
@@ -50,9 +54,7 @@ describe("SMTP datasource test cases using ted", function () {
       .eq(6)
       .type("{{FilePicker.files}}", { parseSpecialCharSequences: false });
     agHelper.ClickOutside(); //to close the evaluated pop-up
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(2000);
   });
 
@@ -69,7 +71,9 @@ describe("SMTP datasource test cases using ted", function () {
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
     });
-    agHelper.WaitUntilToastDisappear("unsuccessful execution");
+    agHelper.WaitUntilToastDisappear(
+      "Couldn't find a valid recipient address. Please check your action configuration",
+    );
     // verify an error is thrown when sender address is not added
     cy.xpath("//input[@class='bp3-input']").eq(0).clear().wait(500);
     cy.xpath("//input[@class='bp3-input']")
@@ -83,16 +87,14 @@ describe("SMTP datasource test cases using ted", function () {
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.statusCode).to.eq("PE-ARG-5000");
     });
-    agHelper.ValidateToastMessage("unsuccessful execution");
+    agHelper.ValidateToastMessage(
+      "Couldn't find a valid sender address. Please check your action configuration",
+    );
   });
 
   it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function () {
-    cy.get(`.t--entity-name:contains("smtpquery")`)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(`.t--entity-name:contains("Page1")`)
-      .should("be.visible")
-      .click({ force: true });
+    EditorNavigation.SelectEntityByName("smtpquery", EntityType.Query);
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.wait(2000);
     cy.xpath("//input[@class='bp3-input']").eq(0).type("test@appsmith.com");
     cy.xpath("//input[@class='bp3-input']").eq(2).type("this is a smtp test");

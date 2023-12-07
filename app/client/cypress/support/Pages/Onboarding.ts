@@ -57,9 +57,7 @@ export class Onboarding {
       .should("have.css", "cursor", "not-allowed");
     cy.get(OnboardingLocator.checklistActionBtn).should("be.visible");
     cy.get(OnboardingLocator.checklistActionBtn).click();
-    this._datasources.navigateToDatasource("Movies");
-    cy.get(OnboardingLocator.createQuery).should("be.visible");
-    cy.get(OnboardingLocator.createQuery).click();
+    this._datasources.CreateQueryForDS("Movies");
     cy.wait(1000);
     this._aggregateHelper.GetNClick(this._debuggerHelper.locators._helpButton);
     cy.get(OnboardingLocator.checklistStatus).should("contain", "2 of 5");

@@ -1,14 +1,20 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  dataSources,
-  table,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Numeric Datatype tests", function () {
   let dsName: any, query: string;
@@ -29,9 +35,7 @@ describe("Numeric Datatype tests", function () {
 
   it("1. Creating table - numerictypes", () => {
     query = `create table numerictypes (serialId SERIAL not null primary key, bigintId bigint not null, decimalId decimal not null, numericId numeric not null)`;
-    dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.EnterQuery(query);
-    agHelper.RenameWithInPane("createTable");
+    dataSources.CreateQueryForDS(dsName, query, "createTable");
     agHelper.FocusElement(locators._codeMirrorTextArea);
     dataSources.RunQuery();
   });
@@ -100,11 +104,11 @@ describe("Numeric Datatype tests", function () {
     );
     dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
   });
 
   it("4. Inserting record (+ve limit) - numerictypes + Bug 14516", () => {
-    entityExplorer.SelectEntityByName("Page1");
+    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
@@ -298,23 +302,23 @@ describe("Numeric Datatype tests", function () {
 
   it("14. Validate Drop of the Newly Created - numerictypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
-    entityExplorer.SelectEntityByName("dropTable");
+    EditorNavigation.SelectEntityByName("dropTable", EntityType.Query);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    entityExplorer.ExpandCollapseEntity("Queries/JS", false);
+    PageLeftPane.expandCollapseItem("Queries/JS", false);
     dataSources.AssertTableInVirtuosoList(dsName, "public.numerictypes", false);
   });
 
   it("15. Verify Deletion of the datasource after all created queries are deleted", () => {
     dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.expandCollapseItem("Queries/JS");
     entityExplorer.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    entityExplorer.ExpandCollapseEntity("Queries/JS");
+    PageLeftPane.expandCollapseItem("Queries/JS");
     dataSources.DeleteDatasourceFromWithinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
   });
 });

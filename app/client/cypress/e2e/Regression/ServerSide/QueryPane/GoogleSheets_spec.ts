@@ -4,8 +4,9 @@ import {
   locators,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  SidebarButton,
+import {
+  AppSidebar,
+  AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -47,7 +48,7 @@ describe(
       );
       agHelper.GetNClick(locators._visibleTextSpan("Don't save"));
       agHelper.Sleep();
-      EditorNavigation.ViaSidebar(SidebarButton.Pages);
+      AppSidebar.navigate(AppSidebarButton.Editor, true);
       agHelper.Sleep();
     });
   },

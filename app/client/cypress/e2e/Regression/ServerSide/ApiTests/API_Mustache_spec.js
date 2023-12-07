@@ -1,17 +1,19 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import {
-  entityExplorer,
-  agHelper,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 describe("Moustache test Functionality", function () {
   beforeEach(() => {
     agHelper.AddDsl("commondsl");
   });
   it("1. Moustache test Functionality", function () {
-    entityExplorer.ExpandCollapseEntity("Aditya");
-    entityExplorer.SelectEntityByName("TestTextBox", "Aditya");
+    EditorNavigation.SelectEntityByName("TestTextBox", EntityType.Widget, {}, [
+      "Aditya",
+    ]);
     cy.widgetText("Api", widgetsPage.textWidget, widgetsPage.textInputval);
     cy.testCodeMirror(testdata.methods);
     cy.CreateAPI("TestAPINew");

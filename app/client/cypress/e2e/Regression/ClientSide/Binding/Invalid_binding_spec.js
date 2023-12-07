@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../../fixtures/testdata.json");
 import {
   entityExplorer,
@@ -11,12 +15,12 @@ describe("Binding the multiple widgets and validating default data", function ()
   });
 
   it("1. Dropdown widget test with invalid binding value", function () {
-    entityExplorer.SelectEntityByName("Dropdown1");
+    EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget);
     propPane.ToggleJSMode("sourcedata");
     cy.testJsontext("sourcedata", JSON.stringify(testdata.defaultdataBinding));
     cy.evaluateErrorMessage(testdata.dropdownErrorMsg);
     //Table widget test with invalid binding value
-    entityExplorer.SelectEntityByName("Table1");
+    EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     cy.testJsontext("tabledata", JSON.stringify(testdata.defaultdataBinding));
     cy.evaluateErrorMessage(testdata.tableWidgetErrorMsg);
   });

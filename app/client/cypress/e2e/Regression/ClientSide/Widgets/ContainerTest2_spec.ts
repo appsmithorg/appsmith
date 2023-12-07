@@ -1,15 +1,19 @@
 import {
   agHelper,
-  locators,
   deployMode,
   entityExplorer,
+  locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("Rich Text Editor widget Tests", function () {
   before(() => {
     agHelper.AddDsl("ContainerWithOtherWidgetsDsl");
-    entityExplorer.SelectEntityByName("Container1", "Widgets");
+    EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
   });
 
   it("1. Verify property visibility", function () {
@@ -32,12 +36,12 @@ describe("Rich Text Editor widget Tests", function () {
     agHelper.AssertElementVisibility(locators._widgetName("NewContainer"));
 
     // Copy and paste widget using cmd+c and cmd+v
-    entityExplorer.SelectEntityByName("NewContainer", "Widgets");
+    EditorNavigation.SelectEntityByName("NewContainer", EntityType.Widget);
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{c}`);
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
     agHelper.Sleep(1000);
-    entityExplorer.ExpandCollapseEntity("NewContainer");
-    entityExplorer.AssertEntityPresenceInExplorer("NewContainerCopy");
+    PageLeftPane.expandCollapseItem("NewContainer");
+    PageLeftPane.assertPresence("NewContainerCopy");
     entityExplorer.DeleteWidgetFromEntityExplorer("NewContainerCopy");
 
     // Copy paste from property pane and delete from property pane
@@ -46,13 +50,13 @@ describe("Rich Text Editor widget Tests", function () {
   });
 
   it("3. Verify height changes according to child widget visibility", () => {
-    entityExplorer.SelectEntityByName("NewContainer", "Widgets");
+    EditorNavigation.SelectEntityByName("NewContainer", EntityType.Widget);
     agHelper.AssertCSS(
       locators._widgetInDeployed("newcontainer"),
       "height",
       "440px",
     );
-    entityExplorer.SelectEntityByName("List1", "Widgets");
+    EditorNavigation.SelectEntityByName("List1", EntityType.Widget);
     propPane.TogglePropertyState("visible", "Off");
 
     // Preview mode
@@ -74,17 +78,23 @@ describe("Rich Text Editor widget Tests", function () {
     deployMode.NavigateBacktoEditor();
 
     // Verify multiple widgets selected groups into single container
-    entityExplorer.SelectEntityByName("Input1", "Widgets", true);
-    entityExplorer.SelectEntityByName("Select1", "Widgets", true);
-    entityExplorer.SelectEntityByName("Text3", "Widgets", true);
+    EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {
+      ctrlKey: true,
+    });
+    EditorNavigation.SelectEntityByName("Select1", EntityType.Widget, {
+      ctrlKey: true,
+    });
+    EditorNavigation.SelectEntityByName("Text3", EntityType.Widget, {
+      ctrlKey: true,
+    });
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{g}`);
     agHelper.Sleep(1000);
-    entityExplorer.AssertEntityPresenceInExplorer("Container3");
+    PageLeftPane.assertPresence("Container3");
     entityExplorer.DeleteWidgetFromEntityExplorer("Container3");
   });
 
   it("4. Validate visible toggle", () => {
-    entityExplorer.SelectEntityByName("NewContainer", "Widgets");
+    EditorNavigation.SelectEntityByName("NewContainer", EntityType.Widget);
     propPane.TogglePropertyState("visible", "Off");
 
     // Preview mode
@@ -97,7 +107,7 @@ describe("Rich Text Editor widget Tests", function () {
     agHelper.AssertElementAbsence(locators._widgetInDeployed("newcontainer"));
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewContainer", "Widgets");
+    EditorNavigation.SelectEntityByName("NewContainer", EntityType.Widget);
     propPane.TogglePropertyState("visible", "On");
 
     // Preview mode
@@ -115,7 +125,7 @@ describe("Rich Text Editor widget Tests", function () {
     deployMode.NavigateBacktoEditor();
 
     // Visible JS mode
-    entityExplorer.SelectEntityByName("NewContainer", "Widgets");
+    EditorNavigation.SelectEntityByName("NewContainer", EntityType.Widget);
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "false");
 
@@ -125,7 +135,7 @@ describe("Rich Text Editor widget Tests", function () {
     );
     deployMode.NavigateBacktoEditor();
 
-    entityExplorer.SelectEntityByName("NewContainer", "Widgets");
+    EditorNavigation.SelectEntityByName("NewContainer", EntityType.Widget);
     propPane.ToggleJSMode("Visible", true);
     propPane.UpdatePropertyFieldValue("Visible", "true");
     propPane.ToggleJSMode("Visible", false);

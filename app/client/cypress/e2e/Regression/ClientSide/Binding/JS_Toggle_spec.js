@@ -2,6 +2,9 @@ import {
   entityExplorer,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
 
 describe("JS Toggle tests", () => {
   before(() => {
@@ -9,7 +12,7 @@ describe("JS Toggle tests", () => {
   });
 
   it("1. switches the toggle to Button widget", () => {
-    entityExplorer.SelectEntityByName("Button1");
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get(".t--property-control-visible").find(".t--js-toggle").click();
 
     cy.get(".t--property-control-visible")

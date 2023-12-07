@@ -22,7 +22,7 @@
   * DISABLED
   *-----------------------------------------------------------------------------
   */
-  &[data-disabled] {
+  &[data-disabled]:not([data-field-type="field-group"] &) {
     opacity: var(--opacity-disabled);
     cursor: default;
   }

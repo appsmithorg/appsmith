@@ -1,5 +1,5 @@
 import EditorNavigation, {
-  SidebarButton,
+  EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const publishLocators = require("../../../../../locators/publishWidgetspage.json");
@@ -25,19 +25,18 @@ describe("List widget v2 - Basic server side data tests", () => {
         );
         _.dataSources.RunQuery();
       });
-      _.entityExplorer.SelectEntityByName("Page1");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     } else {
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");
-      cy.get("@dsName").then(($dsName) => {
-        _.dataSources.CreateQueryFromActiveTab($dsName, true);
-        _.dataSources.ToggleUsePreparedStatement(false);
-        _.dataSources.EnterQuery(
+      cy.get("@dsName").then(() => {
+        _.dataSources.CreateQueryAfterDSSaved(
           "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",
         );
+        _.dataSources.ToggleUsePreparedStatement(false);
         _.dataSources.RunQuery();
       });
-      _.entityExplorer.SelectEntityByName("Page1");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     }
   });
 
@@ -330,12 +329,10 @@ describe("List widget v2 - Basic server side data tests", () => {
       cy.NavigateToDatasourceEditor();
 
       // Click on sample(mock) user database.
+      // Choose the first data source which consists of users keyword & Click on the "New query +"" button
       cy.get(datasource.mockUserDatabase).click();
 
-      EditorNavigation.ViaSidebar(SidebarButton.Data);
-
-      // Choose the first data source which consists of users keyword & Click on the "New query +"" button
-      _.dataSources.CreateQueryFromActiveTab("Users");
+      _.dataSources.CreateQueryAfterDSSaved();
 
       // Click the editing field
       cy.get(".t--action-name-edit-field").click({
@@ -358,9 +355,7 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({
-        force: true,
-      });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 
@@ -380,7 +375,7 @@ describe("List widget v2 - Basic server side data tests", () => {
     () => {
       _.dataSources.CreateDataSource("Postgres");
       cy.wait(1000);
-      cy.get(datasource.createQuery).click();
+      _.dataSources.CreateQueryAfterDSSaved();
       // Click the editing field
       cy.get(".t--action-name-edit-field").click({
         force: true,
@@ -401,9 +396,7 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       cy.runQuery();
 
-      cy.get('.t--entity-name:contains("Page1")').click({
-        force: true,
-      });
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       cy.wait(1000);
 

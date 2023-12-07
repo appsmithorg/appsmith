@@ -1,16 +1,22 @@
 import { INTERCEPT } from "../../../../fixtures/variables";
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  homePage,
-  dataSources,
-  table,
-  entityItems,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  homePage,
+  locators,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
+
 let dsName: any;
 
 describe("Validate Mongo Query Pane Validations", () => {
@@ -28,7 +34,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("1. Create Mongo Datasource & verify it has collections", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();
-    entityExplorer.AddNewPage("Generate page with data");
+    PageList.AddNewPage("Generate page with data");
     //agHelper.GetNClick(homePage._buildFromDataTableActionCard);//Commenting this since this is not always available in new app
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(
@@ -276,7 +282,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       ]
   }]`;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
 
     assertHelper.AssertNetworkStatus("@trigger");
 
@@ -691,7 +697,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   });
 
   it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    dataSources.GeneratePageForDS(dsName);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "AuthorNAwards");
     GenerateCRUDNValidateDeployPage(
@@ -708,7 +714,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    entityExplorer.ExpandCollapseEntity("Pages");
+    PageLeftPane.expandCollapseItem("Pages");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "AuthorNAwards",
       action: "Delete",
@@ -718,7 +724,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("17. Validate Drop of the Newly Created - AuthorNAwards - collection from datasource", () => {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
 
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
     agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
@@ -738,7 +744,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("18. Verify application does not break when user runs the query with wrong collection name", function () {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
@@ -793,7 +799,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     }
   ]`;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
 
     assertHelper.AssertNetworkStatus("@trigger");
 
@@ -828,7 +834,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       action: "Delete",
       entityType: entityItems.Query,
     });
-    dataSources.navigateToDatasource(dsName);
+    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
 
     //Execute a find query on this collection to see if dates are fetched properly
     dataSources.createQueryWithDatasourceSchemaTemplate(
@@ -845,7 +851,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     //Drop the collection `BirthNDeath`
     const dropCollection = `{ "drop": "BirthNDeath" }`;
 
-    dataSources.NavigateFromActiveDS(dsName, true);
+    dataSources.CreateQueryForDS(dsName);
     dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropBirthNDeath");
