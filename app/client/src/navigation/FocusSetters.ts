@@ -1,6 +1,7 @@
 import history from "utils/history";
 import {
   apiEditorIdURL,
+  curlImportPageURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
   queryEditorIdURL,
@@ -59,6 +60,9 @@ export function setSelectedQuery(state: QueryListState) {
             apiId: state.id,
           }),
         );
+        break;
+      case PluginType.CURL:
+        history.replace(curlImportPageURL({}));
         break;
       default:
         break;

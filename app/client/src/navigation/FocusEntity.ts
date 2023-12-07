@@ -5,9 +5,11 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  CURL_IMPORT_PAGE_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
+  QUERIES_ADD_PATH,
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
@@ -98,6 +100,8 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       BUILDER_PATH + WIDGETS_EDITOR_ID_PATH,
       BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH,
       BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH,
+      BUILDER_PATH + CURL_IMPORT_PAGE_PATH,
+      BUILDER_PATH + CURL_IMPORT_PAGE_PATH + QUERIES_ADD_PATH,
       BUILDER_PATH + "/:entity",
       BUILDER_CUSTOM_PATH + "/:entity",
       BUILDER_PATH_DEPRECATED + "/:entity",
@@ -165,14 +169,6 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     };
   }
   if (match.params.queryId) {
-    if (match.params.queryId === "add") {
-      return {
-        entity: FocusEntity.QUERY_LIST,
-        id: "",
-        pageId: match.params.pageId,
-        appState: EditorState.EDITOR,
-      };
-    }
     return {
       entity: FocusEntity.QUERY,
       id: match.params.queryId,
@@ -229,6 +225,17 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         pageId: match.params.pageId,
       };
     }
+  }
+  if (
+    match.url.endsWith(CURL_IMPORT_PAGE_PATH) ||
+    match.url.endsWith(CURL_IMPORT_PAGE_PATH + QUERIES_ADD_PATH)
+  ) {
+    return {
+      entity: FocusEntity.QUERY,
+      id: "",
+      pageId: match.params.pageId,
+      appState: EditorState.EDITOR,
+    };
   }
   return {
     entity: FocusEntity.CANVAS,

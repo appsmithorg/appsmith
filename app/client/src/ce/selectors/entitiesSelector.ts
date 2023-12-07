@@ -1330,46 +1330,59 @@ export const getModuleInstanceEntities = () => {
   };
 };
 
+interface PagePaneData {
+  [key: string]: { id: string; name: string; type: string }[];
+}
+
+const GroupAndSortPagePaneData = (
+  files: ActionData[] | JSCollectionData[],
+  datasourceIdToNameMap: Record<string, string>,
+) => {
+  let data: PagePaneData = {};
+
+  files.forEach((file) => {
+    let group = "";
+
+    if (file.config.pluginType === PluginType.JS) {
+      group = "JS Objects";
+    } else if (file.config.pluginType === PluginType.API) {
+      group = isEmbeddedRestDatasource(file.config.datasource)
+        ? "APIs"
+        : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+    } else {
+      group = datasourceIdToNameMap[file.config.datasource.id];
+    }
+    if (!data[group]) {
+      data[group] = [];
+    }
+    data[group].push({
+      id: file.config.id,
+      name: file.config.name,
+      type: file.config.pluginType,
+    });
+  });
+
+  data = Object.keys(data)
+    .sort()
+    .reduce(function (acc, key) {
+      acc[key] = data[key];
+      return acc;
+    }, {} as PagePaneData);
+  return data;
+};
+
 export const selectQueriesForPagespane = createSelector(
   getCurrentActions,
+  selectDatasourceIdToNameMap,
+  (actions, datasourceIdToNameMap) => {
+    return GroupAndSortPagePaneData(actions, datasourceIdToNameMap);
+  },
+);
+
+export const selectJSForPagespane = createSelector(
   getCurrentJSCollections,
   selectDatasourceIdToNameMap,
-  (actions, jsActions, datasourceIdToNameMap) => {
-    let data: {
-      [key: string]: { id: string; name: string; type: string }[];
-    } = {};
-
-    [...actions, ...jsActions].forEach((file) => {
-      let group = "";
-      if (file.config.pluginType === PluginType.JS) {
-        group = "JS Objects";
-      } else if (file.config.pluginType === PluginType.API) {
-        group = isEmbeddedRestDatasource(file.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
-      } else {
-        group = datasourceIdToNameMap[file.config.datasource.id];
-      }
-      if (!data[group]) {
-        data[group] = [];
-      }
-      data[group].push({
-        id: file.config.id,
-        name: file.config.name,
-        type: file.config.pluginType,
-      });
-    });
-    data = Object.keys(data)
-      .sort()
-      .reduce(
-        function (acc, key) {
-          acc[key] = data[key];
-          return acc;
-        },
-        {} as {
-          [key: string]: { id: string; name: string; type: string }[];
-        },
-      );
-    return data;
+  (jsActions, datasourceIdToNameMap) => {
+    return GroupAndSortPagePaneData(jsActions, datasourceIdToNameMap);
   },
 );

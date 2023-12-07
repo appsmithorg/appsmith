@@ -5,6 +5,7 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  CURL_IMPORT_PAGE_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_ADD_PATH,
@@ -55,6 +56,10 @@ export const getSelectedQueryId = (path: string): QueryListState => {
     apiId?: string;
     pluginPackageName?: string;
   }>(path, [
+    // CURL
+    BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH,
+    BUILDER_PATH + CURL_IMPORT_PAGE_PATH,
+    BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH,
     // Queries
     BUILDER_PATH_DEPRECATED + QUERIES_EDITOR_ID_PATH,
     BUILDER_PATH + QUERIES_EDITOR_ID_PATH,
@@ -73,13 +78,18 @@ export const getSelectedQueryId = (path: string): QueryListState => {
   ]);
   if (!match) return undefined;
   const { apiId, pluginPackageName, queryId } = match.params;
-  const id = apiId ? apiId : queryId;
-  if (!id || id === "add") return undefined;
+  let id = apiId ? apiId : queryId;
+  if (!id && match.url.endsWith(CURL_IMPORT_PAGE_PATH)) {
+    id = "curl";
+  }
+  if (!id) return undefined;
   let type: PluginType = PluginType.API;
   if (pluginPackageName) {
     type = PluginType.SAAS;
   } else if (queryId) {
     type = PluginType.DB;
+  } else if (id === "curl") {
+    type = PluginType.CURL;
   }
   return {
     type,

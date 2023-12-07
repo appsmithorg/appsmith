@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, Flex, Text } from "design-system";
 import styled from "styled-components";
 
-import { selectQueriesForPagespane } from "@appsmith/selectors/entitiesSelector";
+import { selectJSForPagespane } from "@appsmith/selectors/entitiesSelector";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import ExplorerJSCollectionEntity from "pages/Editor/Explorer/JSActions/JSActionEntity";
 import type { PluginType } from "entities/Action";
@@ -29,7 +29,7 @@ const JSContainer = styled(Flex)`
 const JSSection = () => {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
-  const files = useSelector(selectQueriesForPagespane);
+  const files = useSelector(selectJSForPagespane);
   const JSObjects = files["JS Objects"];
   const activeActionId = useActiveAction();
 

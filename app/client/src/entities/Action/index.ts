@@ -13,6 +13,7 @@ export enum PluginType {
   JS = "JS",
   REMOTE = "REMOTE",
   AI = "AI",
+  CURL = "CURL",
 }
 
 export enum PluginPackageName {
