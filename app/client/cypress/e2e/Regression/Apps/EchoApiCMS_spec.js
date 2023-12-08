@@ -12,7 +12,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../support/Pages/EditorNavigation";
 
-describe("Content Management System App", function () {
+describe("Content Management System App", { tags: ["@tag.Datasource"] }, function () {
   before(() => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

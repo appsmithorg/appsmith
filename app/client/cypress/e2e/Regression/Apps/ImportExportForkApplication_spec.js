@@ -7,7 +7,7 @@ import {
   assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
-describe("Import, Export and Fork application and validate data binding", function () {
+describe("Import, Export and Fork application and validate data binding",{ tags: ["@tag.Migrate"] },function () {
   let workspaceId;
   let newWorkspaceName;
   let appName;

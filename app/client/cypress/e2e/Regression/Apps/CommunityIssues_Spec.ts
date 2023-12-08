@@ -15,7 +15,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../support/Pages/EditorNavigation";
 
-describe("AForce - Community Issues page validations", function () {
+describe("AForce - Community Issues page validations", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
   before(function () {
     agHelper.ClearLocalStorageCache();
   });
