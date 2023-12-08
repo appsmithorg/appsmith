@@ -1,3 +1,5 @@
+@import "../../../shared/colors/colors.module.css";
+
 .menu {
   background-color: var(--color-bg);
   border-radius: var(--border-radius-1);
@@ -41,6 +43,14 @@
 
 .menuList [data-active] {
   background-color: var(--color-bg-accent-subtle-active);
+}
+
+.menuList li:not([data-disabled]) {
+  @each $color in colors {
+    &[data-color="$(color)"] {
+      color: var(--color-fg-$(color));
+    }
+  }
 }
 
 .menuList [data-disabled] {

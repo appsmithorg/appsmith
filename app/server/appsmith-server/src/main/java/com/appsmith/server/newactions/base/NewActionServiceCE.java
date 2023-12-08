@@ -73,7 +73,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
 
-    ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO);
+    ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
@@ -144,4 +144,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
             AclPermission permission,
             boolean viewMode,
             boolean includeJs);
+
+    NewAction generateActionDomain(ActionDTO action);
+
+    void updateDefaultResourcesInAction(NewAction newAction);
 }

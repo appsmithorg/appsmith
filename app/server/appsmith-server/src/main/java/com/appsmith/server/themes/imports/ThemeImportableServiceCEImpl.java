@@ -1,5 +1,6 @@
 package com.appsmith.server.themes.imports;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
@@ -8,7 +9,6 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.themes.base.ThemeService;
 import org.springframework.util.StringUtils;
@@ -53,7 +53,8 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToApp())) {
             // appending to existing app, theme should not change
             return Mono.empty().then();

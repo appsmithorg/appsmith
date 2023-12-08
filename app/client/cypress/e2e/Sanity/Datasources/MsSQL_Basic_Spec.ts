@@ -1,15 +1,15 @@
 import {
   agHelper,
   assertHelper,
-  propPane,
+  dataManager,
   dataSources,
-  entityItems,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  table,
-  dataManager,
+  entityItems,
   locators,
-  deployMode,
+  propPane,
+  table,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
 import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
@@ -322,7 +322,7 @@ describe("Validate MsSQL connection & basic querying with UI flows", () => {
   });
 
   it("6. Generate CRUD page from datasource present in ACTIVE section", function () {
-    dataSources.NavigateFromActiveDS(dsName, false);
+    EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(
       dataSources._dropdownOption,

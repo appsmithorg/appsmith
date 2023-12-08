@@ -290,13 +290,12 @@ const jsActionsReducer = createReducer(initialState, {
   [ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT]: (
     state: JSCollectionDataState,
     action: ReduxAction<{
-      collectionName: string;
-      collectionId: string;
+      collection: JSCollection;
       action: JSAction;
     }>,
   ): JSCollectionDataState =>
     state.map((a) => {
-      if (a.config.id === action.payload.collectionId) {
+      if (a.config.id === action.payload.collection.id) {
         const newData = { ...a.data };
         const newIsDirty = { ...a.isDirty };
         unset(newData, action.payload.action.id);

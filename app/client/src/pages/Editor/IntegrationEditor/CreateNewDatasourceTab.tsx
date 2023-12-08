@@ -18,7 +18,7 @@ import {
 import { connect } from "react-redux";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { Text, TextType } from "design-system-old";
+import { Text } from "design-system";
 import MockDataSources from "./MockDataSources";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
@@ -35,6 +35,10 @@ import {
   SAMPLE_DATASOURCES,
 } from "@appsmith/constants/messages";
 import { Divider } from "design-system";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -72,7 +76,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>{createMessage(SAMPLE_DATASOURCES)}</Text>
+      <Text kind="heading-m">{createMessage(SAMPLE_DATASOURCES)}</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -103,7 +107,7 @@ function CreateNewAPI({
   }, [active]);
   return (
     <div id="new-api" ref={newAPIRef}>
-      <Text type={TextType.H2}>APIs</Text>
+      <Text kind="heading-m">APIs</Text>
       <NewApiScreen
         history={history}
         isCreating={isCreating}
@@ -138,7 +142,7 @@ function CreateNewDatasource({
 
   return (
     <div id="new-datasources" ref={newDatasourceRef}>
-      <Text type={TextType.H2}>
+      <Text kind="heading-m">
         {showMostPopularPlugins
           ? createMessage(CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER)
           : createMessage(CREATE_NEW_DATASOURCE_DATABASE_HEADER)}
@@ -181,7 +185,7 @@ function CreateNewSaasIntegration({
   }, [active]);
   return !isAirgappedInstance ? (
     <div id="new-saas-api" ref={newSaasAPIRef}>
-      <Text type={TextType.H2}>SaaS Integrations</Text>
+      <Text kind="heading-m">SaaS Integrations</Text>
       <NewApiScreen
         history={history}
         isCreating={isCreating}
@@ -203,7 +207,7 @@ interface CreateNewDatasourceScreenProps {
   showDebugger: boolean;
   pageId: string;
   isAppSidebarEnabled: boolean;
-  isEnabledForStartWithData: boolean;
+  isEnabledForCreateNew: boolean;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -235,7 +239,7 @@ class CreateNewDatasourceTab extends React.Component<
       dataSources,
       isAppSidebarEnabled,
       isCreating,
-      isEnabledForStartWithData,
+      isEnabledForCreateNew,
       pageId,
     } = this.props;
     if (!canCreateDatasource) return null;
@@ -260,7 +264,7 @@ class CreateNewDatasourceTab extends React.Component<
             <StyledDivider />
           </>
         )}
-        {isEnabledForStartWithData && (
+        {isEnabledForCreateNew && (
           <>
             <CreateNewDatasource
               active={false}
@@ -312,7 +316,14 @@ class CreateNewDatasourceTab extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
-  const pageId = getCurrentPageId(state);
+  const onboardingAppId = getCurrentApplicationIdForCreateNewApp(state);
+  const onboardingApplication = getApplicationByIdFromWorkspaces(
+    state,
+    onboardingAppId || "",
+  );
+  const pageId = !!onboardingAppId
+    ? onboardingApplication?.defaultPageId || ""
+    : getCurrentPageId(state);
   const showDebugger = showDebuggerFlag(state);
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
@@ -325,10 +336,8 @@ const mapStateToProps = (state: AppState) => {
     userWorkspacePermissions,
   );
 
-  const isEnabledForStartWithData =
-    !!featureFlags[
-      FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled
-    ];
+  const isEnabledForCreateNew =
+    !!featureFlags[FEATURE_FLAG.ab_create_new_apps_enabled];
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
   return {
     dataSources: getDatasources(state),
@@ -339,7 +348,7 @@ const mapStateToProps = (state: AppState) => {
     showDebugger,
     pageId,
     isAppSidebarEnabled,
-    isEnabledForStartWithData,
+    isEnabledForCreateNew,
   };
 };
 

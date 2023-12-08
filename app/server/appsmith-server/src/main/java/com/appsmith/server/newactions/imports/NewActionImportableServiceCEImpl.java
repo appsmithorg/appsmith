@@ -66,7 +66,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
 
         List<NewAction> importedNewActionList = applicationJson.getActionList();
 
@@ -105,9 +106,13 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
                         Set<String> invalidActionIds = new HashSet<>();
-                        for (NewAction action : importActionResultDTO.getExistingActions()) {
-                            if (!importActionResultDTO.getImportedActionIds().contains(action.getId())) {
-                                invalidActionIds.add(action.getId());
+                        if (Boolean.FALSE.equals(isPartialImport)) {
+                            for (NewAction action : importActionResultDTO.getExistingActions()) {
+                                if (!importActionResultDTO
+                                        .getImportedActionIds()
+                                        .contains(action.getId())) {
+                                    invalidActionIds.add(action.getId());
+                                }
                             }
                         }
                         log.info("Deleting {} actions which are no more used", invalidActionIds.size());
@@ -136,7 +141,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     public Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            boolean isPartialImport) {
 
         ImportActionResultDTO importActionResultDTO = mappedImportableResourcesDTO.getActionResultDTO();
         ImportActionCollectionResultDTO importActionCollectionResultDTO =
@@ -157,7 +163,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
                     if (!StringUtils.isEmpty(importingMetaDTO.getApplicationId())
-                            && !importingMetaDTO.getAppendToApp()) {
+                            && !importingMetaDTO.getAppendToApp()
+                            && Boolean.FALSE.equals(isPartialImport)) {
                         // Remove unwanted action collections
                         Set<String> invalidCollectionIds = new HashSet<>();
                         for (ActionCollection collection :
