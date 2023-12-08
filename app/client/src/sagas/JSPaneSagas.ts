@@ -362,8 +362,15 @@ export function* handleExecuteJSFunctionSaga(data: {
   action: JSAction;
   collectionId: string;
   isExecuteJSFunc: boolean;
+  openDebugger?: boolean;
 }): any {
-  const { action, collectionId, collectionName, isExecuteJSFunc } = data;
+  const {
+    action,
+    collectionId,
+    collectionName,
+    isExecuteJSFunc,
+    openDebugger = false,
+  } = data;
   const actionId = action.id;
   const appMode: APP_MODE = yield select(getAppMode);
   yield put(
@@ -391,7 +398,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
     );
     // open response tab in debugger on runnning or page load js action.
-    if (window.location.pathname.includes(collectionId)) {
+    if (window.location.pathname.includes(collectionId) || openDebugger) {
       yield put(showDebugger(true));
 
       const debuggerSelectedTab = yield select(getDebuggerSelectedTab);
@@ -464,9 +471,16 @@ export function* handleStartExecuteJSFunctionSaga(
     action: JSAction;
     collectionId: string;
     from: EventLocation;
+    openDebugger?: boolean;
   }>,
 ): any {
-  const { action, collectionId, collectionName, from } = data.payload;
+  const {
+    action,
+    collectionId,
+    collectionName,
+    from,
+    openDebugger = false,
+  } = data.payload;
   const actionId = action.id;
   if (action.confirmBeforeExecute) {
     const modalPayload = {
@@ -500,6 +514,7 @@ export function* handleStartExecuteJSFunctionSaga(
     action: action,
     collectionId: collectionId,
     isExecuteJSFunc: false,
+    openDebugger,
   });
 }
 

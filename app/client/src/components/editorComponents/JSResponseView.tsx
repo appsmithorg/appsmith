@@ -60,6 +60,7 @@ const ResponseContainer = styled.div`
   min-height: ${TAB_MIN_HEIGHT};
   background-color: var(--ads-v2-color-bg);
   height: ${ActionExecutionResizerHeight}px;
+  border-top: 1px solid var(--ads-v2-color-border);
 
   .ads-v2-tabs__panel {
     ${CodeEditorWithGutterStyles};

@@ -75,6 +75,7 @@ export const startExecutingJSFunction = (payload: {
   action: JSAction;
   collectionId: string;
   from: EventLocation;
+  openDebugger?: boolean;
 }) => {
   return {
     type: ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
