@@ -83,7 +83,12 @@ jobs:
       # Fetch prior run result
       - name: Get the previous run result
         id: run_result
-        run: cat ~/run_result 2>/dev/null || echo 'default'
+        run: |
+          if [ -f ~/run_result ]; then
+            echo "run_result=$(cat ~/run_result)" >> $GITHUB_OUTPUT
+          else
+            echo "run_result=default" >> $GITHUB_OUTPUT
+          fi
 
       - name: Download the failed test artifact in case of rerun
         if: steps.run_result.outputs.run_result == 'failedtest'
