@@ -1242,7 +1242,7 @@ public class GitServiceCETest {
                                                     testPage.getApplicationId(),
                                                     layout.getId(),
                                                     layout)),
-                                    layoutCollectionService.createCollection(actionCollectionDTO))
+                                    layoutCollectionService.createCollection(actionCollectionDTO, null))
                             .map(tuple2 -> application);
                 });
 
@@ -3497,6 +3497,8 @@ public class GitServiceCETest {
                                     .getGitAuth()
                                     .getPublicKey())
                             .isEqualTo(gitAuth.getPublicKey());
+                    assertThat(application.getUnpublishedCustomJSLibs().size())
+                            .isEqualTo(application.getPublishedCustomJSLibs().size());
                 })
                 .verifyComplete();
     }

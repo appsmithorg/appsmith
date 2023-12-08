@@ -32,9 +32,9 @@ public class CustomJSLibContextCE_DTO {
     }
 
     public static CustomJSLibContextDTO getDTOFromCustomJSLib(CustomJSLib jsLib) {
-        CustomJSLibContextDTO customJSLibApplicationDTO = new CustomJSLibContextDTO();
-        customJSLibApplicationDTO.setUidString(jsLib.getUidString());
+        CustomJSLibContextDTO customJSLibContextDTO = new CustomJSLibContextDTO();
+        customJSLibContextDTO.setUidString(jsLib.getUidString());
 
-        return customJSLibApplicationDTO;
+        return customJSLibContextDTO;
     }
 }
