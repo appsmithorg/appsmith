@@ -7,7 +7,9 @@ import com.appsmith.server.helpers.CollectionUtils;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
@@ -19,6 +21,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @ChangeUnit(order = "036", id = "add-recently-used-entities-for-user")
+@Slf4j
 public class Migration036AddRecentlyUsedEntitiesForUserData {
 
     private final MongoTemplate mongoTemplate;
@@ -53,8 +56,14 @@ public class Migration036AddRecentlyUsedEntitiesForUserData {
                 recentlyUsedEntityDTOS.add(recentlyUsedEntityDTO);
             }
             update.set(fieldName(QUserData.userData.recentlyUsedEntityIds), recentlyUsedEntityDTOS);
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QUserData.userData.id)).is(userData.getId())), update, UserData.class);
+            update.set(fieldName(QUserData.userData.recentlyUsedEntityIds), recentlyUsedEntityDTOS);
+            Criteria criteria = where(fieldName(QUserData.userData.id)).is(userData.getId());
+            criteria.and(fieldName(QUserData.userData.recentlyUsedEntityIds)).exists(false);
+            try {
+                mongoTemplate.updateFirst(query(criteria), update, UserData.class);
+            } catch (Exception e) {
+                log.error("Error updating recently used entity ids for user data with id: {}", userData.getId(), e);
+            }
         }
     }
 }
