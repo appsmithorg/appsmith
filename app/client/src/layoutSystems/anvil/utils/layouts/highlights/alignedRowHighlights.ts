@@ -142,6 +142,7 @@ function getInitialHighlights(
       alignmentDimension,
       undefined,
       undefined,
+      undefined,
       true,
       !!layoutProps.isDropTarget,
     );
@@ -232,12 +233,29 @@ export function getHighlightsForWidgets(
       )
         return;
 
+      // if (
+      //   alignment === FlexLayerAlignment.Start &&
+      //   alignmentInfo[FlexLayerAlignment.Center].dimension.width +
+      //     alignmentInfo[FlexLayerAlignment.End].dimension.width >
+      //     layoutDimension.width * 0.85
+      // )
+      //   return;
+
+      // if (
+      //   alignment === FlexLayerAlignment.End &&
+      //   alignmentInfo[FlexLayerAlignment.Center].dimension.width +
+      //     alignmentInfo[FlexLayerAlignment.Start].dimension.width >
+      //     layoutDimension.width * 0.85
+      // )
+      //   return;
+
       highlights = updateHighlights(
         highlights,
         baseHighlight,
         childCount,
         alignment as FlexLayerAlignment,
         dimension,
+        undefined,
         undefined,
         undefined,
         true,
@@ -261,6 +279,8 @@ export function getHighlightsForWidgets(
           const tallestDimension: LayoutElementPosition = getDimensions(
             tallestWidget.widgetId,
           );
+          const prevDimension: LayoutElementPosition | undefined =
+            index === 0 ? undefined : getDimensions(row[index - 1].widgetId);
 
           /**
            * Add a highlight before the widget
@@ -274,6 +294,7 @@ export function getHighlightsForWidgets(
               dimension,
               currentDimension,
               tallestDimension,
+              prevDimension,
               false,
               !!layoutProps.isDropTarget,
             );
@@ -292,6 +313,7 @@ export function getHighlightsForWidgets(
               dimension,
               currentDimension,
               tallestDimension,
+              prevDimension,
               true,
               !!layoutProps.isDropTarget,
             );
@@ -313,6 +335,7 @@ function generateHighlight(
   alignment: FlexLayerAlignment,
   layoutDimension: LayoutElementPosition,
   currDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   tallestWidget: LayoutElementPosition | undefined,
   prevHighlight: AnvilHighlightInfo | undefined,
   isFinalHighlight: boolean,
@@ -324,13 +347,27 @@ function generateHighlight(
     posX =
       layoutDimension.left + getStartPosition(alignment, layoutDimension.width);
   } else if (isFinalHighlight) {
+    const gap: number =
+      layoutDimension.left +
+      layoutDimension.width -
+      currDimension.left -
+      currDimension.width;
     posX = Math.min(
       currDimension.left + currDimension.width,
-      layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE - 2,
+      layoutDimension.left +
+        layoutDimension.width -
+        gap / 2 -
+        HIGHLIGHT_SIZE / 2,
     );
   } else {
     // highlight before a widget.
-    posX = Math.max(currDimension.left - HIGHLIGHT_SIZE, layoutDimension.left);
+    const gap: number = prevDimension
+      ? currDimension.left - (prevDimension.left + prevDimension.width)
+      : HIGHLIGHT_SIZE;
+    posX = Math.max(
+      currDimension.left - gap / 2 - HIGHLIGHT_SIZE / 2,
+      layoutDimension.left,
+    );
   }
 
   const multiplier = isDropTarget ? 1 : HORIZONTAL_DROP_ZONE_MULTIPLIER;
@@ -369,6 +406,7 @@ function updateHighlights(
   layoutDimension: LayoutElementPosition,
   currDimension: LayoutElementPosition | undefined,
   tallestWidget: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   isFinalHighlight: boolean,
   isDropTarget: boolean,
 ): AnvilHighlightInfo[] {
@@ -381,6 +419,7 @@ function updateHighlights(
     alignment as FlexLayerAlignment,
     layoutDimension,
     currDimension,
+    prevDimension,
     tallestWidget,
     prevHighlight,
     isFinalHighlight,

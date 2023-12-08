@@ -92,7 +92,7 @@ export const getWidgetNameComponent = (
     y: 0,
   });
 
-  //Icon in widget name componenet in case of error
+  //Icon in widget name component in case of error
   const iconEl = new Konva.Path({
     x: WIDGET_NAME_HORIZONTAL_PADDING,
     y: WIDGET_NAME_VERTICAL_PADDING,

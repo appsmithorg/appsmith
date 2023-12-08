@@ -102,7 +102,6 @@ export const useCanvasDragging = (
     draggedBlocks,
     isCurrentDraggedCanvas,
     isDragging,
-    isResizing,
     layoutElementPositions,
     mainCanvasLayoutId,
   } = anvilDragStates;
@@ -158,7 +157,7 @@ export const useCanvasDragging = (
   }, [anvilDragStates.isCurrentDraggedCanvas]);
 
   useEffect(() => {
-    if (slidingArenaRef.current && !isResizing && isDragging) {
+    if (slidingArenaRef.current && isDragging) {
       const scrollParent: Element | null = getNearestParentCanvas(
         slidingArenaRef.current,
       );
@@ -207,7 +206,7 @@ export const useCanvasDragging = (
 
         const onFirstMoveOnCanvas = (e: MouseEvent) => {
           if (
-            !isResizing &&
+            anvilDragStates.isCurrentDraggedCanvas &&
             isDragging &&
             !canvasIsDragging &&
             slidingArenaRef.current
@@ -314,8 +313,8 @@ export const useCanvasDragging = (
         resetCanvasState();
       }
     }
-  }, [isDragging, isResizing, anvilDragStates]);
+  }, [isDragging, anvilDragStates]);
   return {
-    showCanvas: isDragging && !isResizing,
+    showCanvas: isDragging,
   };
 };

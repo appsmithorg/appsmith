@@ -10,8 +10,6 @@ import type {
   SizingDimension,
   SpacingDimension,
 } from "@design-system/widgets";
-import { ROW_GAP } from "layoutSystems/common/utils/constants";
-import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type {
@@ -22,6 +20,8 @@ import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPos
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { type RenderMode, RenderModes } from "constants/WidgetConstants";
 import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+
+export const FLEX_LAYOUT_PADDING = 4;
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -119,10 +119,8 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       maxWidth: maxWidth || "none",
       minHeight: minHeight || "unset",
       minWidth: minWidth || "unset",
-      padding: padding || (isDropTarget ? "4px" : "0px"),
-      rowGap: rowGap || {
-        base: addPixelToSize(ROW_GAP),
-      },
+      padding: padding || (isDropTarget ? `${FLEX_LAYOUT_PADDING}px` : "0px"),
+      rowGap: rowGap || "0px",
       width: width || "auto",
       wrap: wrap || "nowrap",
     };

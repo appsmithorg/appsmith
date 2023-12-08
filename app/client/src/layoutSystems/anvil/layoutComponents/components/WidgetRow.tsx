@@ -40,7 +40,6 @@ class WidgetRow extends BaseLayoutComponent {
       <FlexLayout
         alignSelf="stretch"
         canvasId={canvasId}
-        columnGap="4px"
         direction="row"
         isContainer={!!isContainer}
         isDropTarget={!!isDropTarget}

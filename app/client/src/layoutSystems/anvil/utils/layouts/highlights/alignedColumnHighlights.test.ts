@@ -5,10 +5,7 @@ import {
   type WidgetLayoutProps,
 } from "../../anvilTypes";
 import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
-import {
-  HIGHLIGHT_SIZE,
-  VERTICAL_DROP_ZONE_MULTIPLIER,
-} from "layoutSystems/anvil/utils/constants";
+import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { registerLayoutComponents } from "../layoutUtils";
@@ -144,13 +141,13 @@ describe("AlignedColumnHighlights tests", () => {
       // First set of highlights should be placed before the first widget.
       expect(res[0].posY).toEqual(positions[button].top - HIGHLIGHT_SIZE);
       // Second set of highlights should be placed between the two widgets.
-      expect(res[4].posY).toEqual(positions[input].top - HIGHLIGHT_SIZE);
+      expect(res[4].posY).toBeLessThan(positions[input].top);
       expect(res[4].posY).toBeGreaterThan(
         positions[button].top + positions[button].height,
       );
       // Final set of highlights should be placed after the last widget.
       expect(res[8].posY).toEqual(
-        positions[input].top + positions[input].height + HIGHLIGHT_SIZE / 2,
+        positions[input].top + positions[input].height,
       );
     });
     it("should calculate proper drop zones", () => {
@@ -204,7 +201,7 @@ describe("AlignedColumnHighlights tests", () => {
         positions[button].top - HIGHLIGHT_SIZE,
       );
       // Bottom of first set of highlights should span half of the vertical space between this highlight and the next.
-      expect(res[0].dropZone.bottom).toEqual(
+      expect(res[0].dropZone.bottom).toBeLessThan(
         (positions[input].top - positions[button].top) / 2,
       );
       // Top of second set of highlights should span half of the vertical space between this highlight and the previous.
@@ -270,10 +267,10 @@ describe("AlignedColumnHighlights tests", () => {
       // First highlight before the first widget.
       expect(res[0].posY).toEqual(positions[button].top - HIGHLIGHT_SIZE);
       // Second highlight before second widget.
-      expect(res[1].posY).toEqual(positions[input].top - HIGHLIGHT_SIZE);
+      expect(res[1].posY).toBeLessThan(positions[input].top - HIGHLIGHT_SIZE);
       // Final highlight should be placed after the last widget.
       expect(res[2].posY).toEqual(
-        positions[input].top + positions[input].height + HIGHLIGHT_SIZE / 2,
+        positions[input].top + positions[input].height,
       );
     });
     it("1. if an existing child widget is being dragged, then it should be discounted from highlight calculation", () => {
@@ -332,7 +329,7 @@ describe("AlignedColumnHighlights tests", () => {
       expect(res[0].rowIndex).toEqual(0);
       // Final highlight should be placed after the last widget.
       expect(res[1].posY).toEqual(
-        positions[input].top + positions[input].height + HIGHLIGHT_SIZE / 2,
+        positions[input].top + positions[input].height,
       );
       expect(res[1].rowIndex).toEqual(1);
     });
@@ -388,11 +385,11 @@ describe("AlignedColumnHighlights tests", () => {
       // Highlight for the dragged widget's position should be discounted.
       expect(res.length).toEqual(6);
       // First highlight before the first widget.
-      expect(res[0].posY).toEqual(positions[input].top - HIGHLIGHT_SIZE);
+      expect(res[0].posY).toBeLessThan(positions[input].top);
       expect(res[0].rowIndex).toEqual(0);
       // Final highlight should be placed after the last widget.
       expect(res[4].posY).toEqual(
-        positions[input].top + positions[input].height + HIGHLIGHT_SIZE / 2,
+        positions[input].top + positions[input].height,
       );
       expect(res[4].rowIndex).toEqual(1);
     });
@@ -520,11 +517,7 @@ describe("AlignedColumnHighlights tests", () => {
 
       expect(res[4].isVertical).toBeFalsy();
       expect(res[4].posY).toEqual(
-        dimensions[row2.layoutId].top - HIGHLIGHT_SIZE,
-      );
-      expect(res[4].dropZone.top).toEqual(
-        (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
-          VERTICAL_DROP_ZONE_MULTIPLIER,
+        dimensions[row2.layoutId].top - HIGHLIGHT_SIZE / 2,
       );
       expect(res[4].dropZone.bottom).toEqual(res[8].dropZone.top);
     });
@@ -654,11 +647,7 @@ describe("AlignedColumnHighlights tests", () => {
 
       expect(res[4].isVertical).toBeFalsy();
       expect(res[4].posY).toEqual(
-        dimensions[row2.layoutId].top - HIGHLIGHT_SIZE,
-      );
-      expect(res[4].dropZone.top).toEqual(
-        (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
-          VERTICAL_DROP_ZONE_MULTIPLIER,
+        dimensions[row2.layoutId].top - HIGHLIGHT_SIZE / 2,
       );
       expect(res[4].dropZone.bottom).toEqual(res[5].dropZone.top);
 

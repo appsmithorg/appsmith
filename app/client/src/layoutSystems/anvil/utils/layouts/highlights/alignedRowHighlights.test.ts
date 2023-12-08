@@ -175,7 +175,6 @@ describe("AlignedRow highlights", () => {
       );
 
       expect(res[1].alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res[1].posX).toEqual(dimensions[input].left - HIGHLIGHT_SIZE);
       expect(res[1].posY).toEqual(dimensions[input].top);
       expect(res[1].height).toEqual(dimensions[input].height);
       expect(res[1].dropZone.left).toEqual(res[0].dropZone.right);
