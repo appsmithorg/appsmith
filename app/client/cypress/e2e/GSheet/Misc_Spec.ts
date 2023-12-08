@@ -13,7 +13,8 @@ import {
 } from "../../support/Objects/ObjectsCore";
 import PageList from "../../support/Pages/PageList";
 import EditorNavigation, {
-  EntityType, PageLeftPane,
+  EntityType,
+  PageLeftPane,
 } from "../../support/Pages/EditorNavigation";
 
 const workspaceName = "gsheet apps";
