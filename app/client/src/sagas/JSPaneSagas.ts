@@ -91,6 +91,10 @@ import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import {
+  getJSActionNameToDisplay,
+  getJSActionPathNameToDisplay,
+} from "@appsmith/utils/actionExecutionUtils";
 
 const CONSOLE_DOT_LOG_INVOCATION_REGEX =
   /console.log[.call | .apply]*\s*\(.*?\)/gm;
@@ -358,29 +362,22 @@ function* handleJSObjectNameChangeSuccessSaga(
 
 //isExecuteJSFunc is used to check if the function is called on the JS Function execution.
 export function* handleExecuteJSFunctionSaga(data: {
-  collectionName: string;
   action: JSAction;
-  collectionId: string;
+  collection: JSCollection;
   isExecuteJSFunc: boolean;
   openDebugger?: boolean;
-}): any {
-  const {
-    action,
-    collectionId,
-    collectionName,
-    isExecuteJSFunc,
-    openDebugger = false,
-  } = data;
+}) {
+  const { action, collection, isExecuteJSFunc, openDebugger = false } = data;
+  const { id: collectionId } = collection;
   const actionId = action.id;
   const appMode: APP_MODE = yield select(getAppMode);
   yield put(
     executeJSFunctionInit({
-      collectionName,
+      collection,
       action,
-      collectionId,
     }),
   );
-  const isEntitySaving = yield select(getIsSavingEntity);
+  const isEntitySaving: boolean = yield select(getIsSavingEntity);
   /**
    * Only start executing when no entity in the application is saving
    * This ensures that execution doesn't get carried out on stale values
@@ -390,18 +387,27 @@ export function* handleExecuteJSFunctionSaga(data: {
     yield take(ReduxActionTypes.ENTITY_UPDATE_SUCCESS);
   }
 
+  const doesURLPathContainCollectionId =
+    window.location.pathname.includes(collectionId);
+
+  const jsActionPathNameToDisplay = getJSActionPathNameToDisplay(
+    action,
+    collection,
+  );
+
   try {
     const { isDirty, result } = yield call(
       executeJSFunction,
-      collectionName,
       action,
-      collectionId,
+      collection,
     );
     // open response tab in debugger on runnning or page load js action.
-    if (window.location.pathname.includes(collectionId) || openDebugger) {
+
+    if (doesURLPathContainCollectionId || openDebugger) {
       yield put(showDebugger(true));
 
-      const debuggerSelectedTab = yield select(getDebuggerSelectedTab);
+      const debuggerSelectedTab: ReturnType<typeof getDebuggerSelectedTab> =
+        yield select(getDebuggerSelectedTab);
 
       yield put(
         setDebuggerSelectedTab(
@@ -417,25 +423,34 @@ export function* handleExecuteJSFunctionSaga(data: {
         isDirty,
       },
     });
+
+    const jsActionNameToDisplay = getJSActionNameToDisplay(action);
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
         type: ENTITY_TYPE.JSACTION,
-        name: collectionName + "." + action.name,
+        name: jsActionPathNameToDisplay,
         id: collectionId,
       },
       state: { response: result },
     });
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
-    showSuccessToast &&
+
+    if (
+      showSuccessToast &&
       isExecuteJSFunc &&
-      !window.location.pathname.includes(collectionId) &&
-      toast.show(createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name), {
-        kind: "success",
-      });
+      !doesURLPathContainCollectionId
+    ) {
+      toast.show(
+        createMessage(JS_EXECUTION_SUCCESS_TOASTER, jsActionNameToDisplay),
+        {
+          kind: "success",
+        },
+      );
+    }
   } catch (error) {
     // open response tab in debugger on runnning js action.
-    if (window.location.pathname.includes(collectionId)) {
+    if (doesURLPathContainCollectionId) {
       yield put(showDebugger(true));
       yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
     }
@@ -447,7 +462,7 @@ export function* handleExecuteJSFunctionSaga(data: {
           text: createMessage(JS_EXECUTION_FAILURE),
           source: {
             type: ENTITY_TYPE.JSACTION,
-            name: collectionName + "." + action.name,
+            name: jsActionPathNameToDisplay,
             id: collectionId,
           },
           messages: [
@@ -467,29 +482,26 @@ export function* handleExecuteJSFunctionSaga(data: {
 
 export function* handleStartExecuteJSFunctionSaga(
   data: ReduxAction<{
-    collectionName: string;
     action: JSAction;
-    collectionId: string;
+    collection: JSCollection;
     from: EventLocation;
     openDebugger?: boolean;
   }>,
 ): any {
-  const {
-    action,
-    collectionId,
-    collectionName,
-    from,
-    openDebugger = false,
-  } = data.payload;
+  const { action, collection, from, openDebugger } = data.payload;
   const actionId = action.id;
+  const JSActionPathName = getJSActionPathNameToDisplay(action, collection);
   if (action.confirmBeforeExecute) {
     const modalPayload = {
-      name: collectionName + "." + action.name,
+      name: JSActionPathName,
       modalOpen: true,
       modalType: ModalType.RUN_ACTION,
     };
 
-    const confirmed = yield call(requestModalConfirmationSaga, modalPayload);
+    const confirmed: boolean = yield call(
+      requestModalConfirmationSaga,
+      modalPayload,
+    );
 
     if (!confirmed) {
       yield put({
@@ -510,9 +522,8 @@ export function* handleStartExecuteJSFunctionSaga(
   });
 
   yield call(handleExecuteJSFunctionSaga, {
-    collectionName: collectionName,
-    action: action,
-    collectionId: collectionId,
+    action,
+    collection,
     isExecuteJSFunc: false,
     openDebugger,
   });

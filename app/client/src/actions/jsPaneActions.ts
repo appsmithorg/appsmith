@@ -60,9 +60,8 @@ export const refactorJSCollectionAction = (payload: {
 };
 
 export const executeJSFunctionInit = (payload: {
-  collectionName: string;
+  collection: JSCollection;
   action: JSAction;
-  collectionId: string;
 }) => {
   return {
     type: ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
@@ -71,9 +70,8 @@ export const executeJSFunctionInit = (payload: {
 };
 
 export const startExecutingJSFunction = (payload: {
-  collectionName: string;
   action: JSAction;
-  collectionId: string;
+  collection: JSCollection;
   from: EventLocation;
   openDebugger?: boolean;
 }) => {

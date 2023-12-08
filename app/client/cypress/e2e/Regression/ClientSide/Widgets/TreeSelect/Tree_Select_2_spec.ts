@@ -182,7 +182,7 @@ describe("Tree Select widget Tests", function () {
       agHelper.TypeText(locators._dsNameTxt, postgresDatasourceName);
       dataSources.FillPostgresDSForm();
       dataSources.SaveDatasource();
-      dataSources.NavigateFromActiveDS(postgresDatasourceName, true);
+      dataSources.CreateQueryAfterDSSaved();
     });
     dataSources.RunQuery();
 

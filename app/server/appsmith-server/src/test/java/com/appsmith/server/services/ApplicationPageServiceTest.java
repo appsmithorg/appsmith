@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;

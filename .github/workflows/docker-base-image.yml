@@ -22,8 +22,6 @@ jobs:
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Login to DockerHub
         uses: docker/login-action@v3

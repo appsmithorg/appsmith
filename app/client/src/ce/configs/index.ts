@@ -304,8 +304,20 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.logLevel || APPSMITH_FEATURE_CONFIGS?.logLevel || false,
     enableTNCPP:
       ENV_CONFIG.enableTNCPP || APPSMITH_FEATURE_CONFIGS?.enableTNCPP || false,
-    appVersion:
-      ENV_CONFIG.appVersion || APPSMITH_FEATURE_CONFIGS?.appVersion || false,
+    appVersion: {
+      id:
+        APPSMITH_FEATURE_CONFIGS?.appVersion?.id ||
+        ENV_CONFIG.appVersion?.id ||
+        "",
+      releaseDate:
+        APPSMITH_FEATURE_CONFIGS?.appVersion?.releaseDate ||
+        ENV_CONFIG.appVersion?.releaseDate ||
+        "",
+      edition:
+        ENV_CONFIG.appVersion?.edition ||
+        APPSMITH_FEATURE_CONFIGS?.appVersion?.edition ||
+        "",
+    },
     intercomAppID:
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS?.intercomAppID || "",
     mailEnabled:

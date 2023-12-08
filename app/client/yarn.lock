@@ -2910,6 +2910,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cypress/grep@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@cypress/grep@npm:4.0.1"
+  dependencies:
+    debug: ^4.3.4
+    find-test-names: ^1.19.0
+    globby: ^11.0.4
+  peerDependencies:
+    cypress: ">=10"
+  checksum: ca8e69cc6cceda54162fc4fdcd361dea4ef1877b761cd9d2f7a53b83e58f201b58b13427eccdc1a2a5054b83d53a3ca0279d3ea815cb3cc065d72a0e2c48b1be
+  languageName: node
+  linkType: hard
+
 "@cypress/request@npm:^3.0.0":
   version: 3.0.0
   resolution: "@cypress/request@npm:3.0.0"
@@ -3012,7 +3025,7 @@ __metadata:
     postcss-modules-values: "*"
     react-docgen-typescript: ^2.2.2
     storybook: ^7.3.1
-    vite: ^4.4.9
+    vite: ^4.4.12
     vite-plugin-svgr: ^3.2.0
   languageName: unknown
   linkType: soft
@@ -3024,6 +3037,8 @@ __metadata:
     "@capsizecss/core": ^3.1.1
     "@capsizecss/metrics": ^1.2.0
     "@emotion/sheet": ^1.2.2
+    "@react-hook/debounce": ^4.0.0
+    "@react-hook/resize-observer": ^1.2.6
     lodash: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
@@ -6817,6 +6832,48 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   checksum: b80a92432e51892729b7e0ac461a647d935b788767a55f17a400073340067131268ca23a0130d40ee9500b20290c2a8f3572b8826b7e1782116fb37c53874952
+  languageName: node
+  linkType: hard
+
+"@react-hook/debounce@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@react-hook/debounce@npm:4.0.0"
+  dependencies:
+    "@react-hook/latest": ^1.0.2
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 199f944fd905b6cbeb0665e94ce49805f6a0a6f758f35862d784b87dd5c52760dcf2ce9a66abc5698f5b1418be387df5452a703812e9362d1dda0f9718a5d01d
+  languageName: node
+  linkType: hard
+
+"@react-hook/latest@npm:^1.0.2":
+  version: 1.0.3
+  resolution: "@react-hook/latest@npm:1.0.3"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 2408c9cd35c5cfa7697b6da3bc5eebef254a932ade70955074c474f23be7dd3e2f81bbba12edcc9208bd0f89c6ed366d6b11d4f6d7b1052877a0bac8f74afad4
+  languageName: node
+  linkType: hard
+
+"@react-hook/passive-layout-effect@npm:^1.2.0":
+  version: 1.2.1
+  resolution: "@react-hook/passive-layout-effect@npm:1.2.1"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: 217cb8aa90fb8e677672319a9a466d7752890cf4357c76df000b207696e9cc717cf2ee88080671cc9dae238a82f92093ab4f61ab2f6032d2a8db958fc7d99b5d
+  languageName: node
+  linkType: hard
+
+"@react-hook/resize-observer@npm:^1.2.6":
+  version: 1.2.6
+  resolution: "@react-hook/resize-observer@npm:1.2.6"
+  dependencies:
+    "@juggle/resize-observer": ^3.3.1
+    "@react-hook/latest": ^1.0.2
+    "@react-hook/passive-layout-effect": ^1.2.0
+  peerDependencies:
+    react: ">=16.8"
+  checksum: d2ff6c50e847514acad774f2a4010fb1e6782a231ae00c9507c1a98028b3a26399e35f094170918f11b1eeafc581d60da7641bc178d496abf00c56eee8a6b36b
   languageName: node
   linkType: hard
 
@@ -12222,6 +12279,7 @@ __metadata:
     "@blueprintjs/popover2": ^0.5.0
     "@blueprintjs/select": ^3.10.0
     "@craco/craco": ^7.0.0
+    "@cypress/grep": ^4.0.1
     "@design-system/storybook": "workspace:^"
     "@design-system/theming": "workspace:^"
     "@design-system/widgets": "workspace:^"
@@ -18749,6 +18807,24 @@ __metadata:
   version: 1.1.0
   resolution: "find-root@npm:1.1.0"
   checksum: b2a59fe4b6c932eef36c45a048ae8f93c85640212ebe8363164814990ee20f154197505965f3f4f102efc33bfb1cbc26fd17c4a2fc739ebc51b886b137cbefaf
+  languageName: node
+  linkType: hard
+
+"find-test-names@npm:^1.19.0":
+  version: 1.28.14
+  resolution: "find-test-names@npm:1.28.14"
+  dependencies:
+    "@babel/parser": ^7.23.0
+    "@babel/plugin-syntax-jsx": ^7.22.5
+    acorn-walk: ^8.2.0
+    debug: ^4.3.3
+    globby: ^11.0.4
+    simple-bin-help: ^1.8.0
+  bin:
+    find-test-names: bin/find-test-names.js
+    print-tests: bin/print-tests.js
+    update-test-count: bin/update-test-count.js
+  checksum: 57f96f4b2259b6dd3c6d12c9fdea9ea6c961850b0f7354423ff49d074081c39fffe945ec218496257dcb4f9578f62c4a3794c2ec6d507ef3f04a72219c304708
   languageName: node
   linkType: hard
 
@@ -30313,6 +30389,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"simple-bin-help@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "simple-bin-help@npm:1.8.0"
+  checksum: 50cd5753325a2632979e63f231fc73ea187fa468e389ab1f44cb6fbafb6257024a3b8ac6744f35cb499b392fe85aecba35e9e26b4dc042c941655022f3b8a2ce
+  languageName: node
+  linkType: hard
+
 "simple-concat@npm:^1.0.0":
   version: 1.0.1
   resolution: "simple-concat@npm:1.0.1"
@@ -33145,9 +33228,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.4.9":
-  version: 4.4.9
-  resolution: "vite@npm:4.4.9"
+"vite@npm:^4.4.12":
+  version: 4.5.1
+  resolution: "vite@npm:4.5.1"
   dependencies:
     esbuild: ^0.18.10
     fsevents: ~2.3.2
@@ -33181,7 +33264,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: c511024ceae39c68c7dbf2ac4381ee655cd7bb62cf43867a14798bc835d3320b8fa7867a336143c30825c191c1fb4e9aa3348fce831ab617e96203080d3d2908
+  checksum: 72b3584b3d3b8d14e8a37f0248e47fb8b4d02ab35de5b5a8e5ca8ae55c3be2aab73760dc36edac4fa722de182f78cc492eb44888fcb4a9a0712c4605dad644f9
   languageName: node
   linkType: hard
 
