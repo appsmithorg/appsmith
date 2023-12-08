@@ -67,7 +67,7 @@ function resetWidgetMetaProperty(
   updatedProperties: string[][],
 ) {
   const widget: FlattenedWidgetProps | undefined = _.find(
-    Object.values(canvasWidgets),
+    Object.values(canvasWidgets || {}),
     (widget) => widget.widgetName === widgetName,
   );
 
