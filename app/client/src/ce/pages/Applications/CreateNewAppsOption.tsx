@@ -235,6 +235,7 @@ const CreateNewAppsOption = ({
     );
     if (devEnabled) {
       // fetch plugins information to show list of all plugins
+      AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA");
       dispatch(fetchPlugins());
       dispatch(fetchMockDatasources());
       if (application?.workspaceId) {
@@ -291,6 +292,35 @@ const CreateNewAppsOption = ({
     }
   };
 
+  const addAnalyticEventsForSkip = () => {
+    if (useType === START_WITH_TYPE.TEMPLATE) {
+      if (selectedTemplate) {
+        const template = getTemplateById(selectedTemplate);
+        if (template) {
+          AnalyticsUtil.logEvent(
+            "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_TEMPLATE_DETAILS_PAGE",
+            { title: template.title },
+          );
+        }
+      } else {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_START_FROM_TEMPLATE_PAGE",
+        );
+      }
+    } else if (useType === START_WITH_TYPE.DATA) {
+      if (createNewAppPluginId) {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_DATASOURCE_FORM_PAGE",
+          { pluginId: createNewAppPluginId },
+        );
+      } else {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_START_FROM_DATA_PAGE",
+        );
+      }
+    }
+  };
+
   const onClickSkipButton = () => {
     if (application) {
       urlBuilder.updateURLParams(
@@ -312,9 +342,7 @@ const CreateNewAppsOption = ({
       );
     }
 
-    AnalyticsUtil.logEvent("START_FROM_TEMPLATES_CLICK_SKIP_BUTTON", {
-      startWithType: useType,
-    });
+    addAnalyticEventsForSkip();
   };
 
   const onClickBackButton = () => {
