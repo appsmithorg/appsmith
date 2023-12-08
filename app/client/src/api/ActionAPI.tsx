@@ -147,6 +147,11 @@ export interface UpdateActionNameRequest {
   newName: string;
   oldName: string;
 }
+
+export interface FetchActionsPayload {
+  applicationId?: string;
+  workflowId?: string;
+}
 class ActionAPI extends API {
   static url = "v1/actions";
   static apiUpdateCancelTokenSource: CancelTokenSource;
@@ -159,9 +164,9 @@ class ActionAPI extends API {
     return API.post(ActionAPI.url, apiConfig);
   }
 
-  static async fetchActions({
-    payload,
-  }: Record<string, string>): Promise<AxiosPromise<ApiResponse<Action[]>>> {
+  static async fetchActions(
+    payload: FetchActionsPayload,
+  ): Promise<AxiosPromise<ApiResponse<Action[]>>> {
     return API.get(ActionAPI.url, payload);
   }
 
