@@ -105,7 +105,7 @@ jobs:
       #   with:
       #     name: failed-server-tests
       #     path: ~/failed-server-tests
-
+      - run: pwd
       - name: download the failed test artifact
         if: steps.run_result.outputs.run_result == 'failedtest'
         uses: dawidd6/action-download-artifact@v2
@@ -117,6 +117,7 @@ jobs:
       - name: Printing the files in path
         if: steps.run_result.outputs.run_result == 'failedtest'
         run : |
+          pwd
           ls -a
           # echo "files inside failed-server-tests"
           # ls
