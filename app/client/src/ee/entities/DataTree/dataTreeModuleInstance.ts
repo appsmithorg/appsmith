@@ -56,13 +56,14 @@ export const generateQueryModuleInstance = (
   dependencyMap[moduleInstance.name] = [];
   dependencyMap[moduleInstance.name].push(publicAction.config.name);
 
+  bindingPaths["data"] = EvaluationSubstitutionType.TEMPLATE;
+  dynamicBindingPathList.push({ key: "data" });
+
   const moduleInputs = moduleInstance.inputs;
 
   Object.keys(moduleInputs).forEach((moduleInput) => {
     bindingPaths[`inputs.${moduleInput}`] = EvaluationSubstitutionType.TEMPLATE;
-    bindingPaths["data"] = EvaluationSubstitutionType.TEMPLATE;
 
-    dynamicBindingPathList.push({ key: "data" });
     if (isDynamicValue(moduleInputs[moduleInput])) {
       dynamicBindingPathList.push({ key: `inputs.${moduleInput}` });
     }
@@ -91,7 +92,6 @@ export const generateQueryModuleInstance = (
       bindingPaths: bindingPaths,
       reactivePaths: {
         ...bindingPaths,
-        data: EvaluationSubstitutionType.TEMPLATE,
         isLoading: EvaluationSubstitutionType.TEMPLATE,
       },
       dynamicBindingPathList: dynamicBindingPathList,

@@ -3223,7 +3223,7 @@ __metadata:
     postcss-modules-values: "*"
     react-docgen-typescript: ^2.2.2
     storybook: ^7.3.1
-    vite: ^4.4.9
+    vite: ^4.4.12
     vite-plugin-svgr: ^3.2.0
   languageName: unknown
   linkType: soft
@@ -34617,9 +34617,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.4.9":
-  version: 4.4.9
-  resolution: "vite@npm:4.4.9"
+"vite@npm:^4.4.12":
+  version: 4.5.1
+  resolution: "vite@npm:4.5.1"
   dependencies:
     esbuild: ^0.18.10
     fsevents: ~2.3.2
@@ -34653,7 +34653,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: c511024ceae39c68c7dbf2ac4381ee655cd7bb62cf43867a14798bc835d3320b8fa7867a336143c30825c191c1fb4e9aa3348fce831ab617e96203080d3d2908
+  checksum: 72b3584b3d3b8d14e8a37f0248e47fb8b4d02ab35de5b5a8e5ca8ae55c3be2aab73760dc36edac4fa722de182f78cc492eb44888fcb4a9a0712c4605dad644f9
   languageName: node
   linkType: hard
 

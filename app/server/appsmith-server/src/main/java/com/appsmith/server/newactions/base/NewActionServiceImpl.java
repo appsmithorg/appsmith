@@ -456,19 +456,21 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
     }
 
     @Override
-    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO) {
-        ActionViewDTO actionViewDTO = super.generateActionViewDTO(action, actionDTO);
+    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode) {
+        ActionViewDTO actionViewDTO = super.generateActionViewDTO(action, actionDTO, viewMode);
 
         if (action.getModuleInstanceId() != null) {
-            actionViewDTO.setPluginId(action.getPluginId());
             actionViewDTO.setIsPublic(action.getIsPublic());
             actionViewDTO.setModuleInstanceId(action.getModuleInstanceId());
-            actionViewDTO.setExecuteOnLoad(actionDTO.getUserSetOnLoad());
-            if (!actionDTO.getUserSetOnLoad()) {
-                actionViewDTO.setExecuteOnLoad(actionDTO.getExecuteOnLoad() != null && actionDTO.getExecuteOnLoad());
+            if (!viewMode) {
+                actionViewDTO.setPluginId(action.getPluginId());
+                actionViewDTO.setExecuteOnLoad(actionDTO.getUserSetOnLoad());
+                if (!actionDTO.getUserSetOnLoad()) {
+                    actionViewDTO.setExecuteOnLoad(
+                            actionDTO.getExecuteOnLoad() != null && actionDTO.getExecuteOnLoad());
+                }
             }
         }
-
         return actionViewDTO;
     }
 }

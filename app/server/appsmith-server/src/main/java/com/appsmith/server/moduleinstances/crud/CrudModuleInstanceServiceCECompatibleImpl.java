@@ -2,7 +2,6 @@ package com.appsmith.server.moduleinstances.crud;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleInstanceDTO;
-import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
@@ -35,7 +34,7 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
 
     @Override
     public Mono<ModuleInstanceEntitiesDTO> getAllEntities(
-            String contextId, CreatorContextType contextType, String branchName, ResourceModes resourceMode) {
+            String contextId, CreatorContextType contextType, String branchName, boolean viewMode) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 

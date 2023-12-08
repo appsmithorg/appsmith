@@ -279,7 +279,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
                                                     // TODO: Serve all the related custom JS libs here
                                                     return getModuleInstanceEntitiesDTOMono(
-                                                                    actionFlux, actionCollectionFlux)
+                                                                    actionFlux, actionCollectionFlux, false)
                                                             .flatMap(moduleInstanceEntitiesDTO -> {
                                                                 final CreateModuleInstanceResponseDTO
                                                                         createModuleInstanceResponseDTO =
@@ -398,11 +398,10 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleInstanceEntitiesDTO> getAllEntities(
-            String contextId, CreatorContextType contextType, String branchName, ResourceModes resourceMode) {
+            String contextId, CreatorContextType contextType, String branchName, boolean viewMode) {
 
-        AclPermission permission = resourceMode == ResourceModes.VIEW
-                ? actionPermission.getExecutePermission()
-                : actionPermission.getEditPermission();
+        AclPermission permission =
+                viewMode ? actionPermission.getExecutePermission() : actionPermission.getEditPermission();
         Flux<NewAction> actionFlux = newActionService.findAllActionsByContextIdAndContextTypeAndViewMode(
                 contextId, contextType, permission, false, false);
 
@@ -410,20 +409,21 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                 actionCollectionService.findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
                         contextId, contextType, permission, false);
 
-        return getModuleInstanceEntitiesDTOMono(actionFlux, actionCollectionFlux);
+        return getModuleInstanceEntitiesDTOMono(actionFlux, actionCollectionFlux, viewMode);
     }
 
-    @NotNull private Mono<ModuleInstanceEntitiesDTO> getModuleInstanceEntitiesDTOMono(
-            Flux<NewAction> actionFlux, Flux<ActionCollection> actionCollectionFlux) {
+    private Mono<ModuleInstanceEntitiesDTO> getModuleInstanceEntitiesDTOMono(
+            Flux<NewAction> actionFlux, Flux<ActionCollection> actionCollectionFlux, boolean viewMode) {
         final ModuleInstanceEntitiesDTO moduleInstanceEntitiesDTO = new ModuleInstanceEntitiesDTO();
 
         Mono<List<ActionViewDTO>> actionsMono = actionFlux
-                .map(newAction -> newActionService.generateActionViewDTO(newAction, newAction.getUnpublishedAction()))
+                .map(newAction ->
+                        newActionService.generateActionViewDTO(newAction, newAction.getUnpublishedAction(), viewMode))
                 .collectList();
 
         Mono<List<ActionCollectionDTO>> actionCollectionsMono = actionCollectionFlux
                 .flatMap(actionCollection ->
-                        actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
+                        actionCollectionService.generateActionCollectionByViewMode(actionCollection, viewMode))
                 .collectList();
 
         return actionsMono.zipWith(actionCollectionsMono).flatMap(tuple2 -> {
@@ -441,7 +441,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
             return newActionService
                     .findAllJSActionsByCollectionIds(collectionIds, null)
-                    .flatMap(jsAction -> newActionService.generateActionByViewMode(jsAction, false))
+                    .flatMap(jsAction -> newActionService.generateActionByViewMode(jsAction, viewMode))
                     .map(actionDTO -> {
                         ActionCollectionDTO actionCollectionDTO =
                                 collectionIdToActionCollectionMap.get(actionDTO.getCollectionId());
