@@ -42,7 +42,6 @@ import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 import {
   getCurrentApplicationId,
-  getPagePermissions,
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import { saasEditorDatasourceIdURL } from "@appsmith/RouteBuilder";
@@ -103,14 +102,12 @@ import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
-  hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { getIsAppSidebarEnabled } from "../../../selectors/ideSelectors";
 
 interface ReduxStateProps {
-  canCreateDatasourceActions: boolean;
   canDeleteDatasource: boolean;
   canManageDatasource: boolean;
   datasourceButtonConfiguration: string[] | undefined;
@@ -899,7 +896,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   render() {
     const {
-      canCreateDatasourceActions,
       canDeleteDatasource,
       canManageDatasource,
       datasource,
@@ -968,7 +964,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         {isAppSidebarEnabled || !!isOnboardingFlow ? null : <CloseEditor />}
         {!isInsideReconnectModal && (
           <DSFormHeader
-            canCreateDatasourceActions={canCreateDatasourceActions}
             canDeleteDatasource={canDeleteDatasource}
             canManageDatasource={canManageDatasource}
             datasource={datasource}
@@ -1118,13 +1113,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     isFeatureEnabled,
     datasourcePermissions,
   );
-
-  const pagePermissions = getPagePermissions(state);
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp(
-    isFeatureEnabled,
-    datasourcePermissions,
-    pagePermissions,
-  );
   // Debugger render flag
   const showDebugger = showDebuggerFlag(state);
   const pluginPackageName = plugin?.packageName ?? "";
@@ -1166,7 +1154,6 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
 
   return {
-    canCreateDatasourceActions,
     canDeleteDatasource,
     canManageDatasource,
     datasourceButtonConfiguration,
