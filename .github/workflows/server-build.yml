@@ -112,12 +112,12 @@ jobs:
         with:
           run_id: 7139895127
           name: failed-server-tests
+          path: tests
 
       - name: Printing the files in path
         if: steps.run_result.outputs.run_result == 'failedtest'
         run : |
           ls -a
-          cat ./failed-server-tests.txt
           # echo "files inside failed-server-tests"
           # ls
 
