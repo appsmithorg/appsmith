@@ -2,6 +2,7 @@ const { dependencies: packageDeps } = require("./package.json");
 const esbuild = require("esbuild");
 const fs = require("fs").promises;
 
+// List of external workflow packages (EE only)
 const externalWorkflowPackages = [];
 
 async function ensureDirectoryExistence(dirname) {
@@ -24,6 +25,10 @@ async function createFile(dir, filename, content) {
   }
 }
 
+/**
+ * Get dependencies for workflow packages
+ * @returns {Object} workflow dependencies
+ */
 const getWorkflowDependencies = () => {
   if (externalWorkflowPackages.length === 0) {
     return {};
@@ -57,7 +62,14 @@ const bundle = async () => {
 };
 
 (async () => {
+
   if (externalWorkflowPackages.length > 0) {
+
+    // Create package.json for bundle, this is needed to install workflow dependencies
+    // in the bundle directory. This is needed for EE only. This is done to support the
+    // packages for our workflow provider which requires dynamic imports. ESBuild does
+    // not support dynamic imports for external packages hence we need to bundle them
+    // together with the workflow provider.
     const bundlePackagejson = {
       name: "rts-bundle",
       version: "1.0.0",
