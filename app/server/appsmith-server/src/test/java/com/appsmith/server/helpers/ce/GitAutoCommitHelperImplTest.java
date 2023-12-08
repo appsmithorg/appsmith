@@ -76,7 +76,7 @@ public class GitAutoCommitHelperImplTest {
         Application application = new Application();
         application.setGitApplicationMetadata(new GitApplicationMetadata());
 
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled))
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.FALSE));
         Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
@@ -95,7 +95,7 @@ public class GitAutoCommitHelperImplTest {
         Application application = new Application();
         application.setGitApplicationMetadata(new GitApplicationMetadata());
 
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled))
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
@@ -118,7 +118,7 @@ public class GitAutoCommitHelperImplTest {
 
         application.setGitApplicationMetadata(metadata);
 
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled))
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
@@ -160,7 +160,7 @@ public class GitAutoCommitHelperImplTest {
         application.setGitApplicationMetadata(new GitApplicationMetadata());
         application.getGitApplicationMetadata().setRepoName("test-repo-name");
 
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled))
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
@@ -218,7 +218,7 @@ public class GitAutoCommitHelperImplTest {
         StepVerifier.create(progressDTOMono)
                 .assertNext(dto -> {
                     assertThat(dto.getIsRunning()).isFalse();
-                    assertThat(dto.getProgress()).isNull();
+                    assertThat(dto.getProgress()).isZero();
                     assertThat(dto.getBranchName()).isNull();
                 })
                 .verifyComplete();
@@ -231,7 +231,7 @@ public class GitAutoCommitHelperImplTest {
         StepVerifier.create(progressDTOMono)
                 .assertNext(dto -> {
                     assertThat(dto.getIsRunning()).isFalse();
-                    assertThat(dto.getProgress()).isNull();
+                    assertThat(dto.getProgress()).isZero();
                     assertThat(dto.getBranchName()).isNull();
                 })
                 .verifyComplete();

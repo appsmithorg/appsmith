@@ -45,6 +45,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final GitExecutor gitExecutor;
     private final ProjectProperties projectProperties;
 
+    private static final int TOTAL_STEPS = 5; // how many steps in the process, used to calculate progress
     private static final String AUTO_COMMIT_MSG_FORMAT =
             "System generated commit, to support new features after upgrading Appsmith to the version: %s";
 
@@ -77,6 +78,10 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         return redisUtils.releaseFileLock(defaultApplicationId);
     }
 
+    private <T> Mono<T> setProgress(T result, String applicationId, int progress) {
+        return redisUtils.setAutoCommitProgress(applicationId, progress).thenReturn(result);
+    }
+
     public Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent) {
         return addFileLock(autoCommitEvent.getApplicationId())
                 .then(redisUtils.startAutoCommit(autoCommitEvent.getApplicationId(), autoCommitEvent.getBranchName()))
@@ -88,7 +93,9 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                             autoCommitEvent.getRepoName());
                     Mono<Boolean> resetMono;
                     try {
-                        resetMono = gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName());
+                        resetMono = gitExecutor
+                                .resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName())
+                                .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 20));
                     } catch (Exception e) {
                         log.error(
                                 "failed to reset to last commit before auto commit. application {} branch {}",
@@ -105,11 +112,13 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                     autoCommitEvent.getApplicationId(),
                                     autoCommitEvent.getRepoName(),
                                     autoCommitEvent.getBranchName()))
+                            .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 40))
                             .flatMap(applicationJson -> migrateApplicationJson(
                                     applicationJson,
                                     latestSchemaVersion,
                                     autoCommitEvent.getApplicationId(),
                                     autoCommitEvent.getBranchName()))
+                            .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 60))
                             .flatMap(applicationJson -> {
                                 // all the migrations are done, write to file system
                                 try {
@@ -125,6 +134,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                             new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                                 }
                             })
+                            .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
                             .flatMap(baseRepoPath -> {
                                 // commit the application
                                 return gitExecutor.commitApplication(
@@ -158,7 +168,8 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                             .finishAutoCommit(autoCommitEvent.getApplicationId())
                             .then(releaseFileLock(autoCommitEvent.getApplicationId()))
                             .thenReturn(Boolean.FALSE);
-                });
+                })
+                .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 100));
     }
 
     private Mono<ApplicationJson> migrateApplicationJson(

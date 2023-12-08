@@ -53,7 +53,8 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
         Mono<Application> applicationMono = applicationService
                 .findById(defaultApplicationId, applicationPermission.getEditPermission())
                 .cache();
-        Mono<Boolean> featureEnabledMono = featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled);
+        Mono<Boolean> featureEnabledMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled);
         Mono<Boolean> autoCommitDisabledForThisBranchMono = applicationMono.flatMap(application -> {
             if (GitUtils.isAutoCommitEnabled(application.getGitApplicationMetadata())) {
                 return gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName);

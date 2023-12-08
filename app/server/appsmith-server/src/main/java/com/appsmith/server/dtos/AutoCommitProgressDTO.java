@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 public class AutoCommitProgressDTO {
     @NonNull private Boolean isRunning;
 
-    private Integer progress;
+    // using primitive type int instead of Integer because we want to 0 as default value. Integer have default null
+    private int progress;
     private String branchName;
 }
