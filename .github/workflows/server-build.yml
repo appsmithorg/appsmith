@@ -117,10 +117,11 @@ jobs:
       - name: Printing the files in path
         if: steps.run_result.outputs.run_result == 'failedtest'
         run : |
+          cwd
           ls -a
-          cd  ~/failed-server-tests
-          echo "files inside failed-server-tests"
-          ls
+          # cd  ~/failed-server-tests
+          # echo "files inside failed-server-tests"
+          # ls
 
       - name: Extract the tests for rerun
         id: failed_tests
