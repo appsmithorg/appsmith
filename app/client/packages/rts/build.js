@@ -49,7 +49,6 @@ const bundle = async () => {
     .build({
       entryPoints: ["src/server.ts"],
       bundle: true,
-      minify: false,
       sourcemap: true,
       platform: "node",
       external: [...externalWorkflowPackages, "dtrace-provider"],
