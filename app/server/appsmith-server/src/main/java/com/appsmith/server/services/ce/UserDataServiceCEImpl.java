@@ -378,10 +378,16 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                             || userData.getGitProfileByKey(DEFAULT) == null) {
                         return sessionUserService.getCurrentUser().flatMap(user -> {
                             GitProfile gitProfile = new GitProfile();
-                            gitProfile.setAuthorName(
-                                    org.eclipse.jgit.util.StringUtils.isEmptyOrNull(user.getName())
-                                            ? user.getUsername().split("@")[0]
-                                            : user.getName());
+                            if (StringUtils.hasLength(user.getName())) {
+                                gitProfile.setAuthorName(user.getName());
+                            } else {
+                                if (user.getUsername().indexOf("@") > 0) {
+                                    gitProfile.setAuthorName(user.getUsername().split("@")[0]);
+                                } else {
+                                    gitProfile.setAuthorName(user.getUsername());
+                                }
+                            }
+
                             gitProfile.setAuthorEmail(user.getEmail());
                             Map<String, GitProfile> updateProfiles = userData.getGitProfiles();
                             if (CollectionUtils.isNullOrEmpty(updateProfiles)) {
