@@ -462,7 +462,7 @@ public class ApplicationServiceCETest {
                 .assertNext(tuple2 -> {
                     Application application = tuple2.getT1();
                     String defaultThemeId = tuple2.getT2();
-                    assertThat(application).isNotNull();
+                    assertThat(application).isNull();
                     assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(applicationFinalName));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
