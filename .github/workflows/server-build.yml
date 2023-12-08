@@ -147,9 +147,16 @@ jobs:
           mvn --batch-mode versions:set \
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
-            -DprocessAllModules=true \
-            -Dsurefire.rerunFailingTestsCount=3 -Dsurefire.outputFile="./junit-report.xml"
+            -DprocessAllModules=true
+          args="$args -DtestResultFile=failed-tests.txt"
           ./build.sh $args
+
+      - name: Upload the failed tests report
+        uses: actions/upload-artifact@v3
+        with:
+          name: failed-tests
+          path: failed-tests.txt
+          if-no-files-found: ignore
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
