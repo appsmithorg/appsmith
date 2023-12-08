@@ -118,9 +118,8 @@ public class ModuleInstanceController {
         log.debug(
                 "Going to fetch module instance entities by contextType: {} and contextId: {}", contextType, contextId);
 
-        ResourceModes accessMode = viewMode ? ResourceModes.VIEW : ResourceModes.EDIT;
         return crudModuleInstanceService
-                .getAllEntities(contextId, contextType, branchName, accessMode)
+                .getAllEntities(contextId, contextType, branchName, viewMode)
                 .map(moduleInstanceEntitiesDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), moduleInstanceEntitiesDTO, null));
     }

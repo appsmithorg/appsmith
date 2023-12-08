@@ -2,7 +2,6 @@ package com.appsmith.server.moduleinstances.crud;
 
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.ModuleInstanceDTO;
-import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ModuleInstanceEntitiesDTO;
@@ -17,7 +16,7 @@ public interface CrudModuleInstanceServiceCECompatible extends BaseModuleInstanc
     Mono<ModuleInstanceDTO> deleteUnpublishedModuleInstance(String defaultModuleInstanceId, String branchName);
 
     Mono<ModuleInstanceEntitiesDTO> getAllEntities(
-            String contextId, CreatorContextType contextType, String branchName, ResourceModes resourceMode);
+            String contextId, CreatorContextType contextType, String branchName, boolean viewMode);
 
     Mono<List<ModuleInstance>> archiveModuleInstancesByRootModuleInstanceId(String rootModuleInstanceId);
 }

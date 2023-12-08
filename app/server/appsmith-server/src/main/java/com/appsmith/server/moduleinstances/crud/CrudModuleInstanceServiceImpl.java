@@ -398,11 +398,10 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<ModuleInstanceEntitiesDTO> getAllEntities(
-            String contextId, CreatorContextType contextType, String branchName, ResourceModes resourceMode) {
+            String contextId, CreatorContextType contextType, String branchName, boolean viewMode) {
 
-        AclPermission permission = resourceMode == ResourceModes.VIEW
-                ? actionPermission.getExecutePermission()
-                : actionPermission.getEditPermission();
+        AclPermission permission =
+                viewMode ? actionPermission.getExecutePermission() : actionPermission.getEditPermission();
         Flux<NewAction> actionFlux = newActionService.findAllActionsByContextIdAndContextTypeAndViewMode(
                 contextId, contextType, permission, false, false);
 
@@ -413,12 +412,13 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         return getModuleInstanceEntitiesDTOMono(actionFlux, actionCollectionFlux);
     }
 
-    @NotNull private Mono<ModuleInstanceEntitiesDTO> getModuleInstanceEntitiesDTOMono(
+    private Mono<ModuleInstanceEntitiesDTO> getModuleInstanceEntitiesDTOMono(
             Flux<NewAction> actionFlux, Flux<ActionCollection> actionCollectionFlux) {
         final ModuleInstanceEntitiesDTO moduleInstanceEntitiesDTO = new ModuleInstanceEntitiesDTO();
 
         Mono<List<ActionViewDTO>> actionsMono = actionFlux
-                .map(newAction -> newActionService.generateActionViewDTO(newAction, newAction.getUnpublishedAction()))
+                .map(newAction ->
+                        newActionService.generateActionViewDTO(newAction, newAction.getUnpublishedAction(), false))
                 .collectList();
 
         Mono<List<ActionCollectionDTO>> actionCollectionsMono = actionCollectionFlux
