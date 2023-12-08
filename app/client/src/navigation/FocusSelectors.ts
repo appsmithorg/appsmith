@@ -1,17 +1,23 @@
 import { matchPath } from "react-router";
 import {
+  API_EDITOR_ID_ADD_PATH,
   API_EDITOR_ID_PATH,
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  CURL_IMPORT_PAGE_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
+  QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "../constants/routes";
 import { shouldStorePageURLForFocus } from "./FocusUtils";
 import { FocusEntity, identifyEntityFromPath } from "./FocusEntity";
-import { SAAS_EDITOR_API_ID_PATH } from "../pages/Editor/SaaSEditor/constants";
+import {
+  SAAS_EDITOR_API_ID_ADD_PATH,
+  SAAS_EDITOR_API_ID_PATH,
+} from "../pages/Editor/SaaSEditor/constants";
 import { PluginType } from "../entities/Action";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {
@@ -50,28 +56,40 @@ export const getSelectedQueryId = (path: string): QueryListState => {
     apiId?: string;
     pluginPackageName?: string;
   }>(path, [
+    // CURL
+    BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH,
+    BUILDER_PATH + CURL_IMPORT_PAGE_PATH,
+    BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH,
     // Queries
     BUILDER_PATH_DEPRECATED + QUERIES_EDITOR_ID_PATH,
     BUILDER_PATH + QUERIES_EDITOR_ID_PATH,
     BUILDER_CUSTOM_PATH + QUERIES_EDITOR_ID_PATH,
+    BUILDER_CUSTOM_PATH + QUERIES_EDITOR_ID_ADD_PATH,
     // SASS
     BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
     BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
     BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+    BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_ADD_PATH,
     // API
     BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
     BUILDER_PATH + API_EDITOR_ID_PATH,
     BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
+    BUILDER_CUSTOM_PATH + API_EDITOR_ID_ADD_PATH,
   ]);
   if (!match) return undefined;
   const { apiId, pluginPackageName, queryId } = match.params;
-  const id = apiId ? apiId : queryId;
+  let id = apiId ? apiId : queryId;
+  if (!id && match.url.endsWith(CURL_IMPORT_PAGE_PATH)) {
+    id = "curl";
+  }
   if (!id) return undefined;
   let type: PluginType = PluginType.API;
   if (pluginPackageName) {
     type = PluginType.SAAS;
   } else if (queryId) {
     type = PluginType.DB;
+  } else if (id === "curl") {
+    type = PluginType.API;
   }
   return {
     type,

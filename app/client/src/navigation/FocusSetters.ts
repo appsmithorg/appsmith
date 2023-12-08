@@ -1,6 +1,7 @@
 import history from "utils/history";
 import {
   apiEditorIdURL,
+  curlImportPageURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
   queryEditorIdURL,
@@ -54,11 +55,15 @@ export function setSelectedQuery(state: QueryListState) {
         );
         break;
       case PluginType.API:
-        history.replace(
-          apiEditorIdURL({
-            apiId: state.id,
-          }),
-        );
+        if (state.id === "curl") {
+          history.replace(curlImportPageURL({}));
+        } else {
+          history.replace(
+            apiEditorIdURL({
+              apiId: state.id,
+            }),
+          );
+        }
         break;
       default:
         break;
