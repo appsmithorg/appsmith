@@ -802,11 +802,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // No need to sort the results
         return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                .map(action -> generateActionViewDTO(action, action.getPublishedAction()));
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
     }
 
     @Override
-    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO) {
+    public ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode) {
         ActionViewDTO actionViewDTO = new ActionViewDTO();
         actionViewDTO.setId(action.getDefaultResources().getActionId());
         actionViewDTO.setName(actionDTO.getValidName());

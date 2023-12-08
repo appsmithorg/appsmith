@@ -1338,7 +1338,10 @@ export function getInputsForModule(): Module["inputsForm"] {
   return [];
 }
 
-export const getModuleInstances = (): Record<string, ModuleInstance> => {
+export const getModuleInstances = (
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  state: AppState,
+): Record<string, ModuleInstance> => {
   return {};
 };
 
@@ -1347,4 +1350,8 @@ export const getModuleInstanceEntities = () => {
     actions: [],
     jsCollections: [],
   };
+};
+
+export const getQueryModuleInstances = () => {
+  return [];
 };

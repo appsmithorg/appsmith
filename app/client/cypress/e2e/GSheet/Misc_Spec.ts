@@ -14,6 +14,7 @@ import {
 import PageList from "../../support/Pages/PageList";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
 } from "../../support/Pages/EditorNavigation";
 
 const workspaceName = "gsheet apps";
@@ -110,6 +111,10 @@ describe("GSheet Miscellaneous Tests", function () {
     EditorNavigation.SelectEntityByName(dataSourceName, EntityType.Datasource);
 
     // Select the spreadsheet and sheet name
+    PageLeftPane.expandCollapseItem(spreadSheetName);
+    PageLeftPane.assertPresence("Sheet1");
+    PageLeftPane.expandCollapseItem("Sheet1");
+    agHelper.ClickButton("Generate new page");
     agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
     agHelper.GetNClickByContains(dataSources._dropdownOption, spreadSheetName);
     agHelper.Sleep(1000);
