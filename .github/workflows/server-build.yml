@@ -112,14 +112,11 @@ jobs:
         with:
           run_id: 7139895127
           name: failed-server-tests
-          path: ~/failed-server-tests
 
       - name: Printing the files in path
         if: steps.run_result.outputs.run_result == 'failedtest'
         run : |
-          cat ~/failed-server-tests/failed-server-tests.txt
           ls -a
-          # cd  ~/failed-server-tests
           # echo "files inside failed-server-tests"
           # ls
 
@@ -127,7 +124,7 @@ jobs:
         id: failed_tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests.txt)
+          failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' failed-server-tests.txt)
           echo "$failed_tests"
           echo "tests=$failed_tests" >> $GITHUB_OUTPUT
 
