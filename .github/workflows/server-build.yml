@@ -92,11 +92,12 @@ jobs:
           name: failed-server-tests
           path: ~/failed-server-tests
       - name: Printing the files in path
+        if: steps.run_result.outputs.run_result == 'failedtest'
         run : |
           ls -a
           cd  ~/failed-server-tests
           ls
-          
+
       - name: Extract the tests for rerun
         id: failed_tests
         if: steps.run_result.outputs.run_result == 'failedtest'
