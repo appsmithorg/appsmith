@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { withProfiler } from "@sentry/react";
 import { Flex, SegmentedControl } from "design-system";
-import { useLocation } from "react-router";
+import { Switch, useLocation, useRouteMatch } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -20,7 +20,22 @@ import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelecto
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import Pages from "pages/Editor/Explorer/Pages";
 import { JSSection } from "./JS_Section";
-import { QueriesSection } from "./Queries_Section";
+import { QueriesSection } from "./QueriesSection";
+import { SentryRoute } from "@appsmith/AppRouter";
+import {
+  API_EDITOR_ID_PATH,
+  BUILDER_CUSTOM_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  CURL_IMPORT_PAGE_PATH,
+  JS_COLLECTION_EDITOR_PATH,
+  JS_COLLECTION_ID_PATH,
+  QUERIES_EDITOR_BASE_PATH,
+  QUERIES_EDITOR_ID_PATH,
+  WIDGETS_EDITOR_BASE_PATH,
+  WIDGETS_EDITOR_ID_PATH,
+} from "constants/routes";
+import { SAAS_EDITOR_API_ID_PATH } from "../../SaaSEditor/constants";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
 import { getPagePermissions } from "selectors/editorSelectors";
@@ -42,6 +57,7 @@ const _pagesPane = () => {
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
+  const { path } = useRouteMatch();
 
   const pagePermissions = useSelector(getPagePermissions);
 
@@ -119,6 +135,7 @@ const _pagesPane = () => {
       {/* divider is inside the Pages component */}
       <Flex
         alignItems="center"
+        backgroundColor="var(--ads-v2-colors-control-track-default-bg)"
         className="ide-pages-pane__header"
         justifyContent="space-between"
         padding="spaces-2"
@@ -146,31 +163,49 @@ const _pagesPane = () => {
           value={selected}
         />
       </Flex>
-      <FilesContextProvider
-        canCreateActions={canCreateActions}
-        parentEntityId={pageId}
-        parentEntityType={ACTION_PARENT_ENTITY_TYPE.PAGE}
+      <Flex
+        className="ide-pages-pane__content"
+        flexDirection="column"
+        height="100%"
+        overflow="hidden"
+        width="100%"
       >
-        <Flex
-          className="ide-pages-pane__content"
-          flexDirection="column"
-          height="100%"
-          overflow="hidden"
-          width="100%"
-        >
-          {selected === TabsType.QUERIES && <QueriesSection />}
-
-          {selected === TabsType.JS && <JSSection />}
-
-          {selected === TabsType.UI && (
-            <ExplorerWidgetGroup
-              addWidgetsFn={showWidgetsSidebar}
-              searchKeyword=""
-              step={0}
-            />
-          )}
-        </Flex>
-      </FilesContextProvider>
+        <Switch>
+          <SentryRoute
+            component={QueriesSection}
+            path={[
+              `${path}${CURL_IMPORT_PAGE_PATH}`,
+              `${path}${QUERIES_EDITOR_ID_PATH}`,
+              `${path}${API_EDITOR_ID_PATH}`,
+              `${path}${SAAS_EDITOR_API_ID_PATH}`,
+              `${path}${QUERIES_EDITOR_BASE_PATH}`,
+            ]}
+          />
+          <SentryRoute
+            component={JSSection}
+            path={[
+              `${path}${JS_COLLECTION_EDITOR_PATH}`,
+              `${path}${JS_COLLECTION_ID_PATH}`,
+            ]}
+          />
+          <SentryRoute
+            component={() => (
+              <ExplorerWidgetGroup
+                addWidgetsFn={showWidgetsSidebar}
+                searchKeyword=""
+                step={0}
+              />
+            )}
+            path={[
+              BUILDER_PATH_DEPRECATED,
+              BUILDER_PATH,
+              BUILDER_CUSTOM_PATH,
+              `${path}${WIDGETS_EDITOR_BASE_PATH}`,
+              `${path}${WIDGETS_EDITOR_ID_PATH}`,
+            ]}
+          />
+        </Switch>
+      </Flex>
     </Flex>
   );
 };

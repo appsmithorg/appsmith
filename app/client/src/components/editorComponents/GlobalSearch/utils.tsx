@@ -269,6 +269,8 @@ export interface ActionOperation {
     entityType?: ACTION_PARENT_ENTITY_TYPE,
   ) => any;
   pluginId?: string;
+  focusEntityType?: FocusEntity;
+  dsName?: string;
 }
 
 export const actionOperations: ActionOperation[] = [
@@ -287,6 +289,7 @@ export const actionOperations: ActionOperation[] = [
         undefined,
         entityType,
       ),
+    focusEntityType: FocusEntity.API,
   },
   {
     title: "New blank GraphQL API",
@@ -304,6 +307,7 @@ export const actionOperations: ActionOperation[] = [
         PluginPackageName.GRAPHQL,
         entityType,
       ),
+    focusEntityType: FocusEntity.API,
   },
   {
     title: "New JS Object",
@@ -315,6 +319,7 @@ export const actionOperations: ActionOperation[] = [
       from: EventLocation,
       entityType?: ACTION_PARENT_ENTITY_TYPE,
     ) => createNewJSCollectionBasedOnParentEntity(entityId, from, entityType),
+    focusEntityType: FocusEntity.JS_OBJECT,
   },
   {
     title: "New cURL import",
@@ -332,6 +337,7 @@ export const actionOperations: ActionOperation[] = [
       });
       history.push(curlImportURL);
     },
+    focusEntityType: FocusEntity.API,
   },
 ];
 
@@ -339,6 +345,7 @@ export const createQueryOption = {
   desc: "",
   title: "Create a query",
   kind: SEARCH_ITEM_TYPES.sectionTitle,
+  focusEntityType: FocusEntity.QUERY,
 };
 
 export const generateCreateQueryForDSOption = (
@@ -356,6 +363,8 @@ export const generateCreateQueryForDSOption = (
     pluginId: ds.pluginId,
     kind: SEARCH_ITEM_TYPES.actionOperation,
     action: onClick,
+    focusEntityType: FocusEntity.QUERY,
+    dsName: ds.name,
   };
 };
 
@@ -381,6 +390,7 @@ export const generateCreateNewDSOption = (
           entryPoint,
         });
       },
+      focusEntityType: FocusEntity.DATASOURCE,
     },
   ];
 };
