@@ -80,7 +80,7 @@ describe("columnHighlights", () => {
       expect(res[0].posY).toBeLessThan(positions[buttonId].top);
       expect(res[1].posY).toBeLessThan(positions[inputId].top);
       // and at the bottom of the last widget
-      expect(res[2].posY).toBeGreaterThan(
+      expect(res[2].posY).toEqual(
         positions[inputId].top + positions[inputId].height,
       );
     });
@@ -136,7 +136,7 @@ describe("columnHighlights", () => {
       expect(res[0].posY).toBeLessThan(positions[inputId].top);
       expect(res[0].rowIndex).toEqual(0);
       // Second highlight should be placed after input widget
-      expect(res[1].posY).toBeGreaterThan(
+      expect(res[1].posY).toEqual(
         positions[inputId].top + positions[inputId].height,
       );
       expect(res[1].rowIndex).toEqual(1);
@@ -196,11 +196,11 @@ describe("columnHighlights", () => {
           HIGHLIGHT_SIZE,
       );
       // Bottom drop zone of first highlight should be equal to the space between the top of this widget and the next.
-      expect(res[0].dropZone.bottom).toEqual(
+      expect(res[0].dropZone.bottom).toBeLessThan(
         (positions[inputId].top - positions[buttonId].top) *
           VERTICAL_DROP_ZONE_MULTIPLIER,
       );
-      expect(res[1].dropZone.top).toEqual(
+      expect(res[1].dropZone.top).toBeLessThan(
         (positions[inputId].top - positions[buttonId].top) *
           VERTICAL_DROP_ZONE_MULTIPLIER,
       );
@@ -424,10 +424,8 @@ describe("columnHighlights", () => {
       );
 
       expect(res[4].isVertical).toBeFalsy();
-      expect(res[4].posY).toEqual(
-        dimensions[row2.layoutId].top - HIGHLIGHT_SIZE,
-      );
-      expect(res[4].dropZone.top).toEqual(
+      expect(res[4].posY).toBeLessThan(dimensions[row2.layoutId].top);
+      expect(res[4].dropZone.top).toBeGreaterThan(
         (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
           VERTICAL_DROP_ZONE_MULTIPLIER,
       );

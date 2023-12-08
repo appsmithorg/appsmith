@@ -66,6 +66,8 @@ export function getHighlightsForWidgets(
       index === layout.length - 1
         ? undefined
         : getDimensions(layout[index + 1]?.widgetId);
+    const prevWidgetDimension: LayoutElementPosition | undefined =
+      index === 0 ? undefined : getDimensions(layout[index - 1]?.widgetId);
 
     // If the widget is dragged, don't add a highlight for it.
     if (!isDraggedWidget) {
@@ -75,6 +77,7 @@ export function getHighlightsForWidgets(
         layoutDimensions,
         currentWidgetDimension,
         nextWidgetDimension,
+        prevWidgetDimension,
         index - draggedChildCount,
         false,
         hasAlignments,
@@ -92,6 +95,7 @@ export function getHighlightsForWidgets(
         layoutDimensions,
         currentWidgetDimension,
         nextWidgetDimension,
+        prevWidgetDimension,
         index - draggedChildCount,
         true,
         hasAlignments,
@@ -151,6 +155,8 @@ export function getHighlightsForLayouts(
       index === layouts.length - 1
         ? undefined
         : getDimensions(layouts[index + 1]?.layoutId);
+    const prevLayoutDimensions: LayoutElementPosition | undefined =
+      index === 0 ? undefined : getDimensions(layouts[index - 1]?.layoutId);
 
     // Get the deriveHighlights function for the child layout.
     const deriveHighlightsFn: DeriveHighlightsFn =
@@ -185,6 +191,7 @@ export function getHighlightsForLayouts(
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
+        prevLayoutDimensions,
         index - discardedLayouts,
         false,
         hasAlignments,
@@ -210,6 +217,7 @@ export function getHighlightsForLayouts(
         layoutDimension,
         currentDimension,
         nextLayoutDimensions,
+        prevLayoutDimensions,
         index - discardedLayouts,
         true,
         hasAlignments,
@@ -252,6 +260,7 @@ export function getInitialHighlights(
       layoutDimension,
       { ...layoutDimension, height: HIGHLIGHT_SIZE, top: posY },
       undefined,
+      undefined,
       0,
       true,
       hasAlignments,
@@ -280,6 +289,7 @@ export function updateHighlights(
   layoutDimension: LayoutElementPosition,
   currDimension: LayoutElementPosition,
   nextDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasAlignments: boolean,
@@ -309,6 +319,7 @@ export function updateHighlights(
     layoutDimension,
     currDimension,
     nextDimension,
+    prevDimension,
     rowIndex,
     isLastHighlight,
     hasAlignments,
@@ -341,6 +352,7 @@ export function generateHighlights(
   layoutDimension: LayoutElementPosition,
   currentDimension: LayoutElementPosition,
   nextDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   rowIndex: number,
   isLastHighlight: boolean,
   hasAlignments: boolean,
@@ -373,17 +385,25 @@ export function generateHighlights(
       // Position values are relative to the MainCanvas. Hence it is important to deduct parent's position from widget's to get a position that is relative to the parent widget.
       posY = Math.max(currentDimension.top - layoutDimension.top, 0);
     } else {
+      const gap: number =
+        layoutDimension.left +
+        layoutDimension.width -
+        currentDimension.left -
+        currentDimension.width;
       posY = Math.min(
-        currentDimension.top -
-          layoutDimension.top +
-          currentDimension.height +
+        currentDimension.top + currentDimension.height,
+        layoutDimension.top +
+          layoutDimension.height -
+          gap / 2 -
           HIGHLIGHT_SIZE / 2,
-        layoutDimension.height - HIGHLIGHT_SIZE - 2,
       );
     }
   } else {
+    const gap: number = prevDimension
+      ? currentDimension.top - (prevDimension.top + prevDimension.height)
+      : HIGHLIGHT_SIZE;
     posY = Math.max(
-      currentDimension.top - layoutDimension.top - HIGHLIGHT_SIZE,
+      currentDimension.top - gap / 2 - HIGHLIGHT_SIZE / 2,
       HIGHLIGHT_SIZE / 2,
     );
   }
