@@ -3499,6 +3499,8 @@ public class GitServiceCETest {
                                     .getGitAuth()
                                     .getPublicKey())
                             .isEqualTo(gitAuth.getPublicKey());
+                    assertThat(application.getUnpublishedCustomJSLibs().size())
+                            .isEqualTo(application.getPublishedCustomJSLibs().size());
                 })
                 .verifyComplete();
     }

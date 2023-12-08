@@ -309,7 +309,6 @@ describe("Add functions", () => {
   it("resetWidget works", () => {
     const widgetName = "widget1";
     const resetChildren = true;
-
     expect(evalContext.resetWidget(widgetName, resetChildren)).resolves.toBe(
       {},
     );
@@ -323,6 +322,7 @@ describe("Add functions", () => {
             payload: {
               widgetName,
               resetChildren,
+              metaUpdates: [],
             },
           },
           eventType: undefined,
