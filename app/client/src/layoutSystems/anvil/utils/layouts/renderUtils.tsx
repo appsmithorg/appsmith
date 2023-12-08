@@ -17,6 +17,7 @@ import { isWidgetLayoutProps } from "./typeUtils";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type { WidgetProps } from "widgets/BaseWidget";
+import memoize from "micro-memoize";
 
 /**
  *
@@ -64,26 +65,47 @@ export function renderLayouts(
   renderMode: RenderMode = RenderModes.CANVAS,
   layoutOrder: string[],
 ): JSX.Element[] {
-  return layouts.map((layout: LayoutProps, index: number) => {
-    const Component: typeof BaseLayoutComponent = LayoutFactory.get(
-      layout.layoutType,
-    );
-    return (
-      <Component
-        {...layout}
-        canvasId={canvasId}
-        childrenMap={getChildrenMap(layout, childrenMap)}
-        key={layout.layoutId}
-        layoutIndex={index}
-        layoutOrder={layoutOrder}
-        parentDropTarget={
-          layout.isDropTarget ? layout.layoutId : parentDropTarget
-        }
-        renderMode={renderMode}
-      />
-    );
-  });
+  return layouts.map((layout, index) =>
+    renderLayout(
+      layout,
+      index,
+      childrenMap,
+      canvasId,
+      parentDropTarget,
+      renderMode,
+      layoutOrder,
+    ),
+  );
 }
+
+// Function to render a layout
+const renderLayout = (
+  layout: LayoutProps,
+  index: number,
+  childrenMap: LayoutComponentProps["childrenMap"],
+  canvasId: string,
+  parentDropTarget: string,
+  renderMode: RenderMode,
+  layoutOrder: string[],
+) => {
+  const Component: typeof BaseLayoutComponent = LayoutFactory.get(
+    layout.layoutType,
+  );
+  return (
+    <Component
+      {...layout}
+      canvasId={canvasId}
+      childrenMap={getChildrenMap(layout, childrenMap)}
+      key={layout.layoutId}
+      layoutIndex={index}
+      layoutOrder={layoutOrder}
+      parentDropTarget={
+        layout.isDropTarget ? layout.layoutId : parentDropTarget
+      }
+      renderMode={renderMode}
+    />
+  );
+};
 
 /**
  * Filters childrenMap by parsing given layout
@@ -94,28 +116,24 @@ export function renderLayouts(
  * @param res | Record<string, WidgetProps>
  * @returns Record<string, WidgetProps>
  */
-export function getChildrenMap(
-  layoutProps: LayoutProps,
-  map: LayoutComponentProps["childrenMap"],
-  res: LayoutComponentProps["childrenMap"] = {},
-): LayoutComponentProps["childrenMap"] {
-  if (!layoutProps || !map) return res;
-  const { layout } = layoutProps;
-  if (!layout || !layout.length) return res;
+export const getChildrenMap = memoize(
+  (layoutProps: LayoutProps, map: LayoutComponentProps["childrenMap"]) => {
+    const res: LayoutComponentProps["childrenMap"] = {};
+    if (!layoutProps || !map) return res;
+    const { layout } = layoutProps;
+    if (!layout || !layout.length) return res;
 
-  // Parse each item of layout.
-  for (const each of layout) {
-    // if each is a widgetId.
-    if (isWidgetLayoutProps(each)) {
-      // add widget to the resultant map.
-      res[(each as WidgetLayoutProps).widgetId] =
-        map[(each as WidgetLayoutProps).widgetId];
-    } else {
-      getChildrenMap(each as LayoutProps, map, res);
+    for (const each of layout) {
+      if (isWidgetLayoutProps(each)) {
+        res[(each as WidgetLayoutProps).widgetId] =
+          map[(each as WidgetLayoutProps).widgetId];
+      } else {
+        Object.assign(res, getChildrenMap(each as LayoutProps, map));
+      }
     }
-  }
-  return res;
-}
+    return res;
+  },
+);
 
 /**
  * If AlignedRow hasFillWidget:

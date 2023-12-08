@@ -87,3 +87,10 @@ export const getWidgetSizeConfiguration = (
         },
   };
 };
+
+export function getUpdateItem(
+  key: string,
+  value: unknown,
+): { propertyPath: string; propertyValue: unknown } {
+  return { propertyPath: key, propertyValue: value };
+}

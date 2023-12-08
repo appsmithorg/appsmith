@@ -14,8 +14,8 @@ import {
 } from "utils/WidgetSizeUtils";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
-and property values 
-For example: 
+and property values
+For example:
 { "xyz123": [{ propertyPath: "bottomRow", propertyValue: 20 }] }
 */
 export type UpdateWidgetsPayload = Record<
@@ -25,6 +25,12 @@ export type UpdateWidgetsPayload = Record<
     propertyValue: unknown;
   }>
 >;
+
+export interface CrudWidgetsPayload {
+  add?: Record<string, WidgetProps>;
+  remove?: string[];
+  update?: UpdateWidgetsPayload;
+}
 
 const initialState: CanvasWidgetsReduxState = {};
 
@@ -134,6 +140,42 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
       );
     for (const widgetId in canvasWidgetHeightsToUpdate) {
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
+    }
+  },
+  [ReduxActionTypes.CRUD_MULTIPLE_WIDGETS_AND_PROPERTIES]: (
+    state: CanvasWidgetsReduxState,
+    action: ReduxAction<CrudWidgetsPayload>,
+  ) => {
+    const { add, remove, update }: CrudWidgetsPayload = action.payload;
+
+    if (add && Object.keys(add).length) {
+      for (const each of Object.keys(add)) {
+        console.log("#### adding widget", { widgetId: each });
+        state[each] = add[each];
+      }
+    }
+
+    if (remove?.length) {
+      for (const each of remove) {
+        console.log("#### removing widget", { widgetId: each });
+        delete state[each];
+      }
+    }
+
+    if (update && Object.keys(update).length) {
+      for (const each of Object.keys(update)) {
+        const widgetUpdate = update[each];
+        console.log("#### updating widget", { widgetId: each, widgetUpdate });
+        widgetUpdate.forEach(({ propertyPath, propertyValue }) => {
+          const path = `${each}.${propertyPath}`;
+          // Get original value in reducer
+          const originalPropertyValue = get(state, path);
+          // If the original and new values are different
+          if (propertyValue !== originalPropertyValue)
+            // Set the new values
+            set(state, path, propertyValue);
+        });
+      }
     }
   },
 });

@@ -1,4 +1,7 @@
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  CrudWidgetsPayload,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   AnvilHighlightInfo,
   LayoutProps,
@@ -8,6 +11,7 @@ import { deleteWidgetFromPreset } from "./deletionUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { addWidgetsToPreset } from "./additionUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { getUpdateItem } from "../../widgetUtils";
 
 /**
  * Update widgets relationship upon movement.
@@ -80,6 +84,52 @@ export function severTiesFromParents(
     }
   });
   return widgets;
+}
+
+export function severTiesFromParentsUpdates(
+  allWidgets: CanvasWidgetsReduxState,
+  movedWidgets: string[],
+  updatesPayload: CrudWidgetsPayload,
+): { updatesPayload: CrudWidgetsPayload; widgets: CanvasWidgetsReduxState } {
+  if (!movedWidgets?.length) return { updatesPayload, widgets: allWidgets };
+  const widgets: CanvasWidgetsReduxState = { ...allWidgets };
+  let newUpdatesPayload: CrudWidgetsPayload = { ...updatesPayload };
+  /**
+   * Remove all moved widgets from their existing parent's children and layout.
+   */
+  movedWidgets.forEach((widgetId: string) => {
+    // remove from previous parent
+    const prevParentId = widgets[widgetId]?.parentId;
+    if (prevParentId) {
+      const prevParent: FlattenedWidgetProps = Object.assign(
+        {},
+        widgets[prevParentId],
+      );
+      if (prevParent.children) {
+        const updatedPrevParent = {
+          ...prevParent,
+          children: prevParent.children.filter((each) => each !== widgetId),
+          layout: deleteWidgetFromPreset(
+            prevParent.layout,
+            widgetId,
+            widgets[widgetId].type,
+          ),
+        };
+        widgets[prevParentId] = updatedPrevParent;
+
+        newUpdatesPayload.update = newUpdatesPayload.update ?? {};
+        newUpdatesPayload.update[prevParentId] =
+          newUpdatesPayload.update[prevParentId] ?? [];
+        newUpdatesPayload.update[prevParentId].push(
+          getUpdateItem("children", updatedPrevParent.children),
+        );
+        newUpdatesPayload.update[prevParentId].push(
+          getUpdateItem("layout", updatedPrevParent.layout),
+        );
+      }
+    }
+  });
+  return { updatesPayload: newUpdatesPayload, widgets };
 }
 
 /**

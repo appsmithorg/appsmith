@@ -9,9 +9,16 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { createZoneAndAddWidgets } from "./zoneUtils";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  CrudWidgetsPayload,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
-import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
+import {
+  severTiesFromParents,
+  severTiesFromParentsUpdates,
+  transformMovedWidgets,
+} from "./moveUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
@@ -19,12 +26,14 @@ import {
   addNewWidgetToDsl,
   getCreateWidgetPayload,
 } from "../../widgetAdditionUtils";
+import { getUpdateItem } from "../../widgetUtils";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
   highlight: AnvilHighlightInfo,
   widgets: WidgetLayoutProps[],
   parentId: string,
+  updatesPayload: CrudWidgetsPayload,
 ) {
   /**
    * Step 1: Create Section widget.
@@ -44,19 +53,26 @@ export function* createSectionAndAddWidget(
 
   const preset: LayoutProps[] = sectionProps.layout;
   const sectionLayout: LayoutProps = preset[0];
-
+  const newUpdatesPayload: CrudWidgetsPayload = {
+    ...updatesPayload,
+    add: { ...updatesPayload.add, [sectionProps.widgetId]: sectionProps },
+  };
   /**
    * Step 3: Add widgets to section. and update relationships.
    */
-  const res: { canvasWidgets: CanvasWidgetsReduxState; section: WidgetProps } =
-    yield call(
-      addWidgetsToSection,
-      updatedWidgets,
-      widgets,
-      highlight,
-      sectionProps,
-      sectionLayout,
-    );
+  const res: {
+    canvasWidgets: CanvasWidgetsReduxState;
+    section: WidgetProps;
+    updatesPayload: CrudWidgetsPayload;
+  } = yield call(
+    addWidgetsToSection,
+    updatedWidgets,
+    widgets,
+    highlight,
+    sectionProps,
+    sectionLayout,
+    newUpdatesPayload,
+  );
 
   return res;
 }
@@ -108,9 +124,11 @@ export function* addWidgetsToSection(
   highlight: AnvilHighlightInfo,
   section: WidgetProps,
   sectionLayout: LayoutProps,
+  updatesPayload: CrudWidgetsPayload,
 ) {
   let canvasWidgets = { ...allWidgets };
   let sectionProps = { ...section };
+  let newUpdatesPayload: CrudWidgetsPayload = { ...updatesPayload };
   /**
    * Step 1: Split widgets into zones and non zones.
    *
@@ -150,6 +168,13 @@ export function* addWidgetsToSection(
         parentId: sectionProps.widgetId,
       },
     };
+    newUpdatesPayload = {
+      ...newUpdatesPayload,
+      update: {
+        ...newUpdatesPayload.update,
+        [zone.widgetId]: [getUpdateItem("parentId", sectionProps.widgetId)],
+      },
+    };
   });
 
   /**
@@ -161,14 +186,18 @@ export function* addWidgetsToSection(
      * 2. Add non zoned widgets to it.
      * 3. Add the new zone and canvas to canvasWidgets.
      */
-    const data: { canvasWidgets: CanvasWidgetsReduxState; zone: WidgetProps } =
-      yield call(
-        createZoneAndAddWidgets,
-        canvasWidgets,
-        nonZones,
-        highlight,
-        sectionProps.widgetId,
-      );
+    const data: {
+      canvasWidgets: CanvasWidgetsReduxState;
+      updatesPayload: CrudWidgetsPayload;
+      zone: WidgetProps;
+    } = yield call(
+      createZoneAndAddWidgets,
+      canvasWidgets,
+      nonZones,
+      highlight,
+      sectionProps.widgetId,
+      newUpdatesPayload,
+    );
 
     sectionProps.children = [
       ...(sectionProps?.children || []),
@@ -186,6 +215,7 @@ export function* addWidgetsToSection(
       highlight,
     );
     canvasWidgets = data.canvasWidgets;
+    newUpdatesPayload = data.updatesPayload;
   }
 
   /**
@@ -193,12 +223,37 @@ export function* addWidgetsToSection(
    */
   sectionProps.layout = [sectionLayout];
 
+  const isNewSection: boolean =
+    !!newUpdatesPayload.add && !!newUpdatesPayload.add?.[sectionProps.widgetId];
+
+  if (isNewSection) {
+    newUpdatesPayload = {
+      ...newUpdatesPayload,
+      add: {
+        ...newUpdatesPayload.add,
+        [sectionProps.widgetId]: sectionProps,
+      },
+    };
+  } else {
+    newUpdatesPayload = {
+      ...newUpdatesPayload,
+      update: {
+        ...newUpdatesPayload.update,
+        [sectionProps.widgetId]: [
+          getUpdateItem("children", sectionProps.children),
+          getUpdateItem("layout", sectionProps.layout),
+        ],
+      },
+    };
+  }
+
   return {
     canvasWidgets: {
       ...canvasWidgets,
       [sectionProps.widgetId]: sectionProps,
     },
     section: sectionProps,
+    updatesPayload: newUpdatesPayload,
   };
 }
 
@@ -208,11 +263,21 @@ export function* moveWidgetsToSection(
   highlight: AnvilHighlightInfo,
 ) {
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
-
+  let updatesPayload: CrudWidgetsPayload = {
+    add: {},
+    remove: [],
+    update: {},
+  };
   /**
    * Step 1: Remove moved widgets from previous parents.
    */
-  widgets = severTiesFromParents(widgets, movedWidgets);
+  const res = severTiesFromParentsUpdates(
+    widgets,
+    movedWidgets,
+    updatesPayload,
+  );
+  widgets = res.widgets;
+  updatesPayload = res.updatesPayload;
 
   /**
    * Step 2: Get the new Section and its Canvas.
@@ -231,6 +296,7 @@ export function* moveWidgetsToSection(
     highlight,
     section,
     section.layout[0],
+    updatesPayload,
   );
 
   return canvasWidgets;

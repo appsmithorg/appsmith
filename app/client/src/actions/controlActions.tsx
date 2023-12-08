@@ -3,7 +3,7 @@ import type {
   ReduxActionType,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CrudWidgetsPayload, UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 export const updateWidgetPropertyRequest = (
@@ -99,6 +99,13 @@ export const updateMultipleWidgetPropertiesAction = (
     payload: { widgetsToUpdate, shouldEval },
   };
 };
+
+export const crudMultipleWidgets = (payload: CrudWidgetsPayload) => {
+  return {
+    type: ReduxActionTypes.CRUD_MULTIPLE_WIDGETS_AND_PROPERTIES,
+    payload,
+  };
+}
 
 export const updateMultipleMetaWidgetPropertiesAction = (
   widgetsToUpdate: UpdateWidgetsPayload,

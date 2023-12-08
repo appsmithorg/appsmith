@@ -7,7 +7,11 @@ import {
   type FlattenedWidgetProps,
 } from "WidgetProvider/constants";
 import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  CrudWidgetsPayload,
+  UpdateWidgetsPayload,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
@@ -39,12 +43,19 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { addWidgetToSection } from "./sections/utils";
 import { moveWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import { saveAnvilLayout } from "../actions/saveLayoutActions";
-import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
+import {
+  performAnvilChecks,
+  saveAnvilLayout,
+} from "../actions/saveLayoutActions";
+import {
+  getParentUpdatesPostWidgetDeletion,
+  updateAnvilParentPostWidgetDeletion,
+} from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { crudMultipleWidgets } from "actions/controlActions";
 
 export function* getMainCanvasLastRowHighlight() {
   const mainCanvas: WidgetProps = yield select(
@@ -158,31 +169,56 @@ export function* addNewChildToDSL(
     },
   ];
 
+  let updatesPayload: CrudWidgetsPayload = {
+    add: {
+      [newWidget.newWidgetId]: updatedWidgets[newWidget.newWidgetId],
+    },
+    remove: [],
+    update: {},
+  };
+
   if (!!isMainCanvas) {
-    updatedWidgets = yield call(
+    const res: {
+      updatesPayload: CrudWidgetsPayload;
+      widgets: CanvasWidgetsReduxState;
+    } = yield call(
       addWidgetToMainCanvas,
       updatedWidgets,
       draggedWidgets,
       highlight,
       newWidget.newWidgetId,
+      updatesPayload,
     );
+    updatesPayload = res.updatesPayload;
   } else if (!!isSection) {
-    updatedWidgets = yield call(
+    const res: {
+      updatesPayload: CrudWidgetsPayload;
+      widgets: CanvasWidgetsReduxState;
+    } = yield call(
       addWidgetToSection,
       updatedWidgets,
       draggedWidgets,
       highlight,
       newWidget.newWidgetId,
+      updatesPayload,
     );
+    updatesPayload = res.updatesPayload;
   } else {
-    updatedWidgets = addWidgetToGenericLayout(
+    const changes: UpdateWidgetsPayload = addWidgetToGenericLayout(
       updatedWidgets,
       draggedWidgets,
       highlight,
       newWidget,
     );
+    Object.keys(changes).forEach((widgetId: string) => {
+      updatesPayload.update = updatesPayload.update ?? {};
+      updatesPayload.update[widgetId] = [
+        ...(updatesPayload?.update[widgetId] ?? []),
+        ...changes[widgetId],
+      ];
+    });
   }
-  return updatedWidgets;
+  return { widgets: updatedWidgets, updatesPayload };
 }
 
 function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
@@ -195,14 +231,17 @@ function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
     } = actionPayload.payload;
     const isMainCanvas = draggedOn === "MAIN_CANVAS";
     const isSection = draggedOn === "SECTION";
-    const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    const res: {
+      updatesPayload: CrudWidgetsPayload;
+      widgets: CanvasWidgetsReduxState;
+    } = yield call(
       addNewChildToDSL,
       highlight,
       newWidget,
       !!isMainCanvas,
       !!isSection,
     );
-    yield put(saveAnvilLayout(updatedWidgets));
+    yield put(performAnvilChecks(res.updatesPayload));
     yield put(
       selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
     );
@@ -223,6 +262,7 @@ function* addWidgetToMainCanvas(
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
   widgetId: string,
+  updatesPayload: CrudWidgetsPayload,
 ) {
   let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
   updatedWidgets = {
@@ -234,14 +274,18 @@ function* addWidgetToMainCanvas(
       ),
     },
   };
-  updatedWidgets = yield call(
+  const res: {
+    updatesPayload: CrudWidgetsPayload;
+    widgets: CanvasWidgetsReduxState;
+  } = yield call(
     addWidgetsToMainCanvasLayout,
     updatedWidgets,
     draggedWidgets,
     highlight,
+    updatesPayload,
   );
 
-  return updatedWidgets;
+  return { widgets: res.widgets, updatesPayload: res.updatesPayload };
 }
 
 function addWidgetToGenericLayout(
@@ -254,7 +298,7 @@ function addWidgetToGenericLayout(
     newWidgetId: string;
     type: string;
   },
-) {
+): UpdateWidgetsPayload {
   const canvasWidget = allWidgets[highlight.canvasId];
   const canvasLayout = canvasWidget.layout
     ? canvasWidget.layout
@@ -264,17 +308,27 @@ function addWidgetToGenericLayout(
    * Also add it to parent canvas' layout.
    */
   return {
-    ...allWidgets,
-    [canvasWidget.widgetId]: {
-      ...canvasWidget,
-      layout: addWidgetsToPreset(canvasLayout, highlight, draggedWidgets),
-    },
-    [newWidget.newWidgetId]: {
-      ...allWidgets[newWidget.newWidgetId],
-      // This is a temp fix, widget dimensions will be self computed by widgets
-      height: newWidget.height,
-      width: newWidget.width,
-    },
+    [canvasWidget.widgetId]: [
+      {
+        propertyPath: "layout",
+        propertyValue: addWidgetsToPreset(
+          canvasLayout,
+          highlight,
+          draggedWidgets,
+        ),
+      },
+    ],
+    [newWidget.newWidgetId]: [
+      // TODO: @Ashok - This is a temp fix, widget dimensions will be self computed by widgets
+      {
+        propertyPath: "height",
+        propertyValue: newWidget.height,
+      },
+      {
+        propertyPath: "width",
+        propertyValue: newWidget.width,
+      },
+    ],
   };
 }
 
@@ -295,31 +349,40 @@ function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
     const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     let updatedWidgets: CanvasWidgetsReduxState = allWidgets;
+    let updatesPayload: CrudWidgetsPayload = {};
 
     if (isMainCanvas) {
       /**
        * * Widgets are dropped on to Main Canvas.
        */
-      updatedWidgets = yield call(
+      const res: {
+        updatesPayload: CrudWidgetsPayload;
+        widgets: CanvasWidgetsReduxState;
+      } = yield call(
         moveWidgetsToMainCanvas,
         allWidgets,
         movedWidgetIds,
         highlight,
       );
+      updatesPayload = res.updatesPayload;
     } else if (isSection) {
       /**
        * Widget are dropped into a Section.
        */
-      updatedWidgets = yield call(
+      const res: {
+        updatesPayload: CrudWidgetsPayload;
+        widgets: CanvasWidgetsReduxState;
+      } = yield call(
         moveWidgetsToSection,
         allWidgets,
         movedWidgetIds,
         highlight,
       );
+      updatesPayload = res.updatesPayload;
     } else {
       updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
     }
-    yield put(saveAnvilLayout(updatedWidgets));
+    yield put(performAnvilChecks(updatesPayload));
     log.debug("Anvil : moving widgets took", performance.now() - start, "ms");
   } catch (error) {
     yield put({
@@ -342,6 +405,7 @@ function* updateAndSaveAnvilLayoutSaga(
 ) {
   try {
     const { widgets } = action.payload;
+    console.log("#### there");
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
     if (layoutSystemType !== LayoutSystemTypes.ANVIL || !widgets) {
@@ -407,6 +471,102 @@ function* updateAndSaveAnvilLayoutSaga(
   }
 }
 
+export function* performAnvilChecksSaga(
+  action: ReduxAction<{
+    updates: CrudWidgetsPayload;
+  }>,
+) {
+  try {
+    const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const { updates } = action.payload;
+    console.log("#### performAnvilChecks", { updates });
+    const { add, remove, update }: CrudWidgetsPayload = updates;
+    let newUpdates: UpdateWidgetsPayload = { ...update };
+    let newRemove: string[] = [...(remove ?? [])];
+    /**
+     * Section checks
+     */
+    if (update && Object.keys(update).length) {
+      for (const each of Object.keys(update)) {
+        const widget: FlattenedWidgetProps = widgets[each];
+        if (widget.type === SectionWidget.type) {
+          const data = performSectionChecks(
+            widgets,
+            each,
+            newUpdates,
+            newRemove,
+          );
+          newUpdates = data.update;
+          newRemove = data.remove;
+        }
+      }
+    }
+    yield put(
+      crudMultipleWidgets({ add, remove: newRemove, update: newUpdates }),
+    );
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: AnvilReduxActionTypes.PERFORM_ANVIL_CHECKS_BEFORE_UPDATE,
+        error,
+      },
+    });
+  }
+}
+
+function performSectionChecks(
+  widgets: CanvasWidgetsReduxState,
+  widgetId: string,
+  update: UpdateWidgetsPayload,
+  remove: string[],
+): { update: UpdateWidgetsPayload; remove: string[] } {
+  const widget: FlattenedWidgetProps = widgets[widgetId];
+  let children: string[] = widget.children || [];
+  let zoneCount: number = widget.zoneCount;
+  update[widgetId].forEach((eachUpdate) => {
+    const { propertyPath, propertyValue } = eachUpdate;
+    if (propertyPath === "zoneCount") {
+      zoneCount = propertyValue as number;
+    }
+    if (propertyPath === "children") {
+      children = propertyValue as string[];
+    }
+  });
+
+  if (!children?.length) {
+    /**
+     * If a section doesn't have any children,
+     * => delete it.
+     */
+    remove.push(widgetId);
+    delete update[widgetId];
+    if (widget.parentId && widgets[widget.parentId]) {
+      const parentUpdates: UpdateWidgetsPayload =
+        getParentUpdatesPostWidgetDeletion(
+          widgets,
+          widget.parentId,
+          widgetId,
+          widget.type,
+        );
+      update[widget.parentId] = [
+        ...update[widget.parentId],
+        ...parentUpdates[widget.parentId],
+      ];
+    }
+  } else if (children.length !== zoneCount) {
+    /**
+     * If section's zone count doesn't match it's child count,
+     * => update the zone count.
+     */
+    update[widgetId].push({
+      propertyPath: "zoneCount",
+      propertyValue: children.length,
+    });
+  }
+  return { update, remove };
+}
+
 export default function* anvilDraggingSagas() {
   yield all([
     takeLatest(AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET, addWidgetsSaga),
@@ -418,6 +578,10 @@ export default function* anvilDraggingSagas() {
     takeLatest(
       AnvilReduxActionTypes.SAVE_ANVIL_LAYOUT,
       updateAndSaveAnvilLayoutSaga,
+    ),
+    takeLatest(
+      AnvilReduxActionTypes.PERFORM_ANVIL_CHECKS_BEFORE_UPDATE,
+      performAnvilChecksSaga,
     ),
   ]);
 }

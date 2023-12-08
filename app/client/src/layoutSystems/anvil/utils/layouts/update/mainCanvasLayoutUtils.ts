@@ -1,4 +1,7 @@
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  CrudWidgetsPayload,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   AnvilHighlightInfo,
   LayoutProps,
@@ -11,14 +14,21 @@ import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseL
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { call } from "redux-saga/effects";
 import { SectionWidget } from "widgets/anvil/SectionWidget";
-import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
+import {
+  severTiesFromParents,
+  severTiesFromParentsUpdates,
+  transformMovedWidgets,
+} from "./moveUtils";
+import { getUpdateItem } from "../../widgetUtils";
 
 export function* addWidgetsToMainCanvasLayout(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
+  updatesPayload: CrudWidgetsPayload,
 ) {
   let canvasWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+  let newUpdatesPayload: CrudWidgetsPayload = { ...updatesPayload };
   /**
    * Step 1: Get layout for MainCanvas.
    */
@@ -61,6 +71,16 @@ export function* addWidgetsToMainCanvasLayout(
         parentId: mainCanvasWidget.widgetId,
       },
     };
+
+    newUpdatesPayload = {
+      ...newUpdatesPayload,
+      update: {
+        ...newUpdatesPayload.update,
+        [section.widgetId]: [
+          getUpdateItem("parentId", mainCanvasWidget.widgetId),
+        ],
+      },
+    };
   });
 
   /**
@@ -71,6 +91,7 @@ export function* addWidgetsToMainCanvasLayout(
   if (nonSections.length) {
     const res: {
       canvasWidgets: CanvasWidgetsReduxState;
+      updatesPayload: CrudWidgetsPayload;
       section: WidgetProps;
     } = yield call(
       createSectionAndAddWidget,
@@ -78,7 +99,12 @@ export function* addWidgetsToMainCanvasLayout(
       highlight,
       draggedWidgets,
       highlight.canvasId,
+      newUpdatesPayload,
     );
+    console.log("#### after create section", {
+      updatesPayload: res.updatesPayload,
+    });
+    newUpdatesPayload = res.updatesPayload;
     mainCanvasWidget = {
       ...mainCanvasWidget,
       children: [...mainCanvasWidget.children, res.section.widgetId],
@@ -110,10 +136,23 @@ export function* addWidgetsToMainCanvasLayout(
    */
 
   return {
-    ...canvasWidgets,
-    [mainCanvasWidget.widgetId]: {
-      ...mainCanvasWidget,
-      layout: mainCanvasPreset,
+    widgets: {
+      ...canvasWidgets,
+      [mainCanvasWidget.widgetId]: {
+        ...mainCanvasWidget,
+        layout: mainCanvasPreset,
+      },
+    },
+    updatesPayload: {
+      ...newUpdatesPayload,
+      update: {
+        ...newUpdatesPayload.update,
+        [mainCanvasWidget.widgetId]: [
+          ...(newUpdatesPayload.update?.[mainCanvasWidget.widgetId] || []),
+          getUpdateItem("layout", mainCanvasPreset),
+          getUpdateItem("children", mainCanvasWidget.children),
+        ],
+      },
     },
   };
 }
@@ -170,12 +209,21 @@ export function* moveWidgetsToMainCanvas(
   highlight: AnvilHighlightInfo,
 ) {
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
-
+  let updatesPayload: CrudWidgetsPayload = {
+    add: {},
+    remove: [],
+    update: {},
+  };
   /**
    * Step 1: Remove moved widgets from previous parents.
    */
-  widgets = severTiesFromParents(widgets, movedWidgets);
-
+  const res = severTiesFromParentsUpdates(
+    widgets,
+    movedWidgets,
+    updatesPayload,
+  );
+  widgets = res.widgets;
+  updatesPayload = res.updatesPayload;
   /**
    * Step 2: Add moved widgets to the MainCanvas.
    */
@@ -184,6 +232,7 @@ export function* moveWidgetsToMainCanvas(
     widgets,
     transformMovedWidgets(widgets, movedWidgets, highlight),
     highlight,
+    updatesPayload,
   );
 
   return widgets;

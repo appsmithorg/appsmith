@@ -7,6 +7,7 @@ import { addWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/se
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type {
   CanvasWidgetsReduxState,
+  CrudWidgetsPayload,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, select } from "redux-saga/effects";
@@ -148,6 +149,7 @@ export function* addWidgetToSection(
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
   widgetId: string,
+  updatesPayload: CrudWidgetsPayload,
 ) {
   /**
    * Add new widgets to section.
@@ -171,6 +173,7 @@ export function* addWidgetToSection(
     highlight,
     sectionWidget,
     preset[0],
+    updatesPayload,
   );
   sectionWidget = res.canvasWidgets[highlight.canvasId];
 

@@ -38,7 +38,6 @@ describe("renderUtils tests", () => {
       let res: LayoutComponentProps["childrenMap"] = getChildrenMap(
         childLayoutOne,
         map,
-        {},
       );
 
       expect(Object.keys(res || {}).length).toEqual(2);
@@ -47,12 +46,12 @@ describe("renderUtils tests", () => {
       ).toBeTruthy();
 
       // Extract childrenMap for child layout two.
-      res = getChildrenMap(childLayoutTwo, map, {});
+      res = getChildrenMap(childLayoutTwo, map);
       expect(
         Object.keys(res || {}).includes(childLayoutTwoWidgets[1].widgetId),
       ).toBeTruthy();
 
-      res = getChildrenMap(layout, map, {});
+      res = getChildrenMap(layout, map);
       expect(Object.keys(res || {}).length).toEqual(4);
     });
   });

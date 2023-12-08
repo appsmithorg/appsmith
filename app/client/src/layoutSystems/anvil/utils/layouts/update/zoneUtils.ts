@@ -7,7 +7,10 @@ import { generateReactKey } from "utils/generators";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { isLargeWidget } from "../widgetUtils";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  CrudWidgetsPayload,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
 import { addWidgetsToChildTemplate } from "./additionUtils";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
@@ -16,13 +19,18 @@ import {
   addNewWidgetToDsl,
   getCreateWidgetPayload,
 } from "../../widgetAdditionUtils";
+import { getUpdateItem } from "../../widgetUtils";
 
 export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
   parentId: string,
+  updatesPayload: CrudWidgetsPayload,
 ) {
+  let newUpdatesPayload: CrudWidgetsPayload = {
+    ...updatesPayload,
+  };
   /**
    * Step 1: Create Zone widget.
    */
@@ -96,11 +104,35 @@ export function* createZoneAndAddWidgets(
   /**
    * Step 9: Revert the relationships that were originally established while creating the dragged widgets.
    */
+  const isNewWidget: boolean =
+    !!newUpdatesPayload.add &&
+    draggedWidgets.some(
+      (each: WidgetLayoutProps) => !!newUpdatesPayload.add?.[each.widgetId],
+    );
   draggedWidgets.forEach((widget: WidgetLayoutProps) => {
     updatedWidgets[widget.widgetId] = {
       ...updatedWidgets[widget.widgetId],
       parentId: zoneProps.widgetId,
     };
+    if (isNewWidget) {
+      newUpdatesPayload = {
+        ...newUpdatesPayload,
+        add: {
+          ...newUpdatesPayload.add,
+          [widget.widgetId]: updatedWidgets[widget.widgetId],
+        },
+      };
+    } else {
+      newUpdatesPayload = {
+        ...newUpdatesPayload,
+        update: {
+          [widget.widgetId]: [
+            ...(newUpdatesPayload.update?.[widget.widgetId] ?? []),
+            getUpdateItem("parentId", zoneProps.widgetId),
+          ],
+        },
+      };
+    }
   });
 
   return {
@@ -109,6 +141,13 @@ export function* createZoneAndAddWidgets(
       [zoneProps.widgetId]: zoneProps,
     },
     zone: zoneProps,
+    updatesPayload: {
+      ...newUpdatesPayload,
+      add: {
+        ...newUpdatesPayload.add,
+        [zoneProps.widgetId]: zoneProps,
+      }
+    },
   };
 }
 
