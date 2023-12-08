@@ -38,6 +38,7 @@ public class TestResultLoggerExtension implements TestWatcher, AfterAllCallback 
         String defaultTestResultFile = "failedServerTests.txt";
         // In order to change the file name, run the command: mvn test -DtestResultFile=<filename>
         String fileName = System.getProperty("testResultFile", defaultTestResultFile);
+        System.out.println("Got test result file name: " + fileName);
         writeLine(failedTestsStr, fileName);
     }
 
