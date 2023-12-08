@@ -3,6 +3,7 @@ import { Button, Flex, List, Text } from "design-system";
 import type { ListItemProps } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import keyBy from "lodash/keyBy";
+import { useLocation } from "react-router";
 
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { FocusEntity } from "navigation/FocusEntity";
@@ -16,6 +17,7 @@ import { ADD_PATH } from "constants/routes";
 
 const AddQuery = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const pageId = useSelector(getCurrentPageId) as string;
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
