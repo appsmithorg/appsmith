@@ -80,22 +80,40 @@ jobs:
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-server-junit
 
-      # Fetch prior run result
+      # # Fetch prior run result
+      # - name: Get the previous run result
+      #   id: run_result
+      #   run: |
+      #     if [ -f ~/run_result ]; then
+      #       echo "run_result=$(cat ~/run_result)" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "run_result=default" >> $GITHUB_OUTPUT
+      #     fi
+
       - name: Get the previous run result
         id: run_result
         run: |
           if [ -f ~/run_result ]; then
             echo "run_result=$(cat ~/run_result)" >> $GITHUB_OUTPUT
           else
-            echo "run_result=default" >> $GITHUB_OUTPUT
+            echo "run_result=failedtest" >> $GITHUB_OUTPUT
           fi
 
-      - name: Download the failed test artifact in case of rerun
+      # - name: Download the failed test artifact in case of rerun
+      #   if: steps.run_result.outputs.run_result == 'failedtest'
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: failed-server-tests
+      #     path: ~/failed-server-tests
+
+      - name: download the failed test artifact
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: actions/download-artifact@v3
+        uses: dawidd6/action-download-artifact@v2
         with:
+          run_id: 7139895127
           name: failed-server-tests
           path: ~/failed-server-tests
+
       - name: Printing the files in path
         if: steps.run_result.outputs.run_result == 'failedtest'
         run : |
@@ -109,7 +127,8 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
           failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests.txt)
-          echo 'tests=$failed_tests' >> $GITHUB_OUTPUT
+          echo "$failed_tests"
+          echo "tests=$failed_tests" >> $GITHUB_OUTPUT
 
       # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
