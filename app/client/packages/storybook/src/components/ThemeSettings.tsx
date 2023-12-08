@@ -101,7 +101,7 @@ export const ThemeSettings = ({
             >
               <option value="0px">Sharp</option>
               <option value="6px">Rounded</option>
-              <option value="14px">Pill</option>
+              <option value="999px">Pill</option>
             </StyledSelect>
           </Flex>
         )}
