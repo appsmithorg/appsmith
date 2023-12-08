@@ -279,7 +279,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
                                                     // TODO: Serve all the related custom JS libs here
                                                     return getModuleInstanceEntitiesDTOMono(
-                                                                    actionFlux, actionCollectionFlux)
+                                                                    actionFlux, actionCollectionFlux, false)
                                                             .flatMap(moduleInstanceEntitiesDTO -> {
                                                                 final CreateModuleInstanceResponseDTO
                                                                         createModuleInstanceResponseDTO =
@@ -409,21 +409,21 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                 actionCollectionService.findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
                         contextId, contextType, permission, false);
 
-        return getModuleInstanceEntitiesDTOMono(actionFlux, actionCollectionFlux);
+        return getModuleInstanceEntitiesDTOMono(actionFlux, actionCollectionFlux, viewMode);
     }
 
     private Mono<ModuleInstanceEntitiesDTO> getModuleInstanceEntitiesDTOMono(
-            Flux<NewAction> actionFlux, Flux<ActionCollection> actionCollectionFlux) {
+            Flux<NewAction> actionFlux, Flux<ActionCollection> actionCollectionFlux, boolean viewMode) {
         final ModuleInstanceEntitiesDTO moduleInstanceEntitiesDTO = new ModuleInstanceEntitiesDTO();
 
         Mono<List<ActionViewDTO>> actionsMono = actionFlux
                 .map(newAction ->
-                        newActionService.generateActionViewDTO(newAction, newAction.getUnpublishedAction(), false))
+                        newActionService.generateActionViewDTO(newAction, newAction.getUnpublishedAction(), viewMode))
                 .collectList();
 
         Mono<List<ActionCollectionDTO>> actionCollectionsMono = actionCollectionFlux
                 .flatMap(actionCollection ->
-                        actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
+                        actionCollectionService.generateActionCollectionByViewMode(actionCollection, viewMode))
                 .collectList();
 
         return actionsMono.zipWith(actionCollectionsMono).flatMap(tuple2 -> {
@@ -441,7 +441,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
             return newActionService
                     .findAllJSActionsByCollectionIds(collectionIds, null)
-                    .flatMap(jsAction -> newActionService.generateActionByViewMode(jsAction, false))
+                    .flatMap(jsAction -> newActionService.generateActionByViewMode(jsAction, viewMode))
                     .map(actionDTO -> {
                         ActionCollectionDTO actionCollectionDTO =
                                 collectionIdToActionCollectionMap.get(actionDTO.getCollectionId());
