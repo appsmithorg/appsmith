@@ -71,7 +71,7 @@ describe("Reset widget action", () => {
       prettify: false,
       shouldCreateNewJSObj: true,
     });
-
+    agHelper.Sleep(4000);
     jsEditor.SelectFunctionDropdown("resetInputWithoutAwait");
     agHelper.ClickButton("Run");
     agHelper.AssertContains("Meta Text");
