@@ -105,7 +105,12 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                     autoCommitEvent.setAuthorName(gitProfile.getAuthorName());
                                     autoCommitEvent.setAuthorEmail(gitProfile.getAuthorEmail());
                                     // it's a synchronous call, no need to return anything
-                                    autoCommitEventHandler.publish(autoCommitEvent);
+                                    return autoCommitEventHandler.publish(autoCommitEvent)
+                                      .thenReturn(Boolean.TRUE)
+                                      .onErrorResume(throwable -> {
+                                          log.error("Error publishing auto-commit event for application: {}, branch: {}", defaultApplicationId, branchName, throwable);
+                                          return Mono.just(Boolean.FALSE);
+                                      });
                                     return Boolean.TRUE;
                                 });
                     })
