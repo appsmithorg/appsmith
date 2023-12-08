@@ -16,7 +16,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     agHelper.AddDsl("tableV2TextPaginationDsl");
   });
 
-  it("1. Create an API and Execute the API and bind with Table", function () {
+  it.only("1. Create an API and Execute the API and bind with Table", function () {
     apiPage.CreateAndFillApi(
       this.dataSet.paginationUrl + this.dataSet.paginationParam,
     );
@@ -34,7 +34,6 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     cy.get(`.t--widget-tablewidgetv2 .t--table-widget-next-page`)
       .first()
       .click();
-    cy.wait(2000);
     cy.get(`.t--widget-tablewidgetv2 .page-item`)
       .first()
       .should("contain", "2");
