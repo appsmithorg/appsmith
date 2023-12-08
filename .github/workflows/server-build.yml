@@ -148,10 +148,11 @@ jobs:
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          args="$args -DtestResultFile=failed-tests.txt"
+          args="$args -Dtest=ApplicationServiceCETest,AnalyticsServiceCEImplTest -DtestResultFile=failed-tests.txt"
           ./build.sh $args
 
       - name: Upload the failed tests report
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: failed-tests
