@@ -21,7 +21,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
-describe("GSheet Miscellaneous Tests", function () {
+describe("GSheet Miscellaneous Tests", { tags: ["@tag.Datasource", "@tag.GSheet"] }, function () {
   const columnHeaders = [
     "uniq_id",
     "japanese_name",
