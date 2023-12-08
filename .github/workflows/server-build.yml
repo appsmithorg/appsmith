@@ -80,54 +80,28 @@ jobs:
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-server-junit
 
-      # # Fetch prior run result
-      # - name: Get the previous run result
-      #   id: run_result
-      #   run: |
-      #     if [ -f ~/run_result ]; then
-      #       echo "run_result=$(cat ~/run_result)" >> $GITHUB_OUTPUT
-      #     else
-      #       echo "run_result=default" >> $GITHUB_OUTPUT
-      #     fi
-
+      # Fetch prior run result
       - name: Get the previous run result
         id: run_result
         run: |
           if [ -f ~/run_result ]; then
             echo "run_result=$(cat ~/run_result)" >> $GITHUB_OUTPUT
           else
-            echo "run_result=failedtest" >> $GITHUB_OUTPUT
+            echo "run_result=default" >> $GITHUB_OUTPUT
           fi
 
-      # - name: Download the failed test artifact in case of rerun
-      #   if: steps.run_result.outputs.run_result == 'failedtest'
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: failed-server-tests
-      #     path: ~/failed-server-tests
-      - run: pwd
-      - name: download the failed test artifact
+      - name: Download the failed test artifact in case of rerun
         if: steps.run_result.outputs.run_result == 'failedtest'
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
-          run_id: 7139895127
           name: failed-server-tests
           path: ~/failed-server-tests
-      - name: Printing the files in path
-        if: steps.run_result.outputs.run_result == 'failedtest'
-        run : |
-          pwd
-          ls -a
-          cd ~/
-          ls
-          # echo "files inside failed-server-tests"
-          # ls
 
       - name: Extract the tests for rerun
         id: failed_tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' ./failed-server-tests.txt)
+          failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests.txt)
           echo "$failed_tests"
           echo "tests=$failed_tests" >> $GITHUB_OUTPUT
 
