@@ -157,7 +157,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: failed-tests
-          path: failed-tests.txt
+          path: app/server/failed-tests.txt
           if-no-files-found: ignore
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
