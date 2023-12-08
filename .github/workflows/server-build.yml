@@ -73,16 +73,36 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
+        id: cache-appsmith
         uses: actions/cache@v3
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-server
+          key: ${{ github.run_id }}-${{ github.job }}-server-junit
 
       # Fetch prior run result
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      - name: Download the failed test artifact in case of rerun
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        uses: actions/download-artifact@v3
+        with:
+          name: failed-server-tests
+          path: ~/failed-server-tests
+      - name: Printing the files in path
+        run : |
+          ls -a
+          cd  ~/failed-server-tests
+          ls
+          
+      - name: Extract the tests for rerun
+        id: failed_tests
+        if: steps.run_result.outputs.run_result == 'failedtest'
+        run: |
+          failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests)
+          echo 'tests=$failed_tests' >> $GITHUB_OUTPUT
 
       # In case of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
@@ -144,12 +164,31 @@ jobs:
           then
             args=-DskipTests
           fi
+          if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+            args="$args -Dtest=${{ steps.failed_tests.outputs.tests }}"
+          fi
           mvn --batch-mode versions:set \
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
           args="$args -DtestResultFile=$PWD/failed-server-tests.txt"
           ./build.sh $args
+
+      # Set status = failedtest
+      - name: Set fail if there are test failures
+        if: failure()
+        run: |
+          echo "run_result=failedtest" >> $GITHUB_OUTPUT
+          echo "failedtest" > ~/run_result
+
+      # Force store previous run result to cache
+      - name: Store the previous run result
+        if: failure()
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-server-junit
 
       - name: Upload the failed tests report
         if: always()
