@@ -8,11 +8,15 @@ export const EditorNames = {
   APPLICATION: "appEditor",
 };
 
+export interface EditorType {
+  [key: string]: string;
+}
+
 export const useEditorType = (path: string) => {
   const basePath = matchPath(path, {
     path: [BUILDER_VIEWER_PATH_PREFIX, BUILDER_BASE_PATH_DEPRECATED],
   });
-  const editorType: any = {
+  const editorType: EditorType = {
     [BUILDER_VIEWER_PATH_PREFIX]: EditorNames.APPLICATION,
   };
 
