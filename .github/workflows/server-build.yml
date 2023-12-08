@@ -149,9 +149,8 @@ jobs:
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          args="$args -Dtest=ApplicationServiceCETest,AnalyticsServiceCEImplTest -DtestResultFile=$PWD/failed-tests.txt"
-          ./build.sh $args
-          ls -al
+          args="$args -Dtest=ApplicationServiceCETest,AnalyticsServiceCEImplTest -DfailIfNoTests=false -DtestResultFile=$PWD/failed-tests.txt"
+          ./build.sh $args; ls -al
 
       - name: Upload the failed tests report
         if: always()
