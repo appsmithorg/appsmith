@@ -24,7 +24,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
@@ -36,6 +35,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -584,26 +584,33 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Mono<Set<String>> permissionGroupsMono =
                 getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
 
-        return permissionGroupsMono.flatMap(permissionGroups -> {
-            AggregationOperation matchAggregationWithPermission = null;
-            if (permission == null) {
-                matchAggregationWithPermission = Aggregation.match(new Criteria().andOperator(notDeleted()));
-            } else {
-                matchAggregationWithPermission = Aggregation.match(
-                        new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-            }
-            AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
-            AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
-            AggregationOperation addFieldsOperation = Aggregation.addFields()
-                    .addField(fieldName(QNewAction.newAction.publishedAction))
-                    .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
-                    .build();
-            Aggregation combinedAggregation = Aggregation.newAggregation(
-                    matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
-            AggregationResults<NewAction> updatedResults =
-                    mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
-            return bulkUpdate(updatedResults.getMappedResults());
-        });
+        return permissionGroupsMono
+                .flatMap(permissionGroups -> {
+                    return Mono.fromCallable(() -> {
+                                AggregationOperation matchAggregationWithPermission = null;
+                                if (permission == null) {
+                                    matchAggregationWithPermission =
+                                            Aggregation.match(new Criteria().andOperator(notDeleted()));
+                                } else {
+                                    matchAggregationWithPermission = Aggregation.match(new Criteria()
+                                            .andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+                                }
+                                AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
+                                AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
+                                AggregationOperation addFieldsOperation = Aggregation.addFields()
+                                        .addField(fieldName(QNewAction.newAction.publishedAction))
+                                        .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
+                                        .build();
+                                Aggregation combinedAggregation = Aggregation.newAggregation(
+                                        matchAggregation,
+                                        matchAggregationWithPermission,
+                                        wholeProjection,
+                                        addFieldsOperation);
+                                return mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
+                            })
+                            .subscribeOn(Schedulers.boundedElastic());
+                })
+                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
     }
 
     @Override

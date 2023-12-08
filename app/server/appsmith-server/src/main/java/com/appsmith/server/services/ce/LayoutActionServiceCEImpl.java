@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
@@ -16,7 +15,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -254,12 +252,20 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> updateSingleActionWithBranchName(
             String defaultActionId, ActionDTO action, String branchName) {
+        return newActionService
+                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
+                .flatMap(newAction -> updateActionBasedOnContextType(newAction, action));
+    }
+
+    /**
+     * Does not check for any CreatorContext on Actions.
+     * This is a basic action update, which updates actions related to pages.
+     */
+    protected Mono<ActionDTO> updateActionBasedOnContextType(NewAction newAction, ActionDTO action) {
         String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
-        return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
-                .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
+        return updateSingleAction(newAction.getId(), action)
                 .flatMap(updatedAction ->
                         updateLayoutService.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
@@ -360,25 +366,11 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext, Boolean isJsAction) {
 
-        if (action.getId() != null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-
-        if (action.getName() == null || action.getName().isBlank()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
-        }
-
-        if (action.getPageId() == null || action.getPageId().isBlank()) {
+        if (!StringUtils.hasLength(action.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
-        if (action.getDefaultResources() == null) {
-            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(action, null);
-        }
-
-        NewAction newAction = new NewAction();
-        newAction.setPublishedAction(new ActionDTO());
-        newAction.getPublishedAction().setDatasource(new Datasource());
+        NewAction newAction = newActionService.generateActionDomain(action);
 
         // If the action is a JS action, then we don't need to validate the page. Fetch the page with read.
         // Else fetch the page with create action permission to ensure that the user has the right to create an action
@@ -433,33 +425,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         action.setExecuteOnLoad(false);
                     }
 
-                    final DefaultResources immutableDefaultResources = action.getDefaultResources();
-                    // Only store defaultPageId and defaultCollectionId for actionDTO level resource
-                    DefaultResources defaultActionResource = new DefaultResources();
-                    AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaultActionResource);
-
-                    defaultActionResource.setApplicationId(null);
-                    defaultActionResource.setActionId(null);
-                    defaultActionResource.setBranchName(null);
-                    if (!StringUtils.hasLength(defaultActionResource.getPageId())) {
-                        defaultActionResource.setPageId(action.getPageId());
-                    }
-                    if (!StringUtils.hasLength(defaultActionResource.getCollectionId())) {
-                        defaultActionResource.setCollectionId(action.getCollectionId());
-                    }
-                    action.setDefaultResources(defaultActionResource);
-
-                    // Only store defaultApplicationId and defaultActionId for NewAction level resource
-                    DefaultResources defaults = new DefaultResources();
-                    AppsmithBeanUtils.copyNestedNonNullProperties(immutableDefaultResources, defaults);
-                    defaults.setPageId(null);
-                    defaults.setCollectionId(null);
-                    if (!StringUtils.hasLength(defaults.getApplicationId())) {
-                        defaults.setApplicationId(newAction.getApplicationId());
-                    }
-                    newAction.setDefaultResources(defaults);
-
                     newAction.setUnpublishedAction(action);
+
+                    newActionService.updateDefaultResourcesInAction(newAction);
 
                     return Mono.just(newAction);
                 })

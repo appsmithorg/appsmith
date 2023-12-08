@@ -21,12 +21,14 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Checkout PR if push event
         if: github.event_name == 'push'
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           ref: release
 
       - name: Use Node.js

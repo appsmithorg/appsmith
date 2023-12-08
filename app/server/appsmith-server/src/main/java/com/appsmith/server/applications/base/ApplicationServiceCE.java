@@ -7,6 +7,8 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.services.CrudService;
 import com.mongodb.client.result.UpdateResult;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,6 +30,8 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
 
     Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
+
+    Flux<Application> findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(String workspaceId);
 
     Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
@@ -103,4 +107,11 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Boolean> isApplicationConnectedToGit(String applicationId);
 
     Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches);
+
+    Flux<Application> filterByEntityFields(
+            List<String> searchableEntityFields,
+            String searchString,
+            Pageable pageable,
+            Sort sort,
+            AclPermission permission);
 }
