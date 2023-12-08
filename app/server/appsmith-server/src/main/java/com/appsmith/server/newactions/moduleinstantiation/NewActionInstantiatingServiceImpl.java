@@ -98,8 +98,9 @@ public class NewActionInstantiatingServiceImpl implements ModuleInstantiatingSer
                         moduleInstantiatingMetaDTO.getEvalVersionMono()))
                 .then(Mono.defer(() -> {
                     // After all refactors, call extractAndSetJsonPathKeys for the current entity
-                    newActionService.extractAndSetJsonPathKeys(toBeInstantiatedAction);
-                    return Mono.just(toBeInstantiatedAction);
+                    return newActionService
+                            .extractAndSetJsonPathKeys(toBeInstantiatedAction)
+                            .map(actionWithJsonPathKeys -> toBeInstantiatedAction);
                 }));
 
         return newActionMono;
