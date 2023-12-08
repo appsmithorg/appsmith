@@ -61,7 +61,10 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         log.info("received event for auto commit: {}", event);
         this.autoCommitDSLMigration(event)
                 .subscribeOn(Schedulers.boundedElastic())
-                .subscribe();
+                .subscribe(
+                    result -> log.info("Auto-commit completed successfully for application: {}", event.getApplicationId()),
+                    error -> log.error("Error during auto-commit for application: {}", event.getApplicationId(), error)
+                );
     }
 
     private Mono<Boolean> addFileLock(String defaultApplicationId) {
