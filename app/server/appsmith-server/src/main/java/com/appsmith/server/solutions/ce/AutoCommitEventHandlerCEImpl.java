@@ -81,82 +81,72 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         return redisUtils.setAutoCommitProgress(applicationId, progress).thenReturn(result);
     }
 
+    private Mono<Boolean> resetUncommittedChanges(AutoCommitEvent autoCommitEvent) {
+        Path baseRepoSuffix = Paths.get(
+                autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
+        try {
+            return gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName());
+        } catch (Exception e) {
+            log.error(
+                    "failed to reset to last commit before auto commit. application {} branch {}",
+                    autoCommitEvent.getApplicationId(),
+                    autoCommitEvent.getBranchName(),
+                    e);
+            return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "reset", e.getMessage()));
+        }
+    }
+
+    private Mono<Path> saveApplicationJsonToFileSystem(
+            ApplicationJson applicationJson, AutoCommitEvent autoCommitEvent) {
+        // all the migrations are done, write to file system
+        try {
+            return fileUtils.saveApplicationToLocalRepo(
+                    autoCommitEvent.getWorkspaceId(),
+                    autoCommitEvent.getApplicationId(),
+                    autoCommitEvent.getRepoName(),
+                    applicationJson,
+                    autoCommitEvent.getBranchName());
+        } catch (Exception e) {
+            log.error("failed to save application to file system using", e);
+            return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+        }
+    }
+
     public Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent) {
         return addFileLock(autoCommitEvent.getApplicationId())
                 .then(redisUtils.startAutoCommit(autoCommitEvent.getApplicationId(), autoCommitEvent.getBranchName()))
                 .then(dslMigrationUtils.getLatestDslVersion())
-                .flatMap(latestSchemaVersion -> {
-                    Path baseRepoSuffix = Paths.get(
-                            autoCommitEvent.getWorkspaceId(),
-                            autoCommitEvent.getApplicationId(),
-                            autoCommitEvent.getRepoName());
-                    Mono<Boolean> resetMono;
-                    try {
-                        resetMono = gitExecutor
-                                .resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName())
-                                .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 20));
-                    } catch (Exception e) {
-                        log.error(
-                                "failed to reset to last commit before auto commit. application {} branch {}",
+                .flatMap(latestSchemaVersion -> resetUncommittedChanges(autoCommitEvent)
+                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 20))
+                        .then(fileUtils.reconstructApplicationJsonFromGitRepo(
+                                autoCommitEvent.getWorkspaceId(),
                                 autoCommitEvent.getApplicationId(),
-                                autoCommitEvent.getBranchName(),
-                                e);
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "reset", e.getMessage()));
-                    }
-
-                    return resetMono
-                            .then(fileUtils.reconstructApplicationJsonFromGitRepo(
-                                    autoCommitEvent.getWorkspaceId(),
-                                    autoCommitEvent.getApplicationId(),
-                                    autoCommitEvent.getRepoName(),
-                                    autoCommitEvent.getBranchName()))
-                            .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 40))
-                            .flatMap(applicationJson -> migrateApplicationJson(
-                                    applicationJson,
-                                    latestSchemaVersion,
-                                    autoCommitEvent.getApplicationId(),
-                                    autoCommitEvent.getBranchName()))
-                            .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 60))
-                            .flatMap(applicationJson -> {
-                                // all the migrations are done, write to file system
-                                try {
-                                    return fileUtils.saveApplicationToLocalRepo(
-                                            autoCommitEvent.getWorkspaceId(),
-                                            autoCommitEvent.getApplicationId(),
-                                            autoCommitEvent.getRepoName(),
-                                            applicationJson,
-                                            autoCommitEvent.getBranchName());
-                                } catch (Exception e) {
-                                    log.error("failed to save application to file system using", e);
-                                    return Mono.error(
-                                            new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
-                                }
-                            })
-                            .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
-                            .flatMap(baseRepoPath -> {
-                                // commit the application
-                                return gitExecutor.commitApplication(
-                                        baseRepoPath,
-                                        String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
-                                        autoCommitEvent.getAuthorName(),
-                                        autoCommitEvent.getAuthorEmail(),
-                                        false,
-                                        false);
-                            })
-                            .thenReturn(Boolean.TRUE);
-                })
+                                autoCommitEvent.getRepoName(),
+                                autoCommitEvent.getBranchName()))
+                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 40))
+                        .flatMap(applicationJson ->
+                                migrateUnpublishedPageDSLs(applicationJson, latestSchemaVersion, autoCommitEvent))
+                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 60))
+                        .flatMap(applicationJson -> saveApplicationJsonToFileSystem(applicationJson, autoCommitEvent))
+                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
+                        .flatMap(baseRepoPath -> {
+                            // commit the application
+                            return gitExecutor.commitApplication(
+                                    baseRepoPath,
+                                    String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
+                                    autoCommitEvent.getAuthorName(),
+                                    autoCommitEvent.getAuthorEmail(),
+                                    false,
+                                    false);
+                        })
+                        .thenReturn(Boolean.TRUE))
                 .flatMap(result -> {
                     log.info(
                             "auto commit finished. result: {} application {} branch {}",
                             result,
                             autoCommitEvent.getApplicationId(),
                             autoCommitEvent.getBranchName());
-                    return redisUtils
-                            .finishAutoCommit(autoCommitEvent.getApplicationId())
-                            .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
-                            .then(releaseFileLock(autoCommitEvent.getApplicationId()))
-                            .thenReturn(Boolean.TRUE);
+                    return cleanUp(autoCommitEvent, Boolean.TRUE);
                 })
                 .onErrorResume(throwable -> {
                     log.error(
@@ -164,16 +154,30 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                             autoCommitEvent.getApplicationId(),
                             autoCommitEvent.getBranchName(),
                             throwable);
-                    return redisUtils
-                            .finishAutoCommit(autoCommitEvent.getApplicationId())
-                            .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
-                            .then(releaseFileLock(autoCommitEvent.getApplicationId()))
-                            .thenReturn(Boolean.FALSE);
+                    return cleanUp(autoCommitEvent, Boolean.FALSE);
                 });
     }
 
-    private Mono<ApplicationJson> migrateApplicationJson(
-            ApplicationJson applicationJson, Integer latestSchemaVersion, String applicationId, String branchName) {
+    private Mono<Boolean> cleanUp(AutoCommitEvent autoCommitEvent, boolean isSuccess) {
+        return redisUtils
+                .finishAutoCommit(autoCommitEvent.getApplicationId())
+                .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
+                .then(releaseFileLock(autoCommitEvent.getApplicationId()))
+                .thenReturn(isSuccess);
+    }
+
+    /**
+     * This method is responsible for migrating all the page DSLs from RTS, update the application json and
+     * return the updated application json. However, it'll return an empty Mono for the following cases:
+     * 1. If the page list is empty in the application json
+     * 2. If there is no page with older DSL version
+     * @param applicationJson ApplicationJson object
+     * @param latestSchemaVersion latest version of the schema
+     * @param autoCommitEvent AutoCommitEvent object
+     * @return updated application json
+     */
+    private Mono<ApplicationJson> migrateUnpublishedPageDSLs(
+            ApplicationJson applicationJson, Integer latestSchemaVersion, AutoCommitEvent autoCommitEvent) {
         if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageList())) {
             return migratePageDsl(applicationJson.getPageList(), latestSchemaVersion)
                     // if no page is updated then no need to proceed further
@@ -201,9 +205,9 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                     });
         } else {
             log.info(
-                    "empty page list after reconstruction of application json for auto commit. application {}, branch {}",
-                    applicationId,
-                    branchName);
+                    "empty list of pages found in auto commit. application {}, branch {}",
+                    autoCommitEvent.getApplicationId(),
+                    autoCommitEvent.getBranchName());
             return Mono.empty();
         }
     }
@@ -212,9 +216,9 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
      * This method takes a list of NewPage and latest dsl schema version. It'll iterate through the list of the pages
      * and migrate the page dsl if the version in the page dsl is older than latestSchemaVersion.
      * After finishing all the migrations, it'll return a list of page names that have been updated.
-     * @param newPageList
-     * @param latestSchemaVersion
-     * @return
+     * @param newPageList list of NewPage objects
+     * @param latestSchemaVersion latest dsl schema version obtained from RTS
+     * @return list of names of the pages that have been migrated.
      */
     private Mono<List<String>> migratePageDsl(List<NewPage> newPageList, Integer latestSchemaVersion) {
         return Flux.fromIterable(newPageList)
