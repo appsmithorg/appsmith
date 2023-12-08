@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" http-equiv="refresh" content="3"/>
+    <link
+      rel="shortcut icon"
+      href="https://assets.appsmith.com/appsmith-favicon-orange.ico"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Appsmith</title>
+  </head>
+  <body>
+    <div class="main">
+      <p class="bold-text">Appsmith is starting.</p>
+      <p>Please wait until Appsmith is ready. This may take a few minutes. </p>
+      <div class="loader"></div>
+    </div>
+
+    <style>
+      body,
+      html {
+        height: 100%;
+        overflow-x: hidden;
+        width: 100%;
+        background-color: #fff;
+        margin: 0;
+        color: #182026;
+        font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+          Ubuntu, Cantarell, Open Sans, Helvetica Neue, Icons16, sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        letter-spacing: 0;
+      }
+      .main {
+        display: flex;
+        align-items: center;
+        height: 90%;
+        flex-direction: column;
+        margin-top: 5%;
+        text-align: center;
+      }
+      .bold-text {
+        font-family: system-ui;
+        font-weight: 700;
+        font-size: 24px;
+        margin: 24px 0 0;
+      }
+      .body-text {
+        margin: 8px 0 0;
+      }
+
+      /* Safari */
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+        }
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loader {
+        border: 4px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 4px solid #939090;
+        width: 30px;
+        height: 30px;
+        -webkit-animation: spin 1s linear infinite; /* Safari */
+        animation: spin 1s linear infinite;
+      }
+    </style>
+  </body>
+</html>

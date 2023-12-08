@@ -16,7 +16,7 @@ describe("Verify setting tab form controls not to have tooltip and tooltip (unde
   });
 
   it("1. We make sure the label in the settings tab does not have any underline styles", function () {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
+    dataSources.CreateQueryForDS(datasourceName);
 
     cy.xpath(queryLocators.querySettingsTab).click();
 

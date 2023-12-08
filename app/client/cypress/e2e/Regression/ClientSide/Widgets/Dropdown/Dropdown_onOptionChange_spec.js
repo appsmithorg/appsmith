@@ -13,6 +13,7 @@ import {
   locators,
   propPane,
   deployMode,
+  dataSources,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget", function () {
@@ -106,7 +107,7 @@ describe("Dropdown Widget", function () {
       // );
       cy.fillPostgresDatasourceForm();
       cy.saveDatasource();
-      cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
+      dataSources.CreateQueryForDS(postgresDatasourceName);
     });
 
     cy.CreateMockQuery("Query1");

@@ -28,9 +28,13 @@ export default defineConfig({
     env: {
       USERNAME: "xxxx",
       PASSWORD: "xxx",
+      grepFilterSpecs: true,
+      grepOmitFiltered: true,
     },
     setupNodeEvents(on, config) {
-      return require("./cypress/plugins/index.js")(on, config);
+      require("@cypress/grep/src/plugin")(config);
+      require("./cypress/plugins/index.js")(on, config);
+      return config;
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
     testIsolation: false,

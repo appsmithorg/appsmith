@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -47,7 +48,11 @@ public class DslUtils {
         if (dslWalkResponse != null && dslWalkResponse.isLeafNode) {
             final StringBuilder oldValue = new StringBuilder(((TextNode) dslWalkResponse.currentNode).asText());
 
-            for (MustacheBindingToken mustacheBindingToken : replacementMap.keySet()) {
+            final List<MustacheBindingToken> tokens = replacementMap.keySet().stream()
+                    .sorted((token1, token2) -> token2.getStartIndex() - token1.getStartIndex())
+                    .toList();
+
+            for (MustacheBindingToken mustacheBindingToken : tokens) {
                 String tokenValue = mustacheBindingToken.getValue();
                 int endIndex = mustacheBindingToken.getStartIndex() + tokenValue.length();
                 if (oldValue.length() >= endIndex

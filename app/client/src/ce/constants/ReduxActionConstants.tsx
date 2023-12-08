@@ -7,7 +7,7 @@ import type {
   GitApplicationMetadata,
 } from "@appsmith/api/ApplicationApi";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import type { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import type {
   LayoutOnLoadActionErrors,
@@ -907,6 +907,7 @@ const ActionTypes = {
     "SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP",
   RESET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP:
     "RESET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP",
+  UPDATE_THEME_SETTING: "UPDATE_THEME_SETTING",
 };
 
 export const ReduxActionTypes = {
@@ -1243,6 +1244,7 @@ export interface ApplicationPayload {
   applicationDetail?: {
     appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
+    themeSetting?: ThemeSetting;
   };
   collapseInvisibleWidgets?: boolean;
   evaluationVersion?: EvaluationVersion;

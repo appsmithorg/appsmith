@@ -269,17 +269,20 @@ export class AggregateHelper extends ReusableHelper {
       });
   }
 
-  public GetElement(selector: ElementType, timeout = 20000) {
+  public GetElement(
+    selector: ElementType,
+    timeout = Cypress.config().defaultCommandTimeout,
+  ) {
     let locator;
     if (typeof selector == "string") {
       //cy.log(selector, "selector");
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
           ? cy.xpath(selector, {
-              timeout: timeout,
+              timeout,
             })
           : cy.get(selector, {
-              timeout: timeout,
+              timeout,
             });
     } else locator = cy.wrap(selector);
     return locator;
@@ -1490,7 +1493,7 @@ export class AggregateHelper extends ReusableHelper {
     selector: ElementType,
     visibility = true,
     index = 0,
-    timeout = 20000,
+    timeout = Cypress.config("defaultCommandTimeout"),
   ) {
     return this.GetElement(selector, timeout)
       .eq(index)
