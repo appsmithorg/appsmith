@@ -26,6 +26,13 @@ import {
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
+export interface HeaderActionProps {
+  datasource: Datasource | ApiDatasourceForm | undefined;
+  isPluginAuthorized: boolean;
+  pluginType: string;
+  showReconnectButton?: boolean;
+}
+
 export const useHeaderActions = (
   editorType: string,
   {
@@ -33,12 +40,7 @@ export const useHeaderActions = (
     isPluginAuthorized,
     pluginType,
     showReconnectButton = false,
-  }: {
-    datasource: Datasource | ApiDatasourceForm | undefined;
-    isPluginAuthorized: boolean;
-    pluginType: string;
-    showReconnectButton?: boolean;
-  },
+  }: HeaderActionProps,
 ) => {
   const pageId = useSelector(getCurrentPageId);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -105,10 +107,12 @@ export const useHeaderActions = (
           {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
         </Button>
       ) : null;
+
     return {
       newActionButton,
       generatePageButton,
     };
   }
+
   return {};
 };

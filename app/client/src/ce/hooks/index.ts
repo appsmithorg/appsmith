@@ -12,13 +12,14 @@ export interface EditorType {
   [key: string]: string;
 }
 
+export const editorType: EditorType = {
+  [BUILDER_VIEWER_PATH_PREFIX]: EditorNames.APPLICATION,
+};
+
 export const useEditorType = (path: string) => {
   const basePath = matchPath(path, {
     path: [BUILDER_VIEWER_PATH_PREFIX, BUILDER_BASE_PATH_DEPRECATED],
   });
-  const editorType: EditorType = {
-    [BUILDER_VIEWER_PATH_PREFIX]: EditorNames.APPLICATION,
-  };
 
   return basePath
     ? editorType[basePath.path]
