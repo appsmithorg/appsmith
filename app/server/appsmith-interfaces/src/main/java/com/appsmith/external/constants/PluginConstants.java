@@ -14,6 +14,7 @@ public interface PluginConstants {
         String GRAPH_QL_PLUGIN = "graphql-plugin";
         String OPEN_AI_PLUGIN = "openai-plugin";
         String ANTHROPIC_PLUGIN = "anthropic-plugin";
+        String AI_ASSISTANT_PLUGIN = "ai-assistant-plugin";
     }
 
     public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";
@@ -39,6 +40,7 @@ public interface PluginConstants {
 
         public static final String OPEN_AI_PLUGIN_NAME = "Open AI";
         public static final String ANTHROPIC_PLUGIN_NAME = "Anthropic";
+        public static final String AI_ASSISTANT_PLUGIN_NAME = "AI Assistant";
     }
 
     interface HostName {
