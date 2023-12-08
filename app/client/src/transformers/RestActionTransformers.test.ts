@@ -5,6 +5,7 @@ import {
 import type { ApiAction } from "entities/Action";
 import { PluginType } from "entities/Action";
 import {
+  HTTP_PROTOCOL,
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,
   // POST_BODY_FORMAT_OPTIONS_ENUM,
@@ -29,6 +30,7 @@ const BASE_ACTION: ApiAction = {
   pluginType: PluginType.API,
   actionConfiguration: {
     httpMethod: "GET",
+    httpVersion: HTTP_PROTOCOL.V1,
     encodeParamsToggle: true,
     path: "users",
     headers: [],

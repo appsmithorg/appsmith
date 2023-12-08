@@ -9,8 +9,8 @@ export enum HTTP_METHOD {
 }
 
 export enum HTTP_PROTOCOL {
-  V1 = "HTTP1.0",
-  V2 = "HTTP2.0",
+  V1 = "HTTP1",
+  V2 = "HTTP2",
   H2C = "H2C",
 }
 

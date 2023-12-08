@@ -64,9 +64,17 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
     @JsonDeserialize(using = HttpMethodConverter.HttpMethodDeserializer.class)
     @JsonAdapter(HttpMethodConverter.class)
     HttpMethod httpMethod;
+
+    HttpVersion httpVersion;
     // Paginated API fields
     String next;
     String prev;
+
+    public enum HttpVersion {
+        HTTP1,
+        HTTP2,
+        H2C
+    }
 
     /**
      * This field is supposed to hold a set of paths that are expected to contain bindings that refer to the same action
