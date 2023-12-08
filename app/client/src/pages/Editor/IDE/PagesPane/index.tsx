@@ -36,12 +36,6 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../../SaaSEditor/constants";
-import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
-import { getPagePermissions } from "selectors/editorSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 enum TabsType {
   QUERIES = "queries",
@@ -58,15 +52,6 @@ const _pagesPane = () => {
     getIsFirstTimeUserOnboardingEnabled,
   );
   const { path } = useRouteMatch();
-
-  const pagePermissions = useSelector(getPagePermissions);
-
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const canCreateActions = getHasCreateActionPermission(
-    isFeatureEnabled,
-    pagePermissions,
-  );
 
   /**
    * useEffect to identify the entity from the path
