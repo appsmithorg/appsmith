@@ -35,7 +35,16 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
 
     @Override
     public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, String branchName) {
-        return redisUtils.getAutoCommitStatus(applicationId);
+        return redisUtils
+                .getRunningAutoCommitBranchName(applicationId)
+                .zipWith(redisUtils.getAutoCommitProgress(applicationId))
+                .map(tuple2 -> {
+                    AutoCommitProgressDTO autoCommitProgressDTO = new AutoCommitProgressDTO(Boolean.TRUE);
+                    autoCommitProgressDTO.setBranchName(tuple2.getT1());
+                    autoCommitProgressDTO.setProgress(tuple2.getT2());
+                    return autoCommitProgressDTO;
+                })
+                .defaultIfEmpty(new AutoCommitProgressDTO(Boolean.FALSE));
     }
 
     @Override
@@ -46,7 +55,10 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
         Mono<Boolean> featureEnabledMono = featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled);
         Mono<Boolean> branchProtectedMono = applicationMono.flatMap(application ->
                 gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName));
-        Mono<Boolean> isAutoCommitRunningMono = redisUtils.isAutoCommitRunning(defaultApplicationId);
+        Mono<Boolean> isAutoCommitRunningMono = redisUtils
+                .getRunningAutoCommitBranchName(defaultApplicationId)
+                .map(a -> Boolean.TRUE)
+                .switchIfEmpty(Mono.just(Boolean.FALSE));
 
         if (StringUtils.hasLength(defaultApplicationId) && StringUtils.hasLength(branchName)) {
             // both of them are present, so it's a git connected application

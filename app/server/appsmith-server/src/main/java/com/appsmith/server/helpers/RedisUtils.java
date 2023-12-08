@@ -1,6 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +17,7 @@ public class RedisUtils {
     private static final String REDIS_FILE_LOCK_VALUE = "inUse";
 
     private static final String AUTO_COMMIT_KEY_FORMAT = "autocommit_%s";
+    private static final String AUTO_COMMIT_PROGRESS_KEY_FORMAT = "autocommit_progress_%s";
 
     private static final Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
 
@@ -50,9 +50,18 @@ public class RedisUtils {
             if (Boolean.TRUE.equals(isKeyPresent)) {
                 return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
             }
-            // value will be the progress
             return redisOperations.opsForValue().set(key, branchName, AUTO_COMMIT_TIME_LIMIT);
         });
+    }
+
+    public Mono<Boolean> setAutoCommitProgress(String defaultApplicationId, Integer progress) {
+        String key = String.format(AUTO_COMMIT_PROGRESS_KEY_FORMAT, defaultApplicationId);
+        return redisOperations.opsForValue().set(key, String.valueOf(progress), AUTO_COMMIT_TIME_LIMIT);
+    }
+
+    public Mono<Integer> getAutoCommitProgress(String defaultApplicationId) {
+        String key = String.format(AUTO_COMMIT_PROGRESS_KEY_FORMAT, defaultApplicationId);
+        return redisOperations.opsForValue().get(key).map(Integer::valueOf);
     }
 
     public Mono<Boolean> finishAutoCommit(String defaultApplicationId) {
@@ -60,25 +69,13 @@ public class RedisUtils {
         return redisOperations.opsForValue().delete(key);
     }
 
-    public Mono<Boolean> isAutoCommitRunning(String defaultApplicationId) {
+    public Mono<String> getRunningAutoCommitBranchName(String defaultApplicationId) {
         String key = String.format(AUTO_COMMIT_KEY_FORMAT, defaultApplicationId);
-        return redisOperations.hasKey(key);
-    }
-
-    public Mono<AutoCommitProgressDTO> getAutoCommitStatus(String defaultApplicationId) {
-        String key = String.format(AUTO_COMMIT_KEY_FORMAT, defaultApplicationId);
-        return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
-            if (isKeyPresent) {
-                return redisOperations.opsForValue().get(key).map(value -> {
-                    AutoCommitProgressDTO autoCommitProgressDTO = new AutoCommitProgressDTO();
-                    autoCommitProgressDTO.setRunning(true);
-                    autoCommitProgressDTO.setBranchName(value);
-                    return autoCommitProgressDTO;
-                });
+        return redisOperations.hasKey(key).flatMap(hasKey -> {
+            if (hasKey) {
+                return redisOperations.opsForValue().get(key);
             } else {
-                AutoCommitProgressDTO autoCommitProgressDTO = new AutoCommitProgressDTO();
-                autoCommitProgressDTO.setRunning(false);
-                return Mono.just(autoCommitProgressDTO);
+                return Mono.empty();
             }
         });
     }
