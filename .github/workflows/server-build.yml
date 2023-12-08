@@ -117,7 +117,7 @@ jobs:
       - name: Printing the files in path
         if: steps.run_result.outputs.run_result == 'failedtest'
         run : |
-          cwd
+          cat ~/failed-server-tests/failed-server-tests.txt
           ls -a
           # cd  ~/failed-server-tests
           # echo "files inside failed-server-tests"
