@@ -117,7 +117,7 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         run : |
           ls -a
-          find / -type f -name 'failed-server-tests.txt'
+          cat ./failed-server-tests.txt
           # echo "files inside failed-server-tests"
           # ls
 
@@ -125,7 +125,7 @@ jobs:
         id: failed_tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' failed-server-tests.txt)
+          failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' ./failed-server-tests.txt)
           echo "$failed_tests"
           echo "tests=$failed_tests" >> $GITHUB_OUTPUT
 
