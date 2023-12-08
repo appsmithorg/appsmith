@@ -168,7 +168,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.docker_container_name }}.tar.gz
-          key: ${{ env.cache_download_key }}-${{ previous-workflow-run-id }}
+          key: ${{ env.cache_download_key }}-${{ inputs.previous-workflow-run-id }}
 
       - name: Load Docker image from tar file
         run: |
