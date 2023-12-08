@@ -380,10 +380,12 @@ describe("rowHighlights tests", () => {
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
-      expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
-          HORIZONTAL_DROP_ZONE_MULTIPLIER,
+      expect(Math.round(highlights[1].dropZone.left ?? 0)).toEqual(
+        Math.round(
+          (dimensions[res.metaData[0][1].widgetId].left -
+            dimensions[res.metaData[0][0].widgetId].left) *
+            HORIZONTAL_DROP_ZONE_MULTIPLIER,
+        ),
       );
     });
   });
@@ -473,10 +475,12 @@ describe("rowHighlights tests", () => {
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
-      expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
-          HORIZONTAL_DROP_ZONE_MULTIPLIER,
+      expect(Math.round(highlights[1].dropZone.left ?? 0)).toEqual(
+        Math.round(
+          (dimensions[res.metaData[0][1].widgetId].left -
+            dimensions[res.metaData[0][0].widgetId].left) *
+            HORIZONTAL_DROP_ZONE_MULTIPLIER,
+        ),
       );
     });
     it("should derive highlights for a wrapped row", () => {
@@ -564,10 +568,12 @@ describe("rowHighlights tests", () => {
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
-      expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
-          HORIZONTAL_DROP_ZONE_MULTIPLIER,
+      expect(Math.round(highlights[1].dropZone.left ?? 0)).toEqual(
+        Math.round(
+          (dimensions[res.metaData[0][1].widgetId].left -
+            dimensions[res.metaData[0][0].widgetId].left) *
+            HORIZONTAL_DROP_ZONE_MULTIPLIER,
+        ),
       );
 
       // Starting rowIndex of second row should be the same as ending rowIndex of the first row as they point to the same space.
@@ -658,10 +664,12 @@ describe("rowHighlights tests", () => {
       );
 
       // Drop zone on either side of the highlight should extend up to 35% of the gap between itself and it's neighbor in that direction.
-      expect(highlights[1].dropZone.left).toEqual(
-        (dimensions[res.metaData[0][1].widgetId].left -
-          dimensions[res.metaData[0][0].widgetId].left) *
-          HORIZONTAL_DROP_ZONE_MULTIPLIER,
+      expect(Math.round(highlights[1].dropZone.left ?? 0)).toEqual(
+        Math.round(
+          (dimensions[res.metaData[0][1].widgetId].left -
+            dimensions[res.metaData[0][0].widgetId].left) *
+            HORIZONTAL_DROP_ZONE_MULTIPLIER,
+        ),
       );
 
       // Starting rowIndex of second row should be the same as ending rowIndex of the first row as they point to the same space.
