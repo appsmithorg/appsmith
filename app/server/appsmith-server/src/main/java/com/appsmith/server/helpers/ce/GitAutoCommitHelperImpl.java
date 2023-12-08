@@ -10,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserDataService;
@@ -53,8 +54,13 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                 .findById(defaultApplicationId, applicationPermission.getEditPermission())
                 .cache();
         Mono<Boolean> featureEnabledMono = featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled);
-        Mono<Boolean> branchProtectedMono = applicationMono.flatMap(application ->
-                gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName));
+        Mono<Boolean> autoCommitDisabledForThisBranchMono = applicationMono.flatMap(application -> {
+            if (GitUtils.isAutoCommitEnabled(application.getGitApplicationMetadata())) {
+                return gitPrivateRepoHelper.isBranchProtected(application.getGitApplicationMetadata(), branchName);
+            } else {
+                return Mono.just(Boolean.TRUE);
+            }
+        });
         Mono<Boolean> isAutoCommitRunningMono = redisUtils
                 .getRunningAutoCommitBranchName(defaultApplicationId)
                 .map(a -> Boolean.TRUE)
@@ -67,19 +73,19 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                         if (isRunning) {
                             return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                         }
-                        return Mono.zip(featureEnabledMono, branchProtectedMono)
+                        return Mono.zip(featureEnabledMono, autoCommitDisabledForThisBranchMono)
                                 .flatMap(tuple -> {
                                     Boolean isFeatureEnabled = tuple.getT1();
-                                    Boolean isBranchProtected = tuple.getT2();
-                                    if (isFeatureEnabled && !isBranchProtected) {
+                                    Boolean isAutoCommitDisabledForBranch = tuple.getT2();
+                                    if (isFeatureEnabled && !isAutoCommitDisabledForBranch) {
                                         return applicationMono;
                                     } else {
                                         log.debug(
-                                                "auto commit is not applicable for application: {} branch: {} isFeatureEnabled: {}, isBranchProtected: {}",
+                                                "auto commit is not applicable for application: {} branch: {} isFeatureEnabled: {}, isAutoCommitDisabledForBranch: {}",
                                                 defaultApplicationId,
                                                 branchName,
                                                 isFeatureEnabled,
-                                                isBranchProtected);
+                                                isAutoCommitDisabledForBranch);
                                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
                                     }
                                 })

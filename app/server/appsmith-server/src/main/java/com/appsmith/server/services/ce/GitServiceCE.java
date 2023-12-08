@@ -87,4 +87,6 @@ public interface GitServiceCE {
     Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, String branchName);
 
     Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName);
+
+    Mono<Boolean> toggleAutoCommitEnabled(String defaultApplicationId);
 }

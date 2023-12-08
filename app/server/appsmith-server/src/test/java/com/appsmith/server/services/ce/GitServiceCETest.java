@@ -22,6 +22,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
@@ -123,6 +124,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -4466,6 +4468,86 @@ public class GitServiceCETest {
         StepVerifier.create(branchListMonoWithoutDefaultBranch)
                 .assertNext(branchList -> {
                     assertThat(branchList).isNullOrEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void toggleAutoCommit() {
+        Application testApplication = new Application();
+        testApplication.setName("App" + UUID.randomUUID());
+        testApplication.setWorkspaceId(workspaceId);
+
+        Mono<Application> createdApplicationMono = applicationPageService
+                .createApplication(testApplication)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationRepository.save(application);
+                })
+                .cache();
+
+        Mono<Boolean> toggleAutoCommitWhenSettingsIsNullMono =
+                createdApplicationMono.flatMap(application -> gitService.toggleAutoCommitEnabled(application.getId()));
+
+        StepVerifier.create(toggleAutoCommitWhenSettingsIsNullMono)
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isFalse();
+                })
+                .verifyComplete();
+
+        Mono<Boolean> toggleAutoCommitWhenSettingsHasTrue = createdApplicationMono
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setAutoCommitConfig(new AutoCommitConfig());
+                    application
+                            .getGitApplicationMetadata()
+                            .getAutoCommitConfig()
+                            .setEnabled(TRUE);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.toggleAutoCommitEnabled(application.getId()));
+
+        StepVerifier.create(toggleAutoCommitWhenSettingsHasTrue)
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isFalse();
+                })
+                .verifyComplete();
+
+        Mono<Boolean> toggleAutoCommitWhenSettingsHasFalse = createdApplicationMono
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setAutoCommitConfig(new AutoCommitConfig());
+                    application
+                            .getGitApplicationMetadata()
+                            .getAutoCommitConfig()
+                            .setEnabled(FALSE);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.toggleAutoCommitEnabled(application.getId()));
+
+        StepVerifier.create(toggleAutoCommitWhenSettingsHasFalse)
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isTrue();
+                })
+                .verifyComplete();
+
+        Mono<GitApplicationMetadata> metaDataAfterToggleMono = createdApplicationMono
+                .flatMap(application -> {
+                    application.getGitApplicationMetadata().setAutoCommitConfig(new AutoCommitConfig());
+                    application
+                            .getGitApplicationMetadata()
+                            .getAutoCommitConfig()
+                            .setEnabled(FALSE);
+                    return applicationRepository.save(application);
+                })
+                .flatMap(application -> gitService.getGitApplicationMetadata(application.getId()));
+
+        StepVerifier.create(metaDataAfterToggleMono)
+                .assertNext(gitApplicationMetadata -> {
+                    assertThat(gitApplicationMetadata.getAutoCommitConfig()).isNotNull();
+                    assertThat(gitApplicationMetadata.getAutoCommitConfig().getEnabled())
+                            .isFalse();
                 })
                 .verifyComplete();
     }

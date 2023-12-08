@@ -3,6 +3,7 @@ package com.appsmith.server.helpers.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.events.AutoCommitEvent;
@@ -99,6 +100,29 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(application));
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitApplicationMetadata.class), eq(branchName)))
                 .thenReturn(Mono.just(Boolean.TRUE));
+
+        StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
+                .assertNext(aBoolean -> {
+                    assertThat(aBoolean).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void autoCommitApplication_WhenAutoCommitDisabled_AutoCommitNotTriggered() {
+        Application application = new Application();
+        GitApplicationMetadata metadata = new GitApplicationMetadata();
+        metadata.setAutoCommitConfig(new AutoCommitConfig());
+        metadata.getAutoCommitConfig().setEnabled(Boolean.FALSE);
+
+        application.setGitApplicationMetadata(metadata);
+
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.git_auto_commit_enabled))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
+                .thenReturn(Mono.just(application));
+        Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitApplicationMetadata.class), eq(branchName)))
+                .thenReturn(Mono.just(Boolean.FALSE));
 
         StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
                 .assertNext(aBoolean -> {

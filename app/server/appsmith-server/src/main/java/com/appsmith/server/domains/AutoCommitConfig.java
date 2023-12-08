@@ -4,5 +4,10 @@ import lombok.Data;
 
 @Data
 public class AutoCommitConfig {
-    Boolean disabled;
+    private Boolean enabled;
+
+    public Boolean getEnabled() {
+        // if the enabled is not set, it should be treated as true
+        return enabled == null || enabled;
+    }
 }

@@ -1,5 +1,7 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.domains.AutoCommitConfig;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
@@ -102,5 +104,24 @@ public class GitUtilsTest {
         jsonObject.put("version", 88);
         // version greater than latest, migration should not be required
         assertThat(GitUtils.isMigrationRequired(jsonObject, latestDslVersion)).isFalse();
+    }
+
+    @Test
+    public void isAutoCommitEnabled() {
+        GitApplicationMetadata metadata = new GitApplicationMetadata();
+        // should be true when auto commit config is null
+        assertThat(GitUtils.isAutoCommitEnabled(metadata)).isTrue();
+
+        metadata.setAutoCommitConfig(new AutoCommitConfig());
+        // should be true when auto commit config has enabled=null
+        assertThat(GitUtils.isAutoCommitEnabled(metadata)).isTrue();
+
+        metadata.getAutoCommitConfig().setEnabled(true);
+        // should be true when auto commit config has enabled=true
+        assertThat(GitUtils.isAutoCommitEnabled(metadata)).isTrue();
+
+        metadata.getAutoCommitConfig().setEnabled(false);
+        // should be true when auto commit config has enabled=false
+        assertThat(GitUtils.isAutoCommitEnabled(metadata)).isFalse();
     }
 }

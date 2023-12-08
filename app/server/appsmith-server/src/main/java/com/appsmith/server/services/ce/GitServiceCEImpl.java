@@ -22,6 +22,7 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitDeployKeys;
@@ -165,13 +166,13 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         // For default application we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
         // @Encrypted annotation used for private SSH keys
+        // applicationService.save sets the transient fields so no need to set it again from this method
         return applicationService
                 .findById(applicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     application.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.save(application);
-                })
-                .flatMap(applicationService::setTransientFields);
+                });
     }
 
     @Override
@@ -3217,5 +3218,28 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, String branchName) {
         return gitAutoCommitHelper.getAutoCommitProgress(applicationId, branchName);
+    }
+
+    @Override
+    public Mono<Boolean> toggleAutoCommitEnabled(String defaultApplicationId) {
+        return getApplicationById(defaultApplicationId)
+                .map(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (gitApplicationMetadata.getAutoCommitConfig() == null) {
+                        gitApplicationMetadata.setAutoCommitConfig(new AutoCommitConfig());
+                    }
+                    if (gitApplicationMetadata.getAutoCommitConfig().getEnabled()) {
+                        gitApplicationMetadata.getAutoCommitConfig().setEnabled(Boolean.FALSE);
+                    } else {
+                        gitApplicationMetadata.getAutoCommitConfig().setEnabled(Boolean.TRUE);
+                    }
+                    return application;
+                })
+                .flatMap(application -> applicationService
+                        .save(application)
+                        .thenReturn(application
+                                .getGitApplicationMetadata()
+                                .getAutoCommitConfig()
+                                .getEnabled()));
     }
 }

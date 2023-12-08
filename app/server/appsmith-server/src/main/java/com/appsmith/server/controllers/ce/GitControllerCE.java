@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -337,6 +338,13 @@ public class GitControllerCE {
     public Mono<ResponseDTO<AutoCommitProgressDTO>> getAutoCommitProgress(
             @PathVariable String defaultApplicationId, @RequestParam String branchName) {
         return service.getAutoCommitProgress(defaultApplicationId, branchName)
+                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PatchMapping("/app/{defaultApplicationId}/auto-commit/toggle")
+    public Mono<ResponseDTO<Boolean>> toggleAutoCommitEnabled(@PathVariable String defaultApplicationId) {
+        return service.toggleAutoCommitEnabled(defaultApplicationId)
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 }

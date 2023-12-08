@@ -118,4 +118,9 @@ public class GitUtils {
         }
         return isMigrationRequired;
     }
+
+    public static boolean isAutoCommitEnabled(GitApplicationMetadata gitApplicationMetadata) {
+        return gitApplicationMetadata.getAutoCommitConfig() == null
+                || gitApplicationMetadata.getAutoCommitConfig().getEnabled();
+    }
 }
