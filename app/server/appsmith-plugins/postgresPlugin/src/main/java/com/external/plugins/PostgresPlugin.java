@@ -706,7 +706,7 @@ public class PostgresPlugin extends BasePlugin {
                 HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
 
             final DatasourceStructure structure = new DatasourceStructure();
-            final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>();
+            final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
             return Mono.fromSupplier(() -> {
                         Connection connectionFromPool;

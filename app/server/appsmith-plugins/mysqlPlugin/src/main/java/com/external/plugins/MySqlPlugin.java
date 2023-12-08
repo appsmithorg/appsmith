@@ -708,7 +708,7 @@ public class MySqlPlugin extends BasePlugin {
         public Mono<DatasourceStructure> getStructure(
                 ConnectionContext<ConnectionPool> connectionContext, DatasourceConfiguration datasourceConfiguration) {
             final DatasourceStructure structure = new DatasourceStructure();
-            final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>();
+            final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
             ConnectionPool connectionPool = connectionContext.getConnection();
