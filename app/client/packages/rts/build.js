@@ -24,14 +24,6 @@ async function createFile(dir, filename, content) {
   }
 }
 
-async function copyFile(source, target) {
-  try {
-    await fs.copyFile(source, target);
-  } catch (err) {
-    console.error("Error copying file:", err);
-  }
-}
-
 const getWorkflowDependencies = () => {
   if (externalWorkflowPackages.length === 0) {
     return {};
@@ -86,9 +78,4 @@ const bundle = async () => {
   await bundle();
 
   console.log("Bundle created successfully");
-
-  await copyFile(
-    "src/workflowProxy/services/workflows.js",
-    "dist/bundle/workflows.js",
-  );
 })();
