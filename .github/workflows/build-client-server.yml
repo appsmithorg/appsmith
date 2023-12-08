@@ -24,9 +24,7 @@ jobs:
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
     steps:
       - name: Checkout the head commit of the branch
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Set matrix jobs
         id: matrix

@@ -11,6 +11,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -28,7 +29,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ApplicationPublishingMetaDTO;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
@@ -36,6 +37,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -49,7 +51,6 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -537,9 +538,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return applicationMono
                 .flatMapMany(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
-                            && !StringUtils.isEmpty(gitData.getRepoName())) {
+                    if (GitUtils.isApplicationConnectedToGit(application)) {
                         return applicationService.findAllApplicationsByDefaultApplicationId(
                                 gitData.getDefaultApplicationId(), applicationPermission.getDeletePermission());
                     }
@@ -1198,7 +1197,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<Theme> publishThemeMono =
                 applicationMono.flatMap(application -> themeService.publishTheme(application.getId()));
 
-        Set<CustomJSLibApplicationDTO> updatedPublishedJSLibDTOs = new HashSet<>();
+        Set<CustomJSLibContextDTO> updatedPublishedJSLibDTOs = new HashSet<>();
         Mono<List<ApplicationPage>> publishApplicationAndPages = applicationMono
                 // Return all the pages in the Application
                 .flatMap(application -> {
@@ -1315,8 +1314,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<Map<PluginType, Integer>> publishedActionsFlux = publishingMetaDTO.getActionCountByPluginTypeMapMono();
         Mono<List<ActionCollection>> publishedActionsCollectionFlux =
                 publishingMetaDTO.getPublishedActionCollectionsListMono();
-        Mono<Set<CustomJSLibApplicationDTO>> publishedJSLibDTOsMono =
-                publishingMetaDTO.getUpdatedPublishedJSLibDTOsMono();
+        Mono<Set<CustomJSLibContextDTO>> publishedJSLibDTOsMono = publishingMetaDTO.getUpdatedPublishedJSLibDTOsMono();
         String applicationId = publishingMetaDTO.getApplicationId();
         boolean isPublishedManually = publishingMetaDTO.isPublishedManually();
 
