@@ -395,7 +395,7 @@ export function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
   );
 }
 /**
- * 
+ *
  * isAnyJSAction checks if the entity is a JSAction ( or a JSModuleInstance on EE )
  */
 export function isAnyJSAction(entity: DataTreeEntity) {
