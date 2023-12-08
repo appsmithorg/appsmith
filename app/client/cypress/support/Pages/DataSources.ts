@@ -1808,7 +1808,7 @@ export class DataSources {
       new RegExp("^" + datasourceName + "$"),
     );
     this.agHelper.WaitUntilEleAppear(this._createQuery);
-    this.CreateQueryAfterDSSaved(datasourceName);
+    this.CreateQueryAfterDSSaved();
   }
 
   public AssertDataSourceInfo(info: string[]) {
