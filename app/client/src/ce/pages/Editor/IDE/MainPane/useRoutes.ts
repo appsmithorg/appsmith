@@ -103,7 +103,7 @@ function useRoutes(path: string): RouteReturnType[] {
       exact: true,
       path: [
         `${path}${QUERIES_EDITOR_BASE_PATH}`,
-        `${path}${QUERIES_EDITOR_BASE_PATH}/add`,
+        `${path}${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`,
       ],
     },
     {
