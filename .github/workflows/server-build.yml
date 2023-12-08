@@ -166,7 +166,7 @@ jobs:
             args+=("-DskipTests")
           fi
           if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            args+=("-Dtest=${{ steps.failed_tests.outputs.tests }}")
+            args+=("-DfailIfNoTests=false -Dtest=${{ steps.failed_tests.outputs.tests }}")
           fi
           args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
           mvn --batch-mode versions:set \
