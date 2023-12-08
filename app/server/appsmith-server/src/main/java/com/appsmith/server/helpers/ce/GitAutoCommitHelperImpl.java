@@ -111,7 +111,10 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                     })
 
                     // we cannot throw exception from this flow because doing so will fail the main operation
-                    .onErrorResume(throwable -> Mono.just(Boolean.FALSE));
+                    .onErrorResume(throwable -> {
+                        log.error("Error during auto-commit for application: {}, branch: {}", defaultApplicationId, branchName, throwable);
+                        return Mono.just(Boolean.FALSE);
+                    });
         }
         return Mono.just(Boolean.FALSE);
     }
