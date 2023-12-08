@@ -9,7 +9,7 @@ public class AnalyticsServiceCEImplTest {
     void shouldHashUserId_anonymousUserIdCE_shouldReturnFalse() {
         Boolean shouldHash =
                 AnalyticsServiceCEImpl.shouldHashUserId("execute_ACTION_TRIGGERED", "anonymousUser", true, false);
-        assertEquals(true, shouldHash);
+        assertEquals(false, shouldHash);
     }
 
     @Test

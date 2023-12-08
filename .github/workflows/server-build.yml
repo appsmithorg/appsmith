@@ -144,20 +144,19 @@ jobs:
           then
             args=-DskipTests
           fi
-          echo $PWD
           mvn --batch-mode versions:set \
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          args="$args -Dtest=ApplicationServiceCETest,AnalyticsServiceCEImplTest -DfailIfNoTests=false -DtestResultFile=$PWD/failed-tests.txt"
-          ./build.sh $args; ls -al
+          args="$args -DtestResultFile=$PWD/failed-server-tests.txt"
+          ./build.sh $args
 
       - name: Upload the failed tests report
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: failed-tests
-          path: app/server/failed-tests.txt
+          name: failed-server-tests
+          path: app/server/failed-server-tests.txt
           if-no-files-found: ignore
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
