@@ -1,7 +1,8 @@
+const { dependencies: packageDeps } = require("./package.json");
 const esbuild = require("esbuild");
 const fs = require("fs").promises;
 
-const externalPackages = [];
+const externalWorkflowPackages = [];
 
 async function ensureDirectoryExistence(dirname) {
   try {
@@ -31,8 +32,16 @@ async function copyFile(source, target) {
   }
 }
 
-const getTemporalioDependencies = () => {
-  return {};
+const getWorkflowDependencies = () => {
+  if (externalWorkflowPackages.length === 0) {
+    return {};
+  }
+  return Object.entries(packageDeps).reduce((acc, [key, value]) => {
+    if (externalWorkflowPackages.includes(key)) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
 };
 
 const bundle = async () => {
@@ -43,7 +52,7 @@ const bundle = async () => {
       minify: false,
       sourcemap: true,
       platform: "node",
-      external: [...externalPackages, "dtrace-provider"],
+      external: [...externalWorkflowPackages, "dtrace-provider"],
       loader: {
         ".ts": "ts",
       },
@@ -57,13 +66,13 @@ const bundle = async () => {
 };
 
 (async () => {
-  if (externalPackages.length > 0) {
+  if (externalWorkflowPackages.length > 0) {
     const bundlePackagejson = {
       name: "rts-bundle",
       version: "1.0.0",
       description: "",
       main: "bundle/server.js",
-      dependencies: getTemporalioDependencies(),
+      dependencies: getWorkflowDependencies(),
     };
 
     createFile(
