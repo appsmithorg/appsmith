@@ -117,6 +117,7 @@ jobs:
         if: steps.run_result.outputs.run_result == 'failedtest'
         run : |
           ls -a
+          find / -type f -name 'failed-server-tests.txt'
           # echo "files inside failed-server-tests"
           # ls
 
