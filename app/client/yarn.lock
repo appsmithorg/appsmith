@@ -2971,7 +2971,7 @@ __metadata:
     "@react-types/checkbox": ^3.4.3
     "@react-types/label": ^3.7.3
     "@react-types/menu": ^3.9.5
-    "@react-types/shared": ^3.17.0
+    "@react-types/shared": ^3.22.0
     classnames: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
@@ -8026,12 +8026,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-types/shared@npm:3.19.0":
-  version: 3.19.0
-  resolution: "@react-types/shared@npm:3.19.0"
+"@react-types/shared@npm:^3.18.0, @react-types/shared@npm:^3.21.0, @react-types/shared@npm:^3.22.0":
+  version: 3.22.0
+  resolution: "@react-types/shared@npm:3.22.0"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
-  checksum: e1cdabe05980be44b20d68e424f5891753f359c96bf151a17befa5a6e965dac315fd595657ed7c6572042078b5ca735735204175b020a8bdbb7dc11379a3be46
+  checksum: 108d171c006ee86d01418bb2ca0e54915e8cdb276ecd82cad43bd8aa3a360654a95983b60dbf196c7b004e0307690ae7b0315d051b015277699a552619ec2b29
   languageName: node
   linkType: hard
 
