@@ -101,13 +101,14 @@ jobs:
         run : |
           ls -a
           cd  ~/failed-server-tests
+          echo "files inside failed-server-tests"
           ls
 
       - name: Extract the tests for rerun
         id: failed_tests
         if: steps.run_result.outputs.run_result == 'failedtest'
         run: |
-          failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests)
+          failed_tests=$(awk '{printf("%s%s",sep,$0); sep=","}' ~/failed-server-tests/failed-server-tests.txt)
           echo 'tests=$failed_tests' >> $GITHUB_OUTPUT
 
       # In case of prior failure run the job
