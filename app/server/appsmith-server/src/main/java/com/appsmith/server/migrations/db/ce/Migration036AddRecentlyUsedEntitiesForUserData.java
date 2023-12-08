@@ -56,7 +56,6 @@ public class Migration036AddRecentlyUsedEntitiesForUserData {
                 recentlyUsedEntityDTOS.add(recentlyUsedEntityDTO);
             }
             update.set(fieldName(QUserData.userData.recentlyUsedEntityIds), recentlyUsedEntityDTOS);
-            update.set(fieldName(QUserData.userData.recentlyUsedEntityIds), recentlyUsedEntityDTOS);
             Criteria criteria = where(fieldName(QUserData.userData.id)).is(userData.getId());
             criteria.and(fieldName(QUserData.userData.recentlyUsedEntityIds)).exists(false);
             try {
