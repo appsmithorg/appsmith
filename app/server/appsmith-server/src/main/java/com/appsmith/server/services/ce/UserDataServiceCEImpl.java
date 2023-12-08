@@ -400,7 +400,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                     GitProfile authorProfile = currentUserData.getGitProfileByKey(defaultApplicationId);
 
                     if (authorProfile == null
-                            || org.eclipse.jgit.util.StringUtils.isEmptyOrNull(authorProfile.getAuthorName())
+                            || !StringUtils.hasLength(authorProfile.getAuthorName())
                             || Boolean.TRUE.equals(authorProfile.getUseGlobalProfile())) {
 
                         // Use default author profile as the fallback value
