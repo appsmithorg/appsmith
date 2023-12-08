@@ -114,7 +114,6 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                                     return Boolean.TRUE;
                                 });
                     })
-
                     // we cannot throw exception from this flow because doing so will fail the main operation
                     .onErrorResume(throwable -> {
                         log.error("Error during auto-commit for application: {}, branch: {}", defaultApplicationId, branchName, throwable);
