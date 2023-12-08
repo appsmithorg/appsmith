@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
@@ -186,6 +187,52 @@ public class GitAutoCommitHelperImplTest {
                 .assertNext(aBoolean -> {
                     assertThat(aBoolean).isTrue();
                     Mockito.verify(autoCommitEventHandler).publish(autoCommitEvent);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAutoCommitProgress_WhenAutoCommitRunning_ReturnsValidResponse() {
+        Mono<AutoCommitProgressDTO> progressDTOMono = redisUtils
+                .startAutoCommit(defaultApplicationId, branchName)
+                .then(redisUtils.setAutoCommitProgress(defaultApplicationId, 20))
+                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName));
+
+        StepVerifier.create(progressDTOMono)
+                .assertNext(dto -> {
+                    assertThat(dto.getIsRunning()).isTrue();
+                    assertThat(dto.getProgress()).isEqualTo(20);
+                    assertThat(dto.getBranchName()).isEqualTo(branchName);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAutoCommitProgress_WhenNoAutoCommitFinished_ReturnsValidResponse() {
+        Mono<AutoCommitProgressDTO> progressDTOMono = redisUtils
+                .startAutoCommit(defaultApplicationId, branchName)
+                .then(redisUtils.setAutoCommitProgress(defaultApplicationId, 20))
+                .then(redisUtils.finishAutoCommit(defaultApplicationId))
+                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName));
+
+        StepVerifier.create(progressDTOMono)
+                .assertNext(dto -> {
+                    assertThat(dto.getIsRunning()).isFalse();
+                    assertThat(dto.getProgress()).isNull();
+                    assertThat(dto.getBranchName()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void getAutoCommitProgress_WhenNoAutoCommitRunning_ReturnsValidResponse() {
+        Mono<AutoCommitProgressDTO> progressDTOMono =
+                gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName);
+        StepVerifier.create(progressDTOMono)
+                .assertNext(dto -> {
+                    assertThat(dto.getIsRunning()).isFalse();
+                    assertThat(dto.getProgress()).isNull();
+                    assertThat(dto.getBranchName()).isNull();
                 })
                 .verifyComplete();
     }
