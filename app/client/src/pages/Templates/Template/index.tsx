@@ -13,7 +13,10 @@ import {
 } from "@appsmith/constants/messages";
 import { templateIdUrl } from "@appsmith/RouteBuilder";
 import { Position } from "@blueprintjs/core";
-import { isImportingTemplateToAppSelector } from "selectors/templatesSelectors";
+import {
+  activeLoadingTemplateId,
+  isImportingTemplateToAppSelector,
+} from "selectors/templatesSelectors";
 import { useSelector } from "react-redux";
 
 const TemplateWrapper = styled.div`
@@ -97,7 +100,7 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   const { datasources, description, functions, id, screenshotUrls, title } =
     props.template;
   const [showForkModal, setShowForkModal] = useState(false);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>();
+  const loadingTemplateId = useSelector(activeLoadingTemplateId);
   const isImportingTemplateToApp = useSelector(
     isImportingTemplateToAppSelector,
   );
@@ -114,8 +117,6 @@ export function TemplateLayout(props: TemplateLayoutProps) {
 
   const onForkButtonTrigger = (e: React.MouseEvent<HTMLElement>) => {
     if (props.onForkTemplateClick) {
-      if (isImportingTemplateToApp) return;
-      setSelectedTemplateId(id);
       e.preventDefault();
       e.stopPropagation();
       props.onForkTemplateClick(props.template);
@@ -173,12 +174,10 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               >
                 <Button
                   className="t--fork-template fork-button"
-                  disabled={isImportingTemplateToApp}
+                  isDisabled={isImportingTemplateToApp}
                   isIconButton
                   isLoading={
-                    props.onForkTemplateClick &&
-                    isImportingTemplateToApp &&
-                    selectedTemplateId === id
+                    props.onForkTemplateClick && loadingTemplateId === id
                   }
                   onClick={onForkButtonTrigger}
                   size="sm"
