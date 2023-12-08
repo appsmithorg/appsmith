@@ -9,7 +9,7 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
-  PAGEPANE_ADD_PATH,
+  ADD_PATH,
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
@@ -101,7 +101,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH,
       BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH,
       BUILDER_PATH + CURL_IMPORT_PAGE_PATH,
-      BUILDER_PATH + CURL_IMPORT_PAGE_PATH + PAGEPANE_ADD_PATH,
+      BUILDER_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
       BUILDER_PATH + "/:entity",
       BUILDER_CUSTOM_PATH + "/:entity",
       BUILDER_PATH_DEPRECATED + "/:entity",
@@ -228,7 +228,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
   }
   if (
     match.url.endsWith(CURL_IMPORT_PAGE_PATH) ||
-    match.url.endsWith(CURL_IMPORT_PAGE_PATH + PAGEPANE_ADD_PATH)
+    match.url.endsWith(CURL_IMPORT_PAGE_PATH + ADD_PATH)
   ) {
     return {
       entity: FocusEntity.QUERY,

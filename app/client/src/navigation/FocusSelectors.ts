@@ -89,7 +89,7 @@ export const getSelectedQueryId = (path: string): QueryListState => {
   } else if (queryId) {
     type = PluginType.DB;
   } else if (id === "curl") {
-    type = PluginType.CURL;
+    type = PluginType.API;
   }
   return {
     type,

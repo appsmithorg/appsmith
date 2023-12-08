@@ -3,10 +3,10 @@ import { Flex } from "design-system";
 import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 
-import { PAGEPANE_ADD_PATH } from "constants/routes";
+import { ADD_PATH } from "constants/routes";
 import { SentryRoute } from "@appsmith/AppRouter";
-import { AddQuerySection } from "./AddQuerySection";
-import { ListQuerySection } from "./ListQuerySection";
+import { AddQuery } from "./AddQuery";
+import { ListQuery } from "./ListQuery";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {
@@ -29,12 +29,8 @@ const QueriesSection = () => {
       overflow="scroll"
     >
       <Switch>
-        <SentryRoute
-          component={AddQuerySection}
-          exact
-          path={`${path}${PAGEPANE_ADD_PATH}`}
-        />
-        <SentryRoute component={ListQuerySection} />
+        <SentryRoute component={AddQuery} exact path={`${path}${ADD_PATH}`} />
+        <SentryRoute component={ListQuery} />
       </Switch>
     </QueriesContainer>
   );

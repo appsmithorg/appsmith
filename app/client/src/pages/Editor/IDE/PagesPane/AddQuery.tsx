@@ -12,8 +12,9 @@ import { EntityIcon, getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
+import { ADD_PATH } from "constants/routes";
 
-const AddQuerySection = () => {
+const AddQuery = () => {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId) as string;
   const plugins = useSelector((state: AppState) => {
@@ -67,7 +68,7 @@ const AddQuerySection = () => {
   };
 
   const closeButtonClickHandler = useCallback(() => {
-    history.push(location.pathname.replace("/add", ""));
+    history.push(location.pathname.replace(`${ADD_PATH}`, ""));
   }, [pageId]);
 
   return (
@@ -128,4 +129,4 @@ const AddQuerySection = () => {
   );
 };
 
-export { AddQuerySection };
+export { AddQuery };

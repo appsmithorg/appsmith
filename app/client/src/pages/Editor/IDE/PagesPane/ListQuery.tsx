@@ -13,8 +13,9 @@ import {
   getCurrentPageId,
   selectQueriesForPagespane,
 } from "@appsmith/selectors/entitiesSelector";
+import { ADD_PATH } from "constants/routes";
 
-const ListQuerySection = () => {
+const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
   const files = useSelector(selectQueriesForPagespane);
   const activeActionId = useActiveAction();
@@ -27,7 +28,7 @@ const ListQuerySection = () => {
   );
 
   const addButtonClickHandler = useCallback(() => {
-    history.push(`${location.pathname}/add`);
+    history.push(`${location.pathname}${ADD_PATH}`);
   }, [pageId]);
 
   return (
@@ -84,4 +85,4 @@ const ListQuerySection = () => {
   );
 };
 
-export { ListQuerySection };
+export { ListQuery };
