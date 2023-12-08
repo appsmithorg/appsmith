@@ -45,8 +45,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final GitExecutor gitExecutor;
     private final ProjectProperties projectProperties;
 
-    private static final int TOTAL_STEPS = 5; // how many steps in the process, used to calculate progress
-    private static final String AUTO_COMMIT_MSG_FORMAT =
+    public static final String AUTO_COMMIT_MSG_FORMAT =
             "System generated commit, to support new features after upgrading Appsmith to the version: %s";
 
     @Override
@@ -155,6 +154,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                             autoCommitEvent.getBranchName());
                     return redisUtils
                             .finishAutoCommit(autoCommitEvent.getApplicationId())
+                            .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
                             .then(releaseFileLock(autoCommitEvent.getApplicationId()))
                             .thenReturn(Boolean.TRUE);
                 })
@@ -166,10 +166,10 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                             throwable);
                     return redisUtils
                             .finishAutoCommit(autoCommitEvent.getApplicationId())
+                            .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
                             .then(releaseFileLock(autoCommitEvent.getApplicationId()))
                             .thenReturn(Boolean.FALSE);
-                })
-                .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 100));
+                });
     }
 
     private Mono<ApplicationJson> migrateApplicationJson(
