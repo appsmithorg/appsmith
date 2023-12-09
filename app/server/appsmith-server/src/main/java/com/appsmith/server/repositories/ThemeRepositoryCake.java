@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
+import com.appsmith.server.projections.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.*;
@@ -31,68 +32,69 @@ public class ThemeRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<Theme> archive(Theme entity) {
-        return Mono.justOrEmpty(repository.archive(entity));
+    public Mono<Theme> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
-    public Mono<Theme> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission));
+    public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
+        return Mono.defer(
+                () -> Mono.justOrEmpty(repository.archiveDraftThemesById(editModeThemeId, publishedModeThemeId)));
     }
 
     public Flux<Theme> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission));
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public Mono<Theme> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
     }
 
     public Flux<Theme> queryAll(
             List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
-    }
-
-    public Mono<Boolean> archiveByApplicationId(String applicationId) {
-        return Mono.justOrEmpty(repository.archiveByApplicationId(applicationId));
-    }
-
-    public Mono<Theme> getSystemThemeByName(String themeName) {
-        return Mono.justOrEmpty(repository.getSystemThemeByName(themeName));
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
     public Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
-        return Flux.fromIterable(repository.getApplicationThemes(applicationId, aclPermission));
+        return Flux.defer(() -> Flux.fromIterable(repository.getApplicationThemes(applicationId, aclPermission)));
     }
 
     public Flux<Theme> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
-    }
-
-    public Flux<Theme> getSystemThemes() {
-        return Flux.fromIterable(repository.getSystemThemes());
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
-    }
-
-    public Mono<Theme> setUserPermissionsInObject(Theme obj) {
-        return Mono.justOrEmpty(repository.setUserPermissionsInObject(obj));
-    }
-
-    public Mono<Theme> retrieveById(String id) {
-        return Mono.justOrEmpty(repository.retrieveById(id));
-    }
-
-    public Mono<Theme> findById(String id, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(id, permission));
-    }
-
-    public Mono<Theme> setUserPermissionsInObject(Theme obj, Set<String> permissionGroups) {
-        return Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups));
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
     public boolean archiveById(String id) {
         return repository.archiveById(id);
     }
 
-    public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
-        return Mono.justOrEmpty(repository.archiveDraftThemesById(editModeThemeId, publishedModeThemeId));
+    public Mono<Theme> setUserPermissionsInObject(Theme obj) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
+    }
+
+    public Mono<Theme> setUserPermissionsInObject(Theme obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    }
+
+    public Mono<Theme> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
+    }
+
+    public Flux<Theme> getSystemThemes() {
+        return Flux.defer(() -> Flux.fromIterable(repository.getSystemThemes()));
+    }
+
+    public Mono<Boolean> archiveByApplicationId(String applicationId) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveByApplicationId(applicationId)));
+    }
+
+    public Mono<Theme> getSystemThemeByName(String themeName) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.getSystemThemeByName(themeName)));
+    }
+
+    public Mono<Theme> archive(Theme entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 }

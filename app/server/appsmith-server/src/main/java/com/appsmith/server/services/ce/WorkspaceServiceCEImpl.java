@@ -5,7 +5,9 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -37,6 +39,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -151,7 +154,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
      */
     @Override
     public Mono<Workspace> create(Workspace workspace, User user, Boolean isDefault) {
-        return Mono.empty(); /*
         if (workspace == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE));
         }
@@ -174,10 +176,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                 /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
                    Not using it right now because of circular dependency b/w workspaceService and pluginService
                    Also, since all our deployments are single node, this logic will still work
-                * /
+                */
                 .flatMap(org -> pluginRepository
                         .findByDefaultInstall(true)
-                        .map(obj -> new WorkspacePlugin(obj.getId(), WorkspacePluginStatus.FREE))
+                        .map(obj -> new WorkspacePlugin(obj, WorkspacePluginStatus.FREE))
                         .collect(Collectors.toSet())
                         .map(pluginList -> {
                             org.setPlugins(pluginList);
@@ -189,10 +191,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
                 .flatMap(tuple -> {
                     Workspace createdWorkspace = tuple.getT1();
                     Set<PermissionGroup> permissionGroups = tuple.getT2();
-                    return addPoliciesAndSaveWorkspace(permissionGroups, createdWorkspace);
+                    return addPoliciesAndSaveWorkspace(permissionGroups, createdWorkspace)
+                            .thenReturn(createdWorkspace);
                 })
                 .flatMap(this::createWorkspaceDependents)
-                .flatMap(analyticsService::sendCreateEvent);*/
+                .flatMap(analyticsService::sendCreateEvent);
     }
 
     protected void prepareWorkspaceToCreate(Workspace workspace, User user) {
@@ -278,7 +281,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepositoryCake,
 
     Mono<Set<PermissionGroup>> generatePermissionsForDefaultPermissionGroups(
             Set<PermissionGroup> permissionGroups, Workspace workspace, User user) {
-        return Mono.empty(); /*
+        return Mono.just(Collections.emptySet()); /*
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst()

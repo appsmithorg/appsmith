@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
+import com.appsmith.server.projections.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.*;
@@ -31,52 +32,52 @@ public class ProviderRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<Provider> setUserPermissionsInObject(Provider obj, Set<String> permissionGroups) {
-        return Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups));
-    }
-
-    public Flux<Provider> findByName(String name) {
-        return Flux.fromIterable(repository.findByName(name));
-    }
-
-    public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission, sort));
-    }
-
-    public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.fromIterable(repository.queryAll(criterias, permission));
-    }
-
-    public Mono<Provider> archive(Provider entity) {
-        return Mono.justOrEmpty(repository.archive(entity));
-    }
-
-    public Mono<Provider> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission));
-    }
-
-    public Mono<Provider> findById(String id, AclPermission permission) {
-        return Mono.justOrEmpty(repository.findById(id, permission));
+    public Mono<Provider> setUserPermissionsInObject(Provider obj) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
     }
 
     public Mono<Provider> retrieveById(String id) {
-        return Mono.justOrEmpty(repository.retrieveById(id));
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    }
+
+    public Mono<Provider> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
     }
 
     public Flux<Provider> queryAll(
             List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort));
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
-    public Mono<Provider> setUserPermissionsInObject(Provider obj) {
-        return Mono.justOrEmpty(repository.setUserPermissionsInObject(obj));
+    public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.justOrEmpty(repository.archiveAllById(ids));
+    public Flux<Provider> findByName(String name) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findByName(name)));
+    }
+
+    public Mono<Provider> archive(Provider entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
     public boolean archiveById(String id) {
         return repository.archiveById(id);
+    }
+
+    public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
+    }
+
+    public Mono<Provider> setUserPermissionsInObject(Provider obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    }
+
+    public Mono<Provider> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
     }
 }

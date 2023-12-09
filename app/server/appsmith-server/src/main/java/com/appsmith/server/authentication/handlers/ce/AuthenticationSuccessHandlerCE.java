@@ -3,7 +3,6 @@ package com.appsmith.server.authentication.handlers.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
@@ -318,10 +317,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     List<Mono<?>> monos = new ArrayList<>();
 
                     // Since the user has successfully logged in, lets reset the rate limit counter for the user.
-                    monos.add(rateLimitService.resetCounter(
-                            RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail()));
+                    // monos.add(rateLimitService.resetCounter(
+                    //         RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail()));
 
-                    monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
+                    // monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
                     String modeOfLogin = FieldName.FORM_LOGIN;
                     if (authentication instanceof OAuth2AuthenticationToken) {
@@ -354,11 +353,15 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         modeOfLogin)));
                     }
 
-                    monos.add(analyticsService.sendObjectEvent(
-                            AnalyticsEvents.LOGIN, currentUser, Map.of(FieldName.MODE_OF_LOGIN, modeOfLogin)));
+                    // monos.add(analyticsService.sendObjectEvent(
+                    //         AnalyticsEvents.LOGIN, currentUser, Map.of(FieldName.MODE_OF_LOGIN, modeOfLogin)));
 
                     return Mono.whenDelayError(monos);
                 })
+                .then(Mono.defer(() -> {
+                    System.out.println("AuthenticationSuccessHandlerCE.onAuthenticationSuccess");
+                    return Mono.empty();
+                }))
                 .then(finalRedirectionMono);
     }
 
@@ -366,7 +369,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
         // need to create default application
         Application application = new Application();
-        // application.setWorkspaceId(defaultWorkspaceId);
+        application.setWorkspaceId(defaultWorkspaceId);
         application.setName("My first application");
         Mono<Application> applicationMono = Mono.just(application);
         if (defaultWorkspaceId == null) {

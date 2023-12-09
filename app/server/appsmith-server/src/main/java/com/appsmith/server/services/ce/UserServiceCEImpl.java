@@ -9,6 +9,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
@@ -405,7 +406,6 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
     @Override
     public Mono<User> userCreate(User user, boolean isAdminUser) {
-        return Mono.empty(); /*
         // It is assumed here that the user's password has already been encoded.
 
         // convert the user email to lowercase
@@ -413,8 +413,8 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
         Mono<User> userWithTenantMono = Mono.just(user).flatMap(userBeforeSave -> {
             if (userBeforeSave.getTenantId() == null) {
-                return tenantService.getDefaultTenantId().map(tenantId -> {
-                    userBeforeSave.setTenantId(tenantId);
+                return tenantService.getDefaultTenant().map(tenant -> {
+                    userBeforeSave.setTenant(tenant);
                     return userBeforeSave;
                 });
             }
@@ -436,17 +436,16 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                 .then(Mono.zip(
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())))
-                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));*/
+                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
     private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
-        return Mono.empty(); /*
-        return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(repository::save);*/
+        // TODO: Add policies to the user
+        return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(repository::save);
     }
 
     @Override
     public Mono<UserSignupDTO> createUser(User user) {
-        return Mono.empty(); /*
         // Only encode the password if it's a form signup. For OAuth signups, we don't need password
         if (LoginSource.FORM.equals(user.getSource())) {
             if (user.getPassword() == null || user.getPassword().isBlank()) {
@@ -457,7 +456,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
         return repository
-                .findByCaseInsensitiveEmail(user.getUsername())
+                .findByEmailIgnoreCase(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -515,7 +514,7 @@ public class UserServiceCEImpl extends BaseService<UserRepositoryCake, User, Str
                                 log.debug("UserServiceCEImpl::Time taken to find created user: {} ms", pair.getT1());
                                 return pair.getT2();
                             });
-                }));*/
+                }));
     }
 
     /**

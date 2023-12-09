@@ -2,8 +2,10 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,13 +22,19 @@ import java.util.Objects;
 @Entity
 public class WorkspacePlugin extends BaseDomain {
 
-    @OneToOne
-    private Workspace workspace;
-
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "plugin_id", referencedColumnName = "id")
     private Plugin plugin;
 
+    @Column(name = "plugin_id", insertable = false, updatable = false)
+    private String pluginId;
+
     private WorkspacePluginStatus status;
+
+    public WorkspacePlugin(Plugin plugin, WorkspacePluginStatus status) {
+        setPlugin(plugin);
+        setStatus(status);
+    }
 
     public String getPluginId() {
         return plugin.getId();
