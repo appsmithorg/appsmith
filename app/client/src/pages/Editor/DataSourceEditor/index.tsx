@@ -144,6 +144,7 @@ interface ReduxStateProps {
   isEnabledForDSViewModeSchema: boolean;
   isPluginAllowedToPreviewData: boolean;
   isAppSidebarEnabled: boolean;
+  isPagePaneSegmentsEnabled: boolean;
   isOnboardingFlow?: boolean;
 }
 
@@ -908,6 +909,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isInsideReconnectModal,
       isNewDatasource,
       isOnboardingFlow,
+      isPagePaneSegmentsEnabled,
       isPluginAuthorized,
       isSaving,
       isTesting,
@@ -961,7 +963,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           e.preventDefault();
         }}
       >
-        {isAppSidebarEnabled || !!isOnboardingFlow ? null : <CloseEditor />}
+        {isAppSidebarEnabled ||
+        isPagePaneSegmentsEnabled ||
+        !!isOnboardingFlow ? null : (
+          <CloseEditor />
+        )}
         {!isInsideReconnectModal && (
           <DSFormHeader
             canDeleteDatasource={canDeleteDatasource}
@@ -1152,6 +1158,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     (plugin?.name === PluginName.MONGO && !!(datasource as Datasource)?.isMock);
 
   const isAppSidebarEnabled = getIsAppSidebarEnabled(state);
+  const isPagePaneSegmentsEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
 
   return {
     canDeleteDatasource,
@@ -1189,6 +1199,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     initialValue,
     showDebugger,
     isAppSidebarEnabled,
+    isPagePaneSegmentsEnabled,
   };
 };
 
