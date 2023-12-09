@@ -5,6 +5,7 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomPageRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PageRepositoryCE extends BaseRepository<Page, String>, CustomPageRepository {
 

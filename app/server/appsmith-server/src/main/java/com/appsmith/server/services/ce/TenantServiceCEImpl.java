@@ -11,7 +11,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
-import com.appsmith.server.repositories.TenantRepository;
+import com.appsmith.server.repositories.TenantRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
@@ -30,7 +30,7 @@ import java.util.Map;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, String> implements TenantServiceCE {
+public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenant, String> implements TenantServiceCE {
 
     private String tenantId;
 
@@ -45,7 +45,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             Validator validator,
             MongoConverter mongoConverter,
             ReactiveMongoTemplate reactiveMongoTemplate,
-            TenantRepository repository,
+            TenantRepositoryCake repository,
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
@@ -195,7 +195,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> save(Tenant tenant) {
-        return Mono.justOrEmpty(repository.save(tenant));
+        return repository.save(tenant);
     }
 
     /**
@@ -227,7 +227,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                                 // Fetch the tenant again from DB to make sure the downstream chain is consuming the
                                 // latest
                                 // DB object and not the modified one because of the client pertinent changes
-                                .then(Mono.justOrEmpty(repository.retrieveById(tenant.getId())))
+                                .then(repository.retrieveById(tenant.getId()))
                                 .flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
                     }
                     return Mono.error(
@@ -240,7 +240,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         if (!StringUtils.hasLength(id)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        return Mono.justOrEmpty(repository.retrieveById(id));
+        return repository.retrieveById(id);
     }
 
     /**

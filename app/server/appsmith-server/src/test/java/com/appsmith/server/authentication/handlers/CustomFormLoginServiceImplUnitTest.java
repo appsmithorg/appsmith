@@ -31,7 +31,7 @@ public class CustomFormLoginServiceImplUnitTest {
     public void findByUsername_WhenUserNameNotFound_ThrowsException() {
         String sampleEmail = "sample-email@example.com";
         Mockito.when(repository.findByEmail(sampleEmail)).thenReturn(Mono.empty());
-        Mockito.when(repository.findByCaseInsensitiveEmail(sampleEmail)).thenReturn(Mono.empty());
+        Mockito.when(repository.findByEmailIgnoreCase(sampleEmail)).thenReturn(Mono.empty());
 
         StepVerifier.create(reactiveUserDetailsService.findByUsername(sampleEmail))
                 .expectError(UsernameNotFoundException.class)
@@ -46,7 +46,7 @@ public class CustomFormLoginServiceImplUnitTest {
         user.setEmail(sampleEmail2.toLowerCase());
 
         Mockito.when(repository.findByEmail(sampleEmail2)).thenReturn(Mono.empty());
-        Mockito.when(repository.findByCaseInsensitiveEmail(sampleEmail2)).thenReturn(Mono.just(user));
+        Mockito.when(repository.findByEmailIgnoreCase(sampleEmail2)).thenReturn(Mono.just(user));
 
         StepVerifier.create(reactiveUserDetailsService.findByUsername(sampleEmail2))
                 .assertNext(userDetails -> {

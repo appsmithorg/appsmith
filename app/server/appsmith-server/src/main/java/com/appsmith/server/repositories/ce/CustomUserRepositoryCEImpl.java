@@ -44,30 +44,6 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Optional<User> findByCaseInsensitiveEmail(String email) {
-        return Optional.empty(); /*
-        String findEmailRegex = String.format("^%s$", Pattern.quote(email));
-        Criteria emailCriteria = where("email").regex(findEmailRegex, "i");
-        Query query = new Query();
-        query.addCriteria(emailCriteria);
-        return mongoOperations.findOne(query, User.class);*/
-    }
-
-    @Override
-    public Optional<User> findByEmailAndTenantId(String email, String tenantId) {
-        return Optional.empty(); /*
-        Criteria emailCriteria = where("email").is(email);
-        Criteria tenantIdCriteria = where("tenantId").is(tenantId);
-
-        Criteria andCriteria = new Criteria();
-        andCriteria.andOperator(emailCriteria, tenantIdCriteria);
-
-        Query query = new Query();
-        query.addCriteria(andCriteria);
-        return mongoOperations.findOne(query, User.class);*/
-    }
-
-    @Override
     public List<User> getAllByEmails(
             Set<String> emails,
             Optional<AclPermission> aclPermission,

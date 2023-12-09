@@ -16,10 +16,6 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     List<User> findAllByEmails(Set<String> emails);
 
-    Optional<User> findByCaseInsensitiveEmail(String email);
-
-    Optional<User> findByEmailAndTenantId(String email, String tenantId);
-
     List<User> getAllByEmails(
             Set<String> emails,
             Optional<AclPermission> aclPermission,

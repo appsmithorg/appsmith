@@ -105,6 +105,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private String tenantId;
 
     @ManyToMany
+    @ToString.Exclude
     private Set<PermissionGroup> permissionGroups;
 
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
