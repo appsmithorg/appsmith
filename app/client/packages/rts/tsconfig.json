@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "resolveJsonModule": true,
     "module": "commonjs",
     "esModuleInterop": true,
     "moduleResolution": "node",
@@ -12,40 +11,15 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "paths": {
-      "@constants/*": [
-        "./src/constants/*"
-      ],
-      "@services/*": [
-        "./src/services/*"
-      ],
-      "@middlewares/*": [
-        "./src/middlewares/*"
-      ],
-      "@controllers/*": [
-        "./src/controllers/*"
-      ],
-      "@rules/*": [
-        "./src/middlewares/rules/*"
-      ],
-      "@utils/*": [
-        "./src/utils/*"
-      ],
-      "@scim/*": [
-        "./src/scim/*"
-      ]
+      "@constants/*": ["./src/constants/*"],
+      "@services/*": ["./src/services/*"],
+      "@middlewares/*": ["./src/middlewares/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@rules/*": ["./src/middlewares/rules/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   },
-  "include": [
-    "src/**/*",
-    "src/**/*.json"
-  ],
-  "exclude": [
-    "jest.config.js",
-    "src/test",
-    "index.js",
-    "build.js"
-  ],
-  "lib": [
-    "es2015"
-  ]
+  "include": ["src/**/*", "src/**/*.json"],
+  "exclude": ["jest.config.js", "src/test", "index.js", "build.js"],
+  "lib": ["es2015"]
 }

@@ -9,5 +9,6 @@ yarn run tsc --noEmit
 
 rm -rf dist
 node build.js
+
 mkdir -pv dist/config
 cp -v src/scim/config/plugin-scim.json dist/config/server.json
