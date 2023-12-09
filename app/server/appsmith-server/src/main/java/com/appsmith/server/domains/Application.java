@@ -2,7 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
@@ -100,12 +100,12 @@ public class Application extends BaseDomain {
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
-    private Set<CustomJSLibApplicationDTO> unpublishedCustomJSLibs;
+    Set<CustomJSLibContextDTO> unpublishedCustomJSLibs;
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
-    private Set<CustomJSLibApplicationDTO> publishedCustomJSLibs;
+    Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")

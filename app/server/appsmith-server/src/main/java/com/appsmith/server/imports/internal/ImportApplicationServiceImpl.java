@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
@@ -13,7 +14,6 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;

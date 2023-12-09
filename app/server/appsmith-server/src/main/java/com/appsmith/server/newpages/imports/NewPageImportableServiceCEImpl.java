@@ -53,7 +53,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
         return Mono.empty(); /*
 
         List<NewPage> importedNewPageList = applicationJson.getPageList();
@@ -99,7 +100,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
     public Mono<Void> updateImportedEntities(
             Application application,
             ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            boolean isPartialImport) {
 
         ImportedActionAndCollectionMapsDTO actionAndCollectionMapsDTO =
                 mappedImportableResourcesDTO.getActionAndCollectionMapsDTO();

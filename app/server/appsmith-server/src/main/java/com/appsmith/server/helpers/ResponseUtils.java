@@ -17,7 +17,6 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 @Slf4j
 @Component
 public class ResponseUtils {

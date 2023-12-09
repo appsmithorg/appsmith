@@ -32,45 +32,13 @@ public class CustomJSLibRepositoryCake {
     }
     // End from CrudRepository
 
+    public Flux<CustomJSLib> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
+    }
+
     public Flux<CustomJSLib> queryAll(
             List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
-    }
-
-    public Mono<CustomJSLib> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
-    }
-
-    public Mono<CustomJSLib> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
-    }
-
-    public Flux<CustomJSLib> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
-    }
-
-    public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findUniqueCustomJsLib(customJSLib)));
-    }
-
-    public Mono<CustomJSLib> archive(CustomJSLib entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
-    }
-
-    public Mono<CustomJSLib> findById(String id, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
-    }
-
-    public Mono<CustomJSLib> setUserPermissionsInObject(CustomJSLib obj, Set<String> permissionGroups) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
-    }
-
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Flux<CustomJSLib> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
     public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
@@ -81,9 +49,39 @@ public class CustomJSLibRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
     }
 
-    public Flux<CustomJSLib> findCustomJsLibsInContext(
-            Set<String> uidStrings, String referenceId, CreatorContextType contextType) {
-        return Flux.defer(
-                () -> Flux.fromIterable(repository.findCustomJsLibsInContext(uidStrings, referenceId, contextType)));
+    public Flux<CustomJSLib> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
+    }
+
+    public Mono<CustomJSLib> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    }
+
+    public Mono<CustomJSLib> archive(CustomJSLib entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    }
+
+    public Mono<CustomJSLib> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    }
+
+    public Flux<CustomJSLib> findCustomJsLibsInContext(Set<CustomJSLibContextDTO> customJSLibContextDTOS) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findCustomJsLibsInContext(customJSLibContextDTOS)));
+    }
+
+    public Mono<CustomJSLib> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    }
+
+    public Mono<CustomJSLib> setUserPermissionsInObject(CustomJSLib obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    }
+
+    public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findUniqueCustomJsLib(customJSLib)));
     }
 }

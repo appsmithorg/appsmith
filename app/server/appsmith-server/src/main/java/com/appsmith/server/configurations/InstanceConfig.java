@@ -33,7 +33,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
     private final InstanceConfigHelper instanceConfigHelper;
 
-    private static final String WWW_PATH = System.getenv("NGINX_WWW_PATH");
+    private static final String WWW_PATH = System.getenv("WWW_PATH");
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {

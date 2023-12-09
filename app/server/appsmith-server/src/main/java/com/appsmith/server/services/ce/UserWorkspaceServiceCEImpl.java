@@ -2,16 +2,19 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
-import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -26,12 +29,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 
 @Slf4j
 @Service
 public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
-    private final WorkspaceRepositoryCake workspaceRepository;
+    private final WorkspaceService workspaceService;
     private final UserRepositoryCake userRepository;
     private final UserDataRepositoryCake userDataRepository;
     private final PolicySolution policySolution;
@@ -45,7 +51,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     @Autowired
     public UserWorkspaceServiceCEImpl(
             SessionUserService sessionUserService,
-            WorkspaceRepositoryCake workspaceRepository,
+            WorkspaceService workspaceService,
             UserRepositoryCake userRepository,
             UserDataRepositoryCake userDataRepository,
             PolicySolution policySolution,
@@ -56,7 +62,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             WorkspacePermission workspacePermission,
             PermissionGroupPermission permissionGroupPermission) {
         this.sessionUserService = sessionUserService;
-        this.workspaceRepository = workspaceRepository;
+        this.workspaceService = workspaceService;
         this.userRepository = userRepository;
         this.userDataRepository = userDataRepository;
         this.policySolution = policySolution;
@@ -72,7 +78,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     public Mono<User> leaveWorkspace(String workspaceId) {
         return Mono.empty(); /*
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository
+        Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
@@ -136,7 +142,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         }
 
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository
+        Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
@@ -378,7 +384,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     protected Flux<PermissionGroup> getPermissionGroupsForWorkspace(String workspaceId) {
         return Flux.empty(); /*
-        Mono<Workspace> workspaceMono = workspaceRepository
+        Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, workspacePermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
@@ -393,5 +399,33 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         return false; /*
                       return permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)
                               && permissionGroup.getAssignedToUserIds().size() == 1;*/
+    }
+
+    /**
+     * This function returns the list of workspaces for the current user in the order of recently used.
+     *
+     * @return Mono of list of workspaces
+     */
+    @Override
+    public Mono<List<Workspace>> getUserWorkspacesByRecentlyUsedOrder() {
+
+        Mono<List<String>> workspaceIdsMono = userDataService
+                .getForCurrentUser()
+                .defaultIfEmpty(new UserData())
+                .map(userData -> {
+                    if (userData.getRecentlyUsedEntityIds() == null) {
+                        return Collections.emptyList();
+                    }
+                    return userData.getRecentlyUsedEntityIds().stream()
+                            .map(RecentlyUsedEntityDTO::getWorkspaceId)
+                            .collect(Collectors.toList());
+                });
+
+        return workspaceIdsMono.flatMap(workspaceIds -> workspaceService
+                .getAll(workspacePermission.getReadPermission())
+                // sort transformation
+                .transform(domainFlux -> sortDomainsBasedOnOrderedDomainIds(domainFlux, workspaceIds))
+                // collect to list to keep the order of the workspaces
+                .collectList());
     }
 }

@@ -2,6 +2,7 @@ package com.appsmith.server.exports.internal;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -16,7 +17,6 @@ import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;

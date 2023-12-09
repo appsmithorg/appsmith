@@ -3,6 +3,7 @@ package com.appsmith.server.imports.internal;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -22,7 +23,6 @@ import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -147,9 +147,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 }
                                 return newActionImportableService
                                         .updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO)
+                                                application, importingMetaDTO, mappedImportableResourcesDTO, true)
                                         .then(newPageImportableService.updateImportedEntities(
-                                                application, importingMetaDTO, mappedImportableResourcesDTO))
+                                                application, importingMetaDTO, mappedImportableResourcesDTO, true))
                                         .thenReturn(application);
                             });
                 })
@@ -209,17 +209,19 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         Mono<Void> datasourceMono = datasourceImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         Mono<Void> customJsLibMono = customJSLibImportableService.importEntities(
-                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson);
+                importingMetaDTO, mappedImportableResourcesDTO, null, null, applicationJson, true);
 
         return pluginMono.then(datasourceMono).then(customJsLibMono).then();
     }
@@ -235,14 +237,16 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         Mono<Void> actionCollectionMono = actionCollectionImportableService.importEntities(
                 importingMetaDTO,
                 mappedImportableResourcesDTO,
                 workspaceMono,
                 importedApplicationMono,
-                applicationJson);
+                applicationJson,
+                true);
 
         return actionMono.then(actionCollectionMono).then();
     }
@@ -283,9 +287,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         return Mono.just(pageName);
                     }
                     applicationJson.getActionCollectionList().forEach(actionCollection -> {
-                        actionCollection.getPublishedCollection().setPageId(pageName);
                         actionCollection.getUnpublishedCollection().setPageId(pageName);
-
+                        if (actionCollection.getPublishedCollection() != null) {
+                            actionCollection.getPublishedCollection().setPageId(pageName);
+                        }
                         String collectionName = actionCollection.getId().split("_")[1];
                         actionCollection.setId(pageName + "_" + collectionName);
                         actionCollection.setGitSyncId(null);

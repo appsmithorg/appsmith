@@ -34,7 +34,7 @@ describe("MySQL datasource test cases", function () {
   });
 
   it("3. Create a new query from the datasource editor", function () {
-    cy.get(datasource.createQuery).last().click();
+    dataSources.CreateQueryAfterDSSaved();
     cy.wait("@createNewApi").should(
       "have.nested.property",
       "response.body.responseMeta.status",

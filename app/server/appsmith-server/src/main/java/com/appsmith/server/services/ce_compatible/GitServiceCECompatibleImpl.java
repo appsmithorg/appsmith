@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exports.internal.ExportApplicationService;
@@ -16,7 +17,6 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;

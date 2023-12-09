@@ -1,6 +1,7 @@
 package com.appsmith.server.domains.ce;
 
 import com.appsmith.external.models.BranchAwareDomain;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
@@ -53,6 +54,9 @@ public class ActionCollectionCE extends BranchAwareDomain {
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     ActionCollectionDTO publishedCollection;
+
+    @JsonView(Views.Public.class)
+    CreatorContextType contextType;
 
     @Override
     public void sanitiseToExportDBObject() {

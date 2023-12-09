@@ -119,17 +119,14 @@ jobs:
       # Check out merge commit
       - name: Fork based /ok-to-test checkout
         if: inputs.pr != 0
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
         if: inputs.pr == 0
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -172,10 +169,11 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v3
+      - name: Restore the docker image cache
+        uses: actions/cache@v3
         with:
-          name: cicontainer
+          path: cicontainer.tar.gz
+          key: docker-image-${{github.run_id}}
 
       - name: Load Docker image from tar file
         run: |
@@ -256,8 +254,6 @@ jobs:
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies

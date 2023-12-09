@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
@@ -25,7 +26,6 @@ import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.imports.internal.PartialImportService;
 import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.themes.base.ThemeService;
@@ -160,12 +160,23 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(deletedResources -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResources, null));
     }
 
+    @Deprecated
     @JsonView(Views.Public.class)
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
         log.debug("Going to get all applications grouped by workspace");
         return applicationFetcher
                 .getAllApplications()
+                .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/home")
+    public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
+            @RequestParam(required = false) String workspaceId) {
+        log.debug("Going to get all applications by workspace id {}", workspaceId);
+        return service.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(workspaceId)
+                .collectList()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 

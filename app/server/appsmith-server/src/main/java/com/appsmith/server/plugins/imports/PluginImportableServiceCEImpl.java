@@ -26,7 +26,8 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
         return Mono.empty(); /*
         return workspaceMono
                 .map(workspace -> workspace.getPlugins().stream()

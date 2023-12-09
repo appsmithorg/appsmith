@@ -41,7 +41,8 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
             Mono<Application> applicationMono,
-            ApplicationJson applicationJson) {
+            ApplicationJson applicationJson,
+            boolean isPartialImport) {
         List<ActionCollection> importedActionCollectionList =
                 CollectionUtils.isEmpty(applicationJson.getActionCollectionList())
                         ? new ArrayList<>()

@@ -12,11 +12,12 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -258,25 +259,28 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         Optional<Set<String>> permissionGroupsMono =
                 Optional.of(getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission)));
 
-        return permissionGroupsMono.map(permissionGroups -> {
-            AggregationOperation matchAggregationWithPermission = null;
-            if (permission == null) {
-                matchAggregationWithPermission = Aggregation.match(new Criteria().andOperator(notDeleted()));
-            } else {
-                matchAggregationWithPermission = Aggregation.match(
-                        new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-            }
-            AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
-            AggregationOperation wholeProjection = Aggregation.project(NewPage.class);
-            AggregationOperation addFieldsOperation = Aggregation.addFields()
-                    .addField("publishedPage")
-                    .withValueOf(Fields.field("unpublishedPage"))
-                    .build();
-            Aggregation combinedAggregation = Aggregation.newAggregation(
-                    matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
-            AggregationResults<NewPage> updatedResults =
-                    mongoTemplate.aggregate(combinedAggregation, NewPage.class, NewPage.class);
-            return bulkUpdate(updatedResults.getMappedResults()).get();
+        return permissionGroupsMono.flatMap(permissionGroups -> {
+            return Mono.fromCallable(() -> {
+                        AggregationOperation matchAggregationWithPermission = null;
+                        if (permission == null) {
+                            matchAggregationWithPermission =
+                                    Aggregation.match(new Criteria().andOperator(notDeleted()));
+                        } else {
+                            matchAggregationWithPermission = Aggregation.match(
+                                    new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+                        }
+                        AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
+                        AggregationOperation wholeProjection = Aggregation.project(NewPage.class);
+                        AggregationOperation addFieldsOperation = Aggregation.addFields()
+                                .addField(fieldName(QNewPage.newPage.publishedPage))
+                                .withValueOf(Fields.field(fieldName(QNewPage.newPage.unpublishedPage)))
+                                .build();
+                        Aggregation combinedAggregation = Aggregation.newAggregation(
+                                matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
+                        return mongoTemplate.aggregate(combinedAggregation, NewPage.class, NewPage.class);
+                    })
+                    .subscribeOn(Schedulers.boundedElastic())
+                    .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
         });
     }
 

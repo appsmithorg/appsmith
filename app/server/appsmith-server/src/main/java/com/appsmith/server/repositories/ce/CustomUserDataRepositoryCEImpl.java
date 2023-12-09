@@ -38,7 +38,11 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         if (!CollectionUtils.isEmpty(applicationIds)) {
             update = update.pullAll("recentlyUsedAppIds", applicationIds.toArray());
         }
-        return mongoOperations.updateFirst(query(where("userId").is(userId)), update, UserData.class);*/
+        update.pull(
+                fieldName(QUserData.userData.recentlyUsedEntityIds),
+                new BasicDBObject(fieldName(QRecentlyUsedEntityDTO.recentlyUsedEntityDTO.workspaceId), workspaceId));
+        return mongoOperations.updateFirst(
+                query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class);*/
     }
 
     /**
@@ -62,11 +66,13 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         return Optional.empty(); /*
         final Query query = query(where("userId").is(userId));
 
-        query.fields().include("recentlyUsedWorkspaceIds");
+        query.fields().include(fieldName(QUserData.userData.recentlyUsedEntityIds));
 
         return mongoOperations.findOne(query, UserData.class).map(userData -> {
-            final List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();
-            return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds) ? "" : recentlyUsedWorkspaceIds.get(0);
+            final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();
+            return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds)
+                    ? ""
+                    : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
         });*/
     }
 }

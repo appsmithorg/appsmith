@@ -16,6 +16,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;

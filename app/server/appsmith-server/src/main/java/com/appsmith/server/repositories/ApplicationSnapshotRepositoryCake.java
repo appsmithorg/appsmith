@@ -32,29 +32,29 @@ public class ApplicationSnapshotRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findWithoutData(applicationId)));
-    }
-
-    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
-    }
-
     public Flux<ApplicationSnapshot> queryAll(
             List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
+    }
+
+    public Flux<ApplicationSnapshot> findByApplicationId(String applicationId) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationId(applicationId)));
+    }
+
+    public Mono<ApplicationSnapshot> setUserPermissionsInObject(ApplicationSnapshot obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    }
+
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
     public Mono<ApplicationSnapshot> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
     }
 
-    public Mono<ApplicationSnapshot> setUserPermissionsInObject(ApplicationSnapshot obj) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
+    public Mono<ApplicationSnapshot> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
     public Mono<Void> deleteAllByApplicationId(String applicationId) {
@@ -65,27 +65,27 @@ public class ApplicationSnapshotRepositoryCake {
         return repository.archiveById(id);
     }
 
-    public Mono<ApplicationSnapshot> setUserPermissionsInObject(ApplicationSnapshot obj, Set<String> permissionGroups) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
+    }
+
+    public Mono<ApplicationSnapshot> setUserPermissionsInObject(ApplicationSnapshot obj) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
     }
 
     public Mono<ApplicationSnapshot> archive(ApplicationSnapshot entity) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
+    public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findWithoutData(applicationId)));
+    }
+
     public Mono<ApplicationSnapshot> findById(String id, AclPermission permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
-    }
-
-    public Flux<ApplicationSnapshot> findByApplicationId(String applicationId) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationId(applicationId)));
-    }
-
-    public Mono<ApplicationSnapshot> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
-    }
-
-    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
     }
 }

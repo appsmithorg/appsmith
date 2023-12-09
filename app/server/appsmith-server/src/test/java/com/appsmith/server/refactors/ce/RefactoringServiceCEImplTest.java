@@ -2,6 +2,7 @@ package com.appsmith.server.refactors.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -23,7 +24,6 @@ import com.appsmith.server.refactors.applications.RefactoringServiceCEImpl;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;

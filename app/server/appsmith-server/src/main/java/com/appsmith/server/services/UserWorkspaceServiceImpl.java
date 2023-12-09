@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserDataRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
-import com.appsmith.server.repositories.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ce.UserWorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -17,7 +16,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
 
     public UserWorkspaceServiceImpl(
             SessionUserService sessionUserService,
-            WorkspaceRepositoryCake workspaceRepository,
+            WorkspaceService workspaceService,
             UserRepositoryCake userRepository,
             UserDataRepositoryCake userDataRepository,
             PolicySolution policySolution,
@@ -30,7 +29,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
 
         super(
                 sessionUserService,
-                workspaceRepository,
+                workspaceService,
                 userRepository,
                 userDataRepository,
                 policySolution,
