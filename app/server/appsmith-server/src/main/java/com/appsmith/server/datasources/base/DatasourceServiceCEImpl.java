@@ -378,7 +378,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         return savedDatasource;
                     });
                 })
-                .map(repository::setUserPermissionsInObject);
+                .flatMap(repository::setUserPermissionsInObject);
     }
 
     @Override
@@ -675,7 +675,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<Datasource> findByNameAndWorkspaceId(
             String name, String workspaceId, Optional<AclPermission> permission) {
-        return Mono.justOrEmpty(repository.findByNameAndWorkspaceId(name, workspaceId, permission));
+        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
     }
 
     @Override

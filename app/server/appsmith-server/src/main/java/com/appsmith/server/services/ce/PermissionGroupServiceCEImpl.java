@@ -423,6 +423,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Mono<Set<String>> getSessionUserPermissionGroupIds() {
         return sessionUserService
                 .getCurrentUser()
-                .flatMap((User user) -> Mono.justOrEmpty(repository.getAllPermissionGroupsIdsForUser(user)));
+                .flatMap((User user) -> repository.getAllPermissionGroupsIdsForUser(user));
     }
 }

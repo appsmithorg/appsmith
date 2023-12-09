@@ -11,6 +11,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.TenantRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -63,7 +64,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
             return Mono.just(tenantId);
         }
 
-        return repository.findBySlug(FieldName.DEFAULT).map(Tenant::getId).map(tenantId -> {
+        return repository.findIdBySlug(FieldName.DEFAULT).map(IdOnly::getId).map(tenantId -> {
             // Set the cache value before returning.
             this.tenantId = tenantId;
             return tenantId;
@@ -151,7 +152,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
-        return Mono.empty(); /*
         // Get the default tenant object from the DB and then populate the relevant user permissions in that
         // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
         return repository
@@ -162,7 +162,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepositoryCake, Tenan
                     }
                     return tenant;
                 })
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));*/
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
     }
 
     @Override

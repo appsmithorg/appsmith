@@ -1538,13 +1538,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             Mono<Application> applicationMono, AppsmithError expectedError) {
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                .map(newPageRepository::setUserPermissionsInObject));
+                .flatMap(newPageRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                 .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
-                .map(newActionRepository::setUserPermissionsInObject));
+                .flatMap(newActionRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
                 .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
-                .map(actionCollectionRepository::setUserPermissionsInObject));
+                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
                 pageFlux,
@@ -1587,7 +1587,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
                         .findAllByIdsWithoutPermission(datasourceIds, List.of("id", "policies"))
-                        .map(datasourceRepository::setUserPermissionsInObject));
+                        .flatMap(datasourceRepository::setUserPermissionsInObject));
 
         return UserPermissionUtils.validateDomainObjectPermissionsOrError(
                         datasourceFlux,

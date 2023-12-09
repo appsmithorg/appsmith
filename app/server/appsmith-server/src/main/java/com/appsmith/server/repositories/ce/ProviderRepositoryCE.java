@@ -5,7 +5,6 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomProviderRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ProviderRepositoryCE extends BaseRepository<Provider, String>, CustomProviderRepository {
     List<Provider> findByName(String name);

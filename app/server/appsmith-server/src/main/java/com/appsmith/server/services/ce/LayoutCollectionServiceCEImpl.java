@@ -200,7 +200,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 }
                                 return actionCollectionService.save(savedActionCollection);
                             })
-                            .map(actionCollectionRepository::setUserPermissionsInObject)
+                            .flatMap(actionCollectionRepository::setUserPermissionsInObject)
                             .cache();
 
                     return actionCollectionMono
@@ -577,7 +577,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
-                .map(actionCollectionRepository::setUserPermissionsInObject)
+                .flatMap(actionCollectionRepository::setUserPermissionsInObject)
                 .flatMap(savedActionCollection -> updateLayoutService
                         .updatePageLayoutsByPageId(
                                 savedActionCollection.getUnpublishedCollection().getPageId())
