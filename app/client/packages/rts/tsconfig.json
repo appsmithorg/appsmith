@@ -16,7 +16,8 @@
       "@middlewares/*": ["./src/middlewares/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@rules/*": ["./src/middlewares/rules/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@scim/*": ["./src/scim/*"]
     }
   },
   "include": ["src/**/*", "src/**/*.json"],
