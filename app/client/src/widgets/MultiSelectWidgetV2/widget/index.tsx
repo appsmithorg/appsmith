@@ -760,7 +760,29 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
+  // This property is necessary to save the selected options,
+  // since after applying the filter during server filtering,
+  // we get a new options and all data is reset.
+  private savedSelectedOptions: LabelInValueType[] = [];
+
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
+    // Here we restore the selected options after applying filtering.
+    // We check the saved selected options and absence of selected options in props.
+    // This is possible only if a filter was applied, and we saved selected options.
+    if (
+      prevProps.selectedOptions.length === 0 &&
+      this.savedSelectedOptions.length > 0 &&
+      this.props.serverSideFiltering
+    ) {
+      this.props.updateWidgetMetaProperty(
+        "selectedOptions",
+        this.savedSelectedOptions,
+      );
+      // Here we clear the selected options since they are no longer needed,
+      // we will add them in onFilterChange method.
+      this.savedSelectedOptions = [];
+    }
+
     // Check if defaultOptionValue is string
     let isStringArray = false;
     if (
@@ -901,6 +923,7 @@ class MultiSelectWidget extends BaseWidget<
           type: EventType.ON_FILTER_UPDATE,
         },
       });
+      this.savedSelectedOptions = this.props.selectedOptions;
     }
   };
 

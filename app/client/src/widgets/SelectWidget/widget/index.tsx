@@ -6,6 +6,7 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
 import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
+import type { LabelInValueType } from "rc-select/lib/Select";
 import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
@@ -761,7 +762,33 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     super.componentDidMount();
   }
 
+  // This property is necessary to save the selected option,
+  // since after applying the filter during server filtering,
+  // we get a new options and all data is reset.
+  private savedSelectedOption: LabelInValueType | null = null;
+
   componentDidUpdate(prevProps: SelectWidgetProps): void {
+    // Here we restore the selected option after applying filtering.
+    // We check the saved selected option and absence of label and value in props.
+    // This is possible only if a filter was applied, and we saved selected option.
+    if (
+      this.savedSelectedOption != null &&
+      this.props.serverSideFiltering &&
+      (!prevProps.label || !prevProps.value)
+    ) {
+      this.props.updateWidgetMetaProperty(
+        "label",
+        this.savedSelectedOption.label,
+      );
+      this.props.updateWidgetMetaProperty(
+        "value",
+        this.savedSelectedOption.value,
+      );
+      // Here we clear the selected option since they are no longer needed,
+      // we will add it in onFilterChange method.
+      this.savedSelectedOption = null;
+    }
+
     // Reset isDirty to false if defaultOptionValue changes
     if (
       !equal(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
@@ -896,6 +923,10 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           type: EventType.ON_FILTER_UPDATE,
         },
       });
+      this.savedSelectedOption = {
+        label: this.props.selectedOptionLabel,
+        value: this.props.selectedOptionValue,
+      };
     }
   };
 
