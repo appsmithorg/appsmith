@@ -15,6 +15,7 @@ import {
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { MainContainerWidthToggles } from "../MainContainerWidthToggles";
 import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
+import OnLoadActionsList from "./OnLoadActionsList";
 
 const Title = styled.p`
   color: var(--ads-v2-color-fg);
@@ -46,6 +47,7 @@ export function CanvasPropertyPane() {
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
+          <OnLoadActionsList />
           {enableLayoutControl && (
             <>
               <Title className="text-sm">Canvas size</Title>
