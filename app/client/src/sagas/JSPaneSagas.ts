@@ -487,7 +487,7 @@ export function* handleStartExecuteJSFunctionSaga(
     from: EventLocation;
     openDebugger?: boolean;
   }>,
-): any {
+) {
   const { action, collection, from, openDebugger } = data.payload;
   const actionId = action.id;
   const JSActionPathName = getJSActionPathNameToDisplay(action, collection);

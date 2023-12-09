@@ -921,10 +921,7 @@ export const getActionById = createSelector(
 );
 
 export const getJSCollectionDataById = createSelector(
-  [
-    getJSCollections,
-    (state: any, props: any) => props.match.params.collectionId,
-  ],
+  [getJSCollections, (state: AppState, collectionId: string) => collectionId],
   (jsActions, id) => {
     const action = jsActions.find((action) => action.config.id === id);
     if (action) {

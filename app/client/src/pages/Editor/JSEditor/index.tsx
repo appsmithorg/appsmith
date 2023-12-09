@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import type { RouteComponentProps } from "react-router";
-import type { JSCollection } from "entities/JSCollection";
 import { useDispatch, useSelector } from "react-redux";
 import JsEditorForm from "./Form";
 import * as Sentry from "@sentry/react";
@@ -20,19 +19,18 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
-interface ReduxStateProps {
-  jsCollection: JSCollection | undefined;
-  isCreating: boolean;
-}
 
-type Props = ReduxStateProps &
-  RouteComponentProps<{ apiId: string; pageId: string }>;
+type Props = RouteComponentProps<{
+  apiId: string;
+  pageId: string;
+  collectionId: string;
+}>;
 
 function JSEditor(props: Props) {
-  const { pageId } = props.match.params;
+  const { collectionId, pageId } = props.match.params;
   const dispatch = useDispatch();
   const jsCollectionData = useSelector((state) =>
-    getJSCollectionDataById(state, props),
+    getJSCollectionDataById(state, collectionId),
   );
   const { isCreating } = useSelector((state) => state.ui.jsPane);
   const isPagesPaneEnabled = useFeatureFlag(
