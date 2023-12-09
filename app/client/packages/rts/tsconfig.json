@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
+    "resolveJsonModule": true,
     "module": "commonjs",
     "esModuleInterop": true,
     "moduleResolution": "node",
@@ -9,7 +10,6 @@
     "allowJs": true,
     "baseUrl": ".",
     "skipLibCheck": true,
-    "resolveJsonModule": true,
     "paths": {
       "@constants/*": ["./src/constants/*"],
       "@services/*": ["./src/services/*"],
