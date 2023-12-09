@@ -24,13 +24,10 @@ describe.skip("Modal Widget test cases", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
-    //agHelper.Sleep();
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     agHelper.WaitUntilEleAppear(
       locators._widgetInDeployed(draggableWidgets.BUTTON),
     ); //Wait for widgets to settle
-
-    //agHelper.Sleep(2000);
 
     //Verify that the Modal widget opens correctly when configured on a button click.
     agHelper.ClickButton("Submit");
@@ -49,7 +46,6 @@ describe.skip("Modal Widget test cases", function () {
     agHelper.WaitUntilEleAppear(locators._modal);
     agHelper.AssertElementExist(locators._modal);
     agHelper.ClickOutside(350, 150, false);
-    agHelper.Sleep();
     agHelper.AssertElementAbsence(locators._modal);
   });
 
@@ -58,11 +54,11 @@ describe.skip("Modal Widget test cases", function () {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.ToggleJSMode("onClick", false);
     propPane.CreateModal("onClick");
-    agHelper.Sleep(500);
     propPane.CreateModal("onClick");
-    agHelper.Sleep(500);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
-    agHelper.Sleep(2000); //Wait for widgets to settle & be visible
+    agHelper.WaitUntilEleAppear(
+      locators._widgetInDeployed(draggableWidgets.BUTTON),
+    ); //Wait for widgets to settle
     agHelper.ClickButton("Submit");
     agHelper.AssertElementLength(locators._modal, 3);
     agHelper.AssertElementVisibility(locators._modal, true, 2);
@@ -268,7 +264,6 @@ describe.skip("Modal Widget test cases", function () {
       1,
     );
     assertHelper.WaitForNetworkCall("@postExecute").then((response: any) => {
-      agHelper.Sleep();
       const name = response.body.data.body[0].name;
       agHelper.ValidateToastMessage("Executed api!");
 
