@@ -62,9 +62,7 @@ const bundle = async () => {
 };
 
 (async () => {
-
   if (externalWorkflowPackages.length > 0) {
-
     // Create package.json for bundle, this is needed to install workflow dependencies
     // in the bundle directory. This is needed for EE only. This is done to support the
     // packages for our workflow provider which requires dynamic imports. ESBuild does
