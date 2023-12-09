@@ -414,6 +414,8 @@ export const MODULE_INSTANCE_EMPTY_INPUT = () =>
   "No inputs parameters defined for this query.";
 export const MODULE_INSTANCE_RENAME_ERROR = (name: string) =>
   `Unable to update module instance name to ${name}`;
+export const NEW_REUSABLE_QUERY_BUTTON_TEXT = () => "New reusable query";
+export const NEW_REUSABLE_API_BUTTON_TEXT = () => "New reusable API";
 // Modules end
 
 //Worflows start

@@ -22,7 +22,7 @@ describe("URLAssembly", () => {
 
     urlBuilder.setModulesParams(() => ({}));
     urlBuilder.setPackageParams({});
-    urlBuilder.setCurrentModuleId(null);
+    urlBuilder.setCurrentModuleId(undefined);
   });
 
   afterEach(() => {
