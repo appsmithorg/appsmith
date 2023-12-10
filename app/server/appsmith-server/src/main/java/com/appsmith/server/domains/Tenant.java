@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.checkerframework.common.aliasing.qual.Unique;
 import org.hibernate.annotations.Type;
 
 @Getter
@@ -19,7 +18,8 @@ import org.hibernate.annotations.Type;
 @Entity
 public class Tenant extends BaseDomain {
 
-    @Unique String slug;
+    @Column(unique = true)
+    String slug;
 
     String displayName;
 

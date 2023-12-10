@@ -9,14 +9,14 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.reflections.Reflections.log;
-
+@Slf4j
 public class GitDeployKeyGenerator {
     public enum supportedProtocols {
         ECDSA(256, ""),

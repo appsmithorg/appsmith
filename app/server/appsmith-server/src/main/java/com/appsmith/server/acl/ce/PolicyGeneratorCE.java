@@ -3,7 +3,6 @@ package com.appsmith.server.acl.ce;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.google.common.collect.Sets;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
@@ -323,8 +322,8 @@ public class PolicyGeneratorCE {
             if (policyMap.containsKey(policy.getPermission())) {
                 Policy mergedPolicy = policyMap.get(policy.getPermission());
 
-                mergedPolicy.setPermissionGroups(
-                        Sets.union(mergedPolicy.getPermissionGroups(), policy.getPermissionGroups()));
+                mergedPolicy.setPermissionGroups(new HashSet<>(mergedPolicy.getPermissionGroups()));
+                mergedPolicy.getPermissionGroups().addAll(policy.getPermissionGroups());
 
                 policyMap.put(policy.getPermission(), mergedPolicy);
             } else {

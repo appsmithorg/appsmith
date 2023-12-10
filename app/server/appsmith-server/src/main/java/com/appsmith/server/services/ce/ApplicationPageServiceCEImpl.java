@@ -60,7 +60,6 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
-import com.google.common.base.Strings;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.annotation.Nullable;
@@ -664,7 +663,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 ApplicationPagesDTO pageNames = tuple.getT1();
                                 Application application = tuple.getT2();
 
-                                if (!Strings.isNullOrEmpty(newPageNameSuffix)) {
+                                if (!StringUtils.isEmpty(newPageNameSuffix)) {
                                     String newPageName = page.getName() + newPageNameSuffix;
 
                                     Set<String> names = pageNames.getPages().stream()

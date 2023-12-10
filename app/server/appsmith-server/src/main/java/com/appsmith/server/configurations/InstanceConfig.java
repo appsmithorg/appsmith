@@ -59,10 +59,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .then(instanceConfigHelper.performRtsHealthCheck())
                 .doFinally(ignored -> instanceConfigHelper.printReady());
 
-        Mono<?> startupProcess = instanceConfigHelper
-                .checkMongoDBVersion()
-                // .flatMap(ignored -> instanceConfigHelper.checkInstanceSchemaVersion())
-                .flatMap(signal -> registrationAndRtsCheckMono)
+        Mono<?> startupProcess = registrationAndRtsCheckMono
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
                 // Add cold publisher as we have dependency on the instance registration

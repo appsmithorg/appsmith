@@ -15,10 +15,8 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
-import joptsimple.internal.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
@@ -215,23 +213,6 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     public Mono<Boolean> isLicenseValid() {
         // As CE edition doesn't require license, default state should be valid
         return Mono.just(true);
-    }
-
-    @Override
-    public Mono<String> checkMongoDBVersion() {
-        return reactiveMongoTemplate
-                .executeCommand(new Document("buildInfo", 1))
-                .map(buildInfo -> {
-                    commonConfig.setMongoDBVersion(buildInfo.getString("version"));
-                    log.info("Fetched and set conenncted mongo db version as: {}", commonConfig.getMongoDBVersion());
-                    return commonConfig.getMongoDBVersion();
-                })
-                .onErrorResume(error -> {
-                    log.error(
-                            "Error while getting mongo db version. Hence current mongo db version will remain unavailable in context",
-                            error);
-                    return Mono.just(Strings.EMPTY);
-                });
     }
 
     @Override
