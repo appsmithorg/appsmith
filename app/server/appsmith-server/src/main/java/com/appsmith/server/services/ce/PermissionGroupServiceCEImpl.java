@@ -237,7 +237,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     assignedToUserIds.removeAll(userIds);
 
                     Update updateObj = new Update();
-                    String path = "assignedToUserIds";
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
                     updateObj.set(path, assignedToUserIds);
 
@@ -408,7 +408,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     assignedToUserIds.remove(userId);
 
                     Update updateObj = new Update();
-                    String path = "assignedToUserIds";
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
                     updateObj.set(path, assignedToUserIds);
 

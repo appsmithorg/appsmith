@@ -35,7 +35,7 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
                         .collect(Collectors.toSet()))
                 .flatMapMany(pluginIds -> pluginService.findAllByIdsWithoutPermission(
                         pluginIds,
-                        List.of("pluginName", "packageName")))
+                        List.of(fieldName(QPlugin.plugin.pluginName), fieldName(QPlugin.plugin.packageName))))
                 .map(plugin -> {
                     mappedExportableResourcesDTO
                             .getPluginMap()

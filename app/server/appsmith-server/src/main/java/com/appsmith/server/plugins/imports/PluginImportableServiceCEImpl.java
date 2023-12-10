@@ -35,7 +35,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
                         .collect(Collectors.toSet()))
                 .flatMapMany(pluginIds -> pluginService.findAllByIdsWithoutPermission(
                         pluginIds,
-                        List.of("pluginName", "packageName")))
+                        List.of(fieldName(QPlugin.plugin.pluginName), fieldName(QPlugin.plugin.packageName))))
                 .map(plugin -> {
                     mappedImportableResourcesDTO
                             .getPluginMap()

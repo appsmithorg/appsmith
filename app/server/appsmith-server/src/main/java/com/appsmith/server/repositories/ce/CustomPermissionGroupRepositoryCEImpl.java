@@ -32,7 +32,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     public List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
         return Collections.emptyList(); /*
-        Criteria assignedToUserIdCriteria = where("assignedToUserIds")
+        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
                 .in(userId);
         Criteria defaultWorkspaceIdCriteria = where("defaultDomainId")
                 .is(workspaceId);
@@ -97,7 +97,8 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
-        Criteria assignedToUserIdCriteria = where("assignedToUserIds").in(userIds);
+        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
+                .in(userIds);
         return queryAll(
                 List.of(assignedToUserIdCriteria), includeFields, permission, Optional.empty(), NO_RECORD_LIMIT);
     }

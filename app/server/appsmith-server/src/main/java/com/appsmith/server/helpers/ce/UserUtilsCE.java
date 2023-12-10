@@ -62,7 +62,7 @@ public class UserUtilsCE {
                     }
                     assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     Update updateObj = new Update();
-                    String path = "assignedToUserIds";
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
                     updateObj.set(path, assignedToUserIds);
                     // Make Super User is called before the first administrator is created.
