@@ -36,8 +36,10 @@ public class Migration036AddRecentlyUsedEntitiesForUserData {
     @Execution
     public void addRecentlyUsedEntitiesForUserData() {
 
-        final Query userDataQuery =
-                query(where(fieldName(QUserData.userData.deleted)).ne(true));
+        final Query userDataQuery = query(where(fieldName(QUserData.userData.deleted))
+                .ne(true)
+                .and(fieldName(QUserData.userData.recentlyUsedEntityIds))
+                .exists(false));
 
         // We are not migrating the applicationIds, to avoid long-running migration. Also, as user starts using the
         // instance these fields should auto-populate.
@@ -57,7 +59,6 @@ public class Migration036AddRecentlyUsedEntitiesForUserData {
             }
             update.set(fieldName(QUserData.userData.recentlyUsedEntityIds), recentlyUsedEntityDTOS);
             Criteria criteria = where(fieldName(QUserData.userData.id)).is(userData.getId());
-            criteria.and(fieldName(QUserData.userData.recentlyUsedEntityIds)).exists(false);
             try {
                 mongoTemplate.updateFirst(query(criteria), update, UserData.class);
             } catch (Exception e) {
