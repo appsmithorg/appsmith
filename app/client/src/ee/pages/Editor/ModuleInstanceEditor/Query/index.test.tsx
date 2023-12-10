@@ -11,7 +11,6 @@ import {
   getModuleInstanceById,
   getModuleInstancePublicAction,
 } from "@appsmith/selectors/moduleInstanceSelectors";
-import { BUILDER_PATH } from "constants/routes/appRoutes";
 import { getModuleById } from "@appsmith/selectors/modulesSelector";
 import type { Action } from "entities/Action";
 import { BrowserRouter as Router } from "react-router-dom";
@@ -19,15 +18,6 @@ import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { noop } from "lodash";
 import { klona } from "klona";
-
-const DEFAULT_ROUTE_MATCH_PARAMS = {
-  isExact: true,
-  path: BUILDER_PATH,
-  url: "app/app-slug/pageslug-pageId/edit/module-instance/test-module",
-  params: {
-    moduleId: "test-module",
-  },
-};
 
 const DEFAULT_MODULE_INSTANCE = {
   id: "test-module-instance",
@@ -173,9 +163,9 @@ jest.mock("react-redux", () => ({
 }));
 
 describe("QueryModuleInstanceEditor", () => {
-  const props = {
-    match: DEFAULT_ROUTE_MATCH_PARAMS,
-  } as unknown as QueryModuleInstanceEditorProps;
+  const props: QueryModuleInstanceEditorProps = {
+    moduleInstanceId: DEFAULT_MODULE_INSTANCE.id,
+  };
 
   beforeEach(() => {
     jest.resetAllMocks();

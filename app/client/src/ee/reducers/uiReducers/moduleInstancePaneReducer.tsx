@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type {
   RunQueryModuleInstancePayload,
+  UpdateModuleInstanceOnPageLoadSettingsPayload,
   UpdateModuleInstanceSettingsPayload,
 } from "@appsmith/actions/moduleInstanceActions";
 import type { Action } from "entities/Action";
@@ -85,9 +86,9 @@ export const handlers = {
 
   [ReduxActionTypes.UPDATE_MODULE_INSTANCE_ON_PAGE_LOAD_SETTING_INIT]: (
     draftState: ModuleInstancePaneState,
-    action: ReduxAction<UpdateModuleInstanceSettingsPayload>,
+    action: ReduxAction<UpdateModuleInstanceOnPageLoadSettingsPayload>,
   ) => {
-    draftState.settingsSavingStatus[action.payload.id] = {
+    draftState.settingsSavingStatus[action.payload.actionId] = {
       isSaving: true,
       error: false,
     };

@@ -1,7 +1,7 @@
 export * from "ce/pages/Editor/IDE/MainPane/useRoutes";
 import { default as useCE_Routes } from "ce/pages/Editor/IDE/MainPane/useRoutes";
 import type { RouteReturnType } from "ce/pages/Editor/IDE/MainPane/useRoutes";
-import QueryModuleInstanceEditor from "@appsmith/pages/Editor/ModuleInstanceEditor/Query";
+import ModuleInstanceEditor from "@appsmith/pages/Editor/ModuleInstanceEditor";
 import { MODULE_INSTANCE_ID_PATH } from "@appsmith/constants/routes/eeAppRoutes";
 import { useSelector } from "react-redux";
 import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
@@ -25,8 +25,8 @@ function useRoutes(path: string) {
   if (showQueryModule) {
     moduleRoutes = [
       {
-        key: "QueryModuleInstance",
-        component: QueryModuleInstanceEditor,
+        key: "ModuleInstance",
+        component: ModuleInstanceEditor,
         exact: true,
         path: `${path}${MODULE_INSTANCE_ID_PATH}`,
       },
