@@ -120,35 +120,6 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
         return obj;
     }
 
-    /**
-     * Given a set of AclPermissions, generate all policies (including policies from lateral permissions) for the user.
-     *
-     * @param permissions
-     * @param user
-     * @return
-     */
-    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, User user) {
-        return generatePolicyFromPermission(permissions, user.getUsername());
-    }
-
-    @Override
-    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, String username) {
-        return permissions.stream()
-                .map(perm -> {
-                    // Create a policy for the invited user using the permission as per the role
-                    Policy policyWithCurrentPermission = Policy.builder()
-                            .permission(perm.getValue())
-                            .users(Set.of(username))
-                            .build();
-                    // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(username), null);
-                    policiesForUser.add(policyWithCurrentPermission);
-                    return policiesForUser;
-                })
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-    }
-
     @Override
     public Map<String, Policy> generatePolicyFromPermissionGroupForObject(
             PermissionGroup permissionGroup, String objectId) {
@@ -203,26 +174,6 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                 })
                 .flatMap(Collection::stream)
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-    }
-
-    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByWorkspaceId(
-            String workspaceId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
-
-        return datasourceRepository
-                // fetch datasources with execute permissions so that app viewers can invite other app viewers
-                .findAllByWorkspaceId(workspaceId, datasourcePermission.getExecutePermission())
-                // In case we have come across a datasource for this workspace that the current user is not allowed to
-                // manage, move on.
-                .switchIfEmpty(Mono.empty())
-                .map(datasource -> {
-                    if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(newPoliciesMap, datasource);
-                    } else {
-                        return removePoliciesFromExistingObject(newPoliciesMap, datasource);
-                    }
-                })
-                .collectList()
-                .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));
     }
 
     public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(
@@ -398,18 +349,5 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                 .getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)
                 .stream()
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-    }
-
-    public Set<String> findUsernamesWithPermission(Set<Policy> policies, AclPermission permission) {
-        if (CollectionUtils.isNotEmpty(policies) && permission != null) {
-            final String permissionString = permission.getValue();
-            for (Policy policy : policies) {
-                if (permissionString.equals(policy.getPermission())) {
-                    return policy.getUsers();
-                }
-            }
-        }
-
-        return Collections.emptySet();
     }
 }
