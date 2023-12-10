@@ -17,8 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
@@ -26,8 +24,6 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -574,6 +570,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Optional<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
+        return Optional.empty(); /*
         Criteria applicationIdCriteria = where("applicationId").is(applicationId);
 
         Optional<Set<String>> permissionGroupsMono =
@@ -593,8 +590,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                                 AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
                                 AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
                                 AggregationOperation addFieldsOperation = Aggregation.addFields()
-                                        .addField(fieldName(QNewAction.newAction.publishedAction))
-                                        .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
+                                        .addField("publishedAction")
+                                        .withValueOf(Fields.field("unpublishedAction"))
                                         .build();
                                 Aggregation combinedAggregation = Aggregation.newAggregation(
                                         matchAggregation,
@@ -605,7 +602,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                             })
                             .subscribeOn(Schedulers.boundedElastic());
                 })
-                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
+                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));*/
     }
 
     @Override

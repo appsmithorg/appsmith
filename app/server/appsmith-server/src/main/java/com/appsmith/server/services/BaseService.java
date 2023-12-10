@@ -19,10 +19,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
@@ -196,7 +196,7 @@ public abstract class BaseService<R, T extends BaseDomain, ID extends Serializab
             Pageable pageable,
             Sort sort,
             AclPermission permission) {
-
+        return Flux.empty(); /*
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
@@ -208,6 +208,6 @@ public abstract class BaseService<R, T extends BaseDomain, ID extends Serializab
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result;
+        return result;*/
     }
 }

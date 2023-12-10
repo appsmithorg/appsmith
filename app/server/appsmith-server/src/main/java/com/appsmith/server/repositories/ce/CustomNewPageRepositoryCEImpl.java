@@ -10,21 +10,15 @@ import com.mongodb.bulk.BulkWriteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -254,6 +248,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission) {
+        return Optional.empty(); /*
         Criteria applicationIdCriteria = where("id").in(pageIds);
 
         Optional<Set<String>> permissionGroupsMono =
@@ -272,8 +267,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                         AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
                         AggregationOperation wholeProjection = Aggregation.project(NewPage.class);
                         AggregationOperation addFieldsOperation = Aggregation.addFields()
-                                .addField(fieldName(QNewPage.newPage.publishedPage))
-                                .withValueOf(Fields.field(fieldName(QNewPage.newPage.unpublishedPage)))
+                                .addField("publishedPage")
+                                .withValueOf(Fields.field("unpublishedPage"))
                                 .build();
                         Aggregation combinedAggregation = Aggregation.newAggregation(
                                 matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
@@ -281,7 +276,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                     })
                     .subscribeOn(Schedulers.boundedElastic())
                     .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
-        });
+        });*/
     }
 
     @Override

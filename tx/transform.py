@@ -182,6 +182,7 @@ def generate_cake_class(domain):
 
     import com.appsmith.server.acl.AclPermission;
     import com.appsmith.server.domains.*;
+    import com.appsmith.server.dtos.*;
     import com.appsmith.server.projections.*;
     import com.appsmith.external.models.*;
     import lombok.RequiredArgsConstructor;

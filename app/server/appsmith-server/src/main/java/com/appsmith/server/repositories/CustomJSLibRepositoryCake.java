@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -32,8 +33,16 @@ public class CustomJSLibRepositoryCake {
     }
     // End from CrudRepository
 
-    public Flux<CustomJSLib> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
+    public Mono<CustomJSLib> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    }
+
+    public Mono<CustomJSLib> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    }
+
+    public Mono<CustomJSLib> archive(CustomJSLib entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
     public Flux<CustomJSLib> queryAll(
@@ -45,6 +54,10 @@ public class CustomJSLibRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
+    public Flux<CustomJSLib> findCustomJsLibsInContext(Set<CustomJSLibContextDTO> customJSLibContextDTOS) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findCustomJsLibsInContext(customJSLibContextDTOS)));
+    }
+
     public Mono<CustomJSLib> setUserPermissionsInObject(CustomJSLib obj) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
     }
@@ -53,35 +66,23 @@ public class CustomJSLibRepositoryCake {
         return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
+    public Flux<CustomJSLib> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
-    public Mono<CustomJSLib> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
-    }
-
-    public Mono<CustomJSLib> archive(CustomJSLib entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
-    }
-
-    public Mono<CustomJSLib> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
-    }
-
-    public Flux<CustomJSLib> findCustomJsLibsInContext(Set<CustomJSLibContextDTO> customJSLibContextDTOS) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findCustomJsLibsInContext(customJSLibContextDTOS)));
-    }
-
-    public Mono<CustomJSLib> findById(String id, AclPermission permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findUniqueCustomJsLib(customJSLib)));
     }
 
     public Mono<CustomJSLib> setUserPermissionsInObject(CustomJSLib obj, Set<String> permissionGroups) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
     }
 
-    public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.findUniqueCustomJsLib(customJSLib)));
+    public Mono<CustomJSLib> findById(String id, AclPermission permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

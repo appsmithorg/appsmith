@@ -53,23 +53,24 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     private String releaseNotesViewedVersion;
 
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private List<String> recentlyUsedOrgIds;
-
     // list of workspace ids that were recently accessed by the user
     @Deprecated
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     private List<String> recentlyUsedWorkspaceIds;
 
     // list of application ids that were recently accessed by the user
     @Deprecated
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     private List<String> recentlyUsedAppIds;
 
     // Map of workspaceId to list of recently used applicationIds. This field should be used to add entities
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     private List<RecentlyUsedEntityDTO> recentlyUsedEntityIds;
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
@@ -87,6 +88,8 @@ public class UserData extends BaseDomain {
     // list of template ids that were recently forked by the user
     @Deprecated
     @JsonView(Views.Public.class)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     private List<String> recentlyUsedTemplateIds;
 
     // Status of user's consent on sharing email for Intercom communications

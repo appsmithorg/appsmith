@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -32,37 +33,24 @@ public class ProviderRepositoryCake {
     }
     // End from CrudRepository
 
-    public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
-    }
-
-    public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
-    }
-
-    public Mono<Provider> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
-    }
-
     public Flux<Provider> findByName(String name) {
         return Flux.defer(() -> Flux.fromIterable(repository.findByName(name)));
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
     public Mono<Provider> findById(String id, AclPermission permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
     }
 
-    public Flux<Provider> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
+    public Mono<Provider> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
+    }
+
+    public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
     public Mono<Provider> setUserPermissionsInObject(Provider obj) {
@@ -73,11 +61,24 @@ public class ProviderRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
     }
 
+    public Mono<Provider> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    }
+
+    public Flux<Provider> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
+    }
+
     public Mono<Provider> archive(Provider entity) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
-    public Mono<Provider> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    public Flux<Provider> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

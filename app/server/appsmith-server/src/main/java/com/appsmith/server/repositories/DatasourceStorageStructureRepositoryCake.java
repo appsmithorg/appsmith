@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.*;
 import com.appsmith.server.domains.*;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,10 @@ public class DatasourceStorageStructureRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.updateStructure(datasourceId, environmentId, structure)));
     }
 
+    public Mono<DatasourceStorageStructure> archive(DatasourceStorageStructure entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    }
+
     public Mono<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(
             String datasourceId, String environmentId) {
         return Mono.defer(
@@ -52,9 +57,5 @@ public class DatasourceStorageStructureRepositoryCake {
 
     public boolean archiveById(String id) {
         return repository.archiveById(id);
-    }
-
-    public Mono<DatasourceStorageStructure> archive(DatasourceStorageStructure entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 }

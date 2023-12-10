@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.*;
 import com.appsmith.server.domains.*;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.query.*;
@@ -30,23 +31,23 @@ public class PasswordResetTokenRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
     public Mono<PasswordResetToken> findByEmail(String email) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findByEmail(email)));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
+    public Mono<PasswordResetToken> archive(PasswordResetToken entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
     public Mono<PasswordResetToken> retrieveById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
-    public Mono<PasswordResetToken> archive(PasswordResetToken entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

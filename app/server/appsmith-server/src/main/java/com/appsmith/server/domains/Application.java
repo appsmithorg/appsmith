@@ -74,11 +74,13 @@ public class Application extends BaseDomain {
     @JsonView(Views.Internal.class)
     String clonedFromApplicationId; // todo: turn this into foreign key as well?
 
-    @OneToOne
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     private ApplicationDetail unpublishedApplicationDetail;
 
-    @OneToOne
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     private ApplicationDetail publishedApplicationDetail;
 

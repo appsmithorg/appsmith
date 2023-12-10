@@ -18,6 +18,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepositoryCake;
@@ -42,6 +43,7 @@ import reactor.core.scheduler.Scheduler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -668,11 +670,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
         Set<Policy> actionCollectionPolicies = new HashSet();
         actionCollection.getPolicies().forEach(policy -> {
-            Policy actionPolicy = Policy.builder()
-                    .permission(policy.getPermission())
-                    .permissionGroups(policy.getPermissionGroups())
-                    .build();
-
+            Policy actionPolicy = new Policy();
+            actionPolicy.setPermission(policy.getPermission());
+            actionPolicy.setPermissionGroups(policy.getPermissionGroups());
             actionCollectionPolicies.add(actionPolicy);
         });
 

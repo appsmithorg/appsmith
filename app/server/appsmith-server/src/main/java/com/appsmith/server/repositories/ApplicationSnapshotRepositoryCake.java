@@ -3,6 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.*;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -32,49 +33,41 @@ public class ApplicationSnapshotRepositoryCake {
     }
     // End from CrudRepository
 
-    public Flux<ApplicationSnapshot> queryAll(
-            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
-    }
-
-    public Flux<ApplicationSnapshot> findByApplicationId(String applicationId) {
-        return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationId(applicationId)));
-    }
-
-    public Mono<ApplicationSnapshot> setUserPermissionsInObject(ApplicationSnapshot obj, Set<String> permissionGroups) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
-    }
-
-    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
-    }
-
-    public Mono<ApplicationSnapshot> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
     }
 
     public Mono<ApplicationSnapshot> retrieveById(String id) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
-    public Mono<Void> deleteAllByApplicationId(String applicationId) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.deleteAllByApplicationId(applicationId)));
+    public Flux<ApplicationSnapshot> queryAll(
+            List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, includeFields, permission, sort)));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
-    }
-
-    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission)));
-    }
-
-    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
-        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
+    public Mono<Boolean> archiveAllById(java.util.Collection<String> ids) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
     public Mono<ApplicationSnapshot> setUserPermissionsInObject(ApplicationSnapshot obj) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj)));
+    }
+
+    public Flux<ApplicationSnapshot> findByApplicationId(String applicationId) {
+        return Flux.defer(() -> Flux.fromIterable(repository.findByApplicationId(applicationId)));
+    }
+
+    public Mono<Void> deleteAllByApplicationId(String applicationId) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.deleteAllByApplicationId(applicationId)));
+    }
+
+    public Mono<ApplicationSnapshot> setUserPermissionsInObject(ApplicationSnapshot obj, Set<String> permissionGroups) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.setUserPermissionsInObject(obj, permissionGroups)));
+    }
+
+    public Flux<ApplicationSnapshot> queryAll(List<Criteria> criterias, AclPermission permission, Sort sort) {
+        return Flux.defer(() -> Flux.fromIterable(repository.queryAll(criterias, permission, sort)));
     }
 
     public Mono<ApplicationSnapshot> archive(ApplicationSnapshot entity) {
@@ -87,5 +80,13 @@ public class ApplicationSnapshotRepositoryCake {
 
     public Mono<ApplicationSnapshot> findById(String id, AclPermission permission) {
         return Mono.defer(() -> Mono.justOrEmpty(repository.findById(id, permission)));
+    }
+
+    public Mono<ApplicationSnapshot> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.updateAndReturn(id, updateObj, permission)));
+    }
+
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }

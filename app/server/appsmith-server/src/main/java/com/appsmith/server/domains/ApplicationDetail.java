@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.server.domains.ce.ApplicationDetailCE;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

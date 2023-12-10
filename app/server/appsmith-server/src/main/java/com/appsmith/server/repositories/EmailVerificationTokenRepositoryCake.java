@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.*;
 import com.appsmith.server.domains.*;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.projections.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.query.*;
@@ -30,8 +31,8 @@ public class EmailVerificationTokenRepositoryCake {
     }
     // End from CrudRepository
 
-    public Mono<EmailVerificationToken> archive(EmailVerificationToken entity) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
+    public Mono<EmailVerificationToken> retrieveById(String id) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
     }
 
     public Mono<EmailVerificationToken> findByEmail(String email) {
@@ -42,11 +43,11 @@ public class EmailVerificationTokenRepositoryCake {
         return Mono.defer(() -> Mono.justOrEmpty(repository.archiveAllById(ids)));
     }
 
-    public boolean archiveById(String id) {
-        return repository.archiveById(id);
+    public Mono<EmailVerificationToken> archive(EmailVerificationToken entity) {
+        return Mono.defer(() -> Mono.justOrEmpty(repository.archive(entity)));
     }
 
-    public Mono<EmailVerificationToken> retrieveById(String id) {
-        return Mono.defer(() -> Mono.justOrEmpty(repository.retrieveById(id)));
+    public boolean archiveById(String id) {
+        return repository.archiveById(id);
     }
 }
