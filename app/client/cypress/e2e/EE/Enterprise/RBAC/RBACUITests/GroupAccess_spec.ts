@@ -62,11 +62,11 @@ describe("Create group, check if users in group has group roles accessess", func
         queryName,
       );
       dataSources.RunQuery();
-      adminSettings.NavigateToAdminSettings();
       featureFlagIntercept({
         license_gac_enabled: true,
       });
-      cy.wait(2000);
+      agHelper.Sleep(2000);
+      adminSettings.NavigateToAdminSettings();
       rbacHelper.CreatePermissionPageLevel(
         permissionAtPageLevel,
         workspaceName,
@@ -112,14 +112,13 @@ describe("Create group, check if users in group has group roles accessess", func
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementAbsence(locators._saveStatusError);
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     PageLeftPane.switchSegment("Widgets");
     entityExplorer.DragNDropWidget("checkboxwidget", 300, 100, "", "", true);
     agHelper.AssertElementExist(locators._saveStatusError);
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: queryName,
-      entityType: EntityType.Query,
-      action: "Copy to page",
-    });
+    EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
+    agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
+    agHelper.AssertElementAbsence(locators._contextMenuItem("Copy to page"));
   });
 
   /**
@@ -138,7 +137,7 @@ describe("Create group, check if users in group has group roles accessess", func
     homePage.SearchAndOpenApp(appName);
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragDropWidgetNVerify("checkboxwidget");
-    PageLeftPane.switchSegment("Widgets");
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     entityExplorer.DragDropWidgetNVerify("checkboxwidget");
   });
 });
