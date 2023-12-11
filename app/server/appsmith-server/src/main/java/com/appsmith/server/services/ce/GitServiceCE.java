@@ -84,7 +84,7 @@ public interface GitServiceCE {
 
     Mono<List<String>> getProtectedBranches(String defaultApplicationId);
 
-    Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, String branchName);
+    Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId);
 
     Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName);
 

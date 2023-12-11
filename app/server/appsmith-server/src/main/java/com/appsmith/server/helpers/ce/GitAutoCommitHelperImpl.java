@@ -35,7 +35,7 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
     private final RedisUtils redisUtils;
 
     @Override
-    public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, String branchName) {
+    public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId) {
         return redisUtils
                 .getRunningAutoCommitBranchName(applicationId)
                 .zipWith(redisUtils.getAutoCommitProgress(applicationId))

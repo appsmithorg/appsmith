@@ -198,7 +198,7 @@ public class GitAutoCommitHelperImplTest {
         Mono<AutoCommitProgressDTO> progressDTOMono = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)
                 .then(redisUtils.setAutoCommitProgress(defaultApplicationId, 20))
-                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName));
+                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId));
 
         StepVerifier.create(progressDTOMono)
                 .assertNext(dto -> {
@@ -215,7 +215,7 @@ public class GitAutoCommitHelperImplTest {
                 .startAutoCommit(defaultApplicationId, branchName)
                 .then(redisUtils.setAutoCommitProgress(defaultApplicationId, 20))
                 .then(redisUtils.finishAutoCommit(defaultApplicationId))
-                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName));
+                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId));
 
         StepVerifier.create(progressDTOMono)
                 .assertNext(dto -> {
@@ -228,8 +228,7 @@ public class GitAutoCommitHelperImplTest {
 
     @Test
     public void getAutoCommitProgress_WhenNoAutoCommitRunning_ReturnsValidResponse() {
-        Mono<AutoCommitProgressDTO> progressDTOMono =
-                gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName);
+        Mono<AutoCommitProgressDTO> progressDTOMono = gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId);
         StepVerifier.create(progressDTOMono)
                 .assertNext(dto -> {
                     assertThat(dto.getIsRunning()).isFalse();

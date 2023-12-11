@@ -335,9 +335,8 @@ public class GitControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/auto-commit/progress/app/{defaultApplicationId}")
-    public Mono<ResponseDTO<AutoCommitProgressDTO>> getAutoCommitProgress(
-            @PathVariable String defaultApplicationId, @RequestParam String branchName) {
-        return service.getAutoCommitProgress(defaultApplicationId, branchName)
+    public Mono<ResponseDTO<AutoCommitProgressDTO>> getAutoCommitProgress(@PathVariable String defaultApplicationId) {
+        return service.getAutoCommitProgress(defaultApplicationId)
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 

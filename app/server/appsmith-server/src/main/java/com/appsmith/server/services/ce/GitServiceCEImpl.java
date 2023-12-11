@@ -3217,8 +3217,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     @Override
-    public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, String branchName) {
-        return gitAutoCommitHelper.getAutoCommitProgress(applicationId, branchName);
+    public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId) {
+        return gitAutoCommitHelper.getAutoCommitProgress(applicationId);
     }
 
     @Override

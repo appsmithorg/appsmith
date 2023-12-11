@@ -4,7 +4,7 @@ import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import reactor.core.publisher.Mono;
 
 public interface GitAutoCommitHelper {
-    Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, String branchName);
+    Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId);
 
     Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName);
 }
