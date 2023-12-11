@@ -148,7 +148,7 @@ jobs:
 
       # Build and test the code
       - name: Build and test
-        if: steps.run_result.outputs.run_result != 'success'
+        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != "failedtest"
         env:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
@@ -174,6 +174,25 @@ jobs:
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
           ./build.sh "${args[@]}"
+
+      - name: Run only failed tests
+        if: inputs.skip-tests != "true" && steps.run_result.outputs.run_result == "failedtest"
+        env:
+          ACTIVE_PROFILE: test
+          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
+          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
+          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
+          APPSMITH_ENCRYPTION_PASSWORD: "password"
+          APPSMITH_ENCRYPTION_SALT: "salt"
+          APPSMITH_IS_SELF_HOSTED: false
+          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
+          APPSMITH_VERBOSE_LOGGING_ENABLED: false
+        run: |
+          mvn test \
+            -DtestResultFile=$PWD/failed-server-tests.txt \
+            -DfailIfNoTests=false \
+            -Dtest="${{ steps.failed_tests.outputs.tests }}"
 
       # Set status = failedtest
       - name: Set fail if there are test failures
