@@ -145,7 +145,6 @@ describe("Git sync apps", function () {
       cy.wait(2000);
       cy.SaveAndRunAPI();
       cy.ResponseStatusCheck("200");
-      cy.get(".t--close-editor").click();
       // curl import
       dataSources.NavigateToDSCreateNew();
       cy.get(ApiEditor.curlImage).click({ force: true });
@@ -169,12 +168,7 @@ describe("Git sync apps", function () {
             expect(someText).to.equal(response.response.body.data.name);
           });
       });
-      cy.get("body").then(($ele) => {
-        if ($ele.find(".t--close-editor").length) {
-          cy.get(".t--close-editor").click();
-        }
-      });
-      cy.get(explorer.addWidget).click();
+      EditorNavigation.ShowCanvas();
       // bind input widgets to the api calls responses
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
       cy.get(".t--widget-inputwidgetv2").should("exist");
