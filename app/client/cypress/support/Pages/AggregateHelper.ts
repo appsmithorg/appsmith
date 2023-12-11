@@ -473,12 +473,9 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleDisappear(selector: string) {
-    const locator = selector.includes("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.waitUntil(($ele) => cy.wrap($ele).should("have.length", 0), {
+    cy.waitUntil(() => this.GetElement(selector, "not.exist"), {
       errorMsg: "Element did not disappear even after 10 seconds",
-      timeout: 20000,
+      timeout: Cypress.config().pageLoadTimeout,
       interval: 1000,
     });
   }

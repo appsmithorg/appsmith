@@ -39,6 +39,7 @@ describe("Modal Widget test cases", function () {
       locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
     );
     agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.ICONBUTTON));
+    agHelper.WaitUntilEleDisappear(locators._modal);
     agHelper.AssertElementAbsence(locators._modal);
 
     //Verify that clicking outside the Modal widget closes it as expected when Quick dismiss is enabled
@@ -46,6 +47,7 @@ describe("Modal Widget test cases", function () {
     agHelper.WaitUntilEleAppear(locators._modal);
     agHelper.AssertElementExist(locators._modal);
     agHelper.ClickOutside(350, 150, false);
+    agHelper.WaitUntilEleDisappear(locators._modal);
     agHelper.AssertElementAbsence(locators._modal);
   });
 
