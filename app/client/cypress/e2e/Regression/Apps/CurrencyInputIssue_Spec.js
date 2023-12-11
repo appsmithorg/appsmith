@@ -1,4 +1,3 @@
-/// <reference types="Cypress" />
 import { homePage, agHelper } from "../../../support/Objects/ObjectsCore";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
 const themelocators = require("../../../locators/ThemeLocators.json");
@@ -12,13 +11,11 @@ describe("Currency Input Issue", function () {
     agHelper.VisitNAssert("/applications", "getReleaseItems");
     homePage.ImportApp("CurrencyInputIssueExport.json");
     cy.wait("@importNewApplication").then((interception) => {
-      agHelper.Sleep();
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
         cy.get(reconnectDatasourceModal.SkipToAppBtn).click({
           force: true,
         });
-        cy.wait(2000);
       } else {
         homePage.AssertImportToast();
       }
