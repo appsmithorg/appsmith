@@ -9,7 +9,7 @@ const dataSources = ObjectsRegistry.DataSources,
 
 describe(
   "Bug 18035: Updates save button text on datasource discard popup",
-  { tags: ["@tag.excludeForAirgap",  "@tag.Datasource"] },
+  { tags: ["@tag.excludeForAirgap", "@tag.Datasource"] },
   function () {
     it("1. Create gsheet datasource, click on back button, discard popup should contain save and authorize", function () {
       dataSources.NavigateToDSCreateNew();
