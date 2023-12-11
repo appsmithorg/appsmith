@@ -23,7 +23,7 @@ export const StyledImage = styled.img`
   height: 236px;
 `;
 
-export const TemplateContent = styled.div`
+export const BuildingBlockContent = styled.div`
   padding: 0 25px 16px 25px;
   display: flex;
   flex-direction: column;
@@ -44,7 +44,7 @@ export const TemplateContent = styled.div`
   }
 `;
 
-export const TemplateContentFooter = styled.div`
+export const BuildingBlockContentFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   align-items: center;

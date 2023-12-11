@@ -4,8 +4,8 @@ import {
   BuildingBlockWrapper,
   ImageWrapper,
   StyledImage,
-  TemplateContent,
-  TemplateContentFooter,
+  BuildingBlockContent,
+  BuildingBlockContentFooter,
 } from "./StyledComponents";
 import { Button, Text, Tooltip } from "design-system";
 import history from "utils/history";
@@ -50,7 +50,7 @@ const BuildingBlock = (props: BuildingBlockProps) => {
         <StyledImage src={screenshotUrls[0]} />
       </ImageWrapper>
 
-      <TemplateContent>
+      <BuildingBlockContent>
         <Text className="title" kind="heading-m" renderAs="h1">
           {title}
         </Text>
@@ -59,7 +59,7 @@ const BuildingBlock = (props: BuildingBlockProps) => {
           {description}
         </Text>
 
-        <TemplateContentFooter>
+        <BuildingBlockContentFooter>
           <Tooltip
             content={createMessage(FORK_THIS_TEMPLATE_BUILDING_BLOCK)}
             placement={Position.BOTTOM}
@@ -73,8 +73,8 @@ const BuildingBlock = (props: BuildingBlockProps) => {
               startIcon="plus"
             />
           </Tooltip>
-        </TemplateContentFooter>
-      </TemplateContent>
+        </BuildingBlockContentFooter>
+      </BuildingBlockContent>
     </BuildingBlockWrapper>
   );
 };
