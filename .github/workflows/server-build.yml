@@ -148,7 +148,7 @@ jobs:
 
       # Build and test the code
       - name: Build and test
-        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
+        if: steps.run_result.outputs.run_result != 'success'
         env:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
@@ -184,7 +184,7 @@ jobs:
           args=()
           if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
             failed_tests="${{ steps.failed_tests.outputs.tests }}"
-            args+=("-DfailIfNoTests=false" "-Dtest=\"${failed_tests}\"")
+            args+=("-DfailIfNoTests=false" "-Dtest=${failed_tests}")
           fi
           args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
           mvn test "${args[@]}"
