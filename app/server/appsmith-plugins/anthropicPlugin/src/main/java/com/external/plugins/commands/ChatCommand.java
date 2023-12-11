@@ -144,17 +144,6 @@ public class ChatCommand implements AnthropicCommand {
         return (List<Map<String, String>>) messages.get(DATA);
     }
 
-    /**
-     * Finds right data key from formData.messages. If viewType is present and it's json, then use `componentData`key
-     * else use `data` key to find right messages.
-     */
-    private String findDataKey(Map<String, Object> messages) {
-        if (messages.containsKey(VIEW_TYPE) && "json".equals(messages.get(VIEW_TYPE))) {
-            return COMPONENT_DATA;
-        }
-        return DATA;
-    }
-
     private int getMaxTokenFromFormData(Map<String, Object> formData) {
         String maxTokenAsString = RequestUtils.extractValueFromFormData(formData, MAX_TOKENS);
 
