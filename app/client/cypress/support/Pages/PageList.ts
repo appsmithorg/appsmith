@@ -38,6 +38,10 @@ class PageList {
     ).should("have.class", "activePage");
   }
 
+  public SelectedPageItem(): Cypress.Chainable {
+    return cy.get(".t--entity.page > .active");
+  }
+
   public ClonePage(pageName = "Page1") {
     AppSidebar.navigate(AppSidebarButton.Editor);
     EditorNavigation.SelectEntityByName(pageName, EntityType.Page);

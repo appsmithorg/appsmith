@@ -110,12 +110,16 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     dispatch(deleteAction({ id: apiId, name: apiName }));
   }, [getPageName, pages, pageId, apiName]);
 
+  const isPagesPaneEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
+
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
   return (
     <ApiEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
-      closeEditorLink={closeEditorLink}
+      closeEditorLink={isPagesPaneEnabled ? null : closeEditorLink}
       handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
