@@ -19,4 +19,6 @@ public interface CustomModuleRepository extends AppsmithRepository<Module> {
 
     Mono<Module> findByIdAndLayoutsIdAndViewMode(
             String creatorId, String layoutId, AclPermission permission, ResourceModes resourceModes);
+
+    Flux<Module> findAllById(List<String> moduleIdList, List<String> includedFieldsForModule);
 }

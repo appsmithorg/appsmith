@@ -34,7 +34,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
 
     @Override
     public Flux<Package> findAllConsumablePackages(String workspaceId, AclPermission permission) {
-        return findAllSourcePackages(workspaceId, permission)
+        return findAllSourcePackages(workspaceId, Optional.empty())
                 .flatMap(sourcePackage -> Mono.just(Tuples.of(sourcePackage.getId(), sourcePackage.getVersion())))
                 .collectList()
                 .flatMapMany(allTuple2s -> {
@@ -54,7 +54,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 });
     }
 
-    @NotNull private Flux<Package> findAllSourcePackages(String workspaceId, AclPermission permission) {
+    @NotNull private Flux<Package> findAllSourcePackages(String workspaceId, Optional<AclPermission> permission) {
         Criteria sourcePackageCriteria = Criteria.where(fieldName(QPackage.package$.srcPackageId))
                 .is(null)
                 .and(fieldName(QPackage.package$.lastPublishedAt))
@@ -62,7 +62,7 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
                 .and(fieldName(QPackage.package$.workspaceId))
                 .is(workspaceId);
 
-        return queryAll(List.of(sourcePackageCriteria), Optional.of(permission));
+        return queryAll(List.of(sourcePackageCriteria), permission);
     }
 
     @Override

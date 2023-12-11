@@ -22,6 +22,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_MODULES;
+import static com.appsmith.server.acl.AclPermission.READ_PACKAGES;
 import static com.appsmith.server.acl.AclPermission.READ_TENANT_AUDIT_LOGS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
@@ -140,7 +142,9 @@ public enum AppsmithRole {
                     APPLICATION_CREATE_PAGES,
                     WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS,
                     INVITE_USERS_APPLICATIONS,
-                    EXECUTE_ENVIRONMENTS)),
+                    EXECUTE_ENVIRONMENTS,
+                    READ_MODULES,
+                    READ_PACKAGES)),
     /**
      * Default Application Viewer Role
      * The role's name will be of format <b>App Viewer - application_name</b>
