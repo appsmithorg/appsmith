@@ -1,7 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.ProjectProperties;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -13,6 +15,7 @@ import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.services.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -44,6 +47,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final GitFileUtils fileUtils;
     private final GitExecutor gitExecutor;
     private final ProjectProperties projectProperties;
+    private final AnalyticsService analyticsService;
 
     public static final String AUTO_COMMIT_MSG_FORMAT =
             "System generated commit, to support new features after upgrading Appsmith to the version: %s";
@@ -136,22 +140,24 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
                         .flatMap(baseRepoPath -> {
                             // commit the application
-                            return gitExecutor.commitApplication(
-                                    baseRepoPath,
-                                    String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
-                                    autoCommitEvent.getAuthorName(),
-                                    autoCommitEvent.getAuthorEmail(),
-                                    false,
-                                    false);
+                            return gitExecutor
+                                    .commitApplication(
+                                            baseRepoPath,
+                                            String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
+                                            autoCommitEvent.getAuthorName(),
+                                            autoCommitEvent.getAuthorEmail(),
+                                            false,
+                                            false)
+                                    .map(commitResponse -> Boolean.TRUE);
                         })
-                        .thenReturn(Boolean.TRUE))
+                        .defaultIfEmpty(Boolean.FALSE))
                 .flatMap(result -> {
                     log.info(
-                            "auto commit finished. result: {} application {} branch {}",
+                            "auto commit finished. added commit: {}, application: {}, branch: {}",
                             result,
                             autoCommitEvent.getApplicationId(),
                             autoCommitEvent.getBranchName());
-                    return cleanUp(autoCommitEvent, Boolean.TRUE);
+                    return cleanUp(autoCommitEvent, result, false);
                 })
                 .onErrorResume(throwable -> {
                     log.error(
@@ -159,16 +165,35 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                             autoCommitEvent.getApplicationId(),
                             autoCommitEvent.getBranchName(),
                             throwable);
-                    return cleanUp(autoCommitEvent, Boolean.FALSE);
+                    return cleanUp(autoCommitEvent, Boolean.FALSE, true);
                 });
     }
 
-    private Mono<Boolean> cleanUp(AutoCommitEvent autoCommitEvent, boolean isSuccess) {
+    private Mono<Boolean> cleanUp(AutoCommitEvent autoCommitEvent, boolean isCommitMade, boolean exceptionCaught) {
         return redisUtils
                 .finishAutoCommit(autoCommitEvent.getApplicationId())
                 .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
-                .then(releaseFileLock(autoCommitEvent.getApplicationId()))
-                .thenReturn(isSuccess);
+                .flatMap(r -> releaseFileLock(autoCommitEvent.getApplicationId()))
+                .then(triggerAnalyticsEvent(autoCommitEvent, isCommitMade, exceptionCaught))
+                .thenReturn(isCommitMade);
+    }
+
+    private Mono<Boolean> triggerAnalyticsEvent(
+            AutoCommitEvent autoCommitEvent, boolean isCommitted, boolean exceptionOccurred) {
+        Map<String, Object> analyticsProps = new HashMap<>();
+        analyticsProps.put(FieldName.APPLICATION_ID, autoCommitEvent.getApplicationId());
+        analyticsProps.put(FieldName.BRANCH_NAME, autoCommitEvent.getBranchName());
+        analyticsProps.put(FieldName.WORKSPACE_ID, autoCommitEvent.getWorkspaceId());
+        analyticsProps.put("addedCommit", isCommitted);
+        analyticsProps.put("exceptionOccurred", exceptionOccurred);
+
+        return analyticsService
+                .sendEvent(
+                        AnalyticsEvents.GIT_AUTO_COMMIT.getEventName(),
+                        autoCommitEvent.getAuthorEmail(),
+                        analyticsProps,
+                        Boolean.TRUE)
+                .thenReturn(Boolean.TRUE);
     }
 
     /**

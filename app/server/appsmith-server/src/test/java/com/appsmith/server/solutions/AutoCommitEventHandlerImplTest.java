@@ -10,6 +10,7 @@ import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.services.AnalyticsService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -34,6 +36,7 @@ import java.util.List;
 
 import static com.appsmith.server.solutions.ce.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -45,6 +48,9 @@ public class AutoCommitEventHandlerImplTest {
 
     @SpyBean
     RedisUtils redisUtils;
+
+    @Autowired
+    AnalyticsService analyticsService;
 
     @MockBean
     DSLMigrationUtils dslMigrationUtils;
@@ -65,7 +71,13 @@ public class AutoCommitEventHandlerImplTest {
     @BeforeEach
     public void beforeTest() {
         autoCommitEventHandler = new AutoCommitEventHandlerImpl(
-                applicationEventPublisher, redisUtils, dslMigrationUtils, fileUtils, gitExecutor, projectProperties);
+                applicationEventPublisher,
+                redisUtils,
+                dslMigrationUtils,
+                fileUtils,
+                gitExecutor,
+                projectProperties,
+                analyticsService);
     }
 
     @AfterEach
@@ -81,6 +93,9 @@ public class AutoCommitEventHandlerImplTest {
         autoCommitEvent.setBranchName(branchName);
 
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(10));
+
+        //        Mockito.when(analyticsService.sendEvent(anyString(), anyString(), anyMap(), anyBoolean()))
+        //            .thenReturn(Mono.empty());
 
         Mono<Boolean> map = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)
@@ -135,10 +150,11 @@ public class AutoCommitEventHandlerImplTest {
                 .get(0)
                 .getDsl();
 
+        int currentDslVersion = dslBeforeMigration.getAsNumber("version").intValue();
         JSONObject dslAfterMigration = new JSONObject();
         dslAfterMigration.put("key", "after migration");
 
-        Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(10));
+        Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(currentDslVersion + 1));
         Path baseRepoSuffix = Paths.get(
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
 
@@ -153,7 +169,7 @@ public class AutoCommitEventHandlerImplTest {
                 .thenReturn(Mono.just(applicationJson));
 
         // mock the dsl migration utils to return updated dsl when requested with older dsl
-        Mockito.when(dslMigrationUtils.migratePageDsl(dslBeforeMigration)).thenReturn(Mono.just(dslAfterMigration));
+        Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
 
         Mockito.when(fileUtils.saveApplicationToLocalRepo(
                         autoCommitEvent.getWorkspaceId(),
@@ -215,7 +231,7 @@ public class AutoCommitEventHandlerImplTest {
                         .autoCommitDSLMigration(autoCommitEvent)
                         .zipWhen(result -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
-                    assertThat(tuple2.getT1()).isTrue();
+                    assertThat(tuple2.getT1()).isFalse();
                     assertThat(tuple2.getT2()).isEqualTo(100);
                 })
                 .verifyComplete();
