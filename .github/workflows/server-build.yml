@@ -146,8 +146,8 @@ jobs:
           echo version=$next_version-SNAPSHOT >> $GITHUB_OUTPUT
           echo tag=$(echo ${GITHUB_REF:11}) >> $GITHUB_OUTPUT
 
-      # Build and test the code
-      - name: Build and test
+      # Build the code
+      - name: Build
         if: steps.run_result.outputs.run_result != 'success'
         env:
           ACTIVE_PROFILE: test
@@ -167,7 +167,8 @@ jobs:
             -DprocessAllModules=true
           ./build.sh -DskipTests
 
-      - name: Run only failed tests
+      # Test the code
+      - name: Run only tests
         if: inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest'
         env:
           ACTIVE_PROFILE: test
