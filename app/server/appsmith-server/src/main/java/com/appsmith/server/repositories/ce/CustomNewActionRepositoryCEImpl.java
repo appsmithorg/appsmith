@@ -413,7 +413,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
+    public Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
 
         Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
@@ -423,7 +423,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+    public Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
         Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
                         + fieldName(QNewAction.newAction.unpublishedAction.pageId))
                 .in(pageIds);

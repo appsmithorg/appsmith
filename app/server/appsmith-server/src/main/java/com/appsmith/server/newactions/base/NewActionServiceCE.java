@@ -136,7 +136,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
-    Flux<NewAction> findByListOfPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+    Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
 
     Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
             String contextId,
