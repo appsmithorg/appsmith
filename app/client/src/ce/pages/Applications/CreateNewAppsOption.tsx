@@ -15,7 +15,6 @@ import {
   START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -49,10 +48,8 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
-import localStorage from "utils/localStorage";
 import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { PluginPackageName, PluginType } from "entities/Action";
@@ -61,6 +58,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { fetchMockDatasources } from "actions/datasourceActions";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
+import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 
 const SectionWrapper = styled.div`
   display: flex;
@@ -203,9 +201,6 @@ const CreateNewAppsOption = ({
       currentApplicationIdForCreateNewApp,
     ),
   );
-  const isEnabledForStartWithData = useFeatureFlag(
-    FEATURE_FLAG.ab_onboarding_flow_start_with_data_dev_only_enabled,
-  );
 
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
@@ -234,28 +229,14 @@ const CreateNewAppsOption = ({
   };
 
   const onClickStartWithData = () => {
-    const devEnabled = localStorage.getItem(
-      "ab_onboarding_flow_start_with_data_dev_only_enabled",
-    );
-    if (devEnabled) {
-      // fetch plugins information to show list of all plugins
-      if (isEnabledForStartWithData) {
-        dispatch(fetchPlugins());
-        dispatch(fetchMockDatasources());
-        setUseType(START_WITH_TYPE.DATA);
-      }
-    } else {
-      if (application) {
-        AnalyticsUtil.logEvent("CREATE_APP_FROM_SCRATCH");
-        dispatch(
-          firstTimeUserOnboardingInit(
-            application.id,
-            application.defaultPageId as string,
-            "datasources/NEW",
-          ),
-        );
-      }
+    AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA");
+    // fetch plugins information to show list of all plugins
+    dispatch(fetchPlugins());
+    dispatch(fetchMockDatasources());
+    if (application?.workspaceId) {
+      dispatch(fetchingEnvironmentConfigs(application?.workspaceId, true));
     }
+    setUseType(START_WITH_TYPE.DATA);
   };
 
   const goBackToInitialScreen = () => {
@@ -292,6 +273,35 @@ const CreateNewAppsOption = ({
     }
   };
 
+  const addAnalyticEventsForSkip = () => {
+    if (useType === START_WITH_TYPE.TEMPLATE) {
+      if (selectedTemplate) {
+        const template = getTemplateById(selectedTemplate);
+        if (template) {
+          AnalyticsUtil.logEvent(
+            "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_TEMPLATE_DETAILS_PAGE",
+            { title: template.title },
+          );
+        }
+      } else {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_START_FROM_TEMPLATE_PAGE",
+        );
+      }
+    } else if (useType === START_WITH_TYPE.DATA) {
+      if (createNewAppPluginId) {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_DATASOURCE_FORM_PAGE",
+          { pluginId: createNewAppPluginId },
+        );
+      } else {
+        AnalyticsUtil.logEvent(
+          "ONBOARDING_FLOW_CLICK_SKIP_BUTTON_START_FROM_DATA_PAGE",
+        );
+      }
+    }
+  };
+
   const onClickSkipButton = () => {
     if (application) {
       urlBuilder.updateURLParams(
@@ -313,9 +323,7 @@ const CreateNewAppsOption = ({
       );
     }
 
-    AnalyticsUtil.logEvent("START_FROM_TEMPLATES_CLICK_SKIP_BUTTON", {
-      startWithType: useType,
-    });
+    addAnalyticEventsForSkip();
   };
 
   const onClickBackButton = () => {
@@ -363,30 +371,27 @@ const CreateNewAppsOption = ({
 
   const selectionOptions: CardProps[] = [
     {
+      onClick: onClickStartWithData,
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-with-data.svg`),
+      subTitle: createMessage(START_WITH_DATA_SUBTITLE),
+      testid: "t--start-from-data",
+      title: createMessage(START_WITH_DATA_TITLE),
+    },
+    {
       onClick: onClickStartFromScratch,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-scratch.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-from-scratch.svg`),
       subTitle: createMessage(START_FROM_SCRATCH_SUBTITLE),
       testid: "t--start-from-scratch",
       title: createMessage(START_FROM_SCRATCH_TITLE),
     },
     {
       onClick: onClickStartFromTemplate,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-usecase.png`),
+      src: getAssetUrl(`${ASSETS_CDN_URL}/start-from-templates.svg`),
       subTitle: createMessage(START_FROM_TEMPLATE_SUBTITLE),
       testid: "t--start-from-template",
       title: createMessage(START_FROM_TEMPLATE_TITLE),
     },
   ];
-
-  if (isEnabledForStartWithData) {
-    selectionOptions.unshift({
-      onClick: onClickStartWithData,
-      src: getAssetUrl(`${ASSETS_CDN_URL}/Start-from-data.png`),
-      subTitle: createMessage(START_WITH_DATA_SUBTITLE),
-      testid: "t--start-from-data",
-      title: createMessage(START_WITH_DATA_TITLE),
-    });
-  }
 
   useEffect(() => {
     AnalyticsUtil.logEvent("ONBOARDING_CREATE_APP_FLOW", {

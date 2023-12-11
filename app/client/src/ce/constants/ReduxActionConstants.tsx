@@ -7,7 +7,7 @@ import type {
   GitApplicationMetadata,
 } from "@appsmith/api/ApplicationApi";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import type { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import type {
   LayoutOnLoadActionErrors,
@@ -426,6 +426,7 @@ const ActionTypes = {
   META_UPDATE_DEBOUNCED_EVAL: "META_UPDATE_DEBOUNCED_EVAL",
   RESET_CHILDREN_WIDGET_META: "RESET_CHILDREN_WIDGET_META",
   RESET_WIDGET_META: "RESET_WIDGET_META",
+  RESET_WIDGET_META_UPDATES: "RESET_WIDGET_META_UPDATES",
   RESET_WIDGET_META_EVALUATED: "RESET_WIDGET_META_EVALUATED",
   RESET_WIDGETS_META_STATE: "RESET_WIDGETS_META_STATE",
   UPDATE_WIDGET_NAME_INIT: "UPDATE_WIDGET_NAME_INIT",
@@ -898,6 +899,7 @@ const ActionTypes = {
     "IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW",
   IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW_SUCCESS:
     "IMPORT_TEMPLATE_TO_APPLICATION_ONBOARDING_FLOW_SUCCESS",
+  SET_ACTIVE_LOADING_TEMPLATE_ID: "SET_ACTIVE_LOADING_TEMPLATE_ID",
   SETUP_PAGE_INIT: "SETUP_PAGE_INIT",
   SETUP_PAGE_SUCCESS: "SETUP_PAGE_SUCCESS",
   SETUP_PUBLISHED_PAGE_INIT: "SETUP_PUBLISHED_PAGE_INIT",
@@ -906,6 +908,7 @@ const ActionTypes = {
     "SET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP",
   RESET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP:
     "RESET_CURRENT_PLUGIN_ID_FOR_CREATE_NEW_APP",
+  UPDATE_THEME_SETTING: "UPDATE_THEME_SETTING",
 };
 
 export const ReduxActionTypes = {
@@ -1242,6 +1245,7 @@ export interface ApplicationPayload {
   applicationDetail?: {
     appPositioning?: LayoutSystemTypeConfig;
     navigationSetting?: NavigationSetting;
+    themeSetting?: ThemeSetting;
   };
   collapseInvisibleWidgets?: boolean;
   evaluationVersion?: EvaluationVersion;

@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
@@ -11,7 +12,6 @@ import com.appsmith.server.exports.internal.ExportApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportApplicationService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;

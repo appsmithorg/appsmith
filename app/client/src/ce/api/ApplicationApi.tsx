@@ -7,7 +7,7 @@ import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
-import type { NavigationSetting } from "constants/AppConstants";
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 import type {
   LayoutSystemTypeConfig,
@@ -119,6 +119,7 @@ export interface UpdateApplicationPayload {
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
+    themeSetting?: ThemeSetting;
     appPositioning?: LayoutSystemTypeConfig;
   };
   forkingEnabled?: boolean;
@@ -215,6 +216,7 @@ export interface UpdateApplicationResponse {
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
     appPositioning?: LayoutSystemTypeConfig;
+    themeSetting?: ThemeSetting;
   };
 }
 

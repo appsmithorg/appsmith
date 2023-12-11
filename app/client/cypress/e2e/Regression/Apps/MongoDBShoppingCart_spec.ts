@@ -9,7 +9,7 @@ import {
   locators,
 } from "../../../support/Objects/ObjectsCore";
 
-describe("Shopping cart App", function () {
+describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
   let datasourceName: string, repoName: any;
 
   before(() => {
