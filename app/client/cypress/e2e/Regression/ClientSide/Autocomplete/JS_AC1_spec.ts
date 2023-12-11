@@ -305,8 +305,6 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
           .type(".");
 
         agHelper.GetNAssertElementText(locators._hints, "geolocation");
-
-        cy.get(".t--close-editor").click();
       });
   });
 
