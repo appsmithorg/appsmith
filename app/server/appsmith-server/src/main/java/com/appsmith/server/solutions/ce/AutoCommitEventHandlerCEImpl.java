@@ -181,11 +181,12 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private Mono<Boolean> triggerAnalyticsEvent(AutoCommitEvent autoCommitEvent, boolean isCommitted) {
         if (isCommitted) {
             Map<String, Object> analyticsProps = new HashMap<>();
-            analyticsProps.put(FieldName.APPLICATION_ID, autoCommitEvent.getApplicationId());
+            analyticsProps.put("appId", autoCommitEvent.getApplicationId());
             analyticsProps.put(FieldName.BRANCH_NAME, autoCommitEvent.getBranchName());
-            analyticsProps.put(FieldName.WORKSPACE_ID, autoCommitEvent.getWorkspaceId());
+            analyticsProps.put("orgId", autoCommitEvent.getWorkspaceId());
             analyticsProps.put("isSystemGenerated", true);
             analyticsProps.put("isAutoCommit", true);
+            analyticsProps.put("version", projectProperties.getVersion());
 
             return analyticsService
                     .sendEvent(
