@@ -148,7 +148,7 @@ jobs:
 
       # Build and test the code
       - name: Build and test
-        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != "failedtest"
+        if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         env:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
@@ -176,7 +176,7 @@ jobs:
           ./build.sh "${args[@]}"
 
       - name: Run only failed tests
-        if: inputs.skip-tests != "true" && steps.run_result.outputs.run_result == "failedtest"
+        if: inputs.skip-tests != 'true' && steps.run_result.outputs.run_result == 'failedtest'
         env:
           ACTIVE_PROFILE: test
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
