@@ -2,11 +2,13 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ConfigRepositoryCake;
 import com.appsmith.server.repositories.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.UserRepositoryCake;
@@ -24,8 +26,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepositoryCake, PermissionGroup, String>
@@ -66,7 +70,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
-        return Mono.empty(); /*
         return repository
                 .save(permissionGroup)
                 .map(pg -> {
@@ -78,7 +81,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     policySolution.addPoliciesToExistingObject(policyMap, pg);
                     return pg;
                 })
-                .flatMap(pg -> repository.save(pg));*/
+                .flatMap(pg -> repository.save(pg));
     }
 
     @Override

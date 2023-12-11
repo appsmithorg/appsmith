@@ -3,17 +3,18 @@ package com.appsmith.external.models;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.persistence.FetchType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -58,7 +59,8 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
     @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     @ToString.Exclude
     protected Set<Policy> policies;
