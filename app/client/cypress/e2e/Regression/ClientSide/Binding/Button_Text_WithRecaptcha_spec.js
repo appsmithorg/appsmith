@@ -8,6 +8,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe(
   "Binding the Button widget with Text widget using Recpatcha v3",
   { tags: ["@tag.excludeForAirgap", "@tag.Binding"] },
+  excludeForAirgap,
   function () {
     before(() => {
       _.agHelper.AddDsl("buttonRecaptchaDsl");
