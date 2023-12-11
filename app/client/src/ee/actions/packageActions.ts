@@ -18,7 +18,7 @@ export interface PublishPackagePayload {
 }
 
 export interface FetchAllPackagesInWorkspacePayload {
-  wodrkspaceId: string;
+  workspaceId: string;
 }
 
 export const fetchAllPackages = () => {

@@ -15,7 +15,7 @@ export const getPageDependencyActions = (
   const initActions = [
     ...CE.initActions,
     ...(featureFlags.showQueryModule
-      ? [fetchAllPackagesInWorkspace({ wodrkspaceId: currentWorkspaceId })]
+      ? [fetchAllPackagesInWorkspace({ workspaceId: currentWorkspaceId })]
       : []),
   ];
 

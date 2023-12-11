@@ -34,7 +34,7 @@ const BASE_URL = "v1/packages";
 
 class PackageApi extends Api {
   static async fetchAllPackages() {
-    const url = `${BASE_URL}/`;
+    const url = `${BASE_URL}`;
 
     return Api.get(url);
   }
@@ -42,7 +42,7 @@ class PackageApi extends Api {
   static async fetchAllPackagesInWorkspace(
     payload: FetchAllPackagesInWorkspacePayload,
   ): Promise<AxiosPromise<ApiResponse<FetchPackagesInWorkspaceResponse>>> {
-    const url = `${BASE_URL}?workspaceId=${payload.wodrkspaceId}`;
+    const url = `${BASE_URL}/consumables?workspaceId=${payload.workspaceId}`;
 
     return Api.get(url);
   }
