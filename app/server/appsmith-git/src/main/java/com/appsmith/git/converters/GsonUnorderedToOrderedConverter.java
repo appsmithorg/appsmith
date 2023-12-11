@@ -20,9 +20,6 @@ public class GsonUnorderedToOrderedConverter<T> implements JsonSerializer<T> {
         // Sort the set so that same elements will not end up in merge conflicts
         Gson gson = new Gson();
         if (src instanceof Set) {
-            if (CollectionUtils.isEmpty((Set<?>) src)) {
-                return null;
-            }
             return gson.toJsonTree(getOrderedResource((Set<?>) src));
         } else if (src instanceof Map) {
             return gson.toJsonTree(new TreeMap<>((Map<?, ?>) src));

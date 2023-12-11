@@ -5,6 +5,8 @@ import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.helpers.FileUtilsImpl;
@@ -199,8 +201,8 @@ public class GitFileUtils {
         copyProperties(applicationJson, applicationMetadata, keys);
         applicationReference.setMetadata(applicationMetadata);
 
-        // Remove policies from the themes
-        applicationJson.getEditModeTheme().setPolicies(null);
+        // Remove internal fields from the themes
+        removeUnwantedFieldsFromBaseDomain(applicationJson.getEditModeTheme());
 
         applicationReference.setTheme(applicationJson.getEditModeTheme());
 
@@ -340,12 +342,14 @@ public class GitFileUtils {
 
         // Send datasources
         applicationJson.getDatasourceList().forEach(datasource -> {
+            removeUnwantedFieldsFromBaseDomain(datasource);
             resourceMap.put(datasource.getName(), datasource);
         });
         applicationReference.setDatasources(new HashMap<>(resourceMap));
         resourceMap.clear();
 
         applicationJson.getCustomJSLibList().forEach(jsLib -> {
+            removeUnwantedFieldsFromBaseDomain(jsLib);
             resourceMap.put(jsLib.getUidString(), jsLib);
         });
         applicationReference.setJsLibraries(new HashMap<>(resourceMap));
@@ -456,10 +460,16 @@ public class GitFileUtils {
                 .onErrorResume(e -> Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e)));
     }
 
+    private void removeUnwantedFieldsFromBaseDomain(BaseDomain baseDomain) {
+        baseDomain.setPolicies(null);
+        baseDomain.setUserPermissions(null);
+    }
+
     private void removeUnwantedFieldsFromPage(NewPage page) {
         // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO will
         // be same, so we only commit unpublished PageDTO.
         page.setPublishedPage(null);
+        removeUnwantedFieldsFromBaseDomain(page);
     }
 
     private void removeUnwantedFieldsFromApplication(Application application) {
@@ -469,6 +479,8 @@ public class GitFileUtils {
         application.setIsPublic(null);
         application.setSlug(null);
         application.setPublishedApplicationDetail(null);
+        removeUnwantedFieldsFromBaseDomain(application);
+        // we can call the sanitiseToExportDBObject() from BaseDomain as well here
     }
 
     private void removeUnwantedFieldFromAction(NewAction action) {
@@ -476,12 +488,18 @@ public class GitFileUtils {
         // will
         // be same, so we only commit unpublished ActionDTO.
         action.setPublishedAction(null);
+        removeUnwantedFieldsFromBaseDomain(action);
+    }
+
+    private void removeUnwantedFieldFromDatasourc(Datasource datasource) {
+        removeUnwantedFieldsFromBaseDomain(datasource);
     }
 
     private void removeUnwantedFieldFromActionCollection(ActionCollection actionCollection) {
         // As we are publishing the app and then committing to git we expect the published and unpublished
         // ActionCollectionDTO will be same, so we only commit unpublished ActionCollectionDTO.
         actionCollection.setPublishedCollection(null);
+        removeUnwantedFieldsFromBaseDomain(actionCollection);
     }
 
     private ApplicationJson getApplicationJsonFromGitReference(ApplicationGitReference applicationReference) {
