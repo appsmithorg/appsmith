@@ -61,10 +61,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return queryAll(List.of(applicationCriteria), aclPermission, sort);
     }
 
-    @Override
-    public Flux<ActionCollection> findByApplicationIdAndViewMode(
-            String applicationId, boolean viewMode, AclPermission aclPermission) {
-
+    protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, boolean viewMode) {
         List<Criteria> criteria = new ArrayList<>();
 
         Criteria applicationCriterion = where(fieldName(QActionCollection.actionCollection.applicationId))
@@ -79,18 +76,20 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                     .is(null);
             criteria.add(deletedCriterion);
         }
+        return criteria;
+    }
+
+    @Override
+    public Flux<ActionCollection> findByApplicationIdAndViewMode(
+            String applicationId, boolean viewMode, AclPermission aclPermission) {
+
+        List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
         return queryAll(criteria, aclPermission);
     }
 
-    @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-            String name,
-            List<String> pageIds,
-            boolean viewMode,
-            String branchName,
-            AclPermission aclPermission,
-            Sort sort) {
+    protected List<Criteria> getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+            String branchName, boolean viewMode, String name, List<String> pageIds) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
@@ -150,6 +149,19 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                     .is(null);
             criteriaList.add(deletedCriteria);
         }
+        return criteriaList;
+    }
+
+    @Override
+    public Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+            String name,
+            List<String> pageIds,
+            boolean viewMode,
+            String branchName,
+            AclPermission aclPermission,
+            Sort sort) {
+        List<Criteria> criteriaList = this.getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+                branchName, viewMode, name, pageIds);
 
         return queryAll(criteriaList, aclPermission, sort);
     }
