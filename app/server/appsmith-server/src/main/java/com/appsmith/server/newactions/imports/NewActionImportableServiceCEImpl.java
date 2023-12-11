@@ -23,7 +23,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -101,7 +101,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (!StringUtils.isEmpty(importingMetaDTO.getApplicationId())
+                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
                             && !importingMetaDTO.getAppendToApp()
                             && CollectionUtils.isNotEmpty(importActionResultDTO.getExistingActions())) {
                         // Remove unwanted actions
@@ -162,7 +162,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     // attached to the application:
                     // Delete the invalid resources (which are not the part of applicationJsonDTO) in
                     // the git flow only
-                    if (!StringUtils.isEmpty(importingMetaDTO.getApplicationId())
+                    if (StringUtils.hasText(importingMetaDTO.getApplicationId())
                             && !importingMetaDTO.getAppendToApp()
                             && Boolean.FALSE.equals(isPartialImport)) {
                         // Remove unwanted action collections
@@ -262,7 +262,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
                                 for (NewAction newAction : importedNewActionList) {
                                     if (newAction.getUnpublishedAction() == null
-                                            || !org.springframework.util.StringUtils.hasLength(newAction
+                                            || !StringUtils.hasLength(newAction
                                                     .getUnpublishedAction()
                                                     .getPageId())) {
                                         continue;
@@ -291,8 +291,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
                                     if (publishedAction != null && publishedAction.getValidName() != null) {
                                         publishedAction.setId(newAction.getId());
-                                        if (!org.springframework.util.StringUtils.hasLength(
-                                                publishedAction.getPageId())) {
+                                        if (!StringUtils.hasLength(publishedAction.getPageId())) {
                                             publishedAction.setPageId(fallbackParentPageId);
                                         }
                                         NewPage publishedActionPage = updatePageInAction(

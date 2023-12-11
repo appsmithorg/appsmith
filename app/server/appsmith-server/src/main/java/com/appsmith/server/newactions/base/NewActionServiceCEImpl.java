@@ -1750,9 +1750,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<NewAction> findByListOfPageIds(
-            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
-        return repository.findByListOfPageIds(unpublishedPages, optionalPermission);
+    public Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
+        return repository.findByPageIds(unpublishedPages, optionalPermission);
     }
 
     @Override
