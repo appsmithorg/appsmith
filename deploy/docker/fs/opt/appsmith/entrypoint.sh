@@ -582,14 +582,6 @@ init_loading_pages(){
   export XDG_CONFIG_HOME=/appsmith-stacks/configuration
   mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
   cp templates/loading.html "$WWW_PATH"
-  if [[ -z "${APPSMITH_ALLOWED_FRAME_ANCESTORS-}" ]]; then
-    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
-    export APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
-  else
-    # Remove any extra rules that may be present in the frame ancestors value. This is to prevent this env variable from
-    # being used to inject more rules to the CSP header. If needed, that should be supported/solved separately.
-    export APPSMITH_ALLOWED_FRAME_ANCESTORS="${APPSMITH_ALLOWED_FRAME_ANCESTORS%;*}"
-  fi
   node caddy-reconfigure.mjs
   /opt/caddy/caddy start --config "$TMP/Caddyfile"
 }
