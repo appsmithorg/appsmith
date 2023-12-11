@@ -68,7 +68,7 @@ jobs:
         continue-on-error: true
         id: files
         run: |
-          git fetch origin --prune --tags
+          git fetch origin release
           git diff --name-only --diff-filter=A remotes/origin/release...${{ github.ref_name }} -- 'app/client/cypress/e2e' > diff
           echo "files_added=$(cat diff)" >> $GITHUB_OUTPUT
           cat diff
