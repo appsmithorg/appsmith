@@ -174,26 +174,29 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                 .finishAutoCommit(autoCommitEvent.getApplicationId())
                 .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
                 .flatMap(r -> releaseFileLock(autoCommitEvent.getApplicationId()))
-                .then(triggerAnalyticsEvent(autoCommitEvent, isCommitMade, exceptionCaught))
+                .then(triggerAnalyticsEvent(autoCommitEvent, isCommitMade))
                 .thenReturn(isCommitMade);
     }
 
-    private Mono<Boolean> triggerAnalyticsEvent(
-            AutoCommitEvent autoCommitEvent, boolean isCommitted, boolean exceptionOccurred) {
-        Map<String, Object> analyticsProps = new HashMap<>();
-        analyticsProps.put(FieldName.APPLICATION_ID, autoCommitEvent.getApplicationId());
-        analyticsProps.put(FieldName.BRANCH_NAME, autoCommitEvent.getBranchName());
-        analyticsProps.put(FieldName.WORKSPACE_ID, autoCommitEvent.getWorkspaceId());
-        analyticsProps.put("addedCommit", isCommitted);
-        analyticsProps.put("exceptionOccurred", exceptionOccurred);
+    private Mono<Boolean> triggerAnalyticsEvent(AutoCommitEvent autoCommitEvent, boolean isCommitted) {
+        if (isCommitted) {
+            Map<String, Object> analyticsProps = new HashMap<>();
+            analyticsProps.put(FieldName.APPLICATION_ID, autoCommitEvent.getApplicationId());
+            analyticsProps.put(FieldName.BRANCH_NAME, autoCommitEvent.getBranchName());
+            analyticsProps.put(FieldName.WORKSPACE_ID, autoCommitEvent.getWorkspaceId());
+            analyticsProps.put("isSystemGenerated", true);
+            analyticsProps.put("isAutoCommit", true);
 
-        return analyticsService
-                .sendEvent(
-                        AnalyticsEvents.GIT_AUTO_COMMIT.getEventName(),
-                        autoCommitEvent.getAuthorEmail(),
-                        analyticsProps,
-                        Boolean.TRUE)
-                .thenReturn(Boolean.TRUE);
+            return analyticsService
+                    .sendEvent(
+                            AnalyticsEvents.GIT_COMMIT.getEventName(),
+                            autoCommitEvent.getAuthorEmail(),
+                            analyticsProps,
+                            Boolean.TRUE)
+                    .thenReturn(Boolean.TRUE);
+        } else {
+            return Mono.just(Boolean.FALSE);
+        }
     }
 
     /**

@@ -53,7 +53,6 @@ public enum AnalyticsEvents {
     GIT_LIST_LOCAL_BRANCH,
     GIT_MERGE_CHECK,
     GIT_FETCH,
-    GIT_AUTO_COMMIT,
     AUTHENTICATION_METHOD_CONFIGURATION("Authentication Method Configured"),
     INSTANCE_SETTING_UPDATED,
     GENERATE_SSH_KEY("generate_SSH_KEY"),
