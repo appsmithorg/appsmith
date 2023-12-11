@@ -12,7 +12,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.bson.internal.Base64;
+import java.util.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -116,7 +116,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
 
         if (HEADER.equals(oAuth2.getRefreshTokenClientCredentialsLocation())) {
             byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
-            final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
+            final String authorizationHeader = "Basic " + Base64.getEncoder().encodeToString(clientCredentials);
             webClientBuilder.defaultHeader("Authorization", authorizationHeader);
         }
 
