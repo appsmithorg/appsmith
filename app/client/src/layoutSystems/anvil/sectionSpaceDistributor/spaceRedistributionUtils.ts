@@ -351,7 +351,7 @@ export const redistributeSpaceWithDynamicMinWidth = (
     const minColumns =
       isSmallestZoneLargeRelatively &&
       spaceDistributedArray[i] >= 0.7 * largestZoneSpace
-        ? Math.round(0.75 * spaceDistributedArray[i])
+        ? Math.round(0.7 * spaceDistributedArray[i])
         : ZoneMinColumnWidth;
     const adjustedSpace = Math.max(
       Math.round(newlyAdjustedValues[i]),
