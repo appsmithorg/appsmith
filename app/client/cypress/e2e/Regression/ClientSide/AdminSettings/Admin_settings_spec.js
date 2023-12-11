@@ -6,7 +6,7 @@ const {
   GOOGLE_SIGNUP_SETUP_DOC,
 } = require("../../../../../src/constants/ThirdPartyConstants");
 
-describe.skip("Admin settings page", { tags: ["@tag.Settings"] }, function () {
+describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },
