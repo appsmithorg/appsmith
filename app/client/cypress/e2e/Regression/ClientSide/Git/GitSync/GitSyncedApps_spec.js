@@ -26,6 +26,7 @@ import {
   draggableWidgets,
   locators,
   apiPage,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../../support/Pages/PageList";
 
@@ -167,14 +168,13 @@ describe("Git sync apps", function () {
         .click({ force: true })
         .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
-      cy.get(".t--widget-inputwidgetv2").should("exist");
-      cy.EnableAllCodeEditors();
-      cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
-        .last()
-        .click({ force: true })
-        .type("{{get_data.data.headers.Info}}", {
-          parseSpecialCharSequences: false,
-        });
+      propPane.UpdatePropertyFieldValue(
+        "Default value",
+        "{{get_data.data.headers.Info}}",
+      );
+      agHelper.WaitUntilToastDisappear(
+        "will be executed automatically on page load",
+      );
       // clone the page from page settings
       cy.get(`.t--entity-item:contains(${newPage})`).within(() => {
         cy.get(".t--context-menu").click({ force: true });
