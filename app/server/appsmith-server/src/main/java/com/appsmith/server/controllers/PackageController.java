@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Slf4j
 @RequestMapping(Url.PACKAGE_URL)
 @RestController
@@ -56,6 +58,15 @@ public class PackageController {
 
     @JsonView(Views.Public.class)
     @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<List<PackageDTO>>> getAllPackages() {
+        return crudPackageService
+                .getAllPackages()
+                .map(packageDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), packageDTOS, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/consumables")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseDTO<ConsumablePackagesAndModulesDTO>> getAllConsumablePackages(
             @RequestParam String workspaceId) {
