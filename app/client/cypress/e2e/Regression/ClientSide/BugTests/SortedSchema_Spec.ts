@@ -8,8 +8,8 @@ describe("Datasource structure schema should be sorted", () => {
     dataSources.CreateDataSource("Postgres");
     assertHelper
       .WaitForNetworkCall(`@getDatasourceStructure`)
-      .then(async (response) => {
-        const tables: any[] = response?.body.data?.tables || [];
+      .then((response) => {
+        const tables: { name: string }[] = response?.body.data?.tables || [];
         const isCorrectlyOrdered = tables.every((table, index, array) => {
           if (index === 0) {
             return true; // The first element is always considered sorted
@@ -29,8 +29,8 @@ describe("Datasource structure schema should be sorted", () => {
     dataSources.CreateDataSource("MySql");
     assertHelper
       .WaitForNetworkCall(`@getDatasourceStructure`)
-      .then(async (response) => {
-        const tables: any[] = response?.body.data?.tables || [];
+      .then((response) => {
+        const tables: { name: string }[] = response?.body.data?.tables || [];
         const isCorrectlyOrdered = tables.every((table, index, array) => {
           if (index === 0) {
             return true; // The first element is always considered sorted
@@ -46,5 +46,4 @@ describe("Datasource structure schema should be sorted", () => {
         expect(isCorrectlyOrdered).to.equal(true);
       });
   });
-
 });
