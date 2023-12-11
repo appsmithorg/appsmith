@@ -47,8 +47,8 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import {
   getDefaultSpaceDistributed,
-  redistributeSpaceWithRatios,
-} from "layoutSystems/anvil/sectionSpaceDistributor/utils";
+  redistributeSpaceWithDynamicMinWidth,
+} from "layoutSystems/anvil/sectionSpaceDistributor/spaceRedistributionUtils";
 import { SectionColumns } from "layoutSystems/anvil/utils/constants";
 
 export function* getMainCanvasLastRowHighlight() {
@@ -410,12 +410,13 @@ function* updateAndSaveAnvilLayoutSaga(
         zonesToRemove.forEach((eachZone) => {
           const zoneProps = currentWidgets[eachZone];
           const index = previousZoneOrder.indexOf(eachZone);
-          const updatedDistributedSpaceArray = redistributeSpaceWithRatios(
-            currentDistributedSpace,
-            previousZoneOrder,
-            -zoneProps.flexGrow || commonSpace,
-            index,
-          );
+          const updatedDistributedSpaceArray =
+            redistributeSpaceWithDynamicMinWidth(
+              currentDistributedSpace,
+              previousZoneOrder,
+              -zoneProps.flexGrow || commonSpace,
+              index,
+            );
           updatedDistributedSpace = updatedZoneOrder.reduce(
             (result, each, index) => {
               return {
@@ -429,12 +430,13 @@ function* updateAndSaveAnvilLayoutSaga(
         zonesToAdd.forEach((eachZone) => {
           const zoneProps = widgets[eachZone];
           const index = updatedZoneOrder.indexOf(eachZone);
-          const updatedDistributedSpaceArray = redistributeSpaceWithRatios(
-            currentDistributedSpace,
-            previousZoneOrder,
-            zoneProps.flexGrow || commonSpace,
-            index,
-          );
+          const updatedDistributedSpaceArray =
+            redistributeSpaceWithDynamicMinWidth(
+              currentDistributedSpace,
+              previousZoneOrder,
+              zoneProps.flexGrow || commonSpace,
+              index,
+            );
           updatedDistributedSpace = updatedZoneOrder.reduce(
             (result, each, index) => {
               return {

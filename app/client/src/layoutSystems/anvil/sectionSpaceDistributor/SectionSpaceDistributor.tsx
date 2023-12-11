@@ -6,7 +6,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
 import { getWidgetByID } from "sagas/selectors";
-import { getDefaultSpaceDistributed } from "./utils";
+import { getDefaultSpaceDistributed } from "./spaceRedistributionUtils";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;

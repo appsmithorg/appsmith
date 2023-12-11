@@ -14,8 +14,8 @@ import { batchUpdateWidgetProperty } from "actions/controlActions";
 import { saveAnvilLayout } from "../../actions/saveLayoutActions";
 import {
   getDefaultSpaceDistributed,
-  redistributeSpaceWithRatios,
-} from "layoutSystems/anvil/sectionSpaceDistributor/utils";
+  redistributeSpaceWithDynamicMinWidth,
+} from "layoutSystems/anvil/sectionSpaceDistributor/spaceRedistributionUtils";
 import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { ZoneMinColumnWidth } from "layoutSystems/anvil/utils/constants";
 
@@ -62,7 +62,7 @@ function* updateZonesCountOfSectionSaga(
       const updatedZoneOrder: string[] = updatedWidgets[
         sectionWidgetId
       ].layout[0].layout.map((each: WidgetLayoutProps) => each.widgetId);
-      const updatedDistributedSpaceArray = redistributeSpaceWithRatios(
+      const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
         currentDistributedSpace,
         previousZoneOrder,
         currentZoneCount > zoneCount ? -ZoneMinColumnWidth : ZoneMinColumnWidth,

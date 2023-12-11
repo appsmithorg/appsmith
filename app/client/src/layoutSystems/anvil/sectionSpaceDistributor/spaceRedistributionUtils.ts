@@ -240,3 +240,144 @@ export const redistributeSpaceWithRatios = (
   // Return the resulting array after redistribution
   return spaceDistributedArray;
 };
+
+/**
+ * Redistributes space within a section while preserving zone ratios and minimum column width.
+ *
+ * @param spaceDistributedObj - An object containing the current distribution of space in each zone.
+ * @param zoneOrder - An array specifying the order of zones in the section.
+ * @param zoneChangeFactor - The factor by which space is added or removed.
+ * @param index - The index where the space is added or removed.
+ * @param addedViaStepper - A flag indicating whether the space change is initiated via a stepper.
+ * @returns An array representing the redistributed space in each zone after the operation.
+ */
+export const redistributeSpaceWithDynamicMinWidth = (
+  spaceDistributedObj: {
+    [key: string]: number;
+  },
+  zoneOrder: string[],
+  zoneChangeFactor: number,
+  index: number,
+  addedViaStepper?: boolean,
+): number[] => {
+  // Extract the current distribution of space into an array
+  const spaceDistributedArray = zoneOrder.map(
+    (zone) => spaceDistributedObj[zone],
+  );
+
+  // Check if there is only one zone in the section
+  if (spaceDistributedArray.length === 1) {
+    // Delegate to the original redistribution function for a single zone
+    return redistributeSectionSpace(
+      spaceDistributedObj,
+      zoneOrder,
+      zoneChangeFactor,
+      index,
+      addedViaStepper,
+    );
+  }
+
+  // Check if the absolute value of the space change factor is less than the minimum column width
+  if (Math.abs(zoneChangeFactor) < ZoneMinColumnWidth)
+    return spaceDistributedArray;
+  const largestZoneThreshold =
+    0.8 * (SectionColumns / spaceDistributedArray.length);
+  const largestZoneIndex = spaceDistributedArray.findIndex(
+    (each: number) =>
+      each === Math.max(...spaceDistributedArray) &&
+      each >= largestZoneThreshold,
+  );
+  const largestZoneSpace = spaceDistributedArray[largestZoneIndex];
+
+  // Calculate the maximum space that can be added or removed without violating the minimum column width
+
+  const smallestZone = Math.min(...spaceDistributedArray);
+  const isSmallestZoneLargeRelatively = smallestZone > 0.7 * largestZoneSpace;
+  const spaceWelcomed = isSmallestZoneLargeRelatively
+    ? Math.max(smallestZone - 2, ZoneMinColumnWidth)
+    : SectionColumns - ZoneMinColumnWidth * spaceDistributedArray.length;
+  const zoneChange =
+    zoneChangeFactor >= spaceWelcomed && zoneChangeFactor > 0
+      ? spaceWelcomed
+      : zoneChangeFactor;
+
+  // Calculate the space that would result in an even distribution
+  const evenDistributionSpace = SectionColumns / spaceDistributedArray.length;
+  const evenlyDistributedLayout =
+    (addedViaStepper || spaceDistributedArray.length > 1) &&
+    spaceDistributedArray.every((each) => each === evenDistributionSpace);
+
+  // Add or remove space based on the calculated factors
+  if (zoneChange > 0) {
+    spaceDistributedArray.splice(index, 0, zoneChange);
+  } else {
+    spaceDistributedArray.splice(index, 1);
+  }
+
+  // Check if the layout should be evenly distributed
+  if (evenlyDistributedLayout) {
+    const updatedEvenDistributionSpace =
+      SectionColumns / spaceDistributedArray.length;
+
+    // Return an array with evenly distributed space
+    return new Array(spaceDistributedArray.length).fill(
+      Math.round(updatedEvenDistributionSpace),
+    );
+  }
+
+  // Calculate the total existing space before the change
+  const totalExistingSpace = spaceDistributedArray.reduce(
+    (sum, value) => sum + value,
+    0,
+  );
+
+  // Calculate the adjustment ratio to distribute space based on existing ratios
+  const adjustmentRatio = SectionColumns / totalExistingSpace;
+
+  // Calculate the newly adjusted values based on the adjustment ratio
+  const newlyAdjustedValues = spaceDistributedArray.map(
+    (value) => value * adjustmentRatio,
+  );
+
+  // Iterate over each zone and ensure each number is not less than ZoneMinColumnWidth
+  for (let i = 0; i < spaceDistributedArray.length; i++) {
+    const minColumns =
+      spaceDistributedArray[i] >= 0.7 * largestZoneSpace
+        ? SectionColumns / spaceDistributedArray.length
+        : ZoneMinColumnWidth;
+    const adjustedSpace = Math.max(
+      Math.round(newlyAdjustedValues[i]),
+      minColumns,
+    );
+    spaceDistributedArray[i] = adjustedSpace;
+  }
+
+  // Adjust for rounding errors
+  const roundingError =
+    SectionColumns -
+    spaceDistributedArray.reduce((sum, value) => sum + value, 0);
+
+  // Calculate the rounding error distribution among the zones
+  const roundOffForBiggestSpace =
+    roundingError % (spaceDistributedArray.length - 1);
+  const evenDistributionSpaceWithRoundingError =
+    (roundingError - roundOffForBiggestSpace) /
+    (spaceDistributedArray.length - 1);
+
+  // Distribute the rounding error among zones based on index position
+  if (evenDistributionSpaceWithRoundingError > 0) {
+    for (let i = 0; i < spaceDistributedArray.length; i++) {
+      if (i !== index) {
+        spaceDistributedArray[i] += evenDistributionSpaceWithRoundingError;
+      }
+    }
+  }
+  const biggestSpaceIndex = spaceDistributedArray.indexOf(
+    Math.max(...spaceDistributedArray),
+  );
+  // Adjust the space at the specified index for the remaining rounding error
+  spaceDistributedArray[biggestSpaceIndex] += roundOffForBiggestSpace;
+
+  // Return the resulting array after redistribution
+  return spaceDistributedArray;
+};
