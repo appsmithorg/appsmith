@@ -14,7 +14,7 @@ import EditorNavigation, {
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Autocomplete bug fixes", function () {
+describe("Autocomplete bug fixes", { tags: ["@tag.JS"] }, function () {
   it("1. Bug #12790 Verifies if selectedRow is in best match", function () {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
     table.AddSampleTableData();
@@ -92,8 +92,8 @@ describe("Autocomplete bug fixes", function () {
   });
 
   it(
-    "excludeForAirgap",
     "7. Installed library should show up in autocomplete",
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
@@ -107,8 +107,8 @@ describe("Autocomplete bug fixes", function () {
   );
 
   it(
-    "excludeForAirgap",
     "8. No autocomplete for Removed libraries",
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       entityExplorer.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
       AppSidebar.navigate(AppSidebarButton.Libraries);

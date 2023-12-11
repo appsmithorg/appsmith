@@ -1,7 +1,11 @@
 import React, { forwardRef } from "react";
 import type { HTMLAttributes } from "react";
 import { useDOMRef } from "@react-spectrum/utils";
-import type { DOMRef, SpectrumHelpTextProps } from "@react-types/shared";
+import type {
+  DOMRef,
+  SpectrumHelpTextProps,
+  ValidationState,
+} from "@react-types/shared";
 
 interface HelpTextProps extends Omit<SpectrumHelpTextProps, "showErrorIcon"> {
   /** Props for the help text description element. */
@@ -10,6 +14,8 @@ interface HelpTextProps extends Omit<SpectrumHelpTextProps, "showErrorIcon"> {
   errorMessageProps?: HTMLAttributes<HTMLElement>;
   /** classname  */
   className?: string;
+  /** validation state for help text */
+  validationState?: ValidationState;
 }
 
 function _HelpText(props: HelpTextProps, ref: DOMRef<HTMLDivElement>) {

@@ -458,7 +458,7 @@ function setup_auto_heal(){
    if [[ ${APPSMITH_AUTO_HEAL-} = 1 ]]; then
      # By default APPSMITH_AUTO_HEAL=0
      # To enable auto heal set APPSMITH_AUTO_HEAL=1
-     bash /opt/appsmith/auto_heal.sh >> /appsmith-stacks/logs/cron/auto_heal.log 2>&1 &
+     bash /opt/appsmith/auto_heal.sh $APPSMITH_AUTO_HEAL_CURL_TIMEOUT >> /appsmith-stacks/logs/cron/auto_heal.log 2>&1 &
    fi
 }
 

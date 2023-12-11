@@ -180,7 +180,8 @@ public class ThemeImportableServiceCETest {
                                 new MappedImportableResourcesDTO(),
                                 null,
                                 Mono.just(application),
-                                applicationJson)
+                                applicationJson,
+                                false)
                         .thenReturn(savedApplication.getId()))
                 .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
 
@@ -224,7 +225,8 @@ public class ThemeImportableServiceCETest {
                                     new MappedImportableResourcesDTO(),
                                     null,
                                     Mono.just(savedApplication),
-                                    applicationJson)
+                                    applicationJson,
+                                    false)
                             .thenReturn(savedApplication.getId());
                 })
                 .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
