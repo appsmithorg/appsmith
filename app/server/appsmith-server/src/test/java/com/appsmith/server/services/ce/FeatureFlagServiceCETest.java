@@ -41,7 +41,6 @@ import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATU
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -89,9 +88,7 @@ public class FeatureFlagServiceCETest {
     @WithUserDetails(value = "api_user")
     public void testNullFeatureCheck() {
         StepVerifier.create(featureFlagService.check(null))
-                .assertNext(result -> {
-                    assertFalse(result);
-                })
+                .assertNext(Assertions::assertFalse)
                 .verifyComplete();
     }
 
@@ -114,12 +111,12 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertNull(result.get(TENANT_TEST_FEATURE.toString()));
+                    assertTrue(result.get(TENANT_TEST_FEATURE.toString()));
                 })
                 .verifyComplete();
 
         Map<String, Boolean> tenantFeatures = new HashMap<>();
-        tenantFeatures.put(TENANT_TEST_FEATURE.toString(), true);
+        tenantFeatures.put(TENANT_TEST_FEATURE.toString(), false);
         FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
         responseDTO.setFeatures(tenantFeatures);
         doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
@@ -127,7 +124,7 @@ public class FeatureFlagServiceCETest {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.get(TENANT_TEST_FEATURE.toString()));
+                    assertFalse(result.get(TENANT_TEST_FEATURE.toString()));
                 })
                 .verifyComplete();
     }
@@ -139,9 +136,7 @@ public class FeatureFlagServiceCETest {
         Mono<CachedFlags> cachedFlagsMono = cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, dummyUser);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("featureFlag:" + userIdentifier);
         StepVerifier.create(cachedFlagsMono.then(hasKeyMono))
-                .assertNext(isKeyPresent -> {
-                    assertTrue(isKeyPresent);
-                })
+                .assertNext(Assertions::assertTrue)
                 .verifyComplete();
     }
 
@@ -151,9 +146,7 @@ public class FeatureFlagServiceCETest {
         Mono<Void> evictCache = cacheableFeatureFlagHelper.evictUserCachedFlags(userIdentifier);
         Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("featureFlag:" + userIdentifier);
         StepVerifier.create(evictCache.then(hasKeyMono))
-                .assertNext(isKeyPresent -> {
-                    assertFalse(isKeyPresent);
-                })
+                .assertNext(Assertions::assertFalse)
                 .verifyComplete();
     }
 
@@ -288,21 +281,22 @@ public class FeatureFlagServiceCETest {
 
         // Assert that the cached feature flags are empty before the remote fetch
         CachedFeatures cachedFeaturesBeforeRemoteCall = featureFlagService.getCachedTenantFeatureFlags();
-        assertTrue(cachedFeaturesBeforeRemoteCall.getFeatures().isEmpty());
+        assertThat(cachedFeaturesBeforeRemoteCall.getFeatures().size()).isEqualTo(1);
+        assertTrue(cachedFeaturesBeforeRemoteCall.getFeatures().get(TENANT_TEST_FEATURE.name()));
 
         Map<String, Boolean> tenantFeatures = new HashMap<>();
-        tenantFeatures.put(TENANT_TEST_FEATURE.name(), true);
+        tenantFeatures.put(TENANT_TEST_FEATURE.name(), false);
         FeaturesResponseDTO responseDTO = new FeaturesResponseDTO();
         responseDTO.setFeatures(tenantFeatures);
         doReturn(Mono.just(responseDTO)).when(cacheableFeatureFlagHelper).getRemoteFeaturesForTenant(any());
         StepVerifier.create(featureFlagService.getTenantFeatures())
                 .assertNext(result -> {
                     assertNotNull(result);
-                    assertTrue(result.get(TENANT_TEST_FEATURE.name()));
+                    assertFalse(result.get(TENANT_TEST_FEATURE.name()));
 
                     // Check if the cached feature flags are updated after the remote fetch
                     CachedFeatures cachedFeaturesAfterRemoteCall = featureFlagService.getCachedTenantFeatureFlags();
-                    assertTrue(cachedFeaturesAfterRemoteCall.getFeatures().get(TENANT_TEST_FEATURE.name()));
+                    assertFalse(cachedFeaturesAfterRemoteCall.getFeatures().get(TENANT_TEST_FEATURE.name()));
                 })
                 .verifyComplete();
     }

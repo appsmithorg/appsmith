@@ -93,25 +93,22 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
                                 if (cachedFlags.getRefreshedAt().until(Instant.now(), ChronoUnit.MINUTES)
                                         < FEATURE_FLAG_CACHE_TIME_MIN) {
                                     return Mono.just(cachedFlags.getFlags());
-                                } else {
-                                    // empty the cache for the userIdentifier as expired
-                                    return cacheableFeatureFlagHelper
-                                            .evictUserCachedFlags(userIdentifier)
-                                            .then(cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, user))
-                                            .flatMap(cachedFlagsUpdated -> {
-                                                // In case the retrieval of the latest flags from CS encounters an
-                                                // error, the
-                                                // previous flags will serve as a fallback value.
-                                                if (cachedFlagsUpdated == null
-                                                        || CollectionUtils.isNullOrEmpty(
-                                                                cachedFlagsUpdated.getFlags())) {
-                                                    return cacheableFeatureFlagHelper
-                                                            .updateUserCachedFlags(userIdentifier, cachedFlags)
-                                                            .map(CachedFlags::getFlags);
-                                                }
-                                                return Mono.just(cachedFlagsUpdated.getFlags());
-                                            });
                                 }
+                                // empty the cache for the userIdentifier as expired
+                                return cacheableFeatureFlagHelper
+                                        .evictUserCachedFlags(userIdentifier)
+                                        .then(cacheableFeatureFlagHelper.fetchUserCachedFlags(userIdentifier, user))
+                                        .flatMap(cachedFlagsUpdated -> {
+                                            // In case the retrieval of the latest flags from CS encounters an error,
+                                            // the previous flags will serve as a fallback value.
+                                            if (cachedFlagsUpdated == null
+                                                    || CollectionUtils.isNullOrEmpty(cachedFlagsUpdated.getFlags())) {
+                                                return cacheableFeatureFlagHelper
+                                                        .updateUserCachedFlags(userIdentifier, cachedFlags)
+                                                        .map(CachedFlags::getFlags);
+                                            }
+                                            return Mono.just(cachedFlagsUpdated.getFlags());
+                                        });
                             });
                 })
                 .switchIfEmpty(Mono.just(new HashMap<>()));
@@ -161,9 +158,7 @@ public class FeatureFlagServiceCEImpl implements FeatureFlagServiceCE {
     public Mono<Map<String, Boolean>> getTenantFeatures() {
         return tenantService
                 .getDefaultTenantId()
-                .flatMap(defaultTenantId -> {
-                    return cacheableFeatureFlagHelper.fetchCachedTenantFeatures(defaultTenantId);
-                })
+                .flatMap(cacheableFeatureFlagHelper::fetchCachedTenantFeatures)
                 .map(cachedFeatures -> {
                     cachedTenantFeatureFlags = cachedFeatures;
                     return cachedFeatures.getFeatures();
